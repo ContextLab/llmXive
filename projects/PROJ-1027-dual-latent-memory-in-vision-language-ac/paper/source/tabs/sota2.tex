@@ -1,0 +1,40 @@
+\begin{table}[t]
+\centering
+\caption{
+\small\textbf{Quantitative comparison results on LIBERO~\citep{liu2023libero} (\S\ref{sec:libero}) with Franka robot.}
+Success rates (\%) are reported across five suites.
+$^{*}$ indicates methods using additional proprioceptive and wrist-camera inputs.
+For methods without LIBERO-90 results, we report the average over the first four suites.
+}
+\vspace{-5pt}
+\label{tab:libero}
+\resizebox{\linewidth}{!}{
+\setlength\tabcolsep{7pt}
+\renewcommand\arraystretch{1.0}
+\begin{tabular}{l|c|ccccc|c}
+\thickhline
+\rowcolor{mygray}
+Method & Publication& Spatial & Object & Goal & Long-10 & Long-90 & \makecell{Avg. Success} \\
+\hline
+\hline
+Diffusion Policy~\citep{chi2025diffusion} & RSS'23 & 78.3 & 92.5 & 68.3 & 50.5 & -- & 72.4 \\
+Octo~\citep{octo_2023} & RSS'24 & 78.9 & 85.7 & 84.6 & 51.1 & -- & 75.1 \\
+UniACT~\citep{zheng2025universal} & CVPR'25 & 77.0 & 87.0 & 77.0 & 70.0 & 73.0 & 76.8 \\
+SpatialVLA~\citep{qu2025spatialvla} & RSS'25 & 88.2 & 89.9 & 78.6 & 55.5 & 46.2 & 71.7 \\
+OpenVLA~\citep{kim2025openvla} & CoRL'25 & 84.7 & 88.4 & 79.2 & 53.7 & 73.5 & 75.9 \\
+CoT-VLA~\citep{zhao2025cot} & CVPR'25 & 87.5 & 91.6 & 87.6 & 69.0 & -- & 83.9 \\
+$\pi_0$-FAST$^{*}$~\citep{pertsch2025fast} & ArXiv'25 & 96.4 & 96.8 & 88.6 & 60.2 & 83.1 & 85.0 \\
+CogACT~\citep{li2024cogact} & ArXiv'24 & 97.2 & 98.0 & 90.2 & 88.8 & 92.1 & 93.2 \\
+$\pi_0^{*}$~\citep{black2024pi_0} & CoRL'25 & 96.8 & 98.8 & 95.8 & 85.2 & -- & 94.2 \\
+ThinkAct~\citep{huang2026thinkact}    & NeurIPS'25&  88.3 &91.4& 87.1 &70.9 &-- &84.4 \\
+MemoryVLA~\citep{shi2025memoryvla}         & ICLR'26 & 98.4& 98.4& 96.4 &93.4& 95.6& 96.5 \\
+Fast-ThinkAct~\citep{huang2026fast}   & CVPR'26&92.0& 97.2& 90.2 &79.4& -- &89.7 \\
+SemanticVLA~\citep{ni2026semanticvla}   & CVPR'26&98.0& 98.6& 96.8& 94.4& -- &97.0 \\
+LARA~\citep{liu2026lara}   & ICML'26&96.5& 97.5& 96.0 &92.5& -- & 95.6\\
+\hline
+\ourmethod~\textbf{(Ours)} & -- & 98.8 & 99.0 & 97.2 & 95.8& 97.0& \textbf{97.6}\\
+\hline
+\end{tabular}
+}
+\vspace{-10pt}
+\end{table}

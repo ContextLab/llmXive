@@ -1,0 +1,212 @@
+\documentclass{article} % For LaTeX2e
+
+% ICLR style
+\usepackage{iclr2026_conference,times}
+\setcitestyle{square,numbers,sort&compress,citesep={,}}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+\iclrfinalcopy %取消匿名，取消行数
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+
+\usepackage{url}
+\usepackage{amsthm}
+% \usepackage{ulem}
+
+%\usepackage[dvipsnames]{xcolor}
+
+
+\usepackage[most]{tcolorbox}
+\usepackage{wrapfig}
+\usepackage{multirow}
+% \usepackage{makecell}
+\usepackage{graphicx,xcolor,float}
+\usepackage{subcaption}
+\usepackage{threeparttable}
+% \usepackage{algorithm}
+% \usepackage[noend]{algorithmic}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{colortbl}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{arydshln}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{makecell}
+\usepackage{float} 
+\usepackage{mathtools}
+\usepackage{subcaption}
+\usepackage{bbding}
+% \usepackage{subcaption}
+\usepackage{makecell}
+\usepackage{tabularx}
+\usepackage{amssymb,mathrsfs,amsmath}
+% \newtheorem{theorem}{Theorem}
+\usepackage{pifont}
+\usepackage{xcolor}
+\usepackage{bbm}
+
+\usepackage{fontawesome5}
+
+\usepackage{listings}
+
+% ------------------------------------------------
+% Custom commands
+% ------------------------------------------------
+
+\DeclareRobustCommand{\ourmethod}{\texttt{\textbf{LaMem-VLA}}\xspace}
+
+\newcommand{\ie}{\textit{i}.\textit{e}.}
+\newcommand{\eg}{\textit{e}.\textit{g}.}
+\newcommand{\etal}{\textit{et al}.}
+\newcommand{\etc}{\textit{etc}.}
+\newcommand{\cf}{\textit{cf}.}
+\newcommand{\resp}{\textit{resp}.}
+
+\newcommand{\cmark}{\ensuremath{\surd}}
+\newcommand{\xmark}{\ensuremath{\times}}
+
+\makeatletter
+\newcommand{\thickhline}{%
+    \noalign{\ifnum0=`}\fi\hrule height 1pt
+    \futurelet\reserved@a\@xhline
+}
+\newcommand{\rmnum}[1]{\romannumeral #1}
+\newcommand{\Rmnum}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+\newcommand{\circnum}[1]{%
+  \tikz[baseline=(char.base)]{%
+    \node[shape=circle,draw,inner sep=1pt,line width=0.5pt,font=\small] (char) {#1};}}
+
+\newcommand{\sssection}[1]{\noindent\textbf{#1}}
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\pub}[1]{\color{gray}{\tiny{[{#1}]}}}
+
+% ------------------------------------------------
+% Colors
+% ------------------------------------------------
+
+\definecolor{myviolet}{RGB}{168,77,153}
+\definecolor{myblue}{RGB}{60,118,185}
+\definecolor{mygreen}{RGB}{70,145,80}
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+
+\definecolor{cred}{HTML}{FF6B6B}
+\definecolor{cyellow}{HTML}{FEC260}
+\definecolor{cgreen}{HTML}{70AD47}
+\definecolor{cblue}{HTML}{4D96FF}
+\definecolor{cpurple}{HTML}{2A0944}
+\definecolor{ggray}{RGB}{127,127,127}
+\definecolor{aliceblue}{rgb}{0.94,0.97,1.0}
+\definecolor{mygray}{gray}{.9}
+\definecolor{mydarkblue}{rgb}{0,0.08,0.45}
+\definecolor{chatgptgreen}{RGB}{16,163,127}
+
+% ------------------------------------------------
+% Theorem environments
+% ------------------------------------------------
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+
+% ------------------------------------------------
+% Other settings
+% ------------------------------------------------
+
+
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\def\logo{\makebox[0pt][l]{%
+    \hspace{0pt}\raisebox{-0.2ex}{\includegraphics[height=20pt]{pic/evo.png}}}}
+
+\newcommand{\obsbox}[1]{%
+    \begin{tcolorbox}[
+        colframe=black!70,
+        colback=cyan!4,
+        boxrule=1pt,
+        arc=2mm,
+        top=1pt,
+        bottom=2pt,
+        left=3pt,
+        right=3pt,
+        boxsep=1pt
+    ]
+        #1
+    \end{tcolorbox}
+}
+\title{\ourmethod: Dual Latent Memory  in Vision-Language-Action Models for Robotic Manipulation}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Hongyu Qu$^{1}$, Jianzhe Gao$^{2}$, Xiaobin Hu$^{3}$, Shaohuan Yang$^{1}$, Xinlei Yu$^{3}$, \\ \textbf{Rui Yan$^{1}$}, \textbf{Wenguan Wang$^{2}$}, \textbf{Xiangbo Shu$^{1}$}, \textbf{Shuicheng Yan$^{3}$}\\
+  {\small $^1$Nanjing University of Science and Technology \quad $^2$Zhejiang University}\\ 
+  {\small $^3$ National University of Singapore} \vspace{.5em} \\
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+\begin{abstract}
+% 在VLA考虑记忆的重要性
+% 当前方法的做法和问题
+% 我们提出了xx
+Mainstream Vision-Language-Action (VLA) models predict actions primarily from the current observation under a Markovian assumption, thus struggling with long-horizon, temporally dependent tasks. 
+Existing memory-augmented VLAs either expand the observation window or retrieve history from the memory bank as auxiliary policy-side context.
+However, they leave memory outside the native latent embedding space of VLA reasoning, preventing historical experience from being fluidly interleaved with multimodal reasoning and action formation.
+To this end, we introduce \ourmethod, a latent-memory-native framework that reconstructs historical experience into latent memory tokens and directly interweaves them with VLA reasoning. 
+At its core, \ourmethod introduces four coordinated components: 
+\textit{\textbf{(i)}} a \textbf{curator} that organizes historical experience into two complementary short-term and long-term memory vaults; \textit{\textbf{(ii)}} a \textbf{seeker} that queries both vaults using the multimodal cognition to retrieve context-relevant evidence; \textit{\textbf{(iii)}} a \textbf{condenser} that reconstructs the retrieved evidence into compact short-term and long-term latent memory tokens; and \textit{\textbf{(iv)}} a \textbf{weaver} that injects these memory tokens with the current observation and instruction into one continuous embedding sequence.
+By representing, retrieving, and consuming historical experience entirely in the same continuous latent space, \ourmethod enables memory to directly participate in VLA reasoning and guide action generation under a bounded context.
+Extensive experiments on SimplerEnv and LIBERO demonstrate the superiority of our \ourmethod. 
+The project page will be available at \href{https://github.com/quhongyu/LaMem-VLA}{\ourmethod}.
+%Furthermore, \ourmethod achieves substantial improvements in real-world general and long-horizon manipulation tasks, demonstrating its broad effectiveness in practical robotic settings.
+
+
+\end{abstract}
+
+\input{secs/introduction.tex}
+\input{secs/related_work.tex}
+\input{secs/method.tex}
+\input{secs/experi.tex}
+\input{secs/conclusion}
+
+\bibliography{iclr2026_conference}
+\bibliographystyle{unsrt}
+
+% \input{secs/x_supp}
+
+
+\end{document}

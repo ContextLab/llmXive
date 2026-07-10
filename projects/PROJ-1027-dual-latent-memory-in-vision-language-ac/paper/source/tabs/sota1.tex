@@ -1,0 +1,41 @@
+\begin{table}[t]
+\centering
+\caption{
+\small\textbf{Quantitative comparison results on SimplerEnv-Bridge~\cite{li2025evaluating}} (\S\ref{sec:simpler}) with WidowX robot.}
+\label{tab:simplerenv_bridge}
+\resizebox{\linewidth}{!}{
+\setlength\tabcolsep{10pt}
+\renewcommand\arraystretch{1.0}
+\begin{tabular}{l|c|cccc|c}
+\thickhline
+\rowcolor{mygray}
+Method
+& Publication
+& \makecell{Spoon\\on Towel}
+& \makecell{Carrot\\on Plate}
+& \makecell{Stack\\Cube}
+& \makecell{Eggplant\\in Basket}
+& \makecell{Avg.\\Success} \\
+\hline 
+\hline
+RT-1-X~\citep{o2024open}              & ICRA'24 & 0.0  & 4.2  & 0.0  & 0.0   & 1.1  \\
+OpenVLA~\citep{kim2025openvla}             & CoRL'25 & 4.2  & 0.0  & 0.0  & 12.5  & 4.2  \\
+TraceVLA~\citep{zheng2025tracevla}         & ICLR'25 & 12.5 & 16.6 & 16.6 & 65.0  & 27.7 \\
+SpatialVLA~\citep{qu2025spatialvla}        & RSS'25  & 16.7 & 25.0 & 29.2 & 100.0 & 42.7 \\
+Magma~\citep{yang2025magma}                & CVPR'25 & 37.5 & 29.2 & 20.8 & 91.7  & 44.8 \\
+CogACT~\citep{li2024cogact}          & ArXiv'24 & 58.3 & 45.8 & 29.2 & 95.8  & 57.3 \\
+$\pi_0$~\citep{black2024pi_0}          & CoRL'25& 83.8 & 52.5 & 52.5 & 87.9 & 69.2 \\
+DreamVLA~\citep{zhang2026dreamvla}          & NeurIPS'25&45.8 &45.8 &25.0 &87.5 &51.0 \\
+ThinkAct~\citep{huang2026thinkact}          & NeurIPS'25& 58.3& 37.5& 8.7 &70.8 &43.8 \\
+CronusVLA~\citep{li2026towards}          & AAAI26& 66.7& 54.2& 20.8& 100.0& 60.4 \\
+MemoryVLA~\citep{shi2025memoryvla}         & ICLR'26 & 75.0 & 75.0 & 37.5  & 100.0 & 71.9 \\
+SemanticVLA~\citep{ni2026semanticvla}          & CVPR'26& 83.6 &54.5& 40.3& 81.8 &65.1\\
+\hline 
+\ourmethod~\textbf{(Ours)}
+& --
+& 83.3 & 75.0 & 41.7 & 95.8
+& \textbf{73.9}\\
+\hline
+\end{tabular}
+}
+\end{table}

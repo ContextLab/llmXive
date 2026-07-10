@@ -1,0 +1,669 @@
+\subsection{Generalization}
+
+\taskshowcase
+{assets/task_key_frame/sim_stack_bowls.png}
+{stack\_bowls}
+{
+\taskitem{Instruction}{
+Stack the three bowls together.
+}
+
+\taskitem{Description}{There are three bowls. The robot needs to stack all the bowls together.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_push_T.png}
+{push\_T}
+{
+\taskitem{Instruction}{
+Push the T-shaped block to align it precisely with the gray T-shaped pad.
+}
+
+\taskitem{Description}{There is a thin gray T-shaped pad and a T-shaped block. The robot needs to push the T-shaped block until it is precisely aligned with and fitted onto the gray pad.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_pack_objects_into_box.png}
+{pack\_objects\_into\_box}
+{
+\taskitem{Instruction}{
+Place all the objects into the box with their front sides facing left.
+}
+
+\taskitem{Description}{There are several objects on the table and a box. The robot needs to pick up all the objects, place them into the box, and ensure that each object is oriented with its front side facing left.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_fold_clothes.png}
+{fold\_clothes}
+{
+\taskitem{Instruction}{
+Fold the clothes neatly.
+}
+
+\taskitem{Description}{There is a piece of clothing. The robot needs to fold it neatly.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_hang_mugs.png}
+{hang\_mugs}
+{
+\taskitem{Instruction}{
+Hang all the mugs on the mug rack.
+}
+
+\taskitem{Description}{There are three mugs and one mug rack. The robot needs to pick up each mug and hang all of them on the rack.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_sweep_blocks.png}
+{sweep\_blocks}
+{
+\taskitem{Instruction}{
+Pick up the broom, hand it over to the right hand, then use the dustpan to sweep the blocks.
+}
+
+\taskitem{Description}{There is a broom and a dustpan on the left side, and the blocks are on the right side. The robot needs to first pick up the broom, hand it over to the right hand, then grasp the dustpan with the left hand, and finally sweep the blocks successfully.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_pour_liquid_into_cup.png}
+{pour\_liquid\_into\_cup}
+{
+\taskitem{Instruction}{
+Pour the liquid from the bottle into the cup.
+}
+
+\taskitem{Description}{There is a bottle containing liquid and a cup. The robot needs to pick up the bottle and pour the liquid into the cup.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_make_toast.png}
+{make\_toast}
+{
+\taskitem{Instruction}{
+Pick up two slices of bread, place them into the toaster, and press the lever down.
+}
+
+\taskitem{Description}{There is a basket containing multiple slices of bread and a toaster. The robot needs to pick up two slices one by one, place them into the toaster, and then press the lever down to start toasting.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_arrange_largest_number.png}
+{arrange\_largest\_number}
+{
+\taskitem{Instruction}{
+Arrange the numbers from left to right to form the largest possible number, and place them on the pad.
+}
+
+\taskitem{Description}{There are several number tiles on the table and a pad for placement. The robot needs to determine the order that forms the largest possible number, then place the four numbers on the pad from left to right in that order.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_sort_nesting_dolls_by_size.png}
+{sort\_nesting\_dolls\_by\_size}
+{
+\taskitem{Instruction}{
+Arrange the five nesting dolls in a row from left to right in descending size order.
+}
+
+\taskitem{Description}{There are five nesting dolls of different sizes on the table. The robot needs to sort them by size and arrange them in a straight row from left to right, from largest to smallest.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_store_laptop_and_headphones.png}
+{store\_laptop\_and\_headphones}
+{
+\taskitem{Instruction}{
+Hang the headphones on the headphone stand, close the laptop, then place it into the vertical laptop stand.
+}
+
+\taskitem{Description}{There is an open laptop on a laptop stand, a vertical laptop stand, a pair of headphones, and a headphone stand. The laptop opening angle is random but greater than 30 degrees. The robot needs to first hang the headphones on the headphone stand, then close the laptop, pick it up from the stand, and insert it into the vertical laptop stand.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_stack_blocks.png}
+{stack\_blocks}
+{
+\taskitem{Instruction}{
+Stack the three blocks with different textures.
+}
+
+\taskitem{Description}{There are three blocks with different textures on the table. The robot needs to pick them up and stack them into a stable pile.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+
+
+
+\subsection{Open}
+
+\taskshowcase
+{assets/task_key_frame/sim_align_blocks.png}
+{align\_blocks}
+{
+\taskitem{Instruction}{
+Use the set square to push the three blocks into a straight, aligned row, then reset the robot arm.
+}
+
+\taskitem{Description}{There is a set square and three blocks. The robot needs to use the set square to push the blocks until they are aligned in parallel in a straight row.}
+
+\taskitem{Data Source}{null (eval-only)}
+
+\taskitem{Usage}{Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_solve_equation.png}
+{solve\_equation}
+{
+\taskitem{Instruction}{
+Complete the equation by selecting the correct missing number or operator and placing it on the pad, then reset the robot arm.
+}
+
+\taskitem{Description}{There is an arithmetic equation on the table and a pad for the answer. The equation is missing either a number or an operator. The robot needs to choose the correct missing item from the randomly arranged numbers and operators on the table and place it on the pad to complete the equation.}
+
+\taskitem{Data Source}{null (eval-only)}
+
+\taskitem{Usage}{Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_stack_blocks_by_language.png}
+{stack\_blocks\_by\_language}
+{
+\taskitem{Instruction}{
+Stack the three blocks on top of each other in the order of {}, {}, and {}, then reset the robot arm.
+}
+
+\taskitem{Description}{There are several colored blocks. The robot needs to understand the language instruction and stack the blocks in the specified color order.}
+
+\taskitem{Data Source}{null (eval-only)}
+
+\taskitem{Usage}{Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_general_pickup.png}
+{general\_pickup}
+{
+\taskitem{Instruction}{
+Pick up the {} by 10 cm.
+}
+
+\taskitem{Description}{There are multiple objects. The robot needs to understand the language instruction, identify the target object, and pick it up.}
+
+\taskitem{Data Source}{null (eval-only)}
+
+\taskitem{Usage}{Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_classify_objects_by_language.png}
+{classify\_objects\_by\_language}
+{
+\taskitem{Instruction}{
+Put {} objects into the left basket, {} objects into the middle basket, and {} objects into the right basket, then reset the robot arm.
+}
+
+\taskitem{Description}{There are three baskets and three categories of unseen objects. The robot needs to understand the language instruction, identify the category of each object, and place the objects into the specified baskets from left to right.}
+
+\taskitem{Data Source}{null (eval-only)}
+
+\taskitem{Usage}{Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_pick_from_conveyor_by_image.png}
+{pick\_from\_conveyor\_by\_image}
+{
+\taskitem{Instruction}{
+Lift the basket more than 8 cm, identify the target object on the conveyor according to the image on the board, pick it up, and place it into the basket.
+}
+
+\taskitem{Description}{There is a board displaying an image of the target object, a basket, and a conveyor carrying multiple objects. The robot needs to first lift the basket more than 8 cm, identify the target object on the conveyor based on the image shown on the board, pick up the target object, and place it into the basket.}
+
+\taskitem{Data Source}{null (eval-only)}
+
+\taskitem{Usage}{Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_store_tools_in_toolbox.png}
+{store\_tools\_in\_toolbox}
+{
+\taskitem{Instruction}{
+Place each tool into its matching position in the toolbox, then reset the robot arm.
+}
+
+\taskitem{Description}{There are several tools and a toolbox with designated slots. The robot needs to pick up each tool and place it into the corresponding position in the toolbox.}
+
+\taskitem{Data Source}{null (eval-only)}
+
+\taskitem{Usage}{Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_pour_by_language.png}
+{pour\_by\_language}
+{
+\taskitem{Instruction}{
+Pour the liquid from the first {} bottle into the first {} bowl, from the second {} bottle into the second {} bowl, and from the third {} bottle into the third {} bowl. Then reset the robot arm.
+}
+
+\taskitem{Description}{There are several bottles, cups, and containers on the table. The robot needs to follow the language instruction and pour the liquid from each specified bottle into the corresponding container in the correct order.}
+
+\taskitem{Data Source}{null (eval-only)}
+
+\taskitem{Usage}{Eval}
+}
+
+
+
+
+\subsection{Memory}
+
+\taskshowcase
+{assets/task_key_frame/sim_cover_blocks.png}
+{cover\_blocks}
+{
+\taskitem{Instruction}{
+Cover the blocks from left to right, remember their colors, then uncover them in the order: red, green, and blue.
+}
+
+\taskitem{Description}{There are three covers and three blocks arranged in a random order. The blocks are red, green, and blue. The robot needs to cover the blocks from left to right, remember the color under each cover, and then uncover the blocks in the order of red, green, and blue.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_match_and_pick_from_conveyor.png}
+{match\_and\_pick\_from\_conveyor}
+{
+\taskitem{Instruction}{
+Remember the first object on the conveyor, then pick the matching object when it appears again.
+}
+
+\taskitem{Description}{An object first appears on the conveyor and is carried away. The robot needs to remember this object, observe the following objects on the conveyor, and pick the one that matches the first object.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_swap_T.png}
+{swap\_T}
+{
+\taskitem{Instruction}{
+Pick up the two T-shaped blocks, swap their positions, and place them back with the correct orientations.
+}
+
+\taskitem{Description}{There are two T-shaped blocks on the table. The robot needs to grasp them with both hands, swap their positions, and place them back so that each block matches the original pose of the other one, including both position and orientation. This is a memory-based task.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_press_by_number.png}
+{press\_by\_number}
+{
+\taskitem{Instruction}{
+Press the two red buttons the required number of times according to the number cards, then press the blue button to confirm.
+}
+
+\taskitem{Description}{There are two number cards, two red buttons, and one blue confirmation button. The robot needs to read the numbers, press each red button the corresponding number of times, and then press the blue button to confirm. Pressing the blue button ends the task immediately.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_imitate_sorting_sequence.png}
+{imitate\_sorting\_sequence}
+{
+\taskitem{Instruction}{
+Observe the object placement order, remember it, then place the corresponding objects into the basket in the same order.
+}
+
+\taskitem{Description}{There are five categories of objects, with five objects on each side. The opposite robot places its objects into the basket on the right side in a certain order. The robot needs to observe and remember this sequence, then place its corresponding objects into the basket in the same order. This is a memory-based imitation task.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_swap_blocks.png}
+{swap\_blocks}
+{
+\taskitem{Instruction}{
+Swap the two blocks using the empty mat, pressing the button after each move.
+}
+
+\taskitem{Description}{There are three mats, two blocks placed on two of the mats, and one button. The robot needs to swap the positions of the two blocks by using the empty mat as a temporary place. After each move, the robot must press the button.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+
+
+\subsection{Precision}
+
+\taskshowcase
+{assets/task_key_frame/sim_fasten_screws.png}
+{fasten\_screws}
+{
+\taskitem{Instruction}{
+Insert and tighten each screw into the nut of the same color.
+}
+
+\taskitem{Description}{There are three screws and three nuts on the table. The screws and nuts come from five possible colors: red, blue, gray, yellow, and purple. In each episode, three different colors are selected, and the robot needs to match each screw with the nut of the same color, insert it, and tighten it. The screw positions vary within a small range, while the nut positions vary within a larger range. If a handover is needed, the robot can first place the screw in the middle and then let the other arm pick it up and fasten it.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_insert_tubes.png}
+{insert\_tubes}
+{
+\taskitem{Instruction}{
+Insert the three tubes into the rack one by one.
+}
+
+\taskitem{Description}{There is a tube rack and three tubes. The robot needs to pick up each tube in sequence and insert all tubes into the rack.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_plug_in_charger.png}
+{plug\_in\_charger}
+{
+\taskitem{Instruction}{
+Plug the charger into the power strip.
+}
+
+\taskitem{Description}{There is a charger plug and a power strip. The robot needs to pick up the charger plug and insert it into the power strip.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_pour_balls_into_vase.png}
+{pour\_balls\_into\_vase}
+{
+\taskitem{Instruction}{
+Pour all the balls from the cup into the vase.
+}
+
+\taskitem{Description}{There is a cup containing many small balls and a vase. The robot needs to pick up the cup and pour all the balls into the vase.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_play_Xylophone.png}
+{play\_Xylophone}
+{
+\taskitem{Instruction}{
+Pick up the mallet and strike all xylophone keys from left to right.
+}
+
+\taskitem{Description}{There is a xylophone and a mallet. The robot needs to pick up the mallet with one hand and strike all the xylophone keys from left to right.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_deposit_coin.png}
+{deposit\_coin}
+{
+\taskitem{Instruction}{
+Pick up the coin from the holder and insert it precisely into the coin bank.
+}
+
+\taskitem{Description}{There is a coin placed on a holder and a coin bank. The robot needs to pick up the coin and accurately insert it into the slot of the coin bank.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_insert_key.png}
+{insert\_key}
+{
+\taskitem{Instruction}{
+Pick up the thick card, hand it over to the other hand to adjust its pose, then insert it into the card slot.
+}
+
+\taskitem{Description}{There is a thick card and a card slot on the table. The robot needs to pick up the card, hand it over to the other hand for pose adjustment, and then insert it accurately into the card slot.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_build_tower.png}
+{build\_tower}
+{
+\taskitem{Instruction}{
+Build a tower using the wooden blocks and wooden boards.
+}
+
+\taskitem{Description}{There are wooden blocks and wooden boards on the table. The robot needs to use them to build a stable tower structure.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+
+
+\subsection{Long-Horizon}
+
+\taskshowcase
+{assets/task_key_frame/sim_put_bottles_into_dustbin.png}
+{put\_bottles\_into\_dustbin}
+{
+\taskitem{Instruction}{
+Pick up the bottles and throw them into the dustbin, using handover when needed.
+}
+
+\taskitem{Description}{There are four bottles on the table, and they may be either standing or lying down. A dustbin is placed beside the table. The robot needs to pick up the bottles and throw them into the dustbin. Because of the shifted table layout, bottles on the right side require a handover between the two hands before being discarded.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_play_tic_tac_toe.png}
+{play\_tic\_tac\_toe}
+{
+\taskitem{Instruction}{
+Play tic-tac-toe as the first player and fill the board with the opponent.
+}
+
+\taskitem{Description}{There is a 3-by-3 tic-tac-toe board. The robot plays as the first player, while the opponent follows a random strategy. The robot and the opponent take turns placing their marks until the board is filled.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_classify_objects.png}
+{classify\_objects}
+{
+\taskitem{Instruction}{
+Sort the objects by category into the three baskets.
+}
+
+\taskitem{Description}{There are three categories of objects and three baskets. The robot needs to group the objects by category and place each category into a separate basket. Any basket can be used for any category, as long as objects of the same category are placed together.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_fill_pen_holder.png}
+{fill\_pen\_holder}
+{
+\taskitem{Instruction}{
+Hold the pen holder with one hand, place all pens into it with the other hand, then put it back down.
+}
+
+\taskitem{Description}{There is a pen holder and several pens. The robot needs to grasp the pen holder with one hand, use the other hand to place the pens into the holder one by one, and finally put the filled pen holder back on the table.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_fill_egg_holder.png}
+{fill\_egg\_holder}
+{
+\taskitem{Instruction}{
+Place the four eggs from the basket into the egg holder, then close the lid.
+}
+
+\taskitem{Description}{There is a woven basket containing four eggs and an egg holder. The robot needs to pick up the eggs one by one, place all four into the egg holder, and then close the lid.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_organize_table.png}
+{organize\_table}
+{
+\taskitem{Instruction}{
+Place the mouse on the mouse pad, push the keyboard into the frame, put the figurine on the stand, place the alarm clock on the drawer, then open the drawer and put all remaining miscellaneous items inside.
+}
+
+\taskitem{Description}{There are a computer, a keyboard, a mouse, an alarm clock, a cartoon figurine, three miscellaneous items, and a drawer. The robot needs to organize the table by placing the mouse on the mouse pad, pushing the keyboard into the frame, putting the figurine on the stand, placing the alarm clock on top of the drawer, opening the drawer, and putting all remaining miscellaneous items into it.}
+
+\taskitem{Data Source}{Teleop}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_play_stacking_toy.png}
+{play\_stacking\_toy}
+{
+\taskitem{Instruction}{
+Place all stacking toy pieces onto the correct pegs.
+}
+
+\taskitem{Description}{There is a stacking toy with four pegs and four types of pieces. The numbers of pieces in the four types are 4, 3, 2, and 1, and each peg matches one type. The robot needs to place all pieces onto their corresponding pegs correctly.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+\taskshowcase
+{assets/task_key_frame/sim_make_kong.png}
+{make\_kong}
+{
+\taskitem{Instruction}{
+Wait for the opponent to discard a tile, then declare a kong with the matching tiles.
+}
+
+\taskitem{Description}{There is a Mahjong setup. The opponent first pushes out a tile. The robot needs to observe the discarded tile, identify the matching tiles on its side, and perform a valid kong action. The setup guarantees that a kong is possible.}
+
+\taskitem{Data Source}{AutoGen}
+
+\taskitem{Usage}{Train \& Eval}
+}
+
+
+
+
+\subsection{DLC}
+
+\taskshowcase
+{assets/task_key_frame/sim_dlc.png}
+{dlc}
+{
+\taskitem{Instruction}{
+Arrange the letters to spell "RoboDojo" in a row.
+}
+
+\taskitem{Description}{There are multiple separated letters on a cluttered tabletop with a complex background. The robot needs to identify the letters that form "RoboDojo" and arrange them in the correct order in a straight row.}
+
+\taskitem{Data Source}{null (train-only)}
+
+\taskitem{Usage}{Train}
+}

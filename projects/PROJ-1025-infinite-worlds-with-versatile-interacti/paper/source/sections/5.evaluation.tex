@@ -1,0 +1,24 @@
+\section{Results}\label{sec:results}
+
+In this section, we evaluate our models along two axes. We first assess the real-time \textbf{causal distilled} model, which is the system intended for interactive deployment, comparing it against both proprietary and open-source baselines and examining the capabilities that emerge at long horizons. We then
+report results for the \textbf{causal pretrained} backbone, which serves as the teacher for distillation.
+
+\subsection{Causal Distilled Model}
+\label{subsec:distill}
+
+\paragraph{Comparison with prior work.}
+We benchmark our distilled model against state-of-the-art closed-source systems HappyOyster \cite{happyoyster} and Genie 3 \cite{genie3}, as well as leading open-source interactive
+world models \cite{zhu2026sana,matrix3,team2026dreamx,lingbot-world,Worldplay}. We evaluate along the dimensions most relevant to an interactive setting, namely visual fidelity, temporal stability over long rollouts, responsiveness to actions, and real-time throughput. As shown in Fig.~\ref{fig:qualitative1}, our model matches or exceeds the visual quality of the strongest closed-source baselines while remaining fully open, and it is the
+only system in our comparison that sustains high-resolution generation in real time without visible degradation. Besides, our model supports much more interactions. 
+
+\paragraph{Long-horizon stability.}
+Beyond aggregate benchmark numbers, a key property of an interactive world model is its ability to remain stable over extended rollouts. To probe this limit, we generate a single uninterrupted session of over one hour, as shown in~\cref{fig:long_demo}. Throughout the run, visual quality shows no perceptible decay, and the world remains coherent and explorable from start to finish. This confirms that the model's stability is a structural property rather than a short-lived effect observed only on favorable clips.
+
+\paragraph{Additional results.}
+We further present qualitative results illustrating the breadth of the model's action space and its behavior across diverse scenes and interaction patterns in Fig. \ref{fig:result1} and Fig. \ref{fig:result2}.
+
+\subsection{Causal Pretrained Model}
+\label{subsec:pretrain}
+
+We now evaluate the causal pretrained backbone that underpins the distilled model above. We compare it against prior causal world models under matched settings, focusing on visual fidelity and, in particular, long-horizon stability. As shown in Fig.~\ref{fig:pretrain}, our backbone consistently outperforms competing models \cite{MAGI-1,Worldplay}. While prior causal models degrade within seconds to a few minutes as errors accumulate, ours retains sharp textures, stable geometry, and a coherent scene over substantially longer rollouts. We attribute
+this advantage to our anti-drift training, which explicitly discourages the model from compounding its own errors.

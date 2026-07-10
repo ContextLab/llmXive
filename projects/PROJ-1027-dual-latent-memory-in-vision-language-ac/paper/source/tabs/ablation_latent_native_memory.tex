@@ -1,0 +1,27 @@
+\centering
+\caption{\small \textbf{Ablation study of latent-native memory integration} on SimplerEnv~\cite{li2025evaluating} and LIBERO~\citep{liu2023libero} (\S\ref{sec:abation}).
+}
+\vspace{-5pt}
+\label{tab:ablation_latent_native_memory}
+\resizebox{\linewidth}{!}{
+\setlength\tabcolsep{1.9pt}
+\renewcommand\arraystretch{1.0}
+\begin{tabular}{l|cc}
+\thickhline
+\rowcolor{mygray}
+Method
+& SimplerEnv
+& LIBERO-90 \\
+\hline
+\hline
+\textsc{Baseline}       & 57.3 & 92.1 \\
+Policy-side Memory
+& 71.9 & 94.8 \\
+Raw Retrieval Conditioning
+& 69.8 & 95.1 \\
+\hline
+\ourmethod~\textbf{(Ours)}
+& \textbf{73.9} & \textbf{97.0} \\
+\hline
+\end{tabular}
+}

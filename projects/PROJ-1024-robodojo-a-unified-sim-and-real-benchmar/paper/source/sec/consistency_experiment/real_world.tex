@@ -1,0 +1,7 @@
+
+
+To examine the repeatability of RoboDojo-RealEval, we repeat real-world evaluation for three representative leaderboard policies: $\pi_{0.5}$, InternVLA-A1, and GalaxeaVLA. Each policy is evaluated for three independent rounds under the same RoboDojo-RealEval protocol, covering all 18 real-world tasks across three robot embodiments.
+
+Table~\ref{tab:real_world_consistency_compact} summarizes the aggregate repeated-evaluation stability, and the full per-task breakdown is provided in Appendix Table~\ref{tab:real_world_consistency_std_full}. Overall, RoboDojo-RealEval produces stable aggregate evaluation results. Across the three policies, the standard deviation of the overall success rate is at most $1.3$ percentage points, and the standard deviation of the overall score is at most $1.2$ points. This indicates that the overall leaderboard results are not overly sensitive to a single evaluation round.
+
+At the task level, several tasks exhibit larger variance, especially when the number of physical trials is limited and the task involves contact-rich or multi-stage execution. Such variance is expected in real-world robot evaluation, where small differences in object placement, contact state, perception noise, and accumulated execution error can affect the final outcome. Nevertheless, these variations are largely averaged out at the aggregate level, supporting the repeatability of RoboDojo-RealEval under its standardized hardware setup, scene reset procedure, evaluation protocol, and scoring process.

@@ -1,0 +1,120 @@
+\section{Deployment}\label{sec:eval}
+
+Our goal is real-time interactive video generation with low latency, rich interaction capabilities, high visual quality, and user-friendly interface. To this end, we develop an inference stack consisting of four components: systematic optimization, agentic interaction harness, visual quality enhancement, and user interface design. The following sections describe each component.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/deployment/harness.pdf}
+\caption{Overview of the Agentic Interaction Harness. Users can either interact with the existing world through semantic or object-centric actions, or intervene by introducing high-level textual events. The VLM (Director) performs causal reasoning and proposes coherent event updates, while the Video Generator (Pilot) grounds these semantic decisions into physically consistent video rollouts, enabling continuous interactive world simulation.}
+\label{fig:harness}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/deployment/tracking_mode.pdf}
+\caption{In the tracking-mode interface, the Vision-Language Model (VLM) comprehends interactive objects within the scene, while the tracking model continuously tracks these targets to display dynamic interactive floating windows (event cards) in real-time. Powered by the "Director-Pilot" co-simulation framework, the model demonstrates robust interactive capabilities by performing causal reasoning based on user actions (e.g., pushing a door open or rotating a soccer ball) and rendering physically logical, highly coherent spatio-temporal dynamics.}
+\label{fig:sam_interactive}
+\end{figure*}
+
+\begin{figure*}[!ht]
+\centering
+\includegraphics[width=\linewidth]{figures/results/result1.pdf}
+\caption{Our world model enables controllable world exploration with versatile interactions. It supports flexible prompt switching across different world horizons, allowing the scene semantics to evolve smoothly, while also enabling controllable navigation of diverse protagonists and objects throughout the generated world (1/2).}
+\label{fig:result1}
+\end{figure*}
+
+\begin{figure*}[!ht]
+\centering
+\includegraphics[width=\linewidth]{figures/results/result2.pdf}
+\caption{Our world model enables controllable world exploration with versatile interactions. It supports flexible prompt switching across different world horizons, allowing the scene semantics to evolve smoothly, while also enabling controllable navigation of diverse protagonists and objects throughout the generated world (2/2).}
+\label{fig:result2}
+\end{figure*}
+
+\subsection{Systematic Optimization}
+
+Inference efficiency is crucial for enabling interactive video generation ~\cite{hacohen2024ltx, Fang2024xDiTAI, feng2025streamdiffusionv2, flashdreams2026}. In our deployment setting, inference efficiency is required along two complementary dimensions. The first is \emph{model inference efficiency}, which improves the throughput of the video generation backbone to approach real-time generation. The second is \emph{streaming responsiveness}, which reduces the end-to-end latency from user input to the first visible response, thereby improving the perceived interactivity of the system.
+
+\noindent\textbf{Model inference efficiency.}
+To improve generation throughput, we apply a collection of system-level optimizations to the distilled DiT backbone. We first leverage compiler-based optimization together with efficient attention kernels to reduce runtime overhead and accelerate the iterative denoising process. We further adopt a hybrid parallel inference strategy that distributes computation across multiple GPUs while maintaining efficient communication, enabling scalable inference for long video sequences. To avoid downstream bottlenecks, we pipeline latent generation and frame reconstruction asynchronously. Latent generation continues without waiting for image decoding, while VAE decoding is performed on dedicated workers with parallelism. This design improves hardware utilization and shortens the critical path of video generation.
+
+\noindent\textbf{Streaming responsiveness.}
+Beyond improving raw generation throughput, we optimize the system to minimize perceived interaction latency. Instead of waiting for an entire video chunk to finish decoding, decoded results are streamed incrementally as they become available, allowing decoding, transmission, and subsequent generation to overlap. We further employ an efficient video streaming pipeline for low-latency delivery to the client, reducing the time to the first visible frame.
+
+\subsection{Agentic Interaction Harness}
+\label{subsec:interactive_event_proposal}
+
+While standard video generation models excel at synthesizing short-term visual dynamics, they inherently lack the causal reasoning required for open-ended, logical world simulation. To bridge the gap between passive video generation and interactive world modeling, we introduce a novel \textbf{Director-Pilot Co-Simulation Framework}. In this architecture, a Vision-Language Model (VLM) serves as the ``Director'' of the world, governing macroscopic semantic rules and causal reasoning, while the underlying Video Generator (Diffusion Transformer) acts as the ``Pilot'', responsible for simulating low-level physical dynamics and rendering high-fidelity visual transitions, as is shown in Fig. \ref{fig:harness}. 
+%
+Through this dual-system design, the VLM continuously analyzes the current visual phenomena, anticipates the logical consequences of user interactions, and formulates explicit ``event proposals''. These proposals are subsequently fed into the Video Model, which grounds the semantic instructions into coherent spatio-temporal rollouts. This framework empowers users to interact with the simulated world through two primary modalities: Agentic Interaction Reasoning and Prompt-Driven World Intervention.
+
+\subsubsection{Agentic World Interaction}
+In the interactive simulation, users can perform actions within the environment, and the ``Director'' (VLM) is tasked with predicting the outcomes of these behaviors based on physical and semantic common sense. To accommodate different levels of interaction granularity, we design two distinct interaction modes:
+
+\begin{itemize}
+    \item \textbf{Mode A: Direct Semantic Interaction.} In this default mode, the VLM directly analyzes the current frame and generates dynamic event cards for the subject (e.g., the user's avatar). When a user triggers an interaction, the VLM evaluates the scene context and proposes immediate, logical consequences without requiring explicit object masks. This allows for seamless, holistic interactions with the environment.
+    
+    \item \textbf{Mode B: Tracking-Assisted Object Interaction.} For precise, object-centric manipulation, we integrate a SAM-based (Segment Anything Model) action-proposal loop, as in~\cref{fig:sam_interactive}. The VLM identifies specific interactive elements (e.g., non-human objects) within the scene and assigns targeted action proposals. SAM continuously tracks these objects across video chunks, maintaining spatial consistency. Users can select a tracked object and trigger specific actions (e.g., ``hold-to-switch'' mechanics). The VLM then deduces the state change of the tracked object, passing the updated semantic condition to the Video Model for precise dynamic execution.
+\end{itemize}
+
+\subsubsection{Agentic World Intervention}
+Beyond physical interactions, our framework allows users to act as ``creators'' by directly intervening in the world state via textual prompts. Users can propose arbitrary events to alter the trajectory of the simulation. The VLM agent processes these interventions to ensure they are integrated logically into the ongoing narrative. This capability supports:
+
+\begin{itemize}
+    \item \textbf{Global State Shifts:} Users can dynamically alter macroscopic environmental factors, such as transitioning the time of day (e.g., day to night), changing weather conditions (e.g., summoning a snowstorm), or initiating global events (e.g., a festive celebration).
+    
+    \item \textbf{Local Entity Injection:} Users can command the sudden appearance of specific entities (e.g., spawning a flock of birds or a group of specific creatures). The VLM determines the most plausible spatial and temporal entry points for these entities, while the Video Model seamlessly renders their integration into the existing physical space.
+\end{itemize}
+
+\subsection{Visual Quality Enhancement}
+
+\subsubsection{Spatio-temporal Refiner}
+To improve visual quality, we append a lightweight spatio-temporal refiner after remote VAE decoding. The refiner first performs spatial refinement, upsampling the decoded frames and restoring sharper local details. It then performs temporal refinement, synthesizing intermediate frames to produce smoother motion and a higher frame rate. Both stages are compiled into TensorRT engines and executed with multi-GPU parallelism. The refined frames are delivered through the same asynchronous streaming pipeline, improving perceptual quality while introducing only limited additional latency to the whole pipeline.
+
+\subsubsection{Dynamic KV Cache Management}
+A key component of our real-time system is a dynamic KV-cache scheduling mechanism. Rather than maintaining a fixed context for every inference chunk, we adapt the cache on the fly according to the current control signal and input state. By conditioning the cache on this context, we retain the history that is most informative for the current chunk while discarding entries that contribute little. This selective scheduling yields two benefits at once. First, it reduces the effective context the model must attend to, which accelerates inference and helps sustain real-time throughput. Second, by focusing attention on the most relevant history, it suppresses interference from stale or unrelated content and thereby improves the quality and coherence of the generated frames.
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/UI.png}
+    \caption{Interface of our interactive system. The center shows the live generation viewport; the bottom panel exposes the low-level control scheme (WASD for movement, IJKL for view control); and the right-hand panel is the agentic control surface, which lists the VLM-proposed ``Event Proposals,'' each bound to a hotkey. Fixed keys (\emph{Space}, \emph{P}) are always available, \emph{U}/\emph{O} and \emph{F}/\emph{G} carry context-aware
+    character actions and environmental events proposed by the VLM, and the numeric keys are user-registered event slots.}
+    \label{fig:ui}
+\end{figure}
+
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=\linewidth]{figures/results/long_demo.pdf}
+\caption{
+Hour-long world rollout. We sample frames from a single 60-minute generated session, covering 20 distinct scenarios. The timeline shows that the model can maintain coherent scene structure, visual quality over an extended uninterrupted rollout, providing a qualitative stress test for long-horizon stability.
+}
+\label{fig:long_demo}
+\end{figure*}
+
+\begin{figure*}[!ht]
+\centering
+\includegraphics[width=0.98\linewidth]{figures/results/comparison.pdf}
+\vspace{-6pt}
+\caption{Qualitative comparisons. Our model maintains stable visual and physical consistency over long-horizon generation.}
+\label{fig:qualitative1}
+\end{figure*}
+
+\begin{figure*}[!ht]
+\centering
+\includegraphics[width=0.98\linewidth]{figures/results/comparison_pretrain.pdf}
+\vspace{-6pt}
+\caption{Qualitative comparisons on causal pretraining. Our model shows stable performance compared with baselines.}
+\label{fig:pretrain}
+\end{figure*}
+
+
+\subsection{User Interface Design}
+
+Figure~\ref{fig:ui} shows the interface of our interactive system. The layout is organized around three regions. The center hosts the live generation viewport, where the world is rendered in real time and responds immediately to user input.
+The bottom panel exposes the low-level control scheme, using the WASD keys for movement and the IJKL keys for view control, so that camera navigation feels familiar to anyone accustomed to standard game controls. The right-hand panel is the agentic control surface, which lists the ``Event Proposals'' produced by the ``Director'' (VLM), each bound to a hotkey.
+
+The event hotkeys fall into three groups. First, a set of \textbf{fixed keys} is always available regardless of context: \emph{Space} triggers a jump and \emph{P} triggers a wing glide. Second, the VLM continuously proposes \textbf{context-aware events} tailored to the current scene, split into
+character actions bound to \emph{U} and \emph{O} (e.g., melee and ranged actions performed by the controllable subject) and environmental changes bound to \emph{F} and \emph{G} (e.g., a cloud whale passing by or a twilight descent).
+Third, the remaining numeric keys \emph{(1, 2, 3, \dots)} are
+\textbf{user-registered slots}, into which the user can enroll arbitrary events they wish to see, giving them direct authorship over how the world evolves. In the example shown, the controllable subject is an eagle gliding above a sea of
+clouds, and the user has registered events such as a steep dive toward the clouds, an incoming storm, and a hard banking turn on keys 1 through 3.

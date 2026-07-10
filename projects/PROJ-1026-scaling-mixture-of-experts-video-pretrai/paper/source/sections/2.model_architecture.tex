@@ -1,0 +1,250 @@
+% !TEX root = ../main.tex
+\section{Method} \label{sec:method}
+
+\subsection{Task-Unified Single-Stream Diffusion Transformer}
+Our architecture adopts a cascaded design consisting of a task-unified base generator and a refiner.
+The base generator employs a Single-Stream Diffusion Transformer to process compact visual latents and multimodal conditions.
+We use Qwen3-VL-4B~\cite{Qwen3-VL} to extract condition from multimodal instructions.
+Wan2.1-VAE~\cite{wan2025wan} is employed for efficient visual latent compression.
+This section is organized as follows: first, we introduce the \textbf{Unified Input Formulation} and \textbf{Single-Stream Diffusion Transformer};
+then, we detail our scaling strategy via \textbf{Sparse Mixture-of-Experts}; finally, we present the \textbf{Cascaded Refiner}.
+
+\noindent\textbf{Unified Input Formulation.}
+We represent each training sample as a single token sequence consisting of visual latent patch and condition tokens. Specifically, after projecting visual patches and condition features into the same hidden dimension, we concatenate them along the sequence dimension to form a unified input. Under this formulation, we handle Text-to-Image (T2I), Text-to-Video (T2V), and Image-to-Video (TI2V) tasks within a single framework, representing image targets as a special single-frame ($T=1$) video generation case. To resolve the structural discrepancy between condition and visual tokens, we employ a 3D MM-RoPE~\cite{qin2025lumina,wu2025omnigen2,cai2025z} mechanism to place them in non-overlapping temporal coordinate ranges, eliminating the need for task-specific architectures or encoders.
+
+\noindent\textbf{Single-Stream Diffusion Transformer.}
+Efficiency and scalability guide the design of \method. Inspired by the scalability of LLMs' decoder-only architecture~\cite{achiam2023gpt,touvron2023llama,team2023gemini,bai2023qwen} and the parameter efficiency of single-stream designs, we adopt a streamlined single-stream diffusion transformer backbone. After lightweight modality-specific input projections, all visual and condition tokens share the same transformer blocks. This single-stream architecture maximizes parameter reuse and facilitates dense cross-modal interactions at every layer. Compared to dual-stream architectures~\cite{esser2024scaling} that process modalities via separate pathways, our unified backbone handles all tokens as a single sequence. This design groups multi-modal features into larger, unified GEMM computations, aiming to improve Model FLOPs Utilization (MFU)~\cite{chowdhery2022palmscalinglanguagemodeling} and reduce kernel launch overhead. Furthermore, while dual-stream counterparts require frequent concatenation and splitting of conditioning and latent tokens before and after attention within every block, our model processes the unified sequence continuously. This reduces memory-bandwidth-bound tensor reorganization and layout conversion overhead~\cite{dao2022flashattention}, which is particularly beneficial under sequence-parallel distributed layouts~\cite{korthikanti2022reducingactivationrecomputationlarge,jacobs2023deepspeed}. Consequently, in distributed scaling scenarios, this design simplifies communication patterns and helps avoid extra load imbalance and synchronization overhead from dual-stream partitioning.
+
+\noindent\textbf{Multi-Modal 3D RoPE.}
+To separate condition and visual tokens while preserving video geometry within a single stream, we map all tokens to a Multi-Modal 3D RoPE~\cite{qin2025lumina,wu2025omnigen2,cai2025z} coordinate system. Specifically, given $L$ condition tokens and an $F \times H \times W$ visual latent grid, conditioning tokens use temporal-only coordinates $(i,0,0)$ for $i=1,\ldots,L$, while visual patch tokens use $(L+1+f,h,w)$.
+Query and key head dimensions are split across the temporal, vertical, and horizontal axes, applying the corresponding rotary frequencies independently.
+This maintains spatial locality and temporal order while keeping attention fully single-stream.
+
+\noindent\textbf{QK-Norm.}
+To stabilize attention in deep transformer backbones, we normalize queries and keys with per-head RMSNorm before computing attention, following prior large-scale vision and diffusion transformer practice~\cite{dehghani2023vit22b,esser2024scaling}.
+This stabilization mechanism helps control attention-logit growth and feature scales during high-resolution training, particularly under mixed precision.
+Additionally, each block utilizes RMSNorm around the attention and feed-forward residual branches to keep activations bounded without introducing modality-specific pathways.
+
+\noindent\textbf{AdaLN-Single Modulation.}
+To reduce modulation overhead, we adopt the adaLN-single design~\cite{chen2023pixart,wan2025wan,wan2025wan2} by computing a shared timestep modulation once before the transformer stack. Each block adds a layer-specific trainable modulation table to this shared signal and uses the resulting shift, scale, and gate parameters to modulate its attention and feed-forward branches. The shared projection is zero-initialized following DiT-style adaptive normalization~\cite{peebles2023scalablediffusionmodelstransformers}, while the per-layer modulation tables are initialized with small random values, providing stable residual learning without per-block timestep MLPs.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/architecture/architecture.pdf}
+    \caption{Overview of the task-unified single-stream diffusion transformer. Unified inputs are processed by stacked transformer blocks, where timestep modulation controls the attention and Sparse MoE branches; the attention branch applies QK-Norm and multi-modal 3D RoPE, while the MoE branch combines always-on shared experts with top-$K_{\mathrm{r}}$ routed experts before predicting velocity.}
+    \label{fig:pure_single_stream_dit}
+\end{figure}
+
+\subsection{Scaling with Sparse Mixture-of-Experts}
+The Mixture-of-Experts (MoE) paradigm is fundamentally motivated by the need to model highly diverse and complex data distributions, utilizing specialized subnetworks (experts) to capture distinct patterns or domains~\cite{jacobs1991adaptive,jordan1994hierarchical}. Video generation, which aims to simulate the continuous physical world, demands the model to capture the visual representations of complex physical processes (such as fluid motion and three-dimensional spatial consistency) along with varying motion trajectories and rich material textures~\cite{ho2022video,blattmann2023stable,wan2025wan}. Consequently, MoE is a natural candidate for scaling up video diffusion models to capture the vast complexity of physical laws~\cite{park2024switch,sha2026sparse}. In a conventional dense model, the Feed-Forward Network (FFN) forces all tokens to share the same parameter pathway. In unified video pretraining, this leads to severe subtask interference~\cite{jacobs1991adaptive,nowlan1990evaluation,jordan1994hierarchical} since a single set of parameters must simultaneously model asymmetric domains, such as spatial textures versus temporal motion, and accommodate diverse task formats spanning T2I, T2V, and TI2V conditions. Particularly for diffusion models, the training dynamics inherently exhibit a shift between distinct noise regimes, requiring the model to resolve the discrepancy between low-noise detail reconstruction and high-noise global layout formulation.
+
+Sparse Mixture-of-Experts (MoE) has been robustly proven in large language models as a powerful paradigm to scale parameter capacity under a constant computational budget~\cite{shazeer2017moe,lepikhin2020gshard,switchtransformer,dai2024deepseekmoe,deepseek2024v3}. Driven by this success, we incorporate the sparse MoE framework into our base generator to achieve capacity-compute decoupling. This allows us to scale the total parameter capacity---creating a vast repository for diverse physical priors---while strictly controlling per-token active FLOPs. This decoupling is especially critical for high-resolution video generation, which easily scales to million-token (1M+) spatio-temporal sequences where dense scaling would incur prohibitive computational overhead. Diffusion-based video generators repeatedly process the full visual latent sequence across denoising steps~\cite{ho2022video,peebles2023scalablediffusionmodelstransformers}, making per-token transformer computation a dominant scaling pressure for long videos. Sparse routing reduces the active feed-forward computation at each denoising step while preserving total parameter capacity, making long-video capacity scaling more practical.
+
+\noindent\textbf{Sparse MoE Architecture.}
+In each transformer block, we preserve the single-stream FFN residual branch structure and replace only its dense feed-forward computation with a token-choice sparse MoE layer~\cite{shazeer2017moe,lepikhin2020gshard,switchtransformer}, as shown in~\cref{fig:pure_single_stream_dit}. Our MoE design incorporates key architectural principles of DeepSeekMoE~\cite{dai2024deepseekmoe,deepseek2024v3}, specifically fine-grained expert segmentation and shared expert isolation, to encourage expert specialization while maintaining shared common priors. Given the modulated FFN input $\mathbf{u}_t$ of token $t$, the Sparse MoE layer computes a branch output from shared experts and routed experts:
+\begin{equation}
+m(\mathbf{u}_t) = \sum_{i=1}^{N_{\mathrm{s}}} E_i^{(\mathrm{s})}(\mathbf{u}_t) + \sum_{j \in \mathcal{R}_{\mathrm{b}}(\mathbf{u}_t)} g_{t,j} E_j^{(\mathrm{r})}(\mathbf{u}_t),
+\end{equation}
+where $\mathcal{R}_{\mathrm{b}}(\mathbf{u}_t)$ is the selected routed-expert set, and $E_i^{(\mathrm{s})}(\cdot)$ and $E_j^{(\mathrm{r})}(\cdot)$ denote the $i$-th shared expert function and $j$-th routed expert function, respectively. Each expert is implemented as a SwiGLU MLP~\cite{shazeer2020gluvariantsimprovetransformer}. We denote $N_{\mathrm{s}}$ as the number of shared experts and $N_{\mathrm{r}}$ as the total number of routed experts. The gate $g_{t,j}$ is defined by the routing equations below. The resulting MoE branch output $m(\mathbf{u}_t)$ is injected back into the transformer block through the gated residual branch of the single-stream block. To maximize expert specialization and reduce knowledge hybridity~\cite{dai2024deepseekmoe}, we adopt a fine-grained expert segmentation strategy, setting the intermediate dimension of both the shared and routed experts to a smaller width than a standard dense FFN counterpart. Under this design, the shared experts provide a common pathway to capture general physical principles and spatial consistency across all tokens, while the routed experts capture specialized features.
+
+For token $t$, we compute routed-expert affinities with a sigmoid router~\cite{deepseek2024v3}:
+\begin{equation}
+\alpha_{t,j} = \operatorname{Sigmoid}\left(\mathbf{u}_t^\top \mathbf{r}_j\right),
+\end{equation}
+Here, $\alpha_{t,j}$ is the router affinity between token $t$ and routed expert $j$, and $\mathbf{r}_j \in \mathbb{R}^d$ is the learnable router embedding of the $j$-th routed expert. To control communication cost in distributed training, we adopt a DeepSeek-style group-limited routing strategy~\cite{deepseek2024v3}. We divide the $N_{\mathrm{r}}$ routed experts into $N_{\mathrm{g}}$ groups. After adding the online correction bias, $\tilde{\alpha}_{t,j} = \alpha_{t,j} + b_j$, we select the top $K_{\mathrm{g}}$ groups, where each group is scored by the sum of its top-2 bias-corrected affinity scores. Let $\mathcal{G}_{\mathrm{b}}(\mathbf{u}_t)$ denote the set of experts belonging to these selected groups. Within $\mathcal{G}_{\mathrm{b}}(\mathbf{u}_t)$, we select the top $K_{\mathrm{r}}$ experts as $\mathcal{R}_{\mathrm{b}}(\mathbf{u}_t)$. The overall MoE architecture is depicted in~\cref{fig:pure_single_stream_dit}.
+
+\noindent\textbf{Online Bias Correction for Load Balancing.}
+To maintain load balance while preserving representation capacity, we use an auxiliary-loss-free load-balancing strategy~\cite{wang2024auxlossfree,deepseek2024v3}. We introduce a dynamic correction bias $b_j$ for each expert, which is adjusted during training and used only for selecting the top experts:
+\begin{equation}
+g'_{t,j} = \begin{cases} \alpha_{t,j}, & \text{if } \tilde{\alpha}_{t,j} \in \operatorname{TopK}_{K_{\mathrm{r}}}(\{\tilde{\alpha}_{t,k} \mid k \in \mathcal{G}_{\mathrm{b}}(\mathbf{u}_t)\}), \\ 0, & \text{otherwise}. \end{cases}
+\end{equation}
+Here, $g'_{t,j}$ is the sparse unnormalized gate: it keeps the original affinity $\alpha_{t,j}$ for selected experts and sets all unselected experts to zero. The final gating values are obtained by normalizing the selected original affinity scores and applying a route scaling factor $\gamma$:
+\begin{equation}
+g_{t,j} = \gamma \frac{g'_{t,j}}{\sum_{k=1}^{N_{\mathrm{r}}} g'_{t,k}}.
+\end{equation}
+Here, $g_{t,j}$ is the final routing weight applied to expert $j$ for token $t$, $\gamma$ is the route scaling factor, and $k$ indexes routed experts in the normalization term.
+During training, the correction bias for expert $j$ is updated online at each optimizer step using the sign of its load deviation:
+\begin{equation}
+b_j \leftarrow b_j - \eta\,\operatorname{sign}(n_j - \bar{n}),
+\end{equation}
+where $b_j$ is the correction bias of expert $j$, $n_j$ is the number of valid token assignments selecting expert $j$ (accumulated globally across ranks), $\bar{n}$ is the average load per expert, and $\eta$ is the learning rate for bias updates. When bias centering is enabled, we mean-center the bias after each update:
+\begin{equation}
+b_j \leftarrow b_j - \frac{1}{N_{\mathrm{r}}}\sum_{k=1}^{N_{\mathrm{r}}} b_k.
+\end{equation}
+This centering preserves relative load-balancing signals while keeping the router input-dependent and stable.
+
+\noindent\textbf{Sequence-Wise Auxiliary Loss.}
+Video generation naturally involves long spatio-temporal token sequences, where batch-level expert-balance statistics can hide routing imbalance within individual videos.
+We therefore adopt the sequence-wise auxiliary balance loss from DeepSeek-V3~\cite{deepseek2024v3}, which encourages balanced expert usage within each packed video sequence rather than only at the global batch level.
+For a packed batch containing $S$ sequences, the sequence-wise balance loss is defined as:
+\begin{equation}
+\mathcal{L}_{\mathrm{seq}} = \frac{1}{S}\sum_{s=1}^{S}\sum_{j=1}^{N_{\mathrm{r}}} f_{j}^{(s)} P_{j}^{(s)},
+\end{equation}
+Here, $S$ is the number of packed sequences, $s$ indexes a sequence, and $j$ indexes a routed expert. We compute the average normalized routing probability for expert $j$ in sequence $s$ as:
+\begin{equation}
+P_{j}^{(s)} = \frac{1}{T_s}\sum_{t=1}^{T_s} p_{t,j},\qquad p_{t,j} = \frac{\alpha_{t,j}}{\sum_{k=1}^{N_{\mathrm{r}}} \alpha_{t,k}}.
+\end{equation}
+Here, $T_s$ is the token length of the $s$-th packed unified sequence, $p_{t,j}$ is the normalized routing probability of token $t$ choosing expert $j$, and $P_j^{(s)}$ is its average over the sequence. We compute the normalized assignment frequency as:
+\begin{equation}
+f_{j}^{(s)} = \frac{N_{\mathrm{r}}}{K_{\mathrm{r}}T_s}c_{j}^{(s)},\qquad c_{j}^{(s)} = \sum_{t=1}^{T_s}\mathbf{1}\left[\alpha_{t,j} \in \operatorname{TopK}_{K_{\mathrm{r}}}(\{\alpha_{t,k} \mid 1 \le k \le N_{\mathrm{r}}\})\right].
+\end{equation}
+Here, $c_j^{(s)}$ is the number of tokens in sequence $s$ for which expert $j$ belongs to the unbiased top-$K_{\mathrm{r}}$ set computed from the raw affinity $\alpha_{t,j}$ before online bias correction and group-limited routing. The indicator $\mathbf{1}[\cdot]$ returns one when this selection condition is true and zero otherwise. The normalized frequency $f_j^{(s)}$ is detached from the computation graph so that gradients only flow through $P_j^{(s)}$. The auxiliary balance loss is applied to all transformer blocks and added to the diffusion loss:
+\begin{equation}
+\mathcal{L}_{\mathrm{aux}} = \lambda_{\mathrm{aux}}\mathcal{L}_{\mathrm{seq}},
+\end{equation}
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\mathrm{diff}} + \mathcal{L}_{\mathrm{aux}},
+\end{equation}
+where $\lambda_{\mathrm{aux}}$ is the auxiliary loss weight, $\mathcal{L}_{\mathrm{aux}}$ is the weighted sequence-wise balance loss, $\mathcal{L}_{\mathrm{diff}}$ is the diffusion training loss, and $\mathcal{L}$ is the final training objective. By routing each token to $K_{\mathrm{r}}$ active routed experts, we keep the active computational cost per token comparable to a standard dense counterpart, while the total parameter capacity scales with the size of the expert pool $N_{\mathrm{r}}$. This decoupling ensures that the generator scales its representation capacity to capture complex physical priors without incurring a linear increase in per-token FLOPs.
+
+\subsection{Sparse Mixture-of-Experts Recipe Exploration} \label{subsec:moe_recipe}
+To identify the optimal sparse routing configuration for unified video diffusion pre-training, we systematically explore the MoE design space. We structure our exploration along two primary dimensions: first, the scaling of the expert pool (total parameter capacity) under a fixed active compute budget; second, the granularity of routing (fine-grained routing with many small experts versus coarse routing with fewer large experts) under a fixed total parameter budget. All configurations are evaluated on a unified pre-training mixture.
+
+\noindent\textbf{Expert Scale \& Capacity-Compute Decoupling.}
+We first evaluate the impact of expanding the total parameter capacity by scaling the number of available routed experts $E \in \{64, 128, 256\}$ while holding the active parameter scale strictly constant at $1.4\,\mathrm{B}$ per token. As shown in~\cref{fig:recipe_expert_scale_training_validation}, scaling the expert count yields consistent improvements in both training and validation losses, demonstrating the efficacy of capacity-compute decoupling. However, the performance gain from $E=128$ to $E=256$ is marginal compared to the significant improvement from $E=64$ to $E=128$. Considering this trade-off among performance, latency, and memory footprint, we choose $E=128$ as the default expert scale, which captures most of the observed capacity benefit while avoiding the additional communication and storage overhead of a larger expert pool.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[htbp]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/recipe/training_loss_compare_ablate_recipe_expert_scale.pdf}
+        \caption{Training loss.}
+        \label{fig:recipe_expert_scale_training}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[htbp]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/recipe/validation_loss_compare_ablate_recipe_expert_scale.pdf}
+        \caption{Validation loss.}
+        \label{fig:recipe_expert_scale_validation}
+    \end{subfigure}
+    \caption{Expert-count recipe comparison using training and validation loss. Training curves show raw logged losses in the background and smoothed curves for visualization; validation curves are unsmoothed and aligned to the training-loss step range.}
+    \label{fig:recipe_expert_scale_training_validation}
+\end{figure}
+
+\noindent\textbf{Fine-Grained Specialization vs. Coarse Routing.}
+Next, we ablate the partitioning of FFN parameters under a fixed total parameter budget of $13\,\mathrm{B}$. We compare a fine-grained routing recipe (\textit{MoE 13B-A1.4B-E128}, which routes each token to $K_{\mathrm{r}} = 8$ out of 128 experts) against a coarse routing recipe (\textit{MoE 13B-A1.5B-E64}, which routes each token to $K_{\mathrm{r}} = 4$ out of 64 experts). As illustrated in~\cref{fig:recipe_active_capacity_training_validation}, despite the coarse routing model having a higher active parameter count (and thus a larger FLOP footprint per token), it performs consistently worse than the fine-grained counterpart throughout training. This performance gap highlights the advantages of fine-grained expert specialization~\cite{dai2024deepseekmoe,deepseek2024v3}. By dividing the FFN parameters into more, smaller experts, the model gains access to a dramatically larger combinatorial routing space ($\binom{128}{8}$ vs $\binom{64}{4}$), following the sparse top-$K$ routing principle of MoE models~\cite{shazeer2017moe,lepikhin2020gshard,switchtransformer}. This enables visual tokens representing heterogeneous modalities and noise levels to form more customized execution pathways, whereas routing to fewer, larger experts leads to parameter-level gradient conflicts~\cite{jacobs1991adaptive,nowlan1990evaluation,jordan1994hierarchical} and knowledge hybridity~\cite{dai2024deepseekmoe}.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[htbp]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/recipe/training_loss_compare_ablate_recipe_active_capacity.pdf}
+        \caption{Training loss.}
+        \label{fig:recipe_active_capacity_training}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[htbp]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/recipe/validation_loss_compare_ablate_recipe_active_capacity.pdf}
+        \caption{Validation loss.}
+        \label{fig:recipe_active_capacity_validation}
+    \end{subfigure}
+    \caption{Active-capacity recipe comparison using training and validation loss. Training curves show raw logged losses in the background and smoothed curves for visualization; validation curves are unsmoothed and aligned to the training-loss step range.}
+    \label{fig:recipe_active_capacity_training_validation}
+\end{figure}
+
+\subsection{Scaling Experiments} \label{subsec:scaling_experiments}
+To verify the scalability and efficiency of our sparse single-stream diffusion transformer, we conduct scaling experiments across models of varying sizes, following the established practice of analyzing model scaling behavior and sparse MoE efficiency~\cite{kaplan2020scalinglaws,hoffmann2022trainingcomputeoptimal,shazeer2017moe,lepikhin2020gshard,switchtransformer}. We first benchmark the model under a compute-comparable regime, evaluating the benefits of sparse parameters against standard dense baselines. We then investigate the scaling trajectories of our architecture up to $120\,\mathrm{B}$ total parameters. Finally, we analyze the inference efficiency of our sparse architecture under varying sequence lengths.
+
+\noindent\textbf{Active-Parameter Comparable Scaling.}
+As illustrated in~\cref{fig:comparable_active_parameter_scaling}, we compare \textit{MoE 13B-A1.4B} (13B total parameters, 1.4B active parameters) against a standard \textit{Dense 1.3B} baseline under a similar active compute budget. The sparse model exhibits a substantial performance advantage in both training and validation losses throughout the training process. In video pre-training, modeling complex spatio-temporal features and continuous physical interactions requires a high representation capacity~\cite{ho2022video,peebles2023scalablediffusionmodelstransformers}. Under equivalent computational constraints, the tenfold increase in total parameter capacity of the sparse MoE model provides a significantly larger repository for physical-world priors, consistent with the capacity-compute decoupling enabled by sparse expert routing~\cite{shazeer2017moe,lepikhin2020gshard,switchtransformer}. This effectively resolves the feature-capacity bottleneck of the dense baseline, enabling the sparse model to achieve superior performance without inflating the compute budget.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.96\linewidth]{figures/scaling/training_validation_compare_dense1_3b_vs_moe13b.pdf}
+    \caption{Comparable active-parameter scaling comparison between Dense 1.3B and MoE 13B-A1.4B using training and validation loss. Training curves show raw logged losses in the background and smoothed curves for visualization; validation curves are unsmoothed and aligned to the training-loss step range.}
+    \label{fig:comparable_active_parameter_scaling}
+\end{figure}
+
+\noindent\textbf{Cross-Compute Dominance.}
+Furthermore, our sparse architecture demonstrates striking cross-compute dominance over dense baselines. As shown in~\cref{fig:compute_comparable_dense_moe}, both \textit{MoE 13B-A1.4B} and \textit{MoE 30B-A3B} consistently outperform dense models with roughly twice their active parameter scale. Specifically, \textit{MoE 30B-A3B} closely approaches the performance of Dense 14B. This proves that capacity-compute decoupling fundamentally accelerates the scaling efficiency of video diffusion models, unlocking superior representation power.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[htbp]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/scaling/training_loss_compare_scaling6.pdf}
+        \caption{Dense and sparse scaling.}
+        \label{fig:compute_comparable_dense_moe}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[htbp]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/scaling/training_loss_compare_moe_scaling4.pdf}
+        \caption{MoE scaling at aligned steps.}
+        \label{fig:compute_comparable_moe_scaling}
+    \end{subfigure}
+    \caption{Training-loss comparison for compute-comparable scaling experiments. The faint background traces show the raw logged training losses; the bold curves are smoothed only for visualization and are not used to alter the underlying measurements.}
+    \label{fig:compute_comparable_scaling}
+\end{figure}
+
+
+\noindent\textbf{Predictable Scaling Laws up to 120B.}
+To probe the scaling potential of our architecture under practical resource constraints, we conduct an early-stage scaling study by increasing the total parameter count from $13\,\mathrm{B}$ to $120\,\mathrm{B}$, with active parameters scaled proportionally from $1.4\,\mathrm{B}$ to $11\,\mathrm{B}$ (\textit{MoE 13B-A1.4B}, \textit{MoE 30B-A3B}, \textit{MoE 60B-A6B}, and \textit{MoE 120B-A11B}). As shown in~\cref{fig:compute_comparable_moe_scaling}, when the models are compared at aligned training steps, larger sparse models consistently achieve lower training loss, exhibiting a predictable scale-dependent improvement consistent with neural scaling-law observations~\cite{kaplan2020scalinglaws,hoffmann2022trainingcomputeoptimal}. Although these runs are not trained to full convergence due to resource constraints, the early training trajectories provide a practical initial validation of the scalability of our sparse single-stream design with auxiliary-loss-free load balancing and sequence-wise auxiliary loss.
+
+
+\noindent\textbf{Inference Efficiency.} To verify that sparse capacity does not translate into prohibitive inference costs, we benchmark depth-matched dense and MoE DiT variants across sequence lengths ranging from 16K to 1M (1,048,576) tokens, following the sparse MoE literature's emphasis on conditional computation and routing overhead~\cite{shazeer2017moe,lepikhin2020gshard,switchtransformer,deepseek2024v3}.
+
+
+\begin{wrapfigure}{r}{0.50\linewidth}
+    \vspace{-0.8em}
+    \centering
+    \includegraphics[width=\linewidth]{figures/speed_bench/moe_dense_inference_latency_ratio.pdf}
+    \caption{MoE-to-dense speed ratio, computed as dense latency divided by \textit{MoE 30B-A3B} latency.}
+    \label{fig:moe_dense_inference_latency}
+    \vspace{-1.0em}
+\end{wrapfigure}
+
+As illustrated in~\cref{fig:moe_dense_inference_latency}, we analyze the inference speed ratio, defined as $r=T_{\mathrm{dense}}/T_{\mathrm{MoE}}$, where $r > 1$ indicates that \textit{MoE 30B-A3B} is faster than the corresponding dense baseline.
+We first compare the MoE model against its active-parameter equivalent, \textit{Dense 3B}, to assess routing overhead.
+At a sequence length of 1M tokens, where attention and FFN computations dominate execution~\cite{williams2009roofline}, the sparse model achieves near-parity latency with a ratio of $0.97\times$.
+Next, we evaluate the efficiency gains of sparsity against larger dense models.
+As the parameter scale increases, the MoE architecture demonstrates substantial latency advantages: at 1M tokens, the speed ratios against \textit{Dense 6B}, \textit{Dense 14B}, and \textit{Dense 30B} reach $1.50\times$, $2.59\times$, and $3.18\times$, respectively.
+These results demonstrate that our sparse framework successfully scales model capacity while preserving the inference efficiency of a 3B-scale model, offering a highly practical architecture for long-context video generation.
+
+
+\subsection{Cascaded Refiner}
+Directly generating high-resolution videos is computationally expensive due to the massive number of spatio-temporal tokens.
+To balance the trade-off between computational complexity and generation quality, we adopt a cascaded design.
+This follows the common practice of decomposing high-resolution diffusion generation into a base stage and one or more refinement or super-resolution stages~\cite{saharia2021sr3,ho2022imagen,blattmann2023stable}.
+A high-capacity base generator first models the overall motion and scene layout at a lower resolution.
+Subsequently, a dedicated second-stage refiner increases the resolution.
+In practice, we upsample the video from 480p to 1080p.
+During training, we simulate the base generator's outputs by downsampling the target video.
+We then apply synthetic degradations, including Gaussian blur and compression, to construct a degraded low-resolution input.
+Such synthetic degradation pipelines are widely used in blind restoration and real-world super-resolution to improve robustness to imperfect low-resolution inputs~\cite{zhang2021bsrgan,wang2021realesrgan}.
+This degraded video is spatially upsampled to the target resolution in pixel space.
+We then encode it using the VAE encoder to obtain the condition latent $\x_{\mathrm{lr}}$.
+Processing the upsampled conditioning directly in the latent space avoids intermediate pixel-space decoding.
+This reduces computational overhead while preserving visual quality~\cite{flashvideo,hunyuanvideo15,longcatvideo,waver}.
+
+Instead of denoising from pure Gaussian noise, the refiner learns a conditional rectified flow starting from the degraded condition $\x_{\mathrm{lr}}$ toward the clean target latent $\x_0$ encoded from the target video.
+This formulation is built on rectified flow and flow-matching objectives, which learn continuous transport dynamics through vector-field regression~\cite{liu2022rectifiedflow,lipman2022flow,tong2023conditionalflowmatching}.
+During training, the refiner threshold $\tau \sim \operatorname{Uniform}(0.85, 0.95)$ defines the maximum noise level for the conditional trajectory.
+We perturb $\x_{\mathrm{lr}}$ with Gaussian noise $\epsilon$ to form the noisy starting condition $\x_{\tau} = (1-\tau)\x_{\mathrm{lr}} + \tau\epsilon$.
+For a sampled training timestep $t \in [0, \tau]$, the perturbed latent $\x_t$ and the target velocity $v^{\star}_{\mathrm{ref}}$ are formulated as:
+\begin{equation}
+    \x_t = \left(1-\frac{t}{\tau}\right)\x_0 + \frac{t}{\tau}\x_{\tau}, \quad v^{\star}_{\mathrm{ref}} = \frac{\x_{\tau}-\x_0}{\tau}.
+\end{equation}
+The model is optimized using the same flow-matching loss formulation as the base generator, restricted to timesteps $t \le \tau$.
+This thresholded trajectory limits denoising to noise regimes near the degraded condition.
+Consequently, the refiner preserves the base model's global semantics and motion.
+Its capacity is dedicated to restoring high-frequency details, sharpening textures, and correcting local artifacts.
+
+During inference, the low-resolution video generated by the base stage is upsampled to the target resolution in pixel space.
+We then encode it to obtain the condition latent $\x_{\mathrm{lr}}$.
+We perturb $\x_{\mathrm{lr}}$ with Gaussian noise $\epsilon$ at a starting timestep $t = \tau_{\text{inf}}$ (e.g., $\tau_{\text{inf}} = 0.85$).
+This yields the noisy starting latent $\x_{\tau_{\text{inf}}} = (1-\tau_{\text{inf}})\x_{\mathrm{lr}} + \tau_{\text{inf}}\epsilon$.
+Denoising is performed by integrating the rectified flow ODE trajectory backwards from $t = \tau_{\text{inf}}$ to $t = 0$, producing the clean video latent.
+As shown in \cref{fig:refiner_generation}, the refiner significantly enhances face appearance (left), while successfully restoring high-frequency details and producing sharp, legible OCR text (right).
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{./figures/refiner/Presentation1.pdf}
+\caption{\textbf{Refiner Generation.} 
+We compare the base video generation against the refined video generation.
+The left example's comprehensive prompt is  ``\textit{Three dancers, a man in the center and two women on either side, are performing a traditional Indian dance on a stage...}''.
+The right example's comprehensive prompt is ``\textit{A humanoid robot named 'AURORA' walks steadily down a gravel path in a meticulously manicured formal garden...}''.}
+\label{fig:refiner_generation}
+\end{figure}

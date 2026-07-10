@@ -1,0 +1,299 @@
+\newpage
+
+\appendix
+\crefalias{section}{appendix}
+\crefname{appendix}{Appendix}{Appendices}
+\Crefname{appendix}{Appendix}{Appendices}
+
+\addcontentsline{toc}{section}{Appendix}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{-1}}
+
+\begin{center}
+    {\Large\bfseries Appendix}
+\end{center}
+
+\section{Acknowledgments}
+\label{sec:Acknowledgments}
+\subsection{Contributors}
+
+\paragraph{RoboDojo-RealEval Infrastructure Contributors.}
+We sincerely thank Tian Nian, Zijian Cai, Kehe Ye, Yukun Liao, Shaolong Zhu, Qiangyu Chen, Jiahao Zhang and Zichun Chen for their valuable support in developing the RoboDojo-RealEval real-world evaluation infrastructure.
+
+\paragraph{Policy Contributors.}
+We sincerely thank the following contributors for providing policy models and supporting their integration and evaluation in RoboDojo: Jun Guo, Zongzheng Zhang, Hongzhe Bi, Jisong Cai, Xiaofeng Wang, Zheng Zhu, Yuhang Tang, Weijie Ke, Mingleyang Li, Ganlin Yang, Shuai Yang, Hengtao Li, Wenxuan Song, Zhangzheng Tu, Kaidong Zhang, Yu Sun, Shuhe Huang, Junliang Guo, Tong Zhang, Yixing Chen, Pengxiang Ding, Rongxu Cui, and Hengkai Tan.
+
+\subsection{Evaluation Integrity and Leaderboard Publication Details}
+\label{appendix:evaluation_integrity}
+
+\paragraph{Official remote evaluation.}
+Policies must be evaluated through the RoboDojo online evaluation system, either by submitting a deployable policy package or by connecting a remote policy server. Both simulation and real-world evaluations are conducted through the official RoboDojo pipeline using the released task layouts, standardized scene reset procedure, evaluation protocol, and deployment interface. Reported scores are computed by the official evaluation system rather than self-reported by participants.
+
+\paragraph{Repeated simulation evaluation and multi-embodiment real-world evaluation.}
+For simulation, each submitted policy is evaluated under three random seeds to reduce the influence of stochastic initialization and evaluation noise. Participants may submit either three training-seed checkpoints or one checkpoint evaluated under three evaluation seeds. RoboDojo reports the mean and standard deviation across the three simulation runs. For real-world evaluation, each policy is evaluated on all three robot embodiments, including ARX X5, Piper, and Piper X. We report both per-embodiment and aggregate performance to reflect whether a policy generalizes across different collaborative bimanual platforms.
+
+\paragraph{Hidden verification.}
+During official evaluation, each submitted model is also evaluated on a hidden verification set with randomized layouts. This set is used to detect overfitting, hand-tuning, or gaming of the released public layouts. If the success rate on the hidden verification set differs significantly from that on the public evaluation set, the submission is considered invalid and is excluded from the official verified leaderboard.
+
+\paragraph{Open-source artifact for verified publication.}
+Participants who choose to publish results on the official verified leaderboard must release the full evaluation artifact through \textbf{XPolicyLab}. This includes the training and deployment code, the evaluated checkpoint, configuration files, and instructions for model loading, inference, deployment, and evaluation under the unified RoboDojo interface. This requirement applies only at the leaderboard publication stage, not during private evaluation. Releasing the exact artifact used for evaluation enables community inspection and independent reproduction.
+
+\section{Comparison with Existing Benchmarks} \label{sec:benchmark_comparison}
+
+We compare RoboDojo with existing robot manipulation benchmarks in Table~\ref{tab:robodojo_simulation_benchmark_compare}. The comparison highlights RoboDojo's distinctive design in terms of benchmark scale, sim-and-real evaluation, capability coverage, task diversity, real-world reproducibility, and remote evaluation support. Compared with prior benchmarks that are often specialized to either simulation or real-world evaluation, RoboDojo provides a unified benchmark suite that connects rapid simulation-based diagnosis with standardized real-world validation.
+
+\input{table/compare}
+
+\section{Real-World Evaluation Stability}
+
+We evaluate $\pi_{0.5}$, GalaxeaVLA, and InternVLA-A1 over three independent RoboDojo-RealEval runs. Each cell reports the standard deviation of success rate and score across R1--R3, with success-rate deviations in percentage points. The ``Overall'' row gives the standard deviation of the average performance across runs.
+
+\begin{table*}[h]
+\centering
+\caption{\textbf{Full per-task real-world evaluation stability across repeated runs.}}
+\label{tab:real_world_consistency_std_full}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\resizebox{0.8\textwidth}{!}{
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{Task}
+& \multicolumn{2}{c}{$\pi_{0.5}$}
+& \multicolumn{2}{c}{GalaxeaVLA}
+& \multicolumn{2}{c}{InternVLA-A1} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+& Std. SR (pp) & Std. Score
+& Std. SR (pp) & Std. Score
+& Std. SR (pp) & Std. Score \\
+\midrule
+\texttt{connect\_charger} & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
+\texttt{stack\_bowls} & 5.8 & 4.0 & 15.3 & 16.6 & 5.8 & 3.5 \\
+\texttt{stack\_and\_cover\_blocks} & 5.8 & 5.8 & 0.0 & 0.0 & 0.0 & 0.0 \\
+\texttt{fill\_pen\_holder} & 10.0 & 1.2 & 5.8 & 11.7 & 0.0 & 3.5 \\
+\texttt{stand\_up\_bottles} & 5.8 & 6.6 & 0.0 & 7.8 & 15.3 & 9.8 \\
+\texttt{put\_objects\_into\_basket} & 5.8 & 5.8 & 5.8 & 5.8 & 5.8 & 5.8 \\
+\texttt{hang\_mugs} & 0.0 & 1.2 & 0.0 & 2.3 & 0.0 & 2.3 \\
+\texttt{pack\_objects\_into\_backpack} & 5.8 & 3.5 & 0.0 & 1.7 & 0.0 & 6.5 \\
+\texttt{sweep\_blocks} & 5.8 & 5.8 & 5.8 & 5.8 & 0.0 & 0.0 \\
+\texttt{disassemble\_LEGO} & 5.8 & 4.6 & 0.0 & 1.2 & 0.0 & 0.0 \\
+\texttt{classify\_objects} & 0.0 & 2.3 & 0.0 & 0.0 & 0.0 & 0.0 \\
+\texttt{cap\_pen} & 0.0 & 2.0 & 0.0 & 2.3 & 0.0 & 2.0 \\
+\texttt{pack\_and\_pour\_fruit} & 5.8 & 3.1 & 0.0 & 3.5 & 0.0 & 10.0 \\
+\texttt{store\_in\_safe} & 23.1 & 12.9 & 11.5 & 13.9 & 17.3 & 10.4 \\
+\texttt{make\_food} & 5.8 & 5.1 & 0.0 & 1.7 & 0.0 & 0.0 \\
+\texttt{insert\_tubes} & 5.8 & 6.4 & 0.0 & 8.4 & 0.0 & 4.6 \\
+\texttt{cover\_blocks} & 5.8 & 4.6 & 0.0 & 0.3 & 0.0 & 0.0 \\
+\texttt{make\_bread} & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
+\midrule
+\textbf{Overall} & \textbf{1.0} & \textbf{0.5} & \textbf{1.2} & \textbf{1.0} & \textbf{1.3} & \textbf{1.2} \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+\section{Simulation Training and Evaluation Details}
+
+\subsection{Simulation Training Data Details}
+\label{appendix:sim_training_data_statistics}
+
+Table~\ref{tab:sim_training_data_statistics} summarizes the simulation training data used in RoboDojo. The training set contains 35 task directories and 3,500 trajectories, totaling 1,859,602 frames, corresponding to 20.66 hours of bimanual manipulation data recorded at 25~Hz. Each trajectory provides synchronized RGB-D observations from a head-mounted camera and two wrist cameras at a resolution of $640 \times 480$. Depth images are normalized and stored as integer values in millimeters. A third-view RGB video is also recorded for preview and visualization. The dataset further includes robot states and next-frame actions, covering end-effector poses, gripper states, and joint positions.
+
+Demonstrations are collected through either automated trajectory synthesis or VR-based teleoperation, depending on task structure and execution difficulty. For tasks in the Generalization, Memory, Long-Horizon, and Precision dimensions, we collect 100 trajectories per task. The Open dimension is reserved for evaluation only and does not include task-specific training demonstrations, since it is designed to assess skill recombination and transfer to unseen task specifications rather than imitation of task-specific demonstrations.
+
+For Generalization tasks, training trajectories are collected under the normal setting without domain randomization. To reduce overfitting to a single visual configuration during supervised fine-tuning, we additionally include one auxiliary DLC task with 100 domain-randomized trajectories. These trajectories include diverse backgrounds, lighting conditions, and clutter layouts, broadening visual exposure without leaking task-specific solutions from the evaluation tasks.
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Simulation training data statistics.} The simulation training set contains 1,859,602 frames from 3,500 trajectories, corresponding to 20.66 hours of bimanual manipulation data at 25\,Hz. The Open dimension is excluded from the training set and used only to evaluate skill recombination and transfer to unseen task specifications. DLC denotes an auxiliary domain-randomized task used to broaden visual exposure during training.}
+\label{tab:sim_training_data_statistics}
+\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{0.8\textwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Category} & \textbf{Frames} & \textbf{Duration} & \textbf{Trajectories} & \textbf{Avg. Frames / Traj.} & \textbf{Avg. Duration / Traj.} \\
+\midrule
+Generalization & 592,432 & 6.58 h & 1,200 & 494 & 19.75 s \\
+Memory & 328,975 & 3.66 h & 600 & 548 & 21.93 s \\
+Precision & 368,459 & 4.09 h & 800 & 461 & 18.42 s \\
+Long-Horizon & 504,133 & 5.60 h & 800 & 630 & 25.21 s \\
+Open & 0 & 0.00 h & 0 & -- & -- \\
+DLC & 65,603 & 0.73 h & 100 & 656 & 26.24 s \\
+\midrule
+Total & 1,859,602 & 20.66 h & 3,500 & 531 & 21.25 s \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Simulation Evaluation Details}
+\label{appendix:sim_evaluation_setting}
+
+For each simulation task, the maximum interaction horizon is determined from the demonstration data. Specifically, we compute the 90th percentile of task-specific trajectory lengths and set the evaluation horizon to $1.2\times$ this value. For short tasks generated by automated trajectory synthesis, we use a larger multiplier of $1.5\times$ to avoid premature termination caused by small trajectory-length variations. This setting provides sufficient execution time while keeping the evaluation horizon consistent with the demonstrated task complexity.
+
+\section{Real-World Training and Evaluation Details}
+
+\subsection{Real-World Training Data Details}
+\label{appendix:real_demo_statistics}
+
+Table~\ref{tab:real_demo_statistics} summarizes the real-world demonstration data used in RoboDojo. We collect demonstrations using a homogeneous leader-follower teleoperation setup, where the leader arm has the same embodiment as the follower robot. For each task, we collect 100 demonstrations recorded by four different operators to improve behavior diversity and reduce operator-specific bias. Across three robot embodiments, including ARX X5, Piper, and Piper X, the dataset contains 1,800 trajectories and 1,611,841 frames, corresponding to 17.91 hours of bimanual manipulation data recorded at 25~Hz. Although each embodiment contributes the same number of trajectories, the total duration differs due to embodiment-specific execution speeds, workspace configurations, and task structures.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Real-world demonstration statistics.} The real-world dataset contains 1,611,841 frames from 1,800 trajectories across three robot embodiments, corresponding to 17.91 hours of bimanual manipulation data at 25~Hz. Each embodiment contains 600 trajectories from 6 tasks, while the duration differs due to embodiment-specific execution speeds and task structures.}
+\label{tab:real_demo_statistics}
+\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{0.8\textwidth}{!}{
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Embodiment} & \textbf{Frames} & \textbf{Duration} & \textbf{Trajectories} & \textbf{Avg. Frames / Traj.} & \textbf{Avg. Duration / Traj.} \\
+\midrule
+ARX X5 & 665,071 & 7.39 h & 600 & 1,108 & 44.34 s \\
+Piper & 539,737 & 6.00 h & 600 & 900 & 35.98 s \\
+Piper X & 407,033 & 4.52 h & 600 & 678 & 27.14 s \\
+\midrule
+Total & 1,611,841 & 17.91 h & 1,800 & 895 & 35.82 s \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+Each demonstration includes robot joint states, end-effector poses, language annotations, and synchronized RGB observations from three camera views, including one head camera and two wrist cameras. All videos are recorded at a resolution of $640 \times 480$. After collection, all trajectories are manually inspected by multiple reviewers. The filtering criteria include whether the RoboDojo-RealEval platform is properly reset before the trial, whether the operator hesitates excessively during execution, and whether the task is successfully completed. The reset check covers protocol-specific conditions such as flattening the table cover and adjusting lighting to the standard intensity. This filtering process ensures that the demonstrations are task-complete, high-quality, and consistent with the real-world evaluation protocol.
+
+\subsection{Real-World Evaluation Details}
+\label{appendix:real_evaluation_setting}
+
+For each real-world task, each policy is evaluated for 10 trials. Evaluation layouts are collected in advance and replayed before each trial to ensure consistent initial conditions across policies and sessions. When a policy outputs end-effector control commands, we use Pink~\citep{pink} as the robot motion planner to convert end-effector targets into executable robot motions.
+
+The maximum execution horizon for each task is determined from the demonstration videos by multiplying the 90th percentile trajectory length by 1.5. Once the step limit is reached, the trial is automatically terminated and the robot returns to its reset pose. The evaluation manager may also manually stop a trial if the robot exhibits unsafe behavior that could damage the platform, such as hitting the table, colliding with the external frame, or self-collision. All evaluation videos are recorded for scoring.
+
+Each video is scored independently by three evaluators under a double-blind protocol. The scoring considers both final task outcome and intermediate sub-step completion. The final trial score is obtained by averaging the three evaluator scores. To improve transparency and fairness, we release all evaluation videos and corresponding evaluator scores for leaderboard submissions, and allow users to appeal potential scoring errors.
+
+\paragraph{Public evaluation videos and closed-source track.}
+For transparency, RoboDojo releases evaluation videos for models included in the official verified leaderboard. These videos provide qualitative evidence of policy behavior and allow the community to inspect success cases, failure modes, and potential abnormal evaluation behavior. Results without the evaluated checkpoint, implementation, configuration files, and reproducibility instructions are reported only in a separate closed-source track, which is marked as non-official and unverified because the results cannot be independently reproduced or inspected by the community.
+
+\section{Simulation Platform Details}
+\label{appendix:simulation_platform_details}
+
+This section provides additional implementation details of the RoboDojo simulation platform, including the configuration-driven task setup, digital asset processing, heterogeneous parallel simulation, and demonstration collection pipeline.
+
+\subsection{Simulation Platform Foundation}
+\label{appendix:Simulation_Platform}
+The RoboDojo simulation platform is built upon the MagicSim infrastructure ~\citep{lu2026magicsim}, whose codebase provides the foundation of our simulation stack. RoboDojo adopts MagicSim as its core simulation infrastructure, inheriting its modular manager-based runtime design and physically based object abstraction system. Specifically, RoboDojo reuses MagicSim’s environment backbone for launching simulation, configuring physics and rendering, managing deterministic seeds, and exposing standardized hooks for task-specific scene setup, stepping, action application, and reset. Through MagicSim’s manager architecture, key simulation functions such as scene construction, object management, layout generation, camera configuration, data capture, and robot control are modularized into reusable components. RoboDojo further connects this infrastructure with Isaac Lab’s vectorized reinforcement learning interface, while preserving MagicSim’s manager-driven execution pattern for observation, reward, and termination computation.
+
+RoboDojo also builds on MagicSim’s physically grounded object system, which provides unified abstractions for rigid bodies, articulated mechanisms, static geometry, garments, fluids, and scene fixtures. These MagicSim components encapsulate USD asset loading, PhysX-backed simulation setup, material configuration, state querying, and deterministic utility support, allowing RoboDojo to focus on robotic task construction rather than low-level simulator engineering. We thanks again to MagicSim who provides the foundational simulation architecture, object model, and simulation backend upon which RoboDojo’s embodied robotic environments are developed.
+
+
+\subsection{Configuration-Driven Simulation Setup}
+\label{appendix:simulation_platform_setup}
+
+RoboDojo follows a configuration-first design, where each task is specified by modular YAML files rather than hard-coded simulator scripts. Each configuration defines task-relevant assets, distractor assets, object initialization distributions, robot initialization, camera settings, lighting conditions, background textures, articulation states, success conditions, and evaluation seeds. This design separates task specification from simulator execution, allowing different tasks to share the same runtime while changing task-specific objects, scene layouts, and randomization ranges.
+
+At reset time, the simulator samples scene instances according to the task configuration under deterministic seed control. This allows RoboDojo to generate diverse scene layouts while remaining reproducible across evaluation runs. For example, the same task can be evaluated under different object poses, clutter configurations, lighting conditions, and background textures by changing the evaluation seed, while keeping the sampling process deterministic.
+
+The platform supports rigid, articulated, and deformable assets through a unified scene construction pipeline. Rigid objects are loaded with collision geometry and physical parameters. Articulated objects are instantiated with joint configurations, joint limits, and initial articulation states. Deformable objects are instantiated with estimated material parameters and simulation-ready mesh representations. This unified pipeline enables different asset types to be used under the same task and policy interface.
+
+\subsection{Digital Asset Processing and Validation}
+\label{appendix:asset_library_details}
+
+RoboDojo builds a digital asset library containing rigid, articulated, and deformable objects for task construction and clutter generation. For rigid objects, we collect assets from online repositories and reconstruct additional real-world daily objects using Meshy AI from reference images or text prompts. Reconstructed meshes are converted into simulation-ready USD assets and manually inspected in Isaac Sim before being added to the benchmark library.
+
+Each asset is annotated with semantic and task-level metadata, including language descriptions, object categories, placement annotations, success-checking annotations, and manipulation affordances for automated data generation. These annotations support both task construction and demonstration generation. For example, graspable regions, placement regions, functional parts, and task-specific interaction points are used to ground low-level skills during automated trajectory synthesis and to define task-specific success checks.
+
+For articulated objects, we inspect the kinematic structure, joint configuration, collision geometry, joint limits, and physical stability. For deformable objects, we assign estimated material parameters and realistic textures, and supplement the asset set with selected assets from ClothesNet~\citep{zhou2023clothesnet}. All assets are validated through simulation rollouts to reduce unstable contacts, incorrect collision geometry, and physically implausible behavior. This validation process improves the physical reliability of contact-rich manipulation tasks and reduces failures caused by asset artifacts rather than policy limitations.
+
+\subsection{Heterogeneous Parallelism Implementation}
+\label{appendix:heterogeneous_parallelism_details}
+
+RoboDojo implements heterogeneous parallelism by disabling strict physics replication across cloned environments and allowing each environment to instantiate its own scene modules from seed-controlled configurations. Unlike homogeneous vectorized environments, where parallel instances usually share the same scene template, RoboDojo allows different environments in the same simulator process to contain different object categories, asset geometries, object counts, clutter layouts, articulation structures, and task configurations.
+
+Each environment maintains an independent task state, random seed, robot initialization, observation stream, and success condition, while sharing the same batched stepping and action dispatch interface. This design preserves the efficiency of vectorized execution while allowing parallel evaluation over diverse scene configurations. For example, one environment may evaluate a rigid-object pick-and-place task with clutter distractors, while another may evaluate manipulation of an articulated object with a different joint structure.
+
+For larger-scale evaluation and data collection, RoboDojo partitions episode seeds across multiple GPUs and launches independent simulator processes. Each process runs a subset of tasks and seeds, and the results are aggregated after evaluation. Combining intra-process heterogeneous environments with inter-process GPU sharding enables scalable evaluation without forcing all parallel environments to share the same scene template. This is especially important for evaluating generalist manipulation policies, since the benchmark should expose policies to diverse object geometries, layouts, and physical configurations rather than repeated rollouts of a single cloned scene.
+
+\subsection{Simulation Demonstration Collection}
+\label{appendix:simulation_data_collection_details}
+
+RoboDojo supports two complementary demonstration collection modes: automated trajectory synthesis and VR-based teleoperation. Both modes use the same asset annotation layer, which specifies manipulation-related affordances and task semantics such as graspable regions, placement regions, functional parts, and task-specific interaction points. These annotations support automated skill grounding and task validation.
+
+For automated trajectory synthesis, each task is decomposed into an ordered sequence of manually specified low-level skills. The skill library includes primitives such as \texttt{push\_up}, \texttt{place}, \texttt{handover}, \texttt{grasp}, \texttt{insert}, \texttt{open}, \texttt{close}, and \texttt{stack}. Each skill is grounded in the corresponding object annotations and executed using the cuRobo v2 motion planner~\citep{sundaralingam2026curobov2dynamicsawaremotiongeneration}, which generates physically feasible robot motions. This design enables complex demonstrations to be generated through reusable skill composition.
+
+For tasks that are difficult to synthesize automatically, RoboDojo provides a VR-based teleoperation interface using devices such as Meta Quest and Pico. The system captures the delta 6D pose of the VR controller and maps it to target end-effector motion in simulation, which is solved online by cuRobo v2. For a single 6-DoF ARX X5 arm, spatial motion solving latency can reach approximately 3~ms per planning step. The gripper is controlled through controller buttons, while foot pedals are used to trigger task start and termination, fix robot arms, and provide other efficiency-oriented controls. This interface enables efficient collection of high-quality demonstrations for complex simulation tasks where automated synthesis is unreliable.
+
+
+\section{RoboDojo-RealEval Platform Details}
+\label{appendix:realeval_details}
+
+\paragraph{Hardware setup.}
+RoboDojo-RealEval uses a fixed-height white evaluation table with a 1.2\,m $\times$ 1.2\,m workspace. A replaceable white table cover maintains a consistent visual background and reduces replacement cost caused by surface damage during repeated evaluations. The workspace is enclosed by an external frame of 1.5\,m $\times$ 1.5\,m $\times$ 2.1\,m. Black curtains are mounted on the left, right, front, and top sides to reduce external illumination, while three linear LED light sources with fixed mounts provide stable lighting over the manipulation workspace. Custom structural components fix the relative geometry between the table, frame, robot arms, and cameras. A bottom connector fixes the relative distance, position, and orientation of the two robot arms, while a steel tube and custom 3D-printed mount fix the head-camera pose. The platform also includes a touchscreen interface and an integrated workstation box for the control computer and cooling system.
+
+\paragraph{Layout replay and evaluation workflow.}
+For each real-world task, we pre-collect reference evaluation layouts. During evaluation, the target layout image is overlaid with transparency on the live observation stream through the web interface. Evaluators compare the current scene with the reference layout and adjust object positions until the live observation aligns with the target image. This provides an intuitive mechanism for replaying initial layouts and reducing reset variation across policies and sessions. In our test with five data collectors, restoring a scene with five objects takes 14 seconds on average.
+
+\paragraph{Safety control and scoring.}
+After scene reset, the evaluator starts policy execution through the touchscreen interface. Since submitted policies may behave unexpectedly due to code errors or poor training, RoboDojo-RealEval provides an emergency stop function. Once triggered, policy control is immediately disabled and the robot slowly returns to a safe reset state. All observation videos are automatically collected and uploaded to the cloud for scoring. Each trajectory is scored by three independent raters who are blind to the identity of the evaluated policy. Samples with large scoring discrepancies are filtered, and the remaining scores are averaged to obtain the final result.
+
+\subsection{Hardware Components of RoboDojo-RealEval}
+\label{appendix:realeval_hardware_components}
+
+Fig.~\ref{fig:real_world_hardware_sperate} shows the hardware components of the \textbf{RoboDojo-RealEval} platform. The platform integrates wrist cameras, a head camera, replaceable collaborative bimanual robot embodiments, a robot and camera support structure, an external frame with controlled lighting and curtains, an integrated workstation box, and a touchscreen-based operation interface. These components jointly standardize sensing, robot placement, illumination, and workspace layout, providing a reproducible hardware foundation for real-world policy evaluation.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{assets/Figure/hardware_sperate.pdf}
+\caption{\textbf{\textcolor{Blue_1}{Hardware components of RoboDojo-RealEval.}}
+The platform consists of (a) two Gemini 305 wrist cameras, (b) one Gemini 335L head camera, (c) replaceable collaborative bimanual robot embodiments including ARX X5, Piper, and Piper X, (d) robot and camera support structure with a touchscreen interface, (e) external frame with LED lighting and curtains, (f) integrated workstation box, and (g) the assembled evaluation platform. These components standardize sensing, robot placement, illumination, and workspace layout for reproducible real-world evaluation.}
+\label{fig:real_world_hardware_sperate}
+\end{figure}
+
+
+\section{XPolicyLab Design Details}
+\label{appendix:xpolicylab_design}
+
+XPolicyLab standardizes the external workflow of robot policy development while allowing each policy to preserve its own internal architecture and implementation. Its design covers three levels: data format, policy interface, and deployment protocol. This separation enables heterogeneous policies, including diffusion policies, VLA models, world-model-based policies, and classical imitation learning baselines, to be trained, debugged, deployed, and evaluated under the same RoboDojo protocol.
+
+\paragraph{Data format and policy development.}
+XPolicyLab converts raw RoboDojo trajectories into policy-specific training formats, such as HDF5 files, LeRobot-style datasets, precomputed language embeddings, and model-specific normalization statistics. At the benchmark level, each trajectory follows a unified observation and action format. Each observation may contain language instructions, multi-view visual inputs, robot states, and metadata. Visual inputs include head, wrist, and third-view cameras, while robot states may include joint positions, end-effector poses, TCP poses, gripper states, and mobile base states. All pose values follow the same convention, represented as position and quaternion in the form $[x, y, z, q_w, q_x, q_y, q_z]$. This unified format separates policy-specific data requirements from the benchmark protocol, allowing different policies to be connected through lightweight adapters and compared under consistent task, robot, action, and seed settings.
+
+\paragraph{Policy interface and debugging.}
+XPolicyLab defines a common policy interface through a standardized \texttt{Model} abstraction. Each policy implements a small set of required methods, including \texttt{update\_obs}, \texttt{get\_action}, and \texttt{reset}. For parallel simulation evaluation, XPolicyLab additionally supports batched interfaces such as \texttt{update\_obs\_batch} and \texttt{get\_action\_batch}. The environment client only calls these standardized functions and does not need to access the internal policy architecture. XPolicyLab also provides an offline debug mode that generates correctly shaped observations and validates returned actions, allowing developers to test model loading, observation parsing, action dimensions, parameter passing, and server-client communication before full simulation or real-world evaluation.
+
+\paragraph{Package organization and deployment protocol.}
+XPolicyLab standardizes the organization of each policy package. A policy package is expected to provide installation, data processing, training, model serving, and evaluation scripts under a consistent structure, such as \texttt{install.sh}, \texttt{process\_data.sh}, \texttt{train.sh}, \texttt{eval.sh}, \texttt{model.py}, \texttt{deploy.py}, and \texttt{deploy.yml}. The same set of experiment parameters, including dataset name, task name, checkpoint name, robot configuration, action type, and random seed, is used across data processing, training, and evaluation. This convention improves reproducibility and makes it easier to inspect, rerun, and compare experiments across policies.
+
+\paragraph{Communication protocol.}
+\label{communication_protocol}
+XPolicyLab implements policy-environment communication through a lightweight client-server protocol based on \textbf{WebSocket} and \textbf{MessagePack}. The policy runs as a model server, while the simulator or real robot runs as an environment client. WebSocket provides persistent bidirectional communication for low-latency action queries, and MessagePack serializes observations and actions into a compact binary format that supports images, robot states, nested dictionaries, and action commands. This protocol enables efficient remote communication across offline debugging, heterogeneous parallel simulation, and cloud-based real-world evaluation, while keeping the policy runtime independent of the underlying evaluation environment.
+
+\paragraph{Evaluation loop.}
+The standard evaluation loop is shown in Table~\ref{tab:xpolicylab_eval_protocol}. At the beginning of each episode, the environment resets the policy state. The environment then repeatedly obtains an observation, sends it to the policy server, requests an action chunk, and executes the returned actions until the episode terminates. The same logic is extended to batched simulation evaluation by maintaining a list of active environment indices and querying the policy with batched observations. This minimal interface supports single-environment evaluation, vectorized simulation, action chunking, and remote real-world deployment.
+
+\input{table/standard}
+
+\section{Simulation Benchmark Tasks Details}
+\label{appendix:sim_benchmark_tasks_details}
+
+We provide a complete specification for each simulation task, including the task name, the language instructions used for data collection and evaluation, the task description, the source of expert demonstrations, and the task split indicating whether it is used for training or testing. This task-level documentation is intended to make the benchmark transparent and reproducible, and to help users clearly understand the evaluation protocol of each task. More details are available at \href{https://robodojo-benchmark.com/doc}{https://robodojo-benchmark.com/doc}.
+
+\input{table/sim_task_details}
+
+
+\section{Real-World Benchmark Tasks Details}
+\label{appendix:real_benchmark_tasks_details}
+
+We provide a complete specification for each real-world task, including the task name, the language instructions used for data collection and evaluation, the task description, the source of expert demonstrations, and the task split indicating whether it is used for training or testing. This task-level documentation makes the real-world benchmark transparent and reproducible, and helps users understand the standardized evaluation protocol for each physical task. More details are available at \texttt{RoboDojo-Benchmark.com/doc}.
+
+\input{table/real_task_details}
+
+\section{Policy Training Details}
+\label{appendix:train_details}
+
+In this section, we provide the training settings for all evaluated policies in RoboDojo. For each policy, we report the initialization checkpoint, training data, batch size, number of training steps, and other model-specific configurations when applicable. These details are included to improve reproducibility and to clarify how each policy is trained for simulation and real-world evaluation.
+
+
+\input{sec/benchmark_experiment/train_details}
+
+% \section{Evaluation Result Details}
+
+% \input{table/eval_result_details}
+

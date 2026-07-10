@@ -1,0 +1,44 @@
+% Required packages:
+% \usepackage{booktabs}
+% \usepackage{tabularx}
+% \usepackage{xcolor}
+
+\begin{table*}[t]
+\centering
+\caption{\textbf{\textcolor{Blue_1}{XPolicyLab unified policy interface and evaluation protocol.}}
+XPolicyLab provides a shared policy-side interface for RoboDojo simulation and real-world evaluation. 
+The same policy implementation can be deployed in single-environment real-world evaluation and batched simulation evaluation, where the batched interface enables heterogeneous parallel execution for faster feedback.}
+\label{tab:xpolicylab_eval_protocol}
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{p{0.16\textwidth}X X}
+\toprule
+\textbf{\textcolor{Blue_1}{Stage}} 
+& \textbf{\textcolor{Blue_1}{Single-Environment Deployment}} 
+& \textbf{\textcolor{Blue_1}{Batched Parallel Deployment}} \\
+\midrule
+
+Policy initialization
+& \texttt{policy.reset()} resets the policy state before each episode. This mode is used for real-world evaluation and standard single-task simulation. 
+& \texttt{policy.reset()} resets the policy state before evaluating multiple simulation environments in parallel. \\
+
+Observation update
+& XPolicyLab receives the latest observation $o_t$ from the RoboDojo environment and updates the policy by \texttt{policy.update\_obs($o_t$)}. 
+& XPolicyLab collects active environment indices $\mathcal{I}_t$, receives batched observations $\mathbf{o}_{\mathcal{I}_t}$, and updates the policy by \texttt{policy.update\_obs\_batch($\mathbf{o}_{\mathcal{I}_t}$)}. \\
+
+Action prediction
+& The policy predicts an action chunk $\mathbf{a}_{t:t+K}$ through \texttt{policy.get\_action()}. The same interface is used for simulation and real-world deployment. 
+& The policy predicts batched action chunks $\mathbf{a}_{\mathcal{I}_t,t:t+K}$ through \texttt{policy.get\_action\_batch($\mathcal{I}_t$)}, allowing multiple environments to share one policy service. \\
+
+Environment execution
+& RoboDojo executes each action in the chunk through \texttt{env.step($a_k$)} until the episode terminates or the action chunk is exhausted. 
+& RoboDojo executes the $k$-th action for all active environments through \texttt{env.step\_batch($\mathbf{a}_{\mathcal{I}_t,k}$, $\mathcal{I}_t$)}. Finished environments are removed from the active set. \\
+
+Evaluation role
+& Used for remote real-world evaluation in RoboDojo-RealEval, where policies are tested under standardized and reproducible physical conditions. 
+& Used for RoboDojo simulation evaluation, where different tasks, scenes, and processes run concurrently to improve evaluation speed and support rapid policy iteration. \\
+
+\bottomrule
+\end{tabularx}
+\end{table*}

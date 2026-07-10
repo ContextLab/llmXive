@@ -1,0 +1,31 @@
+\begin{wraptable}{r}{0.43\linewidth}
+%\begin{table*}[t]
+\vspace{-12pt}
+\centering
+\caption{
+\small \textbf{Ablation study of the retrieved memory unit number $K$} on SimplerEnv~\cite{li2025evaluating} and LIBERO-90~\cite{liu2023libero} (\S\ref{sec:abation}).
+}
+\vspace{-8pt}
+\label{tab:ablation_retrieved_k}
+\resizebox{0.96\linewidth}{!}{
+\setlength\tabcolsep{12pt}
+\renewcommand\arraystretch{1.0}
+\begin{tabular}{c|cc}
+\thickhline
+\rowcolor{mygray}
+$K$
+& SimplerEnv
+& LIBERO-90 \\
+\hline
+\hline
+$2$  & 66.7 & 94.4\\
+$4$  & 70.8 & 95.9 \\
+$8$  & \textbf{73.9} & \textbf{97.0} \\
+$12$ & 71.8 & 96.2 \\
+\hline
+\end{tabular}
+}
+\vspace{-13pt}
+\hspace{-2ex}
+%\end{table*}
+\end{wraptable}

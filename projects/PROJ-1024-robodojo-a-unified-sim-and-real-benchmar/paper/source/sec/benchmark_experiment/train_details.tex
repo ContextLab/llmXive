@@ -1,0 +1,110 @@
+\textbf{Hy-Embodied-0.5-VLA.}
+We fine-tune Hy-Embodied-0.5-VLA from the foundation checkpoint hosted at \url{https://huggingface.co/tencent/Hy-Embodied-0.5-VLA-UMI}.
+For simulation experiments, we follow its official open-source evaluation setting on RoboTwin 2.0, training the model with a batch size of 128 for 200K steps and using 6 historical images sampled every 20 steps for memory encoding.
+
+\textbf{Spatial Forcing.}
+We fine-tune Spatial Forcing from the \texttt{gs://openpi-assets/checkpoints/pi05\_base} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 60K steps.
+
+\textbf{$\pi_{0.5}$.}
+We fine-tune $\pi_{0.5}$ from the \texttt{gs://openpi-assets/checkpoints/pi05\_base} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 60K steps.
+For real-world experiments, we use the same batch size and train the model for 30K steps.
+
+\textbf{X-VLA.}
+We fine-tune X-VLA from the \texttt{2toInf/X-VLA-Pt} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 100K steps.
+For real-world experiments, we use the same batch size and train the model for 50K steps.
+
+\textbf{Xiaomi-Robotics-0.}
+We fine-tune Xiaomi-Robotics-0 from the \texttt{Xiaomi-Robotics-0-Pretrain} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 100K steps.
+For real-world experiments, we use the same batch size and train the model for 50K steps.
+
+\textbf{X-WAM.}
+We fine-tune X-WAM from the \texttt{Wan2.2-TI2V-5B} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 32 for 40K steps.
+
+\textbf{GigaWorld-Policy.}
+We fine-tune GigaWorld-Policy from the \texttt{Wan2.2-TI2V-5B} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 32.
+The video optimization stage is trained for 50K steps (1 epoch), followed by the action optimization stage for 250K steps (2 epochs), resulting in 300K total optimization steps (3 epochs).
+
+\textbf{StarVLA-$\alpha$.}
+We fine-tune StarVLA-$\alpha$ from the \texttt{Qwen3-VL-4B-Instruct} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 128 for 100K steps.
+For real-world experiments, we use the same batch size and train the model for 30K steps.
+
+\textbf{GalaxeaVLA.}
+We fine-tune GalaxeaVLA from the \texttt{G0Plus\_3B-base} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 32 for 4 epochs.
+For real-world experiments, we use the same batch size and train the model for 4 epochs.
+
+\textbf{LingBot-VLA.}
+We fine-tune LingBot-VLA from the \texttt{lingbot-vla-4b} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 15K steps.
+
+\textbf{EventVLA.}
+We fine-tune EventVLA from the \texttt{Qwen3-VL-4B-Instruct} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 128 for 150K steps.
+
+\textbf{Fast-WAM.}
+We fine-tune Fast-WAM from the \texttt{Wan2.2-TI2V-5B} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 20K steps.
+
+\textbf{AHA-WAM.}
+We fine-tune AHA-WAM from the \texttt{Wan2.2-TI2V-5B} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 768 for 25K steps.
+
+\textbf{$\pi_0$.}
+We fine-tune $\pi_0$ from the \texttt{gs://openpi-assets/checkpoints/pi0\_base} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 60K steps.
+For real-world experiments, we use the same batch size and train the model for 30K steps.
+
+\textbf{GR00T-N1.7.}
+We fine-tune GR00T-N1.7 from the \texttt{nvidias/GR00T-N1.7-3B} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 640 for 100K steps.
+For real-world experiments, we use the same batch size and train the model for 50K steps.
+
+\textbf{InternVLA-A1.}
+We fine-tune InternVLA-A1 from the \texttt{InternVLA-A1-3B} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 64 for 60K steps.
+For real-world experiments, we use the same batch size and train the model for 30K steps.
+
+\textbf{SmolVLA (Single Task).}
+We fine-tune SmolVLA (Single Task) from the \texttt{smolvla\_base} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 512 for 100K steps.
+
+\textbf{GO-1.}
+We fine-tune GO-1 from the \texttt{GO-1} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 96 for 4 epochs, corresponding to 77,484 optimization steps.
+
+\textbf{LDA-1B.}
+We fine-tune LDA-1B from the \texttt{LDA-pretrain} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 128 for 300K steps.
+
+\textbf{MolmoAct2.}
+We fine-tune MolmoAct2 from the \texttt{MolmoAct2} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 128 for 100K steps.
+
+\textbf{ACT (Single Task).}
+We train ACT (Single Task) from scratch.
+For simulation experiments, the model is trained with a batch size of 128 for 6K steps.
+
+\textbf{H-RDT.}
+We fine-tune H-RDT from the \texttt{pretrain-0618/checkpoint-500000} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 90K steps.
+
+\textbf{Spirit v1.5.}
+We fine-tune Spirit v1.5 from the \texttt{Spirit-v1.5} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 50K steps.
+For real-world experiments, we use the same batch size and train the model for 30K steps.
+
+\textbf{RDT-1B.}
+We fine-tune RDT-1B from the \texttt{rdt-1b} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 256 for 200K steps.
+
+\textbf{DM0.}
+We fine-tune DM0 from the \texttt{DM0-base} foundation checkpoint.
+For simulation experiments, the model is trained with a batch size of 32 for 100K steps.
+For real-world experiments, we use the same batch size and train the model for 50K steps.

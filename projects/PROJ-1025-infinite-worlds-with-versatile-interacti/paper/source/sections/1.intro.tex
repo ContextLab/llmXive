@@ -1,0 +1,60 @@
+\section{Introduction}
+Interactive world models~\cite{genie3,Gamegen-x,Yume,matrix2,matrix3,Worldplay,team2026dreamx}, generative systems that synthesize an environment frame by frame in response to a stream of user or agent actions, have recently emerged as a promising substrate for game generation ~\cite{Gamegen-x,solaris,matrix2,matrix3,worlddirector} and
+embodied simulation ~\cite{cosmos,Abot-physworld,giga}. Driven by advances in causal (autoregressive) video generation ~\cite{CasualVid,MAGI-1,SkyReels,yang2025longlive,longlive_2.0,minWM},
+such models can in principle render an explorable world that unfolds indefinitely and reacts to its inhabitants in real time. Yet turning this principle into a usable system has remained difficult, for two reasons.
+
+The first concerns \textbf{long-horizon stability}. Because each frame is conditioned on the frames generated before it, errors are fed back into the model and accumulate; over time, textures smear, geometry warps, and the scene drifts away from any plausible world. Most existing systems therefore remain visually stable for only seconds to a few minutes before degrading, far short of the persistence one expects from a world meant to be lived in. The second concerns \textbf{interactivity at high fidelity}, which is computationally expensive: rendering detailed video while reacting to live input strains compute
+budgets, and prior work has typically bought interactivity by sacrificing resolution, smoothness, or control, leaving the user with little more than coarse camera movement through an otherwise inert scene.
+
+We argue that these two limitations are what stand between current models and genuinely open-ended worlds, and we tackle them directly. Our starting point is a causal video generation model trained to resist the error accumulation described above; the resulting backbone holds its quality far longer than prior open models and, in turn, makes a clean teacher for distillation. The distilled student is what makes the system practical: it sustains an explorable world that never has to end, at a resolution and frame rate high enough to feel responsive rather than merely playable. We stress-test this claim with an hour-long uninterrupted session in which quality shows no visible decay, evidence that the model's stability is structural rather than a short-lived artifact of a favorable clip. And rather than confining the user to wandering a frozen landscape, the model responds to an expressive vocabulary of actions such as combat, archery, spell-casting, and ranged fire, and even reshapes the environment itself, summoning weather such as snow or rain on demand.
+
+Even a capable backbone, however, does not \emph{play itself}~\cite{Hu2024StoryAgentCS,Lian2023LLMgroundedVD,Huang2023FreeBloomZT}. Here we take a cue from how today's coding assistants are built: a strong language model becomes a working software engineer only once it is placed inside a harness, a scaffold such as Codex that lets it inspect state, act, and chase a goal across many turns. We adopt the same philosophy for world modeling. Around our generative core we wrap an \textbf{agentic harness} in which a \emph{pilot} agent reads the current scene and decides what the controllable character should do next, whether stepping forward, swinging at a foe, or reaching for a nearby object, while a \emph{director} agent keeps the world from running dry, seeding fresh content, props, and events as exploration proceeds. The two together turn a frame predictor into something that behaves like a world: self-sustaining, goal-directed, and open-ended, with no author scripting each moment in advance.
+
+In summary, this paper makes the following contributions:
+
+\begin{itemize}
+    \item \textbf{An open, state-of-the-art causal world model} whose key advance is durability: leading visual quality paired with strong resistance to drift, giving the community both a usable backbone and a capable distillation teacher.
+
+    \item \textbf{A real-time distilled model} that renders an unbounded, drift-free interactive world at 720p and 60\,fps, verified by over an hour of continuous generation without quality loss.
+
+    \item \textbf{A rich, controllable action space} that goes well beyond navigation to include character actions such as combat, archery, spell-casting, and shooting, alongside on-the-fly environmental changes.
+
+    \item \textbf{A pilot and director agentic harness} that orchestrates the model into a living interactive experience.
+\end{itemize}
+
+\begin{table}[t]
+    \small
+    \centering
+    \caption{
+        \textbf{Comparison with recent interactive world models.} \method stands out as the only model to achieve hour-level (infinite) generation duration within a general domain. Furthermore, it uniquely combines this extended continuous generation with high dynamic degree, semantic interaction, and real-time performance, while being fully open-sourced.
+    }
+    \label{tab:comparison}
+    \SetTblrInner{rowsep=1.2pt}      
+    \SetTblrInner{colsep=4.6pt}     
+    \definecolor{linegray}{HTML}{BDBDBD} 
+    \definecolor{bg_gray1}{HTML}{FAFAFA}
+    \definecolor{bg_gray2}{HTML}{F2F2F2}
+    \definecolor{bg_gray3}{HTML}{EAEAEA}
+    \definecolor{bg_gray4}{HTML}{E2E2E2}
+    \definecolor{bg_gray5}{HTML}{DADADA}
+    \definecolor{bg_purple}{HTML}{6A67F3}
+    \begin{tblr}{
+        cells={halign=l,valign=m},
+        column{1}={bg=white},
+        column{2}={bg=bg_gray1},
+        column{3}={bg=bg_gray2},
+        column{4}={bg=bg_gray3},
+        column{5}={bg=bg_gray4},
+        column{6}={bg=bg_gray5},
+        column{7}={bg=bg_purple, fg=white},
+        hline{2}={0.5pt, fg=linegray},
+    }
+    \ & \textbf{M-G 3.0}~\cite{matrix3} & \textbf{D-W}~\cite{team2026dreamx} & \textbf{LingBot-World}~\cite{lingbot-world} & \textbf{HappyOyster}~\cite{happyoyster} & \textbf{Genie 3}~\cite{genie3} & \textbf{Ours} \\
+    Generation Duration & Minutes & Minutes & Minutes & Minutes & Minutes & Hours (Infinite) \\ 
+    Semantic Interaction & None & None & None & Few & Few & Infinite \\
+    Domain & Game & General & General & General & General & General \\ 
+    Dynamic Degree & Medium & Medium & High & Medium & Medium & High \\ 
+    Real-time & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} \\ 
+    Open-source & \ding{51} & \ding{51} & \ding{51} & \ding{55} & \ding{55} & \ding{51} \\ 
+    \end{tblr}
+\end{table}

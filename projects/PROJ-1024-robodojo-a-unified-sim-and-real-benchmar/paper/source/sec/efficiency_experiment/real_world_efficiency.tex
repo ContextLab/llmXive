@@ -1,0 +1,26 @@
+We further evaluate the efficiency of RoboDojo-RealEval using $\pi_{0.5}$ as the test policy. The policy server is deployed on an RTX 4090 server within the same local-area network as the real-world robot platform. For each task, we measure the wall-clock time required to complete 10 full evaluation trials, including scene reset, policy inference, and robot execution. All trials are executed to completion without manual interruption or early stopping, making the reported time a conservative estimate of the real-world evaluation cost.
+
+As shown in Table~\ref{tab:real_task_eval_time}, RoboDojo-RealEval completes the 18-task real-world evaluation in 202.0 minutes, corresponding to approximately 3.4 hours for 180 physical trials. On average, each task requires 11.2 minutes for 10 trials. These results indicate that the standardized scene reset procedure, local RTX 4090 policy deployment, and unified evaluation interface substantially reduce the operational overhead of real-world benchmarking, enabling RoboDojo-RealEval to provide relatively rapid feedback while preserving full physical evaluation.
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Real-world evaluation time for each task.}
+Each entry reports the wall-clock time required to complete 10 full evaluation trials, including scene reset, RTX 4090 policy inference within the same local-area network, and robot execution.}
+\label{tab:real_task_eval_time}
+\resizebox{0.87\linewidth}{!}{
+\begin{tabular}{l c l c l c}
+\toprule
+Task & Time (min) & Task & Time (min) & Task & Time (min) \\
+\midrule
+connect\_charger & 13.5 & stand\_up\_bottles & 7.2 & cap\_pen & 6.1 \\
+stack\_bowls & 7.3 & put\_objects\_into\_basket & 20.5 & pack\_and\_pour\_fruit & 11.1 \\
+stack\_and\_cover\_blocks & 9.9 & hang\_mugs & 9.2 & store\_in\_safe & 9.8 \\
+fill\_pen\_holder & 10.7 & pack\_objects\_into\_backpack & 12.1 & make\_food & 24.0 \\
+sweep\_blocks & 6.0 & classify\_objects & 15.5 & insert\_tubes & 9.0 \\
+disassemble\_LEGO & 5.7 & cover\_blocks & 10.8 & make\_bread & 13.6 \\
+\midrule
+\multicolumn{5}{r}{Total} & 202.0 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

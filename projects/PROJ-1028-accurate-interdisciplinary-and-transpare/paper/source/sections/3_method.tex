@@ -1,0 +1,240 @@
+
+\section{Method}\label{sec13}
+\subsection{Data Source and Processing}
+\subsubsection{Protein Data}
+
+We constructed the protein component of the pretraining corpus by following established protein-language data construction protocols. 
+To incorporate textual and functional protein knowledge, we used SIFTS-based PDB--UniProt mappings as indexing anchors~\citep{dana2019sifts,berman2000pdb,uniprot2023uniprot}, protein sequences were associated with protein names, PubMed/PMC literature~\citep{pubmed,pubmed_central} and curated UniProtKB/Swiss-Prot annotations, including functional descriptions, domain and subunit information, post-translational modifications, disease associations, induction information and tissue specificity when available. 
+
+For large-scale UniProt protein sequences, we retrieved the corresponding AlphaFold-predicted structures from AlphaFoldDB whenever available~\citep{varadi2022alphafold}. Following the SaProt pretraining setting~\citep{su2025saprothub,su2024saprot}, each protein structure was converted into residue-level Foldseek 3Di tokens~\citep{van2024fast}, which describe local structural environments and are aligned one-to-one with the amino-acid sequence. The amino-acid tokens and 3Di tokens were then separated into amino acid (AA) sequences (wrapped by \verb|<protein></protein>| tag) and structural sequences (warped by \verb|<protein_structure></protein_structure>| tag) in one input, allowing the model to learn from both primary sequence and predicted three-dimensional structure. Structurally unreliable regions (pLDDT$<$70) were masked or replaced by a special structural token to reduce noise from uncertain coordinates. 
+
+To prevent the leakage of labels in the benchmark data within the interleaved protein--text data, we excluded from continued pretraining all text-linked protein records with $>$30\% MMseq2~\citep{steinegger2017mmseqs2,kshirsagar2025rapid} sequence identity to any protein in the held-out test sets of the downstream benchmarks.
+
+\subsubsection{Small-molecule Data}
+
+We constructed the small-molecule component by integrating chemical text, molecular representations, structured property datasets and three-dimensional molecular conformations. The textual component was collected with US Chemistry Olympiad problems, Europe PMC full-text articles and abstracts, ChemRxiv, bioRxiv, medRxiv and arXiv submissions filtered for chemistry, medicinal chemistry and physical chemistry. These sources provide foundational chemical concepts, textbook-style explanations, research-level chemical knowledge, experimental context, safety descriptions and domain-specific terminology.
+
+We further converted public molecular property datasets into language-interfaced templates, pairing molecular entities with curated descriptions of properties, assays, labels and task contexts. 
+These sources include MoleculeNet~\citep{wu2018moleculenet}, Therapeutics Data Commons and ADMET-style datasets~\citep{huang2021therapeutics}, ChEBI, PubChem BioAssay, Tox21, hERG and CYP bioactivity datasets, CHEMDNER and other biomedical named-entity recognition corpora, and curated datasets covering ADMET, physicochemical properties, molecular toxicity and safety-related endpoints. 
+Together, these resources use natural language to align standardized molecular representations with property labels, bioactivity assays, toxicity endpoints, pharmacokinetic profiles and biomedical chemical terminology. 
+We also incorporated reaction, biochemical and spectral resources, including Open Reaction Database (ORD), USPTO-derived reactions, Buchwald--Hartwig datasets, Rhea/UniProt reaction annotations, MOSES~\citep{10.3389/fphar.2020.565644}, MoNA and spectrum-reasoning datasets, to support learning of reactant--product mappings, reaction procedures, enzymatic transformations, molecular understanding and spectroscopy-based reasoning. 
+ 
+
+To incorporate explicit three-dimensional molecular information, we additionally constructed a conformation-aware molecular corpus following the representation learning dataset of ConfSeq~\citep{xiong2025bridging}. Molecules collected from ChEMBL and BindingDB were converted into three-dimensional conformers using RDKit-based conformer generation. The resulting conformations were represented in a sequence-compatible format that combines molecular connectivity with internal-coordinate information and is wrapped by \verb|<molecule_structure></molecule_structure>| tag, linking with natural language to allow the model to learn geometric features such as molecular shape, bond geometry and conformational variation within a language-modeling framework. To avoid label leakage, we canonicalized molecular identifiers and excluded pretraining examples whose molecule--label or reaction product entries overlapped with the held-out test sets of the corresponding downstream benchmarks. 
+
+\subsubsection{Materials Data}
+
+We constructed the materials component by collecting crystal compositions, crystal information files, structure-derived textual descriptions and tabular materials properties from public materials databases. The primary sources include 
+Materials Project, JARVIS-DFT, SNUMAT, hMOF, QMOF,
+OQMD\footnote{\url{https://www.oqmd.org/}},
+OMDB\footnote{\url{https://omdb.mathub.io/}},
+JARVIS-QETB\footnote{\url{https://jarvis.nist.gov/jarvisqetb}},
+GNoME\footnote{\url{https://github.com/google-deepmind/materials_discovery/blob/main/DATASET.md}}, and Cantor HEA\footnote{\url{https://doi.org/10.5281/zenodo.10854500}}
+These sources cover a broad range of inorganic crystals, semiconductors, metal--organic frameworks, organic materials, high-entropy alloys and computationally discovered stable materials.
+ 
+For each material, we retained complementary representations such as chemical formula, elemental composition, periodic crystal structure in CIF format and natural-language structural descriptions generated from crystallographic information. We then used natural language templates to link these representations to form the training samples, enabling the model to learn composition-level, geometry-level and text-level representations of periodic systems. 
+
+For data processing, we used an 80/10/10 random split at the material-sample level, where each sample contains one material together with all associated property labels. To prevent leakage, all validation and test material samples, including their structural representations and property records, were removed from the continued-pretraining corpus before training.
+
+
+\subsubsection{DNA/RNA Data}
+We constructed the RNA component from RNAcentral, retaining sequences in FASTA format and wrapping them with \verb|<rna></rna>| tags. Available metadata, such as RNA family information, was incorporated to provide functional and contextual cues. 
+For DNA, genomic sequences were retrieved from NCBI, sampled into 1,000-bp organism-level fragments, represented in FASTA format and wrapped with \verb|<dna></dna>| tags. Organism names and genomic coordinates were retained to anchor each sequence within its genomic context.
+
+
+\subsubsection{General Text and Instruction Following Data}
+
+To complement the scientific corpora with general-domain text and instruction-following supervision, we draw from three publicly released sources. For general web text, we sample from Nemotron-CC~v2~\citep{nvidia2025nvidianemotronnano2}, a multi-trillion-token, quality-filtered Common Crawl derivative. For reasoning-formatted instruction data, we use the mathematics and instruction-following splits of {Dolci-Think-SFT-32B}~\citep{olmo2025olmo3}, in which every response carries an explicit \texttt{<think>}-delimited deliberation trace covering multi-step symbolic reasoning and constraint-driven instruction following. For scientific instruction adherence, we additionally include the training split of {SciIF}~\citep{su2026sciif}, whose prompts impose verifiable constraints over scientific contexts.
+
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+
+
+\subsection{Model Architecture}
+The overall architecture of \projName~is designed to operate as a unified causal language model capable of processing interleaved structural and textual modalities. 
+The system consists of three primary components: modality-specific offline structural compressors, a structure-aware vocabulary embedding layer (acting as a discrete cross-modal projection), and a unified large language model (LLM) backbone, denoted as $f_\phi$. 
+The LLM backbone is initialized with the weights of Qwen3-14B~\citep{yang2025qwen3}. 
+\subsubsection{Offline Structure Encoder}
+A critical limitation of applying generalist LLMs directly to scientific data is the reliance on text-based sub-word tokenizers, such as Byte-Pair Encoding~\citep{sennrich2016neural,gage1994new}, which arbitrarily fragment physical topologies. 
+To prevent this, we employ a modality-specific offline compression strategy. Let $S \in \{S_{prot}, S_{chem}, S_{cryst}\}$ represent the raw structure input data for proteins, small molecules, and crystals, respectively. As shown in Fig.~\ref{fig:main_figure}B, we utilize domain-specific discrete encoders to encode $S$ into the structural information sequence $X_v$. Crucially, this offline process guarantees that fundamental physical semantics (such as local chemical motifs, three-dimensional geometry, and lattice symmetries) are preserved as distinct, holistic tokens prior to interacting with the language model. 
+Specifically, we adopt: (i) Foldseek~\citep{van2024fast} for encoding the 3D structure of protein, (ii) SLICES~\citep{xiao2023invertible} for crystal, and (iii) ConfSeq~\citep{xiong2025bridging} for 3D molecular structures. 
+The encoded structural information sequences are tagged with corresponding structure tag, i.e., \texttt{<material\_structure></material\_structure>},  \texttt{<molecule\_structure></molecule\_structure>},  and \texttt{<protein\_structure></protein\_structure>}. 
+
+\subsubsection{Structure-Aware Vocabulary Embedding}
+Unlike traditional multimodal frameworks that rely on heavy continuous encoders (e.g., Graph Neural Networks) during the forward pass, \projName~treats the discrete structural sequence $X_v$ identically to linguistic scientific tokens. We introduce a dedicated structure-aware vocabulary, which functions as a discrete cross-modal projection layer. Let $\mathbf{W}_v \in \mathbb{R}^{|V_v| \times d_{LLM}}$ be the learnable embedding matrix for the structural vocabulary, where $|V_v|$ is the vocabulary size of all structural motifs and features, and $d_{LLM}$ is the hidden dimension of the LLM. 
+The structural sequence $X_v$ is directly projected into the dense continuous space via a discrete embedding lookup: 
+\begin{equation}
+    \mathbf{H}_v = \text{Embedding}(X_v, \mathbf{W}_v) \in \mathbb{R}^{L_v \times d_{LLM}}
+\end{equation}
+This discrete projection elegantly bypasses the computational bottleneck of continuous spatial encoders, seamlessly aligning structural inputs with the LLM's native semantic space. 
+
+\subsubsection{Unified Autoregressive Generation}
+Simultaneously, the language instruction $X_q$ is tokenized and embedded by the LLM's native embedding layer to produce the language representation $\mathbf{H}_q \in \mathbb{R}^{L_q \times d_{LLM}}$. The projected structural embeddings and language embeddings are concatenated along the sequence dimension to form the unified input prompt $\mathbf{H}_{prompt} = [\mathbf{H}_v; \mathbf{H}_q]$. The LLM backbone $f_\phi$ takes $\mathbf{H}_{prompt}$ as input and generates the response sequence $X_a$ in an autoregressive manner, ensuring the generation is strictly conditioned on both the structural evidence and the textual instruction.
+
+ 
+
+
+\subsection{Pretraining}
+\subsubsection{Optimization Objective and Multi-Stage Pretraining}
+
+The entire multi-stage pretraining pipeline is optimized using a single, unified autoregressive causal language modeling objective (Next Token Prediction).  
+
+Given a structural input $\mathbf{H}_v$ and a language instruction $\mathbf{H}_q$, the model generates a target response sequence $X_a = \{x_{a,1}, x_{a,2}, ..., x_{a,T}\}$. The training objective minimizes the negative log-likelihood of the target tokens conditioned on the preceding context:
+\begin{equation}
+    \mathcal{L}_{NTP} = -\sum_{t=1}^{T} \log P_\phi (x_{a,t} \mid x_{a,<t}, \mathbf{H}_v, \mathbf{H}_q)
+\end{equation}
+where $\phi$ represents the trainable parameters of the system at any given stage. To effectively align the distinct physical structural space with the natural language space without catastrophic forgetting, we implement a three-stage curriculum learning strategy, distinguished exclusively by parameter freezing configurations, data mixture, and learning rate dynamics. Let $\Theta = \{\theta_{vocab}, \theta_{emb}, \theta_{head}, \theta_{backbone}\}$ denote the complete parameter set, corresponding to the structure-aware vocabulary layer ($\mathbf{W}_v$), LLM textual token embeddings, LLM prediction head, and the core LLM transformer backbone, respectively.
+
+\paragraph{Stage 1: Warm-up Training}
+The initial stage focuses on mapping the newly introduced structural tokens into the linguistic semantic space. To prevent the untrained structure-aware vocabulary layer from corrupting the pre-trained reasoning capabilities of the LLM, we strictly freeze the core transformer backbone. 
+In this stage, the trainable parameter subset is $\phi = \{\theta_{vocab}, \theta_{emb}, \theta_{head}\}$, while $\theta_{backbone}$ remains frozen. The model is trained on fundamental structure-to-text reconstruction tasks. By restricting gradient updates to the peripheral layers, this stage establishes a stable foundation in the embedding space before deeper integration. To ensure localized and stable optimization for these newly initialized parameters, Stage 1 maintains an independent optimizer state and employs its own standalone learning rate schedule.
+
+\paragraph{Stage 2: Full-parameter Training}
+Once the structural tokens are stably anchored in the embedding space, we proceed to align the modalities across the deep layers of the network. In this stage, all parameters are unfrozen ($\phi = \Theta$). For the continuous optimization dynamics spanning Stage 2 and Stage 3, we initialize a new shared optimizer state and a unified Warmup-Stable-Decay (WSD) learning rate scheduler. 
+
+Formally, let $t$ denote the training step across the combined duration of Stage 2 and Stage 3. The shared WSD scheduler is defined by the durations of the warmup ($T_{w}$), stable ($T_{s}$), and decay ($T_{d}$) phases, with total steps $T_{total} = T_{w} + T_{s} + T_{d}$. The learning rate $\eta(t)$ is formulated as:
+\begin{equation}
+    \eta(t) = \begin{cases}
+        \eta_{max} \cdot \frac{t}{T_{w}} & \text{if } 0 \le t < T_{w} \\
+        \eta_{max} & \text{if } T_{w} \le t < T_{w} + T_{s} \\
+        f_{decay}(t) & \text{if } T_{w} + T_{s} \le t \le T_{total}
+    \end{cases}
+\end{equation}
+where $\eta_{max}$ is the peak learning rate and $f_{decay}(t)$ represents a monotonically decreasing annealing function (e.g., cosine decay). 
+
+Stage 2 spans the interval $0 \le t < T_{stage2}$, where $T_{w} < T_{stage2} < T_{w} + T_{s}$. This indicates that Stage 2 strictly encompasses the entire warmup phase and the initial segment of the stable phase. During this period, the model is trained on diverse, broadly-sourced paired structure-text datasets, allowing the full network to assimilate domain-specific structural knowledge at a high, constant learning rate.
+
+\paragraph{Stage 3: Annealing Training} 
+In the final stage, we maintain the full-parameter optimization setting ($\phi = \Theta$) and seamlessly inherit both the optimizer state and the active WSD scheduler from Stage 2. Stage 3 covers the remainder of the training timeline ($T_{stage2} \le t \le T_{total}$). Thus, it begins by continuing the constant learning rate $\eta_{max}$ from the stable phase and eventually triggers the decay phase ($t \ge T_{w} + T_{s}$) in its later period. 
+In this training stage, we increase the proportion of question--answer (QA)-style data to achieve annealed training. 
+\subsection{Post-training}
+
+The pretraining curriculum endows \projName~with broad cross-modal scientific knowledge, yet the resulting checkpoint $M_0$ behaves as a next-token continuator rather than an instruction-following reasoner. Post-training instantiates self-bootstrapped native structural reasoning through a coldstart supervised stage followed by reinforcement learning (RL). Pooling the chain-of-thought (CoT) supervision of all tasks into a single pass is, however, ill-suited here: the reasoning patterns of heterogeneous scientific tasks are divergent enough that joint training induces destructive interference, and the seed CoT traces, borrowed from external teachers, are distributionally misaligned with \projName.
+
+We therefore organize post-training around two stages: \emph{intra-domain structural evidence grounding} followed by \emph{cross-domain reasoning consolidation}. 
+In the first stage, we partition the task universe by task prior and specialize $M_0$ into a family of per-group experts that learn how structural tokens serve as domain-specific reasoning evidence. In the second stage, these experts regenerate rational CoT traces that replace the external supervision; pooled across all tasks and augmented with non-thinking data, they drive a single unified coldstart and RL pass yielding the final model. 
+
+\subsubsection{Supervised finetuning for reasoning pattern coldstart}
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+The coldstart phase seeks to \emph{activate} the capabilities accumulated during pretraining: we elicit instruction following and, most critically, an explicit CoT reasoning behaviour in which the model deliberates before committing to an answer. Because \projName~is initialized from Qwen3~\citep{yang2025qwen3}, which natively supports a switchable thinking interface, we frame this stage as the re-establishment of a structured generation protocol that the backbone has already been exposed to, requiring only a lightweight intervention rather than a wholesale re-training.
+
+\paragraph{Reasoning-formatted data construction} We curate a compact supervised corpus in which every target response adheres to an explicit deliberation template demarcated by dedicated \texttt{<think>} delimiters. We construct two complementary response modes to preserve the dual-mode behavior of the backbone. In the \emph{thinking} mode, the model is prompted with an instruction and produces an interleaved trace of the form
+\begin{equation}
+    X_a \;=\; \texttt{<think>}\;\backslash\texttt{n}\; c \;\backslash\texttt{n}\; \texttt{</think>}\;\backslash\texttt{n}\backslash\texttt{n}\; y,
+\end{equation}
+where $c$ denotes the latent chain-of-thought rationale and $y$ the final answer conditioned on $c$. In the \emph{non-thinking} mode, the instruction is appended with a \texttt{/no\_think} control token and the deliberation span is collapsed to an empty placeholder,
+\begin{equation}
+    X_a \;=\; \texttt{<think>}\;\backslash\texttt{n}\backslash\texttt{n}\;\texttt{</think>}\;\backslash\texttt{n}\backslash\texttt{n}\; y,
+\end{equation}
+yielding a direct-answer response. Exposing the model to both formats within a single corpus re-anchors the semantics of the \texttt{<think>} delimiters and the \texttt{/no\_think} switch, enabling the controllable allocation of test-time computation between explicit reasoning and direct response.
+
+\paragraph{Supervised optimization objective} The coldstart stage retains the autoregressive next-token-prediction objective used throughout pretraining, but departs from it in the supervision mask. Rather than computing the loss over the entire sequence, we adopt a supervised-finetuning (SFT) formulation in which gradients are propagated solely through the response tokens, while the instruction and structural context serve purely as conditioning. Concretely, let the full sequence be partitioned into the prompt context $(\mathbf{H}_v, \mathbf{H}_q)$ and the target response $X_a = \{x_{a,1}, \dots, x_{a,T}\}$, where $X_a$ encompasses both the deliberation span and the final answer. The coldstart objective minimizes the negative log-likelihood restricted to the response positions:
+\begin{equation}
+    \mathcal{L}_{SFT} = -\sum_{t=1}^{T} m_t \, \log P_\phi \big( x_{a,t} \mid x_{a,<t}, \mathbf{H}_v, \mathbf{H}_q \big),
+\end{equation}
+where the binary mask $m_t \in \{0, 1\}$ activates supervision only on the response segment ($m_t = 1$ for tokens in $X_a$) and suppresses the loss contribution of the prompt tokens ($m_t = 0$). This response-only masking ensures that the optimization sharpens the conditional mapping from instruction to reasoned answer, instead of expending capacity on modelling the marginal distribution of the inputs.
+
+\paragraph{Coldstart} In the first stage, a coarse task prior partitions the task universe $\mathcal{T}$ into $J$ disjoint groups $\{\mathcal{G}_1, \dots, \mathcal{G}_J\}$, each aggregating similar tasks with CoT corpus $\mathcal{C}_j$ whose rationale $c$ is teacher-supplied. We coldstart $M_0$ independently on each $\mathcal{C}_j$ under $\mathcal{L}_{SFT}$, yielding specialized checkpoints $\{M_j^{\text{cs}}\}_{j=1}^{J}$ so that each internalizes a coherent reasoning style rather than reconciling conflicting ones. In the second stage, after the experts $\{M_j^{\text{expert}}\}$ are obtained by the \emph{intra-domain structural evidence grounding} stage below, we replace the external supervision with \projName-generated traces: each $M_j^{\text{expert}}$ rolls out on its group's prompts, and verification-passing traces $\tilde{c}$ replace the external $c$ in $\mathcal{C}_j$, giving a new corpus $\tilde{\mathcal{C}}_j$. Augmenting each $\tilde{\mathcal{C}}_j$ with \texttt{/no\_think} direct-answer data and pooling across groups, $\tilde{\mathcal{C}} = \bigcup_{j=1}^{J} \tilde{\mathcal{C}}_j$, we perform a single unified coldstart from $M_0$ under the same $\mathcal{L}_{SFT}$. As the targets now lie on the model's own manifold, this furnishes a well-matched initialization for the \emph{cross-domain reasoning consolidation} pass.
+
+\subsubsection{Reinforcement learning}
+For each sub-task, we curate RL data with an empirical solve-rate filter that selects medium-difficulty
+  instances.
+
+  Let \(D^{\text{train}}_{k}\) denote the training set for the \(k\)-th sub-task. For each example \(x \in
+  D^{\text{train}}_{k}\):
+  \begin{enumerate}
+      \item \textbf{Stochastic rollouts.} We generate \(N=8\) independent rollouts from \(M_0\) on \(x\) with stochastic decoding and set \texttt{do\_sample=True}. To balance response diversity and format fidelity, we use an adaptive temperature \(T\), tuned once for each sub-task before collection. Starting from \(T=0.9\), we increase \(T\) when the eight samples show insufficient diversity, such
+      as low uniqueness among normalized responses or highly repetitive content. If the outputs become too diffuse and frequently violate the required format or fail to parse, we decrease \(T\). For the final eight rollouts for each \(x\), we keep \(T\) fixed and vary only the random seed, while holding all other decoding parameters constant.
+
+      \item \textbf{Empirical solve rate.} For rollout \(i\), we compute a correctness indicator \(f_i(x)\in\{0,1\}\) using the sub-task's canonical metric, such as exact match or a thresholded score, and aggregate
+      \begin{equation}
+          \hat p(x) \;=\; \frac{1}{8}\sum_{i=1}^{8} f_i(x).
+      \end{equation}
+
+      \item \textbf{Mid-difficulty filtering.} We retain examples with partial success:
+      \begin{equation}
+          S_k \;=\; \left\{\,x \in D^{\mathrm{train}}_{k} \;\middle|\; 0.125 < \hat p(x) < 0.875 \,
+          \right\}.
+      \end{equation}
+      The retained examples are neither trivially solved nor consistently failed, and thus provide more informative RL learning signals than cases with \(\hat p(x)\approx 1\) or \(\hat p(x)\approx 0\).
+    \item \textbf{Difficulty-centred sampling.} We construct the RL subset \(T_k\) by ranking candidate examples according to their distance from intermediate success,
+    \begin{equation}
+        d(x) \;=\; \left|\hat p(x)-0.5\right|.
+    \end{equation}
+    We then select \(K=2000\) examples without replacement, first from \(S_k\) in ascending order of \(d(x)\):
+    \begin{equation}
+        T_k \;=\;
+        \begin{cases}
+        \operatorname*{arg\,top}_{K,\,x \in S_k} \bigl(-d(x)\bigr),
+        & |S_k| \geq K, \\[4pt]
+        S_k \cup
+        \operatorname*{arg\,top}_{K-|S_k|,\,x \in D^{\mathrm{train}}_{k}\setminus S_k}
+        \bigl(-d(x)\bigr),
+        & |S_k| < K .
+        \end{cases}
+    \end{equation}
+    Here, \(\operatorname*{arg\,top}_{m,\,x\in A} f(x)\) denotes the \(m\) examples in a candidate set \(A\) with the largest values of \(f(x)\). Since \(f(x)=-d(x)\), this operator selects examples with the smallest distance to \(\hat p(x)=0.5\). Thus, the procedure starts from examples closest to intermediate success and gradually expands to examples with success rates farther from \(0.5\) until \(K=2000\) examples are collected.
+\end{enumerate}
+
+The resulting 2,000-example set serves as the RL training pool for that sub-task.
+
+Focusing RL on neither-trivial-nor-impossible instances yields stronger and more stable improvement: items with \(\hat p \in (0.125,0.875)\) (i) expose the policy to cases where exploration can flip outcomes, (ii) avoid vanishing advantages on saturated positives, and (iii) reduce uninformative gradients from uniformly failed cases. 
+
+Model training is performed with DAPO~\citep{yu2026dapo}, which optimizes the policy with RL across heterogeneous scientific tasks. Given a prompt, we first sample \(G\) candidates from the old policy \(\pi_{\theta_{\text{old}}}\). The corresponding within-group standardized advantages are computed as
+\begin{equation}
+  r_{i,t}(\theta)=\frac{\pi_{\theta}(o_{i,t} \mid q, o_{i,<t})}{\pi_{\theta_{\text{old}}}(o_{i,t} \mid
+  q,o_{i,<t})},\quad
+  \hat{A}_{i,t} = \frac{R_i - \text{mean}(\{R_i\}_{i=1}^G)}{\text{std}(\{R_i\}_{i=1}^G)}.
+\label{eq:advantage_calculation}
+\end{equation}
+
+We then optimize the following PPO-style clipped objective:
+\begin{equation}
+\begin{aligned}
+\mathcal{J}_{\text{DAPO}}(\theta) =\quad& \mathbb{E}_{(q,a)\sim \mathcal{D}, \{o_i\}_{i=1}^G\sim
+\pi_{\theta_\text{old}}(\cdot\mid q)}\\&
+\Bigg[\frac{1}{\sum_{i=1}^{G}|o_i|}\sum_{i=1}^{G}\sum_{t=1}^{|o_i|}
+\min \Big( r_{i,t}(\theta) \hat{A}_{i,t},
+\ \text{clip} \Big( r_{i,t}(\theta), 1 - {\varepsilon_{\text{low}}}, 1 + {\varepsilon_{\text{high}}}
+\Big) \hat{A}_{i,t} \Big) \Bigg]
+\\
+\text{s.t.}\quad& 0< \Big|\{o_i\mid\texttt{is\_equivalent}(a,o_i)\}\Big|< G,
+\end{aligned}
+\label{eq:dapoloss}
+\end{equation}
+The asymmetric \emph{Clip-Higher} schedule is used to preserve exploration. We also apply \emph{Dynamic Sampling} to remove degenerate groups whose rewards are identical, and use a token-level policy-gradient reduction.
+
+The original DAPO reward is rule-based and binary, whereas many of our tasks, including free-form semantic judgment, information extraction, and numeric regression, cannot be evaluated by a single exact-match criterion. We therefore substitute the binary reward with a \emph{reward softening} scheme, which converts grouped task metrics to a shared \([0,1]\) scale: 
+\begin{equation}
+\label{eq:task_aware_soft_reward}
+R_i^{\text{soft}}
+\;=\;
+g\!\big(m_i(q,o_i,\mathcal{A}(q))\big)
+\end{equation}
+Here, \(g(\cdot)\) is a monotone calibration function that keeps reward magnitudes comparable across tasks, and \(m_i\) denotes the \emph{group-specific} quality metric. Under this grouping scheme, scientific prediction tasks use distance-based rewards, retrieval and extraction tasks use matching-based rewards, and tool-verified rewards are computed with professional scientific software.
+
+
+\paragraph{Intra-domain structural evidence grounding and cross-domain reasoning consolidation} The procedure above is first run independently per group as intra-domain structural evidence grounding: starting from $M_j^{\text{cs}}$, the solve-rate filtering and DAPO objective of Eqs.~\eqref{eq:advantage_calculation}--\eqref{eq:task_aware_soft_reward} are applied on the data of $\mathcal{G}_j$ alone, producing the experts $\{M_j^{\text{expert}}\}_{j=1}^{J}$ that supply the on-policy traces for the unified coldstart. It is then run once more over the merged all-task pool as cross-domain reasoning consolidation, starting from the unified coldstart checkpoint. Because the policy is now initialized on expert-generated on-policy supervision from every group, this final pass consolidates the experts' specialized competences without the interference of a naive joint optimization, yielding the final unified model $M_{\text{final}}$.

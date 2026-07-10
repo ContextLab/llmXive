@@ -1,0 +1,68 @@
+Although RoboDojo uses standardized task configurations and evaluation protocols, Isaac Sim rendering and low-level simulation execution may still introduce minor nondeterminism across GPU devices. To evaluate the cross-GPU consistency of the simulation benchmark, we conduct stability experiments on three RTX 4090 GPUs. Specifically, we use layout 0 of each task and evaluate three representative policies, including $\pi_{0.5}$, Xiaomi-Robotics-0, and GalaxeaVLA, with three random seeds on each GPU.
+
+\begin{wraptable}{r}{0.28\textwidth}
+\vspace{-8pt}
+\centering
+\caption{\textbf{Real-world evaluation stability.}
+We report the standard deviation across three repeated runs. Full per-task results are in Appendix Table~\ref{tab:real_world_consistency_std_full}.}
+\label{tab:real_world_consistency_compact}
+\vspace{-4pt}
+\tiny
+\setlength{\tabcolsep}{2pt}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lcccc}
+\toprule
+\multirow{2}{*}{Policy}
+& \multicolumn{2}{c}{Overall}
+& \multicolumn{2}{c}{Max Task} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+& SR & Score & SR & Score \\
+\midrule
+$\pi_{0.5}$  & 1.0 & 0.5 & 23.1 & 12.9 \\
+GalaxeaVLA   & 1.2 & 1.0 & 15.3 & 16.6 \\
+InternVLA-A1 & 1.3 & 1.2 & 17.3 & 10.4 \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-10pt}
+\end{wraptable}
+
+Table~\ref{tab:sim_stability_std} reports the cross-GPU standard deviation of success rate and score. Overall, RoboDojo produces consistent simulation evaluation results across different GPUs. Across all policies and capability dimensions, the largest success-rate standard deviation is only $1.1$ percentage points, and the largest score standard deviation is $1.07$. For the overall average, the standard deviation is at most $0.5$ percentage points in success rate and $0.49$ in score. These results indicate that, under standardized evaluation layouts, RoboDojo yields stable simulation scores across GPU devices, making it suitable for fair leaderboard comparison despite minor nondeterminism from simulator rendering and low-level execution.
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Simulation evaluation stability across GPUs.}
+We evaluate $\pi_{0.5}$, Xiaomi-Robotics-0, and GalaxeaVLA on three RTX 4090 GPUs using layout 0 of each task, with three random seeds on each GPU. Each cell reports the cross-GPU standard deviation in the format of success rate / score. Success-rate standard deviations are reported in percentage points.}
+\label{tab:sim_stability_std}
+\resizebox{0.75\linewidth}{!}{
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Policy} & \textbf{Generalization} & \textbf{Precision} & \textbf{Long-Horizon} & \textbf{Memory} & \textbf{Open} & \textbf{Average} \\
+\midrule
+$\pi_{0.5}$ 
+& $0.4$ / $0.46$ 
+& $0.3$ / $0.15$ 
+& $0.8$ / $0.54$ 
+& $0.2$ / $0.18$ 
+& $0.3$ / $0.31$ 
+& $0.1$ / $0.19$ \\
+\midrule
+Xiaomi-Robotics-0 
+& $0.3$ / $0.31$ 
+& $1.1$ / $1.07$ 
+& $0.7$ / $0.82$ 
+& $0.5$ / $0.72$ 
+& $0.2$ / $0.12$ 
+& $0.5$ / $0.49$ \\
+\midrule
+GalaxeaVLA 
+& $0.4$ / $0.45$ 
+& $0.5$ / $1.06$ 
+& $0.6$ / $0.68$ 
+& $0.7$ / $0.54$ 
+& $0.2$ / $0.13$ 
+& $0.2$ / $0.37$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

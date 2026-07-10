@@ -1,0 +1,373 @@
+
+
+\captionsetup[figure]{
+  justification=raggedright,
+  singlelinecheck=false
+}
+\begin{center}
+    \includegraphics[width=1\linewidth]{fig/scifig1.pdf}
+\end{center}
+
+\captionof{figure}{\textbf{Overview of SciReasoner, a unified multimodal foundation model for native structural reasoning across biomolecules, small molecules, and periodic crystals.} \textbf{(A)} Structure-aware scientific reasoning interface. SciReasoner encodes heterogeneous scientific entities, including protein/DNA/RNA sequences, small molecules, protein structures, crystal structures, and 3D molecules, into structure-aware tokens. These tokens are combined with language instructions and processed by an LLM backbone to support structure-grounded scientific QA, property prediction, property classification, and generation/design tasks. 
+\textbf{(B)} Structure-aware token construction. Domain-specific encoders convert scientific objects into structured textual representations: ConfSeq for molecules, Foldseek for proteins, and SLICES for crystals. These representations preserve chemically and physically meaningful information, including molecular topology, spatial geometry, local motifs, lattice features, symmetry, and space-group information. 
+\textbf{(C)} Tokenizer compression and semantic preservation. Compared with the Qwen tokenizer, the \projName{} tokenizer reduces token length for molecular inputs while preserving chemically meaningful substructures. This indivisible, structure-aware vocabulary mitigates semantic fragmentation caused by standard sub-word tokenization. 
+\textbf{(D)} Continued Pretraining and post-training pipeline. \projName{} is initialized from a Qwen model and trained through warm-up alignment, full-parameter multimodal training, and annealing tuning across scientific modalities. During post-training, intra-domain structural evidence grounding first trains task-specialized experts to use structural tokens as reasoning evidence within each domain. Cross-domain reasoning consolidation then integrates the expert-generated reasoning traces and expert capabilities into the final \projName{} model.
+\textbf{(E)} Benchmark performance. \projName{} is evaluated across diverse scientific QA, biology, chemistry, materials science, and generation/design benchmarks. The results demonstrate broad improvements over generalist language models and domain-specific baselines, highlighting \projName{}’s ability to connect structural evidence with function, property, and design decisions.}
+\label{fig:main_figure}
+
+
+\section{Results}\label{sec2}
+\subsection{Overview of \projName}
+
+We present \projName, a unified multimodal foundation model capable of explicit scientific sequence, structure, and textual reasoning within a single coherent output trajectory (Fig.~\ref{fig:main_figure}A). \projName~serves as a unified reasoning engine that maps diverse scientific inputs, including proteins, DNA/RNA, small molecules, and periodic crystals, into a shared cross-modal latent space. Unlike conventional computational approaches in materials and biology, this architecture provides a unified, mechanism-aware framework. 
+
+To integrate explicit 3D structural information into a linguistic token space, \projName~designs a structure-aware vocabulary designed to preserve physical and biochemical integrity (Fig.~\ref{fig:main_figure}A). The model utilizes unified tokens representing local motifs, 3D geometry, atomic bond types, and crystal space groups (Fig.~\ref{fig:main_figure}B). This resolves the severe limitations of conventional sub-word tokenization algorithms, which arbitrarily fragment molecular graphs and motifs, thereby destroying scientific semantics and corrupting the training process (Fig.~\ref{fig:main_figure}C). 
+
+
+To align this structural token space with natural language, we perform continued pretraining with a multi-stage training pipeline (Fig.~\ref{fig:main_figure}D, Top). 
+Stage~1 serves as a warm-up training phase that anchors the newly introduced structure-aware tokens to basic topological, geometric, and chemical semantics without destabilizing the pretrained language space. 
+This establishes a stable structural--linguistic interface, which is further developed through Stage~2 full-parameter multimodal training and Stage~3 annealed training with an increased proportion of question--answer (QA)-style data, thereby supporting native structural reasoning. 
+
+To enable robust multi-step reasoning, we developed a post-training framework named self-bootstrapped native structural reasoning (Fig.~\ref{fig:main_figure}D, Bottom). The post-training procedure uses reinforcement learning to connect the core semantic meanings of the structural vocabulary with a chain-of-thought (CoT) strategy. This allows the model to explicitly decompose complex inputs into interpretable physical factors, such as composition, symmetry, and connectivity, before executing final property predictions or design decisions. This generative approach circumvents a major bottleneck in the field: the near-complete absence of ground-truth reasoning trajectories that simultaneously bridge sequence, structure, and text. 
+Intra-domain structural evidence grounding first teaches domain-specific experts how structural tokens serve as evidence for reasoning. 
+Cross-domain reasoning consolidation then integrates these domain-local evidence-use patterns into unified capabilities, reducing the trajectory collapse frequently observed in standard alignment techniques.
+
+The radar plot in Fig.~\ref{fig:main_figure}E (left) compares \projName{} with four contemporary generalist LLMs (Opus-4.7~\citep{opus47}, GPT-5.5~\citep{openai2026gpt55}, DeepSeek-V4-Pro~\citep{deepseekai2026deepseekv4} and Kimi-K2.6~\citep{kimik26}) across five capability sectors and four scientific modalities (proteins, DNA/RNA, small molecules and crystals). The suite spans numerical property prediction, sequence- and structure-level classification, generation and design, modality translation and scientific QA. \projName{} expands the polygon further than every generalist baseline in every sector, with the largest margins on tasks that demand explicit structural reasoning, where text-only LLMs collapse to near-trivial scores.
+
+We next compared \projName{} with the published specialist that defines the prior state of the art on each benchmark (Fig.~\ref{fig:main_figure}E, right). Unlike these specialists, each of which is restricted to a fixed numerical or categorical output, \projName{} produces free-form natural language alongside its predictions, yet still matches or exceeds them on the majority of tasks across the three task panels on the right: \projName{} reaches a mean $F_{\max}=0.59$ on DeepFRI-GO (averaged over the three aspects), surpassing SaProt~\citep{su2025saprothub} ($0.52$); attains $0.88$ accuracy on subcellular localization, exceeding the ESM2~\citep{esm2} ($0.84$); is on par with or above the specialist on DNA promoter and transcription-factor detection; and substantially outperforms RNA-function specialists, raising Isoform R$^2$ from $0.59$ to $0.86$ and RNA protein interaction MCC from $0.74$ to $0.81$. On the DUD-E virtual-screening suite, \projName{} matches the previously reported best AUC of $0.76$ and improves the $5.0\%$ enrichment factor from $7.12$ to $7.70$. Beyond closed-set predictions, the same model handles open-ended scientific language tasks that lie entirely outside the specialists' output space, scoring $0.85$ BertScore on biomedical QA and $0.77$~ROUGE-L on protein general function description, and supplies an interpretable natural-language rationale for each predicted label.
+
+High benchmark scores can be obtained by exploiting homology, scaffold or template-level shortcuts, and do not by themselves demonstrate that a model has captured the underlying science. 
+Sections~2.2.1--2.2.4 therefore probe four structural behaviours of \projName{} beyond average accuracy. 
+On protein GO prediction (\S2.2.1), \projName{} shows its largest gain in the low-homology regime , improving Cellular Component $F_{\max}$ at $\leq30\%$ identity, by $+0.21$ over BLAST~\citep{altschul1990blast} and by $+0.13$ over ESM2, while maintaining stable reasoning quality across similarity bins, arguing against homology memorization. 
+On retrosynthesis (\S2.2.2), the chain-of-thought interleaves language with SMILES sub-fragments along a canonical \emph{analysis $\rightarrow$ disconnection $\rightarrow$ verification $\rightarrow$ feasibility} workflow, recovering literature reactants in $5/5$ representative Retrosynthesis USPTO-50K cases versus $2/5$ for RSGPT~\citep{deng2025rsgpt}. On 3D molecular similarity (\S2.2.3), the per-molecule embedding clusters DUD-E~\citep{mysinger2012directory} actives by binding-pocket geometry rather than 2D scaffold. 
+On inorganic crystals (\S2.2.4), the latent space separates C, Si and SiC into disjoint compositional clusters and, within each, orders polymorphs along smooth band-gap gradients. 
+The accompanying reasoning traces explicitly invoke coordination changes, bonding topology and symmetry constraints as mechanistic evidence for linking crystal structure to properties. 
+Consistent with this physically aligned representation, the formation-energy parity plot (Fig.~\ref{fig:mat_results}C) reaches R$^{2}=0.895$, well above competing models even where their absolute MAE is comparable, showing that \projName{} captures the stability ranking rather than the marginal label distribution.
+
+Across scientific tasks spanning proteins, DNA, RNA, small molecules and inorganic crystals, \projName{} outperforms previous state-of-the-art methods on \textbf{\totalSOTATasks~tasks}, and matches or exceeds published domain specialists on \textbf{\totalSOTATasksExperts~benchmarks} wherever such a baseline exists. 
+To further exclude reliance on sequence, scaffold or composition-level shortcuts, we ablated structural inputs in representative protein, small-molecule and materials tasks and observed a consistent drop in performance, with the largest effects in problems governed by folded geometry, binding-site organization, molecular shape or crystal topology (Fig.~\ref{fig:ab_study}). The same perturbation changed the reasoning traces: without structure, the reasoning process relied mainly on sequence motifs or chemical composition, whereas structural tokens led \projName{} to use binding pockets, coordination environments and periodic connectivity as evidence for its predictions. 
+To our knowledge, this is the \textbf{first foundation model to enable sequence, structure and natural-language reasoning} across all four scientific modalities within a single autoregressive trajectory, delivering specialist-level accuracy, interpretable structure-grounded chains of thought, and open-ended scientific language generation that no prior specialist or generalist model can provide.
+
+ 
+
+ 
+\subsection{Benchmarking \projName~across proteomic, molecular, and materials tasks}
+ 
+
+\subsubsection{\projName~precisely predicts protein GO term and learns biologically meaningful structure}
+
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{fig/go.pdf}
+    \caption{\textbf{\projName{} predicts protein Gene Ontology terms through structure-grounded reasoning.}
+    \textbf{(A)} Performance on the CAFA-3 Gene Ontology benchmark for Molecular Function, Biological Process and Cellular Component annotations, stratified by maximum BLAST sequence identity to the training set. \projName{} shows the largest gains in low-homology regimes, particularly for Cellular Component prediction.
+    \textbf{(B)} Attention analysis for DNA-binding Gene Ontology prediction. Residues receiving high attention are enriched at contact-defined DNA-binding sites and localize to protein--DNA interfaces in representative complexes.
+    \textbf{(C)} Reinforcement-learning trajectories for the three ontology aspects. Rewards increase after an initial exploration phase and converge to stable plateaus, indicating consistent optimization across molecular-function, biological-process and cellular-component annotations.
+    \textbf{(D)} LLM-as-judge evaluation of reasoning traces on held-out Biological Process proteins. Reinforcement learning improves input fidelity, biological plausibility, reasoning coherence and functional-hypothesis quality relative to the coldstart checkpoint and DeepSeek-V4-Pro.
+    \textbf{(E)} Reasoning-quality scores stratified by BLAST similarity for Biological Process prediction. Mean GPT-5.5 judge scores are reported on five rubric axes across seven similarity bins relative to the training set ($n=20$ proteins per bin; error bars, s.e.m.). \projName{}-RL achieves the highest scores across axes and remains stable across similarity bins, suggesting that its reasoning generalizes beyond memorized homologues.
+    \textbf{(F)} Structure-token visualization of the reasoning trace for \textit{E.~coli} $\beta$-ketoacyl-ACP synthase I (FabB; 2bz4\_A, UniProt P0A953). Load-bearing claims and cited 3Di-token fragments are highlighted in the trace and mapped onto PyMOL-rendered structures. The VVVV fragment maps to canonical $\alpha$-helices, whereas DDLPPVDDP maps to an extended-strand/turn region, supporting the inferred $\alpha/\beta$ fold and the resulting fatty-acid biosynthesis annotation.}
+    \label{fig:go}
+\end{figure}
+
+
+Assigning Gene Ontology (GO) terms \citep{ashburner2000go,gene2021gene} to protein sequences is central to computational biology, translating rapidly growing sequence and structure databases \citep{abramson2024accurate} into interpretable functional annotations \citep{uniprot2023uniprot}. Since only a small fraction of proteins have experimentally verified functions \citep{friedberg2006automated,radivojac2013large}, accurate prediction across Molecular Function (MF), Biological Process (BP), and Cellular Component (CC) remains critical for protein characterization, pathway analysis, disease-gene interpretation, and therapeutic-target discovery \citep{cantalapiedra2021eggnog,gligorijevic2021deepfri}. 
+ 
+
+We evaluated GO-term prediction on DeepFRI-GO~\citep{gligorijevic2021deepfri} and, to prevent label leakage, excluded from continued pretraining all proteins with $>$30\% sequence identity to the DeepFRI-GO test set. 
+As shown in Fig.~\ref{fig:go}A, \projName{} attains an overall ($F_{\max}=0.59$), outperforming sequence-based BLAST transfer (0.55) \citep{altschul1990blast}, structure-based Foldseek 3Di alignment (0.54) \citep{van2024fast}, fine-tuned protein language models including ESM2 (0.53) \citep{esm2} and SaProt 650M AF2 (0.52) \citep{su2025saprothub}, and general-purpose reasoning LLMs, DeepSeek-V4-Pro (0.35) and GPT-5.5 (0.31). The gain is strongest for CC, where \projName{} reaches 0.58 versus BLAST (0.49), and remains positive for BP (0.52 versus 0.51). MF is near saturation, with \projName{} at 0.66, comparable to SaProt (0.67). 
+ 
+Overall, \projName{} is the only method that leads or matches the best baseline across all branches, indicating that it integrates evidence beyond any single baseline family.
+
+
+To determine whether these gains reflect genuine functional inference rather than memorized homology-based transfer, we stratified the test proteins by maximum BLAST percent identity to the training set (\(e\leq10^{-3}\), query coverage \(\geq50\%\), self-hits removed). The advantage of \projName{} is largest precisely where sequence similarity becomes unreliable. 
+In the CC \((0,30]\%\) identity bin, \projName{} improves over BLAST by \(+0.21\) absolute \(F_{\max}\) (0.55 versus 0.34 in Fig.~\ref{fig:go}A), and outperforms ESM2 by \(+0.13\) absolute \(F_{\max}\) (0.55 versus 0.42). 
+This low-homology advantage aligns with the design of \projName{}: whereas BLAST relies on local sequence similarity, ESM2 encodes evolutionary and sequence-context patterns without explicit structural grounding, \projName{} predicts GO terms through reasoning traces that integrate domain composition, localized motifs, structural environments, and reference proteins. Such local functional cues can remain conserved even when global sequence identity is weak. 
+
+
+We next tested whether \projName{} grounds GO predictions in functionally relevant protein regions rather than superficial sequence patterns. Using DNA-binding proteins, where protein--DNA contacts provide structural ground truth, we extracted attention from the generated DNA-binding GO token (GO:0003677) to residue-level structure and sequence tracks and combined them into a per-residue profile. These profiles strongly align with DNA-binding sites (Fig.~\ref{fig:go}B): catabolite control protein A (UniProt: P25144) reaches AUROC (=0.91) and top-20\% fold enrichment ($=4.2\times$), histone H2B type 1-A (UniProt: P70696) reaches AUROC (=0.83) and enrichment ($=3.6\times$), and DesT (UniProt: Q9HUS3) reaches AUROC (=0.78) and enrichment ($=3.1\times$).
+In all cases, the most attended residues fall within or immediately adjacent to annotated binding regions, and structural projections confirm that these residues cluster near bound DNA in three-dimensional space. Thus, \projName{} does not merely assign the correct GO term. It concentrates its evidence on residues that are physically responsible for the corresponding molecular function.
+
+Reinforcement learning further improves GO prediction across all three ontology aspects (Fig.~\ref{fig:go}C). After a brief exploration phase during the first \(\sim\!5\%\) of training, in which the science reward temporarily decreases under noisy advantages, all three trajectories rise and converge to stable plateaus. MF reaches the highest reward (\(\sim\!0.92\)), while BP and CC converge at comparable values (\(\sim\!0.89\)).
+The simultaneous improvement across all aspects indicates that RL does not merely exploit aspect-specific shortcuts, but instead strengthens a shared protein-function representation that supports functional, process, and localization annotations.
+
+Because $F_{\max}$ captures only final GO-term overlap, we also evaluated the reasoning traces underlying those predictions. To assess grounded biological inference beyond surface fluency, we used GPT-5.5 to score held-out BP traces on Overall Quality, Input Fidelity, Biological Plausibility, Reasoning Coherence, and Functional Hypothesis Quality. \projName{} scores highest on every axis, with an Overall score of 8.33 versus 7.77 for SciReasoner-ColdStart and 6.96 for DeepSeek-V4-Pro \citep{deepseekai2026deepseekv4} (Fig.~\ref{fig:go}D). 
+Relative to the pre-RL coldstart model, the largest improvement is in Biological Plausibility (8.68 vs.\ 7.83), indicating that RL sharpens not only the fluency of the trace but also the biological relevance of the inferred function. 
+The gap to DeepSeek-V4-Pro is concentrated on the biology-specific axes---Biological Plausibility (8.68 vs.\ 6.63) and Functional Hypothesis Quality (8.45 vs.\ 6.77)---and is far wider there than on Input Fidelity (8.27 vs.\ 8.04). Although DeepSeek-V4-Pro is a substantially larger general-purpose model, this pattern shows that domain-tuned scientific reasoning, rather than raw model scale alone, drives the improvement.
+
+
+We stratified reasoning quality by BLAST similarity to test whether \projName{} relies mainly on close homologues (Fig.~\ref{fig:go}E). Across seven similarity bins, \projName{} maintains higher judge scores than both the coldstart checkpoint and DeepSeek-V4-Pro, including in low-similarity regimes where direct homology transfer is least reliable. This helps explain the low-homology gains in Fig.~\ref{fig:go}A. 
+Rather than copying annotations from close neighbours, \projName{} can combine weaker but conserved cues, such as local structural motifs, short sequence fragments, fold-level patterns, and biochemical context. These results suggest that its improved performance on low-similarity proteins arises from structure-grounded functional reasoning rather than memorization of homologous sequences.
+
+Finally, Fig.~\ref{fig:go}F illustrates how the model's reasoning can be audited at the level of structure tokens. For \textit{E. coli} \(\beta\)-ketoacyl-ACP synthase I (UniProt: P0A953), \projName{} identifies repeated \texttt{VVVV} fragments as canonical \(\alpha\)-helical regions and the \texttt{DDLPPVDDP} fragment as an extended strand/turn-rich segment. 
+The trace then links this fold architecture, together with glycine-rich and catalytic-context cues, to fatty-acid biosynthesis and related lipid-metabolic processes. This example demonstrates that the reasoning trace is not an isolated natural-language explanation: its claims can be connected back to explicit structural substrings and spatial regions of the protein.
+
+Together, these results show that \projName{} advances GO-term prediction in three ways: it improves accuracy most in low-homology regimes, grounds predictions in localized sequence and structural evidence, and uses reinforcement learning to enhance both annotations and reasoning quality. Thus, \projName{} serves not only as a more accurate GO predictor, but also as a mechanism-aware annotation framework that explains molecular function, biological process, and cellular localization assignments.
+
+\subsubsection{\projName~formulates chemically viable retrosynthetic routes with high precision
+}
+
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{fig/joint-opus.pdf}
+    \caption{ 
+        \textbf{\projName~formulates chemically viable retrosynthetic routes (A--C) and captures plausible 3D molecular structure for similarity representation (D, E).}
+        \textbf{(A)} {{Retrosynthesis USPTO-50K performance.}}
+        Across template-based, semi-template-based and template-free methods, \projName~reaches $0.72$, exceeding the prior best RSGPT by $+0.09$ points, while Opus-4.7 five-shot scores only $0.48$.
+        \textbf{(B)} {{Chain-of-thought trace for a representative product.}}
+        \projName~proceeds in four interpretable stages---{Analysis}, {Disconnection}, {Verification} and {Feasibility}, and recovers the two ground-truth reactants by severing the strategic ester C\textendash O bond. Every intermediate claim is itself a SMILES fragment, making the trace auditable atom-by-atom.
+        \textbf{(C)} {{Cross-model Top-3 reactant predictions on Retrosynthesis USPTO-50K.}}
+        Five products with their ground-truth reactants and the Top-3 predictions of \projName, RSGPT and Opus-4.7. Molecules in \textcolor{pink}{pink} match the gold canonical SMILES. \projName~recovers a correct candidate for $5/5$ products versus $2/5$ for RSGPT and $2/5$ for Opus-4.7, generalising across mechanistically distinct reaction families, rather than fitting a single template.
+        \textbf{(D)} {{Per-target distributions on 3D molecule structure (DUD-E).}}
+        AUC and $5.0\%$ EF box plots over $102$ DUD-E targets for nine published baselines, an Opus-4.7 reference, and \projName. \projName{} matches the previously reported best AUC and establishes a new best $5.0\%$ EF.
+        \textbf{(E)} {{3D ligand-target geometry for three DUD-E targets.}}
+        UMAP of the per-molecule \projName~embedding, coloured points are the $400$ closest actives for each target, labelled by DUD-E target identifiers—ADA17 (blue), CAH2 (orange), and PGH2 (green); open stars mark the reference queries. Side panels show each query and three representative actives docked into the receptor, then redrawn as 2D structures: chemically distinct scaffolds that nevertheless converge to the same 3D pharmacophore. 
+    }
+    \label{fig:retro_joint}
+\end{figure}
+
+
+
+Retrosynthesis (the recursive disconnection of a target molecule into commercially available precursors) is the cognitive backbone of organic-synthesis route planning. Reliable retrosynthetic models accelerate hit-to-lead optimization, and an interpretable reasoning trace lets human chemists verify and reuse the suggested routes.
+
+We evaluate on the standard Retrosynthesis USPTO-50K \citep{schneider2016big} split: the model is given a single target SMILES and must output the set of reactant SMILES that produces it. We sample 16 stochastic completions per query ($T{=}0.6$, top-$p{=}0.95$) and rank the answers by sample frequency. A prediction is correct only when its canonical SMILES exactly matches the ground-truth reactant set, and we report Exact Match as the standard metric. Fig.~\ref{fig:retro_joint}A places \projName~against $18$ published baselines spanning template-based \citep{coley2017computer,segler2017neural,dai2019retrosynthesis,chen2021deep,yan2022retrocomposer}, semi-template-based \citep{shi2020graph,yan2020retroxpert,wang2021retroprime,chen2023g,gao2022semiretro,zhong2023retrosynthesis} and template-free \citep{zheng2019predicting,sacha2021molecule,tu2022permutation,zhong2022root,yao2024node,deng2025rsgpt,opus47} families: \projName~reaches \textbf{$0.72$} (Exact Match), exceeding the previous best template-free method RSGPT \citep{deng2025rsgpt} ($0.63$) by $+0.09$ points, while Opus-4.7 five-shot scores only $0.48$. 
+To prevent direct test leakage, we removed from the pretraining corpus all reactions whose product SMILES matched any product in the Retrosynthesis USPTO-50K test set. 
+
+Unlike generic chat models that emit a free-form natural-language explanation followed by a single SMILES guess, \projName~is a scientific reasoning model that interleaves natural-language steps with \emph{structural tokens (SMILES fragments)} inside its chain-of-thought, e.g.\ the ester C--O bond, the phenyl ring \texttt{c1ccccc1}. Because the intermediate steps are themselves chemical structures, the trace can be checked atom-by-atom and the final reactant assembly is grounded in concrete sub-fragments.
+
+Fig.~\ref{fig:retro_joint}B illustrates this on a hydroxy-substituted benzhydryl ester. \projName~severs the strategic ester C--O bond, independently verifies the expected functional groups on each precursor, and recognises the inverse reaction as an acid-catalysed esterification. Six of the seven sub-fragments emitted in the trace are strictly smaller than either reactant, yet their union exactly reconstructs the gold answer, indicating bottom-up reasoning over chemical groups rather than template recall.
+
+Fig.~\ref{fig:retro_joint}C extends this to five further Retrosynthesis USPTO-50K products, contrasting \projName~against the specialised retrosynthesis model RSGPT and the general-purpose large language model Opus-4.7. \projName~contains the gold reactant set in its Top-3 for $5/5$ rows; RSGPT recovers it in $2/5$, and Opus-4.7 in $2/5$.
+
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+
+On the $N$-tert-butyl pyridine-carboxamide aldehyde, \projName~recovers the literature Vilsmeier formylation route (DMF/Br precursor pair) with a single canonical answer across all 16 samples; RSGPT proposes a hydroxymethyl + bromopyridine pair, while Opus-4.7 commits all three ranks to oxidation of a benzyl alcohol and never proposes the C--N disconnection (Fig.~\ref{fig:retro_joint}C, Row 1). On a 1,4-disubstituted 1,2,3-triazole-fused phenyl-benzofuranone, the gold cut is a copper-catalysed azide--alkyne [3+2] cycloaddition (CuAAC) of trimethylsilyl azide with the terminal aryl-alkyne; only \projName's rank-1 recovers this pair, while RSGPT keeps the triazole intact and disconnects elsewhere and Opus-4.7 mis-treats the cycloaddition as an azide-plus-nitrile coupling (Fig.~\ref{fig:retro_joint}C, Row 2). On a chloro-arylsulfanyl tetrahydrofuro-pyridine $N$-Boc carbamate, the strategic cut is $m$-CPBA oxidation of the thioether to the sulfoxide; only \projName's rank-1 identifies it, while RSGPT and Opus-4.7 instead attempt to cleave the Boc carbamate or the tetrahydrofuran (Fig.~\ref{fig:retro_joint}C, Row 3). On a polycyclic indole-based amide, \projName~and Opus-4.7's rank-1 both propose the correct amide coupling between the bicycloalkyl carboxylic acid and the parent aniline; the remaining baselines fragment the indole or the trifluoromethyl chain (Fig.~\ref{fig:retro_joint}C, Row 4). On a thiophene--phenyl biaryl bearing a Boc-aminothiophene and a spirolactone-piperazine amide, the strategic cut is a Suzuki--Miyaura coupling of the 5-bromo Boc-aminothiophene with benzyl 4-boronate-benzoate; \projName~returns this pair across all $16$ samples and Opus-4.7's rank-1/rank-2 both match, while RSGPT recovers the gold pair only at rank-3 (Fig.~\ref{fig:retro_joint}C, Row 5).
+
+Taken together, the structural-token chain-of-thought makes \projName's predictions both more accurate and easier to audit: the trace states inside itself why each bond is the strategic cut, rather than answering in one step. 
+
+\subsubsection{\projName~captures plausible 3D molecular structure for similarity representation}
+
+Identifying compounds that share a binding-pocket geometry but not a 2D scaffold is the central problem of virtual screening and ligand-based drug discovery. A representation that groups molecules by binding-pocket compatibility, rather than by simple substructure overlap, would directly enable hit expansion and scaffold hopping.
+
+We probe whether \projName~itself already provides such a representation. From a single-molecule prompt, we extract the last layer hidden state of \projName~and average it over the 10 tokens generated immediately after the prompt to obtain a molecular embedding. Following the standard DUD-E protocol \citep{mysinger2012directory}, we ask how well Euclidean distance in this embedding space ranks actives versus decoys for a given target query, reporting AUC and the $5.0\%$ EF, and the embedding's qualitative structure is visualised via 2D UMAP projection.
+
+
+\projName~natively consumes \emph{structural tokens}: a dedicated ConfSeq \citep{xiong2025bridging} tokenizer converts each 3D conformer into a sequence of geometry-aware tokens drawn from a separate vocabulary backed by a separate learned embedding table, held disjoint from the natural-language embedding. Because structural tokens are a parallel modality, geometric features are separated from those used for IUPAC names or descriptive language, so the hidden states above structural-token positions carry an uncontaminated geometric signal.
+
+Fig.~\ref{fig:retro_joint}D quantifies this representation against nine published virtual-screening methods on $102$ DUD-E targets, spanning alignment-free descriptors and alignment-based shape-overlay methods \citep{hemmer1999deriving,devinyak20143d,klein2004topological,axen2017simple,xiong2025bridging,vainio2009shaep,sastry2011rapid,liu2011shafts,hu2018ls}, plus an Opus-4.7~\citep{opus47} reference. Used as a drop-in similarity feature, \projName's per-molecule embedding matches ConfSeq's prior best AUC of $0.76$ and improves the best $5.0\%$ EF from $7.12$ to $7.70$, obtained without docking, scoring functions, or task-specific fine-tuning.
+
+Fig.~\ref{fig:retro_joint}E demonstrates the qualitative structure of the same embedding on three pharmacologically distinct DUD-E targets spanning unrelated protein families: ADAM17 (a zinc metalloprotease), carbonic anhydrase II (a zinc hydrolase) and cyclooxygenase-2 / PGHS-2 (a heme-containing dioxygenase). Each target's top-$400$ closest actives form a clearly separated cluster around its query ligand ($\bigstar$) on the 2D UMAP, and the three clusters occupy distinct regions of the plane despite the proteins being sequence-unrelated, and the decoys (light grey) do not infiltrate any cluster, indicating that the embedding captures family-specific chemistry rather than gross descriptors.
+
+ 
+
+The boxed side panels visualise the per-target binding mode in 3D. For ADAM17, the cyclic-thiol sulfonamide query is matched by closest actives that swap the thiopyrrolidine zinc-binder for a hydroxamate amide or extend the alkyne tail into a propargyl amine while keeping the diaryl sulfonyl core; their Morgan-fingerprint Tanimoto similarities to the query are only $0.30$--$0.32$, yet USRCAT 3D-shape similarities remain greater than $0.22$ and Open3DALIGN scores reach $120$--$140$, meaning all three ligands drape over the same TACE active site. For PGHS-2, the celecoxib-like diaryl-pyrazole sulfonamide query is matched by an indanone-acetic-acid analog (Tanimoto $0.11$) and a chloro-aryl-thiazole-sulfonamide (Tanimoto $0.31$), chemically divergent COX-2 chemotypes that adopt the same 3D pharmacophore. Carbonic anhydrase II is the most striking case: the query reduces to the minimal \ce{NH2{-}SO2{-}CF3} warhead, and its three closest actives---a cyclohexyl sulfamate, a pyridyl-thiadiazole sulfonamide and a thiopheno-thiazinone, spanning very different fused-ring topologies yet all expose the canonical zinc-binding sulfonamide that defines CA-II inhibition.
+
+ 
+
+Taken together, both qualitative and quantitative results indicate that \projName~has implicitly learned to cluster DUD-E actives by binding-pocket geometry rather than scaffold similarity.
+
+
+ 
+
+
+
+ 
+
+
+
+ 
+
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig/mat.pdf}
+    \caption{\textbf{Evaluation of material predictive performance and visualization of the learned structure-property latent space}.
+\textbf{(A)} Performance comparison across 10 material property prediction sub-tasks, both regression  (MAE as the metric) and classifications (AUC as the metric) tasks are reported. 
+\textbf{(B)} UMAP of the high-dimensional representations extracted by the model on three materials (C, Si and SiC). 
+The latent space inherently clusters materials by chemical space and spontaneously distinguishes distinct structural polymorphs. 
+\textbf{(C)} Parity plots comparing model-predicted formation energies per atom and bandgap against ground-truth values. The strong correlations (R$^2$
+ = 0.895 and 0.785) demonstrate the model's ability to capture physically meaningful materials-property information. 
+ \textbf{(D)} Local UMAP embeddings for the Si and SiC subsets, color-coded by their corresponding band gaps. The continuous transition and distinct grouping of high- and low-bandgap regions indicate that the learned representations effectively capture underlying structure-property relationships.
+  \textbf{(E)} Structure-grounded reasoning trace for a representative stability prediction on TiGaCo$_2$. The model's reasoning explicitly identifies the SLICES symmetry substring, which decodes to the 
+  Fm$\bar{3}$m space group, and cites edge substrings.
+  These substrings are mapped back to the corresponding CIF structure, where they visualize the global cubic symmetry framework and local periodic connectivities.
+ }
+    \label{fig:mat_results}
+\end{figure}
+
+\subsubsection{\projName~learns structure- and property-aware representations for materials tasks}
+
+ 
+We evaluated \projName~on ten downstream materials sub-tasks from five complementary databases: 
+Materials Project\footnote{\url{https://materialsproject.org/}},
+JARVIS-DFT\footnote{\url{https://jarvis.nist.gov/jarvisdft}},
+SNUMAT\footnote{\url{https://www.snumat.com/}},
+hMOF\footnote{\url{https://mof.tech.northwestern.edu/}},
+and QMOF\footnote{\url{https://contribs.materialsproject.org/projects/qmof}}. 
+These sub-tasks cover inorganic crystals, semiconductors and metal organic frameworks, and include thermodynamic stability, formation and total energies, electronic band gaps, spin orbit coupling, CO$_2$ uptake and pore geometry. For these sub-tasks, \projName~was compared with CGCNN~\citep{xie2018crystal}, LLM-Prop~\citep{niyongabo2025llm} and Opus-4.7, using Mean Absolute Error (MAE) for regression tasks and Area Under the Curve (AUC) for classification tasks. 
+As shown in Fig.~\ref{fig:mat_results}A, \projName~outperforms CGCNN across all ten tasks and exceeds LLM-Prop on most numerical properties. These results indicate that its representations capture both general energetic trends and more specialized relationships involving electronic structure, relativistic effects, adsorption behaviour and pore geometry.
+
+We next examined the latent space learned by \projName. UMAP projections show clear separation among C, Si and SiC structures, indicating that the embeddings encode global chemical identity (Fig.~\ref{fig:mat_results}B). Within each compositional domain, structures do not collapse into a single cluster. Instead, they form extended subspaces that distinguish polymorphs and polytypes with the same composition, suggesting sensitivity to local geometry and bonding topology. 
+At the quantitative level, \projName~produces DFT-consistent predictions for both formation energy and band gap, with parity plots showing close agreement with ground-truth values and residuals concentrated around zero (Fig.~\ref{fig:mat_results}C). This predictive accuracy is reflected in the learned representation space: local UMAP projections for Si and SiC separate low- and high-band-gap structures while preserving continuous property gradients within each compositional manifold (Fig.~\ref{fig:mat_results}D). Together, these results show that \projName~organizes structurally related materials along physically meaningful electronic-property manifolds, rather than encoding composition alone. 
+
+A representative TiGaCo$_2$ stability prediction illustrates how \projName~grounds its reasoning in explicit structural tokens rather than relying only on the chemical formula (Fig.~\ref{fig:mat_results}E). The model identifies the structure substring corresponding to the Fm$\bar{3}$m space group and links local edge substrings to periodic Ti--Co, Ti--Ga and Ga--Co connectivities in the reconstructed CIF structure, providing a traceable connection between token-level evidence and crystallographic features.  
+
+ 
+
+
+
+ 
+
+ 
+ 
+ 
+
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+\subsection{Structural evidence drives native scientific reasoning}
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+
+To test whether native scientific reasoning depends on explicit structural evidence, we performed structure-ablation experiments across materials, proteins and small molecules (Fig.~\ref{fig:ab_study}A).
+Removing structural information consistently weakened performance, whereas providing structural inputs improved prediction across all three domains.
+The gains were especially pronounced for protein tasks, where function depends on folded geometry, binding-site organization and spatial residue interactions, but were also evident in materials and molecular-similarity tasks, where periodic topology and three-dimensional shape provide information that cannot be recovered from composition, sequence or two-dimensional descriptors alone.
+Thus, the ablation shows that structural evidence is not merely an additional input channel, but a necessary substrate for the model's native scientific reasoning.
+
+The embedding analysis further shows that \projName{} learns a distinct representational space for structural evidence (Fig.~\ref{fig:ab_study}B).
+In the Qwen embedding space, paired protein sequence and structure inputs remain partially intermixed, suggesting that structural descriptions are treated largely as another form of text.
+By contrast, \projName{} forms more clearly separated sequence and structure clusters, indicating that structural tokens occupy a distinct representational subspace while preserving within-modality consistency.
+This modality separation suggests that the model can distinguish sequence-level evidence from structure-level evidence, a prerequisite for reasoning tasks that require explicit modelling of sequence--structure relationships.
+
+Case studies show that structural evidence changes the reasoning path, not merely the final output.
+For QMOF pore-limiting-diameter prediction, the structure-free model relies on compositional and stoichiometric priors and overestimates the pore size by nearly an order of magnitude (Fig.~\ref{fig:ab_study}C).
+With structural tokens, \projName{} instead cites monoclinic symmetry, cobalt coordination to nitrogen and oxygen atoms, edge connectivity and periodic offsets, producing a prediction close to the ground truth.
+Similarly, for biological-process GO prediction, sequence-only reasoning is diverted by cationic and histidine-rich motifs towards DNA recombination and stress-response terms, whereas structure-aware reasoning integrates secondary-structure context and binding-pocket evidence to recover protein-modification annotations (Fig.~\ref{fig:ab_study}D).
+These examples indicate that structural evidence redirects the model from superficial sequence or composition cues towards physically and biologically meaningful explanations.
+
+Quantitative analyses support the same conclusion.
+For materials prediction, structural input reduces absolute errors for bandgap, largest-cavity-diameter and pore-limiting-diameter prediction (Fig.~\ref{fig:ab_study}E), showing that crystal geometry improves both electronic-structure and pore-geometry inference.
+For GO molecular-function prediction, residue-level attention maps show that structure-aware reasoning concentrates high attention around the functional binding site, whereas sequence-only reasoning attends to non-binding regions and yields lower accuracy (Fig.~\ref{fig:ab_study}F).
+Together, the ablations, representation analysis, reasoning cases and attention maps support the claim that structural evidence drives native scientific reasoning in \projName{}, enabling the model to ground its conclusions in biologically and physically meaningful structural features rather than superficial sequence, composition or textual correlations.
+
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{fig/ab_study_cot.pdf}
+    \caption{\textbf{Structural information empowers native scientific reasoning.}
+    \textbf{(A) Structure-ablation benchmark.} Performance with and without structural inputs across materials, proteins and small molecules. Structural cues consistently improve prediction beyond sequence- or text-only inputs.
+    \textbf{(B) Modality-separated representations.} PCA of Qwen and    \projName{} embeddings for paired protein sequence and structure inputs. \projName{} more clearly separates the two modalities, indicating stronger structure-aware encoding.
+    \textbf{(C) Structure-grounded materials reasoning.} Chain-of-thought comparison for QMOF pore-limiting-diameter prediction. Without structure, the model relies on compositional priors and overestimates pore size; with structural tokens, it uses symmetry and bonding connectivity to recover a value closer to the ground truth.
+    \textbf{(D) Structure-grounded GO reasoning.} Chain-of-thought comparison for biological-process GO prediction. Sequence-only reasoning predicts DNA-related processes, whereas structure-aware reasoning integrates secondary-structure and binding-site evidence to recover protein-modification annotations.
+    \textbf{(E) Materials prediction with structure.} Absolute-error distributions for bandgap, largest-cavity-diameter and pore-limiting-diameter prediction. Structural input reduces errors across all three properties.
+    \textbf{(F) Structure-guided GO attention.} Residue-level attention maps for GO molecular-function prediction. Structure-aware reasoning focuses on the functional binding site, whereas sequence-only reasoning attends to non-binding regions, consistent with its lower accuracy.}
+    \label{fig:ab_study}
+\end{figure}
+
+ 
+
+
+\subsection{Intra-domain grounding and cross-domain consolidation stimulate self-bootstrapped native structural reasoning}
+
+While broad scientific pre-training provides diverse molecular, biomolecular, and materials representations, it does not establish a unified reasoning protocol across scientific tasks. We therefore adopt a self-bootstrapped post-training framework, which first grounds structural evidence within each scientific domain (i.e., intra-domain structural evidence grounding) and then integrates these domain-local reasoning patterns into a single scientific reasoner (i.e., cross-domain reasoning consolidation) (Fig.~\ref{fig:rl}A). Sketch traces provide only a coldstart prior, after which domain-structure experts generate higher-quality on-policy traces that are pooled for final training. 
+Together, this two-stage procedure turns pre-trained structural priors into explicit scientific reasoning, first eliciting domain-native evidence use and then consolidating it into a unified structure-grounded reasoner.
+
+
+The reward and performance dynamics in Fig.\ref{fig:rl}B support the self-bootstrapped strategy. Intra-domain structural evidence grounding  yields consistent reward gains across task families, indicating that a small set of sketch traces can seed trainable reasoning behaviours. After expert-generated traces are pooled, cross-domain reasoning consolidation enables the unified \projName{} to outperform the coldstart baseline across both structure-intensive and non-structure tasks. 
+This suggests that expert-generated traces better align with the model's representation space, enabling model-native reasoning trajectories to emerge.
+
+Fig.~\ref{fig:rl}C shows that the post-training procedure improves both first-sample accuracy and sampling efficiency across tasks. For pass@10, we used task-specific aggregation: the mean Fmax@10 across BP, MF and CC for GO annotation, an oracle best-of-10 prediction selected by minimum absolute error for QMOF regression, a label-independent 10-sample score ensemble followed by 5.0\% EF evaluation for 3D molecule structure (DUD-E), and top-10 reactant-set accuracy for retrosynthesis. In GO term prediction, intra-domain structural evidence grounding raises pass@1 from 0.48 to 0.52 and reduces the pass@10--pass@1 gap from 0.13 to 0.11, while cross-domain reasoning consolidation further achieves the highest pass@1 of 0.59 with a smaller gap than its coldstart precursor. In QMOF prediction, pass@1 increases from 2.71 to 4.76 after intra-domain structural evidence grounding and from 6.80 to 8.61 after cross-domain reasoning consolidation, with the gap reduced from 11.29 to 4.07 and from 13.82 to 5.57, respectively. 3D molecule structure (DUD-E) prediction shows the same trend: pass@1 improves from 4.65 to 6.31 after intra-domain structural evidence grounding and from 7.29 to 7.70 after cross-domain reasoning consolidation. Retrosynthesis shows the largest absolute gain, with pass@1 rising from 0.41 to 0.49 after intra-domain structural evidence grounding and to 0.72 after cross-domain reasoning consolidation, accompanied by gap reductions from 0.36 to 0.26 and from 0.22 to 0.09. 
+These consistent gap reductions indicate that the procedure does not merely improve best-of-$N$ performance, but concentrates probability mass on correct first responses, making SciReasoner more reliable under single-sample scientific prediction.
+
+
+Fig.~\ref{fig:rl}D further evaluates reasoning quality beyond final-answer accuracy using LLM-judge score distributions over 100 records per task. Self-bootstrapped native structural reasoning consistently shifts the distributions toward higher scores, with the largest worst-to-best mean improvement on 3D molecule structure (DUD-E) ($\Delta_{\mathrm{mean}}=+3.10$), followed by GO protein-function annotation ($+1.79$), QMOF property prediction ($+1.61$), and Retrosynthesis USPTO-50K ($+0.48$). 
+The larger gains on DUD-E, GO and QMOF suggest that the self-bootstrapped procedure is especially effective when reasoning must be grounded in molecular topology, protein structural evidence or crystal-property relationships. By contrast, retrosynthesis starts from an already high reasoning-quality distribution, leaving less room for improvement. Its smaller but positive shift therefore indicates slower saturation rather than failure of the post-training procedure. Overall, these distribution-level gains show that the procedure improves not only answer correctness, but also the coherence and evidence grounding of the scientific reasoning process.
+
+Fig.~\ref{fig:rl} shows that self-bootstrapped native structural reasoning progressively transforms domain-structure experts into a unified scientific reasoner. Intra-domain structural evidence grounding strengthens domain-specific reasoning, while cross-domain reasoning consolidation transfers these capabilities into a single cross-domain model. Improvements in reward, pass@1 performance, and reasoning quality demonstrate more accurate and stable evidence-grounded reasoning.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{fig/rl.pdf}
+    \caption{\textbf{Self-bootstrapped native structural reasoning unifies scientific reasoning.}
+    \textbf{(A) Intra-domain structural evidence grounding and cross-domain reasoning consolidation.} Sketch reasoning traces coldstart task-specific experts, which are optimized independently by reinforcement learning (RL) to ground structural evidence within each domain. Expert-generated traces are then pooled to coldstart and reinforce a unified SciReasoner across all tasks to consolidate cross-domain reasoning patterns.
+    \textbf{(B) Reward dynamics.} RL rewards rise during training, with the unified SciReasoner matching or exceeding expert variants on structure-intensive and other scientific tasks.
+    \textbf{(C) Improved accuracy and sampling efficiency.} Pass@1 and pass@10 are compared across four training stages for GO term prediction, QMOF prediction, 3D molecule structure (DUD-E) and Retrosynthesis USPTO-50K. Lighter hatched bars indicate pass@1 and solid bars pass@10; $\Delta=\mathrm{pass@10}-\mathrm{pass@1}$. The post-training procedure consistently increases pass@1 and reduces $\Delta$, indicating more reliable first-sample predictions.
+    \textbf{(D) Improved reasoning quality across tasks.} Kernel density estimates show LLM-judged reasoning scores for four model variants on GO term prediction, QMOF prediction, 3D molecular similarity (DUD-E), and Retrosynthesis USPTO-50K. Triangles denote means and red brackets indicate the worst-to-best mean difference. Self-bootstrapped native structural reasoning shifts score distributions towards higher quality, and unified SciReasoner generally outperforms domain-structure experts.
+    \textbf{(E) Double-blinded human-expert evaluation.} Domain experts compared SciReasoner and DeepSeek-V4-Pro on GO annotation, materials-property prediction and retrosynthesis. Left, pairwise preferences overall and by task; right, score distributions for individual scoring-axis. SciReasoner was rated tie-or-better in 98\% of comparisons and scored higher on every axis.
+}
+    \label{fig:rl}
+\end{figure}
+
+\subsection{Human Expert Evaluation}
+
+The automated metrics and LLM judges establish that SciReasoner produces accurate answers, but they cannot establish whether its \emph{reasoning traces} are genuinely useful to domain experts. We therefore conducted a double-blinded human evaluation pilot in which domain experts compared SciReasoner and DeepSeek-V4-Pro reasoning traces on cases spanning three tasks --- GO protein-function annotation, crystalline-material property prediction, and single-step retrosynthesis on Retrosynthesis USPTO-50K. Evaluators were double-blinded to model identity and rated every trace against a five-axis, 1--10 rubric (Q1 evidence grounding, Q2 domain plausibility, Q3 target-regime alignment, Q4 reasoning coherence, Q5 anti-hallucination) together with a five-point pairwise preference (Q8, strongly prefer SciReasoner $\to$ strongly prefer DeepSeek-V4-Pro). The two panels of Fig.~\ref{fig:rl}E summarize the resulting $N=177$ \footnote{We are collecting more human judgments.} reliable case-judgments: the head-to-head preference distribution and the per-axis score distributions.
+
+In the head-to-head comparison, experts rated SciReasoner tie-or-exceed than DeepSeek-V4-Pro in $98\%$ of case-judgements, with $73\%$ strongly preferring SciReasoner, $21\%$ preferring it, and $4\%$ ties. Only a small residual fraction favoured DeepSeek-V4-Pro (Fig.~\ref{fig:rl}E, pairwise preference). 
+The preference is consistent across all three tasks --- $100\%$ tie-or-exceed on GO protein function, $95\%$ on crystalline-material property prediction, and $98\%$ on retrosynthesis. It demonstrates that SciReasoner's advantage is not carried by any single domain but holds across heterogeneous scientific-reasoning settings. 
+
+The per-axis scores show that this preference reflects a broad, consistent quality gap rather than a single dominant dimension. SciReasoner averages $8.7/10$ overall versus $4.3/10$ for DeepSeek-V4-Pro, with per-axis means of $8.8$ vs $4.5$ on evidence grounding, $8.5$ vs $4.4$ on domain plausibility, $8.9$ vs $4.3$ on target-regime alignment, $8.7$ vs $3.9$ on reasoning coherence, and $8.8$ vs $4.6$ on anti-hallucination. 
+Every per-axis difference is significant shown by Wilcoxon signed-rank on paired per-case differences, $P<0.001$ in Fig.~\ref{fig:rl}E, per-axis scores. 
+SciReasoner's distributions are concentrated near the top of the scale on all five axes, whereas DeepSeek-V4-Pro receives more variable scores, especially on target-regime alignment and reasoning coherence. This indicates that the most reliable separation is not that DeepSeek-V4-Pro uniformly fails, but that SciReasoner is more consistently grounded, task-aligned, and coherent across cases.
+
+Together, these results show that SciReasoner's advantage on automated metrics also holds under direct expert scrutiny: across three heterogeneous tasks, human experts prefer or tie SciReasoner reasoning in the overwhelming majority of cases, and rate it markedly higher on every quality axis, reflecting faithful, verifiable scientific reasoning.

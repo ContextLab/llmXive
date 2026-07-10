@@ -1,0 +1,65 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Figure/reproduce.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Figure/xpolicylab_pipeline.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Img/champion.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Img/communicate.webp"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Img/leaderboard.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Img/robodojo_icon.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Img/robodojo_logo.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "reference.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sec/6.9_open_source.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "table/eval_result_details.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "table/evaluation_speed.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "table/real_consistency.tex"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

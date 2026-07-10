@@ -1,0 +1,658 @@
+\begin{thebibliography}{100}
+
+\bibitem{achiam2023gpt}
+Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ahmad, Ilge Akkaya, Florencia~Leoni Aleman, Diogo Almeida, Janko Altenschmidt, Sam Altman, Shyamal Anadkat, et~al.
+\newblock Gpt-4 technical report.
+\newblock {\em arXiv preprint arXiv:2303.08774}, 2023.
+
+\bibitem{agarwal2026cosmos}
+Niket Agarwal, Arslan Ali, Jon Allen, Martin Antolini, Adeline Aubame, Alisson Azzolini, Junjie Bai, Maciej Bala, Yogesh Balaji, Josh Bapst, et~al.
+\newblock Cosmos 3: Omnimodal world models for physical ai.
+\newblock {\em arXiv preprint arXiv:2606.02800}, 2026.
+
+\bibitem{ansel2024pytorch2}
+Jason Ansel, Edward Yang, Horace He, Natalia Gimelshein, Animesh Jain, et~al.
+\newblock Pytorch 2: Faster machine learning through dynamic python bytecode transformation and graph compilation.
+\newblock In {\em Proceedings of the 29th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 2}, pages 929--947, 2024.
+
+\bibitem{assran2025v}
+Mido Assran, Adrien Bardes, David Fan, Quentin Garrido, Russell Howes, Matthew Muckley, Ammar Rizvi, Claire Roberts, Koustuv Sinha, Artem Zholus, et~al.
+\newblock V-jepa 2: Self-supervised video models enable understanding, prediction and planning.
+\newblock {\em arXiv preprint arXiv:2506.09985}, 2025.
+
+\bibitem{bai2023qwen}
+Jinze Bai, Shuai Bai, Yunfei Chu, Zeyu Cui, Kai Dang, Xiaodong Deng, Yang Fan, Wenbin Ge, Yu~Han, Fei Huang, et~al.
+\newblock Qwen technical report.
+\newblock {\em arXiv preprint arXiv:2309.16609}, 2023.
+
+\bibitem{Qwen3-VL}
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang Gao, Chunjiang Ge, Wenbin Ge, Zhifang Guo, Qidong Huang, Jie Huang, Fei Huang, Binyuan Hui, Shutong Jiang, Zhaohai Li, Mingsheng Li, Mei Li, Kaixin Li, Zicheng Lin, Junyang Lin, Xuejing Liu, Jiawei Liu, Chenglong Liu, Yang Liu, Dayiheng Liu, Shixuan Liu, Dunjie Lu, Ruilin Luo, Chenxu Lv, Rui Men, Lingchen Meng, Xuancheng Ren, Xingzhang Ren, Sibo Song, Yuchong Sun, Jun Tang, Jianhong Tu, Jianqiang Wan, Peng Wang, Pengfei Wang, Qiuyue Wang, Yuxuan Wang, Tianbao Xie, Yiheng Xu, Haiyang Xu, Jin Xu, Zhibo Yang, Mingkun Yang, Jianxin Yang, An~Yang, Bowen Yu, Fei Zhang, Hang Zhang, Xi~Zhang, Bo~Zheng, Humen Zhong, Jingren Zhou, Fan Zhou, Jing Zhou, Yuanzhi Zhu, and Ke~Zhu.
+\newblock Qwen3-vl technical report.
+\newblock {\em arXiv preprint arXiv:2511.21631}, 2025.
+
+\bibitem{bar2024lumiere}
+Omer Bar-Tal, Hila Chefer, Omer Tov, Charles Herrmann, Roni Paiss, Shiran Zada, Ariel Ephrat, Junhwa Hur, Guanghui Liu, Amit Raj, et~al.
+\newblock Lumiere: A space-time diffusion model for video generation.
+\newblock In {\em SIGGRAPH Asia 2024 Conference Papers}, pages 1--11, 2024.
+
+\bibitem{bi2024deepseek}
+Xiao Bi, Deli Chen, Guanting Chen, Shanhuang Chen, Damai Dai, Chengqi Deng, Honghui Ding, Kai Dong, Qiushi Du, Zhe Fu, et~al.
+\newblock Deepseek llm: Scaling open-source language models with longtermism.
+\newblock {\em arXiv preprint arXiv:2401.02954}, 2024.
+
+\bibitem{blattmann2023stable}
+Andreas Blattmann, Tim Dockhorn, Sumith Kulal, Daniel Mendelevitch, Maciej Kilian, Dominik Lorenz, Yam Levi, Zion English, Vikram Voleti, Adam Letts, et~al.
+\newblock Stable video diffusion: Scaling latent video diffusion models to large datasets.
+\newblock {\em arXiv preprint arXiv:2311.15127}, 2023.
+
+\bibitem{bruce2024genie}
+Jake Bruce, Michael~D Dennis, Ashley Edwards, Jack Parker-Holder, Yuge Shi, Edward Hughes, Matthew Lai, Aditi Mavalankar, Richie Steigerwald, Chris Apps, et~al.
+\newblock Genie: Generative interactive environments.
+\newblock In {\em Forty-first International Conference on Machine Learning}, pages 4603--4623, 2024.
+
+\bibitem{cai2025z}
+Huanqia Cai, Sihan Cao, Ruoyi Du, Peng Gao, Steven Hoi, Zhaohui Hou, Shijie Huang, Dengyang Jiang, Xin Jin, Liangchen Li, et~al.
+\newblock Z-image: An efficient image generation foundation model with single-stream diffusion transformer.
+\newblock {\em arXiv preprint arXiv:2511.22699}, 2025.
+
+\bibitem{longcatvideo}
+Xunliang Cai, Qilong Huang, Zhuoliang Kang, Hongyu Li, Shijun Liang, Liya Ma, Siyu Ren, Xiaoming Wei, Rixu Xie, and Tong Zhang.
+\newblock Longcat-video technical report.
+\newblock {\em arXiv preprint arXiv:2510.22200}, 2025.
+
+\bibitem{chen2023pixart}
+Junsong Chen, Jincheng Yu, Chongjian Ge, Lewei Yao, Enze Xie, Zhongdao Wang, James Kwok, Ping Luo, Huchuan Lu, and Zhenguo Li.
+\newblock Pixart-$alpha$: Fast training of diffusion transformer for photorealistic text-to-image synthesis.
+\newblock In {\em International conference on learning representations}, volume 2024, pages 57611--57640, 2024.
+
+\bibitem{chen2016training}
+Tianqi Chen, Bing Xu, Chiyuan Zhang, and Carlos Guestrin.
+\newblock Training deep nets with sublinear memory cost.
+\newblock {\em arXiv preprint arXiv:1604.06174}, 2016.
+
+\bibitem{guo2025realdpo}
+Guo Cheng, Danni Yang, Ziqi Huang, Jianlou Si, Chenyang Si, and Ziwei Liu.
+\newblock Realdpo: Real or not real, that is the preference.
+\newblock {\em arXiv preprint arXiv:2510.14955}, 2025.
+
+\bibitem{cho2024local}
+Seokju Cho, Jiahui Huang, Jisu Nam, Honggyu An, Seungryong Kim, and Joon-Young Lee.
+\newblock Local all-pair correspondence for point tracking.
+\newblock In {\em European conference on computer vision}, pages 306--325. Springer, 2024.
+
+\bibitem{chowdhery2022palmscalinglanguagemodeling}
+Aakanksha Chowdhery, Sharan Narang, Jacob Devlin, Maarten Bosma, Gaurav Mishra, Adam Roberts, Paul Barham, Hyung~Won Chung, Charles Sutton, Sebastian Gehrmann, et~al.
+\newblock Palm: Scaling language modeling with pathways.
+\newblock {\em Journal of machine learning research}, 24(240):1--113, 2023.
+
+\bibitem{dai2024deepseekmoe}
+Damai Dai, Chengqi Deng, Chenggang Zhao, RX~Xu, Huazuo Gao, Deli Chen, Jiashi Li, Wangding Zeng, Xingkai Yu, Yu~Wu, et~al.
+\newblock Deepseekmoe: Towards ultimate expert specialization in mixture-of-experts language models.
+\newblock In {\em Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 1280--1297, 2024.
+
+\bibitem{dao2022flashattention}
+Tri Dao, Daniel~Y. Fu, Stefano Ermon, Atri Rudra, and Christopher R{\'e}.
+\newblock Flashattention: Fast and memory-efficient exact attention with io-awareness.
+\newblock In {\em Advances in Neural Information Processing Systems}, volume~35, pages 16344--16359, 2022.
+
+\bibitem{deepep2025}
+{{DeepSeek-AI}}.
+\newblock Deepep: An efficient expert-parallel communication library.
+\newblock \url{https://github.com/deepseek-ai/DeepEP}, 2025.
+\newblock Accessed: 2026-07-08.
+
+\bibitem{dehghani2023vit22b}
+Mostafa Dehghani, Alexey Gritsenko, Aurelien Sun, Sherjil Uesato, Yi~Tay, Basil Mustafa, Joao Carreira, Christian Szegedy, and Xiaohua Zhai.
+\newblock Scaling vision transformers to 22 billion parameters.
+\newblock In {\em International Conference on Machine Learning}, pages 7480--7512, 2023.
+
+\bibitem{deng2026rethinking}
+Yufan Deng, Zilin Pan, Hongyu Zhang, Xiaojie Li, Ruoqing Hu, Yufei Ding, Yiming Zou, Yan Zeng, and Daquan Zhou.
+\newblock Rethinking video generation model for the embodied world.
+\newblock In {\em Forty-third International Conference on Machine Learning}, 2026.
+
+\bibitem{esser2023structure}
+Patrick Esser, Johnathan Chiu, Parmida Atighehchian, Jonathan Granskog, and Anastasis Germanidis.
+\newblock Structure and content-guided video synthesis with diffusion models.
+\newblock In {\em Proceedings of the IEEE/CVF international conference on computer vision}, pages 7346--7356, 2023.
+
+\bibitem{esser2024scaling}
+Patrick Esser, Sumith Kulal, Andreas Blattmann, Rahim Entezari, Jonas M{\"u}ller, Harry Saini, Yam Levi, Dominik Lorenz, Axel Sauer, Frederic Boesel, et~al.
+\newblock Scaling rectified flow transformers for high-resolution image synthesis.
+\newblock In {\em Forty-first international conference on machine learning}, pages 12606--12633, 2024.
+
+\bibitem{switchtransformer}
+William Fedus, Barret Zoph, and Noam Shazeer.
+\newblock Switch transformers: Scaling to trillion parameter models with simple and efficient sparsity.
+\newblock {\em Journal of Machine Learning Research}, 23(120):1--39, 2022.
+
+\bibitem{gao2026dreamdojo}
+Shenyuan Gao, William Liang, Kaiyuan Zheng, Ayaan Malik, Seonghyeon Ye, Sihyun Yu, Wei-Cheng Tseng, Yuzhu Dong, Kaichun Mo, Chen-Hsuan Lin, et~al.
+\newblock Dreamdojo: A generalist robot world model from large-scale human videos.
+\newblock {\em arXiv preprint arXiv:2602.06949}, 2026.
+
+\bibitem{gao2026pulse-of-motion}
+Xiangbo Gao, Mingyang Wu, Siyuan Yang, Jiongze Yu, Pardis Taghavi, Fangzhou Lin, and Zhengzhong Tu.
+\newblock The pulse of motion: Measuring physical frame rate from visual dynamics.
+\newblock {\em arXiv preprint arXiv:2603.14375}, 2026.
+
+\bibitem{guo2026vlaw}
+Yanjiang Guo, Tony Lee, Lucy~Xiaoyang Shi, Jianyu Chen, Percy Liang, and Chelsea Finn.
+\newblock Vlaw: Iterative co-improvement of vision-language-action policy and world model.
+\newblock {\em arXiv preprint arXiv:2602.12063}, 2026.
+
+\bibitem{guo2025ctrl}
+Yanjiang Guo, Lucy~Xiaoyang Shi, Jianyu Chen, and Chelsea Finn.
+\newblock Ctrl-world: A controllable generative world model for robot manipulation.
+\newblock {\em arXiv preprint arXiv:2510.10125}, 2025.
+
+\bibitem{guo2025omniaid}
+Yuncheng Guo, Junyan Ye, Chenjue Zhang, Hengrui Kang, Haohuan Fu, Conghui He, and Weijia Li.
+\newblock Omniaid: Decoupling semantic and artifacts for universal ai-generated image detection in the wild.
+\newblock {\em arXiv preprint arXiv:2511.08423}, 2025.
+
+\bibitem{guo2023animatediff}
+Yuwei Guo, Ceyuan Yang, Anyi Rao, Zhengyang Liang, Yaohui Wang, Yu~Qiao, Maneesh Agrawala, Dahua Lin, and Bo~Dai.
+\newblock Animatediff: Animate your personalized text-to-image diffusion models without specific tuning.
+\newblock In {\em The Twelfth International Conference on Learning Representations}, 2024.
+
+\bibitem{gupta2024photorealistic}
+Agrim Gupta, Lijun Yu, Kihyuk Sohn, Xiuye Gu, Meera Hahn, Fei-Fei Li, Irfan Essa, Lu~Jiang, and Jos{\'e} Lezama.
+\newblock Photorealistic video generation with diffusion models.
+\newblock In {\em European Conference on Computer Vision}, pages 393--411. Springer, 2024.
+
+\bibitem{gutflaish2025fibo}
+Eyal Gutflaish, Eliran Kachlon, Hezi Zisman, Tal Hacham, Nimrod Sarid, Alexander Visheratin, Saar Huberman, Gal Davidi, Guy Bukchin, Kfir Goldberg, and Ron Mokady.
+\newblock Generating an image from 1,000 words: Enhancing text-to-image with structured captions.
+\newblock {\em arXiv preprint arXiv:2511.06876}, 2025.
+
+\bibitem{he2026flashgrpo}
+Xiaoxuan He, Siming Fu, Zeyue Xue, Weijie Wang, Ruizhe He, Yuming Li, Dacheng Yin, Shuai Dong, Haoyang Huang, Hongfa Wang, et~al.
+\newblock Flash-grpo: Efficient alignment for video diffusion via one-step policy optimization.
+\newblock {\em arXiv preprint arXiv:2605.15980}, 2026.
+
+\bibitem{he2025tempflow}
+Xiaoxuan He, Siming Fu, Yuke Zhao, Wanli Li, Jian Yang, Dacheng Yin, Fengyun Rao, and Bo~Zhang.
+\newblock Tempflow-grpo: When timing matters for grpo in flow models.
+\newblock {\em arXiv preprint arXiv:2508.04324}, 2025.
+
+\bibitem{ho2022imagen}
+Jonathan Ho, William Chan, Chitwan Saharia, Jay Whang, Ruiqi Gao, Alexey Gritsenko, Diederik~P Kingma, Ben Poole, Mohammad Norouzi, David~J Fleet, et~al.
+\newblock Imagen video: High definition video generation with diffusion models.
+\newblock {\em arXiv preprint arXiv:2210.02303}, 2022.
+
+\bibitem{ho2022video}
+Jonathan Ho, Tim Salimans, Alexey Gritsenko, William Chan, Mohammad Norouzi, and David~J Fleet.
+\newblock Video diffusion models.
+\newblock {\em Advances in neural information processing systems}, 35:8633--8646, 2022.
+
+\bibitem{hoffmann2022trainingcomputeoptimal}
+Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, Elena Buchatskaya, Trevor Cai, Eliza Rutherford, Diego de~Las~Casas, Lisa~Anne Hendricks, Johannes Welbl, Aidan Clark, Tom Hennigan, Eric Noland, Katie Millican, George van~den Driessche, Bogdan Damoc, Aurelia Guy, Simon Osindero, Karen Simonyan, Erich Elsen, Jack~W. Rae, Oriol Vinyals, and Laurent Sifre.
+\newblock Training compute-optimal large language models.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages 30016--30030, 2022.
+
+\bibitem{hu2021lora}
+Edward~J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu~Wang, and Weizhu Chen.
+\newblock Lora: Low-rank adaptation of large language models.
+\newblock In {\em The Tenth International Conference on Learning Representations}, 2022.
+
+\bibitem{hu2024openrlhf}
+Jian Hu, Xibin Wu, Zilin Zhu, Weixun Wang, Dehao Zhang, Yu~Cao, et~al.
+\newblock Openrlhf: An easy-to-use, scalable and high-performance rlhf framework.
+\newblock {\em arXiv preprint arXiv:2405.11143}, 6, 2024.
+
+\bibitem{hwang2022tutel}
+Changho Hwang, Wei Cui, Yifan Xiong, Ziyue Yang, Ze~Liu, Han Hu, Zilong Wang, Rafael Salas, Jithin Jose, Prabhat Ram, et~al.
+\newblock Tutel: Adaptive mixture-of-experts at scale.
+\newblock In {\em Proceedings of Machine Learning and Systems}, pages 269--287, 2023.
+
+\bibitem{jacobs1991adaptive}
+Robert~A. Jacobs, Michael~I. Jordan, Steven~J. Nowlan, and Geoffrey~E. Hinton.
+\newblock Adaptive mixtures of local experts.
+\newblock {\em Neural Computation}, 3(1):79--87, 1991.
+
+\bibitem{jacobs2023deepspeed}
+Sam~Ade Jacobs, Masahiro Tanaka, Chengming Zhang, Minjia Zhang, Shuaiwen~Leon Song, Samyam Rajbhandari, and Yuxiong He.
+\newblock Deepspeed ulysses: System optimizations for enabling training of extreme long sequence transformer models.
+\newblock {\em arXiv preprint arXiv:2309.14509}, 2023.
+
+\bibitem{jiang2026wovr}
+Zhennan Jiang, Shangqing Zhou, Yutong Jiang, Zefang Huang, Mingjie Wei, Yuhui Chen, Tianxing Zhou, Zhen Guo, Hao Lin, Quanlu Zhang, et~al.
+\newblock Wovr: World models as reliable simulators for post-training vla policies with rl.
+\newblock {\em arXiv preprint arXiv:2602.13977}, 2026.
+
+\bibitem{jordan1994hierarchical}
+Michael~I Jordan and Robert~A Jacobs.
+\newblock Hierarchical mixtures of experts and the em algorithm.
+\newblock {\em Neural computation}, 6(2):181--214, 1994.
+
+\bibitem{kaplan2020scalinglaws}
+Jared Kaplan, Sam McCandlish, Tom Henighan, Tom~B. Brown, Benjamin Chess, Rewon Child, Scott Gray, Alec Radford, Jeffrey Wu, and Dario Amodei.
+\newblock Scaling laws for neural language models.
+\newblock {\em arXiv preprint arXiv:2001.08361}, 2020.
+
+\bibitem{kirstain2023pickscore}
+Yuval Kirstain, Adam Polyak, Uriel Singer, Shahbuland Matiana, Joe Penna, and Omer Levy.
+\newblock Pick-a-pic: An open dataset of user preferences for text-to-image generation.
+\newblock {\em Advances in neural information processing systems}, 36:36652--36663, 2023.
+
+\bibitem{korthikanti2022reducingactivationrecomputationlarge}
+Vijay Korthikanti, Jared Casper, Sangkug Lym, Lawrence McAfee, Michael Andersch, Mohammad Shoeybi, and Bryan Catanzaro.
+\newblock Reducing activation recomputation in large transformer models.
+\newblock In {\em Proceedings of Machine Learning and Systems}, pages 341--353, 2023.
+
+\bibitem{krell2021efficientsequencepacking}
+Mario~Michael Krell, Matej Kosec, Sergio~P. Perez, and Andrew Fitzgibbon.
+\newblock Efficient sequence packing without cross-contamination: Accelerating large language models without impacting performance.
+\newblock {\em arXiv preprint arXiv:2107.02027}, 2021.
+
+\bibitem{lepikhin2020gshard}
+Dmitry Lepikhin, HyoukJoong Lee, Yuanzhong Xu, Dehao Chen, Orhan Firat, Yanping Huang, Maxim Krikun, Noam Shazeer, and Zhifeng Chen.
+\newblock Gshard: Scaling giant models with conditional computation and automatic sharding.
+\newblock In {\em The Ninth International Conference on Learning Representations}, 2021.
+
+\bibitem{li2025mixgrpo}
+Junzhe Li, Yutao Cui, Tao Huang, Yinping Ma, Chun Fan, Yiming Cheng, Miles Yang, Zhao Zhong, and Liefeng Bo.
+\newblock Mixgrpo: Unlocking flow-based grpo efficiency with mixed ode-sde.
+\newblock {\em arXiv preprint arXiv:2507.21802}, 2025.
+
+\bibitem{li2026causal}
+Lin Li, Qihang Zhang, Yiming Luo, Shuai Yang, Ruilin Wang, Fei Han, Mingrui Yu, Zelin Gao, Nan Xue, Xing Zhu, et~al.
+\newblock Causal world modeling for robot control.
+\newblock {\em arXiv preprint arXiv:2601.21998}, 2026.
+
+\bibitem{li2020pytorchdistributed}
+Shen Li, Yanli Zhao, Rohan Varma, Omkar Salpekar, Pieter Noordhuis, Teng Li, Adam Paszke, Jeff Smith, Brian Vaughan, Pritam Damania, and Soumith Chintala.
+\newblock Pytorch distributed: Experiences on accelerating data parallel training.
+\newblock {\em Proceedings of the VLDB Endowment}, 13(12):3005--3018, 2020.
+
+\bibitem{liang2025torchtitan}
+Wanchao Liang, Tianyu Liu, Less Wright, Will Constable, Andrew Gu, Chien-Chin Huang, Iris Zhang, Wei Feng, Howard Huang, Junjie Wang, Sanket Purandare, Gokul Nadathur, and Stratos Idreos.
+\newblock Torchtitan: One-stop pytorch native solution for production ready {LLM} pretraining.
+\newblock In {\em The Thirteenth International Conference on Learning Representations}, 2025.
+
+\bibitem{liao2025genie}
+Yue Liao, Pengfei Zhou, Siyuan Huang, Donglin Yang, Shengcong Chen, Yuxin Jiang, Yue Hu, Jingbin Cai, Si~Liu, Jianlan Luo, et~al.
+\newblock Genie envisioner: A unified world foundation platform for robotic manipulation.
+\newblock {\em arXiv preprint arXiv:2508.05635}, 2025.
+
+\bibitem{lipman2022flow}
+Yaron Lipman, Ricky~TQ Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le.
+\newblock Flow matching for generative modeling.
+\newblock In {\em The Eleventh International Conference on Learning Representations}, 2023.
+
+\bibitem{deepseek2024v3}
+Aixin Liu, Bei Feng, Bing Xue, Bingxuan Wang, Bochao Wu, Chengda Lu, Chenggang Zhao, Chengqi Deng, Chenyu Zhang, Chong Ruan, et~al.
+\newblock Deepseek-v3 technical report.
+\newblock {\em arXiv preprint arXiv:2412.19437}, 2024.
+
+\bibitem{liu2025flowgrpo}
+Jie Liu, Gongye Liu, Jiajun Liang, Yangguang Li, Jiaheng Liu, Xintao Wang, Pengfei Wan, Di~Zhang, and Wanli Ouyang.
+\newblock Flow-grpo: Training flow matching models via online rl.
+\newblock In {\em Advances in neural information processing systems}, pages 40783--40818, 2026.
+
+\bibitem{liu2026gdpo}
+Shih-Yang Liu, Xin Dong, Ximing Lu, Shizhe Diao, Peter Belcak, Mingjie Liu, Min-Hung Chen, Hongxu Yin, Yu-Chiang~Frank Wang, Kwang-Ting Cheng, et~al.
+\newblock Gdpo: Group reward-decoupled normalization policy optimization for multi-reward rl optimization.
+\newblock {\em arXiv preprint arXiv:2601.05242}, 2026.
+
+\bibitem{liu2022rectifiedflow}
+Xingchao Liu, Chengyue Gong, and Qiang Liu.
+\newblock Flow straight and fast: Learning to generate and transfer data with rectified flow.
+\newblock In {\em The Eleventh International Conference on Learning Representations}, 2023.
+
+\bibitem{ma2025veomni}
+Qianli Ma, Yaowei Zheng, Zhelun Shi, Zhongkai Zhao, Bin Jia, Ziyue Huang, Zhiqi Lin, Youjie Li, Jiacheng Yang, Yanghua Peng, Zhi Zhang, and Xin Liu.
+\newblock Veomni: Scaling any modality model training with model-centric distributed recipe zoo.
+\newblock {\em arXiv preprint arXiv:2508.02317}, 2025.
+
+\bibitem{ma2025hpsv3}
+Yuhang Ma, Xiaoshi Wu, Keqiang Sun, and Hongsheng Li.
+\newblock Hpsv3: Towards wide-spectrum human preference score.
+\newblock In {\em Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 15086--15095, 2025.
+
+\bibitem{mei2024realhf}
+Zhiyu Mei, Wei Fu, Kaiwei Li, Guangju Wang, Huanchen Zhang, and Yi~Wu.
+\newblock Real: Efficient rlhf training of large language models with parameter reallocation.
+\newblock In {\em Proceedings of Machine Learning and Systems}, 2025.
+
+\bibitem{moritz2018ray}
+Philipp Moritz, Robert Nishihara, Stephanie Wang, Alexey Tumanov, Richard Liaw, Eric Liang, Melih Elibol, Zongheng Yang, William Paul, Michael~I Jordan, et~al.
+\newblock Ray: A distributed framework for emerging $\{$AI$\}$ applications.
+\newblock In {\em 13th USENIX symposium on operating systems design and implementation (OSDI 18)}, pages 561--577, 2018.
+
+\bibitem{Motamed_2026_WACV}
+Saman Motamed, Laura Culp, Kevin Swersky, Priyank Jaini, and Robert Geirhos.
+\newblock Do generative video models understand physical principles?
+\newblock In {\em Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)}, 2026.
+
+\bibitem{narayanan2021efficient}
+Deepak Narayanan, Mohammad Shoeybi, Jared Casper, Patrick LeGresley, Mostofa Patwary, Vijay Korthikanti, Dmitri Vainbrand, Prethvi Kashinkunti, Julie Bernauer, Bryan Catanzaro, Amar Phanishayee, and Matei Zaharia.
+\newblock Efficient large-scale language model training on gpu clusters using megatron-lm.
+\newblock In {\em Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis}, pages 1--15, 2021.
+
+\bibitem{nowlan1990evaluation}
+Steven~J. Nowlan and Geoffrey~E. Hinton.
+\newblock Evaluation of adaptive mixtures of competing experts.
+\newblock In {\em Advances in Neural Information Processing Systems 3 (NIPS 1990)}, pages 774--780. Morgan Kaufmann, 1990.
+
+\bibitem{Page1999ThePC}
+Lawrence Page, Sergey Brin, Rajeev Motwani, and Terry Winograd.
+\newblock The pagerank citation ranking : Bringing order to the web.
+\newblock In {\em The Web Conference}, 1999.
+
+\bibitem{park2024switch}
+Byeongjun Park, Hyojun Go, Jin-Young Kim, Sangmin Woo, Seokil Ham, and Changick Kim.
+\newblock Switch diffusion transformer: Synergizing denoising tasks with sparse mixture-of-experts.
+\newblock In {\em European Conference on Computer Vision}, pages 461--477. Springer, 2024.
+
+\bibitem{peebles2023scalablediffusionmodelstransformers}
+William Peebles and Saining Xie.
+\newblock Scalable diffusion models with transformers.
+\newblock In {\em Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 4195--4205, 2023.
+
+\bibitem{qin2025lumina}
+Qi~Qin, Le~Zhuo, Yi~Xin, Ruoyi Du, Zhen Li, Bin Fu, Yiting Lu, Xinyue Li, Dongyang Liu, Xiangyang Zhu, et~al.
+\newblock Lumina-image 2.0: A unified and efficient image generative framework.
+\newblock In {\em Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 20031--20042, 2025.
+
+\bibitem{qwen3.6-27b}
+{{Qwen Team}}.
+\newblock {Qwen3.6-27B}: Flagship-level coding in a {27B} dense model.
+\newblock \url{https://qwen.ai/blog?id=qwen3.6-27b}, 2026.
+\newblock Accessed: 2026-07-08.
+
+\bibitem{radsch2026physics}
+Tim R{\"a}dsch, Yuki~M Asano, Hilde Kuehne, Stefan Bauer, Priyank Jaini, Robert Geirhos, and Carsten~T L{\"u}th.
+\newblock Physics-iq verified.
+\newblock {\em arXiv preprint arXiv:2606.18943}, 2026.
+
+\bibitem{rafailov2023dpo}
+Rafael Rafailov, Archit Sharma, Eric Mitchell, Stefano Ermon, Christopher~D. Manning, and Chelsea Finn.
+\newblock Direct preference optimization: Your language model is secretly a reward model.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages 53728--53741, 2023.
+
+\bibitem{rajbhandari2022deepspeedmoe}
+Samyam Rajbhandari, Conglong Li, Zhewei Yao, Minjia Zhang, Reza~Yazdani Aminabadi, Ammar~Ahmad Awan, Jeff Rasley, and Yuxiong He.
+\newblock Deepspeed-moe: Advancing mixture-of-experts inference and training to power next-generation ai scale.
+\newblock In {\em International Conference on Machine Learning}, pages 18332--18346. PMLR, 2022.
+
+\bibitem{rajbhandari2020zero}
+Samyam Rajbhandari, Jeff Rasley, Olatunji Ruwase, and Yuxiong He.
+\newblock Zero: Memory optimizations toward training trillion parameter models.
+\newblock In {\em SC20: International Conference for High Performance Computing, Networking, Storage and Analysis}, pages 1--16, 2020.
+
+\bibitem{ren2025cosmos}
+Xuanchi Ren, Yifan Lu, Tianshi Cao, Ruiyuan Gao, Shengyu Huang, Amirmojtaba Sabour, Tianchang Shen, Tobias Pfaff, Jay~Zhangjie Wu, Runjian Chen, et~al.
+\newblock Cosmos-drive-dreams: Scalable synthetic driving data generation with world foundation models.
+\newblock {\em arXiv preprint arXiv:2506.09042}, 2025.
+
+\bibitem{russell2025gaia}
+Lloyd Russell, Anthony Hu, Lorenzo Bertoni, George Fedoseev, Jamie Shotton, Elahe Arani, and Gianluca Corrado.
+\newblock Gaia-2: A controllable multi-view generative world model for autonomous driving.
+\newblock {\em arXiv preprint arXiv:2503.20523}, 2025.
+
+\bibitem{saharia2021sr3}
+Chitwan Saharia, Jonathan Ho, William Chan, Tim Salimans, David~J Fleet, and Mohammad Norouzi.
+\newblock Image super-resolution via iterative refinement.
+\newblock {\em IEEE transactions on pattern analysis and machine intelligence}, 45(4):4713--4726, 2022.
+
+\bibitem{schulman2017ppo}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+\newblock Proximal policy optimization algorithms.
+\newblock {\em arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem{seedance2026seedance}
+Team Seedance, De~Chen, Liyang Chen, Xin Chen, Ying Chen, Zhuo Chen, Zhuowei Chen, Feng Cheng, Tianheng Cheng, Yufeng Cheng, et~al.
+\newblock Seedance 2.0: Advancing video generation for world complexity.
+\newblock {\em arXiv preprint arXiv:2604.14148}, 2026.
+
+\bibitem{sha2026sparse}
+Haiying Sha and Yan Zheng.
+\newblock Sparse mixture-of-experts routing in visual diffusion transformers: Diagnosis, boundary calibration and evolutionary roadmap from routing collapse to selective deadlock.
+\newblock {\em arXiv preprint arXiv:2605.19378}, 2026.
+
+\bibitem{shao2024deepseekmath}
+Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang, YK~Li, Yang Wu, et~al.
+\newblock Deepseekmath: Pushing the limits of mathematical reasoning in open language models.
+\newblock {\em arXiv preprint arXiv:2402.03300}, 2024.
+
+\bibitem{shazeer2020gluvariantsimprovetransformer}
+Noam Shazeer.
+\newblock Glu variants improve transformer.
+\newblock {\em arXiv preprint arXiv:2002.05202}, 2020.
+
+\bibitem{shazeer2018mesh}
+Noam Shazeer, Youlong Cheng, Niki Parmar, Dustin Tran, Ashish Vaswani, Penporn Koanantakool, Peter Hawkins, HyoukJoong Lee, Mingsheng Hong, Cliff Young, Ryan Sepassi, and Blake Hechtman.
+\newblock Mesh-tensorflow: Deep learning for supercomputers.
+\newblock In {\em Advances in Neural Information Processing Systems}, 2018.
+
+\bibitem{shazeer2017moe}
+Noam Shazeer, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc Le, Geoffrey Hinton, and Jeff Dean.
+\newblock Outrageously large neural networks: The sparsely-gated mixture-of-experts layer.
+\newblock In {\em International Conference on Learning Representations}, 2017.
+
+\bibitem{sheng2024hybridflow}
+Guangming Sheng, Chi Zhang, Zilingfeng Ye, Xibin Wu, Wang Zhang, Ru~Zhang, Yanghua Peng, Haibin Lin, and Chuan Wu.
+\newblock Hybridflow: A flexible and efficient rlhf framework.
+\newblock In {\em Proceedings of the Twentieth European Conference on Computer Systems}, pages 1279--1297, 2025.
+
+\bibitem{shoeybi2019megatronlm}
+Mohammad Shoeybi, Mostofa Patwary, Raul Puri, Patrick LeGresley, Jared Casper, and Bryan Catanzaro.
+\newblock Megatron-lm: Training multi-billion parameter language models using model parallelism.
+\newblock {\em arXiv preprint arXiv:1909.08053}, 2019.
+
+\bibitem{singer2022make}
+Uriel Singer, Adam Polyak, Thomas Hayes, Xi~Yin, Jie An, Songyang Zhang, Qiyuan Hu, Harry Yang, Oron Ashual, Oran Gafni, et~al.
+\newblock Make-a-video: Text-to-video generation without text-video data.
+\newblock In {\em The Eleventh International Conference on Learning Representations}, 2023.
+
+\bibitem{song2020ddim}
+Jiaming Song, Chenlin Meng, and Stefano Ermon.
+\newblock Denoising diffusion implicit models.
+\newblock In {\em The Ninth International Conference on Learning Representations}, 2021.
+
+\bibitem{soucek2024transnet}
+Tom{\'a}s Soucek and Jakub Lokoc.
+\newblock Transnet v2: An effective deep network architecture for fast shot transition detection.
+\newblock In {\em Proceedings of the 32nd ACM International Conference on Multimedia}, pages 11218--11221, 2024.
+
+\bibitem{sun2025worldplay}
+Wenqiang Sun, Haiyu Zhang, Haoyuan Wang, Junta Wu, Zehan Wang, Zhenwei Wang, Yunhong Wang, Jun Zhang, Tengfei Wang, and Chunchao Guo.
+\newblock Worldplay: Towards long-term geometric consistency for real-time interactive world modeling.
+\newblock {\em arXiv preprint arXiv:2512.14614}, 2025.
+
+\bibitem{tang2026enhancing}
+Zhenyu Tang, Chaoran Feng, Yufan Deng, Jie Wu, Xiaojie Li, Rui Wang, Yunpeng Chen, and Daquan Zhou.
+\newblock Enhancing spatial understanding in image generation via reward modeling.
+\newblock In {\em Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 27249--27259, 2026.
+
+\bibitem{team2023gemini}
+Gemini Team, Rohan Anil, Sebastian Borgeaud, Jean-Baptiste Alayrac, Jiahui Yu, Radu Soricut, Johan Schalkwyk, Andrew~M Dai, Anja Hauth, Katie Millican, et~al.
+\newblock Gemini: a family of highly capable multimodal models.
+\newblock {\em arXiv preprint arXiv:2312.11805}, 2023.
+
+\bibitem{veorobotics2025}
+Gemini~Robotics Team, Krzysztof Choromanski, Coline Devin, Yilun Du, Debidatta Dwibedi, Ruiqi Gao, Abhishek Jindal, Thomas Kipf, Sean Kirmani, Isabel Leal, et~al.
+\newblock Evaluating gemini robotics policies in a veo world simulator.
+\newblock {\em arXiv preprint arXiv:2512.10675}, 2025.
+
+\bibitem{team2026advancing}
+Robbyant Team, Zelin Gao, Qiuyu Wang, Yanhong Zeng, Jiapeng Zhu, Ka~Leong Cheng, Yixuan Li, Hanlin Wang, Yinghao Xu, Shuailei Ma, Yihang Chen, Jie Liu, Yansong Cheng, Yao Yao, Jiayi Zhu, Yihao Meng, Kecheng Zheng, Qingyan Bai, Jingye Chen, Zehong Shen, Yue Yu, Xing Zhu, Yujun Shen, and Hao Ouyang.
+\newblock Advancing open-source world models.
+\newblock {\em arXiv preprint arXiv:2601.20540}, 2026.
+
+\bibitem{slime2025}
+{THUDM}.
+\newblock slime: An {LLM} post-training framework for reinforcement learning at scale.
+\newblock \url{https://github.com/THUDM/slime}, 2025.
+
+\bibitem{tong2023conditionalflowmatching}
+Alexander Tong, Kilian Fatras, Nikolay Malkin, Guillaume Huguet, Yanlei Zhang, Jarrid Rector-Brooks, Guy Wolf, and Yoshua Bengio.
+\newblock Improving and generalizing flow-based generative models with minibatch optimal transport.
+\newblock {\em Transactions on Machine Learning Research}, 2024.
+
+\bibitem{touvron2023llama}
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timoth{\'e}e Lacroix, Baptiste Rozi{\`e}re, Naman Goyal, Eric Hambro, Faisal Azhar, et~al.
+\newblock Llama: Open and efficient foundation language models.
+\newblock {\em arXiv preprint arXiv:2302.13971}, 2023.
+
+\bibitem{tseng2026sc3}
+Wei-Cheng Tseng, Gashon Hussein, Yuzhu Dong, Allen~Z Ren, Lucy~X Shi, XuDong Wang, Sergey Levine, Zhaoshuo Li, Jinwei Gu, Florian Shkurti, et~al.
+\newblock Sc3-eval: Evaluating robot foundation models via self-consistent video generation.
+\newblock {\em arXiv preprint arXiv:2606.18610}, 2026.
+
+\bibitem{villegas2022phenaki}
+Ruben Villegas, Mohammad Babaeizadeh, Pieter-Jan Kindermans, Hernan Moraldo, Han Zhang, Mohammad~Taghi Saffar, Santiago Castro, Julius Kunze, and Dumitru Erhan.
+\newblock Phenaki: Variable length video generation from open domain textual description.
+\newblock In {\em International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem{vo2024automatic}
+Huy~V Vo, Vasil Khalidov, Timoth{\'e}e Darcet, Th{\'e}o Moutakanni, Nikita Smetanin, Marc Szafraniec, Hugo Touvron, Camille Couprie, Maxime Oquab, Armand Joulin, et~al.
+\newblock Automatic data curation for self-supervised learning: A clustering-based approach.
+\newblock {\em Transactions on Machine Learning Research}, 2024.
+
+\bibitem{von-platen-etal-2022-diffusers}
+Patrick von Platen, Suraj Patil, Anton Lozhkov, Pedro Cuenca, Nathan Lambert, Kashif Rasul, Mishig Davaadorj, Dhruv Nair, Sayak Paul, William Berman, Yiyi Xu, Steven Liu, and Thomas Wolf.
+\newblock Diffusers: State-of-the-art diffusion models.
+\newblock \url{https://github.com/huggingface/diffusers}, 2022.
+\newblock Accessed: 2026-07-08.
+
+\bibitem{wan2026worldagen}
+Chi Wan, Kangrui Wang, Yuan Si, Pingyue Zhang, and Manling Li.
+\newblock Worldagen: Unified state-action prediction with test-time world model training.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial Intelligence}, volume~40, pages 18584--18592, 2026.
+
+\bibitem{wan2025wan}
+Team Wan, Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di~Chen, Feiwu Yu, Haiming Zhao, Jianxiao Yang, et~al.
+\newblock Wan: Open and advanced large-scale video generative models.
+\newblock {\em arXiv preprint arXiv:2503.20314}, 2025.
+
+\bibitem{wan2025wan2}
+{{Wan-AI Team}}.
+\newblock Wan2.2: A text-to-video and image-to-video generative framework.
+\newblock \url{https://github.com/Wan-Video/Wan2.2}, 2025.
+\newblock Accessed: 2026-07-08.
+
+\bibitem{wang2025cps}
+Feng Wang and Zihao Yu.
+\newblock Coefficients-preserving sampling for reinforcement learning with flow matching.
+\newblock {\em arXiv preprint arXiv:2509.05952}, 2025.
+
+\bibitem{wang2024auxlossfree}
+Liang Wang, Huazuo Gao, Ruixin Zhao, Xiaoting Sun, and Damai Dai.
+\newblock Auxiliary-loss-free load balancing strategy for mixture-of-experts.
+\newblock {\em arXiv preprint arXiv:2408.15664}, 2024.
+
+\bibitem{wang2021realesrgan}
+Xintao Wang, Liangbin Xie, Chao Dong, and Ying Shan.
+\newblock Real-esrgan: Training real-world blind super-resolution with pure synthetic data.
+\newblock In {\em Proceedings of the IEEE/CVF International Conference on Computer Vision Workshops}, pages 1905--1914, 2021.
+
+\bibitem{wikidump}
+{{Wikimedia Foundation}}.
+\newblock Wikimedia downloads.
+\newblock \url{https://dumps.wikimedia.org}, 2026.
+\newblock Accessed: 2026-07-08.
+
+\bibitem{williams2009roofline}
+Samuel Williams, Andrew Waterman, and David Patterson.
+\newblock Roofline: An insightful visual performance model for multicore architectures.
+\newblock {\em Communications of the ACM}, 52(4):65--76, 2009.
+
+\bibitem{hunyuanvideo15}
+Bing Wu, Chang Zou, Changlin Li, Duojun Huang, Fang Yang, Hao Tan, Jack Peng, Jianbing Wu, Jiangfeng Xiong, Jie Jiang, et~al.
+\newblock Hunyuanvideo 1.5 technical report.
+\newblock {\em arXiv preprint arXiv:2511.18870}, 2025.
+
+\bibitem{wu2025omnigen2}
+Chenyuan Wu, Jiahao Wang, Pengfei Zheng, Ruiran Yan, Shitao Xiao, Xin Luo, Yueze Wang, Wanli Li, Xiyan Jiang, Yexin Liu, et~al.
+\newblock Omnigen2: Towards instruction-aligned multimodal generation.
+\newblock In {\em Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 21964--21975, 2026.
+
+\bibitem{xu2023imagereward}
+Jiazheng Xu, Xiao Liu, Yuchen Wu, Yuxuan Tong, Qinkai Li, Ming Ding, Jie Tang, and Yuxiao Dong.
+\newblock Imagereward: Learning and evaluating human preferences for text-to-image generation.
+\newblock {\em Advances in Neural Information Processing Systems}, 36:15903--15935, 2023.
+
+\bibitem{xu2021gspmd}
+Yuanzhong Xu, HyoukJoong Lee, Dehao Chen, Blake Hechtman, Yanping Huang, Rahul Joshi, Maxim Krikun, Dmitry Lepikhin, Andy Ly, Marcello Maggioni, Ruoming Pang, Noam Shazeer, Shibo Wang, Tao Wang, Yonghui Wu, and Zhifeng Chen.
+\newblock Gspmd: General and scalable parallelization for ml computation graphs.
+\newblock {\em arXiv preprint arXiv:2105.04663}, 2021.
+
+\bibitem{xue2025awm}
+Shuchen Xue, Chongjian Ge, Shilong Zhang, Yichen Li, and Zhi-Ming Ma.
+\newblock Advantage weighted matching: Aligning rl with pretraining in diffusion models.
+\newblock {\em arXiv preprint arXiv:2509.25050}, 2025.
+
+\bibitem{xue2026videoposttrain}
+Zeyue Xue, Siming Fu, Jie Huang, Shuai Lu, Haoran Li, Yijun Liu, Yuming Li, Xiaoxuan He, Mengzhao Chen, Haoyang Huang, et~al.
+\newblock A systematic post-train framework for video generation.
+\newblock {\em arXiv preprint arXiv:2604.25427}, 2026.
+
+\bibitem{xue2025dancegrpo}
+Zeyue Xue, Jie Wu, Yu~Gao, Fangyuan Kong, Lingting Zhu, Mengzhao Chen, Zhiheng Liu, Wei Liu, Qiushan Guo, Weilin Huang, et~al.
+\newblock Dancegrpo: Unleashing grpo on visual generation.
+\newblock {\em arXiv preprint arXiv:2505.07818}, 2025.
+
+\bibitem{yan2021videogpt}
+Wilson Yan, Yunzhi Zhang, Pieter Abbeel, and Aravind Srinivas.
+\newblock Videogpt: Video generation using vq-vae and transformers.
+\newblock {\em arXiv preprint arXiv:2104.10157}, 2021.
+
+\bibitem{yin2024improved}
+Tianwei Yin, Micha{\"e}l Gharbi, Taesung Park, Richard Zhang, Eli Shechtman, Fredo Durand, and William~T Freeman.
+\newblock Improved distribution matching distillation for fast image synthesis.
+\newblock In {\em Advances in neural information processing systems}, pages 47455--47487, 2024.
+
+\bibitem{zeng2022glm}
+Aohan Zeng, Xiao Liu, Zhengxiao Du, Zihan Wang, Hanyu Lai, Ming Ding, Zhuoyi Yang, Yifan Xu, Wendi Zheng, Xiao Xia, et~al.
+\newblock Glm-130b: An open bilingual pre-trained model.
+\newblock In {\em The Eleventh International Conference on Learning Representations}, 2023.
+
+\bibitem{zhang2021bsrgan}
+Kai Zhang, Jingyun Liang, Luc Van~Gool, and Radu Timofte.
+\newblock Designing a practical degradation model for deep blind image super-resolution.
+\newblock In {\em Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 4791--4800, 2021.
+
+\bibitem{zhang2026relax}
+Liujie Zhang, Benzhe Ning, Rui Yang, Xiaoyan Yu, Jiaxing Li, Lumeng Wu, Jia Liu, Minghao Li, Weihang Chen, Weiqi Hu, et~al.
+\newblock Relax: An asynchronous reinforcement learning engine for omni-modal post-training at scale.
+\newblock {\em arXiv preprint arXiv:2604.11554}, 2026.
+
+\bibitem{flashvideo}
+Shilong Zhang, Wenbo Li, Shoufa Chen, Chongjian Ge, Peize Sun, Yifu Zhang, Yi~Jiang, Zehuan Yuan, Bingyue Peng, and Ping Luo.
+\newblock Flashvideo: Flowing fidelity to detail for efficient high-resolution video generation.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial Intelligence}, pages 12735--12743, 2026.
+
+\bibitem{waver}
+Yifu Zhang, Hao Yang, Yuqi Zhang, Yifei Hu, Fengda Zhu, Chuang Lin, Xiaofeng Mei, Yi~Jiang, Zehuan Yuan, and Bingyue Peng.
+\newblock Waver: Wave your way to lifelike video generation.
+\newblock {\em arXiv preprint arXiv:2508.15761}, 2025.
+
+\bibitem{zhao2023pytorchfsdp}
+Yanli Zhao, Andrew Gu, Rohan Varma, Liang Luo, Chien-Chin Huang, Min Xu, Less Wright, Hamid Shojanazeri, Myle Ott, Sam Shleifer, Alban Desmaison, Can Balioglu, Pritam Damania, Bernard Nguyen, Geeta Chauhan, Yuchen Hao, Ajit Mathews, and Shen Li.
+\newblock Pytorch fsdp: Experiences on scaling fully sharded data parallel.
+\newblock {\em Proceedings of the VLDB Endowment}, 16(12):3848--3860, 2023.
+
+\bibitem{zheng2026diffusionnft}
+Kaiwen Zheng, Huayu Chen, Haotian Ye, Haoxiang Wang, Qinsheng Zhang, Kai Jiang, Hang Su, Stefano Ermon, Jun Zhu, and Ming-Yu Liu.
+\newblock Diffusionnft: Online diffusion reinforcement with forward process.
+\newblock In {\em International Conference on Learning Representations (ICLR)}, 2026.
+
+\bibitem{zheng2022alpa}
+Lianmin Zheng, Zhuohan Li, Hao Zhang, Yonghao Zhuang, Zhifeng Chen, Yanping Huang, Yida Wang, Yuanzhong Xu, Danyang Zhuo, Eric~P. Xing, Joseph~E. Gonzalez, and Ion Stoica.
+\newblock Alpa: Automating inter- and intra-operator parallelism for distributed deep learning.
+\newblock In {\em 16th USENIX Symposium on Operating Systems Design and Implementation}, pages 559--578, 2022.
+
+\bibitem{zheng2024sglang}
+Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, Chuyue Sun, Jeff Huang, Cody Hao~Yu Yu, Shiyi Cao, Christos Kozyrakis, Ion Stoica, Joseph~E. Gonzalez, Clark Barrett, and Ying Sheng.
+\newblock Sglang: Efficient execution of structured language model programs.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages 62557--62583, 2024.
+
+\bibitem{zhu2025unified}
+Chuning Zhu, Raymond Yu, Siyuan Feng, Benjamin Burchfiel, Paarth Shah, and Abhishek Gupta.
+\newblock Unified world models: Coupling video and action diffusion for pretraining on large robotic datasets.
+\newblock {\em arXiv preprint arXiv:2504.02792}, 2025.
+
+\end{thebibliography}

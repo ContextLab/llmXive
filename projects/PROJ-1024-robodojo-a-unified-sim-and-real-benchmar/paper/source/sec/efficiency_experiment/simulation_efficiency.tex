@@ -1,0 +1,49 @@
+To evaluate the efficiency gain from heterogeneous parallel simulation, we conduct controlled experiments under five representative settings: RoboDojo with heterogeneous or non-heterogeneous parallel simulation under zero-action rollouts, RoboDojo with heterogeneous or non-heterogeneous parallel simulation coupled with $\pi_{0.5}$ policy inference, and RoboTwin 2.0 with zero-action rollouts.
+All simulation and rendering workloads are executed on 8$\times$RTX 4090 GPUs.
+In our setup, each RTX 4090 runs one RoboDojo simulation process with 10 parallel environments, while RoboTwin 2.0 runs two simulation processes per GPU.
+Notably, RoboTwin 2.0 renders three camera views at a resolution of $320 \times 240$, whereas RoboDojo renders at $640 \times 480$, resulting in a higher per-frame rendering workload.
+For non-zero-action RoboDojo settings, $\pi_{0.5}$ inference is performed on an A800 server within the same local network.
+The zero-action setting measures raw simulation throughput without policy inference overhead, whereas the $\pi_{0.5}$ setting evaluates end-to-end efficiency under a realistic remote policy-deployment scenario.
+
+As shown in Table~\ref{tab:simulation_efficiency}, heterogeneous parallel simulation substantially improves evaluation throughput. 
+Under zero-action rollouts, RoboDojo achieves 77.4 interactions/s, compared with 40.0 interactions/s under non-heterogeneous parallel simulation, yielding a $1.94\times$ speedup. 
+When $\pi_{0.5}$ inference is included, heterogeneous parallel simulation achieves 64.0 interactions/s, outperforming the non-heterogeneous setting by $1.63\times$. 
+These results show that the proposed infrastructure improves both raw simulation throughput and practical end-to-end evaluation efficiency. 
+Compared with RoboTwin 2.0 zero-action rollouts, RoboDojo achieves higher normalized throughput while supporting more diverse tasks and scenes. 
+This efficiency enables large-scale policy evaluation and rapid feedback across comprehensive capability dimensions.
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Simulation evaluation efficiency.}
+All simulation and rendering workloads are executed on 8$\times$RTX 4090 GPUs.
+RoboDojo runs one simulation process with 10 parallel environments per RTX 4090, while RoboTwin 2.0 runs two simulation processes per GPU.
+For non-zero-action RoboDojo settings, $\pi_{0.5}$ policy inference is performed on an A800 server within the same local network.}
+\label{tab:simulation_efficiency}
+\resizebox{0.9\textwidth}{!}{
+\begin{tabular}{l p{0.45\textwidth} c c c}
+\toprule
+\textbf{Benchmark} & \textbf{Evaluation Setting} & \textbf{Frames} & \textbf{Time} & \textbf{Avg. Speed} \\
+\midrule
+RoboDojo 
+& Heterogeneous parallel simulation, zero action 
+& 1,640,000 & 5h 53m & 77.4 interactions/s \\
+
+RoboDojo 
+& Non-heterogeneous parallel simulation, zero action 
+& 1,640,000 & 11h 22m & 40.0 interactions/s \\
+
+RoboDojo 
+& Heterogeneous parallel simulation + $\pi_{0.5}$ inference 
+& 1,640,000 & 7h 07m & 64.0 interactions/s \\
+
+RoboDojo 
+& Non-heterogeneous parallel simulation + $\pi_{0.5}$ inference 
+& 1,640,000 & 11h 38m & 39.2 interactions/s \\
+
+RoboTwin 2.0 
+& Zero-action rollout 
+& 3,100,000 & 19h 19m & 44.6 interactions/s \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

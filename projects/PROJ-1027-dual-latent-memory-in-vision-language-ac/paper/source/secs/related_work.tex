@@ -1,0 +1,27 @@
+\section{Related Work}
+\label{sec:related}
+
+\noindent\textbf{Vision-Language-Action (VLA) Models.}
+Driven by advances in pretrained vision-language models (VLMs), VLA models~\citep{duan2025manipulate,huang2025rekep,black2024pi_0,liu2025hybridvla} have demonstrated promising performance in robotic control via mapping visual observations and language instructions to robot actions.
+According to their action policy design, VLA models can be broadly classified into two paradigms: single-stream architecture and hierarchical architectures.
+\textbf{(i)} Single-stream models~\citep{zhao2025cot,cen2025worldvla,wang2025unified,lin2025vote} directly discretize continuous actions~\citep{zitkovich2023rt,kim2025openvla} within a unified vision-language backbone, and autoregressively predict action tokens in a language-like manner.
+To meet the high control-frequency requirements in robotic manipulation, many works focus on inference efficiency optimization, \eg, parallel or speculative decoding~\citep{wang2025spec,kim2025fine},  dynamic LLM layer activation~\citep{zhang2026mole}, and parameter quantization~\citep{wang2025bitvla}.
+\textbf{(ii)} Hierarchical models~\citep{liu2025rdt,wen2025dexvla,wang2025vq} typically employ VLMs for high-level reasoning and planning, and adopt a separate generative policy, such as diffusion-based~\citep{black2024pi_0,li2024cogact} and flow-matching-based~\citep{deng2025graspvla,zhang2025flowpolicy} policies, to synthesize smooth and high-quality action trajectories. 
+This separation reduces response latency and facilitates smooth real-world deployment, promoting robust high-level planning alongside high-frequency control for robotic manipulation.
+Despite these advances, these methods still predict actions primarily from the current observation and instruction without leveraging extended historical context, limiting their robustness in long-horizon manipulation tasks.
+In contrast, our work aims to equip VLA models with explicit progress awareness via memory mechanisms, addressing memory-dependent tasks that current approaches fail to handle.
+
+
+\noindent\textbf{Memory Mechanisms for Robotic Control.}
+Mainstream VLA policies are formulated under a Markovian assumption, predicting actions primarily from the current observation and therefore lacking explicit awareness of task progress. 
+Existing attempts to incorporate historical context can be broadly categorized into three groups. 
+\textbf{(i)} \emph{Temporal-context expansion:} This line of work directly exposes the policy to temporally extended observations by interleaving historical frames with language tokens~\citep{li2024towards,fan2025interleave} or aggregating multi-frame features~\citep{li2025cronusvla,koo2025hamlet,hu2026resolving} within a predefined context window. 
+Although straightforward, these methods incur computational and memory costs that grow with the context length, while the fixed temporal horizon imposes an inherent memory ceiling, causing potentially task-relevant evidence outside the window to be discarded.
+\textbf{(ii)} \emph{Sparse history abstraction:} Another paradigm compresses past interactions into lightweight proxy representations, such as recurrent latent states~\citep{li2026remem,li2024vision}, motion-centric cues~\citep{zheng2025tracevla}, action summaries~\citep{bu2025univla}, or a sparse set of representative observations~\citep{mark2026bpp}. By avoiding direct processing of the full observation history, this paradigm improves temporal awareness with relatively low computational overhead. However, aggressive abstraction of historical experience can remove fine-grained perceptual details and high-level semantic context that are critical for long-horizon manipulation tasks.
+\textbf{(iii)} \emph{External memory conditioning:} A third direction~\citep{shi2025memoryvla,sridhar2025memer,li2026global} stores historical observations and action tokens in an auxiliary memory bank, and retrieves a compact set of task-relevant evidence from this bank to condition current action prediction. 
+Since memory access is driven primarily by the current query, retrieval may become unreliable when the present observation provides weak cues or contains visually similar distractors. 
+More fundamentally, the retrieved memory is typically consumed as auxiliary policy-side context rather than integrated into the VLA model's native token-level reasoning process, limiting its ability to directly shape action formation.
+In contrast, \ourmethod formulates historical experience as context-native latent memory. It maintains complementary short-term visual and long-term semantic memory vaults. Decision-relevant evidence is then retrieved and distilled into compact latent memory tokens. These latent memory tokens are directly interwoven with current visual, language, and action tokens before action formation, enabling fine-grained perceptual evidence and long-range task progress to jointly shape the VLA model's native reasoning process without incurring growing context.
+
+
+

@@ -1,0 +1,40 @@
+\begin{table*}[t]
+\centering
+\caption{Real-world evaluation consistency across three repeated runs. We report the standard deviation of success rate and score across R1--R3. Scores are multiplied by 100 for readability.}
+\label{tab:real_world_consistency_std}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{Task}
+& \multicolumn{2}{c}{$\pi_{0.5}$}
+& \multicolumn{2}{c}{GalaxeaVLA}
+& \multicolumn{2}{c}{InternVLA-A1} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+& Std. SR & Std. Score
+& Std. SR & Std. Score
+& Std. SR & Std. Score \\
+\midrule
+\texttt{connect\_charger} & 0.0\% & 0.0 & 0.0\% & 0.0 & 0.0\% & 0.0 \\
+\texttt{stack\_bowls} & 5.8\% & 4.0 & 15.3\% & 16.6 & 5.8\% & 3.5 \\
+\texttt{stack\_and\_cover\_blocks} & 5.8\% & 5.8 & 0.0\% & 0.0 & 0.0\% & 0.0 \\
+\texttt{fill\_pen\_holder} & 10.0\% & 1.2 & 5.8\% & 11.7 & 0.0\% & 3.5 \\
+\texttt{stand\_up\_bottles} & 5.8\% & 6.6 & 0.0\% & 7.8 & 15.3\% & 9.8 \\
+\texttt{put\_objects\_into\_basket} & 5.8\% & 5.8 & 5.8\% & 5.8 & 5.8\% & 5.8 \\
+\texttt{hang\_mugs} & 0.0\% & 1.2 & 0.0\% & 2.3 & 0.0\% & 2.3 \\
+\texttt{pack\_objects\_into\_backpack} & 5.8\% & 3.5 & 0.0\% & 1.7 & 0.0\% & 6.5 \\
+\texttt{sweep\_blocks} & 5.8\% & 5.8 & 5.8\% & 5.8 & 0.0\% & 0.0 \\
+\texttt{disassemble\_LEGO} & 5.8\% & 4.6 & 0.0\% & 1.2 & 0.0\% & 0.0 \\
+\texttt{classify\_objects} & 0.0\% & 2.3 & 0.0\% & 0.0 & 0.0\% & 0.0 \\
+\texttt{cap\_pen} & 0.0\% & 2.0 & 0.0\% & 2.3 & 0.0\% & 2.0 \\
+\texttt{pack\_and\_pour\_fruit} & 5.8\% & 3.1 & 0.0\% & 3.5 & 0.0\% & 10.0 \\
+\texttt{store\_in\_safe} & 23.1\% & 12.9 & 11.5\% & 13.9 & 17.3\% & 10.4 \\
+\texttt{make\_food} & 5.8\% & 5.1 & 0.0\% & 1.7 & 0.0\% & 0.0 \\
+\texttt{insert\_tubes} & 5.8\% & 6.4 & 0.0\% & 8.4 & 0.0\% & 4.6 \\
+\texttt{cover\_blocks} & 5.8\% & 4.6 & 0.0\% & 0.3 & 0.0\% & 0.0 \\
+\texttt{make\_bread} & 0.0\% & 0.0 & 0.0\% & 0.0 & 0.0\% & 0.0 \\
+\midrule
+\textbf{Average} & \textbf{1.0\%} & \textbf{0.5} & \textbf{1.2\%} & \textbf{1.0} & \textbf{1.3\%} & \textbf{1.2} \\
+\bottomrule
+\end{tabular}
+\end{table*}

@@ -1,0 +1,531 @@
+% !TEX root = ../main.tex
+\clearpage
+\appendix
+\section{Structured Caption Details}
+\label{app:caption}
+
+
+
+\subsection{Example Structured Captions}
+\label{app:caption:examples}
+
+We show one representative caption per data category, reproduced verbatim
+from the training data.
+
+
+\begin{captionexample}{Example structured caption for image data.}
+{
+  "comprehensive_description": "This image captures the opulent interior of a grand palace hall, likely the Grand Kremlin Palace. The room is characterized by a lavish Baroque or Neoclassical style, featuring a high vaulted ceiling adorned with intricate gold patterns and a central medallion. The walls are covered in deep red fabric with gold embroidery, punctuated by tall, fluted white columns with ornate gold capitals. At the far end of the hall, a raised dais holds a large, framed portrait of a historical figure and a single red upholstered throne. The floor is a masterpiece of polished wood parquet, featuring complex geometric and circular inlaid patterns in various shades of brown. A massive, multi-tiered crystal chandelier hangs from the upper left, casting a warm, golden glow throughout the space. The overall atmosphere is one of immense wealth, power, and historical significance, with a symmetrical composition that emphasizes the room's scale and architectural detail.",
+  "camera_info": {
+    "color": "Warm",
+    "frame_size": "Extreme Wide",
+    "shot_type_angle": "Low angle",
+    "lens_size": "Wide",
+    "composition": "Balanced",
+    "lighting": "Hard light",
+    "lighting_type": "Artificial light"
+  },
+  "world_knowledge": [],
+  "prominent_elements": [
+    {
+      "name": "vaulted ceiling",
+      "description": "A high, arched ceiling featuring a complex pattern of gold medallions and intricate carvings.",
+      "location": "spanning the top half of the frame",
+      "relative_size": "dominant",
+      "shape_and_color": "arched; gold and cream",
+      "texture": "carved and metallic",
+      "appearance_details": "Features a central large medallion and radiating patterns of smaller circular motifs.",
+      "relationship": "Forms the upper boundary of the entire scene.",
+      "orientation": "arched",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": ""
+    },
+    {
+      "name": "red wall panels",
+      "description": "Large sections of wall covered in deep red fabric with gold embroidery.",
+      "location": "spanning the middle and background walls",
+      "relative_size": "dominant",
+      "shape_and_color": "rectangular; deep red and gold",
+      "texture": "fabric and metallic embroidery",
+      "appearance_details": "The fabric is decorated with repeating gold floral and heraldic patterns.",
+      "relationship": "Provides the primary background for the columns and the throne area.",
+      "orientation": "vertical",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": "",
+      "is_cluster": true,
+      "number_of_objects": "several"
+    },
+    {
+      "name": "fluted columns",
+      "description": "Tall, white columns with vertical grooves and ornate gold capitals.",
+      "location": "distributed along the walls and at the far end",
+      "relative_size": "large",
+      "shape_and_color": "cylindrical; white and gold",
+      "texture": "smooth and metallic",
+      "appearance_details": "The capitals are highly decorative with gold leaf and classical motifs.",
+      "relationship": "They support the upper architectural elements and frame the throne area.",
+      "orientation": "upright",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": "",
+      "is_cluster": true,
+      "number_of_objects": "many"
+    },
+    {
+      "name": "parquet floor",
+      "description": "A highly polished wooden floor with intricate geometric and circular inlaid patterns.",
+      "location": "spanning the bottom half of the frame",
+      "relative_size": "dominant",
+      "shape_and_color": "flat; various shades of brown and tan",
+      "texture": "smooth and glossy",
+      "appearance_details": "Features complex interlocking geometric shapes and circular medallions.",
+      "relationship": "Reflects the light from the chandelier and the colors of the walls.",
+      "orientation": "horizontal",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": ""
+    },
+    {
+      "name": "large portrait",
+      "description": "A framed painting depicting a historical figure, likely a monarch.",
+      "location": "center background, above the throne",
+      "relative_size": "medium",
+      "shape_and_color": "rectangular; dark tones with gold frame",
+      "texture": "matte",
+      "appearance_details": "The figure is dressed in elaborate historical attire and is seated.",
+      "relationship": "Positioned as the focal point of the room's back wall.",
+      "orientation": "upright",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": ""
+    },
+    {
+      "name": "ornate throne",
+      "description": "A single, high-backed chair upholstered in red fabric with gold trim.",
+      "location": "center background, on a raised platform",
+      "relative_size": "small",
+      "shape_and_color": "rectangular; red and gold",
+      "texture": "fabric and metallic",
+      "appearance_details": "Features a high back and gold-colored armrests and legs.",
+      "relationship": "Sits on a small red-carpeted dais in front of the portrait.",
+      "orientation": "upright",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": ""
+    },
+    {
+      "name": "crystal chandelier",
+      "description": "A large, multi-tiered chandelier with numerous light sources.",
+      "location": "top-left corner",
+      "relative_size": "medium",
+      "shape_and_color": "complex; gold and clear",
+      "texture": "metallic and glass",
+      "appearance_details": "Features multiple arms and hanging crystal elements.",
+      "relationship": "Hangs from the ceiling and provides the main light source for the left side of the room.",
+      "orientation": "hanging",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": ""
+    }
+  ]
+}
+\end{captionexample}
+
+\begin{captionexample}{Example structured caption for video data.}
+{
+  "comprehensive_description": {
+    "scene_content_description": "The video captures an outdoor cooking scene where several meat rolls are being prepared on a large, black, circular metal griddle. The griddle is positioned over an open fire, with visible flames and glowing embers at the bottom. The meat rolls, made of thin slices of red meat stuffed with green herbs and orange carrot pieces, are held together by wooden toothpicks. Throughout the video, wisps of white smoke rise from the hot surface. A person's hand periodically enters the frame from the top right to place additional meat rolls onto the griddle. The background is softly blurred, showing hints of greenery and a wooden structure, suggesting a garden or backyard setting. The lighting is bright and natural, creating a warm and rustic atmosphere.",
+    "camera_movement_description": "The camera is stationary throughout the video, maintaining a steady, eye-level close-up shot of the griddle and the cooking process."
+  },
+  "camera_info": {
+    "color": "Saturated",
+    "frame_size": "Wide",
+    "shot_type_angle": "High angle",
+    "lens_size": "Medium",
+    "composition": "Center",
+    "lighting": "Hard light",
+    "lighting_type": "Daylight"
+  },
+  "world_knowledge": [],
+  "prominent_elements": [
+    {
+      "name": "meat rolls",
+      "description": "Several cylindrical rolls made of thin red meat slices, stuffed with green herbs and orange carrot pieces, secured with wooden toothpicks.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 7.1s]",
+          "action": "The rolls are placed onto the griddle and sizzle as they cook, with smoke rising from them."
+        }
+      ],
+      "location": "Center of the frame on the griddle",
+      "relative_size": "large",
+      "shape_and_color": "Cylindrical shapes with red, green, and orange colors",
+      "texture": "Fleshy and moist",
+      "appearance_details": "Visible toothpicks and stuffing ingredients like parsley and carrots.",
+      "relationship": "Placed on the black griddle to be cooked.",
+      "orientation": "Horizontal",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": "",
+      "is_cluster": true,
+      "number_of_objects": "several"
+    },
+    {
+      "name": "black griddle",
+      "description": "A large, circular, flat metal cooking surface with a slightly textured, matte black finish.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 7.1s]",
+          "action": ""
+        }
+      ],
+      "location": "Occupies most of the lower and middle frame",
+      "relative_size": "dominant",
+      "shape_and_color": "Circular and black",
+      "texture": "Matte and slightly rough",
+      "appearance_details": "Shows signs of heat and oil from cooking.",
+      "relationship": "Serves as the cooking surface for the meat rolls.",
+      "orientation": "Horizontal",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": ""
+    },
+    {
+      "name": "person's hand",
+      "description": "A human hand that appears periodically to place meat rolls on the griddle.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 0.67s]",
+          "action": "Enters from the top right and places a roll."
+        },
+        {
+          "timestamp": "[2.67s - 3.67s]",
+          "action": "Enters from the top right and places a roll."
+        },
+        {
+          "timestamp": "[5.33s - 6.0s]",
+          "action": "Enters from the top right and places a roll."
+        }
+      ],
+      "location": "Top right corner of the frame",
+      "relative_size": "medium",
+      "shape_and_color": "Flesh-toned hand",
+      "texture": "Smooth skin",
+      "appearance_details": "Only the hand and part of the forearm are visible.",
+      "relationship": "Interacts with the meat rolls and the griddle.",
+      "orientation": "Reaching downward",
+      "pose": "Reaching and grasping",
+      "expression": "",
+      "clothing": "",
+      "gender": "male",
+      "skin_tone_and_texture": "Light skin tone"
+    },
+    {
+      "name": "smoke",
+      "description": "Wisps of white and grey smoke rising from the hot griddle.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 7.1s]",
+          "action": "Continuously rises and drifts toward the left side of the frame."
+        }
+      ],
+      "location": "Upper left and center of the frame",
+      "relative_size": "medium",
+      "shape_and_color": "Amorphous and white/grey",
+      "texture": "Wispy and translucent",
+      "appearance_details": "Thin, rising plumes.",
+      "relationship": "Produced by the heat of the griddle and the cooking meat.",
+      "orientation": "Rising upward",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "gender": "",
+      "skin_tone_and_texture": ""
+    }
+  ]
+}
+\end{captionexample}
+
+\begin{captionexample}{Example structured caption for VLA data.}
+{
+  "comprehensive_description": {
+    "scene_content_description": "The video presents a first-person perspective of a robotic workspace, likely a simulated grocery store or automated sorting station. In the foreground, a metal wire shopping cart with red handles is positioned, containing a clear plastic bag with red printed text. Behind the cart is a wooden display shelf divided into several compartments, neatly stocked with a variety of colorful artificial produce. The items include yellow bell peppers, purple eggplants, red pumpkins, white mushrooms, brown potatoes, green cucumbers, yellow corn, red tomatoes, and red chili peppers. Two robotic arms are visible in the frame. The left robotic arm, featuring a grey body and a black two-finger gripper, remains completely stationary in the upper left corner throughout the video. The right robotic arm, which has a white body and a black two-finger gripper, is the active subject. It begins by holding a green cucumber, moves downwards to position the cucumber over the plastic bag in the shopping cart, and then opens its gripper to release the cucumber into the bag. After dropping the item, the right robotic arm retracts upwards and slightly to the right, returning to a higher position above the display shelf. The lighting is bright and even, highlighting the vibrant colors of the artificial vegetables.",
+    "camera_movement_description": "The camera remains completely stationary throughout the entire video, maintaining a fixed, slightly high-angle perspective looking down at the shopping cart and the display shelf."
+  },
+  "camera_info": {
+    "color": "Saturated",
+    "frame_size": "Wide",
+    "shot_type_angle": "High angle",
+    "lens_size": "Ultra Wide / Fisheye",
+    "composition": "Balanced",
+    "lighting": "Hard light",
+    "lighting_type": "Artificial light"
+  },
+  "world_knowledge": [],
+  "prominent_elements": [
+    {
+      "name": "right robotic arm",
+      "description": "A robotic arm with a white cylindrical body and a black, two-finger gripper mechanism.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 1.5s]",
+          "action": "Moves downwards while grasping a green cucumber."
+        },
+        {
+          "timestamp": "[1.5s - 5.5s]",
+          "action": "Opens its gripper to release the cucumber."
+        },
+        {
+          "timestamp": "[5.5s - 7.2s]",
+          "action": "Moves upwards and to the right."
+        }
+      ],
+      "location": "Originates in the upper right, moves to the lower center, and returns to the upper right.",
+      "relative_size": "large",
+      "shape_and_color": "Cylindrical and angular, white and black.",
+      "texture": "Smooth, metallic and plastic.",
+      "appearance_details": "Features joints, cables, and a distinct two-finger gripper.",
+      "relationship": "Interacts with the green cucumber and moves above the shopping cart.",
+      "orientation": "Tilted downwards initially, then retracts upwards.",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "is_cluster": false,
+      "number_of_objects": ""
+    },
+    {
+      "name": "left robotic arm",
+      "description": "A robotic arm with a grey rectangular body and a black, two-finger gripper mechanism.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 7.2s]",
+          "action": "Remains stationary."
+        }
+      ],
+      "location": "Upper left corner of the frame.",
+      "relative_size": "large",
+      "shape_and_color": "Angular, grey and black.",
+      "texture": "Smooth, metallic and plastic.",
+      "appearance_details": "Features a distinct two-finger gripper and visible joints.",
+      "relationship": "Positioned above the display shelf, inactive.",
+      "orientation": "Tilted downwards.",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "is_cluster": false,
+      "number_of_objects": ""
+    },
+    {
+      "name": "green cucumber",
+      "description": "A long, green, artificial vegetable.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 1.5s]",
+          "action": "Grasped by the right robotic arm and moves downwards."
+        },
+        {
+          "timestamp": "[1.5s - 5.5s]",
+          "action": "Falls downwards into the plastic bag."
+        },
+        {
+          "timestamp": "[5.5s - 7.2s]",
+          "action": "Rests inside the plastic bag."
+        }
+      ],
+      "location": "Starts in the right robotic arm's gripper, ends up in the plastic bag in the lower center.",
+      "relative_size": "small",
+      "shape_and_color": "Elongated, green.",
+      "texture": "Smooth.",
+      "appearance_details": "Looks like a standard cucumber.",
+      "relationship": "Held by the right robotic arm, then dropped into the plastic bag.",
+      "orientation": "Tilted downwards while held, horizontal when resting in the bag.",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "is_cluster": false,
+      "number_of_objects": ""
+    },
+    {
+      "name": "shopping cart",
+      "description": "A metal wire shopping cart with red handles.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 7.2s]",
+          "action": "Remains stationary."
+        }
+      ],
+      "location": "Lower half of the frame.",
+      "relative_size": "dominant",
+      "shape_and_color": "Rectangular wireframe, silver and red.",
+      "texture": "Metallic.",
+      "appearance_details": "Contains a clear plastic bag with red text.",
+      "relationship": "Serves as the receptacle for the dropped cucumber.",
+      "orientation": "Horizontal.",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "is_cluster": false,
+      "number_of_objects": ""
+    },
+    {
+      "name": "display shelf",
+      "description": "A wooden shelf divided into compartments, holding various artificial vegetables.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 7.2s]",
+          "action": "Remains stationary."
+        }
+      ],
+      "location": "Upper half of the frame, behind the shopping cart.",
+      "relative_size": "dominant",
+      "shape_and_color": "Rectangular, light brown wood with colorful items.",
+      "texture": "Wood grain.",
+      "appearance_details": "Contains neatly arranged yellow peppers, purple eggplants, red pumpkins, mushrooms, potatoes, corn, tomatoes, and chili peppers.",
+      "relationship": "Provides the background context and source of the items.",
+      "orientation": "Horizontal.",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "is_cluster": false,
+      "number_of_objects": ""
+    }
+  ]
+}
+\end{captionexample}
+
+\begin{captionexample}{Example structured caption for egocentric data.}
+{
+  "comprehensive_description": {
+    "scene_content_description": "The video presents a first-person perspective of a person working on a piece of machinery, likely in a garage or workshop setting. The environment features a concrete floor scattered with small debris. The primary subject is a large, bright orange lawnmower positioned centrally in the frame. The lawnmower has a prominent black rear tire with deep treads on the left side, a black engine cover on the right, and a blue 'Kohler Professional' sticker on its side. The person's left arm, wearing a black short-sleeved shirt, is visible resting flat on the concrete floor on the left side of the frame. The person's legs, clad in blue jeans, are visible at the bottom. The action begins with the person's right arm, also wearing a black short-sleeved shirt, entering the frame from the right side. The right hand reaches towards the center of the lawnmower, specifically targeting a black cable or wire near the engine area. The hand grasps the cable and pulls it upwards and towards the right, manipulating the component. The left hand remains stationary on the floor throughout the sequence, providing stability.",
+    "camera_movement_description": "The camera is body-mounted, providing a first-person point of view. It exhibits slight, continuous panning and tilting movements that correspond to the natural head and body motions of the person working. The shot size remains a close-up on the machinery and the person's hands."
+  },
+  "camera_info": {
+    "color": "Saturated",
+    "frame_size": "Medium",
+    "shot_type_angle": "High angle",
+    "lens_size": "Ultra Wide / Fisheye",
+    "composition": "Center",
+    "lighting": "Hard light",
+    "lighting_type": "Daylight"
+  },
+  "world_knowledge": [],
+  "prominent_elements": [
+    {
+      "name": "right hand",
+      "description": "A human right hand and forearm, wearing a black short-sleeved shirt.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 2.0s]",
+          "action": ""
+        },
+        {
+          "timestamp": "[2.0s - 5.0s]",
+          "action": "Enters from the right, reaches towards the center, grasps a black cable, and pulls it upwards and to the right."
+        }
+      ],
+      "location": "Moves from the right edge towards the center-right of the frame.",
+      "relative_size": "medium",
+      "shape_and_color": "Arm shape, skin tone, black sleeve.",
+      "texture": "Smooth skin, fabric texture.",
+      "appearance_details": "Wearing a black short-sleeved shirt.",
+      "relationship": "Interacts with the black cable on the lawnmower.",
+      "orientation": "Extended forward and slightly downwards.",
+      "pose": "",
+      "expression": "",
+      "clothing": "Black short-sleeved shirt.",
+      "is_cluster": false,
+      "number_of_objects": ""
+    },
+    {
+      "name": "left hand",
+      "description": "A human left hand and forearm, wearing a black short-sleeved shirt, resting flat on the ground.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 5.0s]",
+          "action": "Remains stationary on the floor."
+        }
+      ],
+      "location": "Bottom left of the frame.",
+      "relative_size": "medium",
+      "shape_and_color": "Hand shape, skin tone, black sleeve.",
+      "texture": "Smooth skin, fabric texture.",
+      "appearance_details": "Wearing a black short-sleeved shirt, a ring is visible on one finger.",
+      "relationship": "Resting on the concrete floor, providing stability for the person.",
+      "orientation": "Flat, horizontal.",
+      "pose": "",
+      "expression": "",
+      "clothing": "Black short-sleeved shirt.",
+      "is_cluster": false,
+      "number_of_objects": ""
+    },
+    {
+      "name": "lawnmower",
+      "description": "A large piece of outdoor machinery, primarily orange with black components.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 5.0s]",
+          "action": "Remains stationary."
+        }
+      ],
+      "location": "Occupies the center and right portions of the frame.",
+      "relative_size": "dominant",
+      "shape_and_color": "Complex mechanical shape, predominantly bright orange and black.",
+      "texture": "Smooth painted metal, rubber tire.",
+      "appearance_details": "Features a large black rear tire with deep treads, a black engine cover, and a blue 'Kohler Professional' sticker.",
+      "relationship": "The object being worked on by the right hand.",
+      "orientation": "Upright.",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "is_cluster": false,
+      "number_of_objects": ""
+    },
+    {
+      "name": "black cable",
+      "description": "A thin, flexible black wire or cable attached to the lawnmower.",
+      "actions": [
+        {
+          "timestamp": "[0.0s - 2.0s]",
+          "action": "Remains stationary."
+        },
+        {
+          "timestamp": "[2.0s - 5.0s]",
+          "action": "Grasped by the right hand and pulled upwards and to the right."
+        }
+      ],
+      "location": "Center of the frame, near the engine area of the lawnmower.",
+      "relative_size": "small",
+      "shape_and_color": "Thin, linear, black.",
+      "texture": "Smooth, flexible.",
+      "appearance_details": "Appears to be a control cable or wire.",
+      "relationship": "Attached to the lawnmower, manipulated by the right hand.",
+      "orientation": "Curved, extending from the engine area.",
+      "pose": "",
+      "expression": "",
+      "clothing": "",
+      "is_cluster": false,
+      "number_of_objects": ""
+    }
+  ]
+}
+\end{captionexample}

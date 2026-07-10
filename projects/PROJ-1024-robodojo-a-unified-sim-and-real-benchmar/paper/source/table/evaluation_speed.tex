@@ -1,0 +1,40 @@
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Evaluation Speed}. 640$\times$480 resolution.}
+\label{tab:benchmark_eval_efficiency}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\definecolor{bestblue}{RGB}{210,243,247}
+\newcommand{\thickline}{\noalign{\vspace{0.25em}\hrule height 1.2pt\vspace{0.25em}}}
+\newcommand{\thicksep}{%
+\vspace{0.25em}
+\noindent\rule{\textwidth}{1.2pt}
+\vspace{0.25em}
+}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l|c|c|c|c|c|c|c|c|c}
+\thickline
+\textbf{Benchmark} & \textbf{Platform} & \textbf{Render} &  \textbf{Physics} & \textbf{Compute} & \textbf{HP\footnote{HP indicates Heterogeneous Parallelization}} & \textbf{Tasks} & \textbf{Frames} & \textbf{Time} & \textbf{100 Frame Freq.}\\
+\midrule
+RoboTwin 1.0 & SAPIEN \\
+RoboTwin 2.0 & SAPIEN \\
+LIBERO  & Mujoco \\
+CALVIN & \\
+RLBench & \\
+RoboCasa & \\
+SimplerEnv & \\
+VLABench & \\
+BEHAVIOR 1K \\
+RoboSuite & Mujoco \\
+Meta-World & Mujoco \\
+EBench & IsaacSim \\
+\midrule
+RoboDojo (ours) & IsaacSim & & PhysX & GPU\\
+\thickline
+
+\end{tabular}
+}
+\endgroup
+\end{table*}

@@ -1,0 +1,12 @@
+\subsection{Real-World Platform: RoboDojo-RealEval}
+\label{sec:real_world_hardware}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{assets/Figure/real_world_hardware.pdf}
+    \caption{\textbf{Overview of the RoboDojo-RealEval system.}
+    RoboDojo-RealEval provides a standardized physical platform for reproducible real-world robot manipulation evaluation, with controlled workspace geometry, fixed robot and camera mounts, stable lighting, a touchscreen evaluation interface, and support for three collaborative bimanual embodiments.}
+    \label{fig:real_world_hardware}
+\end{figure}
+
+Real-world robot evaluation is highly sensitive to incidental factors such as lighting, robot placement, camera pose, manipulation surface condition, and scene reset accuracy, making reproducibility and fairness difficult to ensure across sessions and sites. To address this issue, we develop the \textbf{RoboDojo-RealEval Platform}, shown in Fig.~\ref{fig:real_world_hardware}, as a standardized hardware and software system for reproducible real-world evaluation. RoboDojo-RealEval fixes the relative poses of robot arms, cameras, lighting units, and the manipulation workspace through modular structural components, and provides a touchscreen-based web interface for scene reset, policy execution, emergency stop, video collection, and cloud-based scoring. During evaluation, predefined task layouts are replayed through a transparent overlay between the target layout image and the live observation stream, enabling evaluators to restore consistent initial conditions before each trial. The platform supports three collaborative bimanual embodiments, including ARX X5, Piper, and Piper X, and enables both local deployment and remote cloud-based evaluation under shared physical protocols. Together, these designs reduce uncontrolled variations and provide a reproducible physical foundation for standardized real-world policy evaluation. Additional hardware details, layout replay procedures, safety controls, and scoring protocols are provided in Appendix~\ref{appendix:realeval_details}.

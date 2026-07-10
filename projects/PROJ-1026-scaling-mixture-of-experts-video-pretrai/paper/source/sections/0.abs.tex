@@ -1,0 +1,20 @@
+% !TEX root = ../main.tex
+\abstract{
+%
+Despite the recent promise in robot control, video generative models suffer from a domain mismatch due to their primary focus on content creation.
+%
+For example, their design inherently prioritizes visual fidelity and creativity over computational efficiency and physical realism.
+%
+In this work, we present \method, a DiT-based video pretraining paradigm specifically tailored for embodied intelligence.
+%
+From the \textbf{\textit{architecture}} perspective, we adopt the Mixture-of-Experts (MoE), instead of dense, framework to achieve a better trade-off between modeling capacity and inference efficiency, and manage to scale it up from scratch.
+%
+From the \textbf{\textit{data}} perspective, we construct a data profiling engine that augments standard internet videos with extensive robot-oriented footage, encompassing manipulation, navigation, and egocentric perspectives, to equip the base model with an intrinsic understanding of actions and world dynamics.
+%
+From the \textbf{\textit{training}} perspective, we develop a multi-dimensional reward system to enforce the alignment regarding physical rationality and task completion, going beyond standard criteria such as aesthetics, prompt-following, and motion consistency.
+%
+Comprehensive evaluations validate its performance and efficiency as a video foundation model.
+%
+We contribute \method as the inaugural large-scale, open-source MoE video foundation model to the community, in a pioneering effort to bridge digital creativity and physical actuation.
+
+}

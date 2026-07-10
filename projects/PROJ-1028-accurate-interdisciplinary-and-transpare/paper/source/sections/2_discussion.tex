@@ -1,0 +1,61 @@
+
+\section{Discussion}\label{sec12}
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+In this work, we introduced \projName{}, a multimodal scientific foundation model for native structural reasoning across proteins, small molecules and inorganic crystals.
+The central premise is that structure--property relationships cannot be fully addressed by treating scientific entities as text strings, low-dimensional descriptors or black-box inputs to property predictors.
+\projName{} instead represents structures as primary objects of inference through a unified structure-aware vocabulary that discretizes three-dimensional coordinates, molecular topologies and crystallographic lattices into domain-native tokens, and integrates them with language instructions in a single autoregressive model.
+This design allows residues, molecular fragments, conformational cues and crystal descriptors to function as addressable evidence units within generated reasoning trajectories, rather than as peripheral annotations appended to text.
+
+
+Our results support native structural reasoning as a model-level capability for scientific AI.
+Rather than using structure only as an input format or auxiliary descriptor, \projName{} makes residues, molecular fragments, conformational cues and crystal descriptors available as evidence within generated reasoning trajectories.
+This shift is important because structure--property analysis requires not only accurate outputs, but intermediate claims that can be inspected against the physical object being studied.
+
+The strongest evidence for this capability comes from regimes in which superficial similarity is insufficient.
+ 
+For Cellular Component annotation of low-homology and orphan-like proteins, \projName{} improved $F_{\max}$ from 0.42 to 0.55, with its attention enriched at contact-defined DNA-binding residues and protein--DNA interfaces. 
+In retrosynthesis, it increased single-step accuracy from 0.63 to 0.72 while identifying reaction-relevant fragments, strategic bond disconnections and chemically valid precursors.
+In crystalline materials, its reasoning trajectories invoked symmetry-distinct sites, coordination environments and periodic bonding motifs when linking structure to electronic and thermodynamic behaviour.
+These behaviours indicate that structural organization functions as the working substrate of inference, not merely as a representation used to produce a final score.
+
+This distinction clarifies the contribution of \projName{} relative to existing scientific AI systems.
+A Foldseek-derived structural fragment can ground a fold- or function-level hypothesis; a molecular substructure can justify a retrosynthetic disconnection; a conformational cue can support a pharmacophore-level similarity judgement; and a crystal-connectivity token can support an inference about stability or electronic response.
+Because such intermediate claims are expressed in the reasoning trajectory, they can be checked against the input structure rather than accepted as opaque post hoc rationales.
+This helps bridge two previously separated capabilities: domain-native structural representation and explicit scientific reasoning.
+The double-blind expert evaluation, in which experts preferred or tied \projName{} over a frontier large language model in 98\% of cases, further suggests that this inspectability is practically useful for scientific assessment.
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+Overall, \projName{} demonstrates that a single autoregressive foundation model can unify sequence, structure, and natural-language reasoning across major scientific modalities while achieving specialist-level accuracy and interpretable scientific explanation. 
+This provides a route toward scientific AI systems that move beyond prediction toward reasoning over the physical structures from which functions, properties, and mechanisms emerge.

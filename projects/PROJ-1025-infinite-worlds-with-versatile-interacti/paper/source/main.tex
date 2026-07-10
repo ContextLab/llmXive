@@ -1,0 +1,89 @@
+\documentclass[onecolumn]{robbyant}           % Single column with abstract logo
+% \documentclass[nologo]{robbyant}            % Single column without abstract logo
+% \documentclass[twocolumn]{robbyant}         % Two columns with abstract logo
+
+
+\newcommand\nonumfootnote[1]{%
+\begingroup%
+    \renewcommand\thefootnote{}\footnote{\hspace{-4pt}#1}%
+    \addtocounter{footnote}{-1}%
+\endgroup%
+}
+
+\metadata[Website]{\url{https://technology.robbyant.com/lingbot-world-v2}}
+\metadata[Github]{\url{https://github.com/robbyant/lingbot-world-v2}}
+\metadata[Checkpoints]{\url{https://huggingface.co/robbyant/lingbot-world-v2}}
+\newcommand{\methodname}{LingBot-World}
+\newcommand{\methodold}{\texttt{\methodname}\xspace}
+\newcommand{\methodaka}{\texttt{\methodname~2.0}\xspace}
+\newcommand{\method}{\texttt{\methodname-Infinity}\xspace}
+\newcommand{\methodbase}{\texttt{\methodname-Base}\xspace}
+\newcommand{\methodfast}{\texttt{\methodname-Fast}\xspace}
+
+\newcommand{\n}{{\bm n}}
+\newcommand{\z}{{\bm z}}
+\newcommand{\x}{{\bm x}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Loss}{\mathcal{L}}
+
+
+\title{Infinite Worlds with Versatile Interactions}
+
+
+\author{
+\begin{center}
+    Zelin Gao,
+    Qiuyu Wang,
+    Jiapeng Zhu,
+    Jingye Chen,
+    Zichen Liu,
+    Qingyan Bai,
+    Jiahao Wang,
+    \\[2pt]
+    Yufeng Yuan,
+    Hanlin Wang,
+    Yichong Lu,
+    Ka Leong Cheng,
+    Haojie Zhang,
+    Jian Gao,
+    \\[2pt]
+    Tianrui Feng,
+    Yuzheng Liu,
+    Yao Yao,
+    Yinghao Xu,
+    Xing Zhu,
+    Yujun Shen,
+    Hao Ouyang$^{\dagger}$
+    \\[9pt]
+    $^{\dagger}$Project Lead
+\end{center}
+}
+
+
+
+\begin{document}
+\input{sections/0.abs.tex}
+
+\maketitle
+\begin{figure}[!h]
+\centering
+\vspace{-12pt}
+\includegraphics[width=0.98\linewidth]{figures/teaser.pdf}
+\caption{\method generates infinite worlds in real time, featuring versatile interactions.}
+\label{fig:teaser}
+\end{figure}
+
+
+\justifying
+\input{sections/1.intro.tex}
+\input{sections/2.data.tex}
+\input{sections/3.method.tex}
+\input{sections/4.deployment.tex}
+\input{sections/5.evaluation.tex}
+\input{sections/6.conclusion.tex}
+\input{sections/7.contributors.tex}
+\input{sections/acknowledgments.tex}
+\input{sections/8.ref.tex}
+
+\end{document}

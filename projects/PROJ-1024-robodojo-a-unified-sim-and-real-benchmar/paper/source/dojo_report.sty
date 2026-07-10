@@ -1,0 +1,267 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% rlwrld_report.sty -- RLWRLD Technical Report style
+%%
+%% \usepackage form for use with \documentclass{article}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{dojo_report}[2026/04/21 RLWRLD Technical Report style v0.1]
+
+%%======== Option passing (must precede xcolor load anywhere) ========
+\PassOptionsToPackage{table,svgnames,dvipsnames}{xcolor}
+
+%%======== Required packages ========
+\RequirePackage{xifthen}
+\RequirePackage{xspace}
+\RequirePackage{xcolor}
+\RequirePackage{environ}          % for \ack environment
+\RequirePackage{geometry}
+\RequirePackage{fancyhdr}
+\RequirePackage{lastpage}
+\RequirePackage[explicit]{titlesec}
+\RequirePackage{authblk}
+\RequirePackage{datetime}
+\RequirePackage{enumitem}
+\RequirePackage{needspace}
+\RequirePackage{graphicx}         % for logo \includegraphics
+\RequirePackage{natbib}           % NeurIPS originally loaded this; body uses \citep
+\setcitestyle{authoryear,round}
+
+\RequirePackage{etoolbox}         % for \ifstrequal (abstract style dispatch)
+\RequirePackage[most]{tcolorbox}  % abstract border/bg variants (Phase 2)
+
+%%======== Temporary colors (Phase 3 moves to main.tex theme block) ========
+\definecolor{rlwrldTextGreen}{HTML}{23B399}
+\definecolor{rlwrldBorderGreen}{HTML}{8CD9CB}
+\definecolor{rlwrldBgGreen}{HTML}{DFF1ED}
+\definecolor{rlwrldBgGreenSoft}{HTML}{EFF8F6} % 50% BgGreen + 50% white
+\definecolor{rlwrldTextSub2}{HTML}{666666}
+\definecolor{rlwrldBlack}{HTML}{000000}
+% Muted dark green for hyperlinks (\ref/\cref/\Cref + \citep/\url/\href).
+% Darker than rlwrldTextGreen so citation-heavy passages read calmly.
+\definecolor{rlwrldDarkGreen}{HTML}{1A8570}
+
+\colorlet{rlPrimary}{rlwrldTextGreen}
+\colorlet{rlTitle}{rlPrimary}
+\colorlet{rlSectionNum}{rlwrldBlack}
+\colorlet{rlHyperlink}{rlPrimary}
+\colorlet{rlAbsBorder}{rlPrimary}
+\colorlet{rlAbsBg}{rlwrldBgGreenSoft}
+\colorlet{rlCopyright}{rlwrldBlack}
+\colorlet{rlRule}{rlwrldTextSub2}
+
+%%======== Geometry ========
+%\geometry{a4paper,left=2.2cm,right=2.2cm,top=3cm,bottom=3cm, headheight=60pt,headsep=20pt}
+\geometry{a4paper,left=1.8cm,right=1.8cm,top=3cm,bottom=3cm, headheight=60pt,headsep=20pt}
+\setlength{\columnsep}{15pt}
+\setlength{\parskip}{0.5\baselineskip}
+\setlength{\parindent}{0pt}
+%% Footnotes should anchor at the bottom of the text block (above the footer
+%% rule), not float up behind the last body paragraph. article class defaults
+%% to \raggedbottom which lets footnotes hug the body; force \flushbottom so
+%% vertical glue stretches and footnotes sit at the page bottom.
+\flushbottom
+
+%%======== Font (keep Times for LaTeX compatibility; see plan D-8) ========
+\renewcommand{\rmdefault}{ptm}
+
+%%======== Font-size helpers ========
+\newcommand{\headerfont}{\normalfont\sffamily\fontsize{8}{10}\selectfont}
+\newcommand{\titlefont}{\color{rlTitle}\normalfont\bfseries\fontsize{17}{20}\selectfont}
+\newcommand{\datesfont}{\normalfont\sffamily\itshape\fontsize{8}{10}\selectfont}
+\newcommand{\footerfont}{\color{black}\normalfont\fontsize{8}{10}\selectfont}
+\newcommand{\copyrightfont}{\normalfont\fontsize{7}{9}\selectfont}
+\newcommand{\headingfont}{\color{rlSectionNum}\bfseries\fontsize{13}{14}\selectfont}
+
+%%======== ISO-8601 date format ========
+\newdateformat{monthyeardate}{2026-7-5}
+
+%%======== authblk (prep for Phase 4 author block) ========
+\setcounter{Maxaffil}{0}
+\setlength{\affilsep}{0.2em}
+\renewcommand\Authfont{\normalfont\bfseries\fontsize{9}{13}\selectfont}
+\renewcommand\Affilfont{\normalfont\fontsize{8}{10}\selectfont}
+\renewcommand\Authands{ and }
+
+%%======== Section numbering depth ========
+\setcounter{secnumdepth}{3}
+
+%%======== Header & footer ========
+% Logo file selected by \logotype (set in main.tex theme block):
+%   wMark  → resources/rlwrld_logo_v3.pdf   (R icon + RLWRLD wordmark)
+%   woMark → resources/rlwrld_logo_nobg.pdf (RLWRLD wordmark only)
+\providecommand{\logotype}{wMark}
+\providecommand{\abstractposition}{page1}
+\providecommand{\authordisplay}{compact}
+
+%% Footnote layout: keep the long fancyhdr footer rule as the only horizontal
+%% line at the page bottom, and redirect footnote text into the footer area
+%% (below the rule, alongside copyright on page 1 and alone on pages 2+).
+%% \footnoterule is blanked so no short rule appears above the footnote text;
+%% \@footnotetext is intercepted to append each footnote body to the macro
+%% \rl@pagefootnotes. \fancyfoot[L] emits that macro's contents and clears it
+%% via \global\let so the next page starts fresh.
+\makeatletter
+\renewcommand{\footnoterule}{}
+\newcommand\rl@pagefootnotes{}
+
+\long\def\@footnotetext#1{%
+  \expandafter\rl@appendfootnote\expandafter{\the\c@footnote}{#1}%
+}
+
+\long\def\rl@appendfootnote#1#2{%
+  \g@addto@macro\rl@pagefootnotes{%
+    \par\noindent\textsuperscript{#1}\,#2%
+  }%
+}
+\makeatother
+
+\makeatletter
+\pagestyle{fancy}
+\fancypagestyle{firststyle}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{1pt}%
+  \renewcommand{\footrulewidth}{1pt}%
+  \fancyhead[L]{%
+    \ifdefstring{\logotype}{woMark}{%
+      \IfFileExists{assets/Img/cover_logo.pdf}%
+        {\includegraphics[width=250pt]{assets/Img/cover_logo.pdf}}{}%
+    }{%
+      \IfFileExists{assets/Img/cover_logo.pdf}%
+        {\includegraphics[width=250pt]{assets/Img/cover_logo.pdf}}{}%
+    }%
+  }%
+  \fancyhead[R]{{\footerfont\itshape\monthyeardate\today}}%
+    \fancyfoot[L]{%
+      \raisebox{1.2ex}{%
+        \parbox[t]{0.82\textwidth}{%
+          \ifx\rl@pagefootnotes\@empty
+          \else
+            {\footnotesize\rl@pagefootnotes}%
+          \fi
+        }%
+      }%
+      \global\let\rl@pagefootnotes\@empty
+    }
+  \fancyfoot[R]{{\footerfont\thepage}}%
+}
+% Pages 2+ : title in center header, page number in right footer
+\fancyhf{}
+\fancyhead[C]{\footerfont\@title}
+\fancyfoot[L]{%
+  \raisebox{1.2ex}{%
+    \parbox[t]{0.82\textwidth}{%
+      \ifx\rl@pagefootnotes\@empty
+      \else
+        {\footnotesize\rl@pagefootnotes}%
+      \fi
+    }%
+  }%
+  \global\let\rl@pagefootnotes\@empty
+}
+\fancyfoot[R]{{\footerfont\thepage}}
+\makeatother
+
+%%======== Head/foot rules — 1pt brand gray ========
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+\let\DefaultHeadRule\headrule
+\let\DefaultFootRule\footrule
+\renewcommand{\headrule}{\color{rlRule}\DefaultHeadRule}
+\renewcommand{\footrule}{{\color{rlRule}\DefaultFootRule}}
+
+%%======== \maketitle ========
+\makeatletter
+\renewcommand{\maketitle}{%
+  \thispagestyle{firststyle}%
+  \vskip2em%
+  {\raggedright\color{rlTitle}\bfseries\fontsize{17}{20}\selectfont\@title\par}%
+  \vskip1em
+  %\vskip-0.12cm%
+  {\raggedright\@author\par}%
+  %\vskip-0.25cm%
+}
+\makeatother
+
+%%======== Section formatting ========
+\titleformat{\section}
+  {\color{rlSectionNum}\large\bfseries}{\thesection.}{0.5em}{#1}[]
+\titleformat{name=\section,numberless}
+  {\color{rlSectionNum}\Large\bfseries}{}{0.5em}{#1}[]
+\titleformat{\subsection}
+  {\color{rlSectionNum}\large\bfseries}{\thesubsection.}{0.5em}{#1}[]
+\titleformat{\subsubsection}
+  {\color{rlSectionNum}\bfseries}{\thesubsubsection.}{0.5em}{#1}[]
+% runin: paragraph heading flows inline with the body text on the same line
+\titleformat{\paragraph}[runin]
+  {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{#1}
+
+\titlespacing*{\section}{0pc}{3ex plus4pt minus3pt}{5pt}
+\titlespacing*{\subsection}{0pc}{2.5ex plus3pt minus2pt}{2pt}
+\titlespacing*{\subsubsection}{0pc}{2ex plus2.5pt minus1.5pt}{2pt}
+% 3rd arg is the horizontal gap after the runin heading before body text
+\titlespacing*{\paragraph}{0pc}{2ex plus2pt minus1pt}{1em}
+
+
+\providecommand{\acksection}{\section*{Acknowledgments}}
+\NewEnviron{ack}{%
+  \acksection
+  \BODY
+}
+
+%%======== Abstract environment (3 styles: plain / border / background) ========
+% Toggle in main.tex via \def\abstractstyle{plain|border|background}
+\providecommand{\abstractstyle}{plain}
+
+\renewenvironment{abstract}{%
+  \ifdefstring{\abstractstyle}{border}{%
+    \begin{tcolorbox}[
+      enhanced,
+      colback=white,
+      colframe=white,
+      frame style={
+        left color=AbsBlue,
+        right color=AbsCyan
+      },
+      boxrule=1.0pt,
+      arc=6pt,
+      left=12pt,right=12pt,top=10pt,bottom=10pt
+    ]%
+    {\centering\color{Blue_1}\large\bfseries Abstract\par}%
+    \vskip0.6em%
+  }{%
+    \ifdefstring{\abstractstyle}{background}{%
+      \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=white,
+        frame style={
+          left color=AbsBlue,
+          right color=AbsCyan
+        },
+        boxrule=1.0pt,
+        arc=6pt,
+        left=12pt,right=12pt,top=10pt,bottom=10pt
+      ]%
+      {\centering\color{Blue_1}\large\bfseries Abstract\par}%
+      \vskip0.6em%
+    }{%
+      \vskip0.5em%
+      {\raggedright\color{Blue_1}\large\bfseries Abstract\par}%
+      \vskip0.15em%
+      \begingroup\linespread{1.1}\bfseries\setlength{\parindent}{0pt}\selectfont%
+    }%
+  }%
+}{%
+  \ifdefstring{\abstractstyle}{border}{%
+    \end{tcolorbox}%
+  }{%
+    \ifdefstring{\abstractstyle}{background}{%
+      \end{tcolorbox}%
+    }{%
+      \endgroup%
+    }%
+  }%
+}
+
+\endinput

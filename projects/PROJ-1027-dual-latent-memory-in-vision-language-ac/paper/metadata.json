@@ -1,0 +1,57 @@
+{
+  "arxiv_id": "2607.07608",
+  "arxiv_url": "https://arxiv.org/abs/2607.07608",
+  "title": "Dual Latent Memory in Vision-Language-Action Models for Robotic Manipulation",
+  "authors": [
+    "Hongyu Qu",
+    "Jianzhe Gao",
+    "Xiaobin Hu",
+    "Shaohuan Yang",
+    "Xinlei Yu",
+    "Rui Yan",
+    "Wenguan Wang",
+    "Xiangbo Shu",
+    "Shuicheng Yan"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Mainstream Vision-Language-Action (VLA) models predict actions primarily from the current observation under a Markovian assumption, thus struggling with long-horizon, temporally dependent tasks. Existing memory-augmented VLAs either expand the observation window or retrieve history from the memory bank as auxiliary policy-side context. However, they leave memory outside the native latent embedding space of VLA reasoning, preventing historical experience from being fluidly interleaved with multimodal reasoning and action formation. To this end, we introduce LaMem-VLA, a latent-memory-native framework that reconstructs historical experience into latent memory tokens and directly interweaves them with VLA reasoning. At its core, LaMem-VLA introduces four coordinated components: (i) a curator that organizes historical experience into two complementary short-term and long-term memory vaults; (ii) a seeker that queries both vaults using the multimodal cognition to retrieve context-relevant evidence; (iii) a condenser that reconstructs the retrieved evidence into compact short-term and long-term latent memory tokens; and (iv) a weaver that injects these memory tokens with the current observation and instruction into one continuous embedding sequence. By representing, retrieving, and consuming historical experience entirely in the same continuous latent space, LaMem-VLA enables memory to directly participate in VLA reasoning and guide action generation under a bounded context. Extensive experiments on SimplerEnv and LIBERO demonstrate the superiority of our LaMem-VLA.",
+  "submitted_via": "llmXive dashboard, GitHub issue #805",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/goodfeli/dlbook_notation.",
+    "https://github.com/quhongyu/LaMem-VLA"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "iclr2026_conference.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "fancyhdr.sty",
+    "figs",
+    "figs/overview.png",
+    "figs/motivation.png",
+    "figs/latentnumber.tex",
+    "figs/table6.png",
+    "figs/question_icon2.png",
+    "iclr2026_conference.bib",
+    "iclr2026_conference.bst",
+    "iclr2026_conference.sty",
+    "iclr2026_conference.tex",
+    "math_commands.tex",
+    "natbib.sty",
+    "secs",
+    "secs/conclusion.tex",
+    "secs/related_work.tex",
+    "secs/method.tex",
+    "secs/introduction.tex",
+    "secs/experi.tex",
+    "tabs",
+    "tabs/ablation_latent_native_memory.tex",
+    "tabs/ablation_retrieved_k.tex",
+    "tabs/ablation_dual_memory.tex",
+    "tabs/sota2.tex",
+    "tabs/sota1.tex"
+  ]
+}

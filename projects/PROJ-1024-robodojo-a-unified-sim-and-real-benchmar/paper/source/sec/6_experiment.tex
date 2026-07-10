@@ -1,0 +1,42 @@
+\section{Experiments}
+\label{sec:experiments}
+
+Beyond the leaderboard results in Section~\ref{sec:leaderboard}, our experiments further analyze what RoboDojo reveals about current robot manipulation policies and evaluate the benchmark system itself. We focus on three questions:
+\textbf{\textcolor{Blue_1}{(1)}} what limitations RoboDojo reveals, by analyzing policy failures across capability dimensions and task types, and identifying key directions for future generalist manipulation policies;
+\textbf{\textcolor{Blue_1}{(2)}} how efficiently RoboDojo supports benchmark execution, by examining evaluation efficiency in both heterogeneous parallel simulation and standardized real-world testing; and
+\textbf{\textcolor{Blue_1}{(3)}} how reproducible RoboDojo evaluation is, by studying simulation-side stability across repeated seeds and real-world consistency under standardized RoboDojo-RealEval conditions.
+
+\subsection{Analysis of RoboDojo Simulation Performance}
+
+Based on the simulation leaderboard in Section~\ref{sec:sim_leaderboard}, we summarize key findings revealed by RoboDojo. Our analysis focuses on the current capabilities and limitations of generalist robot manipulation policies, including their performance gap from expert teleoperation and the remaining challenges toward robust general-purpose manipulation.
+
+\input{sec/benchmark_experiment/sim_analysis}
+
+\subsection{Analysis of RoboDojo Real-World Performance}
+
+\input{sec/benchmark_experiment/real_analysis}
+
+\subsection{Evaluation Efficiency}
+\label{sec:evaluation_efficiency}
+
+In this section, we evaluate the efficiency of RoboDojo in both simulation and real-world settings. For simulation, we measure the throughput improvement brought by heterogeneous parallel simulation under zero-action rollouts and large-policy inference. For real-world evaluation, we measure the wall-clock time required to complete physical trials, including scene reset, policy inference, and robot execution. These results quantify the practical cost of running RoboDojo at benchmark scale.
+
+\subsubsection{Simulation Evaluation Efficiency}
+
+\input{sec/efficiency_experiment/simulation_efficiency}
+
+\subsubsection{Real-World Evaluation Efficiency}
+
+\input{sec/efficiency_experiment/real_world_efficiency}
+
+\subsection{Evaluation Stability}
+
+We evaluate the stability of RoboDojo by measuring performance variation across both simulation and real-world evaluation settings. In simulation, we test whether the same policy obtains consistent results across different simulation workers and GPU deployments. In the real world, we examine cross-system consistency across RoboDojo-RealEval platforms, where hardware setup, lighting conditions, camera placement, and scene layout replay are standardized. This study assesses whether RoboDojo can provide stable and reliable scores for leaderboard comparison and remote real-world evaluation.
+
+\subsubsection{Simulation Evaluation Stability}
+
+\input{sec/consistency_experiment/simulation}
+
+\subsubsection{Real-World Evaluation Stability}
+
+\input{sec/consistency_experiment/real_world}

@@ -1,0 +1,241 @@
+% !TEX root = ../main.tex
+\section{Evaluation} \label{sec:eval}
+
+\subsection{Internal Benchmark}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./figures/bench_internal/t2v_quality_notitle.png}
+        \caption{T2V quality score.}
+        \label{fig:bench_internal_t2v_quality}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./figures/bench_internal/t2v_domain_notitle.png}
+        \caption{T2V domain score.}
+        \label{fig:bench_internal_t2v_domain}
+    \end{subfigure}
+
+    \vspace{1em}
+    
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./figures/bench_internal/ti2v_quality_notitle.png}
+        \caption{TI2V quality score.}
+        \label{fig:bench_internal_ti2v_quality}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./figures/bench_internal/ti2v_domain_notitle.png}
+        \caption{TI2V domain score.}
+        \label{fig:bench_internal_ti2v_domain}
+    \end{subfigure}
+    
+    \caption{\textbf{Quantitative evaluation on our internal benchmark.} We evaluate the performance of \method and other state-of-the-art open-source competitors across two dimensions: \textit{general quality} (for overall visual appeal and coherence) and \textit{embodied domain} (for specific category distributions). Top row shows results under the Text-to-Video (T2V) setting, while the bottom row illustrates results under the Text-and-Image-to-Video (TI2V) setting.}
+    \label{fig:bench_internal}
+\end{figure}
+
+
+To verify the capability of \method as a physical world model, we conduct a comprehensive evaluation on our internal benchmark across two distinct dimensions: \textit{General Quality}, which assesses fundamental generative capabilities, and \textit{Embodied Domain}, which probes specialized, high-difficulty scenarios relevant to embodied AI and real-world interactions. 
+To comprehensively evaluate the generation capabilities, the internal benchmark cover two core generation settings: \textit{Text-to-Video (T2V)} and \textit{Text-and-Image-to-Video (TI2V)}.
+
+\noindent\textbf{General Quality.}
+The general domain focuses on the foundational video generation quality, ensuring that the generated videos are visually pleasing, temporally consistent, and semantically accurate.
+\begin{itemize}
+  \item \textbf{Motion Quality} measures the naturalness, continuity, and physical plausibility of movements.
+  It evaluates whether the video exhibits smooth motion trajectories and remains free from severe temporal artifacts such as flickering, structural deformation, or unnatural human actions (e.g., identity drift or clothing deformation).
+
+  \item \textbf{Prompt Following} assesses how faithfully the model adheres to the input text instructions.
+  It measures semantic alignment across multiple entities, complex counting scenarios, sequential action order, specified camera movements, \textit{etc}.
+
+  \item \textbf{Visual Consistency} quantifies the model's ability to maintain identity and scene context over time.
+  This includes preserving the consistency of background layouts, main subject details, and specific instances across frames.
+  For the TI2V setting, it additionally incorporates first-frame image preservation to ensure the generated video faithfully inherits the appearance and style of the input reference image.
+
+  \item \textbf{Aesthetic Quality} evaluates the general visual appeal, artistic value, and stylistic execution of the generated video, emphasizing overall cinematic composition, lighting, and texture.
+\end{itemize}
+
+\noindent\textbf{Embodied Domain.}
+Beyond general quality, \method is targeted at complex, interactive, and embodied scenarios. 
+For a real-world robot equipped with cameras, the core objective is not to generate a scene from scratch, but to predict future physical interactions conditioned on the current observation (the initial frame $I_0$) and a control command ($T$). 
+The embodied domain evaluation specifically probes the model's performance on highly specialized tasks that demand physical understanding, spatial reasoning, and interaction. 
+It covers the following categories:
+\begin{itemize}
+  \item \textbf{Human Interaction} evaluates the model's capacity to synthesize intricate physical interactions and expressive behaviors.
+  This covers fine-grained categories such as human interaction, object manipulation, animal interaction and sports dynamics. 
+  It also extends to human-related evaluation, such as detailed hand and finger motions, and subtle facial emotions and expressions.
+
+  \item \textbf{Physical Simulation} focuses on how well the model adheres to intuitive physical laws, acting as a ``world simulator'' for embodied generation.
+  It covers scenarios governed by classical mechanics, optics (e.g., reflections, shadows), thermodynamics, fluid dynamics, material properties, and magnetism.
+
+  \item \textbf{Robotics} targets embodied agent scenarios, testing the model's capability to generate coherent movements for diverse robotic platforms, including humanoid robots, robotic arms, and quadrupedal robots.
+
+  \item \textbf{Egocentric Perspective} assesses the model's proficiency in rendering first-person perspective videos, which are crucial for ego-agent.
+
+  \item \textbf{Navigation} tests the model's understanding of spatial layouts and motion planning across diverse environments, including outdoor streets, autonomous driving scenes, interactive game environments, and complex indoor layouts.
+\end{itemize}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/rbench/rbench_avg_bar.pdf}
+        \caption{RBench score.}
+        \label{fig:rbench_bar}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/physics_iq/physics_iq_results.pdf}
+        \caption{Physics-IQ Verified I2V score.}
+        \label{fig:physics_iq_bar}
+    \end{subfigure}
+    \caption{\textbf{Public benchmark score comparison.} We visualize the average scores from \cref{tab:rbench} and the Physics-IQ verified scores, with \method highlighted against open-source and closed-source baselines.}
+    \label{fig:public_benchmark_bars}
+\end{figure}
+
+
+\noindent\textbf{Results.}
+We compare \method with five open-source models, including NVIDIA Cosmos~3 Super-Image-to-Video, Wan~2.2~A14B, LongCat-Video, Hunyuan Video~1.5, and LTX-2.3. 
+As shown in~\cref{fig:bench_internal_ti2v_quality} and~\cref{fig:bench_internal_ti2v_domain}, \method achieves state-of-the-art performance among all open-source competitors on the TI2V task, securing the top spot in both general quality and embodied domain scores. 
+This demonstrates our model's superior capability in simulating precise physical trajectories, such as robotic arm manipulation and obstacle avoidance. 
+For the T2V task (~\cref{fig:bench_internal_t2v_quality} and~\cref{fig:bench_internal_t2v_domain}), while our model ranks second in general quality, we still consistently outperform competitive baselines such as Cosmos on the embodied domain score. 
+This edge, even in the absence of initial image conditioning, highlights that \method possesses robust and intrinsic physical priors crucial for embodied AI applications.
+
+
+\begin{table}[t]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{l l c c c c c c c c c c}
+        \toprule
+        \multirow{2}{*}{Models} & \multirow{2}{*}{Type} & \multirow{2}{*}{Avg.} & \multicolumn{5}{c}{Tasks} & \multicolumn{4}{c}{Embodiments} \\
+        \cmidrule(lr){4-8} \cmidrule(lr){9-12}
+        & & & Manip. & Spatial & Multi-entity & Long-hor. & Reasoning & Single arm & Dual arm & Quadruped & Humanoid \\
+        \midrule
+        \rowcolor{gray!15} % 设置整行底色为 15% 的浅灰色
+        \method & open-source & \textbf{0.620} & \textbf{0.578} & \underline{0.643} & 0.444 & \textbf{0.634} & \underline{0.505} & 0.636 & 0.639 & \textbf{0.758} & 0.689 \\
+        Cosmos3 Super & open-source & 0.581 & 0.487 & 0.642 & 0.444 & \underline{0.591} & 0.395 & 0.615 & 0.623 & \underline{0.739} & \underline{0.691} \\
+        LongCat-Video & open-source & 0.437 & 0.372 & 0.310 & 0.220 & 0.384 & 0.186 & 0.586 & 0.576 & 0.681 & 0.621 \\
+        Wan~2.2~A14B & open-source & 0.507 & 0.381 & 0.454 & 0.373 & 0.501 & 0.330 & 0.608 & 0.582 & 0.690 & 0.648 \\
+        HunyuanVideo~1.5 & open-source & 0.460 & 0.442 & 0.316 & 0.312 & 0.438 & 0.364 & 0.513 & 0.526 & 0.634 & 0.595 \\
+        \midrule
+        Wan~2.6 & closed-source & \underline{0.607} & 0.546 & \textbf{0.656} & \underline{0.479} & 0.514 & \textbf{0.531} & \textbf{0.666} & \textbf{0.681} & 0.723 & 0.667 \\
+        Seedance~1.5 pro & closed-source & 0.584 & \underline{0.577} & 0.495 & \textbf{0.484} & 0.570 & 0.470 & \underline{0.648} & \underline{0.641} & 0.680 & \textbf{0.692} \\
+        Veo~3 & closed-source & 0.563 & 0.521 & 0.508 & 0.430 & 0.530 & 0.504 & 0.634 & 0.610 & 0.689 & 0.637 \\
+        % \method & \multicolumn{11}{c}{\textit{Results to be completed (Ongoing)}} \\
+        \bottomrule
+    \end{tabular}
+    \caption{\textbf{RBench evaluation results.} We report the average score and sub-dimension scores across five task-oriented and four embodiment-specific categories for open-source and closed-source models.
+    Scores of some models are sourced from RBench~\cite{deng2026rethinking}.}
+    \label{tab:rbench}
+\end{table}
+
+\subsection{Public Benchmark}
+
+To complement our internal evaluations, we further evaluate \method on public automated evaluation benchmarks on RBench~\cite{deng2026rethinking} and Physics-IQ Verified~\cite{radsch2026physics} designed for video generation in embodied and physical domains. 
+
+\noindent\textbf{RBench.} RBench~\cite{deng2026rethinking} specifically targets the correctness of robot-centric interactions, making it a focused complement for the robotics category in our evaluation.
+The benchmark includes 650 text-image prompts partitioned into two primary tracks: 250 task-oriented scenarios covering five interaction types (Manipulation, Spatial Relationship, Multi-entity Collaboration, Long-horizon Planning, and Visual Reasoning) and 400 embodiment-specific scenarios spanning four robot morphologies (Single-arm, Dual-arm, Humanoid, and Quadruped).
+The compelling performance on RBench further validates \method's embodied generation capability, particularly in robotics-centric scenarios that demand physical coherence and precise instruction following.
+This aligns with the robotics-domain advantage observed in our internal benchmark (\cref{fig:bench_internal_ti2v_domain}) and demonstrates that \method's physical world modeling generalizes beyond our internal evaluation suite.
+
+% \noindent\textbf{Physics-IQ Verified} 
+\noindent\textbf{Physics-IQ Verified.}
+Physics-IQ Verified~\cite{radsch2026physics} is a refined version of the Physics-IQ~\cite{Motamed_2026_WACV} benchmark for evaluating whether video generation models can predict real-world physical phenomena rather than merely producing visually plausible motion.
+The benchmark is built from 66 controlled physical experiments spanning solid dynamics, fluid dynamics, thermodynamics, optics, and magnetism.
+Each experiment is recorded from three viewpoints and two takes, yielding 396 real-world videos in total.
+Two evaluation modes are supported.
+In image-to-video (I2V), the model is conditioned on a single switch frame plus an optional text prompt and predicts the subsequent motion.
+In video-to-video (V2V) continuation, the model is conditioned on a 3-second conditioning video plus an optional text prompt and predicts the next 5 seconds of motion.
+Generated videos are compared against ground-truth physical continuations along four complementary axes: spatial overlap, temporal alignment, magnitude-weighted spatial agreement, and pixel-level error.
+We evaluate \method under the I2V setting, which matches our image-conditioned generation interface.
+As shown in \cref{fig:public_benchmark_bars}(b), \method obtains a Physics-IQ Verified score of 40.4, ranking first among the evaluated open-source models and narrowly surpassing Cosmos~3 (39.5).
+The margin over Hunyuan Video~1.5 (33.4) and Wan~2.2~A14B (32.2) is more pronounced, indicating stronger predictive consistency on real physical processes.
+Together with the RBench results, this suggests that \method's world-modeling capability extends from robot-centric interaction scenarios to broader physical dynamics.
+
+
+\subsection{User Study}
+
+We conduct a Good-Same-Bad (GSB) human evaluation to benchmark \method against leading open-source and commercial video generation models.
+The evaluation adopts the same domain as our internal benchmark.
+For each prompt, human raters are presented with a pair of videos in a randomized and anonymized side-by-side format, and are asked to judge whether the first video is \textit{Good} (better), \textit{Same} (comparable), or \textit{Bad} (worse) than the second. 
+This blind pairwise setup forces a direct quality comparison, mitigating subjective scoring bias.
+In this study, we compare \method against six open-source models (NVIDIA Cosmos~3, Wan~2.2~5B, Wan~2.2~A14B, LongCat-Video, HunyuanVideo~1.5, and LTX-2.3) and four commercial models (Kling-V3, Wan~2.7, Seedance~2.0, and HappyHorse~1.0).
+In total, we collect human ratings across 400 prompts for each comparison pair.
+The full GSB breakdown for text-to-video (T2V) and text-and-image-to-video (TI2V) generation is reported in \cref{fig:user_study}.
+For T2V generation, \method clearly outperforms several open-source baselines, with the \textit{Good} rate exceeding the \textit{Bad} rate against Wan~2.2~5B, LongCat-Video, Wan~2.2~A14B, and LTX-2.3.
+The comparison is closer against stronger open-source models such as HunyuanVideo~1.5 and Cosmos~3, indicating that \method remains a competitive setting.
+For TI2V generation, the advantage becomes more consistent: \method obtains higher \textit{Good} than \textit{Bad} rates against all evaluated open-source baselines, with especially large margins over Wan~2.2~5B and clear gains over Cosmos~3, LTX-2.3, Wan~2.2~A14B, LongCat-Video, and HunyuanVideo~1.5.
+This stronger TI2V result suggests \method as a strong open-source model while  trailing the stronger commercial models.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/user_study/gsb_light_t2v.pdf}
+        \caption{T2V.}
+        \label{fig:user_study_t2v}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/user_study/gsb_light_ti2v.pdf}
+        \caption{TI2V.}
+        \label{fig:user_study_ti2v}
+    \end{subfigure}
+    \caption{\textbf{User study results.} Good-Same-Bad human evaluation results for T2V and TI2V generation.}
+    \label{fig:user_study}
+\end{figure}
+
+
+
+
+\subsection{Action-to-Video Post-Training}
+\label{sec:eval:acwm}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1\linewidth]{./figures/acwm_evaluation/acwm-dreamdojo.pdf}
+    \caption{Compared with DreamDojo~\cite{gao2026dreamdojo}, our model demonstrates better adherence to physical laws, such as preserving the yellow apple in the first example, and stronger action following, as shown by the hand pose relative to the sandwich.} 
+    \label{fig:res-acwm}
+\end{figure}
+We include the results of \acwm on EgoDex Eval and DreamDojo-HV Eval in \cref{fig:res-acwm} to examine whether the post-trained model generalizes beyond the GR-1 trajectories used for training. Both evaluation datasets contain novel objects and actions that are absent from the GR-1 post-training dataset~\cite{gao2026dreamdojo}, making them suitable for testing out-of-distribution action following rather than memorization of training rollouts. The results shown in \cref{fig:res-acwm} demonstrate that our model adheres better to physical laws and follows actions more accurately.
+
+\clearpage
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=\linewidth]{figures/case_groups/ti2v_group1.pdf}
+  \caption{Qualitative results of \method on text-and-image-to-video generation. Each row shows five keyframes uniformly sampled from one generated video; time flows from left to right.}
+  \label{fig:cases_ti2v}
+\end{figure}
+\clearpage
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=\linewidth]{figures/case_groups/ti2v_group2.pdf}
+  \caption{Qualitative results of \method on text-and-image-to-video generation.}
+\end{figure}
+\clearpage
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=\linewidth]{figures/case_groups/ti2v_group3.pdf}
+  \caption{Qualitative results of \method on text-and-image-to-video generation.}
+\end{figure}
+\clearpage
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=\linewidth]{figures/case_groups/ti2v_group4.pdf}
+  \caption{Qualitative results of \method on text-and-image-to-video generation.}
+\end{figure}
+\clearpage
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=\linewidth]{figures/case_groups/t2v_group.pdf}
+  \caption{Qualitative results of \method on text-to-video generation. Each row shows five keyframes uniformly sampled from one generated video; time flows from left to right.}
+  \label{fig:cases_t2v}
+\end{figure}
+\clearpage

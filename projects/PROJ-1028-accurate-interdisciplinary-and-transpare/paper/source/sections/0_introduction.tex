@@ -1,0 +1,137 @@
+
+\section{Introduction}\label{sec1}
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+Structure--property relationships~\citep{thakur2026composition,le2012quantitative,van2008complete,creighton1993proteins,tai2022leveraging,osadchy2011maps} are foundational to the physical and biological sciences. Across proteins, small molecules and crystalline materials, observable functions and properties arise from the spatial, chemical and periodic organization of matter. 
+In proteins, protein structures and conformations, long-range interactions and active-site geometry shape their biological functions~\citep{anfinsen1973principles,abramson2024accurate}; in chemicals, bonding, functional groups and stereochemistry contribute to their reactivity and molecular behaviour; and in materials, lattice symmetry, coordination motifs and periodic bonding networks dictate stability and electronic properties~\citep{xie2018crystal,merchant2023scaling}. 
+Unraveling how these organizing principles connect structure to function, reactivity and physical response is therefore central to functional annotation, molecular design and materials discovery.
+
+
+Yet, explaining these relationships mechanistically is rarely a straightforward pattern-matching problem. Evidence for a function, reaction or material property is distributed across local motifs, non-local contacts, chemical environments, conformational geometry and long-range periodic order. When annotating a protein or planning a synthesis route~\citep{strieth2024artificial,segler2018planning}, human experts integrate heterogeneous cues, compare competing structural hypotheses and apply biochemical, chemical or crystallographic constraints~\citep{duek2021functionathon,zhao2024efficient}. Artificial intelligence (AI) can accelerate this process by retrieving knowledge and screening large structural spaces, but it faces a deeper representational challenge: to support expert-like scientific reasoning, a model must represent biological, chemical and materials structures as native objects and use them as evidence in explicit, inspectable reasoning.
+
+
+Current scientific AI systems only partially meet this requirement because they often separate native structural representation from evidence-linked reasoning. Large language models provide a flexible interface to scientific knowledge, but when proteins, molecules and crystals are cast primarily as text, structural organization is compressed into strings or descriptions, making the resulting explanations depend largely on linguistic associations rather than directly addressable physical evidence~\citep{achiam2023gpt,mirza2025superhuman,narayanan2026ether0}. Agentic systems extend such models through retrieval, tool use and workflow coordination~\citep{boiko2023autonomous,ghareeb2026multi,aygun2026ai,gottweis2026accelerating}, yet their scientific depth remains constrained by the structural competence of the foundation models they orchestrate. Domain-specific models, in contrast, often encode molecular graphs, protein structures or crystal lattices directly~\citep{wang2023scientific,xie2018crystal,yang2019analyzing}, but are usually optimized as task-specific predictors that output scores, labels or scalar properties without exposing the intermediate evidence behind their decisions. Thus, a critical gap remains: building a new reasoning paradigm that natively represents multidimensional scientific structures while producing reasoning traces that can be inspected against those structures.
+
+
+Here we propose native structural reasoning as a foundation-model paradigm for structure--property analysis across biology, chemistry and materials science. We instantiate this paradigm in \projName{}, a multimodal scientific foundation model that represents proteins, small molecules and periodic crystals through a unified structure-aware vocabulary. By native structural reasoning, we mean that structural tokens are not auxiliary descriptors appended to language, but addressable evidence units that can be combined, cited and checked within a generated reasoning trajectory. To this end, \projName{} discretizes coordinates, topologies and periodic connectivities into scientific tokens that preserve domain-native information, including local geometry, stereochemistry, residue-level structural motifs, lattice symmetry and crystallographic bonding patterns. These tokens are integrated with language instructions in a single autoregressive model, enabling trajectories that interleave explanatory text with specific residues, molecular fragments, conformational cues or crystal descriptors.
+
+
+This design changes the role of a scientific foundation model. Rather than predicting an answer after reading a structural prompt, \projName{} generates an inspectable chain in which intermediate claims can be traced to explicit structural evidence. 
+We test this capability in regimes where shortcut correlations are unreliable. 
+ 
+In the Cellular Component aspect of protein Gene Ontology prediction, \projName{} shows its largest gains in low-homology and orphan-like proteins, where evolutionary transfer provides weak evidence, improving $F_{\max}$ from 0.42 to 0.55.
+Its attention is enriched at contact-defined DNA-binding residues and localizes to protein--DNA interfaces, suggesting that functional predictions are supported by residues that physically mediate the molecular interaction. 
+In retrosynthesis, \projName{} raises single-step accuracy from 0.63 to 0.72 while decomposing products into reaction-relevant fragments, identifying strategic bond disconnections and verifying chemically valid precursors. 
+In crystalline materials, the reasoning trajectories of \projName{} assign higher importance to symmetry-distinct sites, local coordination environments and periodic bonding motifs associated with stability and band-gap variation, suggesting that it links electronic and thermodynamic behaviour to the structural features that physically govern them. 
+Across these examples, the common behaviour is that structural organization acts as the working substrate of inference rather than a peripheral input descriptor.
+
+Broad evaluation supports the generality of this structure-grounded modelling strategy. Across \totalTasks{} benchmarks spanning proteins, DNA, RNA, small molecules, inorganic crystals, scientific question answering, property prediction and generation tasks, \projName{} achieves state-of-the-art performance on \totalSOTATasks{} tasks. Double-blind expert evaluation further indicates that its reasoning traces are useful for scientific inspection, with experts preferring or tying \projName{} over a frontier large language model in the overwhelming majority of comparisons. By representing structures as evidence-bearing units and linking them to inspectable conclusions, \projName{} bridges accurate prediction and interpretable scientific inference, suggesting a route toward scientific AI systems that do not merely predict what property a structure has, but begin to explain why that structure gives rise to a particular function, reaction or material behaviour. 
+
+
+
+
+
+ 
+ 
+
+
+ 
+
+
+ 
+
+
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+ 
+
+
+ 
+ 
+ 
+
+
+ 
+ 
+ 
+

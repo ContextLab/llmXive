@@ -1,0 +1,275 @@
+
+\documentclass[pdflatex,sn-nature]{sn-jnl}
+\usepackage{mhchem}
+\usepackage{geometry}
+\geometry{left=15mm,right=15mm,top=15mm,bottom=15mm}
+ 
+
+\usepackage{graphicx} 
+\usepackage{multirow} 
+\usepackage{amsmath,amssymb,amsfonts} 
+\usepackage{amsthm} 
+\usepackage{mathrsfs} 
+\usepackage[title]{appendix} 
+\usepackage{xcolor} 
+\usepackage{textcomp} 
+\usepackage{caption} 
+\usepackage{capt-of}
+\usepackage{textcomp} 
+\usepackage{manyfoot} 
+\usepackage{booktabs} 
+\usepackage{algorithm} 
+\usepackage{algorithmicx} 
+\usepackage{algpseudocode} 
+\usepackage{listings} 
+\usepackage{subcaption}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{fontawesome5}
+
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\usepackage{fvextra}
+\usepackage{caption}
+\definecolor{inputbg}{HTML}{F7F8FA}
+\definecolor{cotbg}{HTML}{FFFFFF}
+\definecolor{finalbg}{HTML}{F2F8F2}
+\definecolor{boxline}{HTML}{222222}
+
+\newtcolorbox{fullcotsection}[2]{
+enhanced,
+breakable,
+colback=#1,
+colframe=boxline,
+boxrule=0.35pt,
+arc=1pt,
+left=6pt,
+right=6pt,
+top=5pt,
+bottom=5pt,
+title={#2},
+fonttitle=\bfseries\small,
+coltitle=black,
+colbacktitle=gray!12,
+attach boxed title to top left={xshift=6pt,yshift=-2pt},
+boxed title style={boxrule=0.3pt,arc=1pt}
+}
+
+\DefineVerbatimEnvironment{cotverbatim}{Verbatim}{
+  breaklines=true,
+  breakanywhere=true,
+  breaksymbolleft={},
+  breaksymbolright={},
+  fontsize=\scriptsize,
+  baselinestretch=0.93,
+  commandchars=\\\{\}
+}
+
+\DefineVerbatimEnvironment{PromptBlock}{Verbatim}{
+  breaklines=true,
+  breaksymbolleft={},
+  fontsize=\scriptsize,
+  frame=single,
+  rulecolor=\color{black!25},
+  framesep=2mm
+}
+
+\definecolor{Ink}{HTML}{202733}
+\definecolor{MutedInk}{HTML}{596579}
+\definecolor{RuleGray}{HTML}{CBD5E1}
+\definecolor{TableStripe}{HTML}{F6F8FC}
+\definecolor{TableHeader}{HTML}{243B53}
+\definecolor{PanelBg}{HTML}{F8FAFC}
+\definecolor{PromptBg}{HTML}{F4F7FB}
+\definecolor{MaterialsMain}{HTML}{207567}
+\definecolor{MaterialsSoft}{HTML}{E8F5F1}
+\definecolor{GOMain}{HTML}{7952B3}
+\definecolor{GOSoft}{HTML}{F2ECFA}
+\definecolor{RetroMain}{HTML}{B85C00}
+\definecolor{RetroSoft}{HTML}{FFF3E2}
+\definecolor{ScoreMain}{HTML}{1F6FEB}
+\definecolor{ScoreSoft}{HTML}{EAF2FF}
+
+\newcommand{\sampletitle}[2]{\subsection{#1: #2}}
+\newcommand{\taskname}[1]{\textsc{#1}}
+\newcommand{\scoreblank}{\underline{\hspace{1.2cm}}}
+\newcommand{\smiles}[1]{\begingroup\scriptsize\ttfamily\nolinkurl{#1}\endgroup}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\newcommand{\projName}[0]{SciReasoner}
+\newcommand{\totalTasks}[0]{86}
+\newcommand{\totalSOTATasks}[0]{67}
+\newcommand{\totalSOTATasksExperts}[0]{26}
+\newcommand{\TODO}[1]{\textcolor{red}{#1}}
+
+\makeatletter
+\newcommand{\printprojectpage}{ 
+  \par\vskip-12pt
+  {\centering\large\bfseries \href{https://scireasoner.github.io}{\faIcon{globe}\hspace{0.35em}SciReasoner.github.io}\par} 
+  \vskip-10pt
+}
+\let\originalprintabstract\printabstract
+\renewcommand{\printabstract}{\printprojectpage\originalprintabstract}
+\makeatother
+
+\theoremstyle{thmstyleone} 
+\newtheorem{theorem}{Theorem} 
+\newtheorem{proposition}[theorem]{Proposition} 
+
+\theoremstyle{thmstyletwo} 
+\newtheorem{example}{Example} 
+\newtheorem{remark}{Remark} 
+
+\theoremstyle{thmstylethree} 
+\newtheorem{definition}{Definition} 
+
+\raggedbottom
+ 
+
+\begin{document}
+
+\title[\projName]{Accurate, Interdisciplinary and Transparent Structure-property Understanding with Deep Native Structural Reasoning}
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+\author[1,2]{\fnm{Chen} \sur{Tang}}
+\equalcont{These authors contributed equally to this work.}
+
+\author[1,2]{\fnm{Yizhou} \sur{Wang}}
+\equalcont{These authors contributed equally to this work.}
+
+\author[1,3]{\fnm{Jianyu} \sur{Wu}}
+\equalcont{These authors contributed equally to this work.}
+
+\author[1,5]{\fnm{Lintao} \sur{Wang}}
+\equalcont{These authors contributed equally to this work.}
+
+\author[2,1]{\fnm{Shixiang} \sur{Tang}}\email{shixiangtang@cuhk.edu.hk}
+
+\author[1,4]{\fnm{Pengze} \sur{Li}}
+
+\author[1,8]{\fnm{Encheng} \sur{Su}}
+
+\author[1,8]{\fnm{Jun} \sur{Yao}}
+
+\author[1,2]{\fnm{Jiabei} \sur{Xiao}}
+
+\author[9,10]{\fnm{Yuqi} \sur{Shi}}
+
+\author[1]{\fnm{Jielan} \sur{Li}}
+
+\author[1]{\fnm{Hongxia} \sur{Hao}}
+
+\author[1]{\fnm{Zhangyang} \sur{Gao}}
+
+\author[11]{\fnm{Fang} \sur{Wu}}
+
+\author[1,2]{\fnm{Ben} \sur{Fei}}
+
+\author[2]{\fnm{Xiangyu} \sur{Yue}}
+
+\author[1]{\fnm{Pan} \sur{Tan}}
+
+\author[3]{\fnm{Bozitao} \sur{Zhong}}
+
+\author[1]{\fnm{Jinouwen} \sur{Zhang}}
+
+\author[1]{\fnm{Aoran} \sur{Wang}}
+
+\author[2,1]{\fnm{Yan} \sur{Lu}}
+
+\author[6,1]{\fnm{Jiaheng} \sur{Liu}}
+
+\author[1]{\fnm{Xinzhu} \sur{Ma}}
+
+\author[3]{\fnm{Liang} \sur{Hong}}
+
+\author[9,10]{\fnm{Mingyue} \sur{Zheng}}
+
+\author[7]{\fnm{Phil} \sur{Torr}}
+
+\author[1]{\fnm{Bowen} \sur{Zhou}}
+
+\author[1,2]{\fnm{Wanli} \sur{Ouyang}}\email{ouyangwanli@pjlab.org.cn}
+
+\author[1]{\fnm{Lei} \sur{Bai}}\email{bailei@pjlab.org.cn}
+
+
+\affil[1]{Shanghai Artificial Intelligence Laboratory, China}
+\affil[2]{\orgname{The Chinese University of Hong Kong}, Hong Kong}
+\affil[3]{Shanghai Jiao Tong University, China}
+\affil[4]{\orgname{Fudan University}, China}
+\affil[5]{\orgname{University of Sydney}, Australia}
+\affil[6]{\orgname{Nanjing University}, China}
+\affil[7]{\orgname{University of Oxford}, UK}
+\affil[8]{\orgname{The University of Science and Technology of China}, China}
+\affil[9]{\orgname{Drug Discovery and Design Center, State Key Laboratory of Drug Research, Shanghai Institute of Materia Medica, Chinese Academy of Sciences}, China}
+
+\affil[10]{\orgname{University of Chinese Academy of Sciences}, China}
+\affil[11]{\orgname{Stanford University}, USA}
+
+
+ 
+ 
+ 
+
+\abstract{
+
+
+ 
+
+ 
+
+Structure--property relationships are foundational to biology, chemistry and materials science, where function, reactivity and physical response emerge from spatial, chemical and periodic organization. Mechanistically explaining these relationships requires interpreting structural evidence through scientific principles and physical constraints, from stereochemistry and bonding to symmetry, energetics and periodic order. However, applying artificial intelligence to this process presents a joint challenge of representation and reasoning: models must preserve domain-native structural information while showing how specific evidence supports predictions under these constraints. 
+Here we introduce \projName{}, a multimodal scientific foundation model for native structural reasoning across proteins, small molecules and inorganic crystals. \projName{} discretizes coordinates, topologies and periodic connectivities into a unified structure-aware vocabulary, treating structural tokens as addressable evidence units within autoregressive reasoning trajectories. We evaluate \projName{} in settings where shortcut correlations are weakened and structure-grounded inference is essential. 
+In homology-controlled Gene Ontology prediction, \projName{} improves Cellular Component annotation for low-homology and orphan-like proteins, increasing $F_{\max}$ from 0.42 to 0.55.
+In chemistry, it raises single-step retrosynthesis accuracy from 0.63 to 0.72 while generating fragment-level disconnection and precursor-verification traces. In materials science, its representations separate elemental and compound phases and resolve high- and low-band-gap regimes. Across \totalTasks{} benchmarks, \projName{} achieves state-of-the-art performance on \totalSOTATasks{} tasks. Double-blind expert evaluation rates its reasoning traces as preferred or at least comparable to those of a frontier large language model in 98\% of cases. By making structure an inspectable substrate for reasoning under scientific constraints, \projName{} connects accurate prediction with interpretable scientific inference.
+
+
+ 
+}
+
+
+
+\maketitle
+
+\input{sections/0_introduction}
+\input{sections/1_results}
+\input{sections/2_discussion}
+\input{sections/3_method}
+
+ 
+
+\backmatter
+
+\input{sections/5_suppl}
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+\clearpage
+
+\bibliography{sn-bibliography} 
+ 
+ 
+
+\end{document}

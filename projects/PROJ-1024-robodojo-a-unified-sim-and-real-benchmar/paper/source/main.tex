@@ -1,0 +1,487 @@
+\documentclass{article}
+
+\usepackage{xcolor}
+
+\newcommand{\best}[1]{%
+  \begingroup
+  \setlength{\fboxsep}{1.0pt}%
+  \colorbox{Blue_1!18}{\strut\textbf{#1}}%
+  \endgroup
+}
+\newcommand{\secondbest}[1]{\textbf{\underline{#1}}}
+
+%% Packages
+\usepackage{dojo_report}
+\usepackage{algpseudocode}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{lipsum}
+\usepackage{duckuments}
+\usepackage{adjustbox}
+\usepackage{array}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{algpseudocode}
+\usepackage{bibunits}
+\usepackage{wrapfig}
+\usepackage{changepage}
+\usepackage{makecell}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{tocloft}
+\usepackage{cleveref}
+\usepackage{booktabs}
+\usepackage{xspace}
+\usepackage{fontawesome5}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{pifont}
+\usepackage{tabularx}
+\usepackage{geometry}
+\usepackage{tikz}
+
+% Required package
+\usepackage{titlesec}
+
+% Compact paragraph heading style
+\titlespacing{\paragraph}{0pt}{0.35em}{0.6em}
+% \geometry{a4paper, margin=1in}
+\renewcommand{\lstlistingname}{Code}
+
+%% Commands
+\input{math_commands}
+\newcommand{\placeholder}{\noindent{\color{lightgray}\lipsum[1]}\par}
+\newcommand{\ie}{\textit{i}.\textit{e}., }
+\newcommand{\eg}{\textit{e}.\textit{g}., }
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\definecolor{cornellred}{rgb}{0.7, 0.11, 0.11}
+\definecolor{cadmiumgreen}{rgb}{0.0, 0.42, 0.24}
+\definecolor{aliceblue}{rgb}{0.91, 0.94, 0.97}
+\definecolor{darkblue}{rgb}{0.83, 0.89, 0.97}
+\definecolor{Red7}{rgb}{0.941, 0.243, 0.243}
+\definecolor{Green7}{RGB}{55, 178, 77}
+\definecolor{Blue9}{rgb}{0.098,0.3,0.9}
+\definecolor{SJViolet}{RGB}{105,100,171}
+\definecolor{SJRed}{RGB}{237,109,107}
+
+\usepackage[most]{tcolorbox}
+
+
+\usepackage{array}
+\usepackage{etoolbox}
+\usepackage[most]{tcolorbox}
+
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{etoolbox}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\newsavebox{\roundedimgbox}
+\newcommand{\roundedimage}[2][5pt]{%
+  \sbox{\roundedimgbox}{\includegraphics[width=\linewidth]{#2}}%
+  \begin{tikzpicture}
+    \clip[rounded corners=#1] (0,0) rectangle (\wd\roundedimgbox,\ht\roundedimgbox);
+    \node[anchor=south west, inner sep=0pt, outer sep=0pt] at (0,0) {\usebox{\roundedimgbox}};
+  \end{tikzpicture}%
+}
+% =========================
+% Task Showcase Template
+% =========================
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}m{#1}}
+
+\definecolor{DojoBlue}{HTML}{498ae5}
+\definecolor{LinkBlue}{HTML}{0000ff}
+\definecolor{Blue_1}{HTML}{1c6ef3}
+\definecolor{Blue_2}{HTML}{d2e3fc}
+\definecolor{Dojo_Yellow}{HTML}{ffdf7b}
+
+\newcommand{\my}[1]{\textcolor{red}{Mingyu: #1}}
+
+% -------------------------
+% Rounded image
+% -------------------------
+\newsavebox{\taskimgbox}
+
+\newcommand{\roundedtaskimage}[2][5pt]{%
+  \sbox{\taskimgbox}{\includegraphics[width=0.95\linewidth]{#2}}%
+  \begin{tikzpicture}
+    \clip[rounded corners=#1]
+      (0,0) rectangle (\wd\taskimgbox,\ht\taskimgbox);
+    \node[
+      anchor=south west,
+      inner sep=0pt,
+      outer sep=0pt
+    ] at (0,0) {\usebox{\taskimgbox}};
+  \end{tikzpicture}%
+}
+
+% -------------------------
+% Task item
+% -------------------------
+
+% 用于缓存 Data Source，让它和 Usage 自动放在同一行
+\newif\ifTaskDataSourcePending
+\newcommand{\TaskDataSourceText}{}
+
+\newcommand{\flushtaskdatasource}{%
+    \ifTaskDataSourcePending
+        \noindent\TaskDataSourceText\par\vspace{0.12em}%
+        \TaskDataSourcePendingfalse
+    \fi
+}
+
+\newcommand{\taskitem}[2]{%
+    \ifstrequal{#1}{Data Source}{%
+        % 先缓存 Data Source，不立即输出
+        \gdef\TaskDataSourceText{\textbf{#1}: #2}%
+        \TaskDataSourcePendingtrue
+    }{%
+        \ifstrequal{#1}{Usage}{%
+            % 如果前面有 Data Source，就和 Usage 同一行输出
+            \ifTaskDataSourcePending
+                \noindent
+                \TaskDataSourceText
+                \hspace{2em}
+                \textbf{#1}: #2
+                \par\vspace{0.12em}%
+                \TaskDataSourcePendingfalse
+            \else
+                \noindent\textbf{#1}: #2\par\vspace{0.12em}%
+            \fi
+        }{%
+            % 遇到其他 item 前，先把未输出的 Data Source 刷出来
+            \flushtaskdatasource
+            \noindent\textbf{#1}: #2\par\vspace{0.12em}%
+        }%
+    }%
+}
+
+% -------------------------
+% Task showcase
+% -------------------------
+\newcommand{\taskshowcase}[3]{%
+\begin{tcolorbox}[
+    colback=white,
+    colframe=black!12,
+    boxrule=0.45pt,
+    arc=1.5pt,
+    left=4pt,
+    right=4pt,
+    top=4pt,
+    bottom=4pt,
+    boxsep=0pt,
+    before skip=0.2em,
+    after skip=0.25em
+]
+\noindent
+\begin{tabular}{@{} C{0.20\linewidth} @{\hspace{0.018\linewidth}} L{0.782\linewidth} @{}}
+
+% 左侧图片区域，四角圆弧
+\roundedtaskimage[5pt]{#1}
+&
+% 右侧文字区域，整体垂直居中
+\begin{minipage}[c]{\linewidth}
+    \setlength{\parskip}{0pt}
+    \setlength{\baselineskip}{0.95\baselineskip}
+
+    {\normalsize\bfseries\textcolor{Blue_1}{#2}}\par\vspace{0.25em}
+
+    {\small
+    \TaskDataSourcePendingfalse
+    #3
+    \flushtaskdatasource
+    }
+\end{minipage}
+
+\end{tabular}
+\end{tcolorbox}
+}
+
+\usepackage{listings}
+\lstdefinestyle{compactpython}{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    commentstyle=\color{green!40!black},
+    stringstyle=\color{orange!80!black},
+    numbers=none,
+    frame=single,
+    framerule=0.4pt,
+    rulecolor=\color{black!20},
+    backgroundcolor=\color{gray!3},
+    breaklines=true,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    tabsize=2,
+    columns=fullflexible,
+    keepspaces=true,
+    aboveskip=3pt,
+    belowskip=3pt,
+    xleftmargin=0pt,
+    framexleftmargin=3pt,
+    framexrightmargin=3pt,
+    framesep=3pt,
+    lineskip=-1pt
+}
+
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = LinkBlue,
+  citecolor  = LinkBlue,
+  urlcolor   = LinkBlue
+}
+
+\def \name{\textsc{RoboDojo}\xspace}
+ 
+%Style Toggles
+\colorlet{rlTitle}{rlwrldBlack}
+\colorlet{rlSectionNum}{Blue_1}
+\colorlet{rlHyperlink}{rlwrldDarkGreen}
+\colorlet{rlRefLink}{rlwrldDarkGreen}
+\colorlet{rlTocLink}{rlwrldBlack}
+\definecolor{AbsBlue}{HTML}{498AE5}
+\definecolor{AbsCyan}{HTML}{23B399}
+\def\abstractstyle{background}
+\def\abstractposition{intro}
+
+\newcommand{\XpolicylabNum}{30}
+
+% --- Author display ---
+% compact — single line "ALINLAB x RLWRLD"
+% full    — 26-name inline list + §/†/* role legend
+\def\authordisplay{full}
+
+% --- Logo ---
+% wMark  — R icon + RLWRLD wordmark (resources/rlwrld_logo_v3.pdf)
+% woMark — RLWRLD wordmark only   (resources/rlwrld_logo_nobg.pdf)
+\def\logotype{woMark}
+
+\title{RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluation of Generalist Robot Manipulation Policies}
+
+% \title{RoboDojo: An Impossible Sim-and-Real Benchmark for Generalist Robot Manipulation Policies}
+
+\renewcommand\Authsep{, }
+\renewcommand\Authand{, }
+\renewcommand\Authands{, }
+
+\ifdefstring{\authordisplay}{full}{% 
+\author{% 
+\normalsize \linespread{1.25}\selectfont 
+
+    % Project Leads / Research Leads
+    \textbf{Tianxing Chen}\textsuperscript{1${*}$\S}%
+    \quad \textbf{Yue Chen}\textsuperscript{4${*}$\S\dag}%
+    \quad \textbf{Zixuan Li}\textsuperscript{3${*}$}%
+    \quad \textbf{Junyuan Tang}\textsuperscript{3${*}$}%
+    \quad \textbf{Kailun Su}\textsuperscript{3${*}$}%
+    \quad \textbf{Haoran Lu}\textsuperscript{4${*}$}%
+    \quad \textbf{Weijie Wan}\textsuperscript{3${*}$}%
+    \quad \textbf{Baijun Chen}\textsuperscript{1${*}$}%
+    \quad \textbf{Songling Liu}\textsuperscript{4${*}$}%
+    \quad \textbf{Haowen Yan}\textsuperscript{3}%
+    \quad \textbf{Honghao Su}\textsuperscript{3}%
+    \quad \textbf{Zhiyang Dou}\textsuperscript{6}%
+    \quad \textbf{Kaixuan Wang}\textsuperscript{1}%
+    \quad \textbf{Dandan Zhang}\textsuperscript{13}%
+    \quad \textbf{Yunze Liu}\textsuperscript{3}%
+    \quad \textbf{Yan Qin}\textsuperscript{16}%
+    \quad \textbf{Qiwei Liang}\textsuperscript{16}%
+    \quad \textbf{Qiwei Wu}\textsuperscript{16}%
+    \quad \textbf{Zijian Lin}\textsuperscript{3}%
+    \quad \textbf{Wenwei Lin}\textsuperscript{3}%
+    % \quad \textbf{Huan-ang Gao}\textsuperscript{3}%
+    \quad \textbf{Yuran Wang}\textsuperscript{10}%
+    \quad \textbf{Minghua He}\textsuperscript{4}%
+    \quad \textbf{Tianshu Wu}\textsuperscript{4}%
+    \quad \textbf{Ruihai Wu}\textsuperscript{4}%
+    \quad \textbf{Jingquan Zhou}\textsuperscript{18}%
+    \quad \textbf{Kai-Chong Lei}\textsuperscript{3}%
+    \quad \textbf{Haibao Yu}\textsuperscript{1}%
+    \quad \textbf{Yuanfeng Ji}\textsuperscript{5}%
+    \quad \textbf{Weiyang Jin}\textsuperscript{1}%
+    \quad \textbf{Guanyu Lin}\textsuperscript{9}%
+    \quad \textbf{Xiaofan Li}\textsuperscript{17}%
+    \quad \textbf{Qi Xiong}\textsuperscript{3}%
+    \quad \textbf{Renjing Xu}\textsuperscript{16}%
+    \quad \textbf{Zhongyu Li}\textsuperscript{12}%
+    \quad \textbf{Wenhao Chai}\textsuperscript{8}%
+    \quad \textbf{Enze Xie}\textsuperscript{1}%
+    \quad \textbf{Ziwei Wang}\textsuperscript{11}%
+    \quad \textbf{Yao Mu}\textsuperscript{14}%
+    \quad \textbf{Hao Dong}\textsuperscript{4}
+    \quad \textbf{Wojciech Matusik}\textsuperscript{6}
+    \quad \textbf{Mingyu Ding}\textsuperscript{7\dag}%
+    \quad \textbf{Wenbo Ding}\textsuperscript{3\dag}%
+    \quad \textbf{Ping Luo}\textsuperscript{1\dag}%
+    \quad \textbf{Masayoshi Tomizuka}\textsuperscript{2\dag}%
+    \par
+    {\footnotesize
+      \textsuperscript{1}MMLab@HKU
+      \quad \textsuperscript{2}UC Berkeley
+      \quad \textsuperscript{3}THU
+      \quad \textsuperscript{4}PKU
+      \quad \textsuperscript{5}Stanford
+      \quad \textsuperscript{6}MIT
+      \quad \textsuperscript{7}UNC
+      \quad \textsuperscript{8}Princeton
+      \quad \textsuperscript{9}CMU
+      \quad \textsuperscript{10}NUS
+      \quad \textsuperscript{11}NTU
+      \quad \textsuperscript{12}CUHK
+      \quad \textsuperscript{13}IC
+      \quad \textsuperscript{14}SJTU
+      \quad \textsuperscript{15}NU
+      \quad \textsuperscript{16}HKUST (GZ)
+      \quad \textsuperscript{17}ZJU
+      \quad \textsuperscript{18}Yale
+      \quad $^*$Co-first Authors
+      \quad \textsuperscript{\S}Co-project Leaders
+      \quad \textsuperscript{\dag}Corresponding Authors
+      }%
+  }%
+}{%
+  \author{ALINLAB $\times$ RLWRLD}%
+}
+\begin{document}
+
+\maketitle
+
+\makeatletter
+\newcommand{\rlfootertext}[1]{%
+  \g@addto@macro\rl@pagefootnotes{%
+    \par\noindent #1%
+  }%
+}
+\makeatother
+
+\rlfootertext{}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{assets/Figure/university_logo.pdf}
+\end{figure}
+
+\newcommand{\linkicon}[3]{%
+    \raisebox{-1.5pt}{\includegraphics[height=1.05em]{#1}}%
+    ~\href{#2}{\texttt{#3}}%
+}
+
+\begingroup
+% \hypersetup{
+%   colorlinks=true,
+%   urlcolor=Blue_1,
+%   linkcolor=Blue_1,
+%   citecolor=Blue_1
+% }
+
+\noindent
+\makebox[\textwidth][c]{%
+\begin{tabular}{@{}c@{\hspace{1.1em}}c@{\hspace{1.1em}}c@{\hspace{1.1em}}c@{\hspace{1.1em}}c@{\hspace{1.1em}}c@{}}
+
+\raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/Img/web.pdf}}%
+~\textnormal{Website:}~\href{https://RoboDojo-Benchmark.com}{\texttt{RoboDojo-Benchmark.com}}
+&
+\raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/Img/github.png}}%
+~\textnormal{Code:}~\href{https://github.com/RoboDojo-Benchmark/RoboDojo}{\texttt{Benchmark}},~\href{https://github.com/XPolicyLab/XPolicyLab}{\texttt{XPolicyLab}}
+&
+\linkicon{assets/Img/tutorial_icon.png}
+{http://robodojo-benchmark.com/doc}
+{Document}
+&
+\linkicon{assets/Img/leaderboard.pdf}
+{https://robodojo-benchmark.com/LeaderBoard}
+{Leaderboard}
+% &
+% \linkicon{assets/Img/community.png}
+% {https://robodojo-benchmark.com/community}
+% {Community}
+% &
+% \linkicon{assets/Img/data_2.png}
+% {https://robodojo-benchmark.com/data}
+% {Data}
+
+\end{tabular}%
+}
+\endgroup
+
+% \vspace{0.2em}
+% \noindent
+% \begin{minipage}[t]{0.5\textwidth}
+% \raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/Img/web.pdf}}~Website: \href{RoboDojo-Benchmark.com}{\texttt{RoboDojo-Benchmark.com}}
+% \end{minipage}%
+% \begin{minipage}[t]{0.5\textwidth}
+% \raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/Img/github.png}}~Code: \href{https://github.com/Luminis-Sim/Robodojo}{\texttt{github.com/RoboDojo-Benchmark/RoboDojo}}
+% \end{minipage}\par\vspace{0.3em}
+% \vspace{-0.5em}
+
+% \noindent
+% \begin{minipage}[t]{0.5\textwidth}
+% \raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/Img/tutorial_icon.png}}~Document: \href{http://robodojo-benchmark.com/doc}{\texttt{RoboDojo-Benchmark.com/doc}}
+% \end{minipage}%
+% \begin{minipage}[t]{0.5\textwidth}
+% \raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/Img/leaderboard.pdf}}~Leaderboard: \href{https://robodojo-benchmark.com/LeaderBoard}{\texttt{RoboDojo-Benchmark.com/LeaderBoard}}
+% \end{minipage}\par\vspace{0.4em}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.98\textwidth]{assets/Figure/teaser.pdf}
+\caption{\textbf{Overview of RoboDojo.} RoboDojo unifies efficient simulation evaluation and reproducible real-world testing for generalist robot manipulation, covering 42 simulation tasks, 18 real-world tasks, heterogeneous parallel simulation, RoboDojo-RealEval, XPolicyLab, and a continuously updated leaderboard.} 
+    % RoboDojo is a unified sim-and-real benchmark for generalist robot manipulation, covering 42 simulation tasks across five capability dimensions and 18 real-world tasks across three robot embodiments. With heterogeneous parallel simulation, RoboDojo-RealEval, and XPolicyLab, it supports efficient simulation evaluation, reproducible real-world testing, and a continuously updated policy leaderboard.
+    % }
+    \label{fig:teaser}
+\end{figure}
+
+\ifdefstring{\abstractposition}{page1}{\input{sec/0_abstract}}{}
+
+% \input{assets/Figure/fig1_teaser}
+
+\newpage
+
+{\hypersetup{linkcolor=rlTocLink}\input{sec/index}}
+
+\newpage
+
+\ifdefstring{\abstractposition}{intro}{\input{sec/0_abstract}}{}
+\input{sec/1_introduction}
+\input{sec/2_related_work}
+\input{sec/4_benchmark}
+\input{sec/3_method}
+\input{sec/5_XPolicyLab}
+\input{sec/5.5_leaderboard}
+\input{sec/6_experiment}
+\input{sec/6.5_future_direction}
+\input{sec/7_conclusion}
+%\newpage
+
+\makeatletter
+\renewcommand\@biblabel[1]{[#1]}
+\let\@bibsetup\NAT@bibsetnum
+\makeatother
+
+\newpage
+\bibliographystyle{plainnat}
+\bibliography{reference}
+
+\input{sec/X_appendix}
+
+\end{document}

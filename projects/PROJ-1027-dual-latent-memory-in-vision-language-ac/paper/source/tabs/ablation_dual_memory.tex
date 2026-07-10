@@ -1,0 +1,27 @@
+\centering
+\caption{
+\small \textbf{Detailed analysis of dual-scale latent memory} on SimplerEnv~\cite{li2025evaluating} and LIBERO~\cite{liu2023libero} (\S\ref{sec:abation}).
+}
+\vspace{-5pt}
+\label{tab:ablation_dual_memory}
+\resizebox{\linewidth}{!}{
+\setlength\tabcolsep{4pt}
+\renewcommand\arraystretch{1.0}
+\begin{tabular}{l|cc}
+\thickhline
+\rowcolor{mygray}
+Method
+& SimplerEnv
+& LIBERO-90 \\
+\hline
+\hline
+w/o Dual Memory       & 57.3 & 92.1 \\
+w/o Short-term Memory  & 65.6 & 95.4  \\ 
+w/o Long-term Memory & 64.6 & 94.8 \\\hline
+\ourmethod~\textbf{(Ours)}
+& \textbf{73.9} & \textbf{97.0} \\\hline
+
+\end{tabular}
+}
+
+

@@ -1,0 +1,131 @@
+% !TEX root = ../main.tex
+\section{Infrastructure} \label{sec:infrastructure}
+
+\subsection{Pre-Training Infrastructure}
+Large-scale video pre-training imposes distinct system bottlenecks compared to image-only or language-only workloads~\cite{ho2022imagen,blattmann2023stable,wan2025wan,chowdhery2022palmscalinglanguagemodeling}.
+The training pipeline must ingest heterogeneous image and video streams, manage variable sequence lengths dictated by resolution and duration.
+To achieve high training throughput and memory efficiency, our pre-training infrastructure is co-designed to address six core challenges: token-budgeted data loading, composable multi-dimensional parallelism, activation-memory management, compile-first graph capture, explicit communication prefetching, and non-blocking runtime I/O~\cite{shoeybi2019megatronlm,narayanan2021efficient,rajbhandari2020zero,zheng2022alpa,liang2025torchtitan,ma2025veomni}.
+
+\subsubsection{Heterogeneous Data Pipeline and Token-Budgeted Packing}
+Rather than batching by a fixed number of samples, the data pipeline constructs each mini-batch based on a target token budget. The dataset estimates both visual and conditioning token lengths under the sampled configuration, allowing the sampler to dynamically decide whether to append the sample based on the remaining token capacity of the batch. This online length-aware scheduling is critical because both sides of the packed input are highly variable: visual tokens come from images and videos with diverse native resolutions, aspect ratios, and durations, while conditioning tokens vary across multimodal conditions; together, these factors produce orders-of-magnitude differences in token counts.
+
+\noindent\textbf{Packed one-dimensional batch.}
+Following VAE and condition encoding, each sample yields visual tokens $x_i$ and conditioning tokens $y_i$.
+Rather than stacking heterogeneous samples into a rectangular tensor, we concatenate all valid segments into a single one-dimensional sequence:
+$[x_1, y_1, x_2, y_2, \ldots, x_N, y_N]$.
+The data loader constructs packed sequence metadata, such as cumulative sequence lengths and attention masks, enabling variable-length attention kernels (e.g., FlashAttention~\cite{dao2022flashattention}) to process the packed batch in a single forward pass while preventing cross-sample attention leakage.
+This unified representation allows images, videos, and different conditioning modalities to be processed jointly without partitioning dataloaders by modality or resolution.
+To maximize token utilization and eliminate padding waste, a smart-fill sampler dynamically searches rank-local candidate pools to fill any residual token budget of each packed batch when the next video clip exceeds the leftover limit~\cite{krell2021efficientsequencepacking}.
+
+\subsubsection{Composable Parallel Training}
+We organize the distributed training stack into four composable parallel dimensions: data parallelism (DP)~\cite{li2020pytorchdistributed,shoeybi2019megatronlm}, fully sharded data parallelism (FSDP)~\cite{rajbhandari2020zero,zhao2023pytorchfsdp}, sequence parallelism (SP)~\cite{jacobs2023deepspeed}, and expert parallelism (EP)~\cite{shazeer2017moe,lepikhin2020gshard,rajbhandari2022deepspeedmoe,hwang2022tutel}.
+The training system represents these dimensions via named multi-dimensional device meshes, allowing each training run to configure and compositionally select the required parallel modes without altering the core training loop.
+This unified abstraction integrates throughput scaling, model-state sharding, long-sequence context partition, and MoE token routing under a single parallelization plan~\cite{shazeer2018mesh,xu2021gspmd,zheng2022alpa,narayanan2021efficient,liang2025torchtitan,ma2025veomni}.
+
+\noindent\textbf{Data parallelism (DP).}
+DP serves as the primary outer dimension for throughput scaling.
+Each DP process group consumes a distinct shard of the token-budgeted data stream, while gradients, loss metrics, and optimizer states are synchronized globally.
+For hybrid data sharding, the data-parallel mesh is decomposed into replication and sharding dimensions, allowing cross-node replication and node-local parameter sharding to be configured independently~\cite{li2020pytorchdistributed,shoeybi2019megatronlm,rajbhandari2020zero}.
+
+\noindent\textbf{Fully sharded data parallelism (FSDP).}
+We utilize FSDP to shard parameters, gradients, and optimizer states across the sharding dimension, extending to Hybrid Sharded Data Parallelism (HSDP) for multi-node scalability.
+FSDP serves as the primary model-state scaling mechanism for dense transformer blocks and non-expert modules~\cite{rajbhandari2020zero,zhao2023pytorchfsdp}.
+FSDP sharding is applied downstream of activation checkpointing and compilation decisions, ensuring that sharding hooks, mixed-precision policies, and high-precision ignored parameters are resolved in a deterministic sequence.
+This ordering is critical to keeping numerically sensitive parameters (e.g., normalizations, routing scales) replicated in FP32 while compiling the surrounding tensor computations in lower precision~\cite{dehghani2023vit22b}.
+
+\noindent\textbf{Sequence parallelism (SP).}
+To support long-context video sequences, we integrate Ulysses sequence parallelism (SP)~\cite{jacobs2023deepspeed}.
+Before the transformer blocks, the packed sequence is padded to align with the Ulysses group size and sliced along the token dimension.
+Within the attention block, all-to-all collectives transpose token shards into head shards for multi-head attention computation, and a subsequent all-to-all collective restores the sequence-sharded layout.
+Finally, the sequence is gathered and unpadded to reconstruct the original one-dimensional packed layout.
+This makes sequence length a distributed resource across the cluster rather than a single-accelerator memory limit.
+
+\noindent\textbf{Expert parallelism (EP).}
+EP scales sparse MoE layers by distributing the expert pool across ranks and routing each token to the devices that host its selected experts~\cite{shazeer2017moe,lepikhin2020gshard,switchtransformer,rajbhandari2022deepspeedmoe,hwang2022tutel,deepseek2024v3}.
+During the MoE forward pass, routed tokens are dispatched through all-to-all communication, processed by local experts, and then combined back to their original sequence positions, preserving global routing semantics without requiring every GPU to host every expert.
+In our implementation, the expert dispatch and combine path is accelerated with DeepEP~\cite{deepep2025}.
+
+\subsubsection{Activation Checkpointing}
+Activation checkpointing manages the memory footprint of long packed video sequences by recomputing selected forward activations during the backward pass~\cite{chen2016training}.
+The system supports multiple checkpointing granularities: full block-level recomputation, layer-level selective checkpointing, operation-level selective checkpointing, and memory-budget-driven checkpointing~\cite{korthikanti2022reducingactivationrecomputationlarge}.
+This granularity is configurable, enabling the training recipe to dynamically balance recomputation overhead and memory constraints across different model scales and parallel configurations.
+Crucially, the checkpointing path is implemented as non-reentrant to prevent lifetime conflicts between activation recomputation and expert communication collectives.
+
+\subsubsection{Compile-First Graph Capture}
+Rather than serving as an optional compatibility feature, graph compilation is a key throughput optimization.
+The training pipeline applies \texttt{torch.compile} with the Inductor backend before FSDP2 sharding, allowing local block computations to be fused before sharding hooks are attached~\cite{ansel2024pytorch2}.
+In our internal training benchmark, combining full-block activation checkpointing with compilation improves Model Flops Utilization (MFU) by approximately $1.9\times$, indicating that compile-first graph capture recovers a substantial fraction of accelerator utilization otherwise lost to unfused block-level execution.
+
+
+\subsubsection{Asynchronous Monitoring and Distributed Checkpoint I/O}
+Runtime I/O operations are co-designed with the training loop to prevent metric logging and state serialization from stalling the accelerators.
+The monitoring pathway is fully asynchronous: training ranks enqueue logging events (e.g., scalars, histograms, plots) onto a bounded queue, which are processed and written to disk by a background thread.
+GPU tensors are transferred to host memory before queueing, and the bounded queue prevents logging backpressure from stalling computation.
+This non-blocking design allows the system to monitor comprehensive diagnostic metrics—such as step-time breakdowns, MFU, MoE load balance, and routing statistics—without impacting training throughput~\cite{moritz2018ray}.
+
+
+\subsection{Post-Training Infrastructure}
+Existing reinforcement-learning training frameworks are largely designed around language or vision-language models.
+In these settings, trajectories are naturally represented as token sequences, and policy log-likelihoods can usually be obtained from per-token probabilities.
+Around this assumption, prior work has built mature RLHF/RLVR objectives and systems, including PPO, DPO, and GRPO, as well as infrastructure that decouples large-model training, generation, and reward computation~\cite{
+    schulman2017ppo,
+    rafailov2023dpo,
+    shao2024deepseekmath,
+    sheng2024hybridflow,
+    hu2024openrlhf,
+    mei2024realhf,
+    slime2025,
+    zhang2026relax}.
+Video diffusion model post-training violates these token-centric assumptions: its optimization target is tightly coupled with the denoising process or latent trajectory, its intermediate states are high-dimensional video latents rather than lightweight text tokens, and log-probability computation, credit assignment, and reward evaluation differ substantially from language modeling.
+
+\noindent Recent work such as Flow-GRPO, DanceGRPO, DiffusionNFT, and AWM has explored reinforcement-learning post-training for diffusion models~\cite{
+    liu2025flowgrpo,
+    xue2025dancegrpo,
+    zheng2026diffusionnft,
+    xue2025awm}.
+Similar RL-based post-training ideas have also started to appear in recent frontier generative-model technical reports~\cite{
+    hunyuanvideo15,
+    longcatvideo}, suggesting that RL is becoming an increasingly important component of diffusion model post-training.
+
+\subsubsection{Diffusion-Native RL System Design}
+RL post-training for large MoE video generation models places exceptionally heavy demands on infrastructure.
+A single training sample corresponds to a sequence on the order of 100K tokens; the intermediate states of video RL---latent trajectories and per-step sampling statistics---reach the gigabyte scale, far larger than text tokens; and the sheer parameter count of MoE models puts enormous pressure on both weight synchronization and memory management.
+
+\noindent We therefore design a diffusion-native RL infrastructure for video diffusion models.
+The system organizes conditioning, latent trajectories, rewards, and transition-level training data under a unified data abstraction; supports GRPO-style reverse-process optimization and forward-process objectives; and is compatible with both LoRA-style parameter-efficient finetuning and full-model finetuning~\cite{hu2021lora}.
+To handle the memory and communication pressure introduced by large intermediate video states, the infrastructure decouples rollout, reward evaluation, and training into separate execution roles.
+It uses a communication-aware data abstraction for large latent objects and a service-oriented reward layer for heterogeneous reward models, server-side decoding, and request batching.
+This design keeps the RL stack compatible with existing diffusion pipelines while making large-scale video diffusion model post-training more efficient~\cite{
+    von-platen-etal-2022-diffusers,
+    moritz2018ray}.
+
+\subsubsection{RL System Performance}
+
+\noindent The infrastructure is also heavily optimized for speed: full-parameter weight synchronization of the 30B model completes in 20 seconds per step; gigabyte-scale intermediate states are exchanged between rollout and training within 50 milliseconds across multiple GPU nodes; and the system sustains an end-to-end MFU of 43.9\% over the full RL step.
+
+\subsection{Serving Infrastructure}
+\method is served through a Diffusers-compatible model package and an SGLang Diffusion runtime~\cite{von-platen-etal-2022-diffusers,zheng2024sglang}.
+The serving stack is designed to satisfy three practical requirements: a portable model package for open deployment, a numerically aligned reference path for tolerance-based regression testing, and an optimized multi-GPU path for long-video generation.
+The same runtime supports text-to-image (T2I), base text-to-video (T2V), and text-image-to-video (TI2V) generation and can optionally invoke a second-stage refiner after base video generation.
+
+\subsubsection{Diffusers-Compatible Model Package}
+To maximize accessibility and lower the deployment barrier for the open-source community, we organize our release artifact as a Diffusers-compatible model package~\cite{von-platen-etal-2022-diffusers}. Prioritizing compatibility with standard Diffusers APIs ensures that developers and researchers can deploy the model out of the box using generic PyTorch environments, without requiring complex software configurations or custom binary compilation.
+Under this packaging scheme, the model is organized as a unified root directory where the base DiT and the refiner DiT are stored as independent components.
+Both stages share the same conditioning and autoencoder weights.
+A lightweight overlay builder constructs the runtime view expected by Diffusers and SGLang by dynamically exposing the selected DiT component as the active \texttt{transformer} via configuration files.
+This design allows the base and refiner serving to reuse the package without duplicating shared weights or copying weight tensors, keeping the release artifact compact and clean.
+
+\subsubsection{SGLang-Native Serving Backend}
+To optimize serving efficiency and maximize inference throughput, we build our deployment runtime on top of SGLang~\cite{zheng2024sglang}, a widely adopted acceleration engine renowned for its performance in serving diffusion-based pipelines. Leveraging SGLang allows our deployment stack to tap into highly optimized CUDA kernels and distributed scheduling policies.
+Within this framework, the serving runtime provides three distinct execution paths: a direct Diffusers path, a generic SGLang Diffusion backend, and a specialized \method-native adapter.
+The direct Diffusers path serves as a readable, eager-mode reference and debugging baseline for checking scheduler modifications and model behavior under a controlled numerical setting.
+The \method-native adapter keeps the Diffusers-style denoising loop closely aligned with this reference path while registering our custom pipeline directly into SGLang's serving surface and distributed execution hooks.
+This architectural separation allows the core denoising logic to remain stable and easy to audit, while enabling SGLang's optimized compute kernels and distributed execution policies to be applied transparently behind the same model interface.
+
+\subsubsection{Distributed Video Serving}
+To accommodate diverse production requirements, our SGLang deployment framework provides two recommended inference configurations: sharding long-video token sequences across multiple GPUs via context parallelism and utilizing batched classifier-free guidance (CFG) to evaluate conditional and unconditional branches efficiently.
+Depending on the deployment objective, users can select between the following two specialized execution modes:
+\begin{itemize}
+    \item \textbf{Fidelity-First Version:} Designed for regression testing and numerical-consistency checks, this baseline configuration follows the master training codebase as closely as possible in scheduler logic, routed-expert execution, and precision policy. It preserves standard grouped matrix multiplication (grouped GEMM) for routed experts, employs vectorized token padding and restoration, and maintains a hybrid precision layout. Specifically, it executes standard transformer layers and text encoders in BF16, while keeping numerically sensitive parameters—such as normalization layers, routing gates, and scale-shift modulation tables—in FP32. In practice, this mode serves as a conservative reference gate by keeping implementation-induced deviations within expected numerical tolerance, rather than prioritizing maximum throughput.
+    \item \textbf{Speed-First Version:} Tailored for high-throughput serving, rapid visual screening, and low-latency interactive applications, this profile optimizes compute-heavy bottlenecks while maintaining the same scheduler and model interfaces. It replaces the standard routed expert execution path with highly optimized FP8 SGLang Triton kernels, significantly reducing memory footprint and kernel execution times. Combined with sequence sharding and parallelized guidance evaluation, this accelerated version provides substantial throughput improvements with limited observed impact on video generation quality.
+\end{itemize}

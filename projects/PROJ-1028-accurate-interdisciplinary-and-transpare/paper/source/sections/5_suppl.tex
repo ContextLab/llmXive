@@ -1,0 +1,1604 @@
+\clearpage
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+
+\begin{appendices}
+
+ 
+
+ 
+
+\providecommand{\BestPerf}[1]{\textbf{#1}}
+\providecommand{\SecBestPerf}[1]{\underline{#1}}
+
+\section{Detailed experimental results}\label{secB1}
+
+We report task-level evaluation results for all benchmark tasks with available model measurements. SciReasoner is compared with four frontier general-purpose models: Opus-4.7, GPT-5.5, Kimi-K2.6 and DeepSeek-V4-Pro. The result tables are organized by discipline: Chemistry, Material Science, and Biology. Within each table, rows are further grouped by task type: Scientific QA, Property Prediction, Property Classification, or Generation and Design.
+
+Best and second-best results are highlighted in bold and underlined, respectively. Metrics marked with $\uparrow$ are better when larger, whereas metrics marked with $\downarrow$ are better when smaller. 
+
+\subsection{Task and metric descriptions}\label{secB1_task_intro}
+
+ 
+The descriptions below follow the task organization used in the result tables and clarify both the expected model behavior and the metric used for evaluation.
+
+\paragraph{Chemistry tasks.}
+\textbf{Scientific QA.}
+\begin{itemize}
+    \item \textbf{Chemical entity recognition} (\textbf{F1}): identifies chemical mentions in scientific or biomedical text and evaluates span/entity recovery with a precision--recall balanced score.
+    \item \textbf{Chemical protein interaction extraction} (\textbf{F1}): extracts chemical--protein relation statements from text, requiring the model to identify the paired entities and the asserted interaction.
+    \item \textbf{Chemical disease interaction extraction} (\textbf{F1}): extracts chemical--disease relation statements from scientific text.
+    \item \textbf{Multiple choice question} (\textbf{ACC}): selects the correct answer option for scientific multiple-choice questions, testing factual knowledge and reasoning.
+    \item \textbf{True or false question} (\textbf{ACC}): judges whether a scientific statement is correct, incorrect, or unsupported under the task format.
+    \item \textbf{Open question} (\textbf{BertScore}): generates free-form answers for scientific questions and compares semantic similarity with reference answers.
+    \item \textbf{Name conversion-s2i} (\textbf{Split Match}): converts a SMILES string into an IUPAC-style molecular name and checks component-level string agreement.
+    \item \textbf{Name conversion-s2f} (\textbf{Element Match}): converts a SMILES string into a molecular formula and checks whether element composition is preserved.
+    \item \textbf{Name conversion-i2s} (\textbf{Exact Match}): converts an IUPAC-style name into a SMILES string and requires exact agreement with the reference.
+    \item \textbf{Name conversion-i2f} (\textbf{Element Match}): converts an IUPAC-style name into a molecular formula and evaluates element-level formula correctness.
+    \item \textbf{Molecular description generation} (\textbf{ROUGE-L}): generates a molecule description and compares it with the reference text.
+    \item \textbf{Molecule captioning} (\textbf{MENTOR}): produces molecule-level captions that capture chemical semantics and is evaluated with a molecule-captioning metric.
+\end{itemize}
+
+\textbf{Property Prediction.}
+\begin{itemize}
+    \item \textbf{Estimated solubility (ESOL) prediction} (\textbf{RMSE}): predicts aqueous solubility from molecular representation; lower root mean squared error indicates better numeric prediction.
+    \item \textbf{3D molecule structure (DUD-E)} (\textbf{5.0\% EF}): ranks compounds in a DUD-E-style virtual-screening setting and evaluates early enrichment among the top 5.0\% candidates.
+    \item \textbf{Lipophilicity (LIPO) prediction} (\textbf{RMSE}): predicts lipophilicity-related continuous values from molecular structure.
+    \item \textbf{Physicochemical prediction} (\textbf{MAE}): predicts continuous physicochemical endpoints from molecular structure and reports average absolute error.
+\end{itemize}
+
+\textbf{Property Classification.}
+\begin{itemize}
+    \item \textbf{Blood-brain barrier permeability (BBBP) prediction} (\textbf{ACC}): classifies whether a molecule can pass the blood--brain barrier.
+    \item \textbf{Clinical toxicity (ClinTox) prediction} (\textbf{ACC}): classifies molecular clinical toxicity labels.
+    \item \textbf{HIV Prediction} (\textbf{ACC}): classifies whether a molecule is active against HIV replication.
+    \item \textbf{Side Effect Resource (SIDER) Prediction} (\textbf{ACC}): classifies side-effect associations for a molecule.
+\end{itemize}
+
+\textbf{Generation and Design.}
+\begin{itemize}
+    \item \textbf{Forward synthesis} (\textbf{Exact Match}): generates the expected product or outcome for a synthesis prompt and checks exact string agreement.
+    \item \textbf{Forward reaction prediction} (\textbf{Exact Match}): predicts products from specified reactants and reagents.
+    \item \textbf{Reagent prediction} (\textbf{Exact Match}): predicts the reagent, catalyst, solvent, or auxiliary component needed for a reaction.
+    \item \textbf{Retrosynthesis mol} (\textbf{Exact Match}): proposes precursor reactants for a target molecule in a Mol-Instructions-style retrosynthesis setting.
+    \item \textbf{Retrosynthesis USPTO-50K} (\textbf{Exact Match}): proposes reactants for target products in the USPTO-50K retrosynthesis setting.
+    \item \textbf{Retrosynthesis smol} (\textbf{Exact Match}): generates plausible precursor molecules for a target product in the SMol-style retrosynthesis setting.
+    \item \textbf{Molecule generation} (\textbf{Exact Match}): generates a molecular string that satisfies a given property or constraint prompt.
+    \item \textbf{Description guided molecule design} (\textbf{Exact Match}): designs a molecule from a natural-language requirement and checks exact agreement with the target answer.
+\end{itemize}
+
+\paragraph{Material science tasks.}
+\textbf{Property Prediction.}
+For database-level benchmarks that aggregate multiple heterogeneous properties, we follow domain LLM-Prop~\cite{niyongabo2025llm} and report the normalized score \textbf{$\frac{\text{MAD}}{\text{MAE}}$}, where larger values indicate lower error relative to target dispersion. 
+\begin{itemize}
+    \item \textbf{MP regression} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts continuous Materials Project properties, such as band gap, density, volume, formation energy, and stability-related quantities.
+    \item \textbf{SNUMAT regression} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts SNUMAT material properties, including band-gap and spin-orbit-related targets.
+    \item \textbf{JARVIS-DFT} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts DFT-derived material properties covering structural, electronic, elastic, dielectric, and thermodynamic quantities.
+    \item \textbf{JARVIS-QETB} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts quantum-electronic tight-binding properties such as energy and band-gap-related values.
+    \item \textbf{GNoME} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts large-scale inorganic material properties, including energy, density, volume, and band-gap-related targets.
+    \item \textbf{hMOF} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts porous-material properties such as CO$_2$ adsorption, pore diameter, void fraction, and surface area.
+    \item \textbf{Cantor HEA} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts high-entropy alloy properties, including formation energy, energy above hull, volume per atom, and energy per atom.
+    \item \textbf{QMOF} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts quantum metal--organic framework properties such as total energy, band gap, cavity diameter, and pore-limiting diameter.
+    \item \textbf{OQMD} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts Open Quantum Materials Database properties such as band gap and formation energy.
+    \item \textbf{OMDB} (\textbf{$\frac{\text{MAD}}{\text{MAE}}$}): predicts organic-material database properties, mainly band-gap-related targets.
+\end{itemize}
+
+\textbf{Property Classification.}
+\begin{itemize}
+    \item \textbf{MP classification} (\textbf{AUC}): classifies discrete Materials Project attributes such as direct-gap status or thermodynamic stability.
+    \item \textbf{SNUMAT classification} (\textbf{AUC}): classifies SNUMAT material attributes such as direct or indirect band-gap status.
+\end{itemize}
+
+\textbf{Generation and Design.}
+\begin{itemize}
+    \item \textbf{Composition material} (\textbf{SMACT}): generates material compositions under elemental constraints and checks chemical validity.
+    \item \textbf{Bulk modulus material} (\textbf{SMACT}): generates material compositions conditioned on a target bulk modulus and evaluates chemical plausibility.
+\end{itemize}
+
+\paragraph{Biology tasks.}
+\textbf{Scientific QA.}
+\begin{itemize}
+    \item \textbf{Function} (\textbf{ROUGE-L}): generates protein-function text from biological context and compares it with the reference description.
+    \item \textbf{General function} (\textbf{ROUGE-L}): produces broader functional descriptions or annotations for biological sequences.
+\end{itemize}
+
+\textbf{Property Prediction.}
+\begin{itemize}
+    \item \textbf{Fluorescence} (\textbf{Spearman}): predicts protein mutant fluorescence and evaluates whether predicted rankings match reference rankings.
+    \item \textbf{Stability} (\textbf{Spearman}): predicts protein stability values and evaluates rank correlation with reference stability.
+    \item \textbf{Enhancer activity} (\textbf{HK-PCC}): predicts DNA enhancer activity and reports Pearson correlation for the housekeeping channel.
+    \item \textbf{Isoform} (\textbf{R2}): predicts alternative polyadenylation isoform usage from RNA sequence.
+    \item \textbf{Mean ribosome loading} (\textbf{R2}): predicts ribosome loading efficiency from RNA sequence.
+    \item \textbf{Programmable RNA switches} (\textbf{R2}): predicts ON, OFF, and ON/OFF behavior of programmable RNA switches.
+    \item \textbf{CRISPR on target} (\textbf{Spearman}): predicts on-target knockout efficacy for CRISPR guide RNAs.
+    \item \textbf{siRNA efficiency} (\textbf{Mixed-score}): predicts siRNA gene-silencing efficiency using both continuous accuracy and range-level agreement.
+    \item \textbf{Structural similarity} (\textbf{MAE}): predicts a numeric structural-similarity target and evaluates average absolute deviation.
+    \item \textbf{TM-score} (\textbf{Spearman}): predicts or ranks structure-similarity scores and evaluates ordering consistency.
+\end{itemize}
+
+\textbf{Property Classification.}
+\begin{itemize}
+    \item \textbf{Solubility} (\textbf{ACC}): classifies whether a protein sequence is soluble.
+    \item \textbf{gSymbol2Tissue} (\textbf{F1}): maps a gene symbol to tissue-expression labels.
+    \item \textbf{gName2Cancer} (\textbf{F1}): maps a gene name to associated cancer types.
+    \item \textbf{gSymbol2Cancer} (\textbf{F1}): maps a gene symbol to associated cancer types.
+    \item \textbf{Antibody antigen} (\textbf{MCC}): predicts whether an antibody and antigen sequence pair interact.
+    \item \textbf{RNA protein interaction} (\textbf{MCC}): predicts whether an RNA sequence and a protein sequence interact.
+    \item \textbf{Epigenetic marks prediction} (\textbf{MCC}): predicts epigenetic mark presence from DNA sequence.
+    \item \textbf{TF-m} (\textbf{MCC}): predicts mouse transcription-factor binding from DNA sequence.
+    \item \textbf{Enhancer-promoter interaction} (\textbf{MCC}): classifies whether enhancer and promoter regions interact.
+    \item \textbf{PD-prom 300 all} (\textbf{MCC}): detects promoter regions in a 300-bp setting over all examples.
+    \item \textbf{PD-prom 300 notata} (\textbf{MCC}): detects 300-bp promoters without TATA motifs.
+    \item \textbf{PD-prom 300 tata} (\textbf{MCC}): detects 300-bp promoters with TATA motifs.
+    \item \textbf{CPD-prom core all} (\textbf{MCC}): detects core promoter regions over all examples.
+    \item \textbf{CPD-prom core notata} (\textbf{MCC}): detects core promoters without TATA motifs.
+    \item \textbf{CPD-prom core tata} (\textbf{MCC}): detects core promoters with TATA motifs.
+    \item \textbf{TF-h} (\textbf{MCC}): predicts human transcription-factor binding from DNA sequence.
+    \item \textbf{Yeast PPI} (\textbf{ACC}): predicts yeast protein--protein interactions.
+    \item \textbf{Human PPI} (\textbf{ACC}): predicts human protein--protein interactions.
+    \item \textbf{Protein function} (\textbf{ROUGE-L}): predicts protein function annotations or descriptions from sequence.
+    \item \textbf{Domain motif} (\textbf{ROUGE-L}): predicts domain or motif descriptions for protein sequences.
+    \item \textbf{Non-coding RNA family} (\textbf{ACC}): classifies non-coding RNA sequences into functional families.
+    \item \textbf{Modification} (\textbf{ACC}): predicts RNA modification labels.
+    \item \textbf{Fold type} (\textbf{ACC}): classifies protein structural fold type.
+    \item \textbf{Subcellular localization} (\textbf{ACC}): predicts the cellular localization label of a protein.
+    \item \textbf{EC number} (\textbf{Fmax}): predicts enzyme commission annotations for protein sequences.
+    \item \textbf{Keywords} (\textbf{F1}): predicts UniProt-style functional keywords.
+    \item \textbf{Metal ion binding} (\textbf{ACC}): predicts whether a protein binds metal ions.
+    \item \textbf{GO-BP} (\textbf{Fmax}): predicts Gene Ontology biological-process terms.
+    \item \textbf{GO-CC} (\textbf{Fmax}): predicts Gene Ontology cellular-component terms.
+    \item \textbf{GO-MF} (\textbf{Fmax}): predicts Gene Ontology molecular-function terms.
+\end{itemize}
+
+\textbf{Generation and Design.}
+\begin{itemize}
+    \item \textbf{Function-guided protein design} (\textbf{Normalized SW}): generates a protein sequence from a functional prompt and evaluates sequence similarity to reference proteins.
+    \item \textbf{Catalytic activity} (\textbf{ROUGE-L}): describes the enzyme-catalyzed reaction implied by a protein sequence and compares it with the reference text.
+\end{itemize}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+\paragraph{Metric definitions.}
+\begin{itemize}
+    \item \textbf{ACC} ($\uparrow$): fraction of samples whose predicted label exactly matches the reference label.
+    \item \textbf{AUC} ($\uparrow$): area under the ROC curve; higher values indicate stronger ranking of positive examples above negatives.
+    \item \textbf{F1} ($\uparrow$): harmonic mean of precision and recall, used when both false positives and false negatives matter.
+    \item \textbf{Fmax} ($\uparrow$): maximum F1 over candidate thresholds, commonly used for multi-label functional annotation.
+    \item \textbf{MCC} ($\uparrow$): Matthews correlation coefficient for binary classification; it remains informative when classes are imbalanced.
+    \item \textbf{RMSE} ($\downarrow$): root mean squared error for regression, with larger errors penalized more strongly.
+    \item \textbf{MAE} ($\downarrow$): mean absolute error between predicted and reference numeric values.
+    \item \textbf{$\frac{\text{MAD}}{\text{MAE}}$} ($\uparrow$): ratio between target dispersion and model error; larger values indicate better prediction relative to a mean baseline.
+    \item \textbf{Spearman} ($\uparrow$): rank correlation between predicted and reference values.
+    \item \textbf{HK-PCC} ($\uparrow$): Pearson correlation coefficient for the housekeeping enhancer-activity output.
+    \item \textbf{R2} ($\uparrow$): coefficient of determination, measuring explained variance in regression targets.
+    \item \textbf{Mixed-score} ($\uparrow$): composite siRNA score combining numeric error and activity-range agreement.
+    \item \textbf{BertScore} ($\uparrow$): semantic similarity between generated and reference text using contextual embeddings.
+    \item \textbf{ROUGE-L} ($\uparrow$): longest-common-subsequence overlap between generated text and reference text.
+    \item \textbf{MENTOR} ($\uparrow$): molecule-captioning metric for comparing generated molecular descriptions with references.
+    \item \textbf{Split Match} ($\uparrow$): component-level match for molecular name conversion outputs.
+    \item \textbf{Element Match} ($\uparrow$): element-composition match for molecular formula generation.
+    \item \textbf{Exact Match} ($\uparrow$): strict string or structured-answer equality with the reference output.
+    \item \textbf{5.0\% EF} ($\uparrow$): enrichment factor in the top 5.0\% of a virtual-screening ranking.
+    \item \textbf{SMACT} ($\uparrow$): validity rate under charge-balance and chemical-plausibility checks for generated material compositions.
+    \item \textbf{Normalized SW} ($\uparrow$): maximum normalized Smith--Waterman alignment score between generated and reference protein sequences.
+\end{itemize}
+
+\subsection{Detailed results}\label{secB1_task_res}
+
+\providecommand{\BestPerf}[1]{\textbf{#1}}
+\providecommand{\SecBestPerf}[1]{\underline{#1}}
+
+\setlength{\tabcolsep}{1pt}
+
+Table~\ref{tab:bar_chart_results} summarizes the comparison with specialist baselines. Tables~\ref{tab:res0624_chemistry_grouped}--\ref{tab:res0624_biology_grouped} provide the complete task-level comparison with frontier general-purpose models across Chemistry, Material Science, and Biology. Within each discipline, tasks are organized as Scientific QA, Property Prediction, Property Classification, or Generation and Design.
+
+Across the full benchmark suite, \projName{} leads on \textbf{\totalSOTATasks{}} of 86 tasks. The appendix separates these comparisons for clarity. On the 33 tasks with specialist baselines, \projName{} matches or surpasses the specialist in 26 comparisons~\ref{tab:bar_chart_results}. Against LLM baselines across all 86 tasks, \projName{} is the best-performing model on 75 of 86 tasks (22 of 28 Chemistry tasks, 13 of 14 Material Science tasks, and 40 of 44 Biology tasks). The few non-leading results are concentrated in molecule captioning, selected chemistry QA and classification tasks, bulk modulus material, and a small number of protein-interaction or modification benchmarks, where competing general-purpose models remain strong.
+
+At the discipline level, the Chemistry results indicate broad gains in chemical information extraction, name conversion, molecular description generation, reaction prediction, retrosynthesis, and molecule design (Table~\ref{tab:res0624_chemistry_grouped}). In Material Science, \projName{} achieves consistently strong regression and classification performance, with pronounced margins on JARVIS-QETB, GNoME, QMOF and OQMD (Table~\ref{tab:res0624_material_science_grouped}). In Biology, the model performs robustly across sequence-to-function generation, biological property prediction, promoter and interaction classification and RNA/protein tasks (Table~\ref{tab:res0624_biology_grouped}). Together, these results indicate that the performance gains are not restricted to a single metric or task format, but extend across structured prediction, text generation, classification, and design-oriented settings.
+
+\begin{table}[!t]
+    \centering
+    \scriptsize
+    \begin{tabular}{l c l c c}
+    \toprule
+    Task & Metric & Specialist method & Specialist & SciReasoner \\
+    \midrule
+    \addlinespace[0.8em]
+    \multicolumn{5}{l}{\raisebox{1.2ex}[0pt][0pt]{\bfseries Generation \& Design}}\\[-0.8ex]
+    \quad Retrosynthesis USPTO-50K & Exact Match$\uparrow$ & RSGPT~\cite{deng2025rsgpt} & \SecBestPerf{0.63} & \BestPerf{0.72} \\
+    \addlinespace[0.8em]
+    \multicolumn{5}{l}{\raisebox{1.2ex}[0pt][0pt]{\bfseries Prediction}}\\[-0.8ex]
+    \quad Fluorescence & Spearman$\uparrow$ & SaprotHub~\cite{su2025saprothub} & \SecBestPerf{0.70} & \BestPerf{0.77} \\
+    \quad Isoform & R2$\uparrow$ & APARENT~\cite{bogard2019deep} & \SecBestPerf{0.59} & \BestPerf{0.86} \\
+    \quad TM-score & Spearman$\uparrow$ & SaprotHub~\cite{su2025saprothub} & \BestPerf{0.83} & \BestPerf{0.83} \\
+    \quad ESOL & RMSE$\downarrow$ & MolCLR~\cite{wang2022molclr} & \SecBestPerf{1.11} & \BestPerf{1.03} \\
+    \quad GNoME & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \SecBestPerf{15.60} & \BestPerf{21.91} \\
+    \quad QMOF & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \SecBestPerf{1.96} & \BestPerf{8.61} \\
+    \quad MP regression & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \SecBestPerf{4.39} & \BestPerf{5.83} \\
+    \quad JARVIS-DFT & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \SecBestPerf{2.91} & \BestPerf{5.67} \\
+    \quad SNUMAT regression & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \SecBestPerf{1.51} & \BestPerf{2.26} \\
+    \quad hMOF & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \SecBestPerf{1.48} & \BestPerf{1.67} \\
+    \quad OQMD & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \SecBestPerf{6.02} & \BestPerf{7.22} \\
+    \quad OMDB & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \BestPerf{1.51} & \SecBestPerf{1.50} \\
+    \quad DUD-E & 5.0\% EF$\uparrow$ & ConfSeq~\cite{xiong2025bridging} & \SecBestPerf{7.12} & \BestPerf{7.70} \\
+    \quad Cantor HEA & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \BestPerf{8.40} & \SecBestPerf{7.79} \\
+    \quad LIPO & RMSE$\downarrow$ & MolCLR~\cite{wang2022molclr} & \BestPerf{0.65} & \SecBestPerf{0.80} \\
+    \addlinespace[0.8em]
+    \multicolumn{5}{l}{\raisebox{1.2ex}[0pt][0pt]{\bfseries Classification}}\\[-0.8ex]
+    \quad BBBP & ACC$\uparrow$ & MolCLR~\cite{wang2022molclr} & \SecBestPerf{0.74} & \BestPerf{0.84} \\
+    \quad ClinTox & ACC$\uparrow$ & MolCLR~\cite{wang2022molclr} & \SecBestPerf{0.93} & \BestPerf{0.95} \\
+    \quad HIV Prediction & ACC$\uparrow$ & MolCLR~\cite{wang2022molclr} & \SecBestPerf{0.81} & \BestPerf{0.92} \\
+    \quad SIDER & ACC$\uparrow$ & MolCLR~\cite{wang2022molclr} & \SecBestPerf{0.68} & \BestPerf{0.74} \\
+    \quad MP classification & AUC$\uparrow$ & LLM-Prop~\cite{niyongabo2025llm} & \SecBestPerf{0.72} & \BestPerf{0.73} \\
+    \quad TF-m & MCC$\uparrow$ & NT~\cite{dalla2025nucleotide} & \SecBestPerf{0.57} & \BestPerf{0.64} \\
+    \quad PD-prom 300 all & MCC$\uparrow$ & NT~\cite{dalla2025nucleotide} & \BestPerf{0.91} & \SecBestPerf{0.89} \\
+    \quad CPD-prom core all & MCC$\uparrow$ & NT~\cite{dalla2025nucleotide} & \SecBestPerf{0.67} & \BestPerf{0.68} \\
+    \quad RNA protein interaction & MCC$\uparrow$ & RPI-Pred~\cite{suresh2015rpi} & \SecBestPerf{0.74} & \BestPerf{0.81} \\
+    \quad Non-coding RNA family & ACC$\uparrow$ & RNA-MSM~\cite{zhang2024multiple} & \SecBestPerf{0.89} & \BestPerf{0.90} \\
+    \quad GO-BP & Fmax$\uparrow$ & SaprotHub~\cite{su2025saprothub} & \SecBestPerf{0.49} & \BestPerf{0.52} \\
+    \quad GO-CC & Fmax$\uparrow$ & SaprotHub~\cite{su2025saprothub} & \SecBestPerf{0.48} & \BestPerf{0.58} \\
+    \quad GO-MF & Fmax$\uparrow$ & SaprotHub~\cite{su2025saprothub} & \BestPerf{0.67} & \SecBestPerf{0.66} \\
+    \quad Human PPI & ACC$\uparrow$ & ESM2~\cite{esm2} & \BestPerf{0.77} & \SecBestPerf{0.73} \\
+    \quad Subcellular localization & ACC$\uparrow$ & ESM2~\cite{esm2} & \SecBestPerf{0.84} & \BestPerf{0.88} \\
+    \quad Metal ion binding & ACC$\uparrow$ & ESM2~\cite{esm2} & \SecBestPerf{0.73} & \BestPerf{0.74} \\
+    \quad Solubility & ACC$\uparrow$ & DeepLoc~\cite{almagro2017deeploc} & \BestPerf{0.77} & \SecBestPerf{0.72} \\
+    \bottomrule
+    \end{tabular}
+    \caption{Per-task comparison of SciReasoner against specialist baselines. \BestPerf{Bold} indicates the best performance, and \SecBestPerf{underline} indicates the second best.}
+    \label{tab:bar_chart_results}
+    \end{table}
+
+
+
+
+
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1pt}
+\begin{tabular}{l c c c c c c}
+\toprule
+Task & Metric & Opus-4.7 & GPT-5.5 & Kimi-K2.6 & DeepSeek-V4-Pro & SciReasoner \\
+\midrule
+\multicolumn{7}{l}{\textbf{Scientific QA}}\\
+\midrule
+\quad Chemical entity recognition & F1$\uparrow$ & \SecBestPerf{0.84} & 0.69 & 0.72 & 0.63 & \BestPerf{0.88} \\
+\quad Chemical protein interaction extraction & F1$\uparrow$ & \SecBestPerf{0.35} & 0.05 & 0.18 & 0.03 & \BestPerf{0.36} \\
+\quad Chemical disease interaction extraction & F1$\uparrow$ & \SecBestPerf{0.41} & 0.31 & 0.34 & 0.27 & \BestPerf{0.54} \\
+\quad Multiple choice question & ACC$\uparrow$ & \SecBestPerf{0.90} & \BestPerf{0.91} & 0.87 & 0.89 & 0.88 \\
+\quad True or false question & ACC$\uparrow$ & \BestPerf{0.63} & \SecBestPerf{0.60} & 0.58 & \BestPerf{0.63} & 0.55 \\
+\quad Open question & BertScore$\uparrow$ & 0.77 & \SecBestPerf{0.82} & \SecBestPerf{0.82} & \SecBestPerf{0.82} & \BestPerf{0.85} \\
+\quad Name conversion-s2i & Split Match$\uparrow$ & \SecBestPerf{0.34} & 0.07 & 0.02 & 0.01 & \BestPerf{0.50} \\
+\quad Name conversion-s2f & Element Match$\uparrow$ & \SecBestPerf{0.85} & 0.84 & 0.04 & 0.28 & \BestPerf{0.96} \\
+\quad Name conversion-i2s & Exact Match$\uparrow$ & \SecBestPerf{0.69} & 0.58 & 0.19 & 0.35 & \BestPerf{0.87} \\
+\quad Name conversion-i2f & Element Match$\uparrow$ & 0.90 & \SecBestPerf{0.91} & 0.40 & 0.64 & \BestPerf{0.93} \\
+\quad Molecular description generation & ROUGE-L$\uparrow$ & \SecBestPerf{0.46} & 0.08 & 0.09 & 0.31 & \BestPerf{0.75} \\
+\quad Molecule captioning & MENTOR$\uparrow$ & \BestPerf{0.46} & 0.30 & 0.14 & 0.16 & \SecBestPerf{0.45} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Property Prediction}}\\
+\midrule
+\quad ESOL & RMSE$\downarrow$ & \BestPerf{0.89} & 8.72 & 137.05 & 5.24 & \SecBestPerf{1.03} \\
+\quad DUD-E & 5.0\% EF$\uparrow$ & 3.77 & \SecBestPerf{4.98} & 1.85 & 1.28 & \BestPerf{7.70} \\
+\quad LIPO & RMSE$\downarrow$ & \SecBestPerf{0.97} & 1.48 & 16.25 & 3.29 & \BestPerf{0.80} \\
+\quad Physicochemical prediction & MAE$\downarrow$ & \SecBestPerf{19.52} & 25.79 & 2158.02 & 73.24 & \BestPerf{4.58} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Property Classification}}\\
+\midrule
+\quad BBBP & ACC$\uparrow$ & 0.73 & \SecBestPerf{0.81} & 0.54 & 0.69 & \BestPerf{0.84} \\
+\quad ClinTox & ACC$\uparrow$ & \SecBestPerf{0.88} & 0.41 & 0.57 & 0.77 & \BestPerf{0.95} \\
+\quad HIV Prediction & ACC$\uparrow$ & \BestPerf{0.94} & 0.61 & 0.91 & 0.90 & \SecBestPerf{0.92} \\
+\quad SIDER & ACC$\uparrow$ & 0.70 & \BestPerf{0.84} & 0.69 & 0.71 & \SecBestPerf{0.74} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Generation and Design}}\\
+\midrule
+\quad Forward synthesis & Exact Match$\uparrow$ & \SecBestPerf{0.56} & \SecBestPerf{0.56} & 0.35 & 0.25 & \BestPerf{0.73} \\
+\quad Forward reaction prediction & Exact Match$\uparrow$ & 0.84 & 0.82 & \SecBestPerf{0.90} & 0.80 & \BestPerf{0.98} \\
+\quad Reagent prediction & Exact Match$\uparrow$ & \SecBestPerf{0.07} & 0.05 & 0.04 & 0.04 & \BestPerf{0.12} \\
+\quad Retrosynthesis mol & Exact Match$\uparrow$ & \SecBestPerf{0.43} & 0.29 & \SecBestPerf{0.43} & 0.26 & \BestPerf{0.67} \\
+\quad Retrosynthesis USPTO-50K & Exact Match$\uparrow$ & \SecBestPerf{0.48} & 0.31 & 0.10 & 0.15 & \BestPerf{0.72} \\
+\quad Retrosynthesis smol & Exact Match$\uparrow$ & \SecBestPerf{0.23} & 0.13 & 0.03 & 0.03 & \BestPerf{0.39} \\
+\quad Molecule generation & Exact Match$\uparrow$ & \SecBestPerf{0.44} & 0.43 & 0.15 & 0.30 & \BestPerf{0.50} \\
+\quad Description guided molecule design & Exact Match$\uparrow$ & \SecBestPerf{0.10} & \SecBestPerf{0.10} & 0.08 & 0.08 & \BestPerf{0.12} \\
+\bottomrule
+\end{tabular}
+\caption{Evaluation results on Chemistry tasks grouped by task type. \BestPerf{Bold} indicates the best performance, and \SecBestPerf{underline} indicates the second best. 
+}
+\label{tab:res0624_chemistry_grouped}
+\end{table}
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1pt}
+\begin{tabular}{l c c c c c c}
+\toprule
+Task & Metric & Opus-4.7 & GPT-5.5 & Kimi-K2.6 & DeepSeek-V4-Pro & SciReasoner \\
+\midrule
+\multicolumn{7}{l}{\textbf{Property Prediction}}\\
+\midrule
+\quad MP regression & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & 2.11 & \SecBestPerf{2.67} & 1.76 & 1.58 & \BestPerf{5.83} \\
+\quad SNUMAT regression & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & 1.51 & \SecBestPerf{1.67} & 1.41 & 1.46 & \BestPerf{2.26} \\
+\quad JARVIS-DFT & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & 1.48 & \SecBestPerf{1.78} & 1.31 & 1.38 & \BestPerf{5.67} \\
+\quad JARVIS-QETB & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & 0.73 & 0.84 & \SecBestPerf{0.88} & 0.86 & \BestPerf{108.98} \\
+\quad GNoME & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & 1.94 & \SecBestPerf{5.39} & 1.56 & 1.22 & \BestPerf{21.91} \\
+\quad hMOF & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & \SecBestPerf{1.08} & 0.99 & 1.00 & 0.92 & \BestPerf{1.67} \\
+\quad Cantor HEA & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & 1.40 & \SecBestPerf{2.72} & 1.44 & 1.29 & \BestPerf{7.79} \\
+\quad QMOF & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & 1.66 & \SecBestPerf{3.12} & 1.56 & 1.35 & \BestPerf{8.61} \\
+\quad OQMD & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & \SecBestPerf{1.97} & 1.84 & 1.03 & 1.46 & \BestPerf{7.22} \\
+\quad OMDB & $\frac{\text{MAD}}{\text{MAE}}\uparrow$ & 1.26 & \SecBestPerf{1.43} & 1.07 & 1.10 & \BestPerf{1.50} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Property Classification}}\\
+\midrule
+\quad MP classification & AUC$\uparrow$ & 0.61 & 0.65 & \SecBestPerf{0.66} & 0.59 & \BestPerf{0.73} \\
+\quad SNUMAT classification & AUC$\uparrow$ & 0.58 & 0.59 & 0.56 & \SecBestPerf{0.60} & \BestPerf{0.68} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Generation and Design}}\\
+\midrule
+\quad Composition material & SMACT$\uparrow$ & \SecBestPerf{0.89} & \BestPerf{0.90} & 0.35 & 0.24 & \BestPerf{0.90} \\
+\quad Bulk modulus material & SMACT$\uparrow$ & \BestPerf{0.99} & \BestPerf{0.99} & 0.17 & 0.11 & \SecBestPerf{0.88} \\
+\bottomrule
+\end{tabular}
+\caption{Evaluation results on Material Science tasks grouped by task type. \BestPerf{Bold} indicates the best performance, and \SecBestPerf{underline} indicates the second best. 
+}
+\label{tab:res0624_material_science_grouped}
+\end{table}
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1pt}
+\begin{tabular}{l c c c c c c}
+\toprule
+Task & Metric & Opus-4.7 & GPT-5.5 & Kimi-K2.6 & DeepSeek-V4-Pro & SciReasoner \\
+\midrule
+\multicolumn{7}{l}{\textbf{Scientific QA}}\\
+\midrule
+\quad Function & ROUGE-L$\uparrow$ & \SecBestPerf{0.30} & 0.10 & 0.01 & 0.03 & \BestPerf{0.80} \\
+\quad General function & ROUGE-L$\uparrow$ & \SecBestPerf{0.52} & 0.10 & 0.18 & 0.15 & \BestPerf{0.77} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Property Prediction}}\\
+\midrule
+\quad Fluorescence & Spearman$\uparrow$ & 0.44 & \SecBestPerf{0.50} & 0.10 & 0.04 & \BestPerf{0.77} \\
+\quad Stability & Spearman$\uparrow$ & \SecBestPerf{0.36} & 0.13 & 0.06 & -0.02 & \BestPerf{0.61} \\
+\quad Enhancer activity & HK-PCC$\uparrow$ & 0.07 & -0.06 & -0.05 & \SecBestPerf{0.13} & \BestPerf{0.64} \\
+\quad Isoform & R2$\uparrow$ & \SecBestPerf{0.09} & 0.01 & 0.05 & 0.01 & \BestPerf{0.86} \\
+\quad Mean ribosome loading & R2$\uparrow$ & 0.03 & \SecBestPerf{0.10} & 0.01 & 0.00 & \BestPerf{0.60} \\
+\quad Programmable RNA switches & R2$\uparrow$ & \SecBestPerf{0.04} & 0.02 & 0.02 & 0.01 & \BestPerf{0.46} \\
+\quad CRISPR on target & Spearman$\uparrow$ & 0.14 & \SecBestPerf{0.28} & 0.05 & \BestPerf{0.40} & 0.12 \\
+\quad siRNA efficiency & Mixed-score$\uparrow$ & 0.00 & \SecBestPerf{0.33} & 0.07 & 0.22 & \BestPerf{0.61} \\
+\quad Structural similarity & MAE$\downarrow$ & \SecBestPerf{0.18} & 0.27 & 0.47 & 0.56 & \BestPerf{0.05} \\
+\quad TM-score & Spearman$\uparrow$ & -0.06 & \SecBestPerf{0.15} & -0.15 & -0.12 & \BestPerf{0.83} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Property Classification}}\\
+\midrule
+\quad Solubility & ACC$\uparrow$ & \SecBestPerf{0.58} & 0.54 & 0.53 & \SecBestPerf{0.58} & \BestPerf{0.72} \\
+\quad gSymbol2Tissue & F1$\uparrow$ & 0.43 & \SecBestPerf{0.44} & 0.23 & 0.34 & \BestPerf{0.53} \\
+\quad gName2Cancer & F1$\uparrow$ & 0.06 & \SecBestPerf{0.12} & 0.00 & 0.01 & \BestPerf{0.73} \\
+\quad gSymbol2Cancer & F1$\uparrow$ & \SecBestPerf{0.16} & 0.12 & 0.00 & 0.00 & \BestPerf{0.71} \\
+\quad Antibody antigen & MCC$\uparrow$ & 0.08 & \SecBestPerf{0.12} & 0.02 & 0.06 & \BestPerf{0.28} \\
+\quad RNA protein interaction & MCC$\uparrow$ & -0.44 & -0.13 & \SecBestPerf{0.05} & -0.38 & \BestPerf{0.81} \\
+\quad Epigenetic marks prediction & MCC$\uparrow$ & -0.02 & \SecBestPerf{0.12} & -0.04 & -0.13 & \BestPerf{0.18} \\
+\quad TF-m & MCC$\uparrow$ & \SecBestPerf{0.28} & 0.22 & 0.06 & 0.04 & \BestPerf{0.64} \\
+\quad Enhancer-promoter interaction & MCC$\uparrow$ & \SecBestPerf{0.07} & -0.03 & 0.00 & 0.00 & \BestPerf{0.24} \\
+\quad PD-prom 300 all & MCC$\uparrow$ & \SecBestPerf{0.30} & -0.10 & 0.23 & -0.07 & \BestPerf{0.89} \\
+\quad PD-prom 300 notata & MCC$\uparrow$ & \SecBestPerf{0.23} & -0.08 & -0.04 & 0.13 & \BestPerf{0.93} \\
+\quad PD-prom 300 tata & MCC$\uparrow$ & \SecBestPerf{0.30} & 0.00 & 0.05 & 0.22 & \BestPerf{0.55} \\
+\quad CPD-prom core all & MCC$\uparrow$ & \SecBestPerf{0.35} & 0.05 & 0.02 & -0.13 & \BestPerf{0.68} \\
+\quad CPD-prom core notata & MCC$\uparrow$ & \SecBestPerf{0.34} & 0.21 & 0.05 & -0.14 & \BestPerf{0.68} \\
+\quad CPD-prom core tata & MCC$\uparrow$ & \SecBestPerf{0.40} & 0.09 & 0.06 & 0.02 & \BestPerf{0.67} \\
+\quad TF-h & MCC$\uparrow$ & 0.21 & \SecBestPerf{0.22} & 0.14 & -0.02 & \BestPerf{0.52} \\
+\quad Yeast PPI & ACC$\uparrow$ & 0.42 & \BestPerf{0.56} & 0.48 & 0.48 & \SecBestPerf{0.54} \\
+\quad Human PPI & ACC$\uparrow$ & 0.70 & \BestPerf{0.82} & 0.50 & 0.55 & \SecBestPerf{0.73} \\
+\quad Protein function & ROUGE-L$\uparrow$ & \SecBestPerf{0.43} & 0.10 & 0.14 & 0.14 & \BestPerf{0.51} \\
+\quad Domain motif & ROUGE-L$\uparrow$ & \SecBestPerf{0.42} & 0.06 & 0.24 & 0.15 & \BestPerf{0.55} \\
+\quad Non-coding RNA family & ACC$\uparrow$ & 0.21 & \SecBestPerf{0.24} & 0.16 & 0.12 & \BestPerf{0.90} \\
+\quad Modification & ACC$\uparrow$ & 0.52 & \BestPerf{0.55} & 0.52 & \SecBestPerf{0.53} & 0.51 \\
+\quad Fold type & ACC$\uparrow$ & \SecBestPerf{0.00} & \SecBestPerf{0.00} & \SecBestPerf{0.00} & \SecBestPerf{0.00} & \BestPerf{0.49} \\
+\quad Subcellular localization & ACC$\uparrow$ & 0.48 & \SecBestPerf{0.65} & 0.11 & 0.13 & \BestPerf{0.88} \\
+\quad EC number & Fmax$\uparrow$ & 0.09 & 0.12 & \SecBestPerf{0.15} & 0.13 & \BestPerf{0.78} \\
+\quad Keywords & F1$\uparrow$ & \SecBestPerf{0.58} & 0.36 & 0.03 & 0.08 & \BestPerf{0.83} \\
+\quad Metal ion binding & ACC$\uparrow$ & \BestPerf{0.74} & \SecBestPerf{0.70} & 0.43 & 0.60 & \BestPerf{0.74} \\
+\quad GO-BP & Fmax$\uparrow$ & \SecBestPerf{0.43} & 0.29 & 0.27 & 0.31 & \BestPerf{0.52} \\
+\quad GO-CC & Fmax$\uparrow$ & 0.33 & \SecBestPerf{0.40} & 0.28 & 0.35 & \BestPerf{0.58} \\
+\quad GO-MF & Fmax$\uparrow$ & \SecBestPerf{0.47} & 0.24 & 0.16 & 0.40 & \BestPerf{0.66} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Generation and Design}}\\
+\midrule
+\quad Function-guided protein design & Normalized SW$\uparrow$ & \SecBestPerf{0.74} & 0.67 & 0.73 & 0.73 & \BestPerf{0.94} \\
+\quad Catalytic activity & ROUGE-L$\uparrow$ & \SecBestPerf{0.60} & 0.14 & 0.17 & 0.19 & \BestPerf{0.70} \\
+\bottomrule
+\end{tabular}
+\caption{Evaluation results on Biology tasks grouped by task type. \BestPerf{Bold} indicates the best performance, and \SecBestPerf{underline} indicates the second best. 
+}
+\label{tab:res0624_biology_grouped}
+\end{table}
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+    
+    
+    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+\clearpage
+
+\section{Human Evaluation Form}\label{secC1}
+
+This appendix shows representative questionnaire items used for double-blinded human evaluation.
+One sample is selected from each task category: crystal-material property
+prediction, Gene Ontology prediction, and retrosynthesis. For each item,
+evaluators read the input prompt, two anonymized model reasoning traces (named Model A and Model B correspondingly) and final
+outputs, and a read-only ground-truth fact sheet. They then score each model on
+five trace-quality axes and complete the overall comparison questions.
+
+\subsection{General Evaluation Instructions}
+
+Evaluators should assess the quality of the reasoning trace, not only whether
+the final answer is numerically or symbolically close to the ground truth. The
+main criteria are evidence grounding, domain plausibility, alignment with the
+ground-truth regime or reaction/function region, reasoning coherence, and
+hallucination risk.
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+\begin{longtable}{P{0.16\linewidth}P{0.70\linewidth}}
+\toprule
+\textbf{Verdict label} & \textbf{Meaning} \\
+\midrule
+Correct & The claim is supported by the provided input, the ground truth, the read-only Part~A fact sheet, or standard domain knowledge used only for verification. \\
+Minor & A local or peripheral defect. The relevant entity or direction is mostly correct, and the defect does not materially change the quality of that scoring axis. \\
+Major & A substantive axis-level defect, such as an input misread treated as fact, a domain inference contradicting the ground truth or standard knowledge, a wrong target region or reaction family, or a broken evidence-to-conclusion chain. Independent major defects on the same axis are counted separately. \\
+Critical & Fabrication: the trace names a concrete entity, index, reference, topology, structure, GO term, reaction, reagent, or mechanism that is absent from the input/ground truth and cannot be verified from standard sources. Real-but-misapplied entities are not Critical; they are routed to Q2 or Q3. \\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{P{0.10\linewidth}P{0.275\linewidth}P{0.48\linewidth}}
+\toprule
+\textbf{Axis} & \textbf{Focus} & \textbf{Scoring rule} \\
+\midrule
+Q1 & Evidence grounding in the provided input & Check whether entities, tokens, sequence positions, atom-map indices, product groups, or cited input facts actually appear in the task input. Score in \(\{1,\ldots,10\}\) or N.A. using the count-to-score table. \\
+Q2 & Domain plausibility relative to ground truth & Check whether the trace's scientific inferences are plausible given the ground truth, and standard domain knowledge. Score in \(\{1,\ldots,10\}\) or N.A. using the count-to-score table. \\
+Q3 & Target alignment & Judge whether the committed conclusion falls in the correct materials regime, GO region, or retrosynthesis reaction class/formed bond. Score in \(\{1,\ldots,10\}\) or N.A. using the count-to-score table. \\
+Q4 & Reasoning coherence & Check whether the trace builds a relevant evidence-to-conclusion chain without unresolved contradiction, circularity, padding, or unused observations. Score in \(\{1,\ldots,10\}\) or N.A. using the count-to-score table. \\
+Q5 & Unsupported overclaiming or hallucination & Check for fabricated or over-specific unsupported claims. Score in \(\{1,\ldots,10\}\) or N.A. using the count-to-score table. \\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{P{0.68\linewidth}P{0.18\linewidth}}
+\toprule
+\textbf{Verdict counts on Q1/Q2/Q3/Q4/Q5} & \textbf{Score} \\
+\midrule
+\(Critical \ge 2\), or the core conclusion depends on a fabricated entity & 1 \\
+\(Critical=1, Major\ge 1\) & 2 \\
+\(Critical=1, Major=0\) & 3 \\
+\(Critical=0, Major\ge 4\) & 2 \\
+\(Critical=0, Major=3\) & 3 \\
+\(Critical=0, Major=2\) & 4 \\
+\(Critical=0, Major=1\) & 5 \\
+\(Critical=0, Major=0, Minor\ge 4\) & 6 \\
+\(Critical=0, Major=0, Minor=3\) & 7 \\
+\(Critical=0, Major=0, Minor=2\) & 8 \\
+\(Critical=0, Major=0, Minor=1\) & 9 \\
+\(Critical=0, Major=0, Minor=0\), and at least one claim is verified Correct & 10 \\
+No checkable claim on the axis & N.A. \\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{P{0.10\linewidth}P{0.25\linewidth}P{0.25\linewidth}P{0.25\linewidth}}
+\toprule
+\textbf{Axis} & \textbf{Materials} & \textbf{Gene Ontology} & \textbf{Retrosynthesis} \\
+\midrule
+Q1 & Evidence grounding in formula, SLICES-PLUS space-group tokens, atom lists, edge lists, periodic offsets, and coordination counts. &
+Evidence grounding in amino-acid sequence length, residue positions, motifs, and the Foldseek 3Di structural alphabet. &
+Evidence grounding in product SMILES, product functional groups, atom-map indices, product connectivity, and cited atom-map sets. \\
+Q2 & Materials plausibility relative to crystal chemistry, property constraints, and the ground-truth property regime. &
+Biological plausibility relative to the ground-truth protein identity, family, motifs, domains, and GO region. &
+Disconnection and reactant plausibility relative to the gold route, atom-map balance, oxidation/protection state, and chemical feasibility. \\
+Q3 & Property-regime alignment, including boundary handling for values near regime edges. &
+GO-space alignment within the evaluated branch, including correct, adjacent, wrong-region, wrong-super-class, and no-commit cases. &
+Reaction-class alignment: gold reaction family plus gold formed bond scores highest; neighbouring families sharing the formed bond are borderline; different valid disconnections are lower. \\
+Q4 & Coherence from decoded structure and target-specific mechanism to the committed property call. &
+Coherence from sequence, 3Di, motif, domain, or family evidence to the committed GO-function hypothesis. &
+Coherence from product parsing to retrosynthetic disconnection and reactant proposal. \\
+Q5 & Unsupported materials overclaiming, such as invented topology, SBU, phase transition, atom index, or citation. &
+Unsupported biological overclaiming, such as invented residues, motifs, domains, GO terms, protein identity, or citation. &
+Unsupported chemical overclaiming, such as invented product groups, atom-map indices, reagents, named reactions, mechanisms, or citations. \\
+\bottomrule
+\end{longtable}
+
+The questionnaire also contains four overall fields. Q6 asks how Model A compares
+with expert expectation, Q7 asks the same for Model B, Q8 asks for a direct
+Model A versus Model B comparison, and Q9 records evaluator confidence on a
+1--10 scale with a free-text note.
+
+\subsection{Blank Scoring Sheet Used for Each Sample}
+
+\begin{longtable}{P{0.12\linewidth}P{0.18\linewidth}P{0.18\linewidth}P{0.44\linewidth}}
+\toprule
+\textbf{Axis} & \textbf{Model A score} & \textbf{Model B score} & \textbf{Evidence, claim verdicts, and notes} \\
+\midrule
+Q1 & \scoreblank & \scoreblank & \\
+Q2 & \scoreblank & \scoreblank & \\
+Q3 & \scoreblank & \scoreblank & \\
+Q4 & \scoreblank & \scoreblank & \\
+Q5 & \scoreblank & \scoreblank & \\
+\midrule
+Sum & \scoreblank & \scoreblank & \\
+Mean & \scoreblank & \scoreblank & \\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{P{0.26\linewidth}P{0.66\linewidth}}
+\toprule
+\textbf{Overall question} & \textbf{Allowed response} \\
+\midrule
+Q6. Model A versus expert expectation &
+Significantly falls short / Falls short / Comparable / Exceeds / Significantly exceeds. \\
+Q7. Model B versus expert expectation &
+Significantly falls short / Falls short / Comparable / Exceeds / Significantly exceeds. \\
+Q8. Direct comparison &
+A much better / A slightly better / Tie / B slightly better / B much better. \\
+Q9. Evaluator confidence &
+Integer confidence score from 1 to 10, plus a free-text confidence note. \\
+\bottomrule
+\end{longtable}
+
+\sampletitle{Materials}{Ag2HgI4, shear modulus}
+
+\begin{longtable}{P{0.28\linewidth}P{0.64\linewidth}}
+\toprule
+\textbf{Field} & \textbf{Value} \\
+\midrule
+Dataset / task & JARVIS-DFT / \(G_v\). \\
+Sample ID & 1169. \\
+Chemical formula & \texttt{Ag2HgI4}. \\
+Target property & \texttt{shear\_modulus\_gv}. \\
+Property description & Shear modulus: resistance to shear deformation; related to directional bonding, framework rigidity, and elastic anisotropy. \\
+Ground truth & \(5.77\) GPa. \\
+Model A final output & \texttt{\{shear\_modulus\_gv: 5.62\}}. \\
+Model B final output & \texttt{\{shear\_modulus\_gv: 8.00\}}. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Input prompt.}
+\begin{PromptBlock}
+You are a material scientist. Look at the chemical formula and structure information of the given crystalline material and predict its property. The output must be in a JSON format. For example: {property_name: predicted_property_value}. Answer as precise as possible and in as few words as possible.
+chemical formula: Ag2HgI4
+structure information: <material_structure>o w b OOO m OOO c OOO o Ag Ag Hg I I I I 0 6 -oo 0 3 -oo 0 5 ooo 0 4 ooo 1 4 o-o 1 5 ooo 1 3 o-o 1 6 ooo 2 3 --o 2 6 -o- 2 4 o-- 2 5 ooo</material_structure>
+property name: shear_modulus_gv
+\end{PromptBlock}
+
+\paragraph{Read-only ground-truth fact sheet.}
+\begin{longtable}{P{0.10\linewidth}P{0.28\linewidth}P{0.54\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Reference fact} & \textbf{Value} \\
+\midrule
+A1 & Decoded space group & No primer match. The leading tokens \texttt{o w b OOO m OOO c OOO o} do not exactly match any listed SLICES-PLUS primer row, so a concrete space-group label is not a checkable Q1 claim. \\
+A2 & Number of atoms & 7; any cited atom index \(\geq 7\) is fabricated. \\
+A3 & Formula consistency & The atom list Ag Ag Hg I I I I corresponds to 2 Ag, 1 Hg, and 4 I, matching \texttt{Ag2HgI4}. \\
+A4 & Target and ground truth & \texttt{shear\_modulus\_gv} \(= 5.77\) GPa. \\
+A5 & Ground-truth regime & Soft shear modulus, \(G_v < 20\) GPa; far from the 20 GPa boundary. The hard physical constraint is \(G_v \lesssim K_v\). \\
+A6 & Atom-index table & 0=Ag, 1=Ag, 2=Hg, 3=I, 4=I, 5=I, 6=I. \\
+A7 & Key neighbors & Ag(0) connects to I(6,3,5,4); Ag(1) connects to I(4,5,3,6); Hg(2) connects to I(3,6,4,5). Each iodine connects to Ag(0), Ag(1), and Hg(2). \\
+A8 & Coordination summary & Ag(0), Ag(1), and Hg(2) are each four-coordinate, tetrahedral by iodine; each iodine is three-coordinate. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Example claim prompts shown to the evaluator.}
+\begin{longtable}{P{0.12\linewidth}P{0.38\linewidth}P{0.38\linewidth}}
+\toprule
+\textbf{Axis} & \textbf{Model A claim examples} & \textbf{Model B claim examples} \\
+\midrule
+Q1 & The trace cites the atom list, selected edge tokens, and tetrahedral metal-iodine coordination. &
+The trace parses indices 0 and 1 as Ag, 2 as Hg, and 3--6 as I, and lists the twelve metal-iodine edges. \\
+Q2 & Heavy and polarizable iodide ions imply a compliant lattice with low shear stiffness. &
+The trace treats the material as a soft iodide solid and invokes tetrahedral coordination. \\
+Q3 & The committed value 5.62 GPa lies in the correct soft regime and is close to the ground truth. &
+The committed value 8.00 GPa also lies in the correct soft regime. \\
+Q4 & The trace connects structure, coordination, heavy halide chemistry, and the target mechanical property. &
+The trace contains longer speculative discussion; evaluators check whether the final estimate follows from the cited evidence. \\
+Q5 & No concrete fabricated entity is apparent if the trace remains within decoded structure and standard halide chemistry. &
+Evaluators check any named phase, database identifier, or literature-like statement for fabrication. \\
+\bottomrule
+\end{longtable}
+
+\sampletitle{Gene Ontology}{1bd8\_A-P55273, biological process}
+
+\begin{longtable}{P{0.28\linewidth}P{0.64\linewidth}}
+\toprule
+\textbf{Field} & \textbf{Value} \\
+\midrule
+Dataset / task & GO / BP. \\
+Protein name in sample & \texttt{1bd8\_A-P55273}. \\
+Chain & A. \\
+Model A performance metadata & F1 \(=0.967\), precision \(=0.993\), recall \(=0.943\); 139 predicted BP terms. \\
+Model B performance metadata & F1 \(=0.209\), precision \(=0.314\), recall \(=0.156\); 70 predicted BP terms. \\
+Number of true BP terms & 145. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Input prompt.}
+\begin{PromptBlock}
+What are the Gene Ontology terms (biological process) for this protein?
+<protein>RAGDRLSGAAARGDVQEVRRLLHRELVHPDALNRFGKTALQVMMFGSTAIALELLKQGASPNVQDTSGTSPVHDAARTGFLDTLKVLVEHGADV NVPDGTGALPIHLAVQEGHTAVVSFLAAESDLHRRDARGLTPLELALQRGAQDLVDILQGHM</protein>
+<protein_structure>D L Q Q Q L L V C Q L V L N L P S N C C S C P V V V D Q Q Q D A D P V R G G S L A R G P L L N L S S L L S S L V S P N D L C D A D P Q Q D G S L L V N L L V L V V S N N V S S V V S P H D Q A R A G N Q Q D G S L L N N L Q N V N L V S N L V C L Q P Y P Q C G A G N V R D G S L R S N V V V V V V S S N V S N V V S D</protein_structure>
+Only the biological process (BP) aspect.
+\end{PromptBlock}
+
+\paragraph{Model outputs shown in the questionnaire.}
+\begin{longtable}{P{0.20\linewidth}P{0.72\linewidth}}
+\toprule
+\textbf{Output} & \textbf{Abbreviated display} \\
+\midrule
+Model A final prediction & A long semicolon-separated list of 139 BP terms, including \texttt{regulation of signal transduction}, \texttt{regulation of cell cycle}, \texttt{negative regulation of endopeptidase activity}, \texttt{proteolysis}, \texttt{regulation of apoptotic process}, \texttt{DNA damage response}, \texttt{regulation of kinase activity}, and \texttt{negative regulation of cell cycle}. \\
+Model B final prediction & A JSON-style output with 70 BP terms, dominated by \texttt{regulation of DNA-templated transcription}, \texttt{gene expression}, \texttt{positive regulation of RNA biosynthetic process}, \texttt{positive regulation of DNA-templated transcription}, and related transcriptional or signaling terms. \\
+Ground truth & A long semicolon-separated list of 145 BP terms centered on negative regulation of cell cycle, G1/S transition, CDK activity regulation, apoptotic or programmed cell-death regulation, DNA-damage response and repair, and stress-response processes. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Read-only ground-truth fact sheet.}
+\begin{longtable}{P{0.10\linewidth}P{0.28\linewidth}P{0.54\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Reference fact} & \textbf{Value} \\
+\midrule
+A1 & Sequence length & 156 residues. \\
+A2 & 3Di length and low-confidence stretches & 156 tokens, aligned 1:1 with the amino-acid sequence; no \texttt{\#} low-confidence tokens are present. \\
+A3 & Diagnostic motifs & Basic-rich segments \texttt{RRLLHRE} at residue 19 and \texttt{RRDARGL} at residue 128. The sequence is built from tandem ankyrin repeats; it does not contain a real DNA-binding or bZIP motif. \\
+A4 & Ground-truth identity / family & Cyclin-dependent kinase 4 inhibitor D (p19INK4d / CDKN2D), human. It is an ankyrin-repeat CDK inhibitor and tumor suppressor. \\
+A5 & Ground-truth BP region & Negative regulation of cell cycle and cell-cycle phase transition, especially G1/S; regulation of CDK or protein-serine/threonine kinase activity; apoptotic or programmed cell-death regulation; DNA-damage response and repair; response to stress, radiation, or chemical stimulus. Not transcription or DNA-templated gene expression. \\
+A6 & Number of true terms & \(N_{\mathrm{true}} = 145\). \\
+A7 & UniProt / InterPro constraints & InterPro IPR050776 Ank\_Repeat/CDKN\_Inhibitor, IPR002110 Ankyrin\_rpt, and IPR036770 Ankyrin\_rpt-contain\_sf. Keywords include Cell cycle, Tumor suppressor, ANK repeat, Nucleus, and Cytoplasm. The protein inhibits CDK4 and CDK6. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Example claim prompts shown to the evaluator.}
+\begin{longtable}{P{0.12\linewidth}P{0.38\linewidth}P{0.38\linewidth}}
+\toprule
+\textbf{Axis} & \textbf{Model A claim examples} & \textbf{Model B claim examples} \\
+\midrule
+Q1 & The trace cites 3Di runs, loop-like 3Di segments, and basic sequence clusters such as \texttt{RRLLHRE}. &
+The trace quotes the full sequence and identifies a basic region, but also claims a heptad or leucine-zipper-like pattern. \\
+Q2 & The trace infers a regulatory protein and predicts cell-cycle, apoptosis, kinase-regulation, and stress-response terms. &
+The trace identifies the protein as a bZIP, WRKY, or transcription factor-like protein and predicts transcriptional regulation terms. \\
+Q3 & Model A's committed terms largely overlap the CDK inhibitor BP region. &
+Model B's committed terms center on transcription and gene expression, which is outside the ground-truth BP region. \\
+Q4 & Evaluators check whether the trace moves from sequence and 3Di evidence to the committed GO region without unsupported leaps. &
+Evaluators check format-oriented reasoning, identity contradictions, and whether the final term list follows from grounded evidence. \\
+Q5 & Named biological entities and GO terms should be checked for unsupported specificity or fabrication. &
+The bZIP, WRKY, leucine-zipper, and transcription-factor claims must be judged as real-but-misassigned or fabricated, following the rubric. \\
+\bottomrule
+\end{longtable}
+
+\sampletitle{Retrosynthesis}{USPTO-50K sample 4, other}
+
+\begin{longtable}{P{0.28\linewidth}P{0.64\linewidth}}
+\toprule
+\textbf{Field} & \textbf{Value} \\
+\midrule
+Dataset / task & USPTO-50K / retrosynthesis. \\
+Sample ID & 4. \\
+Reaction class & Other / uncategorized retrosynthesis reaction. \\
+Matches gold & Model A matches the gold reactants; Model B proposes a related but not gold reactant set. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Input prompt.}
+\begin{PromptBlock}
+Please suggest potential reactants for the given product.
+<SMILES> [C:1](=[O:2])([C:3]([F:4])([F:5])[F:6])[NH:7][CH2:8][c:9]1[cH:10][cH:11] 
+[cH:12][cH:13][c:14]1[S:15](=[O:16])(=[O:17])[CH:18]1[CH2:19][CH2:20]1 </SMILES>
+\end{PromptBlock}
+
+\paragraph{Model outputs and gold reactants.}
+\begin{longtable}{P{0.20\linewidth}P{0.72\linewidth}}
+\toprule
+\textbf{Field} & \textbf{SMILES} \\
+\midrule
+Product & \smiles{[C:1](=[O:2])([C:3]([F:4])([F:5])[F:6])[NH:7][CH2:8][c:9]1[cH:10][cH:11][cH:12][cH:13][c:14]1[S:15](=[O:16])(=[O:17])[CH:18]1[CH2:19][CH2:20]1}. \\
+Gold reactants & \smiles{O=C(O[C:1](=[O:2])[C:3]([F:4])([F:5])[F:6])C(F)(F)F.[NH2:7][CH2:8][c:9]1[cH:10][cH:11][cH:12][cH:13][c:14]1[S:15](=[O:16])(=[O:17])[CH:18]1[CH2:19][CH2:20]1}. \\
+Model A final prediction & \smiles{O=C(O[C:1](=[O:2])[C:3]([F:4])([F:5])[F:6])C(F)(F)F.[NH2:7][CH2:8][c:9]1[cH:10][cH:11][cH:12][cH:13][c:14]1[S:15](=[O:16])(=[O:17])[CH:18]1[CH2:19][CH2:20]1}. \\
+Model B final prediction & \smiles{NCc1ccccc1S(=O)(=O)C1CC1.OC(=O)C(F)(F)F}. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Read-only ground-truth fact sheet.}
+\begin{longtable}{P{0.10\linewidth}P{0.28\linewidth}P{0.54\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Reference fact} & \textbf{Value} \\
+\midrule
+A1 & Product functional-group inventory & Trifluoroacetyl \(\mathrm{C(=O)CF_3}\) at atom maps 1--6; secondary amide N-H at atom 7; benzylic \(\mathrm{CH_2}\) at atom 8; ortho-disubstituted benzene ring at atoms 9--14; aryl sulfone at atom 15 with oxygens 16 and 17; cyclopropyl atoms 18--20. \\
+A2 & Highest atom-map index & 20; any cited atom-map index \(>20\) is fabricated. \\
+A3 & Gold reaction class and formed bond & Trifluoroacetylation of a primary amine. The forward reaction forms the amide C--N bond between carbonyl carbon [C:1] and nitrogen [NH:7]. The acyl source is trifluoroacetic anhydride (TFAA). \\
+A4 & Gold reactant atom-map set and legitimate lost atoms & The TFAA fragment carries atoms 1--6, while the amine fragment carries atoms 7--20. The union covers the full product atom map. The unmapped leaving group is a trifluoroacetate or water-equivalent by-product. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Example claim prompts shown to the evaluator.}
+\begin{longtable}{P{0.12\linewidth}P{0.38\linewidth}P{0.38\linewidth}}
+\toprule
+\textbf{Axis} & \textbf{Model A claim examples} & \textbf{Model B claim examples} \\
+\midrule
+Q1 & The trace identifies the trifluoroacetyl group, amide N, benzyl group, sulfone, and cyclopropyl group. &
+The trace parses the product as a trifluoroacetamide attached to an ortho-substituted aryl sulfone and cyclopropyl group. \\
+Q2 & The trace disconnects the C1--N7 amide bond and proposes TFAA plus the primary amine. &
+The trace disconnects the same amide bond but proposes trifluoroacetic acid plus the amine. \\
+Q3 & Model A matches the gold amide-forming reaction family and gold formed bond. &
+Model B finds the same C--N disconnection but uses a less activated acyl source than the gold TFAA route. \\
+Q4 & The trace follows product parsing to amide disconnection to reactant selection. &
+Evaluators check for length padding, repeated route restatement, and wobble among acid, acid chloride, and anhydride before commitment. \\
+Q5 & TFAA, primary amine acylation, and amide formation are real and supported by the product. &
+Trifluoroacetic acid and the amine are real; evaluators check whether any unsupported reaction claims or invented reagents appear. \\
+\bottomrule
+\end{longtable}
+
+ 
+ 
+
+\begin{fullcotsection}{inputbg}{Input prompt}
+\begin{cotverbatim}
+Chemical formula: BaLaFe2Cu2O11
+
+Target property: band_gap
+
+Material structure:
+<material_structure>o x b OOO j OOO o Ba La Fe Fe Cu Cu O O O O O O O O O O O 0 8 -oo 0 12 -oo 0 16 -oo 0 16 ooo 0 7 -oo 0 11 -oo 0 14 ooo 0 14 o+o 0 6 ooo 0 10 ooo 0 9 ooo 0 13 ooo 1 9 o-o 1 13 o-o 1 14 ooo 1 14 +oo 1 6 ooo 1 10 ooo 1 16 o-o 1 16 ooo 1 7 o-o 1 11 o-o 1 8 ooo 1 12 ooo 2 7 --o 2 8 -oo 2 9 o-o 2 6 ooo 2 14 ooo 3 10 oo- 3 13 oo- 3 12 oo- 3 11 oo- 3 15 ooo 3 16 oo- 4 11 --- 4 12 -o- 4 13 o-- 4 10 oo- 4 14 oo- 5 6 ooo 5 9 ooo 5 8 ooo 5 15 ooo 5 16 ooo 5 7 ooo 6 14 ooo 6 16 ooo 7 14 ++o 7 16 ooo 8 14 +oo 8 16 ooo 9 14 o+o 9 16 ooo 10 14 ooo 10 16 ooo 11 14 ++o 11 16 ooo 12 14 +oo 12 16 ooo 13 14 o+o 13 16 ooo</material_structure> \\
+
+Question:
+You are a material scientist. Look at the chemical formula and structure information of the given crystalline material and predict its property. The output must be in a json format. For example: {property_name: predicted_property_value}. Answer as precise as possible and in as few words as possible. \\
+chemical formula: BaLaFe2Cu2O11 \\
+structure information: <material_structure>o x ...</material_structure> \\
+property name: band_gap
+\end{cotverbatim}
+\end{fullcotsection}
+
+\vspace{0.6em}
+
+\begin{fullcotsection}{cotbg}{SciReasoner reasoning trace}
+\begin{cotverbatim}
+<think>
+To determine the band gap of this material, I first need to decode the structural information provided in the SLICES string to understand the chemical environment and bonding topology. The input string begins with the space group encoding <material_structure>o x b OOO j OOO o</material_structure>, which defines the symmetry operations, followed immediately by the atom list. Reading the atom symbols in order, I see <material_structure>Ba La Fe Fe Cu Cu O O O O O O O O O O O</material_structure>. This confirms the stoichiometry matches the formula BaLaFe2Cu2O11, consisting of one Barium, one Lanthanum, two Iron, two Copper, and eleven Oxygen atoms per unit cell. \\
+My primary focus for predicting the electronic property is the transition metal sublattice, specifically the Iron and Copper sites, which correspond to indices 2, 3, 4, and 5 in the atom list. I need to examine the bonding environment to see how these metals interact with the oxygen ligands. Scanning the edge list, I find connections such as <material_structure>2 6 ooo</material_structure> and <material_structure>2 14 ooo</material_structure>, which indicate that the Iron atom at index 2 is bonded to Oxygen atoms at indices 6 and 14 within the same unit cell. Similarly, the Copper atom at index 5 shows connections like <material_structure>5 15 ooo</material_structure> and <material_structure>5 16 ooo</material_structure>, linking it to Oxygen sites 15 and 16. \\
+Crucially, I observe that the Oxygen sites are not isolated; they act as bridges connecting the different metal centers. For instance, Oxygen site 14 is connected to both Iron (index 2 via <material_structure>2 14 ooo</material_structure>) and Copper (index 1 via <material_structure>1 14 ooo</material_structure>), creating a Fe-O-Cu pathway. This heteroatomic networking allows for significant orbital overlap between the transition metal d-orbitals and the oxygen p-orbitals. In materials containing mixed transition metals like Iron and Copper, the presence of these continuous pathways often leads to broadened energy bands. If the Fermi level intersects these bands, the material exhibits metallic behavior. The dense connectivity evident in the edge list, with multiple intra-cell and inter-cell bonds like <material_structure>0 16 -oo</material_structure> and <material_structure>13 14 o+o</material_structure>, supports a scenario where charge carriers can delocalize across the lattice. Therefore, based on the structural evidence of a connected transition metal-oxygen framework, the most consistent prediction for the band gap is that it closes completely. \\
+{band_gap: 0.0}
+</think>
+\end{cotverbatim}
+\end{fullcotsection}
+
+\vspace{0.6em}
+
+\begin{fullcotsection}{finalbg}{SciReasoner final output}
+\begin{cotverbatim}
+{band_gap: 0.0}
+\end{cotverbatim}
+\end{fullcotsection}
+
+\vspace{0.6em}
+
+ 
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+\captionof{figure}{
+Full example of a structure-aware reasoning trace. The input contains the
+chemical formula, target property, and SLICES-PLUS structural string. The
+reasoning trace explicitly cites structural substrings from the input and
+connects them to a material-property mechanism before producing the final
+prediction.
+}
+\label{fig:full-cot-example}
+
+ 
+
+\clearpage
+
+\begin{fullcotsection}{inputbg}{Input prompt}
+
+\begin{cotverbatim}
+
+Protein name: 1t4b_A-P0A9Q9
+
+Protein structure: 
+
+<protein_structure>D F E E E E A C L V F P L N V V L L V V C L V V V V L V V Y N Y A Y E D C P Q F Q D F D D V S S V D R D T H H H L Q D L V V V L R G Q E Y A Y P N E D V S C V P R V V V N V V V V R L H A Y E E L Y P N C P P P P L E A E F D C L Q F V V V V V V S V V V S R R Y Y Y H A A L V L L L C C L Q Q S L C V V V Q F F Q A K E K D K A F A Q C S L G D V S L V L L V Q Q V V V L C V Q C V V L V V P P P R D V V V S V V S S V C C Q P V P P R D C V R V V H D A H V D K D F A D A D A D P V R H H P V Q V S Q Q V N N C R S N V D P D G H Y Y G Y I D M Y H S A H F K M K M K M W T F T P D Q D D L V V S Q V S S C V S D V Q N A E Q E Q D D P S C V Q C A D S V N A E P H S H W Y K Y P W D A D P V D R R I T I I M I M H G C S D S V G N P R S S V V V V V V D</protein_structure>
+
+Question: 
+Given the protein sequence <protein>MKNVGFIGWRGMVGSVLMQRMVEERDFDAIRPVFFSTSQLGQAAPSFGGTTGTLQDAFDLEALKALDIIVTCQGGDYTNEIYPKLRESGWQGYWIDAASSLRMKDDAIIILDPVNQDVITDGLNNGIRTFVGGNCTVSLMLMSLGGLFANDLVDWVSVATYQAASGGGARHMRELLTQMGHLYGHVADELATPSSAILDIERKVTTLTRSGELPVDNFGVPLAGSLIPWIDKQLDNGQSREEWKGQAETNKILNTSSVIPVDGLCVRVGALRCHSQAFTIKLKKDVSIPTVEELLAAHNPWAKVVPNDREITMRELTPAAVTGTLTTPVGRLRKLNMGPEFLSAFTVGDQLLWGAAEPLRRMLRQLA</protein> and its structure representation <protein_structure>D F E ... </protein_structure>, predict its Gene Ontology annotations for biological process. Only the biological process (BP) aspect.
+
+\end{cotverbatim}
+
+\end{fullcotsection}
+
+\par\medskip
+
+\begin{fullcotsection}{cotbg}{SciReasoner reasoning trace}
+
+\begin{cotverbatim}
+
+<think>
+
+To determine the appropriate Gene Ontology (GO) biological process annotations for this protein, I need to analyze the relationship between its amino acid sequence and its predicted three-dimensional structure. The core task is to infer the protein's function---specifically its role in cellular processes---based on the structural motifs and sequence signatures provided in the input. I will start by assessing the overall structural class defined by the 3Di representation, then identify specific sequence motifs that indicate enzymatic activity, and finally map these findings to the relevant biological processes.
+
+First, I examine the structural representation to understand the protein's fold. The 3Di string provides a residue-level encoding of the local geometry. Scanning through the structure, I observe a significant prevalence of residues encoding alpha-helical conformations. For instance, the segment <protein_structure>V V L L V V C L V V V V L V V</protein_structure> near the N-terminal region shows a continuous run of V and L characters, which according to the decoding rules, signifies a stable alpha-helix. Similarly, towards the C-terminus, the pattern <protein_structure>V V V V V V D</protein_structure> indicates another helical segment. The presence of these helical bundles suggests a globular protein with a compact core, typical of enzymes that require a defined active site pocket. While there are regions with mixed characters like <protein_structure>D F E E E E A C L V F P L N</protein_structure>, which likely represent loop or coil regions connecting the secondary structure elements, the dominant feature is the alpha-helical architecture. This structural class is commonly associated with metabolic enzymes that bind small molecules.
+
+Next, I turn to the amino acid sequence to identify specific functional motifs that correlate with the structural observations. The sequence contains several patterns indicative of cofactor binding or catalytic activity. Notably, there is a glycine-rich region <protein>GWQGYWIDAASSLRMKDDAIIILDPVNQDVITDGLNNGIRTFVGGNCTVSLMLMSLGGLFANDLVDWVSVATYQAASGGGARHMRELLTQMGHLYGHVADELATPSSAILDIERKVTTLTRSGELPVDNFGVPLAGSLIPWIDKQLDNGQSREEWKGQAETNKILNTSSVIPVDGLCVRVGALRCHSQAFTIKLKKDVSIPTVEELLAAHNPWAKVVPNDREITMRELTPAAVTGTLTTPVGRLRKLNMGPEFLSAFTVGDQLLWGAAEPLRRMLRQLA</protein>, specifically the <protein>VGGNCTVSLMLMSLGGLFANDLVDWVSVATYQAASGGGARHMRELLTQMGHLYGHVADELATPSSAILDIERKVTTLTRSGELPVDNFGVPLAGSLIPWIDKQLDNGQSREEWKGQAETNKILNTSSVIPVDGLCVRVGALRCHSQAFTIKLKKDVSIPTVEELLAAHNPWAKVVPNDREITMRELTPAAVTGTLTTPVGRLRKLNMGPEFLSAFTVGDQLLWGAAEPLRRMLRQLA</protein> stretch which includes conserved residues often found in nucleotide-binding domains. The presence of lysine and arginine residues, such as in the segment <protein>KDDAIIILDPVNQDVITDGLNNGIRTFVGGNCTVSLMLMSLGGLFANDLVDWVSVATYQAASGGGARHMRELLTQMGHLYGHVADELATPSSAILDIERKVTTLTRSGELPVDNFGVPLAGSLIPWIDKQLDNGQSREEWKGQAETNKILNTSSVIPVDGLCVRVGALRCHSQAFTIKLKKDVSIPTVEELLAAHNPWAKVVPNDREITMRELTPAAVTGTLTTPVGRLRKLNMGPEFLSAFTVGDQLLWGAAEPLRRMLRQLA</protein>, suggests potential interaction with phosphate groups, a hallmark of enzymes involved in phosphorylation or nucleotide metabolism. Furthermore, the sequence contains motifs like <protein>MGHLYGHVADELATPSSAILDIERKVTTLTRSGELPVDNFGVPLAGSLIPWIDKQLDNGQSREEWKGQAETNKILNTSSVIPVDGLCVRVGALRCHSQAFTIKLKKDVSIPTVEELLAAHNPWAKVVPNDREITMRELTPAAVTGTLTTPVGRLRKLNMGPEFLSAFTVGDQLLWGAAEPLRRMLRQLA</protein> which resemble those found in synthase or transferase families. The combination of the alpha-helical structural scaffold and these specific sequence motifs strongly points towards an enzyme that participates in the synthesis or modification of amino acids and nucleotides.
+
+Based on this structural and sequence evidence, I can deduce the biological processes. The protein's ability to bind nucleotides and its enzymatic nature imply involvement in metabolic pathways. Specifically, the motifs suggest it may catalyze reactions in the biosynthesis of amino acids, particularly those involving sulfur or serine derivatives, and potentially interact with pyruvate or related intermediates. The structural stability indicates it functions within the cell cytoplasm or a specific compartment where these metabolites are abundant. Therefore, the annotations should reflect its role in metabolic processes, specifically focusing on the synthesis and regulation of amino acids and nucleobase compounds. I will verify this by checking for consistency with the observed structural constraints; the alpha-helical dominance supports a soluble enzyme function rather than a membrane transporter, and the specific motifs align with biosynthetic pathways rather than degradation.
+
+</think>
+
+\end{cotverbatim}
+
+\end{fullcotsection}
+
+\par\medskip
+
+ 
+\begin{fullcotsection}{finalbg}{\projName{} final output}
+
+\begin{cotverbatim}
+
+amino acid metabolic process; carboxylic acid biosynthetic process; lysine metabolic process; obsolete diaminopimelate metabolic process; dicarboxylic acid metabolic process; sulfur compound metabolic process; dicarboxylic acid biosynthetic process; methionine biosynthetic process; diaminopimelate biosynthetic process; isoleucine biosynthetic process; sulfur compound biosynthetic process; threonine metabolic process; methionine metabolic process; small molecule biosynthetic process; lysine biosynthetic process; sulfur amino acid biosynthetic process; branched-chain amino acid metabolic process; alpha-amino acid metabolic process; alpha-amino acid biosynthetic process; sulfur amino acid metabolic process; isoleucine metabolic process; amino acid biosynthetic process; carboxylic acid metabolic process; lysine biosynthetic process via diaminopimelate; aspartate family amino acid biosynthetic process; L-methionine biosynthetic process; organic acid biosynthetic process; organic acid metabolic process; obsolete aspartate family amino acid metabolic process; branched-chain amino acid biosynthetic process; oxoacid metabolic process
+
+\end{cotverbatim}
+
+\end{fullcotsection}
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+\captionof{figure}{
+Full example of a structure-aware reasoning trace for biological-process Gene Ontology prediction. The input contains the amino-acid sequence of \texttt{1t4b\_A-P0A9Q9} and its residue-level 3Di structural representation. The reasoning trace cites sequence and structural substrings and connects them to metabolic and amino-acid-biosynthetic processes before producing the final set of predicted BP annotations.
+}
+
+\label{fig:full-cot-1t4b-a-p0a9q9-bp}
+
+ 
+
+\begingroup
+
+\begin{fullcotsection}{inputbg}{Input prompt}
+
+\begin{cotverbatim}
+
+Reaction class: alkylation
+
+Question:
+Please suggest potential reactants for the given product.
+<SMILES> [CH2:1]([CH2:2][CH2:3][C:4]([c:5]1[c:6]([CH3:7])[s:8][c:9]2[c:10]1[CH2:11][N:12]([C:13]([CH3:14])=[O:15])[CH2:16][CH2:17]2)=[O:18])[N:28]1[CH2:27][CH2:26][CH:25]([c:24]2[c:23]3[cH:22][cH:21][c:20]([F:19])[cH:34][c:33]3[o:32][n:31]2)[CH2:30][CH2:29]1 </SMILES>
+
+\end{cotverbatim}
+
+\end{fullcotsection}
+
+\par\medskip
+
+\begin{fullcotsection}{cotbg}{SciReasoner reasoning trace}
+
+\begin{cotverbatim}
+
+<think>
+
+Let's break down the retrosynthetic analysis for the provided product.
+
+1. Analysis of the Product Structure
+The product is a complex molecule with two main structural domains connected by a propyl chain:
+- Domain A (Left): A thienopyridine ring system substituted with an acetyl group and a methyl group. This domain is attached to the propyl chain via a carbonyl group (ketone).
+- Domain B (Right): A piperidine ring substituted with a fluorinated benzisoxazole group. This domain is attached to the propyl chain via a nitrogen atom (tertiary amine).
+
+The connection between these domains is a propyl linker: `[CH2:1]-[CH2:2]-[CH2:3]`.
+
+2. Retrosynthetic Disconnection
+The most strategic bond to disconnect is the C-N bond between the propyl chain and the piperidine nitrogen (bond between `[CH2:1]` and `[N:28]`).
+- This is a classic alkylation disconnection.
+- The propyl chain acts as the alkylating agent (electrophile).
+- The piperidine nitrogen acts as the nucleophile.
+
+3. Identifying the Reactants
+Based on this disconnection, we can propose the two reactants:
+
+*   Reactant 1 (The Alkylating Agent):
+    The propyl chain must be attached to a good leaving group. In organic synthesis, **chloride** is a standard leaving group for such alkylations.
+    - Structure: `Cl-CH2-CH2-CH2-Domain A`.
+    - In SMILES: `Cl[CH2:1][CH2:2][CH2:3][C:4](=[O:18])[c:5]1[c:6]([CH3:7])[s:8][c:9]2[c:10]1[CH2:11][N:12]([C:13]([CH3:14])=[O:15])[CH2:16][CH2:17]2`.
+
+*   Reactant 2 (The Nucleophile):
+    The piperidine ring must have a free hydrogen on the nitrogen to act as a nucleophile.
+    - Structure: `Domain B-H`.
+    - In SMILES: `[F:19][c:20]1[cH:21][cH:22][c:23]2[c:24]([CH:25]3[CH2:26][CH2:27][NH:28][CH2:29][CH2:30]3)[n:31][o:32][c:33]2[cH:34]1`.
+
+4. Sanity Check
+- Chemical Feasibility: The alkylation of a secondary amine (piperidine) with a primary alkyl chloride is a high-yielding, standard reaction, typically performed in the presence of a base (like K2CO3) to scavenge the HCl byproduct.
+- Selectivity: The piperidine nitrogen is the most nucleophilic site in Reactant 2. The amide nitrogen in the thienopyridine ring (Reactant 1) is much less nucleophilic due to delocalization and is not a competing site for alkylation under these conditions.
+- Connectivity: The disconnection correctly places the propyl chain on the nitrogen, matching the product structure.
+
+5. Final Answer
+The possible reactants are the alkyl chloride derivative of the thienopyridine domain and the substituted piperidine.
+
+<SMILES> Cl[CH2:1][CH2:2][CH2:3][C:4]([c:5]1[c:6]([CH3:7])[s:8][c:9]2[c:10]1[CH2:11][N:12]([C:13]([CH3:14])=[O:15])[CH2:16][CH2:17]2)=[O:18].[F:19][c:20]1[cH:21][cH:22][c:23]2[c:24]([CH:25]3[CH2:26][CH2:27][NH:28][CH2:29][CH2:30]3)[n:31][o:32][c:33]2[cH:34]1 </SMILES>
+
+</think>
+
+\end{cotverbatim}
+
+\end{fullcotsection}
+
+\par\medskip
+
+\begin{fullcotsection}{finalbg}{SciReasoner final output}
+
+\begin{cotverbatim}
+
+<SMILES> Cl[CH2:1][CH2:2][CH2:3][C:4]([c:5]1[c:6]([CH3:7])[s:8][c:9]2[c:10]1[CH2:11][N:12]([C:13]([CH3:14])=[O:15])[CH2:16][CH2:17]2)=[O:18].[F:19][c:20]1[cH:21][cH:22][c:23]2[c:24]([CH:25]3[CH2:26][CH2:27][NH:28][CH2:29][CH2:30]3)[n:31][o:32][c:33]2[cH:34]1 </SMILES>
+
+\end{cotverbatim}
+
+\end{fullcotsection}
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+\captionof{figure}{
+Full example of a retrosynthetic reasoning trace for an alkylation reaction from the USPTO-50K dataset. The input contains the atom-mapped SMILES representation of the target product. The reasoning trace identifies the bond between \texttt{[CH2:1]} and \texttt{[N:28]} as the strategic C--N disconnection, interprets the transformation as alkylation of a secondary piperidine amine with a primary alkyl chloride, and produces the corresponding reactant SMILES.
+}
+
+\label{fig:full-cot-sample-44-alkylation}
+
+\endgroup
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+\end{appendices}

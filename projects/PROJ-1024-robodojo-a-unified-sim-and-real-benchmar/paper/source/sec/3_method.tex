@@ -1,0 +1,10 @@
+\section{Technical Implementation}
+\label{sec:method}
+
+In this section, we present the technical design of the \textbf{RoboDojo} evaluation platform. RoboDojo comprises three main components: a simulation evaluation platform, a real-world evaluation platform, and \textbf{XPolicyLab}, a unified infrastructure for policy development and deployment. The simulation platform supports diverse task construction, digital-twin asset generation, heterogeneous parallel evaluation, and simulation data collection, enabling rapid feedback and efficient policy iteration across manipulation capabilities. The real-world platform, \textbf{RoboDojo-RealEval}, enables reproducible physical evaluation by standardizing the hardware configuration, workspace layout, lighting condition, scene reset procedure, evaluation protocol, and deployment interface. XPolicyLab defines a shared policy interface for observation updates, action prediction, policy reset, and batched policy queries, allowing different robot manipulation policies to be integrated into a common codebase and evaluated under a unified protocol. Together, these components enable policies to be integrated once, iterated efficiently in simulation, and deployed to standardized real-world evaluation with minimal policy-side adaptation.
+
+\input{sec/platform/simulation}
+
+\input{sec/platform/real_world}
+
+\input{sec/platform/xpolicylab}

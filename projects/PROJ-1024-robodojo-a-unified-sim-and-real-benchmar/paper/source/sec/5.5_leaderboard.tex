@@ -1,0 +1,26 @@
+\section{RoboDojo Leaderboard}
+\label{sec:leaderboard}
+
+We establish RoboDojo leaderboards to provide standardized comparisons of current robot manipulation policies across both simulation and real-world settings. The simulation leaderboard evaluates broad capability coverage and supports efficient diagnosis through large-scale, repeated trials across five capability dimensions. The real-world leaderboard complements simulation by assessing policy behavior under standardized physical deployment conditions across multiple robot embodiments. Together, these leaderboards provide a unified view of policy performance, revealing both capability-level limitations in simulation and deployment-level challenges in the physical world.
+
+\subsection{Simulation Benchmark Leaderboard}
+\label{sec:sim_leaderboard}
+
+Using \textbf{XPolicyLab}, we integrate, train, and evaluate 30 representative robot manipulation policies on the RoboDojo Simulation Benchmark Leaderboard. As a human-level reference, we additionally invite three expert teleoperators to perform VR-based simulation teleoperation under the same success criteria and execution horizons used for policy evaluation. Each expert has more than 1,000 hours of simulation teleoperation experience and participated in constructing the RoboDojo Simulation Benchmark dataset.
+
+For most policies, we train three random seeds and evaluate each seed for 50 trials per task. For the Generalization dimension, the 50 trials are split into 25 trials under the standard setting and 25 trials under the randomized setting. Unless otherwise specified, each policy is therefore evaluated over 150 trials per task across three seeds. We report the mean success rate and mean score for each capability dimension, together with their corresponding standard deviations. The overall success rate and score are computed by averaging the corresponding metrics across the five capability dimensions.
+
+The leaderboard is frozen for this paper on \textit{3 Jul. 2026}, while the latest results will be continuously updated at \href{http://RoboDojo-Benchmark.com/Leaderboard}{http://RoboDojo-Benchmark.com/Leaderboard}. Detailed training configurations for all evaluated models are provided in Appendix~\ref{appendix:train_details}. Models not trained with three random seeds are specially marked in the appendix.
+
+\input{sec/benchmark_experiment/sim_bench_experiment}
+
+\subsection{Real-World Benchmark Leaderboard}
+\label{sec:real_leaderboard}
+
+We evaluate 10 representative robot manipulation policies on the RoboDojo Real-World Benchmark Leaderboard. As a human-level reference, we additionally invite expert human teleoperators to perform real-world teleoperation using the same homogeneous leader-follower setup and task constraints as policy evaluation. Each teleoperator has more than 1,500 hours of real-world robot teleoperation experience and participated in collecting the RoboDojo Real-World Benchmark dataset.
+
+For each evaluated policy, we train one random seed for each robot embodiment and evaluate it on the corresponding real-world tasks. The benchmark contains 18 tasks across three embodiments, with 10 trials per task, resulting in 180 real-world evaluation trials per policy. All evaluations are conducted through the RoboDojo-RealEval platform under the standardized scene reset procedure, evaluation protocol, and deployment interface described in Section~\ref{sec:real_world_hardware}. We report both task success rate and score, and compute aggregate performance across all real-world tasks.
+
+The real-world leaderboard is frozen for this paper on \textit{3 Jul. 2026}, while the latest results will be continuously updated at \href{https://RoboDojo-Benchmark.com/Leaderboard}{https://RoboDojo-Benchmark.com/Leaderboard}. Detailed training configurations, hyperparameters, and policy-specific implementation details for all evaluated models are provided in Appendix~\ref{appendix:train_details}.
+
+\input{sec/benchmark_experiment/real_bench_experiment}

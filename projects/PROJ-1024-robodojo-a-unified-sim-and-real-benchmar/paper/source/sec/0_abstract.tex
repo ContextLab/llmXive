@@ -1,0 +1,33 @@
+\begin{abstract}
+
+Generalist robot manipulation policies have made substantial progress, yet existing benchmarks remain limited in their ability to systematically and comprehensively evaluate policy capabilities. Many benchmarks rely on simple, short-horizon, or skill-narrow tasks that often share similar manipulation patterns and cover only limited capability dimensions. Moreover, evaluations are commonly conducted either in simulation or in the real world alone: simulation provides efficient and scalable feedback but cannot fully capture physical deployment challenges, whereas real-world evaluation offers direct evidence of deployment performance but is costly, time-consuming, and difficult to reproduce. To address these limitations, we introduce \textbf{\textcolor{Blue_1}{RoboDojo}}, a unified sim-and-real benchmark for comprehensive evaluation of generalist robot manipulation policies. RoboDojo includes 42 simulation tasks and 18 real-world tasks designed to cover diverse, challenging, and complementary manipulation capabilities. The simulation benchmark evaluates five capability dimensions: generalization, memory, precision, long-horizon execution, and open-vocabulary instruction following, while the real-world benchmark exposes policies to challenging physical-world deployment conditions. To support large-scale evaluation, RoboDojo implements heterogeneous parallel simulation in Isaac Sim, substantially improving evaluation throughput. For real-world evaluation, RoboDojo provides \textbf{\textcolor{Blue_1}{RoboDojo-RealEval}}, a reproducible real-world evaluation system with remote cloud access. By standardizing the hardware setup, scene reset procedure, evaluation protocol, and deployment interface, RoboDojo-RealEval enables policies to be tested under consistent physical conditions. In parallel, \textbf{\textcolor{Blue_1}{XPolicyLab}} provides a unified infrastructure for policy development and deployment, allowing policies to be integrated once and evaluated across RoboDojo simulation and real-world settings with minimal policy-side adaptation. We integrate 30 policies into XPolicyLab and evaluate them on RoboDojo, establishing a public leaderboard with systematic analysis of current policy performance. The website is available at \href{http://robodojo-benchmark.com/}{http://robodojo-benchmark.com/}.
+
+\vspace{0.6em}
+\begin{tcolorbox}[
+colback=Blue_1!5,
+colframe=Blue_1!55,
+boxrule=0.5pt,
+arc=2pt,
+left=6pt,
+right=6pt,
+top=4pt,
+bottom=4pt
+]
+\small
+% \textbf{\textcolor{Blue_1}{Leaderboard Governance.}}
+% To ensure fair, neutral, and independent evaluation, the RoboDojo leaderboard is maintained by AI MMLab Club, a non-profit foundation, and will be jointly governed, maintained, and operated by global academic institutional partners without any commercial involvement, including governance, operation, funding, or sponsorship.\end{tcolorbox}
+
+\textbf{\textcolor{Blue_1}{Leaderboard Governance.}}
+To ensure fair and independent evaluation, AI MMLab Club, a non-profit foundation, maintains the RoboDojo leaderboard. Global academic partners will co-govern and operate it without commercial funding or sponsorship. \end{tcolorbox}
+
+
+\end{abstract}
+
+
+
+% \begin{abstract}
+
+% Generalist robot policies have made substantial progress, but existing benchmarks remain insufficient for systematic evaluation of their manipulation capabilities. Many benchmarks are limited by tasks that are short horizon, simple, or narrow in skill coverage, where different tasks often share similar underlying manipulation patterns and evaluate only a small set of capability dimensions. As a result, they provide limited diagnostic value for identifying the real weaknesses of policies across diverse manipulation challenges. Moreover, evaluations are commonly conducted in either simulation or real world environments alone. Simulation is efficient and scalable, but cannot fully reflect physical deployment, while real world evaluation is more direct, but costly, time consuming, and difficult to reproduce. To address these limitations, we introduce \textbf{\textcolor{Blue_1}{RoboDojo}}, a unified benchmark for robot manipulation across simulation and the real world. RoboDojo includes 42 simulation tasks and 18 real world tasks that are challenging, diverse, and long horizon. The simulation tasks cover complementary capabilities including generalization, memory, precision, open semantic grounding, and sequential execution, while the real world tasks are designed to expose policies to difficult physical deployment challenges. In this way, simulation serves as an efficient platform for rapid feedback and model iteration, and real world evaluation serves as a final test under physical conditions. RoboDojo connects simulation and real world evaluation through a unified evaluation pipeline, and implements heterogeneous parallel evaluation in Isaac Sim to run different tasks, scenes, and processes concurrently for improved evaluation efficiency. For physical testing, RoboDojo provides \textcolor{Blue_1}{\textbf{RoboDojo-RealEval}}, a reproducible real-world evaluation system with remote cloud access. By standardizing the hardware setup, scene reset procedure, evaluation protocol, and deployment interface, RoboDojo-RealEval enables policies to be tested under consistent and reproducible physical conditions. In parallel, \textcolor{Blue_1}{\textbf{XPolicyLab}} provides a unified infrastructure for policy development and deployment, allowing policies to be integrated once and evaluated across RoboDojo simulation and real world settings with minimal adaptation. We have integrated over \XpolicylabNum policies into XPolicyLab and evaluate them on RoboDojo to build a leaderboard with systematic analysis of current policy performance. Website is available at \href{http://robodojo-benchmark.com/}{http://robodojo-benchmark.com/}.
+
+
+% \end{abstract}

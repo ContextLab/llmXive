@@ -1,0 +1,93 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.25}
+\caption{\textbf{Policy performance under standard and randomized visual settings.}
+Each cell reports Standard Score / Random Score, with the relative score drop shown in parentheses. 
+The drop is computed as $(\text{Standard}-\text{Random})/\text{Standard}$.}
+\label{tab:generalization_standard_random_score}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{cccccccc}
+\toprule
+\multicolumn{8}{c}{\textbf{Policy-wise Score} (Standard / Random, Relative Drop)} \\
+\midrule
+
+\makecell{\textbf{Hy-Embodied-0.5-VLA}\\ $21.98 / 1.57$ {\scriptsize $(92.9\%)$}}
+&
+\makecell{\textbf{Spatial Forcing}\\ $21.25 / 6.98$ {\scriptsize $(67.2\%)$}}
+&
+\makecell{\textbf{$\pi_{0.5}$}\\ $20.92 / 5.82$ {\scriptsize $(72.2\%)$}}
+&
+\makecell{\textbf{X\_VLA}\\ $17.92 / 3.04$ {\scriptsize $(83.0\%)$}}
+&
+\makecell{\textbf{Xiaomi-Robotics-0}\\ $13.81 / 1.05$ {\scriptsize $(92.4\%)$}}
+&
+\makecell{\textbf{X\_WAM}\\ $11.24 / 3.54$ {\scriptsize $(68.5\%)$}}
+&
+\makecell{\textbf{LingBot-VLA}\\ $10.87 / 2.55$ {\scriptsize $(76.5\%)$}}
+% \makecell{\textbf{Motus}\\ $10.56 / 1.86$ {\scriptsize $(82.4\%)$}}
+&
+\makecell{\textbf{AHA-WAM}\\ $10.32 / 1.26$ {\scriptsize $(87.8\%)$}}
+\\
+
+\addlinespace[3pt]
+
+\makecell{\textbf{GigaWorldPolicy}\\ $10.28 / 0.41$ {\scriptsize $(96.0\%)$}}
+&
+\makecell{\textbf{ABot-M0}\\ $9.19 / 2.26$ {\scriptsize $(75.4\%)$}}
+&
+\makecell{\textbf{GalaxeaVLA}\\ $8.71 / 0.36$ {\scriptsize $(95.9\%)$}}
+&
+\makecell{\textbf{starVLA}\\ $7.53 / 0.33$ {\scriptsize $(95.6\%)$}}
+&
+\makecell{\textbf{$\pi_{0}$}\\ $7.18 / 0.71$ {\scriptsize $(90.1\%)$}}
+&
+\makecell{\textbf{EventVLA}\\ $6.66 / 1.22$ {\scriptsize $(81.7\%)$}}
+&
+\makecell{\textbf{InternVLA-A1}\\ $5.22 / 0.51$ {\scriptsize $(90.2\%)$}}
+&
+\makecell{\textbf{FastWAM}\\ $4.33 / 0.34$ {\scriptsize $(92.1\%)$}}
+\\
+
+\addlinespace[3pt]
+
+\makecell{\textbf{GR00T-N1.7}\\ $3.97 / 0.35$ {\scriptsize $(91.2\%)$}}
+&
+\makecell{\textbf{SmolVLA}\\ $3.28 / 0.09$ {\scriptsize $(97.3\%)$}}
+&
+\makecell{\textbf{GO1}\\ $3.16 / 0.01$ {\scriptsize $(99.7\%)$}}
+&
+\makecell{\textbf{Spirit\_v15}\\ $1.60 / 0.00$ {\scriptsize $(100.0\%)$}}
+&
+\makecell{\textbf{ACT}\\ $1.37 / 0.00$ {\scriptsize $(100.0\%)$}}
+&
+\makecell{\textbf{LDA-1B}\\ $1.29 / 0.12$ {\scriptsize $(90.7\%)$}}
+&
+\makecell{\textbf{Dexbotic-DM0}\\ $0.93 / 0.04$ {\scriptsize $(95.7\%)$}}
+&
+\makecell{\textbf{H-RDT}\\ $0.89 / 0.09$ {\scriptsize $(89.9\%)$}}
+\\
+
+\addlinespace[3pt]
+
+\makecell{\textbf{RDT-1B}\\ $0.82 / 0.29$ {\scriptsize $(64.6\%)$}}
+&
+\makecell{\textbf{Dexora-1B}\\ $0.80 / 0.18$ {\scriptsize $(77.5\%)$}}
+&
+\makecell{\textbf{MolmoACT2}\\ $0.73 / 0.04$ {\scriptsize $(94.5\%)$}}
+&
+\makecell{\textbf{A1}\\ $0.28 / 0.04$ {\scriptsize $(85.7\%)$}}
+&
+\makecell{\textbf{TinyVLA}\\ $0.06 / 0.01$ {\scriptsize $(83.3\%)$}}
+&
+\makecell{\textbf{OpenVLA-OFT}\\ $0.03 / 0.06$ {\scriptsize $(-100.0\%)$}}
+&
+&
+\\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}
+

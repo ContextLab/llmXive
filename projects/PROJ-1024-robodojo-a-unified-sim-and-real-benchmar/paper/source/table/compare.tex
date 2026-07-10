@@ -1,0 +1,50 @@
+\begin{table*}[!ht]
+\centering
+\caption{\textbf{Comparison between RoboDojo and other benchmarks.}
+``Skill'' is the number of operation primitives covered; ``Num. Policies'' is the number of baseline policies the benchmark integrates/evaluates. N/R indicates not reported. HP indicates heterogeneous parallelization.}
+\label{tab:robodojo_simulation_benchmark_compare}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.08}
+\definecolor{bestblue}{RGB}{210,243,247}
+\newcommand{\thickline}{\noalign{\vspace{0.25em}\hrule height 1.2pt\vspace{0.25em}}}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l|c|c|c|c|c|c|c|c}
+\thickline
+\textbf{Benchmark} &
+\textbf{Platform} &
+\textbf{Skill} &
+\textbf{HP} &
+\textbf{Bimanual} &
+\textbf{Tasks} &
+\textbf{Data Source} &
+\textbf{Num. Policies} &
+\textbf{Sim-and-Real} \\
+\midrule
+RoboTwin 1.0~\citep{mu2025robotwin} & SAPIEN & 7 & $\times$ & $\checkmark$ & 15 & Teleop+DataGen & 4 & $\times$ \\
+RoboTwin 2.0~\citep{chen2025robotwin} & SAPIEN & 13 & $\times$ & $\checkmark$ & 50 & DataGen & 11 & $\times$ \\
+RMBench~\citep{chen2026rmbench} & SAPIEN & 3 & $\times$ & $\checkmark$ & 9 & Teleop+DataGen & 5 & $\times$ \\
+AutoBio~\citep{lan2025autobio} & MuJoCo & 3 & $\times$ & $\checkmark$ & 16 & DataGen & 2 & $\times$ \\
+DexJoCo~\citep{wang2026dexjoco} & MuJoCo & 12 & $\times$ & $\checkmark$ & 11 & Teleop & 4 & $\times$ \\
+LIBERO~\citep{liu2023libero} & MuJoCo & 6 & $\times$ & $\times$ & 130 & Teleop & 3 & $\times$ \\
+CALVIN~\citep{mees2022calvin} & PyBullet & 10 & $\times$ & $\times$ & 34 & Teleop & 1 & $\times$ \\
+RLBench~\citep{james2019rlbench} & CoppeliaSim & 18 & $\times$ & $\times$ & 100 & DataGen & N/R & $\times$ \\
+RoboCasa365~\citep{nasiriany2026robocasa365} & MuJoCo & 8 & $\times$ & $\times$ & 365 & Teleop+DataGen & 4 & $\times$ \\
+SimplerEnv~\citep{li2024evaluating} & SAPIEN & 4 & $\times$ & $\times$ & 8 & Teleop & 4 & $\times$ \\
+VLABench~\citep{zhang2025vlabench} & MuJoCo & 10 & $\times$ & $\times$ & 100 & DataGen & 3 & $\times$ \\
+BEHAVIOR-1K~\citep{li2023behavior} & Isaac Sim & 19 & $\times$ & $\checkmark$ & 1000 & Teleop & 6 & $\times$ \\
+RoboSuite~\citep{zhu2020robosuite} & MuJoCo & 9 & $\times$ & $\checkmark$ & 9 & Teleop & 1 & $\times$ \\
+Meta-World~\citep{yu2020meta} & MuJoCo & 13 & $\times$ & $\times$ & 50 & DataGen & 7 & $\times$ \\
+EBench~\citep{gao2026ebench} & Isaac Sim & 11 & $\times$ & $\checkmark$ & 26 & Teleop+DataGen & 4 & $\times$ \\
+RoboLab~\citep{yang2026robolab} & Isaac Lab & 4 & $\times$ & $\times$ & 120 & Teleop & 5 & $\times$ \\
+ManipulationNet~\citep{chen2026manipulationnet} & Real Robot & 5 & $\times$ & $\checkmark$ & 5 & N/R & N/R & $\times$ \\
+RoboArena~\citep{atreya2025roboarena} & Real Robot & 11 & $\times$ & $\times$ & N/R & N/R & 7 & $\times$ \\
+RoboChallenge~\citep{yakefu2025robochallenge} & Real Robot & 13 & $\times$ & $\checkmark$ & 30 & Teleop & 5 & $\times$ \\
+\midrule
+RoboDojo (ours) & Isaac Sim & 24 & $\checkmark$ & $\checkmark$ & 60 & Teleop+DataGen & 35+ & $\checkmark$ \\
+\thickline
+\end{tabular}
+}
+\endgroup
+\end{table*}
