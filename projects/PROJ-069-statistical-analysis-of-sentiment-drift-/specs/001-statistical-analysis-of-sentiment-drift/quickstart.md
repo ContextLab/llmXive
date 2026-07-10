@@ -2,66 +2,52 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- HuggingFace account (to access the sentiment dataset)
-- FRED API key (set as environment variable `FRED_API_KEY`)
-- GitHub Actions free tier (for CI reproducibility)
+- Python 3.10+
+- Valid FRED API Key (optional, if using direct API; otherwise use HF datasets).
+- Access to HuggingFace datasets (free tier).
 
 ## Installation
 
-```bash
-git clone <repo-url>
-cd projects/PROJ-069-statistical-analysis-of-sentiment-drift-/
-python -m venv venv
-source venv/bin/activate
-pip install -r code/requirements.txt
-```
+1.  Clone the repository.
+2.  Create a virtual environment:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  Install dependencies:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
-## Execution Order
+## Running the Analysis
 
-Run the scripts **exactly** in the order listed; each step depends on the previous output.
+The analysis is orchestrated via a single Jupyter Notebook which calls the modular scripts.
 
-1. **Ingest raw data**  
-   ```bash
-   python code/01_ingest_data.py
-   ```
-   *Outputs*: `data/raw/fred_gdp.csv`, `data/raw/fred_unrate.csv`, `data/raw/fred_consumer_confidence.csv`, `data/raw/sentiment_daily.json`, `data/raw/nber_recessions.csv`
+1.  **Start the notebook**:
+    ```bash
+    jupyter notebook notebooks/analysis_master.ipynb
+    ```
+2.  **Execute all cells**:
+    - The notebook will automatically:
+        - Call `code/01_ingest_align.py` to download data from verified sources (GDELT, FRED) and align to **monthly** frequency.
+        - Call `code/02_stationarity_test.py` to perform ADF tests and interpolation.
+        - Call `code/03_granger_analysis.py` to run Granger tests (using 3 sentiment variables).
+        - Call `code/04_validation.py` to execute MBB (block=1 month) and sensitivity analysis.
+        - Call `code/05_visualization.py` to generate plots with NBER shading.
+3.  **Output**:
+    - Check `data/processed/` for intermediate CSVs and JSONs.
+    - The notebook will display final plots and a summary table of p-values.
 
-2. **Preprocess & align**  
-   ```bash
-   python code/02_preprocess.py
-   ```
-   *Outputs*: `data/processed/aligned_quarterly.csv`, `data/processed/sentiment_monthly.csv`, `data/data_quality_log.json`
+## Verification
 
-3. **Stationarity tests & model fitting**  
-   ```bash
-   python code/03_stationarity_and_modeling.py
-   ```
-   *Outputs*: `results/model_stats.json`, `results/stationarity_log.txt`
-
-4. **Robustness validation & sensitivity**  
-   ```bash
-   python code/04_validation_and_sensitivity.py
-   ```
-   *Outputs*: `results/validation_stats.json`
-
-5. **Visualization & final report**  
-   ```bash
-   python code/05_visualization_and_report.py
-   ```
-   *Outputs*: `plots/timeseries_recession.png`, `plots/correlation_heatmap.png`, `docs/paper/report.html`, `analysis.ipynb`
-
-## Reproducibility Checks
-
-```bash
-pytest tests/          # contract validation
-pytest --nbval-lax analysis.ipynb   # notebook execution on fresh runner
-```
-
-The checksum of `data/processed/aligned_quarterly.csv` must match the hash recorded in the project state file; any mismatch indicates a data‑hygiene violation.
+To verify the run:
+- Check that `data/processed/aligned_monthly.csv` exists and has no missing values (or documented interpolation/exclusion).
+- Verify that `data/processed/model_results.json` contains p-values for all variable pairs.
+- Confirm that plots in the notebook have shaded recession periods.
+- Ensure `sentiment_low_confidence` flags are set correctly based on the A threshold value will be established to determine the removal or generalization criteria..
 
 ## Troubleshooting
 
-- **Missing verified URLs**: The pipeline will abort with a clear message; add the missing URLs to the `# Verified datasets` block before rerunning.
-- **Memory errors**: Reduce bootstrap iterations (`--iters 500`) if RAM is constrained.
-- **Non‑stationary warnings**: Check `results/stationarity_log.txt` for applied transformations.
+- **Memory Error**: Reduce the GDELT dataset sample size in `code/01_ingest_align.py` (default a large-scale dataset).
+- **FRED API Error**: Ensure API key is set in environment variable `FRED_API_KEY` or use the verified HF dataset wrapper.
+- **Stationarity Failure**: Check logs in `code/02_stationarity_test.py` for fallback transformation details.

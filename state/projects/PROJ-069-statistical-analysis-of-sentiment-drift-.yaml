@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-069-statistical-analysis-of-sentiment-drift-
-last_run_id: 0349a8fd-e1d0-46ed-9582-a1eb6fb072b5
+last_run_id: 95b34e0a-b1a1-445d-9a78-f056d2253da6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift
 title: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions
-updated_at: '2026-07-09T20:37:58.775428Z'
+updated_at: '2026-07-10T05:18:55.163094Z'

@@ -1,51 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Statistical Model Results"
-description: "Schema for the output of stationarity, VAR, and Granger causality tests."
+title: "Model Results"
+description: "Schema for statistical test outputs (Granger, ADF, Johansen)."
 type: "object"
 properties:
   test_type:
     type: "string"
-    enum: ["ADF", "Johansen", "Granger", "MBB"]
+    enum:
+      - "Granger"
+      - "ADF"
+      - "Johansen"
+      - "VAR"
     description: "Type of statistical test performed."
   variable_pair:
     type: "string"
-    description: "Direction of causality being tested (e.g., 'Sentiment -> GDP')."
+    description: "Description of the relationship tested, e.g., 'Sentiment_Pos -> GDP'."
+  lag_order:
+    type: "integer"
+    minimum: 1
+    description: "Optimal lag order selected."
   statistic:
     type: "number"
-    description: "Value of the test statistic (F-stat, ADF stat, etc.)."
+    description: "Test statistic value (F-stat, ADF stat, etc.)."
   p_value:
     type: "number"
+    minimum: 0.0
+    maximum: 1.0
     description: "P-value of the test."
-  optimal_lag:
-    type: "integer"
-    minimum: 0
-    description: "Optimal lag order selected by AIC (for VAR)."
-  cointegration_rank:
-    type: "integer"
-    minimum: 0
-    description: "Cointegration rank from Johansen test."
-  confidence_interval:
-    type: "array"
-    items:
-      type: "number"
-    minItems: 2
-    maxItems: 2
-    description: "Confidence interval [lower, upper] for MBB."
-  block_length:
-    type: "integer"
-    description: "Block length used in Moving Block Bootstrap (quarters)."
-  masking_proportion:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Proportion of data masked in sensitivity analysis."
   is_significant:
     type: "boolean"
-    description: "True if p_value < 0.05."
+    description: "True if p-value < 0.05 (after correction)."
+  method:
+    type: "string"
+    description: "Method used (VAR, VECM, etc.)."
+  stationary:
+    type: "boolean"
+    description: "Result of stationarity test."
 required:
   - test_type
   - variable_pair
-  - statistic
   - p_value
   - is_significant
 additionalProperties: false

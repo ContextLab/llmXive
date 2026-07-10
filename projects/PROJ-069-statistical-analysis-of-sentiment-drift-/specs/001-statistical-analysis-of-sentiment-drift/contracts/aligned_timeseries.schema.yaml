@@ -1,12 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Aligned Quarterly Timeseries Schema"
-description: "Schema for the merged, cleaned, and aligned quarterly time‑series data used in Granger causality analysis."
+title: "Aligned Monthly Timeseries Schema"
+description: "Schema for the merged, cleaned, and aligned monthly time‑series data used in Granger causality analysis."
 type: "object"
 properties:
   date:
     type: "string"
-    format: "date"
-    description: "Quarterly timestamp (end of quarter)."
+    pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$"
+    description: "Monthly timestamp (YYYY-MM)."
   sentiment_positive:
     type: "number"
     minimum: 0.0
@@ -27,15 +27,22 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: "Mean confidence score of the sentiment predictions."
+  sentiment_n:
+    type: "integer"
+    minimum: 0
+    description: "Number of items aggregated in this month."
+  sentiment_low_confidence:
+    type: "boolean"
+    description: "True if sentiment_confidence < 0.7 or sample size is insufficient."
   gdp_growth:
     type: "number"
-    description: "Quarterly GDP growth rate."
+    description: "Monthly GDP growth rate."
   unemployment_rate:
     type: "number"
-    description: "Quarterly unemployment rate."
+    description: "Monthly unemployment rate."
   consumer_confidence:
     type: "number"
-    description: "Quarterly Consumer Confidence Index."
+    description: "Monthly Consumer Confidence Index."
   is_recession:
     type: "boolean"
     description: "True if the date falls within an NBER‑defined recession period."
@@ -43,16 +50,26 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 0.05
-    description: "Percentage of missing values imputed for this row (≤ 5 %)."
+    description: "Percentage of missing values imputed for this row (≤ 5 %)."
+  gdp_missing:
+    type: "boolean"
+    description: "True if the GDP value was interpolated."
+  unemployment_missing:
+    type: "boolean"
+    description: "True if the unemployment rate was interpolated."
 required:
   - date
   - sentiment_positive
   - sentiment_negative
   - sentiment_neutral
   - sentiment_confidence
+  - sentiment_n
+  - sentiment_low_confidence
   - gdp_growth
   - unemployment_rate
   - consumer_confidence
   - is_recession
   - missing_rate
+  - gdp_missing
+  - unemployment_missing
 additionalProperties: false
