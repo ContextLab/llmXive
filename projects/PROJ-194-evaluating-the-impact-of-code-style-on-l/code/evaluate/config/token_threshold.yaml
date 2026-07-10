@@ -1,0 +1,25 @@
+# Token Threshold Configuration for FR-007
+# This file defines the threshold T used to flag results as "potentially confounded"
+# when the token count change delta exceeds T.
+#
+# FR-007 Requirement:
+# "Flag a result as potentially confounded if the token count change delta exceeds the threshold T."
+#
+# Current State:
+# T is set to null as a placeholder. It must be updated by empirical findings
+# derived from the correlation report (FR-007) generated in Phase 5 (T038).
+#
+# Once empirical analysis determines the significant delta (e.g., > 15% change),
+# update the value below to a concrete integer or float.
+#
+# Example of future configuration:
+# T: 15.0  # Represents a 15% delta threshold
+
+T: null
+
+# Metadata for audit trail
+metadata:
+  created_by: "T022c"
+  purpose: "Define token threshold T for confounding detection"
+  status: "placeholder"
+  update_trigger: "Empirical findings from T038 correlation report"

@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: TaskResult
+description: Schema for the output of an LLM task execution (completion, bug detection, summarization).
+type: object
+required:
+  - result_id
+  - variant_id
+  - task_type
+  - model_name
+  - raw_output
+  - metrics
+  - execution_timestamp
+properties:
+  result_id:
+    type: string
+    description: Unique identifier for this result record.
+  variant_id:
+    type: string
+    description: Reference to the style variant ID.
+  task_type:
+    type: string
+    enum: ["completion", "bug_detection", "summarization"]
+    description: The type of task performed.
+  model_name:
+    type: string
+    description: Name of the LLM used (e.g., CodeGen-2B).
+  raw_output:
+    type: string
+    description: The raw text output from the model.
+  metrics:
+    type: object
+    description: Calculated performance metrics.
+    properties:
+      exact_match:
+        type: number
+        minimum: 0
+        maximum: 1
+      codebleu:
+        type: number
+        minimum: 0
+        maximum: 1
+      rouge_l:
+        type: number
+        minimum: 0
+        maximum: 1
+      bleu:
+        type: number
+        minimum: 0
+        maximum: 1
+      precision:
+        type: number
+        minimum: 0
+        maximum: 1
+      recall:
+        type: number
+        minimum: 0
+        maximum: 1
+      f1:
+        type: number
+        minimum: 0
+        maximum: 1
+      token_count:
+        type: integer
+        minimum: 0
+        description: Number of tokens in the input prompt or output.
+      is_potentially_confounded:
+        type: boolean
+        description: Flag if token count delta exceeds threshold T.
+  execution_timestamp:
+    type: string
+    format: date-time
+    description: When the inference was executed.
+  error_message:
+    type: ["string", "null"]
+    description: Error message if the task failed.

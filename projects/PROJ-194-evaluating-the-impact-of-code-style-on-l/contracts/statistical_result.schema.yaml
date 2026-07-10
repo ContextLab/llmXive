@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: StatisticalResult
+description: Schema for the output of the statistical analysis phase.
+type: object
+required:
+  - analysis_id
+  - metric_name
+  - model_type
+  - fixed_effects
+  - random_effects
+  - p_values
+  - effect_sizes
+  - normality_check
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for the analysis run.
+  metric_name:
+    type: string
+    description: The dependent variable being analyzed (e.g., codebleu).
+  model_type:
+    type: string
+    enum: ["LMM", "GLMM", "Permutation"]
+    description: Type of statistical model used.
+  fixed_effects:
+    type: array
+    items:
+      type: string
+    description: List of fixed effect factors (e.g., formatting, naming).
+  random_effects:
+    type: array
+    items:
+      type: string
+    description: List of random effect factors (e.g., function_id).
+  normality_check:
+    type: object
+    description: Results of the Shapiro-Wilk test on residuals.
+    properties:
+      statistic:
+        type: number
+      p_value:
+        type: number
+      is_normal:
+        type: boolean
+  p_values:
+    type: object
+    description: Dictionary of factor names to corrected p-values.
+    additionalProperties:
+      type: number
+  effect_sizes:
+    type: object
+    description: Dictionary of factor names to effect size estimates.
+    additionalProperties:
+      type: number
+  confidence_intervals:
+    type: object
+    description: 95% confidence intervals for estimates.
+    additionalProperties:
+      type: array
+      items:
+        type: number
+      minItems: 2
+      maxItems: 2
+  method_details:
+    type: object
+    description: Additional details about the method (e.g., correction method).
+    properties:
+      correction_method:
+        type: string
+        description: e.g., "Bonferroni".
+      iterations:
+        type: integer
+        description: Number of iterations for permutation tests.

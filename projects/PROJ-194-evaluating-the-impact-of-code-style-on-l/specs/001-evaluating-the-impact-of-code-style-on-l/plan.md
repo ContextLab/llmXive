@@ -17,7 +17,7 @@ This project implements a rigorous **pilot experimental pipeline** to quantify h
 **Testing**: `pytest` for unit/integration tests; contract tests against YAML schemas.
 **Target Platform**: GitHub Actions Free Tier (2 CPU, 7GB RAM, no GPU).
 **Project Type**: Research pipeline / CLI tool.
-**Performance Goals**: Total runtime ≤ 6 hours; memory usage ≤ 6GB; successful execution of 8 variants per function on sampled data.
+**Performance Goals**: Total runtime ≤ 6 hours; memory usage ≤ 6GB; successful execution of multiple variants per function on sampled data.
 **Constraints**: No GPU/CUDA; no 8-bit quantization; no large-LLM inference; strict adherence to verified dataset sources.
 **Scale/Scope**: Sampled subset of CodeSearchNet Python functions (N=30 functions, 240 variants) as a pilot for variance estimation.
 
@@ -41,7 +41,7 @@ This project implements a rigorous **pilot experimental pipeline** to quantify h
 
 | Plan Phase | Activity | Contract Schema |
 | :--- | :--- | :--- |
-| **Data Transformation** | Generate 8 variants per function | `contracts/dataset.schema.yaml`, `contracts/style_variant.schema.yaml` |
+| **Data Transformation** | Generate multiple variants per function | `contracts/dataset.schema.yaml`, `contracts/style_variant.schema.yaml` |
 | **LLM Inference** | Execute tasks, calculate metrics | `contracts/task_result.schema.yaml` |
 | **Statistical Analysis** | Fit models, generate report | `contracts/analysis_output.schema.yaml`, `contracts/statistical_result.schema.yaml` |
 | **Validation** | Verify accuracy and schemas | `contracts/dataset_schema.schema.yaml` (Source) |
@@ -110,4 +110,4 @@ projects/PROJ-194-evaluating-the-impact-of-code-style-on-l/
 | **Mixed-Effects Modeling (GLMM/LMM)** | Required by FR-005 to handle random intercepts for function ID and control for intra-function correlation. **Separate models used for binary (Exact Match) and continuous (CodeBLEU) metrics.** | Standard ANOVA would violate independence assumptions and fail to handle mixed outcome types. |
 | **CPU-Only Inference** | Mandatory constraint of the CI environment (no GPU). | GPU-based inference is faster but infeasible on the target runner; requires careful sampling and model selection. |
 | **8-Way Factorial Design + GN-PC Control** | Required by US-1 to isolate orthogonal effects. **Added GN-PC (Generic Naming + Preserved Comments) to isolate semantic loss from style.** | Simplified designs would fail to distinguish "style impact" from "semantic obfuscation". |
-| **Pilot Study Framing** | CPU constraints limit N to ~30. **Formal power analysis simulation confirms this is an exploratory pilot.** | Larger samples are impossible on free-tier CI; claiming confirmatory results would be statistically invalid. |
+| **Pilot Study Framing** | CPU constraints limit N to a moderate scale. **Formal power analysis simulation confirms this is an exploratory pilot.** | Larger samples are impossible on free-tier CI; claiming confirmatory results would be statistically invalid. |

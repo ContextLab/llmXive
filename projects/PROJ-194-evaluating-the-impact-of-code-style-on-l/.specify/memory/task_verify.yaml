@@ -1,0 +1,16 @@
+'T001 Create project structure per `plan.md` (directories: `code/`, `data/`, `results/`, `tests/`, `contracts/`)': 2
+? T002 Initialize `requirements.txt` with CPU-safe versions of `datasets`, `transformers`,
+  `scikit-learn`, `statsmodels`, `black`, `rouge-score`, `codebleu`, `pytest`
+: 2
+T003 [P] Configure `pytest` and linting tools (`ruff` or `flake8`) in `pyproject.toml`: 2
+? T004 Define data contracts in `contracts/dataset.schema.yaml` (Base Function), `contracts/style_variant.schema.yaml`
+  (8-way factorial), `contracts/task_result.schema.yaml`, `contracts/statistical_result.schema.yaml`,
+  and `contracts/analysis_output.schema.yaml`
+: 2
+? T005 Implement `code/validation/verify_accuracy.py` to enforce Constitution Principle
+  II (verify citations, check data URLs, validate schemas) before any inference
+: 2
+? T006 [P] Implement `code/transform/seed_manager.py` to log `transform_seed` AND
+  the SHA256 hash of the identifier mapping dictionary for every variant generation
+  to ensure reproducibility (Constitution Principle VI)
+: 2

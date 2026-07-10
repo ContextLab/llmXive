@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: StyleVariant
+description: Schema for a style-transformed variant of a base function (8-way factorial).
+type: object
+required:
+  - id
+  - base_function_id
+  - source_code
+  - transformation_flags
+  - created_at
+properties:
+  id:
+    type: string
+    description: Unique identifier for this specific variant.
+  base_function_id:
+    type: string
+    description: Reference to the base function ID.
+  source_code:
+    type: string
+    description: The transformed Python source code.
+  transformation_flags:
+    type: object
+    description: Boolean flags defining the 2x2x2 factorial design.
+    required:
+      - is_minified
+      - is_generic_naming
+      - is_stripped_comments
+    properties:
+      is_minified:
+        type: boolean
+        description: True if minified formatting was applied.
+      is_generic_naming:
+        type: boolean
+        description: True if generic naming (var1, func2) was applied.
+      is_stripped_comments:
+        type: boolean
+        description: True if comments and docstrings were removed.
+  is_semantic_opacity:
+    type: boolean
+    description: Derived flag: true if is_generic_naming AND is_stripped_comments are both true.
+  seed_info:
+    type: object
+    description: Reproducibility metadata.
+    properties:
+      transform_seed:
+        type: integer
+      identifier_mapping_hash:
+        type: string
+        description: SHA256 hash of the identifier mapping dictionary.
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of generation.

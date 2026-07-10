@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: BaseFunction
+description: Schema for the base Python function before any style transformation.
+type: object
+required:
+  - id
+  - source_code
+  - original_language
+  - dataset_source
+  - created_at
+properties:
+  id:
+    type: string
+    description: Unique identifier for the base function.
+  source_code:
+    type: string
+    description: The original Python source code.
+  original_language:
+    type: string
+    enum: ["python"]
+    description: Programming language of the source.
+  dataset_source:
+    type: string
+    description: URL or name of the dataset this function originated from.
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of ingestion.
+  metadata:
+    type: object
+    description: Optional additional metadata (e.g., difficulty, topic).
+    additionalProperties: true
