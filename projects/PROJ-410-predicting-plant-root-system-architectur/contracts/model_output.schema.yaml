@@ -1,0 +1,160 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: |
+  Schema defining the structure of model results and metrics produced by the
+  plant root architecture prediction pipeline. This schema covers both
+  per-condition model performance metrics and feature importance data.
+type: object
+required:
+  - metadata
+  - models
+properties:
+  metadata:
+    type: object
+    description: Execution and data provenance information
+    required:
+      - timestamp
+      - pipeline_version
+      - data_source
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the model was trained/evaluated
+      pipeline_version:
+        type: string
+        description: Version of the pipeline used (e.g., from git commit or config)
+      data_source:
+        type: string
+        description: Path or identifier of the input dataset used
+      nutrient_condition:
+        type: string
+        description: The specific nutrient condition for this model run
+      random_seed:
+        type: integer
+        description: Random seed used for reproducibility
+      hyperparameters:
+        type: object
+        description: Dictionary of hyperparameters used for this model
+        additionalProperties: true
+  models:
+    type: array
+    description: List of model results (one per model type trained)
+    items:
+      type: object
+      required:
+        - model_type
+        - metrics
+      properties:
+        model_type:
+          type: string
+          enum:
+            - null_model
+            - lasso
+            - elastic_net
+            - random_forest
+            - gradient_boosting
+          description: Type of model trained
+        metrics:
+          type: object
+          description: Performance metrics for this model
+          required:
+            - r_squared
+            - mae
+            - rmse
+          properties:
+            r_squared:
+              type: number
+              format: float
+              description: Coefficient of determination (R²)
+            adjusted_r_squared:
+              type: number
+              format: float
+              description: Adjusted R² for models with multiple predictors
+            mae:
+              type: number
+              format: float
+              description: Mean Absolute Error
+            rmse:
+              type: number
+              format: float
+              description: Root Mean Squared Error
+            cv_r_squared_mean:
+              type: number
+              format: float
+              description: Mean R² from cross-validation
+            cv_r_squared_std:
+              type: number
+              format: float
+              description: Standard deviation of R² from cross-validation
+            p_value:
+              type: number
+              format: float
+              description: P-value from permutation test against null model
+            is_significant:
+              type: boolean
+              description: Whether the model significantly outperforms the null model (p < 0.05)
+            null_model_r_squared:
+              type: number
+              format: float
+              description: R² of the null model for comparison
+        feature_importance:
+          type: array
+          description: List of top features and their importance scores
+          items:
+            type: object
+            required:
+              - feature_name
+              - importance_score
+            properties:
+              feature_name:
+                type: string
+                description: Name of the genomic marker or feature
+              importance_score:
+                type: number
+                format: float
+                description: Importance score (SHAP value, coefficient magnitude, or permutation importance)
+              p_value:
+                type: number
+                format: float
+                description: P-value for feature significance (if available)
+              is_significant:
+                type: boolean
+                description: Whether the feature is statistically significant after correction
+        model_artifact_path:
+          type: string
+          description: Relative path to the saved model file (e.g., pickle or joblib)
+        prediction_stats:
+          type: object
+          description: Statistics about the predictions made by this model
+          properties:
+            min_prediction:
+              type: number
+              format: float
+            max_prediction:
+              type: number
+              format: float
+            mean_prediction:
+              type: number
+              format: float
+            std_prediction:
+              type: number
+              format: float
+  summary:
+    type: object
+    description: High-level summary of the best performing model per condition
+    properties:
+      best_model_type:
+        type: string
+        description: Type of the best performing model
+      best_r_squared:
+        type: number
+        format: float
+        description: R² of the best model
+      significant_markers_count:
+        type: integer
+        description: Number of statistically significant genomic markers identified
+      environmental_dominance_flag:
+        type: boolean
+        description: True if no models significantly outperformed the null model
+additionalProperties: false

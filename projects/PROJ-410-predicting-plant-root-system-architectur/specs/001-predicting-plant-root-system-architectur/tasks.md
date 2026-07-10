@@ -20,36 +20,36 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directories: `data/raw`, `data/processed`, `code/`, `tests/`, `contracts/`
-- [ ] T002 Create `projects/PROJ-410-predicting-plant-root-system-architectur/` root structure files (`.gitignore`, `README.md`)
-- [ ] T003 [P] Create `requirements.txt` file with pinned versions for `scikit-learn`, `pandas`, `numpy`, `scipy`, `shap`, `matplotlib`, `seaborn`, `pyyaml`
-- [ ] T004 [P] Create `.flake8` configuration file with linting rules
-- [ ] T005 [P] Add `black` pre-commit hook configuration
-- [ ] T006 [P] Create `code/config.py` with paths and random seeds
-- [ ] T007 [P] Define default hyperparameters in `code/config.py` (regularization strengths, tree depths)
+- [X] T001 Create project directories: `data/raw`, `data/processed`, `code/`, `tests/`, `contracts/`
+- [X] T002 Create `projects/PROJ-410-predicting-plant-root-system-architectur/` root structure files (`.gitignore`, `README.md`)
+- [X] T003 [P] Create `requirements.txt` file with pinned versions for `scikit-learn`, `pandas`, `numpy`, `scipy`, `shap`, `matplotlib`, `seaborn`, `pyyaml`
+- [X] T004 [P] Create `.flake8` configuration file with linting rules
+- [X] T005 [P] Add `black` pre-commit hook configuration
+- [X] T006 [P] Create `code/config.py` with paths and random seeds
+- [X] T007 [P] Define default hyperparameters in `code/config.py` (regularization strengths, tree depths)
 
 ---
 
@@ -64,9 +64,9 @@
 - [ ] T010 [P] Implement `code/download.py` with full fetch logic for 1001 Genomes/ATRDB
 - [ ] T011 [P] Implement `code/mock_data.py` to generate synthetic data with correct schema
 - [ ] T012 [P] Implement fallback logic in `code/download.py` to trigger mock data if fetch fails
-- [ ] T013 [P] Implement `code/verify_fit.py` to check variable existence, log errors, and return status code
-- [ ] T014 [P] Implement explicit verification task in `code/download.py` to confirm real source reachability before fallback
-- [ ] T015 Setup `pytest` configuration in `projects/PROJ-410-predicting-plant-root-system-architectur/`
+- [~] T013 [P] Implement `code/verify_fit.py` to check variable existence, log errors, and return status code
+- [~] T014 [P] Implement explicit verification task in `code/download.py` to confirm real source reachability before fallback
+- [~] T015 Setup `pytest` configuration in `projects/PROJ-410-predicting-plant-root-system-architectur/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,18 +82,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T016 [P] [US1] Contract test for `UnifiedDataset` schema in `tests/contract/test_unified_dataset.py`
-- [ ] T017 [P] [US1] Unit test for genotype encoding logic (0,1,2) in `tests/unit/test_preprocess.py`
+- [~] T016 [P] [US1] Contract test for `UnifiedDataset` schema in `tests/contract/test_unified_dataset.py`
+- [~] T017 [P] [US1] Unit test for genotype encoding logic (0,1,2) in `tests/unit/test_preprocess.py`
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Implement accession matching logic in `code/preprocess.py` (FR-002)
-- [ ] T019 [US1] Implement genotype encoding (0,1,2) in `code/preprocess.py` (FR-002)
-- [ ] T020 [US1] Implement missingness filter (>5%) in `code/preprocess.py` (FR-002)
-- [ ] T021 [US1] Save `data/processed/unified_dataset.parquet` with metadata flag (real vs. mock)
-- [ ] T022 [US1] Implement stratified split logic (80/10/10 train/val/test) per nutrient condition in `code/preprocess.py` (FR-003)
-- [ ] T023 [US1] Save `data/processed/train.parquet`, `val.parquet`, `test.parquet` per nutrient condition
-- [ ] T024 [US1] Add logging for excluded accessions and missing data counts (Edge Case: naming inconsistencies)
+- [~] T018 [US1] Implement accession matching logic in `code/preprocess.py` (FR-002)
+- [~] T019 [US1] Implement genotype encoding (0,1,2) in `code/preprocess.py` (FR-002)
+- [~] T020 [US1] Implement missingness filter (>5%) in `code/preprocess.py` (FR-002) <!-- FAILED: unspecified -->
+- [~] T021 [US1] Save `data/processed/unified_dataset.parquet` with metadata flag (real vs. mock)
+- [~] T022 [US1] Implement stratified split logic (80/10/10 train/val/test) per nutrient condition in `code/preprocess.py` (FR-003)
+- [~] T023 [US1] Save `data/processed/train.parquet`, `val.parquet`, `test.parquet` per nutrient condition
+- [~] T024 [US1] Add logging for excluded accessions and missing data counts (Edge Case: naming inconsistencies)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,21 +107,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US2] Unit test for L1/L2 regularization application in `tests/unit/test_train.py`
-- [ ] T026 [P] [US2] Integration test for model training loop per nutrient condition in `tests/integration/test_training.py`
+- [~] T025 [P] [US2] Unit test for L1/L2 regularization application in `tests/unit/test_train.py`
+- [~] T026 [P] [US2] Integration test for model training loop per nutrient condition in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Implement and train null model (intercept-only) per nutrient condition; save `data/processed/null_model_metrics.csv` (FR-005)
-- [ ] T028 [US2] Implement Lasso/ElasticNet training loop in `code/train.py` (FR-004, FR-010)
-- [ ] T029 [US2] Implement hyperparameter search for regularization in `code/train.py`
-- [ ] T030 [US2] Implement Random Forest training in `code/train.py` (FR-004)
-- [ ] T031 [US2] Implement Gradient Boosting training in `code/train.py` (FR-004)
-- [ ] T032 [US2] Implement PCA/L1 regularization strictly for Linear Models if features > 5000; save transformed features to `data/processed/pca_features.parquet` (FR-010)
-- [ ] T033 [US2] Load null model metrics from `data/processed/null_model_metrics.csv` and compare against trained models (FR-005, SC-001)
-- [ ] T034 [US2] Implement 95% CI calculation method in `code/evaluate.py`
-- [ ] T035 [US2] Implement cross-validation scoring for each model/condition (SC-003)
-- [ ] T036 [US2] Save `data/processed/model_metrics.csv` with performance rankings per condition
+- [~] T027 [US2] Implement and train null model (intercept-only) per nutrient condition; save `data/processed/null_model_metrics.csv` (FR-005)
+- [~] T028 [US2] Implement Lasso/ElasticNet training loop in `code/train.py` (FR-004, FR-010)
+- [~] T029 [US2] Implement hyperparameter search for regularization in `code/train.py`
+- [~] T030 [US2] Implement Random Forest training in `code/train.py` (FR-004)
+- [~] T031 [US2] Implement Gradient Boosting training in `code/train.py` (FR-004)
+- [~] T032 [US2] Implement PCA/L1 regularization strictly for Linear Models if features > 5000; save transformed features to `data/processed/pca_features.parquet` (FR-010)
+- [~] T033 [US2] Load null model metrics from `data/processed/null_model_metrics.csv` and compare against trained models (FR-005, SC-001)
+- [~] T034 [US2] Implement 95% CI calculation method in `code/evaluate.py`
+- [~] T035 [US2] Implement cross-validation scoring for each model/condition (SC-003)
+- [~] T036 [US2] Save `data/processed/model_metrics.csv` with performance rankings per condition
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,18 +135,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T037 [P] [US3] Unit test for nested permutation loop (no data leakage) in `tests/unit/test_evaluate.py`
-- [ ] T038 [P] [US3] Integration test for SHAP value calculation in `tests/integration/test_feature_importance.py`
+- [~] T037 [P] [US3] Unit test for nested permutation loop (no data leakage) in `tests/unit/test_evaluate.py`
+- [~] T038 [P] [US3] Integration test for SHAP value calculation in `tests/integration/test_feature_importance.py`
 
 ### Implementation for User Story 3
 
-- [ ] T039 [US3] Implement variance filtering in `code/evaluate.py`
-- [ ] T040 [US3] Implement nested loop logic (feature selection inside permutation) in `code/evaluate.py` (Plan Phase 5)
-- [ ] T041 [US3] Execute a permutation test for each model/condition; calculate p-values (FR-007, SC-002)
-- [ ] T042 [US3] Apply Benjamini-Hochberg correction to model-level tests (one per condition) (Plan Phase 5)
-- [ ] T043 [US3] Implement SHAP value calculation for tree models in `code/visualize.py` (FR-006)
-- [ ] T044 [US3] Implement Lasso coefficient extraction for linear models in `code/visualize.py` (FR-006)
-- [ ] T045 [US3] Perform Stability Selection with multiple bootstrap samples to rank marker stability. (SC-004)
+- [~] T039 [US3] Implement variance filtering in `code/evaluate.py`
+- [~] T040 [US3] Implement nested loop logic (feature selection inside permutation) in `code/evaluate.py` (Plan Phase 5)
+- [~] T041 [US3] Execute a permutation test for each model/condition; calculate p-values (FR-007, SC-002)
+- [~] T042 [US3] Apply Benjamini-Hochberg correction to model-level tests (one per condition) (Plan Phase 5)
+- [~] T043 [US3] Implement SHAP value calculation for tree models in `code/visualize.py` (FR-006)
+- [~] T044 [US3] Implement Lasso coefficient extraction for linear models in `code/visualize.py` (FR-006)
+- [~] T045 [US3] Perform Stability Selection with multiple bootstrap samples to rank marker stability. (SC-004)
 - [ ] T046 [US3] Generate feature importance plot in `code/visualize.py`
 - [ ] T047 [US3] Generate prediction vs. actual scatter plot in `code/visualize.py`
 - [ ] T048 [US3] Append standardized disclaimer: "Findings are associational and do not imply causation" to all reports (FR-009)
@@ -179,8 +179,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -246,9 +246,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Pipeline)
-   - Developer B: User Story 2 (Model Training)
-   - Developer C: User Story 3 (Analysis & Viz)
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Model Training)
+ - Developer C: User Story 3 (Analysis & Viz)
 3. Stories complete and integrate independently
 
 ---

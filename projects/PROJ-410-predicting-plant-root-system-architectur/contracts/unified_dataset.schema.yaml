@@ -1,0 +1,124 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Unified Plant Root Architecture Dataset
+description: >
+  Schema for the unified dataset combining genomic (SNP) and phenotypic
+  root system architecture data. Used to validate data produced by
+  code/preprocess.py before model training.
+type: object
+required:
+  - metadata
+  - columns
+  - data
+properties:
+  metadata:
+    type: object
+    required:
+      - source
+      - generated_at
+      - real_data_flag
+      - nutrient_conditions
+    properties:
+      source:
+        type: string
+        description: Source identifier (e.g., '1001Genomes', 'ATRDB', 'mock')
+        enum:
+          - 1001Genomes
+          - ATRDB
+          - mock
+          - hybrid
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      real_data_flag:
+        type: boolean
+        description: True if data comes from real external sources, False if mock
+      nutrient_conditions:
+        type: array
+        items:
+          type: string
+        description: List of nutrient conditions included (e.g., 'LowP', 'HighN')
+      row_count:
+        type: integer
+        minimum: 0
+        description: Total number of samples
+      feature_count:
+        type: integer
+        minimum: 0
+        description: Total number of genomic features
+  columns:
+    type: object
+    description: Definitions of expected columns and their types
+    required:
+      - accession_id
+      - genotype_features
+      - phenotype_targets
+      - metadata_cols
+    properties:
+      accession_id:
+        type: object
+        properties:
+          name:
+            type: string
+          dtype:
+            type: string
+            enum: [string, object]
+          description:
+            type: string
+      genotype_features:
+        type: array
+        description: List of SNP column names (encoded as 0, 1, 2)
+        items:
+          type: string
+      phenotype_targets:
+        type: array
+        description: List of root architecture trait column names
+        items:
+          type: string
+      metadata_cols:
+        type: array
+        description: Additional metadata columns (e.g., environment, condition)
+        items:
+          type: string
+  data:
+    type: object
+    description: Structure of the tabular data
+    required:
+      - sample_format
+      - constraints
+    properties:
+      sample_format:
+        type: string
+        description: Expected format of the data rows
+      constraints:
+        type: object
+        description: Validation constraints for data values
+        properties:
+          genotype_encoding:
+            type: object
+            properties:
+              allowed_values:
+                type: array
+                items:
+                  type: integer
+                enum: [0, 1, 2]
+              description:
+                type: string
+                enum:
+                  - '0: Homozygous Reference'
+                  - '1: Heterozygous'
+                  - '2: Homozygous Alternative'
+          missingness_threshold:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: Maximum allowed fraction of missing values (e.g., 0.05)
+          phenotype_range:
+            type: object
+            description: Expected range for continuous phenotype traits
+            properties:
+              min:
+                type: number
+              max:
+                type: number
+additionalProperties: false

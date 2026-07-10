@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "predict-root-architecture"
+version = "0.1.0"
+description = "Predicting Plant Root System Architecture from Genomic Data"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "scipy",
+    "shap",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "contract: Contract tests",
+    "slow: Marks tests that are slow to run",
+]
+
+[tool.coverage.run]
+source = ["code"]
+omit = [
+    "code/tests/*",
+    "code/mock_data.py",
+    "code/setup_directories.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

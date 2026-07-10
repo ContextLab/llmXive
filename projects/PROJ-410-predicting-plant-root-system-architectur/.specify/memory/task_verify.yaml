@@ -1,0 +1,5 @@
+T008 [P] Create `contracts/unified_dataset.schema.yaml` defining schema for unified data: 1
+T009 [P] Create `contracts/model_output.schema.yaml` defining schema for model results: 1
+T010 [P] Implement `code/download.py` with full fetch logic for 1001 Genomes/ATRDB: 1
+T011 [P] Implement `code/mock_data.py` to generate synthetic data with correct schema: 1
+T012 [P] Implement fallback logic in `code/download.py` to trigger mock data if fetch fails: 1
