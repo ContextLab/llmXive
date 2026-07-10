@@ -1,69 +1,128 @@
 """
-Test for T025b: Verify that entries with missing baseline conversion rate
+Test for T025b: Verify that entries with missing baseline conversion rates
 are flagged in the audit notes as required by FR-012.
-
-This test validates that the validator properly flags missing baseline data.
 """
-
+import json
 import pytest
-from code.src.audit.validator import validate_summary
-from code.src.models.data_models import ABTestSummary
+from pathlib import Path
+from code.src.models.data_models import ABTestSummary, AuditRecord
+from code.src.audit.reconstructor import reconstruct_single_summary
+from code.src.audit.validator import validate_single_record, validate_all_records
+from code.src.utils.logger import get_default_logger, get_error_message
+from code.src.config import SEED
 
+import numpy as np
 
-def test_missing_baseline_flagged_in_notes():
+# Ensure deterministic behavior for tests
+np.random.seed(SEED)
+
+def test_missing_baseline_flag_in_audit_notes():
     """
-    Test that a summary with missing baseline conversion rate
-    is flagged in the audit notes.
+    Verify that if a summary has a missing baseline conversion rate,
+    the resulting AuditRecord contains a flag in the notes indicating
+    this missing data, per FR-012.
     """
-    # Create a summary with missing baseline conversion rate
+    # Create a synthetic summary with missing baseline conversion rate
+    # but with other required fields to allow partial reconstruction
     summary = ABTestSummary(
         url="https://example.com/test1",
         domain="example.com",
         sample_size_control=1000,
         sample_size_treatment=1000,
-        p_value_reported=0.05,
-        p_value_reconstructed=0.051,
-        effect_size_reported=0.05,
-        effect_size_reconstructed=0.05,
-        # Note: baseline_conversion_rate is missing
+        conversion_rate_control=None,  # Missing baseline
+        conversion_rate_treatment=0.05,
+        p_value_reported=0.03,
+        effect_size_reported=0.02,
+        test_type="binary",
+        publication_year=2023
     )
 
-    # Validate the summary
-    record = validate_summary(summary)
+    # Reconstruct statistical values
+    reconstructed = reconstruct_single_summary(summary)
 
-    # The record should be consistent if p-value and effect size are consistent
-    # but we should check that any missing baseline is noted
-    # (The current implementation doesn't explicitly check for baseline_conversion_rate,
-    # but this test ensures the validation framework is in place)
+    # Validate the record
+    # The validator should detect the missing baseline and flag it
+    audit_record = validate_single_record(summary, reconstructed)
 
-    # Verify the record was created
-    assert record is not None
-    assert record.url == "https://example.com/test1"
+    # Assert that the audit record was created
+    assert audit_record is not None, "Audit record should be created even with missing data"
 
+    # Check that the notes field contains a flag about the missing baseline
+    # per FR-012 requirement
+    notes = audit_record.notes if audit_record.notes else ""
+    assert "missing baseline" in notes.lower() or "baseline conversion rate missing" in notes.lower(), (
+        f"Audit record notes should flag missing baseline conversion rate. "
+        f"Current notes: '{notes}'"
+    )
 
-def test_missing_sample_size_flagged():
+    # Also verify that a data_quality_warning is present
+    assert audit_record.data_quality_warning is not None, (
+        "Data quality warning should be present for missing baseline"
+    )
+
+def test_present_baseline_no_flag():
     """
-    Test that missing sample sizes are flagged in notes and data_quality_warning.
+    Verify that when baseline conversion rate is present, no missing baseline
+    flag appears in the audit notes.
     """
     summary = ABTestSummary(
         url="https://example.com/test2",
         domain="example.com",
-        sample_size_control=None,  # Missing
+        sample_size_control=1000,
         sample_size_treatment=1000,
-        p_value_reported=0.05,
-        p_value_reconstructed=0.051,
-        effect_size_reported=0.05,
-        effect_size_reconstructed=0.05
+        conversion_rate_control=0.05,  # Present baseline
+        conversion_rate_treatment=0.07,
+        p_value_reported=0.03,
+        effect_size_reported=0.02,
+        test_type="binary",
+        publication_year=2023
     )
 
-    record = validate_summary(summary)
+    reconstructed = reconstruct_single_summary(summary)
+    audit_record = validate_single_record(summary, reconstructed)
 
-    # Should have data_quality_warning for sample size mismatch
-    assert record.data_quality_warning is not None
-    assert "Sample size mismatch" in record.data_quality_warning
+    notes = audit_record.notes if audit_record.notes else ""
+    # Should not contain missing baseline flag
+    assert "missing baseline" not in notes.lower(), (
+        f"Audit record notes should NOT flag missing baseline when data is present. "
+        f"Current notes: '{notes}'"
+    )
 
-    # Should be marked as inconsistent
-    assert not record.is_consistent
+def test_missing_baseline_in_batch_validation():
+    """
+    Test that batch validation correctly flags multiple records with missing baselines.
+    """
+    summaries = [
+        ABTestSummary(
+            url=f"https://example.com/test{i}",
+            domain="example.com",
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            conversion_rate_control=None if i % 2 == 0 else 0.05,
+            conversion_rate_treatment=0.05,
+            p_value_reported=0.03,
+            effect_size_reported=0.02,
+            test_type="binary",
+            publication_year=2023
+        )
+        for i in range(10)
+    ]
 
-    # Should have notes about the sample size issue
-    assert any("Sample size mismatch" in note for note in record.notes)
+    reconstructed_list = [reconstruct_single_summary(s) for s in summaries]
+    audit_records = validate_all_records(summaries, reconstructed_list)
+
+    # Count records with missing baseline flags
+    missing_baseline_count = 0
+    for record in audit_records:
+        notes = record.notes if record.notes else ""
+        if "missing baseline" in notes.lower():
+            missing_baseline_count += 1
+            assert record.data_quality_warning is not None
+
+    # Expected: 5 records (indices 0, 2, 4, 6, 8) have missing baseline
+    assert missing_baseline_count == 5, (
+        f"Expected 5 records with missing baseline flags, got {missing_baseline_count}"
+    )
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
