@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "Final Report Schema"
+description: "Schema for the final analysis report containing key metrics and conclusions."
+required:
+  - "observed_dipole"
+  - "observed_quadrupole"
+  - "dipole_p_value"
+  - "quadrupole_p_value"
+  - "is_anisotropic"
+  - "n_simulations"
+  - "dataset_version"
+properties:
+  observed_dipole:
+    type: "number"
+    description: "Observed dipole amplitude in magnitudes."
+  observed_quadrupole:
+    type: "number"
+    description: "Observed quadrupole amplitude in magnitudes."
+  dipole_p_value:
+    type: "number"
+    description: "P-value for the dipole test."
+    minimum: 0
+    maximum: 1
+  quadrupole_p_value:
+    type: "number"
+    description: "P-value for the quadrupole test."
+    minimum: 0
+    maximum: 1
+  is_anisotropic:
+    type: "boolean"
+    description: "True if p-value < 0.05 for either dipole or quadrupole."
+  n_simulations:
+    type: "integer"
+    description: "Total number of simulations run."
+    minimum: 1
+  dataset_version:
+    type: "string"
+    description: "Version or release tag of the Pantheon+ dataset used."
+additionalProperties: false

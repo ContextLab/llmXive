@@ -2,74 +2,78 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- pip
-- Git
+- Python 3.11 or higher
+- `git`
+- ~10 GB of free disk space (for data and dependencies)
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project directory):
+1. **Clone the repository**:
    ```bash
-   cd projects/PROJ-753-testing-isotropy-of-cosmic-expansion
+   git clone <repository-url>
+   cd projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion
    ```
 
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate   # On Windows: venv\Scripts\activate
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r code/requirements.txt
    ```
-   *Note: Ensure `healpy` installs the CPU wheel. If it fails, install `numpy` and `scipy` first, then `healpy`.*
 
-## Data Preparation
+## Data Setup
 
-The `code/ingest.py` script will automatically download the Pantheon+ dataset if `data/raw/` is empty.
+1. **Download the Pantheon+ dataset**:
+   - Navigate to the official repository: https://github.com/PantheonPlusSH0ES/DataRelease
+   - Download the `Pantheon+_SH0ES.dat` file (or the latest CSV equivalent).
+   - Place the file in `data/raw/`.
+   - Verify the checksum (if provided) against the `data/` metadata.
 
-1. **Run the ingestion script**:
+2. **Verify data integrity**:
    ```bash
-   python code/ingest.py
+   python code/ingestion.py --verify-only
    ```
-   This will:
-   - Download the Pantheon+ release.
-   - Verify the SHA‑256 checksum and record it in `data/metadata.json`.
-   - Filter out entries with missing RA, Dec, redshift, or distance‑modulus uncertainty.
-   - Apply the **redshift cut `z > 0.02`** (to suppress peculiar‑velocity bias) and compute theoretical distance moduli.
-   - Save `data/processed/supernovae_clean.csv`.
 
 ## Running the Analysis
 
-Execute the full pipeline (Ingest → Harmonics → Simulation → Report):
+Execute the full pipeline:
 
 ```bash
-python code/main.py
+python code/analysis.py
 ```
 
-The script will:
+This will:
+1. Ingest and filter the Pantheon+ data.
+2. Calculate residuals.
+3. Project to HEALPix and compute spherical harmonics.
+4. Run a large number of rotation simulations.
+5. Calculate p-values and generate the final report.
 
-1. Load the cleaned supernova catalogue.  
-2. Project residuals onto a HEALPix grid (Nside = 32) with inverse‑variance weighting.  
-3. Compute dipole and quadrupole amplitudes using the pseudo‑Cₗ + MASTER pipeline (regularised λ = 1e‑6).  
-4. Run up to **10 000** rotation‑based mock catalogs (runtime monitor will halve the remaining iterations if the wall‑clock time exceeds 5 h).  
-5. Calculate p‑values, flag significance, and write `data/processed/final_results.json`.  
-6. Generate diagnostic plots in `reports/`.
+## Output
 
-## Verifying Results
+- **Processed Data**: `data/processed/`
+  - `residuals.csv`: Filtered supernova data with residuals.
+  - `healpix_map.fits`: HEALPix projection.
+  - `simulation_results.csv`: Null distribution data.
+- **Reports**: `data/reports/final_report.txt`
+  - Contains the observed dipole/quadrupole amplitudes, p-values, and significance conclusion.
 
-1. **Check the output**:
-   ```bash
-   cat data/processed/final_results.json
-   ```
-   Look for `is_significant`: `true` if the dipole p‑value < 0.05.
+## Validation
 
-2. **Reproducibility Check**:
-   Re‑run `python code/main.py`; results must be identical because the random seed is fixed.
+To validate the implementation against a known signal:
+
+```bash
+python code/analysis.py --synthetic --inject-dipole 0.05
+```
+
+This will run the analysis on a synthetic dataset with an injected dipole of a representative magnitude and verify that the extracted amplitude matches within statistical error.
 
 ## Troubleshooting
 
-- **`healpy` installation error**: Ensure you are using Python 3.11 and have `numpy`/`scipy` installed before `healpy`.  
-- **Missing data**: If the script cannot download the dataset, manually download the Pantheon+ release from the official GitHub repo and place the CSV in `data/raw/`.  
-- **Runtime > 6 h**: The pipeline automatically reduces the number of simulations after the 5‑hour mark; you can also manually lower `N_SIM_MAX` in `code/config.py` (default = 10 000).
+- **Memory Error**: If you encounter memory issues, reduce the simulation count in `code/simulations.py` (e.g., `N=1000`).
+- **Missing Data**: If the script reports missing RA/Dec, check the raw data file for formatting issues.
+- **Runtime Error**: Ensure you are using Python 3.11+ and that all dependencies are installed correctly.

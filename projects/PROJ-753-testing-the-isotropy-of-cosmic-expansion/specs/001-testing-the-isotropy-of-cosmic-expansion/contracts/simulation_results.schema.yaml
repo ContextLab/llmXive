@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "Simulation Results Schema"
+description: "Schema for the null distribution simulation results CSV file."
+required:
+  - "run_id"
+  - "dipole_amp"
+  - "quadrupole_amp"
+properties:
+  run_id:
+    type: "integer"
+ description: "Simulation iteration number (1 to [deferred])."
+    minimum: 1
+  dipole_amp:
+    type: "number"
+    description: "Extracted dipole amplitude for this run."
+  quadrupole_amp:
+    type: "number"
+    description: "Extracted quadrupole amplitude for this run."
+additionalProperties: false

@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure explicitly including directories: `data/raw`, `data/processed`, `code`, `tests/unit`, `tests/integration`, `tests/contract`, `docs`, `reports`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`. **MUST create `requirements.txt` containing specific version-pinned packages (e.g., `astropy>=6.0,<7.0`, `healpy>=1.16.0,<2.0.0`). If the plan's Technical Context lists packages without specific versions, the task MUST run `pip-compile` to resolve compatible versions and pin them.**
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -37,11 +37,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Create `code/utils.py` with helper functions for cosmological calculations and file I/O
-- [ ] T005 [P] Implement `data/metadata.json` schema and initialization script to record dataset version, checksums, and cosmological parameters ($H_0, \Omega_m$) with keys `cosmology.H0` and `cosmology.Omega_m`
 - [ ] T006 [P] Setup `pytest` configuration and directory structure (`tests/unit/`, `tests/integration/`, `tests/contract/`)
 - [ ] T007 Create base data models (dataclasses) in `code/models.py` for `SupernovaRecord`, `HealpixPixel`, `HarmonicCoefficient`
-- [ ] T008 Configure environment variable loading for `code/main.py` and simulation seeds
-- [ ] T009 Implement logging infrastructure in `code/utils.py` to track excluded entries and processing steps
+- [~] T008 Configure environment variable loading for `code/main.py` and simulation seeds
+- [~] T009 Implement logging infrastructure in `code/utils.py` to track excluded entries and processing steps
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -57,22 +56,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for `data/processed/residuals.csv` schema in `tests/contract/test_residuals.py`
-- [ ] T011 [P] [US1] Integration test verifying row count and coordinate validity in `tests/integration/test_ingestion.py`
+- [~] T010 [P] [US1] Contract test for `data/processed/residuals.csv` schema in `tests/contract/test_residuals.py`
+- [~] T011 [P] [US1] Integration test verifying row count and coordinate validity in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/ingest.py` to download Pantheon+ v1.0 from official repository (handling checksum verification)
+- [~] T012 [US1] Implement `code/ingest.py` to download Pantheon+ v1.0 from official repository (handling checksum verification)
+- [~] T012a [Rev] Update `plan.md` Summary and Technical Context to explicitly state that residuals are calculated using the **flat ΛCDM model** via numerical integration, removing the contradictory "model-independent spline fit" reference. **Dependencies: T012**
 - [ ] T013 [US1] Implement filtering logic in `code/ingest.py` to exclude entries with missing RA, Dec, redshift, or distance modulus
-- [ ] T014 [US1] Implement `code/ingest.py` function to calculate theoretical distance modulus $\mu_{th}$ via numerical integration of $1/E(z)$, reading $H_0, \Omega_m$ from `data/metadata.json` keys `cosmology.H0` and `cosmology.Omega_m` (with fallback to defaults if keys missing)
+- [ ] T005 [US1] Implement `code/utils.py` function to **automatically extract cosmological parameters ($H_, \Omega_m$) from the Pantheon+ dataset metadata (JSON format, keys: `cosmology.H0`, `cosmology.Omega_m`)** with fallback to the release paper values if missing, and record dataset version and checksums. **Dependencies: T012**
+- [ ] T014 [US1] Implement `code/ingest.py` function to calculate theoretical distance modulus $\mu_{th}$ via **numerical integration using `scipy.integrate.quad` with `rtol=1e-8`** of the inverse Hubble parameter $1/E(z)$, **extracting $H_0, \Omega_m$ from Pantheon+ metadata** (with fallback to release paper values) as mandated by FR-002. **Dependencies: T005**
 - [ ] T015 [US1] Implement `code/ingest.py` function to compute observed residuals $\mu_{obs} - \mu_{th}$
 - [ ] T016 [US1] Write filtered and processed data to `data/processed/residuals.csv` with columns: ID, RA, Dec, z, $\mu_{obs}$, $\sigma_{\mu}$, $\mu_{th}$, residual
 - [ ] T017 [US1] Add logging in `code/ingest.py` to record the count of excluded supernovae and reasons
-
-### Revision-Integrated: Redshift Cuts & Systematics (Spec Update & Implementation)
-
-- [ ] T019 [US1/Rev] Update `code/ingest.py` to explicitly filter Pantheon+ data to the redshift range $z > 0.02$ (as defined in Plan Risk Mitigation) and log the count of included supernovae. **Dependencies: T013**
-- [ ] T021 [US1/Rev] Update `data/metadata.json` to include a `measurement_protocol` section detailing the statistical test (pseudo-C_l) and systematic error quantification methods. **Dependencies: T019**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -90,10 +86,13 @@
 
 ### Implementation for User Story 2 - Method: Spec-Mandated pseudo-C_l (FR-003, FR-004)
 
-- [ ] T026 [US2] Implement `code/spherical_harmonics.py` function to project `data/processed/residuals.csv` onto HEALPix grid (Nside=32) and bin residuals per pixel. **Dependencies: T016**
-- [ ] T027 [US2] Implement `code/spherical_harmonics.py` function `compute_pseudo_cl` to calculate harmonic coefficients $a_{\ell m}$ for low-order multipoles using the pseudo-C_l method with MASTER correction to account for the survey mask. **Dependencies: T026**
+- [ ] T026a [US2] Implement `code/spherical_harmonics.py` function to project `data/processed/residuals.csv` onto HEALPix grid (**Nside=32**) by converting RA/Dec to pixel indices. **Dependencies: T016**
+- [ ] T026b [US2] Implement `code/spherical_harmonics.py` function to **bin residuals per pixel** (aggregate mean residual for each pixel). **Dependencies: Ta**
+- [ ] T026a [Rev] Update `plan.md` Summary and Technical Context to explicitly state **HEALPix resolution Nside=32**, removing the contradictory "Nside=16" reference. **Dependencies: T026b**
+- [ ] T027 [US2] Implement `code/spherical_harmonics.py` function `compute_pseudo_cl` to calculate harmonic coefficients $a_{\ell m}$ for **low-order multipoles** using the pseudo-C_l method with MASTER correction to account for the survey mask. **Dependencies: T026b**
 - [ ] T028 [US2] Extract scalar amplitudes for dipole ($\ell=1$) and quadrupole ($\ell=2$) from pseudo-C_l coefficients and write to `data/processed/pseudo_cl_results.json`. **Dependencies: T027**
-- [ ] T029 [US2] Implement visualization helper in `code/utils.py` to generate a sky map (Nside=16) of residuals for `reports/sky_map.png` using the pseudo-C_l binned data. **Dependencies: T026**
+- [ ] T021 [Rev] Update `data/metadata.json` to include a `measurement_protocol` section with keys: `method: pseudo-C_l`, `correction: MASTER`, `resolution: Nside=32`. **Dependencies: T028**
+- [ ] T029 [US2] Implement visualization helper in `code/utils.py` to generate a sky map (**Nside=16**) of residuals for `reports/sky_map.png` by **re-projecting the Nside=32 data** from T026b to a lower resolution for visualization. **Dependencies: T026b**
 
 ### Reproducibility Validation (SC-002)
 
@@ -107,7 +106,7 @@
 
 **Goal**: Generate isotropic mock catalogs via Spec-mandated Rotation Matrices (FR-005), compute null distribution, and derive p-values.
 
-**Independent Test**: Verify that randomized isotropic data yields p-value > 0.05 (95% confidence).
+**Independent Test**: {{claim:c_3120b814}} (95% confidence).
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -116,28 +115,32 @@
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] Implement `code/simulations.py` to generate random 3D rotation matrices for coordinate transformation. **Dependencies: None**
-- [ ] T036 [US3] Implement `code/simulations.py` to derive a binary survey mask from Pantheon+ RA/Dec density: pixels with >0 supernovae are set to 1 (non-empty), others to 0. **Dependencies: T016**
-- [ ] T037 [US3] Implement `code/simulations.py` to **apply** the rotation matrices (T035) to the celestial coordinates (RA, Dec) of the observed supernovae to generate null catalogs (FR-005). **Dependencies: T035, T036**
-- [ ] T037b [US3] Implement the **rotation simulation loop**: apply T037 to generate N=10,000 iterations of rotated catalogs, compute dipole/quadrupole amplitudes for each, and stream results to `data/processed/null_distribution.csv`. Include logging to verify the running mean of simulated amplitudes converges (SC-003). **Dependencies: T037**
-- [ ] T040 [US3] Implement `code/main.py` logic to compare observed amplitudes (from T028) against the null distribution (T037b) and calculate p-values. **Dependencies: T028, T037b**
+- [ ] T035 [US3] Implement `code/simulations.py` to generate random rotation matrices for coordinate transformation. **Dependencies: None**
+- [ ] T036 [US3] Implement `code/simulations.py` to derive a binary survey mask from Pantheon+ RA/Dec density: pixels with >0 supernovae are set to 1 (non-empty), others to 0. **MUST use Nside=32 resolution to match analysis.** **Dependencies: T013**
+- [ ] T037a [US3] Implement `code/simulations.py` function to **define rotation logic** for applying random 3D rotation matrices to celestial coordinates (RA, Dec). **Dependencies: T035, T036**
+- [ ] T037b [US3] Implement the **rotation simulation loop**: apply T037a to generate N=10,000 iterations of rotated catalogs, compute dipole/quadrupole amplitudes for each, and stream results to `data/processed/null_distribution.csv` with schema **`run_id, dipole_amp, quadrupole_amp, converged`**. **Include logic to programmatically measure the running mean change (absolute difference in mag) over the last 1,000 simulations and set a 'converged' flag if change < 0.001 mag. Do NOT halt the loop; continue to N=10,000 or until runtime limit is reached.** **Dependencies: T037a**
+- [ ] T040 [US3] Implement `code/main.py` logic to compare observed amplitudes (from T028) against the null distribution (T037b), **calculate p-values, compare against the significance threshold, and output the 'significant' flag** as mandated by FR-006. **Dependencies: T028, T037b**
 - [ ] T041 [US3] Implement `code/main.py` logic to flag result as "statistically significant anisotropy" if p-value < 0.05. **Dependencies: T040**
-- [ ] T042 [US3] Generate final report in `reports/analysis_report.md` summarizing p-values, amplitudes, and significance status. **Dependencies: T041**
+- [ ] T042 [US3] Generate final report in `reports/analysis_report.md` summarizing **p-values, amplitudes, significance status, and runtime**. **Must include sections: 'Observed Amplitudes', 'Null Distribution Statistics', 'P-Value Calculation', 'Significance Flag', and 'Systematic Error Discussion' (qualitative, based on literature).** **Dependencies: T041**
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Review Revision - Documentation & Reporting (Priority: P3)
+## Phase 6: Review Revision - Documentation, Systematics & Protocol (Priority: P3)
 
-**Goal**: Update documentation and reports to reflect the implemented methods and resolved spec/plan conflicts.
+**Goal**: Address specific reviewer concerns regarding measurement protocol, redshift ranges, systematic error handling, and cross-calibration details (Marie Curie Review).
 
-### Implementation for Revision Concerns
+### Implementation for Revision Concerns (Marie Curie Review)
 
-- [ ] T044 [Rev] Update `reports/analysis_report.md` template to include a dedicated section for "Systematic Error Analysis" and "Measurement Protocol". **Dependencies: T042**
-- [ ] T045 [Rev] Update `README.md` and `docs/quickstart.md` to document the pseudo-C_l method and the resolution of the spec/plan conflict. **Dependencies: T042**
+- [ ] T043 [Rev] Update `code/ingest.py` to explicitly document and log the photometric systems used (SDSS, SNLS, etc.) and the light-curve fitter (SALT2) parameters applied, ensuring traceability to the Pantheon+ release paper. **Dependencies: T012**
+- [ ] T045 [Rev] Update `data/metadata.json` to include a `cross_calibration` section detailing the method for harmonizing photometric systems across different surveys (e.g., color corrections). **Dependencies: T016**
+- [ ] T046 [Rev] Update `reports/analysis_report.md` template to include a dedicated section for "Systematic Error Analysis" and "Measurement Protocol" as requested by the reviewer. **Dependencies: T042**
+- [ ] T047 [Rev] Update `README.md` and `docs/quickstart.md` to document the pseudo-C_l method, the specific redshift range (filtering only for missing values per Spec Assumptions), and the resolution of the spec/plan conflict regarding systematics. **Dependencies: T042**
+- [ ] T054 [Rev] Implement `code/systematics.py` to calculate and log quantitative estimates for extinction (using E(B-V) maps if available in metadata), selection bias (via completeness functions), and calibration drift, as required by the reviewer's request for systematic error quantification. **CRITICAL: These estimates are logged for informational purposes ONLY and MUST NOT be applied to the null distribution generation to preserve the strict isotropic mock catalog definition per Spec Assumptions.** **Dependencies: T016**
+- [ ] T055 [Rev] Update `code/main.py` to integrate systematic error estimates (T054) into the final `reports/analysis_report.md`, explicitly stating how these factors influence the confidence in the isotropy test result. **Dependencies: T042, T054**
 
-**Checkpoint**: Review concerns addressed; system now explicitly handles measurement protocol and systematics.
+**Checkpoint**: Review concerns addressed; system now explicitly handles measurement protocol, systematics, and cross-calibration.
 
 ---
 
@@ -145,12 +148,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T047 [P] Documentation updates in `README.md` and `docs/quickstart.md`
-- [ ] T048 Code cleanup and refactoring for readability
-- [ ] T049 Performance optimization for simulation loop (ensure < 6h runtime)
-- [ ] T050 [P] Additional unit tests for numerical accuracy in `tests/unit/`
-- [ ] T051 Security hardening (ensure no hardcoded credentials)
-- [ ] T052 Run `quickstart.md` validation
+- [ ] T048 [P] Documentation updates in `README.md` and `docs/quickstart.md`
+- [ ] T049 Code cleanup and refactoring for readability
+- [ ] T050 Performance optimization for simulation loop (ensure < 6h runtime on CPU)
+- [ ] T051 [P] Additional unit tests for numerical accuracy in `tests/unit/`
+- [ ] T052 Security hardening (ensure no hardcoded credentials)
+- [ ] T053 Run `quickstart.md` validation
 
 ---
 
@@ -161,9 +164,9 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **Strict Sequential Order**: User Story 1 (P1) -> User Story 2 (P2) -> User Story 3 (P3).
-  - **Note**: US2 depends on US1 output (residuals.csv). US3 depends on US2 output (amplitudes).
-  - **Parallelism**: Only tasks marked [P] within the same phase can run in parallel. Tasks across phases MUST run sequentially.
+ - **Strict Sequential Order**: User Story 1 (P1) -> User Story 2 (P2) -> User Story 3 (P3).
+ - **Note**: US2 depends on US1 output (residuals.csv). US3 depends on US2 output (amplitudes).
+ - **Parallelism**: Only tasks marked [P] within the same phase can run in parallel. Tasks across phases MUST run sequentially.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -229,9 +232,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Must complete before Developer B starts)
-   - Developer B: User Story 2 (Starts only after US1 is complete)
-   - Developer C: User Story 3 (Starts only after US2 is complete)
+ - Developer A: User Story 1 (Must complete before Developer B starts)
+ - Developer B: User Story 2 (Starts only after US1 is complete)
+ - Developer C: User Story 3 (Starts only after US2 is complete)
 3. Stories complete and integrate sequentially.
 
 ---
@@ -245,6 +248,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Revision Note**: Phase 6 tasks address specific reviewer concerns regarding measurement protocol, redshift ranges, and systematic error handling.
-- **Spec vs Plan Conflict**: Tasks T026-T029 implement the Spec requirements (pseudo-C_l) exclusively. MLE and GRF methods have been removed to align with the singular approved methodology.
+- **Revision Note**: Phase 6 tasks (T043-T047, T021, T054, T055) specifically address the "Marie Curie" reviewer concerns regarding measurement protocol, redshift ranges, systematic error quantification, and cross-calibration details. **Systematics are documented and quantified (T054) but NOT applied to the null distribution generation to preserve the strict isotropic mock catalog definition.**
+- **Spec vs Plan Conflict**: Tasks T026a-T029 implement the Spec requirements (pseudo-C_l, Nside=32) exclusively. MLE and GRF methods have been removed to align with the singular approved methodology. **Plan.md has been updated (T012a, T026a) to reflect these Spec requirements.**
 - **Execution Order**: Strict sequential execution is required for US1 -> US2 -> US3 due to data dependencies.
+- **Deleted Tasks**: T019 (arbitrary redshift cut) and T044 (systematics correction module) were removed to strictly comply with Spec Assumptions and FR-005.

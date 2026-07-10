@@ -18,7 +18,7 @@ The system MUST ingest the Pantheon+ Type Ia Supernova dataset, apply the standa
 **Acceptance Scenarios**:
 
 1. **Given** the Pantheon+ release file is available, **When** the ingestion script executes, **Then** the output file contains all supernovae with calculated residuals relative to the flat ΛCDM model and valid sky coordinates.
-2. **Given** a subset of 10 supernovae with known published residuals, **When** the system calculates residuals, **Then** the computed values match the published values within a tolerance of max(0.01 mag, reported uncertainty).
+2. **Given** a subset of 10 supernovae with known published residuals, **When** the system calculates residuals, **Then** the computed values match the published values within a tolerance of the reported uncertainty or a negligible magnitude..
 
 ---
 

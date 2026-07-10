@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "Pantheon+ Residuals Schema"
+description: "Schema for the processed residuals CSV file containing filtered supernova data and calculated residuals."
+required:
+  - "id"
+  - "ra"
+  - "dec"
+  - "z"
+  - "mu_obs"
+  - "mu_err"
+  - "mu_th"
+  - "residual"
+  - "valid"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the supernova (e.g., SN name)."
+  ra:
+    type: "number"
+    description: "Right Ascension in degrees."
+    minimum: 0
+    maximum: 360
+  dec:
+    type: "number"
+    description: "Declination in degrees."
+    minimum: -90
+    maximum: 90
+  z:
+    type: "number"
+    description: "Redshift."
+    minimum: 0
+  mu_obs:
+    type: "number"
+    description: "Observed distance modulus."
+  mu_err:
+    type: "number"
+    description: "Uncertainty in distance modulus."
+    minimum: 0
+  mu_th:
+    type: "number"
+    description: "Theoretical distance modulus (flat ΛCDM)."
+  residual:
+    type: "number"
+    description: "Calculated residual (mu_obs - mu_th)."
+  valid:
+    type: "boolean"
+    description: "Flag indicating if the record passed all filters."
+additionalProperties: false

@@ -1,4 +1,4 @@
-- artifact_hash: 8f788a494e1afaf370bc475043ee223c32da5ecec34b41babfd9371b38f6058d
+- artifact_hash: b1e495448f0700fdccf7f8f6919af70140e86cf6c3da3ba1846169335f22a8fe
   artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/research.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,38 @@
   value: https://github.com/PantheonPlusSH0ES/DataRelease`
   verification_status: verified
   verified_against_url: https://github.com/PantheonPlusSH0ES/DataRelease
-  verified_at: '2026-07-10T03:41:28.436344Z'
+  verified_at: '2026-07-10T21:19:29.701131Z'
+- artifact_hash: b1e495448f0700fdccf7f8f6919af70140e86cf6c3da3ba1846169335f22a8fe
+  artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - PantheonPlusSH0ES/DataRelease \xB7 GitHub"
+  kind: url
+  value: https://github.com/PantheonPlusSH0ES/DataRelease
+  verification_status: verified
+  verified_against_url: https://github.com/PantheonPlusSH0ES/DataRelease
+  verified_at: '2026-07-10T21:19:29.701131Z'
+- artifact_hash: b1e495448f0700fdccf7f8f6919af70140e86cf6c3da3ba1846169335f22a8fe
+  artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Welcome to the healpy documentation &#8212; healpy 1.20.0b2.dev31+gfcee400cc
+    documentation
+  kind: url
+  value: https://healpy.readthedocs.io/
+  verification_status: verified
+  verified_against_url: https://healpy.readthedocs.io/en/latest/
+  verified_at: '2026-07-10T21:19:29.701131Z'
+- artifact_hash: 93cfc41ceb1d563649029f5c250f5f4afb0e62ee4ea322d06303cbfd8022c9f3
+  artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - PantheonPlusSH0ES/DataRelease \xB7 GitHub"
+  kind: url
+  value: https://github.com/PantheonPlusSH0ES/DataRelease
+  verification_status: verified
+  verified_against_url: https://github.com/PantheonPlusSH0ES/DataRelease
+  verified_at: '2026-07-10T21:19:57.945592Z'
