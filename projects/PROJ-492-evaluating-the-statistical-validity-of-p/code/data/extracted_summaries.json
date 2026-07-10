@@ -1,0 +1,15 @@
+[
+  {
+    "url": "https://example.com/test1",
+    "domain": "example.com",
+    "publication_year": 2023,
+    "baseline_rate": 0.052,
+    "treatment_rate": 0.068,
+    "sample_size_baseline": 15000,
+    "sample_size_treatment": 15200,
+    "p_value": 0.023,
+    "effect_size": 0.016,
+    "extraction_status": "complete",
+    "missing_fields": []
+  }
+]

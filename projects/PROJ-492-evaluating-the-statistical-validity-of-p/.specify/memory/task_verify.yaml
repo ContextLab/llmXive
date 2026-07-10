@@ -189,6 +189,10 @@
   \ \u2014 status=not_enough_info]). **DEPENDS ON:** T018."
 : 1
 ? "T020 Extraction logic in `src/audit/extractor.py` \u2192 produces `ABSummary` objects,\
+  \ handles missing fields, logs `ERR-001`\u2011`ERR-099` (FR\u2011007) (verify extraction\
+  \ JSON exists and logs contain appropriate ERR codes). **DEPENDS ON:** T019."
+: 2
+? "T020 Extraction logic in `src/audit/extractor.py` \u2192 produces `ABSummary` objects,\
   \ handles missing fields, logs `ERR-001`\u2011`ERR-099` (FR\u2011007) [UNRESOLVED-CLAIM:\
   \ c_9c7755f4 \u2014 status=not_enough_info] (verify extraction JSON exists and logs\
   \ contain appropriate ERR codes). **DEPENDS ON:** T019."
