@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-eval-ab-test-validity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. [UNRESOLVED-CLAIM: c_018388b7 — status=not_enough_info] Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
@@ -73,12 +73,12 @@
 
 **Goal**: End‑to‑end pipeline that ingests URLs, extracts metrics, reconstructs statistical tests, flags inconsistencies, and produces audit artifacts.
 
-**Independent Test**: Run the pipeline on the synthetic validation dataset and verify precision ≥ 90 % and recall ≥ 80 % (SC‑030).
+**Independent Test**: Run the pipeline on the synthetic validation dataset and verify The synthetic validation dataset precision is ≥ 90% and recall is ≥ 80%. [UNRESOLVED-CLAIM: c_2eefe069 — status=not_enough_info] (SC‑030).
 
 ### Implementation for User Story 1
 
 - [X] T018 URL ingestion and deduplication in `src/audit/ingestor.py` (reads `input/urls.csv`) ({{claim:c_811db4e0}}). **DEPENDS ON:** None.
-- [ ] T019 HTML fetching with retries and timeout in `src/audit/fetcher.py` (uses `requests`) (verify fetched HTML files are saved to `data/raw/`). **DEPENDS ON:** T018.
+- [X] T019 HTML fetching with retries and timeout in `src/audit/fetcher.py` (uses `requests`) (verify fetched HTML files are saved to `data/raw/`). **DEPENDS ON:** T018.
 - [ ] T020 Extraction logic in `src/audit/extractor.py` → produces `ABSummary` objects, handles missing fields, logs `ERR-001`‑`ERR-099` (FR‑007) (verify extraction JSON exists and logs contain appropriate ERR codes). **DEPENDS ON:** T019.
 - [X] T020b **[P]** Run unit tests `tests/unit/test_error_message_format.py` to ensure all logged error‑message descriptions are ≤ a length that is sufficiently long for the intended analysis. and follow FR‑007 naming conventions. **DEPENDS ON:** T020.
 - [X] T020c Archive provenance metadata in `data/provenance_log.csv` per Constitution Principle VII (verify file exists with URL, repository identifier, fetch timestamp **and** that each row contains all three fields). **DEPENDS ON:** T020.
@@ -120,7 +120,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis** (FR‑005a & FR‑005b) in `src/audit/prevalence.py` including dynamic Bonferroni correction (α = 0.05 / number_of_subgroups) per FR‑032 (verify JSON output contains required fields including sensitivity analysis results).
+- [ ] T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis** (FR‑005a & FR‑005b) in `src/audit/prevalence.py` including dynamic Bonferroni correction (α = 0.05 / number_of_subgroups) per FR‑032 (verify JSON output contains required fields including sensitivity analysis results).
 - [X] T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged for sample‑size mismatch (cross‑check with T025c). (depends on T025c)
 - [ ] T043 Unit tests for binomial test and CI width ≤ 0.10. (1807.00365, https://arxiv.org/abs/1807.00365) (tests/unit/test_prevalence.py) (verify test passes).
 - [ ] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
@@ -128,7 +128,7 @@
 - [ ] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
 - [X] T047 Implement CSV summary generator in `src/audit/report_generator.py` that reads `output/audit_report.json` and writes `output/summary_report.csv` with required columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers match) [DEPENDS ON: T042, T045].
 - [X] T048 Unit test that validates CSV values exactly match JSON‑derived aggregates (tests/unit/test_report_generator.py) (verify test passes) [DEPENDS ON: T047].
-- [ ] T049 The Quickstart guide covers execution on 30 URLs within 30 minutes. [UNRESOLVED-CLAIM: c_f9d75bad — status=not_enough_info] (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
+- [ ] T049 The Quickstart guide covers execution on 30 URLs within 30 minutes. [UNRESOLVED-CLAIM: c_c0435d14 — status=not_enough_info] (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
 - [ ] T049b **[P]** Verify that the Quickstart execution in T049 actually runs on the default GitHub Actions runner (2 vCPU, 7 GB RAM) and records the runner environment. (depends on T049)
 - [X] T050 Implement subgroup prevalence and Fisher's exact‑test analysis (FR‑032) in `src/audit/subgroup_analysis.py` that produces `output/subgroup_report.json` with domain, year, counts, prevalence, and p‑value **and verify Bonferroni correction is applied dynamically** (constraint‑preservation‑925e1e46) (verify JSON file exists).
 - [ ] T050b **[P]** Verify that the publication year is extracted for each summary during extraction (T020c) and present in the input to `subgroup_analysis.py`. (depends on T020c)
@@ -190,7 +190,7 @@
 
 **Goal**: Create and evaluate the manually annotated real‑world validation set per FR‑031b and SC‑031b.
 
-**Independent Test**: Compute extraction precision ≥ 85 % and recall ≥ 75 % (F1 ≥ 0.80) on the real‑world validation set
+**Independent Test**: Compute extraction Real-world validation requires extraction precision ≥ 85% and recall ≥ 75%. [UNRESOLVED-CLAIM: c_0d73ff4e — status=not_enough_info] on the real‑world validation set
 
 - [ ] {{claim:c_65cd812e}}
 - [ ] T069b Draft annotation protocol documenting field‑level extraction criteria, reviewer instructions, and conflict‑resolution process (document saved as `docs/annotation_protocol.md`).
@@ -209,17 +209,17 @@
 
 - [ ] T072 Verify SC‑001: Extraction accuracy ≥ 95 % on `data/manual_validation/real_world_labels.csv` (run `tests/integration/test_extractor_accuracy.py`) (depends on T020, T069c) (addresses ordering‑fef4baa0). **Also confirms stratification across five domains.**
 - [ ] T073 Verify SC‑003: {{claim:c_037cdd5e}} for each statistical test (run `src/audit/monte_carlo_validation.py`) (depends on T062) (addresses ordering‑326c451a).
-- [ ] T074 Verify SC‑005: Parsing-error rate must be 5% or less.. (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
+- [ ] T074 Verify SC‑005: Parsing-error rate must be 5% or less. [UNRESOLVED-CLAIM: c_b0bd0fae — status=not_enough_info]. (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
 - [ ] T075 Verify SC‑008: CI execution completes within 6 h, ≤ 2 GB RAM, ≤ 2 vCPU (inspect `output/resource_log.json`) (depends on T098) (addresses ordering‑6e28c95b).
-- [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce manifest.json in The The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs. [UNRESOLVED-CLAIM: c_b7bb14e8 — status=not_enough_info]. (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
+- [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce manifest.json in The The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs. [UNRESOLVED-CLAIM: c_593a3640 — status=not_enough_info]. (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
 - [ ] T077 Verify SC‑014: {{claim:c_bf752899}} (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
-- [ ] T078 Verify SC‑015: Sensitivity analysis variation must be less than 0.02 across the baseline range. [UNRESOLVED-CLAIM: c_00084c67 — status=not_enough_info].. (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T078 Verify SC‑015: Sensitivity analysis variation must be less than 0.02 across the baseline range. [UNRESOLVED-CLAIM: c_a76ee4ee — status=not_enough_info].. (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
 - [ ] T079 Verify SC‑024: `summary_report.csv` columns and values match `audit_report.json` (run `tests/integration/test_summary_consistency.py`) (depends on T047) (addresses ordering‑fb2f11e6).
 - [ ] T080 Verify SC‑020: {{claim:c_9cebabc5}} (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
 - [ ] T081 Verify SC‑026: Monte‑Carlo validation passes for all tests (same as T073) (depends on T062) (addresses ordering‑326c451a).
 - [ ] T082 Verify SC‑027: No domain exceeds a substantial proportion and bias‑adjusted rate reported (run `src/audit/bias_adjustment.py` and inspect output) (depends on T045) (addresses ordering‑fb2f11e6).
 - [ ] T083 Verify SC‑028: Quickstart guide enables audit of 30 URLs in ≤ 30 minutes on **default GitHub Actions runner** (2 vCPU, 7 GB RAM) and records novice‑user verification log (depends on T049, T095b) (addresses ordering‑28dea5aa).
-- [ ] T084 Verify SC‑030: Synthetic validation precision ≥ 90 % and recall ≥ 80 % (run T029) (depends on T026) (addresses ordering‑fef4baa0).
+- [ ] T084 Verify SC‑030: Synthetic validation The synthetic validation dataset precision is ≥ 90% and recall is ≥ 80%. [UNRESOLVED-CLAIM: c_2eefe069 — status=not_enough_info] (run T029) (depends on T026) (addresses ordering‑fef4baa0).
 - [ ] T085 Verify SC‑031b: Real‑world validation precision ≥ 85 % and recall ≥ 75 % (run T070) (depends on T070) (addresses ordering‑fef4baa0).
 - [ ] T086 Verify SC‑032: Subgroup analysis produces Fisher's exact test results for groups ≥ 10 (run `src/audit/subgroup_analysis.py` and check JSON) (depends on T050) (addresses ordering‑fb2f11e6).
 - [ ] T087 Verify overall pipeline passes all above SC checks without errors (run full suite) (depends on T072‑T086) (addresses ordering‑fb2f11e6).
@@ -244,7 +244,7 @@
 - [ ] T097b Implement documentation DOC003: Data provenance guide in `docs/data_provenance.md` (Constitution Principle VII) (verify doc exists and covers URL tracking, checksums, manifest). *(Note: T097b name retained for documentation only; no duplicate CI check.)*
 - [ ] T099 Implement governance invalidation mechanism in `src/utils/governance.py` (Constitution Principle V) **and** update `state/projects/PROJ-492-evaluating-the-statistical-validity-of-p.yaml` `updated_at` timestamp via T095a (addresses constraint‑preservation‑a5829d58) (verify code executes and doc exists).
 - [ ] T099b Verify that any artifact change triggers the `updated_at` timestamp update (see T095a) (addresses constraint‑preservation‑a5829d58).
-- [ ] T100 The citation '2506.09162' is referenced in the document. [UNRESOLVED-CLAIM: c_015928e9 — status=not_enough_info] a **[P]** {{claim:c_23dc9564}}
+- [ ] T100 The citation '2506.09162' is referenced in the document. [UNRESOLVED-CLAIM: c_b392cda0 — status=not_enough_info] a **[P]** {{claim:c_23dc9564}}
 - [ ] T100b **[P]** Run Reference‑Validator Agent before Advancement‑Evaluator gate to re‑validate all citations; abort if any fail. (addresses Constitution checkpoint 2).
 - [ ] T100c **[P]** Run Reference‑Validator Agent at the research_review → research_accepted transition; ensure all citations pass before final acceptance. (addresses Constitution checkpoint 3).
 - [ ] T101 Implement documentation DOC004: Governance policy in `docs/governance_policy.md` (verify existence).
