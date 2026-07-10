@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-714-virtual-reality-exposure-therapy-for-anx
-last_run_id: 9a1d3960-f553-492d-ab11-722fcdc95ba2
+last_run_id: 284c8bcb-738e-47d9-8031-bcaf95319a14
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-714-virtual-reality-exposure-therapy-for-anx/specs/001-virtual-reality-exposure-therapy-for-anx
 title: 'Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis'
-updated_at: '2026-07-07T12:52:03.809084Z'
+updated_at: '2026-07-10T02:13:33.156147Z'
