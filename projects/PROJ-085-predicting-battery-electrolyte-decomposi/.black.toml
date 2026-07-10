@@ -1,0 +1,2 @@
+# Black uses pyproject.toml, this file is a placeholder for explicit config if needed
+# Black is configured in pyproject.toml

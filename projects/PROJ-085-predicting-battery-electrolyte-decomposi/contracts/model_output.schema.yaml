@@ -1,0 +1,35 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for model training results and metrics
+type: object
+required:
+  - model_type
+  - hyperparameters
+  - metrics
+  - feature_importance
+properties:
+  model_type:
+    type: string
+    description: Type of model trained
+  hyperparameters:
+    type: object
+    description: Final hyperparameters used
+  metrics:
+    type: object
+    required:
+      - r2
+      - mae
+    properties:
+      r2:
+        type: number
+      mae:
+        type: number
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number

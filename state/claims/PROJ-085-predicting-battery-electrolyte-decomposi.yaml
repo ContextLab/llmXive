@@ -1,0 +1,625 @@
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Faraday constant value is 96485 C/mol
+  claim_id: c_2e575d54
+  context: 'Create code/utils/constants.py with: 1. Faraday constant (F = 96485 C/mol)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Faraday constant (F = 96485 C/mol)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:31:02Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: DFT electrolyte data available at HuggingFace ID materialsproject/mp-dft-electrolytes
+  claim_id: c_640c4cd1
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFT_electrolyte_data_available_at_HuggingFace_ID_materialspr
+  kind: entity_fact
+  raw_text: 'DFT data from HuggingFace dataset ID: materialsproject/mp-dft-electrolytes'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:31:25Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Potential values list contains 0, 2, and 4 Volts
+  claim_id: c_5e600ece
+  context: 'Create code/utils/constants.py with: 2. Potentials list: PHI_VALUES =
+    [0, 2, 4] (V)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Potentials list: PHI_VALUES = [0, 2, 4] (V)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:31:59Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Faraday constant is 96485 C/mol
+  claim_id: c_c6102952
+  context: 'Create `code/utils/constants.py` with: 1. Faraday constant (F = 96485
+    C/mol)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Faraday constant (F = 96485 C/mol)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:35:30Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset ID materialsproject/mp-dft-electrolytes used for
+    DFT data
+  claim_id: c_55084eeb
+  context: 'Implement `code/data/ingestion.py` to fetch and filter DFT data from HuggingFace
+    dataset ID: `materialsproject/mp-dft-electrolytes`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_ID_materialsproject/mp-dft-electrolytes
+  kind: entity_fact
+  raw_text: 'Fetch and filter DFT data from HuggingFace dataset ID: `materialsproject/mp-dft-electrolytes`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:35:44Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Hardcoded reaction data for EC, DMC, and LiPF6 at 0V, 2V, and 4V
+  claim_id: c_a7c07838
+  context: Populate `code/utils/reactions.yaml` with hardcoded reaction data for EC,
+    DMC, LiPF6 at potentials 0V, 2V, 4V.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hardcoded_reaction_data_for_EC,_DMC,_and_LiPF6_at_0V,_2V,_an
+  kind: entity_fact
+  raw_text: Populate `code/utils/reactions.yaml` with hardcoded reaction data for
+    EC, DMC, LiPF6 at potentials 0V, 2V, 4V
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:36:08Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Faraday constant 96485 C/mol
+  claim_id: c_1a09f818
+  context: 'Create code/utils/constants.py with: 1. Faraday constant (F = 96485 C/mol)'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The NIST scientists devised a method to compensate for silver lost from\
+        \ the anode by mechanical causes, and conducted an isotope analysis of the\
+        \ silver used to determine its atomic weight. Their value for the conventional\
+        \ Faraday constant was F90 = 96485.39(13) C/mol, which corresponds to a value\
+        \ for the Avogadro constant of 6.0221449(78)\xD71023 mol\u22121: both values\
+        \ have a relative standard uncertainty of 1.3\xD710\u22126."
+      source_id: Dalton (unit)
+      url: https://en.wikipedia.org/wiki/Dalton_(unit)
+      value: 96485.39(13)
+    filled: true
+  kind: numeric
+  raw_text: The Faraday constant is 96485 C/mol.
+  resolved_value: 96485.39(13)
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T22:43:44Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Potentials 0V 2V 4V
+  claim_id: c_2ebfa34c
+  context: 'Potentials list: PHI_VALUES = [0, 2, 4] (V)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Potentials_0V_2V_4V
+  kind: entity_fact
+  raw_text: Potentials used in the study are 0V, 2V, and 4V.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:44:29Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Python version 3.10
+  claim_id: c_0512ab28
+  context: Initialize Python 3.10 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version required is 3.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:44:41Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: pandas version >= 2.0.0
+  claim_id: c_49dd29ea
+  context: requirements.txt (pandas>=2.0.0, scikit-learn>=1.3.0, rdkit, pymatgen,
+    datasets, numpy, matplotlib, seaborn)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pandas library version requirement is >= 2.0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:44:57Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: scikit-learn version >= 1.3.0
+  claim_id: c_08e2cdc4
+  context: requirements.txt (pandas>=2.0.0, scikit-learn>=1.3.0, rdkit, pymatgen,
+    datasets, numpy, matplotlib, seaborn)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scikit-learn library version requirement is >= 1.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:45:10Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: DFT data sourced from HuggingFace dataset materialsproject/mp-dft-electrolytes
+  claim_id: c_76f16a44
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFT_data_sourced_from_HuggingFace_dataset_materialsproject/m
+  kind: entity_fact
+  raw_text: 'fetch and filter DFT data from HuggingFace dataset ID: materialsproject/mp-dft-electrolytes'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:50:26Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 2
+  canonical: Faraday constant is 96485 C/mol
+  claim_id: c_2aca3c4b
+  context: 'Create code/utils/constants.py with: 1. Faraday constant (F = 96485 C/mol)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Faraday constant (F = 96485 C/mol)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:51:01Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Potentials list values are 0, 2, and 4 Volts
+  claim_id: c_41394a56
+  context: '2. Potentials list: PHI_VALUES = [0, 2, 4] (V)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Potentials list: PHI_VALUES = [0, 2, 4] (V)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:51:01Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Decomposition energy calculation matches manual formula within 0.01 eV
+  claim_id: c_3e222c8a
+  context: 'Independent Test: Run extraction on a small fixed subset; verify output
+    CSV columns, no missing features, and $E_{decomp}$ calculation matches manual
+    formula within 0.01 eV.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output CSV columns, no missing features, and E_decomp calculation
+    matches manual formula within 0.01 eV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:51:23Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: DFT data source is HuggingFace dataset materialsproject/mp-dft-electrolytes
+  claim_id: c_b4116394
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFT_data_source_is_HuggingFace_dataset_materialsproject/mp-d
+  kind: entity_fact
+  raw_text: 'fetch and filter DFT data from HuggingFace dataset ID: materialsproject/mp-dft-electrolytes'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:51:24Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Decomposition energy stability cutoff thresholds are 0.45, 0.50, and
+    0.55 eV
+  claim_id: c_7681bd49
+  context: 'Implement code/models/evaluator.py sensitivity analysis: sweep ''decomposition
+    energy stability cutoff'' threshold {0.45, 0.50, 0.55} eV'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep 'decomposition energy stability cutoff' threshold {0.45, 0.50, 0.55}
+    eV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:51:44Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Top 3 descriptors change by no more than 1 position across threshold
+    sweep
+  claim_id: c_22f0e9a6
+  context: 'Implement rank stability check: verify top 3 descriptors change by no
+    more than 1 position across the sweep'
+  evidence:
+    candidates:
+    - - Donate Create account Log in Top
+      - 3.0
+    - - Top 3 descriptors change by no more than
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Top_3_descriptors_change_by_no_more_than_1_position_across_t
+  kind: magnitude
+  raw_text: verify top 3 descriptors change by no more than 1 position across the
+    sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T22:52:12Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset materialsproject/mp-dft-electrolytes
+  claim_id: c_cded6617
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_materialsproject/mp-dft-electrolytes
+  kind: entity_fact
+  raw_text: 'DFT data from HuggingFace dataset ID: materialsproject/mp-dft-electrolytes'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:57:03Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Potential values list set to 0, 2, and 4 volts
+  claim_id: c_bdf3461f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Potentials list: PHI_VALUES = [0, 2, 4] (V)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T22:59:45Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Dalton unit reference via Wikipedia
+  claim_id: c_ddfc9670
+  context: 'Create code/utils/constants.py with: 1. {{claim:c_1a09f818}} (Wikipedia:
+    Dalton (unit), https://en.wikipedia.org/wiki/Dalton_(unit))'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: '1. {{claim:c_1a09f818}} (Wikipedia: Dalton (unit), https://en.wikipedia.org/wiki/Dalton_(unit))'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:02:12Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Potential values list [0, 2, 4] in Volts
+  claim_id: c_804dd583
+  context: 'Create code/utils/constants.py with: 2. Potentials list: PHI_VALUES =
+    [0, 2, 4] (V)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Potentials list: PHI_VALUES = [0, 2, 4] (V)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:02:12Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: At least 3 sample rows in reactions.yaml
+  claim_id: c_c45b9a70
+  context: Populate code/utils/reactions.yaml with hardcoded reaction data for EC,
+    DMC, LiPF6 at potentials 0V, 2V, 4V. Include at least 3 sample rows with defined
+    n_electrons and energy values to ensure T016 has data to read.
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/At_least_3_sample_rows_in_reactions.yaml
+  kind: magnitude
+  raw_text: Include at least 3 sample rows with defined n_electrons and energy values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T23:02:41Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: DFT data source HuggingFace ID materialsproject/mp-dft-electrolytes
+  claim_id: c_2cd16d0e
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFT_data_source_HuggingFace_ID_materialsproject/mp-dft-elect
+  kind: entity_fact
+  raw_text: 'fetch and filter DFT data from HuggingFace dataset ID: materialsproject/mp-dft-electrolytes'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:02:43Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: E_decomp calculation matches manual formula within 0.01 eV
+  claim_id: c_fa4aa943
+  context: Run extraction on a small fixed subset; verify output CSV columns, no missing
+    features, and $E_{decomp}$ calculation matches manual formula within 0.01 eV.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify output CSV columns, no missing features, and E_decomp calculation
+    matches manual formula within 0.01 eV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:02:43Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Sweep decomposition energy stability cutoff threshold {0.45, 0.50, 0.55}
+    eV
+  claim_id: c_aa02d4e9
+  context: 'Implement code/models/evaluator.py sensitivity analysis: sweep ''decomposition
+    energy stability cutoff'' threshold {0.45, 0.50, 0.55} eV (FR-007)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep 'decomposition energy stability cutoff' threshold {0.45, 0.50, 0.55}
+    eV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:02:43Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Top 3 descriptors change by no more than 1 position
+  claim_id: c_d6af047c
+  context: 'Implement rank stability check: verify top 3 descriptors change by no
+    more than 1 position across the sweep'
+  evidence:
+    candidates:
+    - - Donate Create account Log in Top
+      - 3.0
+    - - Top 3 descriptors change by no more than
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Top_3_descriptors_change_by_no_more_than_1_position
+  kind: magnitude
+  raw_text: verify top 3 descriptors change by no more than 1 position across the
+    sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T23:02:45Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 2
+  canonical: HuggingFace dataset ID materialsproject/mp-dft-electrolytes
+  claim_id: c_34c8ea98
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_ID_materialsproject/mp-dft-electrolytes
+  kind: entity_fact
+  raw_text: The HuggingFace dataset ID used is materialsproject/mp-dft-electrolytes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:04:53Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Hardcoded reaction data for EC, DMC, LiPF6 at 0V, 2V, 4V
+  claim_id: c_c634fd35
+  context: Populate code/utils/reactions.yaml with hardcoded reaction data for EC,
+    DMC, LiPF6 at potentials 0V, 2V, 4V. Include at least 3 sample rows with defined
+    n_electrons and energy values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hardcoded_reaction_data_for_EC,_DMC,_LiPF6_at_0V,_2V,_4V
+  kind: entity_fact
+  raw_text: Populate code/utils/reactions.yaml with hardcoded reaction data for EC,
+    DMC, LiPF6 at potentials 0V, 2V, 4V
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:04:55Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Verify output CSV columns and no missing features
+  claim_id: c_9c9c9dfc
+  context: Run extraction on a small fixed subset; verify output CSV columns, no missing
+    features, and E_decomp calculation matches manual formula within 0.01 eV.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_output_CSV_columns_and_no_missing_features
+  kind: entity_fact
+  raw_text: Verify output CSV columns and no missing features
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:05:40Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: E_decomp calculation matches manual formula within 0.01 eV
+  claim_id: c_ca4f8a58
+  context: Run extraction on a small fixed subset; verify output CSV columns, no missing
+    features, and E_decomp calculation matches manual formula within 0.01 eV.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: E_decomp calculation matches manual formula within 0.01 eV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:06:29Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Train Random Forest with 5-fold CV
+  claim_id: c_0eb6cd3d
+  context: Implement code/models/trainer.py to train Random Forest with 5-fold CV
+    and hyperparameter tuning using GridSearchCV.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest with 5-fold CV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:07:09Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Top 3 descriptor ranks change by 1 position across threshold sweep 0.45
+    to 0.55 eV
+  claim_id: c_e4b3ae99
+  context: "Calculate MAE against held-out DFT set; verify top 3 descriptor ranks\
+    \ change by \u22641 position when threshold sweeps {0.45, 0.50, 0.55} eV."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify top 3 descriptor ranks change by \u22641 position when threshold\
+    \ sweeps {0.45, 0.50, 0.55} eV"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:07:56Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset ID materialsproject/mp-drolytes
+  claim_id: c_f893ed01
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_ID_materialsproject/mp-drolytes
+  kind: entity_fact
+  raw_text: 'HuggingFace dataset ID: materialsproject/mp-dft-electrolytes'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:14:49Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Reaction data hardcoded for EC DMC LiPF6 at 0V 2V and 4V
+  claim_id: c_23193916
+  context: Populate code/utils/reactions.yaml with hardcoded reaction data for EC,
+    DMC, LiPF6 at potentials 0V, 2V, 4V. Include at least 3 sample rows with defined
+    n_electrons and energy values to ensure T016 has data to read.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reaction_data_hardcoded_for_EC_DMC_LiPF6_at_0V_2V_and_4V
+  kind: entity_fact
+  raw_text: Populate code/utils/reactions.yaml with hardcoded reaction data for EC,
+    DMC, LiPF6 at potentials 0V, 2V, 4V.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:14:52Z'

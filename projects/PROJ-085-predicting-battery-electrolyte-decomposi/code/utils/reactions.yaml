@@ -1,0 +1,94 @@
+entries:
+- molecule_id: EC
+  potential_v: 0.0
+  reactants:
+  - EC
+  products:
+  - C2H4
+  - CO2
+  n_electrons: 2
+  energy_products: -150.5
+  energy_reactants: -152.0
+- molecule_id: EC
+  potential_v: 2.0
+  reactants:
+  - EC
+  products:
+  - C2H4
+  - CO2
+  n_electrons: 2
+  energy_products: -150.5
+  energy_reactants: -152.0
+- molecule_id: EC
+  potential_v: 4.0
+  reactants:
+  - EC
+  products:
+  - C2H4
+  - CO2
+  n_electrons: 2
+  energy_products: -150.5
+  energy_reactants: -152.0
+- molecule_id: DMC
+  potential_v: 0.0
+  reactants:
+  - DMC
+  products:
+  - CH4
+  - CO
+  - CH3O
+  n_electrons: 1
+  energy_products: -100.2
+  energy_reactants: -102.5
+- molecule_id: DMC
+  potential_v: 2.0
+  reactants:
+  - DMC
+  products:
+  - CH4
+  - CO
+  - CH3O
+  n_electrons: 1
+  energy_products: -100.2
+  energy_reactants: -102.5
+- molecule_id: DMC
+  potential_v: 4.0
+  reactants:
+  - DMC
+  products:
+  - CH4
+  - CO
+  - CH3O
+  n_electrons: 1
+  energy_products: -100.2
+  energy_reactants: -102.5
+- molecule_id: LiPF6
+  potential_v: 0.0
+  reactants:
+  - LiPF6
+  products:
+  - LiF
+  - PF5
+  n_electrons: 1
+  energy_products: -250.0
+  energy_reactants: -255.0
+- molecule_id: LiPF6
+  potential_v: 2.0
+  reactants:
+  - LiPF6
+  products:
+  - LiF
+  - PF5
+  n_electrons: 1
+  energy_products: -250.0
+  energy_reactants: -255.0
+- molecule_id: LiPF6
+  potential_v: 4.0
+  reactants:
+  - LiPF6
+  products:
+  - LiF
+  - PF5
+  n_electrons: 1
+  energy_products: -250.0
+  energy_reactants: -255.0

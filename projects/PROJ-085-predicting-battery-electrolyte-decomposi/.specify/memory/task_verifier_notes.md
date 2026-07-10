@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T008 Configure logging infrastructure to capture warnings for missing geometric data and metallic behavior outliers** — No logging configuration files, code snippets, or documentation were provided to show that warnings for missing geometric data and metallic behavior outliers are being captured. The required artifact (e.g., a configured logger, log‑level settings, or example log output) is missing, so the task is not satisfied.
+- **T009 Setup environment configuration management for random seeds and dataset URLs** — No configuration artifact (e.g., a YAML/JSON settings file, .env example, or initialization script) that defines and manages random seeds and dataset URLs was presented. Without such a file or code, the requirement to set up environment configuration management is not satisfied.
+- **T010 [P] [US1] Unit test for decomposition energy formula in `tests/unit/test_target_calc.py`** — No `tests/unit/test_target_calc.py` file or unit test code was provided; without the actual test file we cannot confirm that a unit test for the decomposition energy formula exists or that it correctly validates the formula. The required artifact is missing.

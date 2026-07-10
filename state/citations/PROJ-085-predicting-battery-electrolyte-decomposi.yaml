@@ -31,3 +31,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/648b796a56d5060fa0581fc8/0224bfc201687b9afcd941d93213d98af89e89aa0f88264fecb9dee4e162646e?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-17dbf6e61ca73a23.parquet%3B+filename%3D%22train-00000-of-00001-17dbf6e61ca73a23.parquet%22%3B&user_id=public&Expires=1783694467&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ4Yjc5NmE1NmQ1MDYwZmEwNTgxZmM4LzAyMjRiZmMyMDE2ODdiOWFmY2Q5NDFkOTMyMTNkOThhZjg5ZTg5YWEwZjg4MjY0ZmVjYjlkZWU0ZTE2MjY0NmVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtMTdkYmY2ZTYxY2E3M2EyMy5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtMTdkYmY2ZTYxY2E3M2EyMy5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM2OTQ0Njd9fX1dfQ__&Signature=MEQCIAbPqqE50rrnmG%7EtrdB8oywFBr0GPQhmicgLGsw1cgIBAiAGXQWI66Fgh6LUgnU8GTH%7EcChOE4XY-MBAToqDEFEF9g__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-10T13:41:05.861252Z'
+- artifact_hash: 85893124cd396930c63e0641757f929bc5d80e3ac7712edd59ab747e327488d3
+  artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Dalton - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Dalton_
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Dalton
+  verified_at: '2026-07-10T23:20:53.179394Z'

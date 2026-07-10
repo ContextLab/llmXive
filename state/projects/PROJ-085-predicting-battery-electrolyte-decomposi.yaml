@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T12:32:33.218413Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-085-predicting-battery-electrolyte-decomposi
-last_run_id: 8e63955e-5d59-4a1d-a6fa-8df86ca3d6a8
+last_run_id: 59c40f3b-2610-43ba-bafd-70151dbde411
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi
 title: Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning
-updated_at: '2026-07-10T14:02:30.449128Z'
+updated_at: '2026-07-10T22:45:21.095584Z'
