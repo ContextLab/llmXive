@@ -1,0 +1,17 @@
+? "T000a [P] [FR-010] Implement `code/power_analysis.py` script to perform statistical\
+  \ power analysis for correlation detection (r\u22650.3, power\u22650.80). **Verification**:\
+  \ Script runs without error and outputs required sample size N."
+: 1
+? "T000c [P] [FR-010] Verify that the sample size N produced by `code/power_analysis.py`\
+  \ achieves statistical power \u2265 0.80 for effect size r \u2265 0.3. **Verification**:\
+  \ Unit test that reads N from script output and checks power using `statsmodels.stats.power`\
+  \ utilities."
+: 1
+? 'T001 [P] Create project structure per implementation plan in `projects/PROJ-236-exploring-the-influence-of-network-topol/`
+  by executing: `mkdir -p code/utils code/tests/unit code/tests/integration data/raw
+  data/networks data/transport data/analysis plots state/projects`. **Verification**:
+  Assert that each listed directory exists after execution.'
+: 1
+? 'T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`. **Verification**:
+  Run `ruff --quiet` and `black --check` on the codebase; both must exit with no warnings/errors.'
+: 1

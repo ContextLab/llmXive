@@ -1,0 +1,15 @@
+numpy
+networkx
+scipy
+scikit-learn
+pandas
+matplotlib
+seaborn
+ase
+pyyaml
+pydantic
+pytest
+pytest-cov
+ruff
+black
+mypy

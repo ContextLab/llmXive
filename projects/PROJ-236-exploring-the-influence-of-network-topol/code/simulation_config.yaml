@@ -1,0 +1,37 @@
+# Simulation Configuration for Network Topology Heat Transport Study
+# This file defines parameters for network generation and transport analysis.
+
+network_generation:
+  # Base cutoff factor relative to nearest-neighbor distance
+  base_cutoff_factor: 1.2
+  # Range for sensitivity analysis
+  cutoff_sweep:
+    start: 1.0
+    end: 2.0
+    step: 0.1
+  # Topologies to generate
+  topologies:
+    - small_world
+    - scale_free
+    - random
+  # Number of realizations per topology
+  num_realizations: 100
+
+transport:
+  # Solver parameters
+  max_iterations: 1000
+  convergence_threshold: 1e-6
+  # Regime detection thresholds
+  ballistic_threshold: 0.5
+
+analysis:
+  # Statistical parameters
+  significance_level: 0.05
+  bootstrap_iterations: 1000
+  # Correlation thresholds
+  min_correlation_strength: 0.3
+
+runtime:
+  # Limits in seconds
+  per_realization_limit: 2700  # 45 minutes
+  total_pipeline_limit: 21600  # 6 hours

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T03:19:00.880291Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-236-exploring-the-influence-of-network-topol
-last_run_id: 6ea02cfe-e50a-4944-a75b-bc3f2300247e
+last_run_id: 1a3b673b-fd0e-4191-9960-5dd6adcb3537
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol
 title: Exploring the Influence of Network Topology on Heat Transport in Disordered
   Materials
-updated_at: '2026-07-10T18:57:27.600198Z'
+updated_at: '2026-07-10T21:59:53.879226Z'

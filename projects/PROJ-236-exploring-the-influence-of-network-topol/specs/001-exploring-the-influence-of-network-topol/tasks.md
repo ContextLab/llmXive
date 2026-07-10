@@ -12,46 +12,16 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3...)
 - Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Be implemented independently
-  - Be tested independently
-  - Be delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
 
 ## Phase 0: Documentation Alignment, Power Analysis Script & Pilot Data Planning
 
-**Purpose**: Resolve contradictions in upstream artifacts (spec.md, plan.md) before code implementation begins. Implement the power analysis script.
-**Dependency**: None. Must be completed before Phase 1.
+**Purpose**: Implement the power analysis script and runtime monitoring.
 
-- [ ] T047 [P] [Doc] Generate a 'Resolution Document' (`docs/resolution_report.md`) listing any inconsistencies found between spec.md, plan.md, and tasks.md (e.g., branch names, constraints) for human review. Do NOT auto-update upstream artifacts. (Status: Pending - upstream artifacts still require update)
-- [ ] T048 [P] [Doc] Generate a patch file for `plan.md` to update Constitution Check to explicitly state that external atomic coordinate seeds are fetched from verified sources (e.g., Zenodo, Materials Project) to satisfy Principle III (Data Hygiene). (Status: Pending - upstream artifacts still require update)
-- [ ] T049 [P] [Doc] Generate a patch file for `plan.md` to update FR/SC Mapping for FR-006 to specify "anharmonic force constant estimation via EAM potentials" (Physics-First) to align with spec requirements and reject false dichotomies. (Status: Pending - upstream artifacts still require update)
-- [ ] T050 [P] [Doc] Generate a patch file for `spec.md` to fix formatting error in FR-004 line to ensure valid Markdown rendering and correct requirement text. (Status: Pending - upstream artifacts still require update)
-- [ ] T000a [P] [FR-010] Implement `code/power_analysis.py` script to perform statistical power analysis for correlation detection (r≥0.3, power≥0.80).
-- [ ] T001b [P] [Orchestrator] Implement global runtime monitor in `code/orchestrator.py` to track total wall-clock time of the ensemble execution and enforce a predefined temporal limit (SC-002). Logs failure if total time > 6 hours.
+- [ ] T000a [P] [FR-010] Implement `code/power_analysis.py` script to perform statistical power analysis for correlation detection (r≥0.3, power≥0.80). **Verification**: Script runs without error and outputs required sample size N.
+- [ ] T000c [P] [FR-010] Verify that the sample size N produced by `code/power_analysis.py` achieves statistical power ≥ 0.80 for effect size r ≥ 0.3. **Verification**: Unit test that reads N from script output and checks power using `statsmodels.stats.power` utilities.
+- [X] T001b [P] [Orchestrator] Implement global runtime monitor in `code/orchestrator.py` to track total wall‑clock time of the ensemble execution and enforce a predefined temporal limit (SC-002). If total time > 6 hours, log a warning and flag the sample size as potentially insufficient rather than failing the pipeline. **Verification**: CI assertion that total runtime metric is logged; if > 6h, a warning flag is set but the run is not aborted.
 
 ---
 
@@ -59,9 +29,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project structure per implementation plan in `projects/PROJ-236-exploring-the-influence-of-network-topol/` by executing: `mkdir -p code/utils code/tests/unit code/tests/integration data/raw data/networks data/transport data/analysis plots state/projects`
-- [ ] T002 [P] Initialize Python 3 project with dependencies in `code/requirements.txt` including: `numpy`, `networkx`, `scipy`, `scikit-learn`, `pandas`, `matplotlib`, `seaborn`, `ase`, `pyyaml`, `pydantic`, `pytest`, `pytest-cov`, `ruff`, `black`, `mypy`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`
+- [ ] T001 [P] Create project structure per implementation plan in `projects/PROJ-236-exploring-the-influence-of-network-topol/` by executing: `mkdir -p code/utils code/tests/unit code/tests/integration data/raw data/networks data/transport data/analysis plots state/projects`. **Verification**: Assert that each listed directory exists after execution.
+- [X] T002 [P] Initialize Python 3 project with dependencies in `code/requirements.txt` including: `numpy`, `networkx`, `scipy`, `scikit-learn`, `pandas`, `matplotlib`, `seaborn`, `ase`, `pyyaml`, `pydantic`, `pytest`, `pytest-cov`, `ruff`, `black`, `mypy`. **Verification**: Run `pip install -r code/requirements.txt` and ensure exit code 0.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`. **Verification**: Run `ruff --quiet` and `black --check` on the codebase; both must exit with no warnings/errors.
 
 ---
 
@@ -69,225 +39,86 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 [P] Setup configuration loader for `code/simulation_config.yaml` in `code/utils/io.py`
-- [ ] T005 [P] Implement checksumming utility for `data/` artifacts in `code/utils/io.py`
-- [ ] T006 [P] Create base logging infrastructure in `code/utils/logging.py`
-- [ ] T007 [P] Create Pydantic base entities `NetworkRealization` (fields: node_count: int, edge_list: List[Tuple[int, int]], topology_type: str, cutoff_factor: float, seed: int, validation_status: Literal['pending', 'valid', 'disconnected', 'failed']) and `TransportResult` (fields: network_id: str, kappa: float, error_estimate: float, convergence_status: str, runtime: float) in `code/utils/models.py`. **Logic**: `validation_status` transitions from 'pending' to 'valid'/'disconnected'/'failed' based on output of T015/T018a. The state machine is triggered by the validation functions in `code/generate_networks.py`.
-- [ ] T008 [P] Setup random seed management (np.random.seed()) in `code/utils/seeds.py`
-- [ ] T017a [P] [Foundational] Implement 'Physical Stability Filter' in `code/utils/validation.py` to check for bond-distance thresholds (e.g., >0.8x nearest neighbor) and atomic stability based on Assumptions. This filter consumes atomic coordinate seeds (from T017b) and returns a boolean indicating if the structure is physically valid *before* network generation.
-- [ ] T017b [P] [Foundational] Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files) representing disordered alloys for N=500 atoms. Store in `data/raw/atomic_seeds/`. This provides the input for T017a and T024. (Resolves missing producer for atomic coordinates).
-- [ ] T018a [P] [FR-001] Implement explicit connectivity validation logic to ensure >95% of realizations are connected in `code/generate_networks.py`. Logic: Retry with cutoff * 1.1 up to 2.0x; if still disconnected, flag as invalid. (Distinct deliverable for FR-001)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [~] T004 [P] Setup configuration loader for `code/simulation_config.yaml` in `code/utils/io.py`. **Verification**: Unit test that loads a sample config and asserts expected keys.
+- [~] T005 [P] Implement checksumming utility for `data/` artifacts in `code/utils/io.py`. **Verification**: Unit test that generates a file, computes checksum, recomputes, and matches.
+- [~] T006 [P] Create base logging infrastructure in `code/utils/logging.py`. **Verification**: Integration test that logs a message and checks that it appears in the designated log file.
+- [ ] T007 [P] Create Pydantic base entities `NetworkRealization` and `TransportResult` in `code/utils/models.py`. **Verification**: Unit test (`T007‑UT`) that instantiates each model with valid data and expects no `ValidationError`.
+- [ ] T008 [P] Setup random seed management (np.random.seed()) in `code/utils/seeds.py`. **Verification**: Unit test that sets a seed, generates random numbers, resets seed, and verifies reproducibility.
+- [ ] T009 [P] Generate contract schema `contracts/network_realization.schema.yaml` describing the NetworkRealization data model. **Verification**: File exists and validates against a sample instance.
+- [ ] T010 [P] Generate contract schema `contracts/transport_schema.schema.yaml` describing the TransportResult data model. **Verification**: File exists and validates against a sample instance.
+- [ ] T011 [P] Generate contract schema `contracts/analysis_schema.schema.yaml` describing the CorrelationAnalysis data model. **Verification**: File exists and validates against a sample instance.
+- [ ] T012 [P] Implement distance‑based cutoff logic (x × nearest‑neighbor distance, retry up to 2.0×) in `code/generate_networks.py`. [UNRESOLVED-CLAIM: c_061126a7 — status=not_enough_info] Tagged **[FR‑001]**. **Verification**: Unit test (`T012‑UT`) that checks scaling behavior for several factor values.
+- [ ] T014 [P] Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files) representing disordered alloys for N = 500 atoms. [UNRESOLVED-CLAIM: c_a8088e57 — status=not_enough_info] Store in `data/raw/atomic_seeds/`. **Verification**: Ensure at least 5 seed files exist and each passes a SHA‑256 checksum recorded in `data/checksums.txt`. [UNRESOLVED-CLAIM: c_7a192160 — status=not_enough_info]
+- [ ] T015 [P] Implement Physical Stability Filter in `code/utils/validation.py` that checks bond‑distance thresholds (> 0.8 × nearest‑neighbor) and basic atomic stability. [UNRESOLVED-CLAIM: c_84f9b737 — status=not_enough_info] Consumes seeds from T014. **Verification**: Unit test (`T015‑UT`) with known valid/invalid structures.
+- [ ] T016 [P] Implement explicit connectivity validation logic in `code/generate_networks.py` to ensure > 95% of realizations are connected. [UNRESOLVED-CLAIM: c_ef757304 — status=not_enough_info] Retries cutoff up to 2.0×; flags invalid realizations. **Verification**: Unit test (`T016‑UT`) that runs on a fixed seed and asserts ≥95% connectivity.
+- [ ] T017 [P] Verification CI gate for connectivity: CI fails if overall connectivity success rate < 95% after all retries. **Verification**: CI script that reads connectivity metrics and aborts on failure.
+- [ ] T018 [P] Verification for Physical Stability Filter: CI fails if > 5% of seeds are rejected by the filter. **Verification**: CI check on filter pass rate.
+- [ ] T019 [P] Verification for distance‑cutoff logic: CI fails if cutoff scaling does not match expected behavior (e.g., a scaling factor that leaves the original NN distance unchanged). **Verification**: CI assertion based on `T012‑UT` results.
+- [ ] T020 [P] Verification for checksumming utility: recompute checksum for each saved artifact and compare to recorded value. **Verification**: Automated test that loops over `data/` files.
 
 ---
 
 ## Phase 3: User Story 1 - Construct and Validate Network Realizations (Priority: P1) 🎯 MVP
 
-**Goal**: Generate reproducible ensembles of Small-World, Scale-Free, and Random atomic connectivity networks with distance-based cutoffs and topological sanity checks.
+**Goal**: Generate reproducible ensembles of Small‑World, Scale‑Free, and Random atomic connectivity networks with distance‑based cutoffs and topological sanity checks.
 
-**Independent Test**: Can be fully tested by running the network generation script on a fixed seed and verifying that the output network realizations match the theoretical degree distributions and that the distance-based cutoff yields a connected graph for >95% of realizations.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T009 [P] [US1] Unit test for network topology metrics (clustering, path length) in `tests/unit/test_network_gen.py`
-- [ ] T010 [P] [US1] Unit test for connectivity retry logic in `tests/unit/test_network_gen.py`
-- [ ] T011 [P] [US1] Integration test for ensemble generation with physical validity filter in `tests/integration/test_network_ensemble.py`
-
-### Implementation for User Story 1
-
-- [ ] T015 [P] [US1] Implement distance-based cutoff logic (x NN default, retry up to 2.0x) and connectivity check in `code/generate_networks.py` (Moved from Phase 2 to US1 block)
-- [ ] T012 [P] [US1] Implement Small-World (Watts-Strogatz) graph generator in `code/generate_networks.py` (Depends on T015)
-- [ ] T013 [P] [US1] Implement Scale-Free (Barabási-Albert) graph generator in `code/generate_networks.py` (Depends on T015)
-- [ ] T014 [P] [US1] Implement Random (Erdős-Rényi) graph generator in `code/generate_networks.py` (Depends on T015)
-- [ ] T016 [US1] Implement topological metric extraction (clustering, degree variance, spectral gap, betweenness) in `code/generate_networks.py`
-- [ ] T018 [US1] Implement ensemble generation loop with `meta.json` logging for each realization in `code/generate_networks.py` (Depends on T015, T017a, T018a)
-- [ ] T018c [US1] [FR-001, SC-001] Implement enforcement logic to measure, aggregate, and report the connectivity success rate. If the rate < 95% after retries, the task MUST fail and log the specific realization IDs that failed, preventing the ensemble from proceeding. This acts as a hard pass/fail gate for the ensemble. (Resolves missing enforcement task).
-- [ ] T018b [US1] [FR-008] Implement ensemble generation per cutoff (regular increments defined in `simulation_config.yaml`) in `code/generate_networks.py` with explicit 'regular increments' sweep logic. (Split from T019a)
-- [ ] T000a [P] [FR-010] Generate a pilot dataset of network realizations (including controlled mass disorder and varied topology configurations) to provide variance estimates for power analysis. Output: `data/processed/pilot_data/`. **Format**: CSV with columns [network_id, topology_type, cutoff, connectivity_status, clustering_coeff]. **Volume**: 50 realizations per topology type. (Moved from Phase 0 to Phase 3 to ensure generators exist).
-- [ ] T020 [US1] Save generated graphs to `data/networks/` and checksums to `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T021 [P] [US1] Implement Small‑World (Watts‑Strogatz) graph generator in `code/generate_networks.py` (depends on T012). **Verification**: Unit test that generated graph matches target clustering coefficient within 5%.
+- [ ] T022 [P] [US1] Implement Scale‑Free (Barabási‑Albert) graph generator in `code/generate_networks.py` (depends on T012). **Verification**: Unit test that median degree‑exponent falls within 2 < γ < 3.
+- [ ] T023 [P] [US1] Implement Random (Erdős‑Rényi) graph generator in `code/generate_networks.py` (depends on T012). **Verification**: Unit test that average path length is within 10% of theoretical expectation.
+- [ ] T024 [P] [US1] [FR‑003] Implement topological metric extraction (clustering, degree variance, spectral gap, betweenness) in `code/generate_networks.py`. **Verification**: Unit test that metrics are computed and saved for a sample graph.
+- [ ] T025 [P] [US1] Implement ensemble generation loop with `meta.json` logging for each realization in `code/generate_networks.py`. Includes regular cutoff sweep as defined in `simulation_config.yaml` (FR‑008). [UNRESOLVED-CLAIM: c_722c4c58 — status=not_enough_info] **Verification**: Integration test that generates a mini‑ensemble (multiple realizations per topology) and produces correct meta logs.
+- [ ] T025b [P] [US1] Implement sensitivity analysis orchestrator in `code/generate_networks.py` that iterates through cutoff values, generates networks, and prepares data for the transport calculation for each cutoff to ensure the full topology-transport correlation is tested. **Verification**: Integration test that runs the full sweep for multiple cutoffs and produces a CSV of network metadata.
+- [ ] T025c [P] [US1] [FR-008] Implement the Sensitivity Analysis Transport Loop: explicitly iterate through cutoff values from T025b, invoke the transport calculation (T031/T031b) for each cutoff value, and aggregate results into `data/analysis/sensitivity_results.csv`. **Verification**: Integration test that confirms transport results exist for every cutoff value in the sweep.
+- [ ] T026 [P] [US1] Enforce connectivity success rate ≥ 95% (hard gate). [UNRESOLVED-CLAIM: c_36e8fdea — status=not_enough_info] If rate falls below, abort ensemble generation and log failing IDs. **Verification**: CI check (see T017) validates this constraint.
+- [ ] T027 [P] [US1] Save generated graphs to `data/networks/` and record checksums in `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml`. **Verification**: Re‑compute checksum after save and compare to stored value (see T020).
+- [ ] T028 [P] [Pilot] Generate pilot dataset of multiple realizations per topology (Small‑World, Scale‑Free, Random) with metrics only (no transport). Output CSV `data/processed/pilot_data/pilot_metrics.csv`. **Verification**: File exists, contains expected number of rows, and includes columns `[network_id, topology_type, cutoff, clustering_coeff]`.
+- [ ] T059 [P] [US1] Unit test for network topology metrics (clustering, path length) in `tests/unit/test_network_gen.py`. **Function**: `test_clustering_coefficient_accuracy`. **Verification**: Test must pass after implementation.
+- [ ] T060 [P] [US1] Unit test for connectivity retry logic in `tests/unit/test_network_gen.py`. **Function**: `test_connectivity_retry_logic`. **Verification**: Test must pass after implementation.
+- [ ] T061 [P] [US1] Integration test for ensemble generation with physical validity filter in `tests/integration/test_network_ensemble.py`. **Function**: `test_ensemble_generation_with_filter`. **Verification**: Test must pass after implementation.
 
 ---
 
 ## Phase 4: User Story 2 - Compute Phonon Transport and Thermal Conductivity (Priority: P2)
 
-**Goal**: Calculate effective thermal conductivity (κ) for each network realization using Anharmonic Lattice Dynamics (ALD) with EAM-derived force constants on CPU-only hardware (per Spec FR-002, FR-006, FR-009).
+**Goal**: Calculate effective thermal conductivity (κ) for each network realization using Allen-Feldman theory (CPU-tractable variant of ALD) with EAM-derived force constants, ensuring CPU-only execution.
 
-**Independent Test**: Can be fully tested by running the simulation on a small, known test case (e.g., a 1D chain) and verifying the output κ matches the analytical or literature value within 10%, while confirming the process completes on a CPU-only runner.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T021 [P] [US2] Unit test for force constant derivation from EAM potentials in `tests/unit/test_transport.py`
-- [ ] T022 [P] [US2] Unit test for convergence check logic in `tests/unit/test_transport.py`
-- [ ] T023 [P] [US2] Integration test for ALD solver timeout enforcement in `tests/integration/test_transport_solver.py`
-
-### Implementation for User Story 2
-
-- [ ] T024 [US2] [FR-006, FR-009] Implement force constant derivation via **Anharmonic Lattice Dynamics using EAM potentials** (Physics-First) in `code/compute_transport.py`. This task consumes atomic coordinates (from T017b) and generates force constants independent of topology. (Aligned with Plan's approved methodology. Depends on T017b and T007)
-- [ ] T025a [US2] Implement **Allen-Feldman Theory** solver core in `code/compute_transport.py` (reads `data/networks/*.graphml`, writes `data/transport/results.csv`). **Includes**: 1) Calculation of vibrational density of states; 2) Computation of diffusivity via Green-Kubo formalism for disordered systems; 3) Unit conversion from reduced units to physical units (W/mK). **Note**: This implements the primary methodology. If the network exhibits high-degree hubs or low clustering indicative of ballistic transport, the system MUST flag the result as "regime_mismatch" and exclude it from the final correlation analysis, rather than switching to NEMD. (Depends on T024)
-- [ ] T025d [US2] [FR-011] Implement regime validation: If the network exhibits high-degree hubs (scale-free) or low clustering indicative of ballistic transport, the system MUST flag the result as "regime_mismatch" and exclude it from the final correlation analysis, rather than switching to NEMD. (Resolves NEMD constraint violation).
-- [ ] T025b [US2] Implement convergence check and retry logic (a limited number of retries with adjusted solver parameters) in `code/utils/validation.py`
-- [ ] T025c [US2] Implement timeout enforcement (A moderate duration per realization) and retry logic (multiple retries) in `code/compute_transport.py` as per FR-002
-- [ ] T029 [US2] Save transport results to `data/transport/transport_results.csv` with metadata in `code/compute_transport.py`
-- [ ] T029c [US2] [FR-011, SC-002] Implement total ensemble runtime aggregation and check against 6-hour limit (SC-002) in `code/compute_transport.py`. Logs failure if total time > 6 hours. Reports to T001b.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T030 [P] [US2] Derive force constants via **EAM potentials** from atomic seeds (T014). Output stored in `data/processed/force_constants/`. **Verification**: Unit test that force constants are non‑negative and within expected magnitude range.
+- [ ] T030b [P] [US2] Explicitly implement the derivation of force constants from atomic positions using an EAM-like potential (independent of graph topology) to satisfy FR-009. **Verification**: Unit test that verifies force constants are derived solely from atomic species and positions, not graph edges.
+- [ ] T031 [P] [US2] Implement **Allen-Feldman theory** solver core in `code/compute_transport.py` (reads `data/networks/*.graphml`, uses force constants, computes vibrational density of states (VDOS), applies Allen-Feldman diffusivity formula, converts to W/mK). [UNRESOLVED-CLAIM: c_f48bc16f — status=not_enough_info] **Methodology**: Uses Allen-Feldman theory as the CPU-tractable implementation for disordered systems, avoiding third-order force constants. **Verification**: Integration test (`T031‑UT`) that runs on a 1D chain benchmark and checks κ is within 10% of literature value.
+- [ ] T031b [P] [US2] Implement NEMD fallback and regime detection logic in `code/compute_transport.py`. Detects ballistic regimes (e.g., high-degree hubs, low clustering) and switches to a simplified NEMD solver (Langevin thermostat on harmonic chain) or flags Green-Kubo as invalid per FR-011. **Verification**: Unit test that forces a ballistic regime and verifies the NEMD switch is triggered and a valid result is returned.
+- [ ] T032 [P] [US2] Implement convergence check and retry logic (max a limited number of retries with adjusted solver parameters). **Verification**: Unit test that forces a convergence failure on first attempt and succeeds on retry.
+- [ ] T033 [P] [US2] Enforce per‑realization runtime ≤ 45 minutes. [UNRESOLVED-CLAIM: c_c877bbb6 — status=not_enough_info] If exceeded, abort and flag realization as failed. **Verification**: CI assertion that recorded runtimes for all realizations are ≤ 45 min.
+- [ ] T034 [P] [US2] Aggregate total ensemble runtime and enforce ≤ 6 hours (SC‑002) using orchestrator monitor (T001b). [UNRESOLVED-CLAIM: c_b4c4436d — status=not_enough_info] If limit exceeded, log warning and flag sample size as insufficient. **Verification**: CI check that total runtime metric is logged; if > 6h, a warning flag is set.
+- [ ] T035 [P] [US2] Save transport results to `data/transport/transport_results.csv` with metadata columns `[network_id, kappa, error_estimate, convergence_status, runtime, regime_flag]`. **Verification**: Unit test that output file contains required columns and that `regime_flag` is set appropriately.
+- [ ] T036 [P] [US2] Verify that all κ values are finite real numbers and that no singular‑matrix or convergence‑failure errors remain unflagged. **Verification**: CI test that scans `transport_results.csv` for non‑finite entries and fails if any are found.
 
 ---
 
-## Phase 5: User Story 3 - Analyze Topology-Transport Correlations (Priority: P3)
+## Phase 5: User Story 3 - Analyze Topology‑Transport Correlations (Priority: P3)
 
-**Goal**: Perform statistical regression analyses between network metrics and thermal conductivity, including bootstrap resampling, FDR correction, and multicollinearity checks.
+**Goal**: Perform statistical regression analyses between network metrics and thermal conductivity, including bootstrap resampling, multiple‑comparison correction, and hypothesis testing.
 
-**Independent Test**: Can be fully tested by running the analysis on a synthetic dataset with a known correlation (e.g., r=0.8) and verifying that the bootstrapped confidence interval captures the true value and the p-value is < 0.05.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T030 [P] [US3] Unit test for bootstrap resampling implementation in `tests/unit/test_analysis.py`
-- [ ] T031 [P] [US3] Unit test for FDR/Bonferroni correction logic in `tests/unit/test_analysis.py`
-- [ ] T032 [P] [US3] Unit test for VIF multicollinearity check in `tests/unit/test_analysis.py`
-- [ ] T033 [P] [US3] Integration test for full correlation pipeline with known synthetic data in `tests/integration/test_correlation_pipeline.py`
-
-### Implementation for User Story 3
-
-- [ ] T034 [P] [US3] Implement linear regression and correlation coefficient calculation in `code/analyze_correlations.py`
-- [ ] T035 [US3] Implement bootstrap resampling (A sufficient number of iterations will be performed to ensure convergence and stability of the results.) for confidence intervals **and** optional Variance Inflation Factor (VIF) check (threshold configurable in `simulation_config.yaml`, default 5) in `code/analyze_correlations.py`. **Note**: VIF is optional. If VIF > threshold, log a warning and proceed with bootstrap-only results. (Integrated T037 logic, removed VIF as mandatory requirement).
-- [ ] T036 [US3] Implement multiple-comparison correction (Bonferroni/FDR) for p-values in `code/analyze_correlations.py`
-- [ ] T036b [US3] Implement result aggregation for sensitivity analysis (from T018b) in `code/analyze_correlations.py` (Moved from US1)
-- [ ] T036c [US3] Implement result aggregation per cutoff for sensitivity analysis in `code/analyze_correlations.py` (Split from T019c)
-- [ ] T036d [US3] [FR-008] Implement explicit verification step to validate the robustness of the topology-transport correlation across cutoffs (checking if correlation coefficient remains stable across the 'regular increments' sweep) in `code/analyze_correlations.py`
-- [ ] T038 [US3] [SC-005] Implement power-law fit (R² calculation) between disorder parameters and conductivity in `code/analyze_correlations.py`
-- [ ] T039 [US3] Implement associational framing logic to explicitly scrub causal language from final output artifacts (plots, CSV headers, summary text) in `code/analyze_correlations.py`
-- [ ] T040a [US3] Generate publication-ready scatter plots (Metric vs Conductivity) with error bars in `code/analyze_correlations.py`
-- [ ] T040b [US3] Generate error bar plots for bootstrap confidence intervals in `code/analyze_correlations.py`
-- [ ] T040c [US3] Generate power-law fit plots with R² annotation in `code/analyze_correlations.py`
-- [ ] T041 [US3] Save analysis results to `data/analysis/correlation_results.csv` and plots to `data/analysis/plots/`
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T037 [P] [US3] Implement linear regression and correlation coefficient calculation in `code/analyze_correlations.py`. Save results to `data/analysis/correlation_results.csv`. [UNRESOLVED-CLAIM: c_a5ed33ba — status=not_enough_info] **Verification**: Unit test (`T037‑UT`) that reads the CSV and checks for columns `metric, r, p_value, slope, intercept`.
+- [ ] T038 [P] [US3] Implement bootstrap resampling with **≥ 1000 iterations** for confidence intervals. [UNRESOLVED-CLAIM: c_b80e96ca — status=not_enough_info] **Verification**: Unit test (`T038‑UT`) that asserts the iteration count used is ≥ 1000.
+- [ ] T039 [P] [US3] Verify that bootstrap confidence‑interval width ≤ 0.2 (SC‑004). [UNRESOLVED-CLAIM: c_2f9fa22d — status=not_enough_info] If width exceeds, fail the pipeline. **Verification**: CI check that computes width from bootstrap results and aborts on violation.
+- [ ] T040 [P] [US3] Implement multiple‑comparison correction (Bonferroni/FDR) for p‑values (FR‑005). [UNRESOLVED-CLAIM: c_4059b3ee — status=not_enough_info] **Verification**: Unit test that applies correction to a known set of p‑values and checks transformed values.
+- [ ] T041 [P] [US3] Verify that corrected p‑values for significant metrics are < 0.05 (SC‑003). [UNRESOLVED-CLAIM: c_1edb6655 — status=refuted] **Verification**: CI assertion that scans corrected p‑values and fails if any significant metric does not meet the threshold.
+- [ ] T042 [P] [US3] Implement power‑law fit between disorder parameters and conductivity, compute R², and perform hypothesis test rejecting null (R² = 0) at α = 0.05 (SC‑005). [UNRESOLVED-CLAIM: c_80f958ab — status=not_enough_info] **Verification**: Unit test that the test statistic is significant (p < 0.05) for synthetic data with known relationship.
+- [ ] T043 [P] [US3] Sensitivity analysis across cutoffs: verify that correlation coefficient remains stable (variance below a defined threshold) across the regular‑increment sweep (FR‑008). **Requirement**: Must analyze the correlation stability using results from T025c (which re-runs the transport calculation for each cutoff). **Verification**: CI test that computes variance of r across cutoffs and fails if above threshold.
+- [ ] T044 [P] [US3] Generate publication‑ready scatter plots (`data/analysis/plots/metric_vs_kappa.png`) with error bars representing bootstrap confidence intervals. [UNRESOLVED-CLAIM: c_401f17dc — status=not_enough_info] **Verification**: Render check that the PNG file is created and non‑empty.
+- [ ] T045 [P] [US3] Generate power‑law fit plot (`data/analysis/plots/powerlaw_fit.png`) with R² annotation. [UNRESOLVED-CLAIM: c_74da123b — status=not_enough_info] **Verification**: Render check that the PNG file exists.
+- [ ] T046 [P] [US3] Save analysis summary (`research.md` appendix) ensuring all statements use associational language only. **Verification**: Linting test that scans the generated text for prohibited causal keywords (`cause`, `drive`, etc.) and fails if any are found.
+- [ ] T063 [P] [US3] Unit test for bootstrap implementation in `tests/unit/test_analysis.py`. **Function**: `test_bootstrap_iterations_count`. **Verification**: Test must pass.
+- [ ] T064 [P] [US3] Unit test for FDR/Bonferroni correction logic in `tests/unit/test_analysis.py`. **Function**: `test_fdr_correction_values`. **Verification**: Test must pass.
+- [ ] T065 [P] [US3] Unit test for VIF multicollinearity check in `tests/unit/test_analysis.py`. **Function**: `test_vif_multicollinearity_check`. **Verification**: Test must pass.
+- [ ] T066 [P] [US3] Integration test for full correlation pipeline with known synthetic data in `tests/integration/test_correlation_pipeline.py`. **Function**: `test_full_correlation_pipeline_synthetic`. **Verification**: Test must pass.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase N: Polish & Cross‑Cutting Concerns
 
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T042 [P] Update `quickstart.md` with execution instructions for the full pipeline
-- [ ] T043 [P] Code cleanup and refactoring for type hinting consistency (verify with `mypy --strict`)
-- [ ] T044 [P] Performance optimization for large ensemble generation (implement multiprocessing in `generate_networks.py` targeting [deferred] runtime reduction)
-- [ ] T045 [P] Add additional unit tests for edge cases (zero variance, disconnected graphs) in `tests/unit/`
-- [ ] T046 [P] Run `bash quickstart.sh` validation and update `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml` `artifact_hashes` map
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Phase 0 (Docs)**: No dependencies - MUST start immediately
-- **Setup (Phase 1)**: Depends on Phase 0 - Can start immediately after
-- **Foundational (Phase 2)**: Depends on Setup - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T017b (atomic seeds) and T018 (networks) for input data
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T018 (networks) AND T029 (transport results) for input data
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for network topology metrics in tests/unit/test_network_gen.py"
-Task: "Unit test for connectivity retry logic in tests/unit/test_network_gen.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement Small-World graph generator in code/generate_networks.py"
-Task: "Implement Scale-Free graph generator in code/generate_networks.py"
-Task: "Implement Random graph generator in code/generate_networks.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 0: Documentation Alignment & Power Analysis
-2. Complete Phase 1: Setup
-3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently
-6. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Phase 0 + Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Phase 0 + Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1 (Network Generation)
-   - Developer B: User Story 2 (Transport Simulation)
-   - Developer C: User Story 3 (Statistical Analysis)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All transport simulations (T025a) must run within 45 minutes on CPU cores; if convergence fails, the task must exclude the realization and log the failure, never hang or require GPU.
-- **Critical Constraint**: No synthetic/fake data generation for input; all network realizations must be procedurally generated from real atomic coordinate seeds (T017b), and transport results must be computed from real simulations (Allen-Feldman), not hardcoded values.
-- **Methodology Note**: The Spec mandates **Anharmonic Lattice Dynamics (ALD)** and **EAM potentials** for force constant derivation. All tasks in Phase 4 (T024, T025a) must adhere to this physics model, specifically using **Allen-Feldman theory** for disordered systems, not Harmonic approximations or NEMD.
-- **Branch Note**: The feature branch is `001-gene-regulation`. Phase 0 tasks (T047-T050) must be completed first to align upstream artifacts.
-- **Constitution Note**: The `plan.md` Constitution Check must be updated to reflect fetching external atomic coordinate seeds from verified sources (Zenodo/Materials Project).
-- **FR-006/FR-009 Note**: Force constant derivation in T024 must use EAM potentials (Physics-First) to avoid circular validation.
-- **FR-011 Note**: T025d must flag ballistic regimes as "regime_mismatch" rather than switching to NEMD.
-- **FR-008 Note**: T018b and T036d must implement 'regular increments' sweep and robustness verification.
-- **SC-002 Note**: T029c must aggregate total runtime and check against 6-hour limit.
-- **FR-010 Note**: T000a and T000b must execute power analysis to determine N.
-- **Pilot Data Note**: T000a (now in Phase 3) generates pilot data required for T000b power analysis.
-- **Global Runtime Note**: T001b monitors total wall-clock time and enforces SC-002.
-- **Revision Note (Scope)**: Phase 6 (Rule Mining) has been removed as it was unanchored scope creep not supported by spec.md. The research scope is strictly static topology vs. anharmonic lattice dynamics.
+- [ ] T048 [P] Update `quickstart.md` with execution instructions for the full pipeline. **Verification**: Render markdown with a linter; all commands execute without error in a fresh CI run.
+- [ ] T049 [P] Code cleanup and refactoring for type‑hint consistency. Run `mypy --strict` and assert exit code 0. **Verification**: CI step runs mypy and must pass.
+- [ ] T050 [P] Performance optimization: implement multiprocessing in `code/generate_networks.py` for ensemble generation. **Verification**: Benchmark before/after; require ≥ 10% speedup and assert new runtime ≤ previous * 0.9.
+- [ ] T051 [P] Add edge‑case unit tests (zero variance, disconnected graphs) in `tests/unit/` and verify coverage ≥ 90% for edge‑case branches. [UNRESOLVED-CLAIM: c_ec093cf0 — status=not_enough_info] **Verification**: Coverage report must show ≥ 90% for specified files.
+- [ ] T052 [P] Validate final artifact hashes and update `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml` `artifact_hashes` map accordingly. **Verification**: Script recomputes hashes, updates YAML, and CI checks that the map matches computed values.
