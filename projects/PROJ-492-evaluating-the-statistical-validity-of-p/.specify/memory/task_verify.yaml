@@ -1,4 +1,8 @@
 ? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
+  \ \u2013 verify core functions importable. [UNRESOLVED-CLAIM: c_117d6102 \u2014\
+  \ status=not_enough_info] *(Alias of PT002)*"
+: 1
+? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
   \ \u2013 verify core functions importable. [UNRESOLVED-CLAIM: c_ba1a0365 \u2014\
   \ status=not_enough_info] *(Alias of PT002)*"
 : 1
@@ -164,6 +168,10 @@
   \ c_6ea75dbe \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration, and\
+  \ runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 2
 ? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [UNRESOLVED-CLAIM:\
   \ c_01c292d1 \u2014 status=not_enough_info] [DEPENDS ON: T007]."
@@ -184,6 +192,12 @@
   \ repository identifier, and fetch timestamp [UNRESOLVED-CLAIM: c_3afd62b7 \u2014\
   \ status=not_enough_info] (run validation script `tests/unit/test_provenance_schema.py`).\
   \ **DEPENDS ON:** T020c."
+: 1
+? "T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two\u2011\
+  proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline\
+  \ per FR\u2011012) (verify reconstructed values match known fixtures). [UNRESOLVED-CLAIM:\
+  \ c_cac1757f \u2014 status=not_enough_info] **DEPENDS ON:** T062 (Monte\u2011Carlo\
+  \ validation) **AND** T022."
 : 1
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_071edb63\
@@ -244,6 +258,14 @@
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
   % [UNRESOLVED-CLAIM: c_9ae4a784 \u2014 status=not_enough_info]) **and verify that\
+  \ sample\u2011size mismatch entries are excluded from aggregate prevalence estimates**\
+  \ per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning messages\
+  \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
+  \ ON:** T023."
+: 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
+  %) [UNRESOLVED-CLAIM: c_ded0ad44 \u2014 status=not_enough_info] **and verify that\
   \ sample\u2011size mismatch entries are excluded from aggregate prevalence estimates**\
   \ per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning messages\
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
@@ -376,6 +398,12 @@
   \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
   T012."
 : 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and verify both\
+  \ outcome types are present** (constraint\u2011preservation\u20112958f04c) (verify\
+  \ files are created and contain \u2265\u202F10\u202F000 records [UNRESOLVED-CLAIM:\
+  \ c_8a919920 \u2014 status=not_enough_info]). **DEPENDS ON:** T006\u2011T012."
+: 1
 ? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM:\
   \ c_071edb63 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
@@ -463,6 +491,14 @@
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487 [UNRESOLVED-CLAIM:\
+  \ c_a156b5c2 \u2014 status=verified]) ** (constraint\u2011preservation\u2011ba913176)\
+  \ (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS\
+  \ ON:** T010. <!-- FAILED: unspecified -->"
+: 1
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
   \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
   preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
   \ condition). **DEPENDS ON:** T010."
@@ -497,6 +533,9 @@
   \ 90\u202F%, recall \u2265 80\u202F%, F1 \u2265 0.85 [UNRESOLVED-CLAIM: c_0ce1c66f\
   \ \u2014 status=not_enough_info] (depends on T026) (verify test passes, otherwise\
   \ raise `ERR-800`) [DEPENDS ON: T026]."
+: 1
+? "T031 **[P]** Run Monte\u2011Carlo validation (from T062) as part of pipeline start\u2011\
+  up; {{claim:c_a1bb18b6}} (T031 runs T062 module internally). **DEPENDS ON:** T062."
 : 1
 ? "T034 Create analysis notebook `notebooks/statistical_consistency_verification.ipynb`\
   \ that documents any p\u2011value discrepancies >0.05 (1905.08726 [UNRESOLVED-CLAIM:\
