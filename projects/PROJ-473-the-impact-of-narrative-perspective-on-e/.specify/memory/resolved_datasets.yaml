@@ -1,0 +1,110 @@
+resolved_at: '2026-07-10T07:38:02.765945+00:00'
+datasets:
+- intent: TF-IDF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_21_Jul_Oct/resolve/main/tokens_freq_Nov2021_Jan2022_tfidf.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 16238
+      parsed: true
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_22_Feb_Apr/resolve/main/tokens_freq_2022_Feb_Apr_tfidf.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 16267
+      parsed: true
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_22_May_Jul/resolve/main/tokens_freq_2022_May_Jul_tfidf.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 16368
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_21_Jul_Oct/resolve/main/tokens_freq_Nov2021_Jan2022_tfidf.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_22_Feb_Apr/resolve/main/tokens_freq_2022_Feb_Apr_tfidf.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_22_May_Jul/resolve/main/tokens_freq_2022_May_Jul_tfidf.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_21_Nov_22_Jan/resolve/main/tokens_freq_Nov2021_Jan2022_tfidf.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/ethansimrm/train_tfidf_words_and_weights/resolve/main/tfidf_words_and_weights.txt
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://figshare.com/articles/dataset/CSV_files_of_Evaluation_of_1_Random_forest_based_overload_prediction_scheme_2_Prevalent_schemes/32285838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Zero-Infinity_Dimensional_Recursion_ZIDR_A_Conceptual_and_Mathematical_Framework_for_a_Static_Universe/32899571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Social_Entrepreneurship_Value_Creation_and_Sustainable_Impact_An_Integrative_Review_of_the_Literature_up_to_2022_and_a_Conceptual_Framework_Proposal_b_/32955353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/QTP_Juniperus/32932622
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Analysis_of_PTEN_Antagonistic_Peptides_PAPs_in_Neuronal_Growth_and_Traumatic_Brain_Injury_TBI_/32955368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3631674
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19772807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6792296
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.10083502
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20491686
+    source: zenodo
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/21284003
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21284003
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/21283816
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ReaderResponse
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: ONLY
+  status: unresolved
+  candidates: []
+  candidates_tried: []

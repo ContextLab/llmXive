@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StoryDocument Schema"
+description: "Schema for the extracted story document features."
+type: "object"
+required:
+  - "story_id"
+  - "perspective_score"
+  - "pronoun_density_1st"
+  - "pronoun_density_3rd"
+properties:
+  story_id:
+    type: "string"
+    description: "Unique identifier for the story."
+  raw_text:
+    type: "string"
+    description: "The full text of the story."
+  language:
+    type: "string"
+    description: "Detected language code (e.g., 'en')."
+  perspective_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized score indicating first-person density."
+  pronoun_density_1st:
+    type: "number"
+    minimum: 0.0
+    description: "Frequency of first-person pronouns."
+  pronoun_density_3rd:
+    type: "number"
+    minimum: 0.0
+    description: "Frequency of third-person pronouns."
+  narrator_distance_score:
+    type: "number"
+    description: "Derived metric for narrative distance."
+  genre:
+    type: "string"
+    description: "Extracted genre for confounder control."
+  publication_year:
+    type: ["integer", "null"]
+    description: "Extracted publication year for confounder control."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if applicable."
+  tfidf_vector_shape:
+    type: "integer"
+    description: "Dimension of the TF-IDF vector (stored separately)."
+additionalProperties: false

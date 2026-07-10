@@ -1,0 +1,168 @@
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: first-person density scores correlate 0.8 with human annotations on 50
+    stories
+  claim_id: c_f91acd86
+  context: "The pipeline can be tested by processing a small, manually annotated sample\
+    \ of 10 stories and verifying that the computed 'first-person density' scores\
+    \ correlate \u2265 0.8 with human annotations of perspective type."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Process a manually annotated gold-standard subset of 50 stories and verify\
+    \ that the computed 'first-person density' scores correlate \u2265 0.8 with human\
+    \ annotations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T08:10:12Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: text-similarity matching precision 0.9 on 50 story-judgement pairs
+  claim_id: c_53821ccc
+  context: "The matching logic can be tested by running it against a 'gold standard'\
+    \ subset of 50 manually annotated story-judgement pairs, verifying a precision\
+    \ \u2265 0.9."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The matching logic can be tested by running it against a 'gold standard'\
+    \ subset of 50 manually annotated story-judgement pairs, verifying a precision\
+    \ \u2265 0.9"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T08:10:27Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: collected reader-response scores correlate with known narrative archetypes
+  claim_id: c_089234cf
+  context: The data collection module can be tested by running a pilot with a small
+    subset of stories, verifying that the collected scores show variance and correlate
+    with known narrative archetypes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Collected_reader-response_scores_correlate_with_known_narrat
+  kind: entity_fact
+  raw_text: Run a pilot with a small subset of stories, verifying that the collected
+    scores show variance and correlate with known narrative archetypes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T08:10:51Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: linear regression recovers slope 0.5 within 5% margin of error
+  claim_id: c_4ded30e1
+  context: The analysis can be tested by running it on a synthetic dataset with a
+    known, hardcoded correlation (slope = 0.5), verifying that the regression recovers
+    the slope within a 5% margin of error.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression recovers the slope within a 5% margin of error on a synthetic
+    dataset with a known, hardcoded correlation (slope = 0.5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T08:11:09Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Moral Foundations Twitter dataset located at osf.io/7v8zq
+  claim_id: c_2ea0fe9b
+  context: Implement `code/data_loader.py` function `load_reader_response_data(source_url)`
+    to fetch real reader-response data from OSF (https://osf.io/7v8zq/ - Moral Foundations
+    Twitter dataset) via verified URLs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Foundations_Twitter_dataset_located_at_osf.io/7v8zq
+  kind: entity_fact
+  raw_text: Fetch real reader-response data from OSF (https://osf.io/7v8zq/ - Moral
+    Foundations Twitter dataset)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T08:11:32Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: pipeline execution time under 45 minutes and memory under 6 GB
+  claim_id: c_14b3e493
+  context: Run full pipeline end-to-end on the GitHub Actions runner to verify execution
+    time < 45 minutes and memory < 6 GB (SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify execution time < 45 minutes and memory < 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T08:11:32Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: scan_for_pii function detects PII in text
+  claim_id: c_1d814b1f
+  context: Implement `code/utils.py` function `scan_for_pii(text)` to detect PII;
+    this logic is intended to be invoked by the CI Repository-Hygiene Agent as a blocking
+    gate (Constitution Principle III)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scan_for_pii_function_detects_PII_in_text
+  kind: entity_fact
+  raw_text: Implement `code/utils.py` function `scan_for_pii(text)` to detect PII
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T08:11:54Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11 and specific dependencies
+  claim_id: c_d1f2f78f
+  context: Initialize Python 3.11 project with `requirements.txt` (spaCy, scikit-learn,
+    pandas, numpy, matplotlib, statsmodels, langdetect, pyyaml, requests)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with requirements.txt including spaCy,
+    scikit-learn, pandas, numpy, matplotlib, statsmodels, langdetect, pyyaml, requests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T08:12:05Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: CI environment configured for CPU-only with 7GB RAM limit
+  claim_id: c_c77e3997
+  context: Setup CI environment configuration for GitHub Actions (CPU-only, 7GB RAM
+    limit)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_environment_configured_for_CPU-only_with_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: Configure CI environment for GitHub Actions with CPU-only and 7GB RAM
+    limit
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T08:12:23Z'

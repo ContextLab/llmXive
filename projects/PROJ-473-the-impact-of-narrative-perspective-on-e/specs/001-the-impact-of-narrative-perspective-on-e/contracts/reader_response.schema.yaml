@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReaderResponse Schema"
+description: "Schema for reader empathy and moral judgement responses."
+type: "object"
+required:
+  - "response_id"
+  - "story_id"
+  - "participant_id"
+  - "empathy_score"
+  - "moral_judgement_score"
+properties:
+  response_id:
+    type: "string"
+    description: "Unique identifier for the response."
+  story_id:
+    type: "string"
+    description: "Foreign key to StoryDocument."
+  participant_id:
+    type: "string"
+    description: "Identifier for the participant."
+  empathy_score:
+    type: "number"
+    description: "Score on empathy scale."
+  moral_judgement_score:
+    type: "number"
+    description: "Score on moral judgement scale."
+  attention_check_passed:
+    type: "boolean"
+    description: "Whether the participant passed attention checks."
+  is_valid:
+    type: "boolean"
+    description: "Final validity flag."
+additionalProperties: false

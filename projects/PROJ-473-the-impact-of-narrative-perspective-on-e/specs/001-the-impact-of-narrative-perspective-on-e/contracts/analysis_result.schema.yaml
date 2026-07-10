@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult Schema"
+description: "Schema for the statistical analysis results."
+type: "object"
+required:
+  - "analysis_id"
+  - "model_type"
+  - "regression_coefficient"
+  - "p_value"
+  - "adjusted_p_value"
+  - "r_squared"
+  - "sample_size"
+properties:
+  analysis_id:
+    type: "string"
+    description: "Unique identifier for the analysis run."
+  model_type:
+    type: "string"
+    description: "Type of model used (e.g., 'linear_regression')."
+  regression_coefficient:
+    type: "number"
+    description: "Slope for perspective_score."
+  p_value:
+    type: "number"
+    description: "Raw p-value."
+  adjusted_p_value:
+    type: "number"
+    description: "Bonferroni-adjusted p-value."
+  r_squared:
+    type: "number"
+    description: "Model fit (R-squared)."
+  sample_size:
+    type: "integer"
+    description: "Number of observations."
+  vif_score:
+    type: "number"
+    description: "Variance Inflation Factor."
+  sensitivity_threshold:
+    type: ["number", "null"]
+    description: "Threshold used for sensitivity analysis."
+  power_analysis:
+    type: ["object", "null"]
+    description: "Power analysis results (effect size, N, power)."
+additionalProperties: false
