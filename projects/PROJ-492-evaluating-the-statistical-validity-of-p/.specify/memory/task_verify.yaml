@@ -217,11 +217,6 @@
 : 1
 ? "T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two\u2011\
   proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline\
-  \ per FR\u2011012) (verify reconstructed values match known fixtures). **DEPENDS\
-  \ ON:** T062 (Monte\u2011Carlo validation) **AND** T022."
-: 2
-? "T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two\u2011\
-  proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline\
   \ per FR\u2011012) (verify reconstructed values match known fixtures). [UNRESOLVED-CLAIM:\
   \ c_cac1757f \u2014 status=not_enough_info] **DEPENDS ON:** T062 (Monte\u2011Carlo\
   \ validation) **AND** T022."
@@ -232,7 +227,7 @@
 : 1
 ? 'T024 Unit tests for reconstructor with known inputs (tests/unit/test_reconstructor.py)
   (verify all tests pass) [DEPENDS ON: T023].'
-: 1
+: 2
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_071edb63\
   \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F%) **and verify\
@@ -304,6 +299,11 @@
   \ per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning messages\
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
   \ ON:** T023."
+: 1
+? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to verify that any\
+  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
+  \ required by FR\u2011012 [UNRESOLVED-CLAIM: c_0d2890d5 \u2014 status=not_enough_info].\
+  \ **DEPENDS ON:** T025."
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
