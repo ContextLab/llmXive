@@ -1,0 +1,24 @@
+# Ruff configuration for llmXive project
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[format]
+exclude = ["*.ipynb"]

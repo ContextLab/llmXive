@@ -1,0 +1,1349 @@
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: sample size calculation using Cohen's f2=0.15 alpha=0.05 power=0.80 k=3
+  claim_id: c_08257766
+  context: 'Implement code/power_analysis.py: Calculate required sample size (N) using
+    statsmodels.stats.power.FTestPower with explicit parameters: Cohen''s f2=0.15
+    (medium effect), alpha=0.05, power=0.80, k=3 predictors.'
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: 'Calculate required sample size (N) using statsmodels.stats.power.FTestPower
+    with explicit parameters: Cohen''s f2=0.15 (medium effect), alpha=0.05, power=0.80,
+    k=3 predictors.'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:21:41Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: halt if overlap N < 55 for power analysis
+  claim_id: c_24fc4b93
+  context: 'Logic: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, HALT
+    with critical error ''Insufficient species for power analysis (N < 55)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:21:41Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: branching density formula branch_points minus endpoints divided by total_length
+  claim_id: c_0d7511ee
+  context: 'Algorithm: skeletonize (8-connectivity) for depth/branching; find_contours
+    for surface area. Branching density = (branch_points - endpoints) / total_length.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branching_density_formula_branch_points_minus_endpoints_divi
+  kind: entity_fact
+  raw_text: Branching density = (branch_points - endpoints) / total_length.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:22:13Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: halt if sample size < 55 after merge
+  claim_id: c_e71b6103
+  context: 'Logic: Handle missing species via listwise deletion. Constraint: If sample
+    size < 55, HALT with critical error ''Insufficient species after merge (N < 55)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If sample size < 55, HALT with critical error 'Insufficient species after
+    merge (N < 55)'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:22:13Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: use 5-fold GroupKFold with groups=species_name
+  claim_id: c_b14b1ec6
+  context: "Specs: R\xB2 metric, 5-fold GroupKFold (groups=species_name) to prevent\
+    \ phylogenetic leakage, alpha search [a range of values]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 5-fold GroupKFold (groups=species_name) to prevent phylogenetic leakage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:22:32Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Regression n_estimators=100 max_depth=None
+  claim_id: c_ff6b3625
+  context: "Specs: R\xB2 metric, 5-fold GroupKFold (groups=species_name) to prevent\
+    \ phylogenetic leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Random Forest Regression specs: n_estimators=100, max_depth=None.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:23:01Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: suppress independent effect claims if VIF > 5
+  claim_id: c_56575a72
+  context: If VIF > 5 is detected (from T022), explicitly suppress independent effect
+    claims for correlated variables in the generated report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5 is detected, explicitly suppress independent effect claims
+    for correlated variables.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:23:01Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: sweep decision thresholds by plus minus 0.05 with step size 0.01
+  claim_id: c_2ad237e4
+  context: "Sweep decision thresholds by \xB10.05 (e.g., 0.45, 0.50, 0.55) with step\
+    \ size 0.01 around the optimal F1 threshold."
+  evidence:
+    asserted: '0.05'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: "Sweep decision thresholds by \xB10.05 (e.g., 0.45, 0.50, 0.55) with step\
+    \ size 0.01 around the optimal F1 threshold."
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:23:01Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: pipeline memory usage <7GB RAM and runtime <6 hours on 2 CPU
+  claim_id: c_6f50ba10
+  context: Profile and optimize image loading to use generators; ensure memory usage
+    <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure memory usage <7GB RAM and full pipeline runs within 6 hours on
+    2 CPU/7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:23:18Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 0
+  canonical: 'Power analysis parameters: Cohen''s f2=0.15, alpha=0.05, power=0.80,
+    k=3'
+  claim_id: c_d3c37eb8
+  context: 'Phase 2, Task T008: Implement code/power_analysis.py: Calculate required
+    sample size (N) using statsmodels.stats.power.FTestPower with explicit parameters:
+    Cohen''s f2=0.15 (medium effect), alpha=0.05, power=0.80, k=3 predictors.'
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: 'Calculate required sample size (N) using statsmodels.stats.power.FTestPower
+    with explicit parameters: Cohen''s f2=0.15 (medium effect), alpha=0.05, power=0.80,
+    k=3 predictors.'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:24:18Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Power analysis halt condition: species overlap N < 55'
+  claim_id: c_85c7ca9a
+  context: 'Phase 2, Task T008: Logic: Fetch species list from NPPN/MGB3 and TRY.
+    If overlap N < 55, HALT with critical error ''Insufficient species for power analysis
+    (N < 55)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:24:19Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Formula for branching density: (branch_points - endpoints) / total_length'
+  claim_id: c_6294ebb0
+  context: 'Phase 3, Task T013: Algorithm: skeletonize (8-connectivity) for depth/branching;
+    find_contours for surface area. Branching density = (branch_points - endpoints)
+    / total_length.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Formula_for_branching_density:_(branch_points_-_endpoints)_/
+  kind: entity_fact
+  raw_text: Branching density = (branch_points - endpoints) / total_length.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:24:21Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Cross-validation method: 5-fold GroupKFold grouped by species_name'
+  claim_id: c_ee80d85d
+  context: "Phase 4, Task T023a: Specs: R\xB2 metric, 5-fold GroupKFold (groups=species_name)\
+    \ to prevent phylogenetic leakage, alpha search [a range of values]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 5-fold GroupKFold (groups=species_name) to prevent phylogenetic leakage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:24:21Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Random Forest Regression hyperparameters: n_estimators=100, max_depth=None'
+  claim_id: c_a5a23698
+  context: "Phase 4, Task T023c: Specs: R\xB2 metric, 5-fold GroupKFold (groups=species_name)\
+    \ to prevent phylogenetic leakage, n_estimators=100, max_depth=None, regularization\
+    \ via min_samples_leaf."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Regression uses n_estimators=100 and max_depth=None.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:24:48Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Data merge halt condition: sample size N < 55'
+  claim_id: c_78ea621f
+  context: 'Phase 4, Task T021: Constraint: If sample size < 55, HALT with critical
+    error ''Insufficient species after merge (N < 55)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If sample size < 55, HALT with critical error 'Insufficient species after
+    merge (N < 55)'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:24:48Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Random Forest Classification hyperparameters: n_estimators=100, 5-fold
+    GroupKFold'
+  claim_id: c_676faa4c
+  context: 'Phase 5, Task T027b: Specs: F1-score metric, 5-fold GroupKFold (groups=species_name),
+    n_estimators=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Classification uses n_estimators=100 and 5-fold GroupKFold
+    (groups=species_name).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:25:12Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Memory usage constraint: < 7GB'
+  claim_id: c_3d804f54
+  context: 'Phase N, Task T034: Profile and optimize image loading to use generators;
+    ensure memory usage <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB
+    RAM.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constraint:_%3C_7GB
+  kind: magnitude
+  raw_text: Peak memory usage must be less than 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:25:37Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Pipeline runtime constraint: < 6 hours on 2 CPU/7GB RAM'
+  claim_id: c_ae1e49f6
+  context: 'Phase N, Task T034: Profile and optimize image loading to use generators;
+    ensure memory usage <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB
+    RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full pipeline must run within 6 hours on 2 CPU/7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:25:53Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Project dependencies list with version constraints
+  claim_id: c_7109f554
+  context: 'Phase 2, Task T002: Initialize Python 3.11 project with dependencies in
+    requirements.txt (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, scipy>=1.11.0,
+    statsmodels>=0.14.0, opencv-python-headless>=4.8.0, scikit-image>=0.21.0, requests>=2.31.0,
+    huggingface_hub>=0.16.0, pytest>=7.0.0, networkx>=3.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependencies include pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0,
+    scipy>=1.11.0, statsmodels>=0.14.0, opencv-python-headless>=4.8.0, scikit-image>=0.21.0,
+    requests>=2.31.0, huggingface_hub>=0.16.0, pytest>=7.0.0, networkx>=3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:26:13Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: Cohen''s f2=0.15, alpha=0.05, power=0.80,
+    k=3'
+  claim_id: c_bcec7d3b
+  context: 'Implement code/power_analysis.py: Calculate required sample size (N) using
+    statsmodels.stats.power.FTestPower with explicit parameters: Cohen''s f2=0.15
+    (medium effect), alpha=0.05, power=0.80, k=3 predictors.'
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Cohen's f2=0.15 (medium effect), alpha=0.05, power=0.80, k=3 predictors
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:28:49Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if species overlap is less than 55
+  claim_id: c_9824ac75
+  context: 'Logic: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, HALT
+    with critical error ''Insufficient species for power analysis (N < 55)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_species_overlap_is_less_than_55
+  kind: magnitude
+  raw_text: If overlap N < 55, HALT with critical error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:29:45Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'RootImage data model schema: id, path, species'
+  claim_id: c_7a4c66b2
+  context: 'Create base data models/entities in code/models.py referencing data-model.md
+    schema: RootImage {id: str, path: str, species: str}...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RootImage_data_model_schema:_id,_path,_species
+  kind: entity_fact
+  raw_text: 'RootImage {id: str, path: str, species: str}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:30:45Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'RSAMetrics data model schema: depth, branching_density, surface_area'
+  claim_id: c_411eaade
+  context: '...RSAMetrics {depth: float, branching_density: float, surface_area: float},
+    PhysioTrait {species: str, conductance: float, photosynthesis: float, survival_rate:
+    float?}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RSAMetrics_data_model_schema:_depth,_branching_density,_surf
+  kind: entity_fact
+  raw_text: 'RSAMetrics {depth: float, branching_density: float, surface_area: float}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:31:21Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'PhysioTrait data model schema: species, conductance, photosynthesis,
+    survival_rate'
+  claim_id: c_8fd4e57a
+  context: '...RSAMetrics {depth: float, branching_density: float, surface_area: float},
+    PhysioTrait {species: str, conductance: float, photosynthesis: float, survival_rate:
+    float?}. Include validation rules.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PhysioTrait_data_model_schema:_species,_conductance,_photosy
+  kind: entity_fact
+  raw_text: 'PhysioTrait {species: str, conductance: float, photosynthesis: float,
+    survival_rate: float?}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:32:11Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Branching density calculation formula: (branch_points - endpoints) /
+    total_length'
+  claim_id: c_19e61ba2
+  context: 'Algorithm: skeletonize (8-connectivity) for depth/branching; find_contours
+    for surface area. Branching density = (branch_points - endpoints) / total_length.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branching_density_calculation_formula:_(branch_points_-_endp
+  kind: entity_fact
+  raw_text: Branching density = (branch_points - endpoints) / total_length
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:32:13Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Model validation uses 5-fold GroupKFold with species_name as groups
+  claim_id: c_57291b78
+  context: "Specs: R\xB2 metric, 5-fold GroupKFold (groups=species_name) to prevent\
+    \ phylogenetic leakage, alpha search [a range of values]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-fold GroupKFold (groups=species_name)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:32:35Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Collinearity handling includes a VIF greater than 5 check
+  claim_id: c_26b3f96d
+  context: Implement code/analysis.py function perform_pca() to transform RSA traits
+    for collinearity handling (VIF > 5 check included).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_handling_includes_a_VIF_greater_than_5_check
+  kind: magnitude
+  raw_text: VIF > 5 check included
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:32:57Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Regression uses n_estimators=100 and max_depth=None
+  claim_id: c_2853eed2
+  context: "Specs: R\xB2 metric, 5-fold GroupKFold (groups=species_name) to prevent\
+    \ phylogenetic leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100, max_depth=None
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:33:16Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold alpha set to 0.05
+  claim_id: c_5512d9dd
+  context: 'Calculate required sample size (N) using statsmodels.stats.power.FTestPower
+    with explicit parameters: Cohen''s f2=0.15 (medium effect), alpha=0.05, power=0.80,
+    k=3 predictors.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:33:27Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Statistical power set to 0.80
+  claim_id: c_60be071e
+  context: 'Calculate required sample size (N) using statsmodels.stats.power.FTestPower
+    with explicit parameters: Cohen''s f2=0.15 (medium effect), alpha=0.05, power=0.80,
+    k=3 predictors.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: power=0.80
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:33:37Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis uses 3 predictors
+  claim_id: c_fa21c005
+  context: 'Calculate required sample size (N) using statsmodels.stats.power.FTestPower
+    with explicit parameters: Cohen''s f2=0.15 (medium effect), alpha=0.05, power=0.80,
+    k=3 predictors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: k=3 predictors
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:35:26Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage is less than 7GB RAM
+  claim_id: c_ee4e0de0
+  context: Profile and optimize image loading to use generators; ensure memory usage
+    <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_usage_is_less_than_7GB_RAM
+  kind: magnitude
+  raw_text: memory usage <7GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:35:52Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime is within 6 hours on 2 CPUs and 7GB RAM
+  claim_id: c_af76e052
+  context: Profile and optimize image loading to use generators; ensure memory usage
+    <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: full pipeline runs within 6 hours on 2 CPU/7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:36:06Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Spearman correlation test asserts value within 5% of target
+  claim_id: c_a952acfb
+  context: 'Unit test in tests/unit/test_model_fitting.py: Implement test_spearman_correlation_matches_known_value
+    (asserts correlation within 5% of synthetic target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserts correlation within 5% of synthetic target
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:36:06Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps threshold across a range such as plus or
+    minus 0.05
+  claim_id: c_73727cab
+  context: "The sensitivity module can be tested by running the model with a primary\
+    \ threshold and then sweeping that threshold across a defined range (e.g., \xB1\
+    0.05), verifying that the output includes a plot or table showing how the false-positive/false-negative\
+    \ rates change."
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "sweeping that threshold across a defined range (e.g., \xB10.05)"
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:36:06Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if species overlap is less than 55
+  claim_id: c_f3147dfc
+  context: 'Implement `code/power_analysis.py`: Calculate required sample size (N)
+    using `statsmodels.stats.power.FTestPower` with explicit parameters: {{claim:c_bcec7d3b}}.
+    **Logic**: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, **HALT**
+    with critical error ''Insufficient species for power analysis (N < 55)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_species_overlap_is_less_than_55
+  kind: magnitude
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:39:44Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Models use 5-fold GroupKFold grouped by species name
+  claim_id: c_a15607b5
+  context: "Implement `code/models.py` functions `fit_ols()`, `fit_ridge()`, `fit_lasso()`\
+    \ to predict stomatal conductance/photosynthesis. **Specs**: R\xB2 metric, **5-fold\
+    \ GroupKFold (groups=species_name) ** to prevent phylogenetic leakage, alpha search\
+    \ [a range of values]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-fold GroupKFold (groups=species_name) to prevent phylogenetic leakage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:40:53Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Regression configured with 100 estimators and no max depth
+  claim_id: c_f6c39c8b
+  context: "Implement `code/models.py` function `fit_random_forest()` to predict stomatal\
+    \ conductance/photosynthesis using Random Forest Regression. **Specs**: R\xB2\
+    \ metric, **5-fold GroupKFold (groups=species_name) ** to prevent phylogenetic\
+    \ leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Regression uses n_estimators=100 and max_depth=None.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:40:54Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold set to 5
+  claim_id: c_3b7a28a7
+  context: Implement `code/analysis.py` function `perform_pca()` to transform RSA
+    traits for collinearity handling (VIF > 5 check included).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF > 5 check included for collinearity handling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:40:54Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Classification configured with 100 estimators
+  claim_id: c_77937250
+  context: 'If `has_proxy` is True: Binarize the *proxy* variable using median split.
+    Train Random Forest Classification model. **Specs**: F1-score metric, **5-fold
+    GroupKFold (groups=species_name) **, n_estimators=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Classification model uses n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:41:21Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage limit is 7GB
+  claim_id: c_6e16fbc7
+  context: 'Profile and optimize image loading to use generators; ensure memory usage
+    <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM. **Logic**: Measure
+    total pipeline runtime and log against 6h limit.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_usage_limit_is_7GB
+  kind: magnitude
+  raw_text: Memory usage must be less than 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:41:47Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Spearman correlation test tolerance is 5%
+  claim_id: c_9d6cd804
+  context: 'Unit test in `tests/unit/test_model_fitting.py`: Implement `test_spearman_correlation_matches_known_value`
+    (asserts correlation within 5% of synthetic target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation coefficient must match expected value within 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:41:47Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: PGLS convergence requires phylogenetic signal lambda greater than 0
+  claim_id: c_6285b134
+  context: 'Integration test in `tests/integration/test_model_pipeline.py`: Implement
+    `test_pgl_fits_with_phylogenetic_structure` (asserts PGLS converges and phylogenetic
+    signal lambda > 0).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_convergence_requires_phylogenetic_signal_lambda_greater
+  kind: magnitude
+  raw_text: Phylogenetic signal lambda must be greater than 0 for PGLS convergence.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:42:20Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if species overlap count is less than 55
+  claim_id: c_671505b8
+  context: 'Implement `code/power_analysis.py`: Calculate required sample size (N)
+    using `statsmodels.stats.power.FTestPower` with explicit parameters: {{claim:c_bcec7d3b}}.
+    **Logic**: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, **HALT**
+    with critical error ''Insufficient species for power analysis (N < 55)''.'
+  evidence:
+    entailment_evidence: Power analysis halts if species overlap count is less than
+      5
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_species_overlap_count_is_less_than_5
+  kind: magnitude
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T14:49:56Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 2
+  canonical: Data merge halts if sample size is less than 55
+  claim_id: c_d2327e26
+  context: 'Implement `code/merge_data.py` to merge `rsametrics.csv` with physiological
+    data. **Logic**: Handle missing species via listwise deletion. **Constraint**:
+    If sample size < 55, **HALT** with critical error ''Insufficient species after
+    merge (N < 55)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_merge_halts_if_sample_size_is_less_than_55
+  kind: magnitude
+  raw_text: If sample size < 55, HALT with critical error 'Insufficient species after
+    merge (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:49:58Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 2
+  canonical: Pipeline runtime limit is 6 hours on 2 CPU and 7GB RAM
+  claim_id: c_3b137d77
+  context: 'Profile and optimize image loading to use generators; ensure memory usage
+    <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM. **Logic**: Measure
+    total pipeline runtime and log against 6h limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full pipeline runs within 6 hours on 2 CPU/7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:49:58Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage limit is 7GB RAM
+  claim_id: c_d04b5775
+  context: 'Profile and optimize image loading to use generators; ensure memory usage
+    <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM. **Logic**: Measure
+    total pipeline runtime and log against 6h limit.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_usage_limit_is_7GB_RAM
+  kind: magnitude
+  raw_text: Memory usage must be less than 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:50:00Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Regression model uses 100 estimators
+  claim_id: c_eb6a32ef
+  context: "Implement `code/models.py` function `fit_random_forest()` to predict stomatal\
+    \ conductance/photosynthesis using Random Forest Regression. **Specs**: R\xB2\
+    \ metric, **5-fold GroupKFold (groups=species_name) ** to prevent phylogenetic\
+    \ leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Regression uses n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:50:30Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Classification model uses 100 estimators
+  claim_id: c_dfbf5ea0
+  context: 'If `has_proxy` is True: Binarize the *proxy* variable using median split.
+    Train Random Forest Classification model. **Specs**: F1-score metric, **5-fold
+    GroupKFold (groups=species_name) **, n_estimators=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Classification uses n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:50:55Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Cross-validation uses 5-fold GroupKFold
+  claim_id: c_10173500
+  context: "Implement `code/models.py` functions `fit_ols()`, `fit_ridge()`, `fit_lasso()`\
+    \ to predict stomatal conductance/photosynthesis. **Specs**: R\xB2 metric, **5-fold\
+    \ GroupKFold (groups=species_name) ** to prevent phylogenetic leakage, alpha search\
+    \ [a range of values]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cross-validation uses 5-fold GroupKFold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:51:22Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Collinearity handled with VIF threshold greater than 5
+  claim_id: c_1ff6c72f
+  context: Implement `code/analysis.py` function `perform_pca()` to transform RSA
+    traits for collinearity handling (VIF > 5 check included).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:2306.06751v1 [stat.ME] 11 Jun 2023
+      source_id: '2306.06751'
+      url: https://arxiv.org/abs/2306.06751
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: Collinearity is handled using a VIF threshold greater than 5.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:52:02Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Spearman correlation matches target within 5% error margin
+  claim_id: c_b9abdac1
+  context: 'Unit test in `tests/unit/test_model_fitting.py`: Implement `test_spearman_correlation_matches_known_value`
+    (asserts correlation within 5% of synthetic target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation coefficient matches synthetic target within 5% margin of error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:52:02Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if species overlap N is less than 55
+  claim_id: c_2304861c
+  context: 'Task T008: Implement code/power_analysis.py. Logic: Fetch species list
+    from NPPN/MGB3 and TRY. If overlap N < 55, HALT with critical error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_species_overlap_N_is_less_than_55
+  kind: magnitude
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:54:15Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Data merge halts if sample size N is less than 55
+  claim_id: c_d2fe5077
+  context: 'Task T021: Implement code/merge_data.py. Constraint: If sample size <
+    55, HALT with critical error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_merge_halts_if_sample_size_N_is_less_than_55
+  kind: magnitude
+  raw_text: If sample size < 55, HALT with critical error 'Insufficient species after
+    merge (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:54:17Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest model uses 100 estimators
+  claim_id: c_f25dc089
+  context: 'Task T023c: Implement fit_random_forest(). Specs: n_estimators=100, max_depth=None.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:54:36Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Models use 5-fold GroupKFold cross-validation grouped by species
+  claim_id: c_f77a6bf9
+  context: 'Task T023a: Implement fit_ols, fit_ridge, fit_lasso. Specs: 5-fold GroupKFold
+    (groups=species_name) to prevent phylogenetic leakage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-fold GroupKFold (groups=species_name)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:54:36Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Classification Random Forest model uses 100 estimators
+  claim_id: c_8fdc1422
+  context: 'Task T027b: Implement fit_rf_classification(). Specs: F1-score metric,
+    5-fold GroupKFold (groups=species_name), n_estimators=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:54:36Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage must be less than 7GB
+  claim_id: c_8043332f
+  context: 'Task T034: Profile and optimize image loading. Ensure memory usage <7GB
+    RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_usage_must_be_less_than_7GB
+  kind: magnitude
+  raw_text: memory usage <7GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:54:39Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime must be under 6 hours
+  claim_id: c_2d161e71
+  context: 'Task T034: Profile and optimize image loading. Ensure memory usage <7GB
+    RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: full pipeline runs within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:54:56Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Spearman correlation test asserts value within 5% of target
+  claim_id: c_435a8c55
+  context: 'Task T018: Unit test test_spearman_correlation_matches_known_value (asserts
+    correlation within 5% of synthetic target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: correlation within 5% of synthetic target
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:54:56Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: PGLS test asserts phylogenetic signal lambda is greater than 0
+  claim_id: c_df5bf6e7
+  context: 'Task T019: Integration test test_pgl_fits_with_phylogenetic_structure
+    (asserts PGLS converges and phylogenetic signal lambda > 0).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_test_asserts_phylogenetic_signal_lambda_is_greater_than
+  kind: magnitude
+  raw_text: phylogenetic signal lambda > 0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:55:29Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if species overlap is less than 55
+  claim_id: c_9c1dbaf9
+  context: 'Implement code/power_analysis.py: Calculate required sample size (N) using
+    statsmodels.stats.power.FTestPower with explicit parameters: {{claim:c_bcec7d3b}}.
+    Logic: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, HALT with
+    critical error ''Insufficient species for power analysis (N < 55)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_species_overlap_is_less_than_55
+  kind: magnitude
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:58:48Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Data merge halts if sample size is less than 55
+  claim_id: c_348e5e71
+  context: 'Implement code/merge_data.py to merge rsametrics.csv with physiological
+    data. Logic: Handle missing species via listwise deletion. Constraint: If sample
+    size < 55, HALT with critical error ''Insufficient species after merge (N < 55)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_merge_halts_if_sample_size_is_less_than_55
+  kind: magnitude
+  raw_text: If sample size < 55, HALT with critical error 'Insufficient species after
+    merge (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:58:50Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage under 7GB RAM and runtime under 6 hours on 2 CPU
+  claim_id: c_ae9a58c8
+  context: 'Profile and optimize image loading to use generators; ensure memory usage
+    <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM. Logic: Measure
+    total pipeline runtime and log against 6h limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure memory usage <7GB RAM and full pipeline runs within 6 hours on
+    2 CPU/7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:58:51Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage under 7GB RAM and runtime under 6 hours on 2 CPU
+  claim_id: c_d4b1fa58
+  context: 'Profile and optimize image loading to use generators; ensure memory usage
+    <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM. Logic: Measure
+    total pipeline runtime and log against 6h limit. Deliverable: Generate docs/memory_profile.md
+    with peak usage <7GB and state/runtime_profile.yaml with total runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure memory usage <7GB RAM and full pipeline runs within 6 hours on
+    2 CPU/7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:58:51Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Project dependencies list with specific version constraints
+  claim_id: c_1410ff82
+  context: Initialize Python 3.11 project with dependencies in requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, scipy>=1.11.0, statsmodels>=0.14.0,
+    opencv-python-headless>=4.8.0, scikit-image>=0.21.0, requests>=2.31.0, huggingface_hub>=0.16.0,
+    pytest>=7.0.0, networkx>=3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T15:03:07Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Formula for calculating branching density from RSA traits
+  claim_id: c_3d1f500b
+  context: 'Extract RSA traits using OpenCV/scikit-image on CPU. Algorithm: skeletonize
+    (8-connectivity) for depth/branching; find_contours for surface area.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Formula_for_calculating_branching_density_from_RSA_traits
+  kind: entity_fact
+  raw_text: Branching density = (branch_points - endpoints) / total_length
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T15:03:09Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if species overlap is less than 55
+  claim_id: c_68d08fc3
+  context: 'Implement code/power_analysis.py: Calculate required sample size (N)...
+    Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, HALT with critical
+    error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_species_overlap_is_less_than_55
+  kind: magnitude
+  raw_text: If overlap N < 55, HALT with critical error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T15:03:11Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Data merge halts if sample size is less than 55
+  claim_id: c_4efe12d4
+  context: 'Implement code/merge_data.py to merge rsametrics.csv with physiological
+    data. Constraint: If sample size < 55, HALT with critical error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_merge_halts_if_sample_size_is_less_than_55
+  kind: magnitude
+  raw_text: If sample size < 55, HALT with critical error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T15:04:09Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Cross-validation strategy uses 5-fold GroupKFold grouped by species name
+  claim_id: c_0c2990e8
+  context: "Implement code/models.py functions fit_ols, fit_ridge, fit_lasso... Specs:\
+    \ R\xB2 metric, 5-fold GroupKFold (groups=species_name) to prevent phylogenetic\
+    \ leakage."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-fold GroupKFold (groups=species_name)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T15:04:09Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Regression model configuration with 100 estimators and
+    no max depth
+  claim_id: c_c9c80e35
+  context: "Implement code/models.py function fit_random_forest()... Specs: R\xB2\
+    \ metric, 5-fold GroupKFold (groups=species_name) to prevent phylogenetic leakage,\
+    \ n_estimators=100, max_depth=None."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100, max_depth=None
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T15:04:10Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline performance target of under 7GB RAM and under 6 hours runtime
+    on 2 CPUs
+  claim_id: c_c2faa4a6
+  context: Profile and optimize image loading to use generators; ensure memory usage
+    <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: memory usage <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB
+    RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T15:04:33Z'
