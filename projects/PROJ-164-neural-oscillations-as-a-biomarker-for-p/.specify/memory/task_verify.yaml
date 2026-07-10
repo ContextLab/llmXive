@@ -1,0 +1,21 @@
+? 'T001a [P] Create project structure. Execute the following command to establish
+  the directory tree: `mkdir -p code/ code/utils/ tests/ data/raw data/processed data/synthetic
+  models/ docs/ docs/contracts/ state/projects/`. **[FR-001]**'
+: 1
+? "T001b [P] Set restricted write permissions on `data/raw`. Execute: `chmod 555 data/raw`\
+  \ (read\u2011execute only). **[FR-001]** *(depends on T001a)*"
+: 1
+? 'T002 [P] Initialize Python 3.11 project with `requirements.txt`. Execute: `echo
+  -e "mne==1.7.0\nscikit-learn==1.4.0\nnumpy==1.26.0\npandas==2.1.0\nscipy==1.12.0\nstatsmodels==0.14.1\npyyaml==6.0.1\npytest==7.4.0"
+  > requirements.txt`. Then execute `pip install -r requirements.txt` to install dependencies.
+  Verify file content matches exactly. **[FR-001]**'
+: 1
+? T003 [P] Configure linting (ruff) and formatting (black) tools with `pyproject.toml`.
+  Define `target-version = "py311"` and exclude `data/`, `models/`, `state/`. **[FR-001]**
+: 1
+? 'T005 [P] Implement I/O helpers in `code/utils/io_helpers.py` for CSV/Parquet loading,
+  checksumming (SHA-256), and artifact hashing. Ensure `verify_checksum` function
+  returns boolean and logs mismatches. **Mandatory**: Include a function `write_checksum_to_state`
+  that writes successful checksums to `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`
+  as required by FR-005 and Constitution Principle III. **[FR-005]**'
+: 1

@@ -107,7 +107,7 @@ The system MUST perform a prospective power analysis to determine the minimum sa
 
 ### Non-Functional Requirements
 
-- **NFR-001**: System MUST execute all computations on CPU-only infrastructure with a maximum runtime of 6 hours and ≤7 GB RAM usage across all User Stories. If memory usage approaches 7 GB, the system MUST downsample epochs or process in batches (See US-1, US-2, US-3).
+- **NFR-001**: System MUST execute all computations on CPU-only infrastructure with a maximum runtime of a few hours. and ≤7 GB RAM usage across all User Stories. If memory usage approaches 7 GB, the system MUST downsample epochs or process in batches (See US-1, US-2, US-3).
 
 ### Key Entities *(include if data)*
 

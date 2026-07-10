@@ -1,0 +1,112 @@
+%YAML 1.2
+---
+# Output Schema for Neural Oscillations as a Biomarker for Predicting Response to tDCS
+# Strictly matching plan.md output artifacts.
+# Defined fields: feature_matrix, model_metrics.
+# Excluded fields: sensitivity_table (handled in separate analysis task), mode_flag (internal state).
+
+feature_matrix:
+  description: "CSV file containing extracted spectral power and connectivity features per subject."
+  file_path: "data/processed/feature_matrix.csv"
+  format: "csv"
+  encoding: "utf-8"
+  fields:
+    - name: subject_id
+      type: string
+      description: "Unique identifier for the subject."
+      required: true
+    - name: delta_power
+      type: float
+      description: "Average spectral power in Delta band (1-4 Hz)."
+      required: true
+    - name: theta_power
+      type: float
+      description: "Average spectral power in Theta band (4-8 Hz)."
+      required: true
+    - name: alpha_power
+      type: float
+      description: "Average spectral power in Alpha band (8-13 Hz)."
+      required: true
+    - name: beta_power
+      type: float
+      description: "Average spectral power in Beta band (13-30 Hz)."
+      required: true
+    - name: gamma_power
+      type: float
+      description: "Average spectral power in Gamma band (30-45 Hz)."
+      required: true
+    - name: plv_c3_c4
+      type: float
+      description: "Phase Locking Value between C3 and C4 channels."
+      required: true
+    - name: plv_c3_cz
+      type: float
+      description: "Phase Locking Value between C3 and Cz channels."
+      required: true
+    - name: plv_c4_cz
+      type: float
+      description: "Phase Locking Value between C4 and Cz channels."
+      required: true
+    - name: wpli_c3_c4
+      type: float
+      description: "Weighted Phase Lag Index between C3 and C4 channels."
+      required: true
+    - name: wpli_c3_cz
+      type: float
+      description: "Weighted Phase Lag Index between C3 and Cz channels."
+      required: true
+    - name: wpli_c4_cz
+      type: float
+      description: "Weighted Phase Lag Index between C4 and Cz channels."
+      required: true
+    - name: tDCS_response
+      type: float
+      description: "Target variable: Response to tDCS (continuous measure)."
+      required: true
+
+model_metrics:
+  description: "JSON file containing model performance metrics, coefficients, and cross-validation history."
+  file_path: "data/processed/model_cv_results.json"
+  format: "json"
+  encoding: "utf-8"
+  fields:
+    - name: model_type
+      type: string
+      description: "Type of model used (e.g., 'Ridge', 'RankRidge')."
+      required: true
+    - name: best_alpha
+      type: float
+      description: "Optimal regularization parameter found during inner CV."
+      required: true
+    - name: r2_score
+      type: float
+      description: "Coefficient of determination (R²) from outer CV."
+      required: true
+    - name: cv_scores
+      type: array
+      description: "List of R² scores from outer CV folds."
+      items:
+        type: float
+      required: true
+    - name: coefficients
+      type: object
+      description: "Mapping of feature names to their learned coefficients."
+      additionalProperties:
+        type: float
+      required: true
+    - name: intercept
+      type: float
+      description: "Model intercept term."
+      required: true
+    - name: permutation_p_value
+      type: float
+      description: "P-value from permutation testing (if performed)."
+      required: false
+    - name: ks_statistic
+      type: float
+      description: "Kolmogorov-Smirnov statistic for null distribution uniformity (if performed)."
+      required: false
+    - name: ks_p_value
+      type: float
+      description: "P-value for KS test (if performed)."
+      required: false

@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neural-oscillations-tDCS-biomarker"
+version = "0.1.0"
+description = "Automated science pipeline for neural oscillations as a biomarker for predicting response to tDCS"
+requires-python = ">=3.11"
+dependencies = [
+    "mne==1.7.0",
+    "scikit-learn==1.4.0",
+    "numpy==1.26.0",
+    "pandas==2.1.0",
+    "scipy==1.12.0",
+    "statsmodels==0.14.1",
+    "pyyaml==6.0.1",
+    "pytest==7.4.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Exclude directories
+exclude = [
+    "data/",
+    "models/",
+    "state/",
+    ".git",
+    "__pycache__",
+    "*.pyc",
+    ".eggs",
+    "*.egg-info",
+]
+
+# Line length
+line-length = 88
+
+[tool.ruff.lint]
+# Select rules
+select = ["E", "W", "F", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = []
+
+[tool.black]
+# Target Python version
+target-version = ["py311"]
+
+# Line length
+line-length = 88
+
+# Exclude directories
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | models
+    | state
+)/
+'''
+
+# Include patterns (optional, defaults to *.py)
+include = "\\.pyi?$"

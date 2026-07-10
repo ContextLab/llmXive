@@ -1,0 +1,64 @@
+%YAML 1.2
+---
+title: Neural Oscillations tDCS Dataset Schema
+description: >
+  Base data schema for EEG and tDCS paired datasets.
+  Defines the minimal required fields for raw and processed data artifacts
+  as specified in the project data model.
+version: 1.0.0
+
+schema:
+  type: object
+  required:
+    - subject_id
+    - channel
+    - time
+    - voltage
+    - condition
+  properties:
+    subject_id:
+      type: string
+      description: Unique identifier for the participant.
+      pattern: "^sub-[0-9]{3}$"
+      example: "sub-001"
+
+    channel:
+      type: string
+      description: EEG channel label (e.g., C3, C4, Cz).
+      pattern: "^[A-Z]+[0-9]*$"
+      example: "C3"
+
+    time:
+      type: number
+      description: Time in seconds relative to the event onset or recording start.
+      minimum: 0.0
+      example: 0.001
+
+    voltage:
+      type: number
+      description: Electric potential in microvolts (µV).
+      example: 12.45
+
+    condition:
+      type: string
+      description: Experimental condition label (e.g., 'anodal', 'cathodal', 'sham').
+      enum:
+        - anodal
+        - cathodal
+        - sham
+        - baseline
+        - pre
+        - post
+      example: "anodal"
+
+constraints:
+  - "All fields are mandatory."
+  - "No additional fields (e.g., mode_flag) are permitted in the base schema."
+  - "Data must be normalized to the specified types before ingestion."
+
+metadata:
+  created: "2023-10-27"
+  author: "llmXive Pipeline"
+  references:
+    - "specs/001-neural-oscillations-tDCS-biomarker/spec.md"
+    - "FR-006"
