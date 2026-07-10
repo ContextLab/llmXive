@@ -1,0 +1,13 @@
+credentials:
+  encode_api_key: "YOUR_ENCODE_API_KEY_HERE"
+  encode_secret_key: "YOUR_ENCODE_SECRET_KEY_HERE"
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  models: "data/models"
+  interpretation: "data/interpretation"
+  figures: "data/figures"
+settings:
+  shannon_entropy_threshold: 0.8
+  sequence_window_size: 1000
+  max_workers: 4

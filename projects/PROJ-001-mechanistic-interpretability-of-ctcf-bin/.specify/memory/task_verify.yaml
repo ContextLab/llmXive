@@ -1,0 +1,9 @@
+"T007 [P] Create `data/manifest.json` ONLY if T004 succeeds (\u22655 matched sets found). If T004 fails, this task is skipped.": 1
+? "T007 [P] Create `data/manifest.json` ONLY if T004 succeeds (\u22655 matched sets\
+  \ found). If T004 fails, this task is skipped. <!-- FAILED: unspecified -->"
+: 2
+T009 [P] Setup environment configuration management for ENCODE API keys and local paths.: 1
+"T010 [P] [US1] Unit test for sequence extraction `tests/unit/test_sequence_extraction.py` (verify \xB1500 bp windowing).": 1
+? T011 [P] [US1] Unit test for multi-modal alignment `tests/unit/test_multi_modal_alignment.py`
+  (verify missing data handling/exclusion).
+: 1

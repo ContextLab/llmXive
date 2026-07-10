@@ -1,0 +1,24 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    .eggs,
+    *.egg-info,
+    build,
+    dist,
+    .tox,
+    .venv,
+    venv,
+    data,
+    docs,
+    tests
+per-file-ignores =
+    # Allow unused imports in __init__.py
+    code/__init__.py: F401
+    code/data/__init__.py: F401
+    code/models/__init__.py: F401
+    code/interpret/__init__.py: F401
+    # Allow unused arguments in test fixtures
+    tests/*: F811

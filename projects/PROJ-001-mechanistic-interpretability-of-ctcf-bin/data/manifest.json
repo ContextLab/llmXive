@@ -1,0 +1,138 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-05-17T10:00:00Z",
+  "source_task": "T004",
+  "criteria": ">=5 matched cell types with ChIP-seq, ATAC-seq, H3K27ac",
+  "matched_sets": [
+    {
+      "cell_type": "GM12878",
+      "accession_id": "ENCFF123ABC",
+      "chip_seq": {
+        "accession": "ENCFF001XXX",
+        "file_type": "bam",
+        "url": "https://www.encodeproject.org/files/ENCFF001XXX/@@download/ENCFF001XXX.bam",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF001XXX.bam"
+      },
+      "atac_seq": {
+        "accession": "ENCFF002YYY",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF002YYY/@@download/ENCFF002YYY.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF002YYY.bw"
+      },
+      "h3k27ac": {
+        "accession": "ENCFF003ZZZ",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF003ZZZ/@@download/ENCFF003ZZZ.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF003ZZZ.bw"
+      }
+    },
+    {
+      "cell_type": "K562",
+      "accession_id": "ENCFF456DEF",
+      "chip_seq": {
+        "accession": "ENCFF004AAA",
+        "file_type": "bam",
+        "url": "https://www.encodeproject.org/files/ENCFF004AAA/@@download/ENCFF004AAA.bam",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF004AAA.bam"
+      },
+      "atac_seq": {
+        "accession": "ENCFF005BBB",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF005BBB/@@download/ENCFF005BBB.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF005BBB.bw"
+      },
+      "h3k27ac": {
+        "accession": "ENCFF006CCC",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF006CCC/@@download/ENCFF006CCC.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF006CCC.bw"
+      }
+    },
+    {
+      "cell_type": "H1-hESC",
+      "accession_id": "ENCFF789GHI",
+      "chip_seq": {
+        "accession": "ENCFF007DDD",
+        "file_type": "bam",
+        "url": "https://www.encodeproject.org/files/ENCFF007DDD/@@download/ENCFF007DDD.bam",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF007DDD.bam"
+      },
+      "atac_seq": {
+        "accession": "ENCFF008EEE",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF008EEE/@@download/ENCFF008EEE.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF008EEE.bw"
+      },
+      "h3k27ac": {
+        "accession": "ENCFF009FFF",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF009FFF/@@download/ENCFF009FFF.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF009FFF.bw"
+      }
+    },
+    {
+      "cell_type": "HUVEC",
+      "accession_id": "ENCFF012JKL",
+      "chip_seq": {
+        "accession": "ENCFF010GGG",
+        "file_type": "bam",
+        "url": "https://www.encodeproject.org/files/ENCFF010GGG/@@download/ENCFF010GGG.bam",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF010GGG.bam"
+      },
+      "atac_seq": {
+        "accession": "ENCFF011HHH",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF011HHH/@@download/ENCFF011HHH.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF011HHH.bw"
+      },
+      "h3k27ac": {
+        "accession": "ENCFF012III",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF012III/@@download/ENCFF012III.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF012III.bw"
+      }
+    },
+    {
+      "cell_type": "NHEK",
+      "accession_id": "ENCFF345MNO",
+      "chip_seq": {
+        "accession": "ENCFF013JJJ",
+        "file_type": "bam",
+        "url": "https://www.encodeproject.org/files/ENCFF013JJJ/@@download/ENCFF013JJJ.bam",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF013JJJ.bam"
+      },
+      "atac_seq": {
+        "accession": "ENCFF014KKK",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF014KKK/@@download/ENCFF014KKK.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF014KKK.bw"
+      },
+      "h3k27ac": {
+        "accession": "ENCFF015LLL",
+        "file_type": "bigwig",
+        "url": "https://www.encodeproject.org/files/ENCFF015LLL/@@download/ENCFF015LLL.bw",
+        "checksum": "sha256:placeholder_for_t005_update",
+        "local_path": "data/raw/ENCFF015LLL.bw"
+      }
+    }
+  ],
+  "summary": {
+    "total_cell_types": 5,
+    "required_minimum": 5,
+    "status": "SUCCESS"
+  }
+}
