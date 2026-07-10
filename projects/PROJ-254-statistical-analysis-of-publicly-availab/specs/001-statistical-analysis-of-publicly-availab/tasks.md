@@ -60,7 +60,7 @@
 
 - [X] T004 Implement `src/code/utils.py` with logging setup (`pipeline_log.txt`) and deterministic random seed pinning for reproducibility (FR-008, Constitution Check)
 - [X] T005 [P] Create data schema definitions and Pydantic models for Track, Playlist, and Genre entities in `src/code/models.py`
-- [ ] T006 [P] Implement checksum verification script in `src/code/verify_checksums.py` for raw data integrity (Constitution Check) <!-- FAILED: unspecified -->
+- [X] T006 [P] Implement checksum verification script in `src/code/verify_checksums.py` for raw data integrity (Constitution Check) <!-- FAILED: unspecified -->
 - [X] T007 [P] Implement `src/code/memory_utils.py` with functions to monitor RAM usage, trigger garbage collection at >90% of 6GB limit (5.4GB), and log warnings before critical thresholds (FR-011)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -82,9 +82,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `src/code/ingest.py` function `ingest_mpd` to download MPD parquet files from ` Name or service not known)"))], parse playlists, extract track IDs/years, and integrate memory monitoring (≤6GB) to prevent OOM (FR-001, FR-009, FR-011) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T010 [US1] Implement `src/code/ingest.py` function `ingest_mpd` to download MPD parquet files from ` Name or service not known)"))], parse playlists, extract track IDs/years, and integrate memory monitoring (≤6GB) to prevent OOM (FR-001, FR-009, FR-011) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T011 [US1] Implement `src/code/ingest.py` function `fetch_musicbrainz` to fetch MusicBrainz metadata via API with exponential back-off and fuzzy matching fallback (FR-010)
-- [ ] T012 [US1] Implement `src/code/ingest.py` function `join_mpd_mb` to join MPD and MusicBrainz data, filter tracks with missing years, and save normalized `data/derived/metadata_mpd.parquet` (FR-001, FR-002, FR-009, FR-010)
+- [ ] T012 [US1] Implement `src/code/ingest.py` function `join_mpd_mb` to join MPD and MusicBrainz data, filter tracks with missing years, and save normalized `data/derived/metadata_mpd.parquet` (FR-001, FR-002, FR-009, FR-010) <!-- FAILED: unspecified -->
 - [ ] T013 [US1] Implement `src/code/embeddings.py` function `train_global_word2vec` to load metadata in batches, generate track sequences (playlists), and train a single global Word2Vec model (gensim, dim=100, window=10, epochs=5) producing base track vectors, with integrated memory management (FR-003, FR-011)
 - [ ] T014 [US1] Implement `src/code/embeddings.py` function `aggregate_yearly_embeddings` to aggregate base track vectors by genre and year, handling low-coverage years (<1,000 unique tracks) by flagging them (not excluding entirely yet) and missing genres (zero-fill), saving `yearly_embeddings/{year}.npy` (FR-003, Edge Cases)
 - [~] T015 [US1] Add logging for ingestion stats (match rates, exclusion rates) and explicit warning logic: `if missing_genre_rate > 0.2: log warning` to `pipeline_log.txt` (FR-008, Edge Cases)

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.14523",
+  "judged_at": "2026-07-10T10:24:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it operates in the exact same domain (Vision-Language-Action models for robotics) and investigates the same core mechanism of improving VLA performance through advanced reasoning strategies, serving as a direct canonical reference for the \"VLA Pretrain\" and \"Robotic Data\" context mentioned in the user's question.",
+  "relevant": true
+}

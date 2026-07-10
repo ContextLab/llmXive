@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.04834",
+  "judged_at": "2026-07-10T10:26:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-vla: unifying vision-language-action modeling across tasks, envir\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same core mechanism (Vision-Language-Action modeling) and domain (robotic manipulation) as the user's question, specifically extending the canonical VLA framework to handle adverse sensing conditions (darkness, blur) which is a critical sub-problem for \"unifying VLA across tasks and environments.\" It satisfies criteria (a) and (b) by measuring the same biological/algorithmic property (VLA robustness) on the same domain (robotic",
+  "relevant": true
+}

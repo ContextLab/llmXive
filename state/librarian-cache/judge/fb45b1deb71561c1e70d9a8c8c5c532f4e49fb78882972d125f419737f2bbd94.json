@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.20521",
+  "judged_at": "2026-07-10T10:24:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
+  "rationale": "This paper directly addresses the user's research question by providing the canonical empirical evidence and methodological framework for extending the \"ACE-Ego-0\" concept of unifying egocentric human and robotic data for VLA pretraining. It satisfies criteria (a) and (b) by measuring the same mechanism (performance of embodied models trained on mixed egocentric/robot data) and establishing the specific empirical baseline (superiority of filtered egocentric data over raw robot data) that the use",
+  "relevant": true
+}

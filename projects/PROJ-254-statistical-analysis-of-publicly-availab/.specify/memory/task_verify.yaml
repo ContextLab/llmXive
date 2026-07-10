@@ -1,9 +1,6 @@
 ? T006 [P] Implement checksum verification script in `src/code/verify_checksums.py`
   for raw data integrity (Constitution Check)
 : 2
-? 'T006 [P] Implement checksum verification script in `src/code/verify_checksums.py`
-  for raw data integrity (Constitution Check) <!-- FAILED: unspecified -->'
-: 2
 ? "T010 [US1] Implement `src/code/ingest.py` function `ingest_mpd` to download MPD\
   \ parquet files from ` Name or service not known)\"))], parse playlists, extract\
   \ track IDs/years, and integrate memory monitoring (\u22646GB) to prevent OOM (FR-001,\
@@ -19,21 +16,31 @@
   \ track IDs/years, and integrate memory monitoring (\u22646GB) to prevent OOM (FR-001,\
   \ FR-009, FR-011) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
 : 1
+? "T010 [US1] Implement `src/code/ingest.py` function `ingest_mpd` to download MPD\
+  \ parquet files from ` Name or service not known)\"))], parse playlists, extract\
+  \ track IDs/years, and integrate memory monitoring (\u22646GB) to prevent OOM (FR-001,\
+  \ FR-009, FR-011) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:\
+  \ requested -->"
+: 1
 ? T011 [US1] Implement `src/code/ingest.py` function `fetch_musicbrainz` to fetch
   MusicBrainz metadata via API with exponential back-off and fuzzy matching fallback
   (FR-010)
-: 1
+: 2
 ? T012 [US1] Implement `src/code/ingest.py` function `join_mpd_mb` to join MPD and
   MusicBrainz data, filter tracks with missing years, and save normalized `data/derived/metadata_mpd.parquet`
   (FR-001, FR-002, FR-009, FR-010)
+: 1
+? 'T012 [US1] Implement `src/code/ingest.py` function `join_mpd_mb` to join MPD and
+  MusicBrainz data, filter tracks with missing years, and save normalized `data/derived/metadata_mpd.parquet`
+  (FR-001, FR-002, FR-009, FR-010) <!-- FAILED: unspecified -->'
 : 1
 ? T013 [US1] Implement `src/code/embeddings.py` function `train_global_word2vec` to
   load metadata in batches, generate track sequences (playlists), and train a single
   global Word2Vec model (gensim, dim=100, window=10, epochs=5) producing base track
   vectors, with integrated memory management (FR-003, FR-011)
-: 1
+: 2
 ? T014 [US1] Implement `src/code/embeddings.py` function `aggregate_yearly_embeddings`
   to aggregate base track vectors by genre and year, handling low-coverage years (<1,000
   unique tracks) by flagging them (not excluding entirely yet) and missing genres
   (zero-fill), saving `yearly_embeddings/{year}.npy` (FR-003, Edge Cases)
-: 1
+: 2

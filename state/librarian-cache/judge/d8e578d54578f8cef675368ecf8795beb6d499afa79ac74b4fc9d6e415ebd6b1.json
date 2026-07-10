@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.23757",
+  "judged_at": "2026-07-10T10:26:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-vla: unifying vision-language-action modeling across tasks, envir\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same biological/algorithmic mechanism (Vision-Language-Action modeling) and operates on the same domain (autonomous driving VLA systems) as the user's question, providing essential empirical baselines and benchmarks for extending VLA research.",
+  "relevant": true
+}

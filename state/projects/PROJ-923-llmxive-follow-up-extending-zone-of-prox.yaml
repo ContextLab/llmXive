@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T03:42:07.622338Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-923-llmxive-follow-up-extending-zone-of-prox
-last_run_id: null
+last_run_id: a3c5bec4-b225-431a-bf56-296900140815
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Zone of Proximal Policy Optimization: Teacher
   in Prompts, Not Gradient"'
-updated_at: '2026-07-03T03:42:07.622338Z'
+updated_at: '2026-07-10T10:19:17.089202Z'

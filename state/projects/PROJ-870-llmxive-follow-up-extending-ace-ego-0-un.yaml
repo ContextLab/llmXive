@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T12:53:24.350635Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-870-llmxive-follow-up-extending-ace-ego-0-un
-last_run_id: null
+last_run_id: 0423533d-09b6-48b9-bb06-5bcf1a06b630
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "ACE-Ego-0: Unifying Egocentric Human and Robotic
   Data for VLA Pretrain"'
-updated_at: '2026-07-02T12:53:24.350635Z'
+updated_at: '2026-07-10T10:25:01.921162Z'

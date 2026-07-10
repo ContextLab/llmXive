@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.11365",
+  "judged_at": "2026-07-10T10:24:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (e) as it directly addresses the core domain of \"egocentric human data\" and \"robotics\" mentioned in the user's question by proposing a transformer backbone specifically for egocentric video action segmentation, a foundational task for the VLA pretraining context the user is investigating. While it does not discuss the specific \"ACE-Ego-0\" dataset or the exact unification mechanism of that prior work, it provides the canonical methodological evidence for the ",
+  "relevant": true
+}

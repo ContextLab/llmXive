@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.13782",
+  "judged_at": "2026-07-10T10:24:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same domain (Vision-Language-Action models for robotics) and measures the same underlying mechanism (hallucination-induced trajectory deviations) that the user's question regarding VLA pretraining and data unification implicitly concerns. While the user's question focuses on data unification for pretraining, this paper provides essential related work on the specific failure mode (path deviation) that such unified models must addres",
+  "relevant": true
+}
