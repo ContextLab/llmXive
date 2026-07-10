@@ -9,7 +9,7 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Which molecular descriptors derived from ground-state electronic structure best govern the decomposition energetics of lithium-ion battery electrolytes, and how do these determinants shift under varying electrochemical potentials?
+To what extent do ground-state DFT-derived molecular descriptors predict the *experimentally observed* shift in electrolyte decomposition onset potentials across varying electrochemical conditions, and which specific physical determinants best explain deviations between DFT-predicted and experimental stability windows?
 
 ## Motivation
 
@@ -21,8 +21,7 @@ Experimental identification of electrolyte decomposition products is slow and re
 We queried Semantic Scholar, arXiv, and OpenAlex using terms such as "battery electrolyte decomposition machine learning," "DFT electrolyte stability predictors," "electrochemical potential decomposition energetics," and "molecular descriptors lithium-ion battery." The search returned general overviews of ML in physics and biology, but yielded no specific primary studies directly correlating ground-state molecular descriptors with decomposition energetics across varying electrochemical potentials for standard electrolytes.
 
 ### What is known
-- [The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory (2023)](https://arxiv.org/abs/2306.14753) — Establishes the theoretical capability of deep neural networks to model complex physical systems and stochastic processes, providing a methodological foundation for applying ML to electrochemical phenomena.
-- [Physics-Inspired Interpretability Of Machine Learning Models (2023)](https://arxiv.org/abs/2304.02381) — Highlights the critical need for explainable AI in sensitive physical domains, supporting the approach of identifying specific molecular descriptors rather than relying on opaque model predictions.
+- [Ab initio Molecular Dynamics Simulations of the Initial Stages of Solid-electrolyte Interphase Formation on Lithium Ion Battery Graphitic Anodes (2010)](https://arxiv.org/abs/1009.4154) — Establishes the specific decomposition pathways of ethylene carbonate (EC) at the anode interface, providing a foundational mechanistic baseline for the initial stages of SEI formation that this project aims to generalize across potentials.
 
 ### What is NOT known
 No published work has explicitly mapped the sensitivity of specific ground-state electronic descriptors (e.g., HOMO/LUMO gaps, specific bond dissociation energies) to decomposition reaction barriers as a function of applied electrochemical potential for common carbonate-based electrolytes. Existing literature often treats ML as a black-box predictor of stability without elucidating the shifting dominance of specific physical determinants under different voltage conditions.
@@ -44,7 +43,7 @@ The analysis will reveal a distinct shift in the hierarchy of governing molecula
 - **Feature Engineering**: Construct a feature matrix where each row represents a molecule, and columns include the ground-state descriptors; generate synthetic labels for "decomposition energy" by combining DFT formation energies with the applied potential term ($E_{decomp} = E_{products} - E_{reactants} - nF\phi$) for a range of potentials $\phi$.
 - **Model Selection**: Implement a Random Forest Regressor using Scikit-learn, optimized for CPU-only execution and ≤7GB RAM usage, chosen for its ability to provide feature importance metrics without overfitting small datasets.
 - **Training Strategy**: Train the model on 80% of the dataset, performing hyperparameter tuning via GridSearchCV with 5-fold cross-validation, ensuring that the validation folds are stratified by potential range to test generalization across conditions.
-- **Validation**: Evaluate performance on the remaining 20% test set using Mean Absolute Error (MAE) and R² metrics; **crucially**, validate the model's predictions against a separate, independent set of experimental decomposition onset potentials from the literature (e.g., cyclic voltammetry data from OpenChemLib or similar public repositories) to ensure the model predicts physical reality, not just DFT artifacts.
+- **Independent Validation**: Evaluate model performance on a held-out set of *experimentally measured* decomposition onset potentials sourced from cyclic voltammetry studies in the literature (e.g., from OpenChemLib or specific journal repositories), ensuring the validation target is physically distinct from the DFT-derived training labels to avoid circularity.
 - **Interpretability Analysis**: Extract permutation importance scores for all molecular descriptors at each potential level to identify the "tipping point" where the governing mechanism shifts.
 - **Visualization**: Generate heatmaps of feature importance vs. electrochemical potential and correlation plots of predicted vs. experimental onset potentials using Matplotlib/Seaborn.
 
@@ -57,42 +56,17 @@ The analysis will reveal a distinct shift in the hierarchy of governing molecula
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-02T19:28:11Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-10T12:22:39Z
+**Outcome**: exhausted
 **Original term**: Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning chemistry
-**Verified citation count**: 6
+**Verified citation count**: 1
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning chemistry | 0 |
-| 1 | machine learning prediction of electrolyte decomposition pathways | 5 |
-| 2 | density functional theory screening of battery electrolyte stability | 0 |
-| 3 | computational prediction of solid electrolyte interphase formation | 0 |
-| 4 | neural network models for electrochemical reaction products | 0 |
-| 5 | DFT-based thermodynamic stability of battery electrolytes | 0 |
-| 6 | automated reaction network generation for electrolyte degradation | 0 |
-| 7 | machine learning force fields for electrolyte decomposition | 0 |
-| 8 | predicting SEI composition using quantum chemistry and AI | 0 |
-| 9 | high-throughput DFT screening of electrolyte additives | 0 |
-| 10 | data-driven discovery of electrolyte decomposition mechanisms | 0 |
-| 11 | ab initio molecular dynamics of battery electrolyte breakdown | 0 |
-| 12 | graph neural networks for predicting chemical reaction outcomes in batteries | 0 |
-| 13 | computational methods for electrolyte oxidation and reduction limits | 0 |
-| 14 | machine learning accelerated quantum chemistry for battery materials | 0 |
-| 15 | identification of decomposition products in lithium-ion electrolytes | 0 |
-| 16 | hybrid DFT-machine learning approaches for electrochemical stability | 0 |
-| 17 | reaction barrier prediction for electrolyte degradation using ML | 0 |
-| 18 | computational electrolyte design for enhanced battery longevity | 0 |
-| 19 | deep learning for predicting solvent decomposition in electrochemical cells | 0 |
-| 20 | quantum mechanical modeling of electrolyte-electrode interface reactions | 0 |
+| 0 (initial) | Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning chemistry | 1 |
 
 ### Verified citations
 
-1. **The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory** (2023). Sergey Oladyshkin, Timothy Praditia, Ilja Kröker, Farid Mohammadi, Wolfgang Nowak, et al.. arXiv. [2306.14753](https://arxiv.org/abs/2306.14753). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-2. **Changing Data Sources in the Age of Machine Learning for Official Statistics** (2023). Cedric De Boom, Michael Reusens. arXiv. [2306.04338](https://arxiv.org/abs/2306.04338). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-3. **DOME: Recommendations for supervised machine learning validation in biology** (2020). Ian Walsh, Dmytro Fishman, Dario Garcia-Gasulla, Tiina Titma, Gianluca Pollastri, et al.. arXiv. [2006.16189](https://arxiv.org/abs/2006.16189). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-4. **Learning Curves for Decision Making in Supervised Machine Learning: A Survey** (2022). Felix Mohr, Jan N. van Rijn. arXiv. [2201.12150](https://arxiv.org/abs/2201.12150). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-5. **Active learning for data streams: a survey** (2023). Davide Cacciarelli, Murat Kulahci. arXiv. [2302.08893](https://arxiv.org/abs/2302.08893). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-6. **Physics-Inspired Interpretability Of Machine Learning Models** (2023). Maximilian P Niroomand, David J Wales. arXiv. [2304.02381](https://arxiv.org/abs/2304.02381). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+1. **Ab initio Molecular Dynamics Simulations of the Initial Stages of Solid-electrolyte Interphase Formation on Lithium Ion Battery Graphitic Anodes** (2010). Kevin Leung, Joanne Budzien. arXiv. [1009.4154](https://arxiv.org/abs/1009.4154). PDF-sampled: No.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.13890",
+  "judged_at": "2026-07-10T12:22:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery electrolyte decomposition products via dft and machine learning chemistry",
+  "rationale": "The paper addresses the prediction of biological electrolyte concentrations (e.g., potassium, sodium in blood) from ECG signals in a medical context, which is a distinct construct and domain from the user's question regarding the chemical decomposition of battery electrolytes via DFT and machine learning. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" as the term \"electrolyte\" refers to completely different physical systems (human physiology vs. elect",
+  "relevant": false
+}

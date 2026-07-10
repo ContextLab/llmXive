@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelTrainingOutput"
+description: "Schema for the output of the Random Forest training process, including feature importance, cross-validation scores, and rejected features."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "UUID of the model run."
+  algorithm:
+    type: "string"
+    const: "RandomForestRegressor"
+  cv_score:
+    type: "number"
+    description: "Mean R² score from 5-fold cross-validation."
+  feature_importance:
+    type: "object"
+    description: "Map of feature names to their permutation importance scores."
+    additionalProperties:
+      type: "number"
+  vif_flags:
+    type: "array"
+    description: "List of features flagged for high collinearity (VIF >= 10)."
+    items:
+      type: "string"
+  rejected_features:
+    type: "array"
+    description: "List of features rejected due to Partial Correlation > 0.9 (mathematical identity leakage)."
+    items:
+      type: "string"
+  residual_correlation:
+    type: "number"
+    description: "Partial correlation of the remaining feature set with the target. Must be < 0.9."
+    maximum: 0.9
+  constraints_check:
+    type: "object"
+    description: "Verification of resource constraints."
+    properties:
+      gpu_used:
+        type: "boolean"
+        const: false
+      ram_peak_gb:
+        type: "number"
+        maximum: 7
+      runtime_hours:
+        type: "number"
+        maximum: 6
+    required:
+      - gpu_used
+      - ram_peak_gb
+      - runtime_hours
+required:
+  - model_id
+  - algorithm
+  - cv_score
+  - feature_importance
+  - rejected_features
+  - residual_correlation
+  - constraints_check
+additionalProperties: false

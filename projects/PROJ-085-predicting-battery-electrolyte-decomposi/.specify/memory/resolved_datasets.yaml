@@ -1,0 +1,309 @@
+resolved_at: '2026-07-10T12:31:28.498678+00:00'
+datasets:
+- intent: HOMO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/matchbench/semi-homo/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 71391
+      parsed: true
+  - url: https://huggingface.co/datasets/liyuesen/eccDNA_Atlas_Homo_sapiens/resolve/main/data/train-00000-of-00001-70724cacceb4983e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/proteinea/remote_homology/resolve/main/test_family_holdout.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/proteinea/remote_homology/resolve/main/test_family_holdout.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/matchbench/semi-homo/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/Matilde/Homo_ita/1280870a0d229b53f2f61456f675b8d5edf36199/Data_13%2Fhomograph_test.json?%2Fdatasets%2FMatilde%2FHomo_ita%2Fresolve%2Fmain%2FData_13%2Fhomograph_test.json=&etag=%22b623e79b75670a9f3320b4e5626c41adc70c1b1f%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/liyuesen/eccDNA_Atlas_Homo_sapiens/resolve/main/data/train-00000-of-00001-70724cacceb4983e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lhy/homoglyph_pretrain/resolve/main/data/train-00000-of-00002-57685c05b8a933a7.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/Association_analysis_of_i_GPRC5D_i_and_i_GJA1_i_gene_polymorphisms_with_cashmere_fiber_diameter_and_production_traits_in_Liaoning_Cashmere_Goats/32956867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Prevalence_of_plasma_coagulation_deficiencies_and_antiphospholipid_antibodies_positivity_in_the_pediatric_population_of_the_Ma_opolska_region_A_single-center_study_from_a_pediatric_hospital_in_Krak_w/32956864
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/An_ecosystem_services-based_framework_for_assessing_soil_health/32956847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Annotation_datasets_of_chromosome-level_genome_for_i_Scincella_tsinlingensis_i_/32907122
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_Geldart_A___/32956013
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/mind/article-lookup/doi/10.1093/mind/XXI.81.62
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/10849085
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10839174
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20558464
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18423267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295797
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295797
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295793
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295793
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295791
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LUMO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Lumos/yahoo_hga/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Lumos/imdb_test/resolve/main/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2418
+      parsed: true
+  - url: https://huggingface.co/datasets/ai2lumos/lumos_complex_qa_ground_onetime/resolve/main/lumos_complex_qa_ground_onetime.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Lumos/yahoo_hga/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Lumos/imdb_test/resolve/main/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/Lumos23/alpaca_farm/7f6dcae7d2e46539e5086dae4451ca4b74d84099/alpaca_farm_evaluation.json?%2Fdatasets%2FLumos23%2Falpaca_farm%2Fresolve%2Fmain%2Falpaca_farm_evaluation.json=&etag=%22fb445eb05cc81dcbbbcd5f00855540b9c2a6ae5e%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ai2lumos/lumos_complex_qa_ground_onetime/resolve/main/lumos_complex_qa_ground_onetime.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ai2lumos/lumos_complex_qa_ground_iterative/resolve/main/lumos_complex_qa_ground_iterative.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://tandf.figshare.com/articles/dataset/Association_analysis_of_i_GPRC5D_i_and_i_GJA1_i_gene_polymorphisms_with_cashmere_fiber_diameter_and_production_traits_in_Liaoning_Cashmere_Goats/32956867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Prevalence_of_plasma_coagulation_deficiencies_and_antiphospholipid_antibodies_positivity_in_the_pediatric_population_of_the_Ma_opolska_region_A_single-center_study_from_a_pediatric_hospital_in_Krak_w/32956864
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/An_ecosystem_services-based_framework_for_assessing_soil_health/32956847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Annotation_datasets_of_chromosome-level_genome_for_i_Scincella_tsinlingensis_i_/32907122
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_Geldart_A___/32956013
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pharmacia.pensoft.net/article/118949/element/2/15/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7858696
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.rn867
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2755711
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18784402
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295446
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295446
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/entities/publication/9f256267-dba4-4a40-a48d-0612e2c8aee7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Computational_Reactivity_Fukui_Function_Molecular_Docking_and_Spectroscopic_Studies_of_a_Novel_E_-1-Benzyl-3-_2-_Pyrindin-2-yl_Hydrazono_Indolin-2-One/24515137
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Computational_Reactivity_Fukui_Function_Molecular_Docking_and_Spectroscopic_Studies_of_a_Novel_E_-1-Benzyl-3-_2-_Pyrindin-2-yl_Hydrazono_Indolin-2-One/24515137/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CUDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JoshVictor/medcode-FT-CuData/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5746
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/JoshVictor/medcode-FT-CuData/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/Association_analysis_of_i_GPRC5D_i_and_i_GJA1_i_gene_polymorphisms_with_cashmere_fiber_diameter_and_production_traits_in_Liaoning_Cashmere_Goats/32956867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Prevalence_of_plasma_coagulation_deficiencies_and_antiphospholipid_antibodies_positivity_in_the_pediatric_population_of_the_Ma_opolska_region_A_single-center_study_from_a_pediatric_hospital_in_Krak_w/32956864
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/An_ecosystem_services-based_framework_for_assessing_soil_health/32956847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Annotation_datasets_of_chromosome-level_genome_for_i_Scincella_tsinlingensis_i_/32907122
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_Geldart_A___/32956013
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295412
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295412
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294996
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21288315
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

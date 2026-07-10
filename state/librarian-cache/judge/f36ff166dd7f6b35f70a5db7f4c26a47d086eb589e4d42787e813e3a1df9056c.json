@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1009.4154",
+  "judged_at": "2026-07-10T12:22:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery electrolyte decomposition products via dft and machine learning chemistry",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the specific biological/chemical mechanism (electrolyte decomposition products) and the dependent variable (SEI formation products) on the exact domain (lithium-ion battery electrolytes) requested by the user, even though it uses ab initio molecular dynamics rather than the specific DFT/ML combination mentioned in the query.",
+  "relevant": true
+}

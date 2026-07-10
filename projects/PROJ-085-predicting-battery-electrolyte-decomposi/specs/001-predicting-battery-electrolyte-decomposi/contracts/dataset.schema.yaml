@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ElectrolyteDFTDataset"
+description: "Schema for the curated electrolyte dataset containing ground-state DFT descriptors and synthetic decomposition labels. Note: This dataset is manually curated from literature, not generated synthetically."
+type: "object"
+properties:
+  molecule_id:
+    type: "string"
+    description: "Unique identifier for the molecule entry (e.g., 'lit-001-EC')."
+  species:
+    type: "string"
+    description: "Chemical formula of the electrolyte species (e.g., EC, DMC)."
+  hom:
+    type: "number"
+    description: "HOMO energy in electron-volts (eV)."
+  lum:
+    type: "number"
+    description: "LUMO energy in electron-volts (eV)."
+  band_gap:
+    type: "number"
+    description: "Calculated band gap (LUMO - HOMO) in eV."
+  bond_lengths:
+    type: "object"
+    description: "Dictionary of bond types to lengths in Angstroms."
+    additionalProperties:
+      type: "number"
+  reactant_energy:
+    type: "number"
+    description: "Total DFT energy of the reactant in eV. Used ONLY for target calculation. Excluded from feature matrix."
+  product_energy:
+    type: "number"
+    description: "Total DFT energy of the decomposition products in eV. Used ONLY for target calculation. Excluded from feature matrix."
+  potential_phi:
+    type: "number"
+    description: "Applied electrochemical potential in Volts (V)."
+  decomp_energy:
+    type: "number"
+    description: "Calculated decomposition energy using the formula E_decomp = E_products - E_reactants - nF*phi."
+  experimental_onset:
+    type: "number"
+    description: "Experimental decomposition onset potential in eV (optional, for validation)."
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factor scores for each feature (if calculated)."
+    additionalProperties:
+      type: "number"
+required:
+  - molecule_id
+  - species
+  - hom
+  - lum
+  - reactant_energy
+  - product_energy
+  - potential_phi
+  - decomp_energy
+additionalProperties: true
