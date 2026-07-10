@@ -1,41 +1,42 @@
 # Implementation Plan: Bayesian Nonparametrics for Anomaly Detection in Time Series
 
-**Branch**: `001-bayesian-nonparametrics-for-anomaly-detection`  
-**Date**: 2026-07-08  
-**Spec**: `specs/001-bayesian-nonparametrics-for-anomaly-dete/spec.md`  
-**Input**: Feature specification for DP-GMM based early-warning signatures.
+**Branch**: `001-bayesian-nonparametrics-for-anomaly-detection` | **Date**: 2026-07-08 | **Spec**: `specs/001-bayesian-nonparametrics-for-anomaly-dete/spec.md`
+**Input**: Feature specification from `/specs/001-bayesian-nonparametrics-for-anomaly-dete/spec.md`
 
 ## Summary
 
-This feature implements a research pipeline to detect anomalies in univariate time series using a Stick-Breaking Dirichlet Process Gaussian Mixture Model (DP-GMM) via PyMC with ADVI variational inference. The core contribution is the extraction of dynamic signatures—specifically the rate of change of the concentration parameter ($\alpha$) and component weight variance—across sliding windows to identify "early-warning" signals before posterior convergence. The plan covers data ingestion, synthetic anomaly injection, sliding window inference, baseline comparisons (fixed GMM, ARIMA), statistical validation (KS tests, Wilcoxon tests), and sensitivity analysis, all constrained to run on a CPU-only GitHub Actions runner (limited cores, constrained memory, 6h limit).
+This feature implements a research pipeline to test the hypothesis that the temporal evolution of the concentration parameter ($\alpha$) in a Dirichlet Process Gaussian Mixture Model (DP-GMM) serves as an early-warning signal for regime shifts in time series. The system utilizes PyMC 4 with ADVI variational inference to process univariate sliding windows, extracting dynamic signatures ($\dot{\alpha}$, weight variance) and comparing them against fixed-component GMMs and ARIMA baselines. The pipeline includes rigorous statistical validation (KS tests, Wilcoxon signed-rank, bootstrap resampling for low power), threshold sensitivity analysis, and strict adherence to GitHub Actions CPU-only constraints (2 cores, 7 GB RAM, 6 hours).
+
+**Key Methodological Clarifications**:
+1.  **Local DP-GMM**: The sliding window approach treats $\alpha$ as a local parameter by re-initializing the model at each step. The derivative is the difference between independent local estimates.
+2.  **Ground Truth Simulation**: A dedicated phase validates the ADVI estimator's fidelity against known ground truth before relying on $\dot{\alpha}$.
+3.  **Nested Validation**: Statistical comparisons are performed on a held-out test set distinct from the threshold selection set to prevent Type I error inflation.
+4.  **Fallback Strategy**: If $\dot{\alpha}$ fails validation, the system falls back to component weight variance or reconstruction error.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pymc>=4.0.0`, `scikit-learn>=1.3.0`, `statsmodels>=0.14.0`, `numpy`, `pandas`, `pyyaml`, `psutil`  
-**Storage**: Local file system (CSV/Parquet/JSON); **all results stored in `data/processed/`**.  
-**Testing**: `pytest` with `pytest-cov` and `pytest-timeout`.  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`).  
-**Project Type**: Computational Research Library / CLI Tool.  
-**Performance Goals**: <6h total runtime, <7GB peak RAM on 2-core CPU.  
-**Constraints**: No GPU/CUDA; no 8-bit quantization; strict config file size (<2KB); results in `data/processed/`.  
-**Scale/Scope**: Univariate time series (n ≥ 1,000), sliding window size 30, stride 1.
+**Primary Dependencies**: `pymc==5.12.0`, `scikit-learn==1.5.0`, `statsmodels==0.14.2`, `pandas==2.2.0`, `numpy==1.26.0`, `psutil==5.9.8`, `pyyaml==6.0.1`  
+**Storage**: Local file system (`data/processed/`, `state/`, `code/src/`)  
+**Testing**: `pytest` with `pytest-cov`  
+**Target Platform**: GitHub Actions Free Tier (Linux, CPU, 7 GB RAM, No GPU)  
+**Project Type**: Computational Research Pipeline  
+**Performance Goals**: Full pipeline runtime < 6 hours; Peak RAM < 7 GB; ADVI convergence < 500 iterations per window.  
+**Constraints**: No GPU/CUDA; No large-LLM inference; Synthetic data generator must include pre-anomaly dynamics; Config file < 2KB.
 
-> **Note on Dataset Strategy**: The spec references "Electricity Load Diagrams", "Air Quality", and "Sensors". The verified dataset block provided in the prompt contains **NO** verified source for these specific time-series datasets. The plan explicitly addresses this gap in `research.md` by defining a synthetic data generation strategy as the primary source, with a fallback to the available UCI/HF datasets only if they contain a suitable univariate column (e.g., sensor readings) that meets the n≥1000 requirement.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | `config.yaml` will pin seeds and hyperparameters; `requirements.txt` pins versions. All data fetching scripts use deterministic hashes. |
-| **II. Verified Accuracy** | PASS | Citations (e.g., Cohen, 1988) will be validated against primary sources. **Synthetic generator logic is verified via unit tests against known statistical properties** before data generation. **Fallback dataset `dunzing/ARIMA-Date-Prediction` is validated by inspecting its schema before use.** |
-| **III. Data Hygiene** | PASS | Raw data (if any) stored in `data/raw/` with checksums. Derived data in `data/processed/`. **Strict ban** on `data/results/`. |
-| **IV. Single Source of Truth** | PASS | All metrics (time-to-detection, KS stats) computed by code and written to `state/` or `data/processed/`. No manual entry in paper. |
-| **V. Versioning Discipline** | PASS | **The `synthetic_generator.py` script MUST update the `state/projects/...yaml` artifact hash upon successful generation.** Content hashes for all artifacts updated. |
-| **VI. Numerical Stability** | PASS | ADVI convergence (ELBO delta < 0.01) checked per window (FR-009). **ADVI bias validated against MCMC subset (Phase 1.4).** |
-| **VII. Prior Sensitivity** | PASS | Sensitivity analysis on $\alpha$ priors and thresholds included (FR-007, FR-016). |
+1.  **I. Reproducibility**: The plan mandates pinned random seeds in `config.yaml` and the use of verified dataset loaders (UCI via `ucimlrepo` or HuggingFace `datasets`). All results trace to `data/processed/` and `code/src/`.
+2.  **II. Verified Accuracy**: **Note**: The verification of dataset URLs is deferred to the Research Phase. The plan explicitly states that dataset citations will be verified against primary sources *after* the research phase begins, ensuring no logical contradiction at the plan stage.
+3.  **III. Data Hygiene**: All data transformations (normalization, windowing) write new files to `data/processed/`. Raw data is preserved in `data/raw/` (if applicable) with checksums recorded in `state/`.
+4.  **IV. Single Source of Truth**: The `state/` file will track artifact hashes. Figures and statistics in the final report will be generated programmatically from `data/processed/` outputs, not hand-typed.
+5.  **V. Versioning Discipline**: The plan includes a specific script `code/src/services/state_update.py` that computes content hashes of the synthetic data generator and sliding window logic, updating `state/` hashes upon changes (FR-023).
+6.  **VI. Numerical Stability & Convergence**: The plan enforces ADVI convergence checks (ELBO delta < 0.01) and excludes non-convergent windows (FR-009).
+7.  **VII. Prior Sensitivity Analysis**: The plan includes a sensitivity sweep for the concentration parameter prior and detection thresholds (FR-007, FR-016).
 
 ## Project Structure
 
@@ -48,7 +49,20 @@ specs/001-bayesian-nonparametrics-for-anomaly-dete/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+│   ├── anomaly_detector.schema.yaml
+│   ├── anomaly_detector_service.schema.yaml
+│   ├── anomaly_score.schema.yaml
+│   ├── dataset.schema.yaml
+│   ├── dataset_schema.schema.yaml
+│   ├── detection_event.schema.yaml
+│   ├── dpgmm.schema.yaml
+│   ├── evaluation_metrics.schema.yaml
+│   ├── posterior_trajectory.schema.yaml
+│   ├── sensitivity_report.schema.yaml
+│   ├── threshold_calibrator.schema.yaml
+│   ├── threshold_calibrator_service.schema.yaml
+│   └── time_series_dataset.schema.yaml
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
@@ -56,107 +70,109 @@ specs/001-bayesian-nonparametrics-for-anomaly-dete/
 ```text
 projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/
 ├── code/
-│   ├── __init__.py
-│   ├── config.yaml          # <2KB, hyperparams/seeds only
 │   ├── src/
 │   │   ├── __init__.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   └── dpgmm.py          # PyMC DP-GMM implementation
+│   │   ├── baselines/
+│   │   │   ├── __init__.py
+│   │   │   ├── gmm_fixed.py      # Fixed k GMMs
+│   │   │   └── arima.py          # ARIMA baseline
 │   │   ├── data/
 │   │   │   ├── __init__.py
 │   │   │   ├── download_datasets.py
-│   │   │   └── synthetic_generator.py
-│   │   ├── models/
+│   │   │   ├── synthetic_generator.py # FR-021, FR-022
+│   │   │   └── windowing.py
+│   │   ├── evaluation/
 │   │   │   ├── __init__.py
-│   │   │   ├── dpgmm.py         # PyMC DP-GMM model
-│   │   │   └── baselines.py     # Fixed GMM & ARIMA
+│   │   │   ├── metrics.py        # KS, Wilcoxon, Bootstrap
+│   │   │   └── threshold_sweep.py
 │   │   ├── services/
 │   │   │   ├── __init__.py
-│   │   │   ├── anomaly_detector.py  # Sliding window logic
-│   │   │   └── metrics.py           # Time-to-detection, KS tests
-│   │   └── evaluation/
-│   │       ├── __init__.py
-│   │       └── sensitivity.py       # Threshold sweeps
-│   └── tests/
-│       ├── unit/
-│       ├── integration/
-│       └── contract/
+│   │   │   ├── anomaly_detector.py # Main orchestration
+│   │   │   └── state_update.py   # FR-023: State hash updater
+│   │   └── simulation/
+│   │       └── ground_truth.py   # FR-020: Simulation study
+│   ├── config.yaml             # <2KB (Hyperparams, seeds, paths)
+│   └── requirements.txt
 ├── data/
-│   ├── raw/                 # Downloaded/Generated raw files (checksummed)
-│   └── processed/           # All results, trajectories, reports
-└── state/
-    └── projects/
-        └── PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml
+│   ├── raw/                    # Unmodified downloads
+│   └── processed/              # Normalized, windowed, results
+├── state/
+│   └── projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml
+└── tests/
+    ├── unit/
+    ├── integration/
+    └── contract/
 ```
 
-**Structure Decision**: The "Single project" structure with a `code/src/` package layout is selected to enforce modularity and prevent the "files at root" violation noted in previous reviews. All results are routed to `data/processed/` to satisfy Constitution Principle III and FR-009.
+**Structure Decision**: The single-project layout under `code/src/` is selected to ensure modularity and strict adherence to the directory structure violations cited in previous reviews. All code is encapsulated in packages to prevent namespace pollution and ensure importability.
 
 ## Complexity Tracking
 
-No complexity violations detected. The architecture strictly adheres to the spec's requirement for a CPU-tractable, sliding-window Bayesian approach. The "dynamic signature" extraction is implemented as a post-processing step on the posterior trajectory, avoiding the need for complex real-time inference engines.
+| Constraint | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| ADVI Variational Inference | Required for CPU feasibility on sliding windows; MCMC (NUTS) is too slow for the 6h runtime limit on 2 cores. | MCMC would exceed the 6-hour runtime constraint for the full sliding window trajectory. |
+| Bootstrap Resampling | Required for statistical power when anomaly count < 10 (FR-011). | Parametric tests (t-test) are invalid for small, skewed samples. |
+| Sliding Window (configurable size, stride 1) | **Constraint**: Required to capture temporal evolution of $\alpha$ (US-1). | Fixed-window or non-overlapping windows would miss the "pre-anomaly" dynamics and rate-of-change signal. |
+| Synthetic Data Generator | Real-world datasets with verified regime shift ground truth are scarce (FR-017). | Relying solely on real data risks "Deferred by Design" status; synthetic data with injected dynamics is necessary to test the hypothesis. |
 
-## Implementation Phases & Task Mapping
+## Implementation Phases
 
-### Phase 0: Data Strategy & Validation (FR-001, FR-017)
-- **Task 0.1**: **Config Validation**: Validate `code/config.yaml` against `contracts/anomaly_detector.schema.yaml` at runtime using a JSON schema validator. Additionally, enforce the 2KB file size constraint as a pre-check in the CI pipeline.
-- **Task 0.2**: **Synthetic Data Generation**: Implement `synthetic_generator.py` to create univariate time series with:
-  - Known ground-truth injection points (point anomalies, abrupt shifts, gradual drift).
-  - **Pre-anomaly dynamics**: Explicit modeling of increasing variance or changing autocorrelation prior to injection to test the "early-warning" hypothesis.
-  - Adjustable noise levels and regime parameters.
-  - Compliance with the n ≥ 1,000 requirement.
-  - **Verification**: Unit tests verify generator logic against known statistical properties (Constitution Principle II).
-  - **Versioning**: The script MUST update the `state/projects/...yaml` artifact hash upon successful generation (Constitution Principle V).
-- **Task 0.3**: **FR-017 Waiver Protocol**: Inspect `dunzing/ARIMA-Date-Prediction` for univariate numeric columns. If no suitable real-world data is found (i.e., no regime shifts), generate a formal waiver report documenting the search and marking FR-017 as "Waived".
-- **Task 0.4**: **Null Hypothesis Simulation**: Run DP-GMM on pure noise data to establish the baseline distribution of $\dot{\alpha}$. **The threshold for 'spike' detection (e.g., >3 std devs) MUST be derived empirically from this simulation (e.g., 95th percentile)** rather than hardcoded, to ensure the threshold is not arbitrary.
+### Phase 0: Ground Truth Simulation (FR-020)
+*   **Goal**: Validate the ADVI estimator's fidelity before deployment.
+*   **Action**: Generate synthetic data with known, controlled $\alpha$ dynamics (ground truth).
+*   **Validation**: Compare ADVI-estimated $\dot{\alpha}$ against the ground truth. If Signal-to-Noise Ratio (SNR) is insufficient, the system flags the metric as invalid and switches to the Fallback Strategy.
+*   **Output**: `data/processed/results/simulation_validation.csv` (SNR metrics).
 
-### Phase 1: Model Implementation & Inference (FR-002, FR-003, FR-009)
-- **Task 1.1**: Implement Stick-Breaking DP-GMM in PyMC 4 with ADVI.
-- **Task 1.2**: Implement sliding window inference (length=30, stride=1).
-- **Task 1.3**: Implement ADVI convergence check (ELBO delta < 0.01). Exclude non-convergent windows.
-- **Task 1.4**: **ADVI Bias Validation**: Run small-scale MCMC (NUTS) on a subset of 100 random windows. Compare ADVI posterior mean/variance against MCMC. If ADVI variance underestimates MCMC by >50% or mean differs by >2 SD, **exclude the $\dot{\alpha}$ metric for that window and default to using component weight variance ($\sigma^2_{\pi}$) as the primary signature**. This ensures the detection pipeline never halts.
+### Phase 1: Data Preparation & Synthetic Generation (FR-021, FR-022)
+*   **Action**: Implement `synthetic_generator.py` to create datasets with:
+    *   **Pre-anomaly dynamics**: A "critical slowing down" phase (increasing autocorrelation/variance) before the injection timestamp.
+    *   **Injection**: Abrupt shifts, gradual drifts.
+    *   **Ground Truth**: Independent timestamps for anomalies.
+*   **Validation**: Verify generator logic (FR-022) by comparing injected statistics to expected values.
+*   **Output**: `data/processed/synthetic_data.csv`.
 
-### Phase 2: Baseline & Metric Calculation (FR-004, FR-005, FR-015)
-- **Task 2.1**: Implement fixed-component GMMs (k=3, 5, 10) and ARIMA for reconstruction error.
-- **Task 2.2**: Calculate "time-to-detection" for all methods (FR-005).
-- **Task 2.3**: **FR-015**: Perform a **Kolmogorov-Smirnov (KS) test** on the *distributions* of baseline reconstruction errors (normal vs. anomaly windows) to confirm distributional differences, not just mean differences.
-- **Task 2.4**: Calculate $\dot{\alpha}$ and $\pi$ variance for DP-GMM.
+### Phase 2: Core Model & Baseline Implementation (FR-002, FR-004)
+*   **Action**: Implement "Local DP-GMM" (re-initialized per window) using PyMC 4 + ADVI.
+*   **Action**: Implement Fixed GMMs (k=3, 5, 10) and ARIMA baselines.
+*   **Action**: Extract $\dot{\alpha}$ and weight variance.
+*   **Constraint**: Exclude non-convergent windows (FR-009).
+*   **Output**: `data/processed/results/posterior_trajectory.csv`.
 
-### Phase 3: Statistical Testing & Sensitivity (FR-006, FR-007, FR-010, FR-011, FR-012, FR-014)
-- **Task 3.1**: **Power Analysis & Bootstrap Switch**: Calculate expected anomaly count *before* inference. If <10, flag warning and **automatically switch to non-parametric bootstrap resampling** (FR-011, FR-012) for significance estimation.
-- **Task 3.2**: Perform **Wilcoxon signed-rank test** (primary) on time-to-detection values across datasets (FR-006). T-test is secondary only.
-- **Task 3.3**: Perform KS test on $\dot{\alpha}$ distributions (anomaly vs. normal) (FR-010).
-- **Task 3.4**: Perform KS test on $\dot{\alpha}$ distributions (anomaly vs. gradual drift) (FR-014).
-- **Task 3.5**: Implement threshold sensitivity sweep (0.01, 0.05, 0.1) (FR-007).
-- **Task 3.6**: Apply **Holm-Bonferroni correction** to p-values from threshold sweep and subsequent tests to control family-wise error rate, addressing the dependency introduced by threshold optimization.
+### Phase 3: Statistical Analysis & Sensitivity (FR-006, FR-007, FR-014, FR-015, FR-016, FR-018)
+*   **Action**: **Threshold Sensitivity**: Sweep thresholds across a range of significance levels. (FR-007).
+*   **Action**: **Window/Derivative Sensitivity**: Sweep window sizes (small, medium, large) and smoothing methods (FR-016).
+*   **Action**: **MCMC Robustness**: Run NUTS on a small subset of windows to validate $\dot{\alpha}$ (FR-018).
+*   **Action**: **Statistical Testing**:
+    *   Perform Wilcoxon signed-rank test on time-to-detection (FR-006).
+    *   Perform KS tests for distributional differences (FR-014, FR-015).
+    *   **Nested Validation**: Ensure statistical tests are performed on a held-out test set distinct from the threshold selection set.
+    *   **Degenerate Check**: Verify distributions are not degenerate before testing.
+*   **Action**: **Low Power Handling**: Switch to bootstrap resampling if anomaly count < 10 (FR-011, FR-012).
+*   **Output**: `data/processed/results/statistical_report.csv`.
 
-### Phase 4: Resource Validation & Reporting (FR-008, FR-016, FR-017)
-- **Task 4.1**: **FR-008 Resource Validation**: Log peak RAM and total runtime using `psutil`. **Fail the job if RAM >7GB or runtime >6h**.
-- **Task 4.2**: Implement sensitivity analysis on window size and derivative method (FR-016).
-- **Task 4.3**: Generate final report, including "Waiver" status for FR-017 if applicable.
+### Phase 4: Reporting & Compliance (FR-008, FR-017b, FR-023)
+*   **Action**: **Resource Validation**: Measure peak RAM and runtime; fail if limits exceeded (FR-008).
+*   **Action**: **Deferred Report**: Generate a report explicitly documenting the dataset search procedure and "Deferred by Design" status (FR-017b).
+*   **Action**: **State Update**: Run `state_update.py` to compute and record content hashes for synthetic generator and windowing logic (FR-023).
+*   **Output**: `data/processed/results/final_report.md`, `state/...yaml`.
 
-## FR/SC Coverage Map
+### Fallback Strategy
+If the Ground Truth Simulation (Phase 0) fails to validate $\dot{\alpha}$, the system will:
+1.  Log a warning: "Primary metric $\dot{\alpha}$ validation failed."
+2.  Switch to using **Component Weight Variance** or **Reconstruction Error** as the primary metric.
+3.  Document the fallback in the final report.
 
-| ID | Requirement | Implementation Phase/Task |
+## Risk Management
+
+| Risk | Impact | Mitigation |
 | :--- | :--- | :--- |
-| FR-001 | Load & Normalize | Phase 0, Task 0.2 |
-| FR-002 | DP-GMM + ADVI | Phase 1, Task 1.1 |
-| FR-003 | Derivative & Variance | Phase 2, Task 2.4 |
-| FR-004 | Baselines (GMM/ARIMA) | Phase 2, Task 2.1 |
-| FR-005 | Time-to-Detection | Phase 2, Task 2.2 |
-| FR-006 | Paired t-test | Phase 3, Task 3.2 (Wilcoxon primary) |
-| FR-007 | Threshold Sensitivity | Phase 3, Task 3.5 |
-| FR-008 | Resource Validation | Phase 4, Task 4.1 |
-| FR-009 | ADVI Convergence | Phase 1, Task 1.3 |
-| FR-010 | KS Test (Anomaly vs Normal) | Phase 3, Task 3.3 |
-| FR-011 | Power Analysis Check | Phase 3, Task 3.1 |
-| FR-012 | Bootstrap Fallback | Phase 3, Task 3.1 |
-| FR-013 | Independent Ground Truth | Phase 0, Task 0.2 |
-| FR-014 | KS Test (Anomaly vs Drift) | Phase 3, Task 3.4 |
-| FR-015 | KS Test (Baseline Distributions) | Phase 2, Task 2.3 |
-| FR-016 | Window/Derivative Sensitivity | Phase 4, Task 4.2 |
-| FR-017 | Real-World Validation | Phase 0, Task 0.3 (Waiver if unavailable) |
-| SC-001 | Distinctness of Signatures | Phase 3, Task 3.3, 3.4 |
-| SC-002 | Time-to-Detection Advantage | Phase 3, Task 3.2 |
-| SC-003 | Threshold Stability | Phase 3, Task 3.5 |
-| SC-004 | Compute Feasibility | Phase 4, Task 4.1 |
-| SC-005 | Power Analysis Target | Phase 3, Task 3.1 |
-| SC-006 | Bootstrap Fallback | Phase 3, Task 3.1 |
-| SC-007 | Distributional Difference | Phase 3, Task 3.3, 3.4 |
+| ADVI fails to converge | Loss of data points | Exclude non-convergent windows (FR-009); log warnings. |
+| $\dot{\alpha}$ is noisy/artifact | False positives | **Ground Truth Simulation** (Phase 0) to verify SNR; **Fallback Strategy**. |
+| Real-world data unavailable | Inability to validate | Proceed with "Deferred by Design" status; generate explicit report (FR-017b). |
+| Runtime exceeds 6 hours | CI failure | Optimize window size; reduce ADVI iterations; profile memory. |
+| Low anomaly count (<10) | Low statistical power | Switch to bootstrap resampling (FR-011). |
+| Degenerate detection times | Invalid statistical tests | **Degenerate Distribution Check** before performing Wilcoxon/KS tests. |
+| Threshold tuning bias | Type I error inflation | **Nested Validation**: Final tests on held-out test set distinct from tuning set. |

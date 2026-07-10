@@ -1,24 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AnomalyDetector"
+title: "Anomaly Detector Configuration"
 type: object
-required:
-  - model_type
-  - max_components
-  - advi_iters
 properties:
-  model_type:
-    type: string
-    description: "Type of model (e.g., 'DPGMM')"
-  max_components:
+  random_seed:
     type: integer
-    description: "Maximum number of components for truncated DP-GMM"
+    description: "Random seed for reproducibility"
+  window_size:
+    type: integer
+    minimum: 10
+    default: 30
+    description: "Size of the sliding window"
+  stride:
+    type: integer
     minimum: 1
-  advi_iters:
+    default: 1
+    description: "Stride for sliding window"
+  advi_max_iter:
     type: integer
-    description: "Maximum iterations for ADVI inference"
     minimum: 100
-  convergence_threshold:
+    default: 500
+    description: "Maximum iterations for ADVI"
+  advi_convergence_delta:
     type: number
-    description: "ELBO delta threshold for convergence"
     minimum: 0.0
-    maximum: 1.0
+    default: 0.01
+    description: "Convergence threshold for ELBO delta"
+  anomaly_thresholds:
+    type: array
+    items:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    description: "Thresholds for sensitivity analysis (e.g., [0.01, 0.05, 0.1])"
+  data_path:
+    type: string
+    description: "Path to the data directory"
+  use_synthetic:
+    type: boolean
+    default: true
+    description: "Whether to use synthetic data generator"
+required:
+  - random_seed
+  - window_size
+  - stride
+  - advi_max_iter
+  - advi_convergence_delta
+  - anomaly_thresholds
+  - data_path
+additionalProperties: false

@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   `git`
--   A GitHub account (for running on Actions, though local testing is supported).
+*   Python 3.11+
+*   Git
+*   Access to a GitHub Actions runner (or local environment matching CPU constraints)
 
 ## Installation
 
@@ -25,55 +25,50 @@
     pip install -r code/requirements.txt
     ```
 
-4.  **Verify environment**:
-    ```bash
-    python -c "import pymc; import sklearn; print('Environment OK')"
-    ```
+## Configuration
+
+Edit `code/config.yaml` to set:
+*   `random_seed`: Integer for reproducibility.
+*   `window_size`: Default 30.
+*   `stride`: Default 1.
+*   `advi_max_iter`: Default 500.
+*   `data_path`: Path to raw data or synthetic generation flag.
+
+**Note**: Ensure `config.yaml` remains under 2KB. Do not store derived statistics here.
 
 ## Running the Pipeline
 
-### 1. Generate Synthetic Data
-Since no verified real-world dataset with regime shifts is available, the pipeline starts by generating synthetic data.
-```bash
-python code/src/data/synthetic_generator.py --output data/raw/synthetic_timeseries.csv --anomaly-rate --length 2000
-```
+1.  **Generate/Download Data**:
+    ```bash
+    python code/src/data/download_datasets.py
+    # OR for synthetic data:
+    python code/src/data/synthetic_generator.py --inject-anomalies
+    ```
 
-### 2. Run the Full Analysis
-This executes the sliding window inference, baseline comparison, and statistical testing.
-```bash
-python code/src/main.py --config code/config.yaml
-```
-*Note: `main.py` orchestrates the flow: Data Load -> Windowing -> Inference -> Metrics -> Reporting.*
+2.  **Run the Anomaly Detection Pipeline**:
+    ```bash
+    python code/src/services/anomaly_detector.py
+    ```
+    This script will:
+    *   Load and normalize data.
+    *   Create sliding windows.
+    *   Run DP-GMM (ADVI) and baselines.
+    *   Compute metrics and statistical tests.
+    *   Generate reports in `data/processed/results/`.
 
-### 3. Inspect Results
-Results are stored in `data/processed/`:
--   `posterior_trajectory.parquet`: The dynamic signatures ($\alpha$, $\dot{\alpha}$).
--   `detection_events.json`: Time-to-detection metrics.
--   `sensitivity_report.yaml`: Threshold analysis.
--   `figures/`: Generated plots (e.g., $\alpha$ trajectory, ROC curves).
-
-## Configuration
-
-Edit `code/config.yaml` to adjust hyperparameters (must remain <2KB):
-```yaml
-# code/config.yaml
-seed: 42
-window_size:
-stride: 1
-max_components: a finite set determined by the model's complexity constraints
-advi_iters: a sufficient number of iterations to ensure convergence
-thresholds: [low, 0.05, 0.1]
-```
-
-## Troubleshooting
-
--   **ADVI Convergence Warning**: If `WARNING: ADVI did not converge` appears, the window is skipped. Check `code/config.yaml` for `advi_iters` or try increasing it (trade-off with runtime).
--   **Memory Error**: Ensure no other heavy processes are running. The pipeline is designed for <7GB RAM.
--   **CUDA Error**: If you see CUDA errors, ensure `pymc` is not trying to use a GPU. The code explicitly forces CPU mode.
+3.  **Verify Results**:
+    Check `data/processed/results/posterior_trajectory.csv` for $\alpha$ derivatives.
+    Check `data/processed/results/sensitivity_report.csv` for threshold analysis.
 
 ## Validation
 
-Run the test suite to verify correctness:
-```bash
-pytest code/tests/ -v --cov=code/src
-```
+To validate the pipeline:
+1.  **Convergence Check**: Ensure no "WARNING: ADVI did not converge" logs appear for critical windows.
+2.  **Resource Check**: Verify peak RAM < 7 GB and runtime < 6 hours (automated in CI).
+3.  **Statistical Check**: Verify p-values for Wilcoxon and KS tests are present in the final report.
+
+## Troubleshooting
+
+*   **ADVI Convergence Failure**: Increase `advi_max_iter` in `config.yaml` or reduce window size.
+*   **Memory Error**: Ensure no large datasets are loaded into RAM at once; use chunking if necessary.
+*   **Config Size Error**: Move derived statistics to `state/` file if `config.yaml` exceeds 2KB.

@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Time Series Dataset Schema"
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      dataset_name:
+        type: string
+        description: "Name of the dataset"
+      source_url:
+        type: string
+        format: uri
+        description: "Source URL (if applicable)"
+      checksum:
+        type: string
+        description: "SHA256 checksum of the raw file"
+      num_observations:
+        type: integer
+        minimum: 1000
+        description: "Number of observations (must be >= 1000)"
+      anomaly_injection:
+        type: object
+        properties:
+          injected:
+            type: boolean
+          injection_timestamps:
+            type: array
+            items:
+              type: integer
+            description: "Ground truth timestamps of injected anomalies"
+          pre_anomaly_dynamics:
+            type: boolean
+            description: "Whether pre-anomaly dynamics were included"
+    required:
+      - dataset_name
+      - num_observations
+      - anomaly_injection
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: "Integer timestamp (0, 1, 2...)"
+        value:
+          type: number
+          description: "Normalized value (zero mean, unit variance)"
+        is_anomaly:
+          type: boolean
+          description: "Ground truth anomaly label"
+      required:
+        - timestamp
+        - value
+        - is_anomaly
+required:
+  - metadata
+  - data
+additionalProperties: false

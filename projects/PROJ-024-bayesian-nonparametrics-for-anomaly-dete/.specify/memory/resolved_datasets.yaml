@@ -1,5 +1,138 @@
-resolved_at: '2026-07-08T14:04:54.115166+00:00'
+resolved_at: '2026-07-10T19:00:06.005640+00:00'
 datasets:
+- intent: DPGMM
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Aqueous_Processing_of_Mechanically_Robust_Dense_Films_from_Carboxymethyl_Cellulose-Based_Coacervates/31523045
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/821246
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/822737
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/4369142/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/4369142
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/collections/Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/3613103/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/4369142/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/collections/Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/3613103
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Type-1-Civilisation/Liber-Primus-Not-Decoded/resolve/main/liber_primus_undecoded_pseudolatin_lower.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Aqueous_Processing_of_Mechanically_Robust_Dense_Films_from_Carboxymethyl_Cellulose-Based_Coacervates/31523045
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5105584
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4578581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: MSE
   status: verified
   candidates:
@@ -19,31 +152,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Instrumento_PROM-TKI_Br/32936996
+  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Supplementary_file_1_shows_the_datasets_that_support_the_results_in_figure_1_which_detail_the_relative_abundance_of_dihydro-beta-ionones_in_mouse_and_cow_urine_volatiles_from_Trypanosoma_congolense-infected_hosts_as_well_as_the_response_ind/32882324
+  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Datasets_used_for_modelling_for_eradication_of_Animal_African_Trypanosomiasis_AAT_using_lures_targeting_infected_tsetse_flies/32924879
+  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Titon_Mechanics_A_Medium-Mechanical_Framework_for_Gravitational_Phenomena_A_Conceptual_Bridge_from_Geometry_to_Fluid_Dynamics/32936948
+  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/journal_contribution/Term_neonatal_admissions_for_hypoglycaemia_in_England_and_Wales_2012-2020_a_population-based_study_using_the_National_Neonatal_Research_Database_/32125876
+  - url: https://acs.figshare.com/articles/journal_contribution/Aqueous_Processing_of_Mechanically_Robust_Dense_Films_from_Carboxymethyl_Cellulose-Based_Coacervates/31523045
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3413785
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3407328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3413785
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -59,23 +192,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21021806
+  - url: https://zenodo.org/records/21295442
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21021806
+  - url: https://zenodo.org/records/21294996
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21222328
+  - url: https://zenodo.org/records/21292904
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21222328
+  - url: https://zenodo.org/records/21292904
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21260630
+  - url: https://dmphub.uc3prd.cdlib.net/dmps/10.48321/D12FC13A68
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -94,23 +227,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Instrumento_PROM-TKI_Br/32936996
+  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Supplementary_file_1_shows_the_datasets_that_support_the_results_in_figure_1_which_detail_the_relative_abundance_of_dihydro-beta-ionones_in_mouse_and_cow_urine_volatiles_from_Trypanosoma_congolense-infected_hosts_as_well_as_the_response_ind/32882324
+  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Datasets_used_for_modelling_for_eradication_of_Animal_African_Trypanosomiasis_AAT_using_lures_targeting_infected_tsetse_flies/32924879
+  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Titon_Mechanics_A_Medium-Mechanical_Framework_for_Gravitational_Phenomena_A_Conceptual_Bridge_from_Geometry_to_Fluid_Dynamics/32936948
+  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/journal_contribution/Term_neonatal_admissions_for_hypoglycaemia_in_England_and_Wales_2012-2020_a_population-based_study_using_the_National_Neonatal_Research_Database_/32125876
+  - url: https://acs.figshare.com/articles/journal_contribution/Aqueous_Processing_of_Mechanically_Robust_Dense_Films_from_Carboxymethyl_Cellulose-Based_Coacervates/31523045
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -118,14 +251,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14045211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://onlinelibrary.wiley.com/doi/10.1155/jpas/1503091
     source: zenodo
     status: wrong_format
     reason: HTTP 403
+  - url: https://zenodo.org/records/14045211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10356064
     source: zenodo
     status: wrong_format
@@ -134,23 +267,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07960
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21222237
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21222237
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://osf.io/f38m2/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://arxiv.org/abs/2601.03911
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Robust_Unsupervised_Multi-task_and_Transfer_Learning_on_Gaussian_Mixture_Models/32316001/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Robust_Unsupervised_Multi-task_and_Transfer_Learning_on_Gaussian_Mixture_Models/32316001/2
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Robust_Unsupervised_Multi-task_and_Transfer_Learning_on_Gaussian_Mixture_Models/32316001
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -191,31 +324,31 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/Instrumento_PROM-TKI_Br/32936996
+  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Supplementary_file_1_shows_the_datasets_that_support_the_results_in_figure_1_which_detail_the_relative_abundance_of_dihydro-beta-ionones_in_mouse_and_cow_urine_volatiles_from_Trypanosoma_congolense-infected_hosts_as_well_as_the_response_ind/32882324
+  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Datasets_used_for_modelling_for_eradication_of_Animal_African_Trypanosomiasis_AAT_using_lures_targeting_infected_tsetse_flies/32924879
+  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Titon_Mechanics_A_Medium-Mechanical_Framework_for_Gravitational_Phenomena_A_Conceptual_Bridge_from_Geometry_to_Fluid_Dynamics/32936948
+  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.le.ac.uk/articles/journal_contribution/Term_neonatal_admissions_for_hypoglycaemia_in_England_and_Wales_2012-2020_a_population-based_study_using_the_National_Neonatal_Research_Database_/32125876
+  - url: https://acs.figshare.com/articles/journal_contribution/Aqueous_Processing_of_Mechanically_Robust_Dense_Films_from_Carboxymethyl_Cellulose-Based_Coacervates/31523045
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17797040
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://link.springer.com/article/10.1007/BF01862789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17797040
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -231,47 +364,47 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Global_burden_and_trends_of_stomach_cancer_Colon_and_rectum_cancer_peptic_ulcer_disease_and_gastritis_and_duodenitis_from_1990_to_2021_a_systematic_analysis_for_the_global_burden_of_disease_study_2021/32935880/1
+  - url: https://zenodo.org/records/21292941
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Global_burden_and_trends_of_stomach_cancer_Colon_and_rectum_cancer_peptic_ulcer_disease_and_gastritis_and_duodenitis_from_1990_to_2021_a_systematic_analysis_for_the_global_burden_of_disease_study_2021/32935880
+  - url: https://zenodo.org/records/21292941
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21258655
+  - url: https://zenodo.org/records/21293289
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21258655
+  - url: https://zenodo.org/records/21293289
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/collections/Serum_pentosidine_levels_are_associated_with_reduced_eGFR_including_in_individuals_with_preserved_renal_function_a_cross-sectional_analysis_from_the_Fukuoka_Epidemiological_Study_of_Atherosclerosis/8581174
+  - url: https://doi.org/10.5281/zenodo.21277565
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
 - intent: DP-GMM
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/dataset/Automated_efficient_and_model-free_inference_for_randomized_clinical_trials_via_data-driven_covariate_adjustment/32938645
+  - url: https://figshare.com/articles/dataset/Force-Accelerated_Autocatalysis_in_a_Knoevenagel_Condensation_Reaction_during_Ball_Milling/28038410
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Instrumento_PROM-TKI_Br/32936996
+  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Supplementary_file_1_shows_the_datasets_that_support_the_results_in_figure_1_which_detail_the_relative_abundance_of_dihydro-beta-ionones_in_mouse_and_cow_urine_volatiles_from_Trypanosoma_congolense-infected_hosts_as_well_as_the_response_ind/32882324
+  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Datasets_used_for_modelling_for_eradication_of_Animal_African_Trypanosomiasis_AAT_using_lures_targeting_infected_tsetse_flies/32924879
+  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Titon_Mechanics_A_Medium-Mechanical_Framework_for_Gravitational_Phenomena_A_Conceptual_Bridge_from_Geometry_to_Fluid_Dynamics/32936948
+  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -283,11 +416,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7712937
+  - url: https://zenodo.org/records/7023930
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7023930
+  - url: https://zenodo.org/records/7712937
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -314,8 +447,104 @@ datasets:
   - url: https://zenodo.org/records/19163565
     source: datacite
     status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    reason: unrecognized/non-dataset content
+- intent: ONLY
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/entfane/jailbreaks-only/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 160026
+      parsed: true
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/entfane/jailbreaks-only/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Force-Accelerated_Autocatalysis_in_a_Knoevenagel_Condensation_Reaction_during_Ball_Milling/28038410
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/545819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20480751
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300773
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300773
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300706
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300706
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: UCI
   status: verified
   candidates:
@@ -361,23 +590,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Tunable_High-Relaxivity_Gd_III_-Conjugated_Lipoic_Acid_Hydrogels_for_Magnetic_Resonance_Imaging/32938663
+  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Non-Drudian_Kerr_Nonlinearities_in_ITO_Introduced_by_Post-Annealing_-_7859159_pdf/32755626
+  - url: https://figshare.com/articles/dataset/Force-Accelerated_Autocatalysis_in_a_Knoevenagel_Condensation_Reaction_during_Ball_Milling/28038410
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Supplementary_data_showing_a_video_of_mature_i_Trypanosoma_congolense_i_parasites_actively_swimming_in_the_mouthpart_of_the_dissected_field-collected_i_Glossina_pallidipes_i_/32687244
+  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Automated_efficient_and_model-free_inference_for_randomized_clinical_trials_via_data-driven_covariate_adjustment/32938645
+  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Instrumento_PROM-TKI_Br/32936996
+  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -389,133 +618,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10685355
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7681792
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7627577
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/cvks7/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21258382
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21258382
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Medical_Appointment_No-Show_Prediction/32934539/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Medical_Appointment_No-Show_Prediction/32934539
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+- intent: PhysioNet
+  status: unresolved
+  candidates: []
+  candidates_tried: []
 - intent: ADVI
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/jonathanli/legal-advice-reddit/resolve/main/test.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/violetamaral/adv-int/resolve/main/data/test-00000-of-00001-84f0db34bd082f4b.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 92312
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/api/resolve-cache/datasets/ziq/depression_advice/45e5c66d00da94de5e7481e2ca35321b7b6d27b6/test.csv?%2Fdatasets%2Fziq%2Fdepression_advice%2Fresolve%2Fmain%2Ftest.csv=&etag=%220fcfca98582852633c64eb828339d81fc4e7c3ff%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/jonathanli/legal-advice-reddit/resolve/main/test.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/mihirinamdar/wealth-advisor/resolve/main/news_data_raw.csv
-    source: huggingface
-    status: wrong_format
-    reason: HTTP 401
-  - url: https://huggingface.co/datasets/violetamaral/adv-int/resolve/main/data/test-00000-of-00001-84f0db34bd082f4b.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/api/resolve-cache/datasets/medalpaca/medical_meadow_health_advice/f76bc618ed2a3c56e7487875a7c12c249bf08c31/medical_meadow_health_advice.json?%2Fdatasets%2Fmedalpaca%2Fmedical_meadow_health_advice%2Fresolve%2Fmain%2Fmedical_meadow_health_advice.json=&etag=%22a11b52809c4229a6afa8fe65bd2ea61a3b355a1d%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Divergent_Asymmetric_Synthesis_of_Glutinosasins_A_E/32938669
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://portal.sds.ox.ac.uk/articles/dataset/PandemicPACT_Dataset_Data_Dictionary_Files/26937448
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Tunable_High-Relaxivity_Gd_III_-Conjugated_Lipoic_Acid_Hydrogels_for_Magnetic_Resonance_Imaging/32938663
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Non-Drudian_Kerr_Nonlinearities_in_ITO_Introduced_by_Post-Annealing_-_7859159_pdf/32755626
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Supplementary_data_showing_a_video_of_mature_i_Trypanosoma_congolense_i_parasites_actively_swimming_in_the_mouthpart_of_the_dissected_field-collected_i_Glossina_pallidipes_i_/32687244
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/580017
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7691719
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1155778
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19027190
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20773535
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.32927.52646
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://osf.io/fdser/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20773535
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20773535
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.24511.88485
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
+  status: unresolved
+  candidates: []
+  candidates_tried: []
