@@ -1,11 +1,13 @@
-"""HTML Fetcher module for A/B test audit pipeline.
+"""
+HTML Fetcher Module for A/B Test Audit Pipeline.
 
-Fetches HTML content from URLs with retry logic and timeout handling.
-Saves fetched HTML files to data/raw/ directory.
+This module handles fetching HTML content from URLs with retry logic,
+timeouts, and saving to disk for subsequent extraction steps.
 """
 
 import hashlib
 import time
+import logging
 from pathlib import Path
 from typing import List, Tuple, Optional
 
@@ -14,221 +16,233 @@ from requests.exceptions import RequestException, Timeout, ConnectionError, HTTP
 
 from code.src.utils.logger import get_default_logger, AuditLogger
 from code.src.utils.helpers import domain_from_url
+from code.src.config import SEED
 
+# Configure logging
+logger = get_default_logger("fetcher")
 
-# Configuration constants
+# Constants
 DEFAULT_TIMEOUT = 30  # seconds
 MAX_RETRIES = 3
-RETRY_DELAY = 1  # seconds between retries
-USER_AGENT = "Mozilla/5.0 (compatible; ABTestAuditBot/1.0)"
-
+RETRY_DELAY = 2.0  # seconds
+USER_AGENT = "llmXive-AuditBot/1.0"
 
 def fetch_url_with_retry(
     url: str,
     timeout: int = DEFAULT_TIMEOUT,
     max_retries: int = MAX_RETRIES,
-    logger: Optional[AuditLogger] = None
-) -> Tuple[bool, Optional[str], Optional[str]]:
+    retry_delay: float = RETRY_DELAY
+) -> Tuple[Optional[str], Optional[Exception]]:
     """
     Fetch HTML content from a URL with retry logic.
 
     Args:
-        url: The URL to fetch
-        timeout: Request timeout in seconds
-        max_retries: Maximum number of retry attempts
-        logger: Optional logger instance
+        url: The URL to fetch.
+        timeout: Request timeout in seconds.
+        max_retries: Maximum number of retry attempts.
+        retry_delay: Delay between retries in seconds.
 
     Returns:
-        Tuple of (success, html_content, error_message)
+        A tuple of (html_content, error).
+        If successful, html_content is the string content and error is None.
+        If failed, html_content is None and error is the exception.
     """
-    if logger is None:
-        logger = get_default_logger()
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    }
 
-    headers = {"User-Agent": USER_AGENT}
+    last_exception = None
 
     for attempt in range(max_retries + 1):
         try:
-            response = requests.get(url, timeout=timeout, headers=headers)
+            logger.info(f"Fetching URL (attempt {attempt + 1}/{max_retries + 1}): {url}")
+            response = requests.get(url, headers=headers, timeout=timeout)
             response.raise_for_status()
-            return True, response.text, None
-        except Timeout:
-            error_msg = f"Timeout after {timeout}s on attempt {attempt + 1}"
-            if attempt < max_retries:
-                time.sleep(RETRY_DELAY * (attempt + 1))
-                continue
-            return False, None, error_msg
-        except ConnectionError as e:
-            error_msg = f"Connection error on attempt {attempt + 1}: {str(e)}"
-            if attempt < max_retries:
-                time.sleep(RETRY_DELAY * (attempt + 1))
-                continue
-            return False, None, error_msg
+            logger.info(f"Successfully fetched URL: {url}, status: {response.status_code}")
+            return response.text, None
+
+        except Timeout as e:
+            last_exception = e
+            logger.warning(f"Timeout fetching {url} (attempt {attempt + 1}): {e}")
+
         except HTTPError as e:
-            return False, None, f"HTTP error {e.response.status_code} on {url}"
+            # If it's a 404 or similar permanent error, don't retry
+            if e.response is not None and e.response.status_code in (400, 401, 403, 404, 410):
+                logger.error(f"HTTP error {e.response.status_code} fetching {url}: {e}")
+                return None, e
+            last_exception = e
+            logger.warning(f"HTTP error fetching {url} (attempt {attempt + 1}): {e}")
+
+        except ConnectionError as e:
+            last_exception = e
+            logger.warning(f"Connection error fetching {url} (attempt {attempt + 1}): {e}")
+
         except RequestException as e:
-            return False, None, f"Request failed: {str(e)}"
+            last_exception = e
+            logger.warning(f"Request error fetching {url} (attempt {attempt + 1}): {e}")
 
-    return False, None, "Max retries exceeded"
+        if attempt < max_retries:
+            logger.info(f"Retrying in {retry_delay}s...")
+            time.sleep(retry_delay)
 
+    logger.error(f"Failed to fetch URL after {max_retries + 1} attempts: {url}")
+    return None, last_exception
 
 def fetch_html_to_file(
     url: str,
     output_dir: Path,
     timeout: int = DEFAULT_TIMEOUT,
-    max_retries: int = MAX_RETRIES,
-    logger: Optional[AuditLogger] = None
-) -> Tuple[bool, Optional[Path], Optional[str]]:
+    max_retries: int = MAX_RETRIES
+) -> Tuple[Optional[Path], Optional[Exception]]:
     """
-    Fetch HTML and save to a file in the output directory.
+    Fetch HTML content and save it to a file.
 
     Args:
-        url: The URL to fetch
-        output_dir: Directory to save the HTML file
-        timeout: Request timeout in seconds
-        max_retries: Maximum number of retry attempts
-        logger: Optional logger instance
+        url: The URL to fetch.
+        output_dir: Directory to save the HTML file.
+        timeout: Request timeout in seconds.
+        max_retries: Maximum number of retry attempts.
 
     Returns:
-        Tuple of (success, filepath, error_message)
+        A tuple of (file_path, error).
+        If successful, file_path is the Path to the saved file and error is None.
+        If failed, file_path is None and error is the exception.
     """
-    if logger is None:
-        logger = get_default_logger()
+    html_content, error = fetch_url_with_retry(url, timeout, max_retries)
 
-    success, html_content, error_msg = fetch_url_with_retry(
-        url, timeout=timeout, max_retries=max_retries, logger=logger
-    )
+    if error is not None:
+        return None, error
 
-    if not success or html_content is None:
-        return False, None, error_msg
-
-    # Create filename from domain and URL hash
-    domain = domain_from_url(url)
-    url_hash = hashlib.sha256(url.encode()).hexdigest()[:16]
-    filename = f"{domain}_{url_hash}.html"
-    filepath = output_dir / filename
+    if html_content is None:
+        return None, Exception("No content received")
 
     # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Write HTML content to file
-    filepath.write_text(html_content, encoding='utf-8')
+    # Generate filename based on URL hash to avoid collisions
+    url_hash = hashlib.md5(url.encode('utf-8')).hexdigest()[:12]
+    domain = domain_from_url(url)
+    filename = f"{domain}_{url_hash}.html"
+    file_path = output_dir / filename
 
-    return True, filepath, None
-
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        logger.info(f"Saved HTML to: {file_path}")
+        return file_path, None
+    except IOError as e:
+        logger.error(f"Failed to write file {file_path}: {e}")
+        return None, e
 
 def fetch_urls_batch(
     urls: List[str],
     output_dir: Path,
     timeout: int = DEFAULT_TIMEOUT,
-    max_retries: int = MAX_RETRIES,
-    logger: Optional[AuditLogger] = None
-) -> List[Tuple[str, bool, Optional[Path], Optional[str]]]:
+    max_retries: int = MAX_RETRIES
+) -> List[Tuple[str, Optional[Path], Optional[Exception]]]:
     """
-    Fetch multiple URLs and save HTML files.
+    Fetch multiple URLs and save them to files.
 
     Args:
-        urls: List of URLs to fetch
-        output_dir: Directory to save HTML files
-        timeout: Request timeout in seconds
-        max_retries: Maximum number of retry attempts
-        logger: Optional logger instance
+        urls: List of URLs to fetch.
+        output_dir: Directory to save HTML files.
+        timeout: Request timeout in seconds.
+        max_retries: Maximum number of retry attempts.
 
     Returns:
-        List of tuples: (url, success, filepath or None, error_message or None)
+        List of tuples: (url, file_path_or_none, error_or_none)
     """
-    if logger is None:
-        logger = get_default_logger()
-
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    results: List[Tuple[str, bool, Optional[Path], Optional[str]]] = []
-
+    results = []
     for url in urls:
-        success, filepath, error_msg = fetch_html_to_file(
-            url, output_dir, timeout=timeout, max_retries=max_retries, logger=logger
-        )
-        results.append((url, success, filepath, error_msg))
+        file_path, error = fetch_html_to_file(url, output_dir, timeout, max_retries)
+        results.append((url, file_path, error))
 
-        if success:
-            logger.info(f"Fetched {url} -> {filepath}")
+        # Log progress
+        if error is None:
+            logger.info(f"SUCCESS: {url} -> {file_path}")
         else:
-            logger.error(f"Failed to fetch {url}: {error_msg}")
+            logger.error(f"FAILED: {url} -> {error}")
 
     return results
 
-
 def ingest_and_fetch(
-    input_csv: Path,
+    input_csv_path: Path,
     output_dir: Path,
     timeout: int = DEFAULT_TIMEOUT,
-    max_retries: int = MAX_RETRIES,
-    logger: Optional[AuditLogger] = None
-) -> List[Tuple[str, bool, Optional[Path], Optional[str]]]:
+    max_retries: int = MAX_RETRIES
+) -> List[Tuple[str, Optional[Path], Optional[Exception]]]:
     """
-    Read URLs from CSV and fetch HTML for each.
+    Read URLs from a CSV file and fetch them.
 
     Args:
-        input_csv: Path to CSV file with URLs (output of ingestor)
-        output_dir: Directory to save HTML files
-        timeout: Request timeout in seconds
-        max_retries: Maximum number of retry attempts
-        logger: Optional logger instance
+        input_csv_path: Path to CSV file containing URLs (one per column or row).
+        output_dir: Directory to save HTML files.
+        timeout: Request timeout in seconds.
+        max_retries: Maximum number of retry attempts.
 
     Returns:
-        List of tuples: (url, success, filepath or None, error_message or None)
+        List of tuples: (url, file_path_or_none, error_or_none)
     """
-    from code.src.audit.ingestor import read_urls_from_csv
-
-    if logger is None:
-        logger = get_default_logger()
-
-    logger.info(f"Reading URLs from {input_csv}")
-    urls = read_urls_from_csv(input_csv)
-
-    if not urls:
-        logger.warning("No URLs found in input CSV")
+    # Read URLs from CSV
+    # Expected format: either a single column 'url' or just plain URLs
+    urls = []
+    try:
+        import csv
+        with open(input_csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            if 'url' in reader.fieldnames:
+                urls = [row['url'] for row in reader if row.get('url')]
+            else:
+                # Fallback: assume first column is URL
+                f.seek(0)
+                reader = csv.reader(f)
+                for row in reader:
+                    if row:
+                        urls.append(row[0])
+    except Exception as e:
+        logger.error(f"Failed to read URLs from {input_csv_path}: {e}")
         return []
 
-    logger.info(f"Fetched {len(urls)} URLs")
-    return fetch_urls_batch(urls, output_dir, timeout=timeout, max_retries=max_retries, logger=logger)
+    logger.info(f"Found {len(urls)} URLs to fetch")
+    return fetch_urls_batch(urls, output_dir, timeout, max_retries)
 
-
-def main() -> int:
+def main():
     """
-    Main entry point for HTML fetcher CLI.
+    Main entry point for fetching HTML files.
 
-    Reads URLs from data/urls_deduped.csv and saves HTML to data/raw/.
-
-    Returns:
-        Exit code (0 for success, 1 for failure)
+    Usage:
+        python -m code.src.audit.fetcher --input data/raw_urls.csv --output data/raw
     """
-    from code.src.utils.logger import get_default_logger
+    import argparse
 
-    logger = get_default_logger()
+    parser = argparse.ArgumentParser(description="Fetch HTML content from URLs")
+    parser.add_argument("--input", type=Path, required=True, help="Path to CSV with URLs")
+    parser.add_argument("--output", type=Path, required=True, help="Output directory for HTML files")
+    parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT, help="Request timeout in seconds")
+    parser.add_argument("--retries", type=int, default=MAX_RETRIES, help="Maximum retry attempts")
 
-    # Default paths
-    input_csv = Path("data/urls_deduped.csv")
-    output_dir = Path("data/raw")
+    args = parser.parse_args()
 
-    # Allow override via environment or arguments
-    import sys
-    if len(sys.argv) > 1:
-        input_csv = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        output_dir = Path(sys.argv[2])
+    logger.info(f"Starting fetcher: input={args.input}, output={args.output}")
 
-    logger.info(f"Starting HTML fetcher: {input_csv} -> {output_dir}")
+    results = ingest_and_fetch(
+        input_csv_path=args.input,
+        output_dir=args.output,
+        timeout=args.timeout,
+        max_retries=args.retries
+    )
 
-    if not input_csv.exists():
-        logger.error(f"Input file not found: {input_csv}")
-        return 1
-
-    results = ingest_and_fetch(input_csv, output_dir, logger=logger)
-
-    success_count = sum(1 for _, success, _, _ in results if success)
+    success_count = sum(1 for _, path, err in results if path is not None)
     fail_count = len(results) - success_count
 
     logger.info(f"Fetch complete: {success_count} succeeded, {fail_count} failed")
 
-    return 0 if fail_count == 0 else 1
+    if fail_count > 0:
+        logger.warning(f"{fail_count} URLs failed to fetch")
+        return 1
+
+    return 0
+
+if __name__ == "__main__":
+    exit(main())

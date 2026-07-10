@@ -1,11 +1,12 @@
-"""Unit tests for HTML fetcher module."""
+"""
+Unit tests for the HTML Fetcher module.
+"""
 
-import os
-import tempfile
-from pathlib import Path
+import unittest
 from unittest.mock import patch, MagicMock
-
-import pytest
+from pathlib import Path
+import tempfile
+import os
 
 from code.src.audit.fetcher import (
     fetch_url_with_retry,
@@ -13,218 +14,203 @@ from code.src.audit.fetcher import (
     fetch_urls_batch,
     ingest_and_fetch,
     DEFAULT_TIMEOUT,
-    MAX_RETRIES,
-    RETRY_DELAY,
+    MAX_RETRIES
 )
 from code.src.utils.logger import get_default_logger
 
+logger = get_default_logger("test_fetcher")
 
-class TestFetchUrlWithRetry:
-    """Tests for fetch_url_with_retry function."""
 
-    def test_successful_fetch(self):
-        """Test successful URL fetch."""
-        with patch('code.src.audit.fetcher.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.text = "<html><body>Test</body></html>"
-            mock_response.status_code = 200
-            mock_response.raise_for_status = MagicMock()
-            mock_get.return_value = mock_response
+class TestFetcherRetryLogic(unittest.TestCase):
+    """Test retry logic and error handling."""
 
-            success, html, error = fetch_url_with_retry("http://example.com")
+    @patch('code.src.audit.fetcher.requests.get')
+    def test_fetch_success_on_first_attempt(self, mock_get):
+        """Test successful fetch on first attempt."""
+        mock_response = MagicMock()
+        mock_response.text = "<html><body>Test</body></html>"
+        mock_response.status_code = 200
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
 
-            assert success is True
-            assert html is not None
-            assert "<html>" in html
-            assert error is None
+        html, error = fetch_url_with_retry("http://example.com", max_retries=3)
 
-    def test_timeout_error(self):
-        """Test timeout error handling."""
-        from requests.exceptions import Timeout
+        self.assertIsNone(error)
+        self.assertEqual(html, "<html><body>Test</body></html>")
+        mock_get.assert_called_once()
 
-        with patch('code.src.audit.fetcher.requests.get') as mock_get:
-            mock_get.side_effect = Timeout("Request timed out")
+    @patch('code.src.audit.fetcher.requests.get')
+    def test_fetch_success_after_retry(self, mock_get):
+        """Test successful fetch after one retry."""
+        mock_response = MagicMock()
+        mock_response.text = "<html><body>Success</body></html>"
+        mock_response.status_code = 200
+        mock_response.raise_for_status = MagicMock()
 
-            success, html, error = fetch_url_with_retry(
-                "http://example.com",
-                timeout=1,
-                max_retries=1
-            )
+        # First call raises timeout, second succeeds
+        mock_get.side_effect = [
+            Timeout("Connection timed out"),
+            mock_response
+        ]
 
-            assert success is False
-            assert html is None
-            assert error is not None
-            assert "Timeout" in error
+        html, error = fetch_url_with_retry("http://example.com", max_retries=3, retry_delay=0.01)
 
-    def test_connection_error_retry(self):
-        """Test that connection errors trigger retries."""
-        from requests.exceptions import ConnectionError
+        self.assertIsNone(error)
+        self.assertEqual(html, "<html><body>Success</body></html>")
+        self.assertEqual(mock_get.call_count, 2)
 
-        with patch('code.src.audit.fetcher.requests.get') as mock_get:
-            # First two attempts fail, third succeeds
-            mock_get.side_effect = [
-                ConnectionError("Connection failed"),
-                ConnectionError("Connection failed"),
-                MagicMock(text="<html>OK</html>", status_code=200, raise_for_status=MagicMock())
+    @patch('code.src.audit.fetcher.requests.get')
+    def test_fetch_failure_after_max_retries(self, mock_get):
+        """Test failure after exhausting retries."""
+        mock_get.side_effect = Timeout("Connection timed out")
+
+        html, error = fetch_url_with_retry("http://example.com", max_retries=2, retry_delay=0.01)
+
+        self.assertIsNotNone(error)
+        self.assertIsNone(html)
+        self.assertEqual(mock_get.call_count, 3)  # Initial + 2 retries
+
+    @patch('code.src.audit.fetcher.requests.get')
+    def test_no_retry_on_404(self, mock_get):
+        """Test that 404 errors are not retried."""
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_response.raise_for_status.side_effect = Exception("404 Not Found")
+
+        from requests.exceptions import HTTPError
+        mock_get.side_effect = HTTPError(response=mock_response)
+
+        html, error = fetch_url_with_retry("http://example.com", max_retries=3)
+
+        self.assertIsNotNone(error)
+        self.assertIsNone(html)
+        # Should only try once for 404
+        self.assertEqual(mock_get.call_count, 1)
+
+
+class TestFetchToFile(unittest.TestCase):
+    """Test fetching and saving to file."""
+
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.output_dir = Path(self.temp_dir.name)
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
+
+    @patch('code.src.audit.fetcher.requests.get')
+    def test_save_html_to_file(self, mock_get):
+        """Test saving HTML content to a file."""
+        mock_response = MagicMock()
+        mock_response.text = "<html><body>Test Content</body></html>"
+        mock_response.status_code = 200
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        file_path, error = fetch_html_to_file(
+            "http://example.com/test",
+            self.output_dir,
+            max_retries=1
+        )
+
+        self.assertIsNone(error)
+        self.assertIsNotNone(file_path)
+        self.assertTrue(file_path.exists())
+        self.assertTrue(file_path.name.endswith(".html"))
+
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        self.assertEqual(content, "<html><body>Test Content</body></html>")
+
+    @patch('code.src.audit.fetcher.requests.get')
+    def test_fetch_file_failure(self, mock_get):
+        """Test failure when fetching fails."""
+        mock_get.side_effect = Timeout("Connection timed out")
+
+        file_path, error = fetch_html_to_file(
+            "http://example.com/test",
+            self.output_dir,
+            max_retries=0
+        )
+
+        self.assertIsNotNone(error)
+        self.assertIsNone(file_path)
+
+
+class TestBatchFetching(unittest.TestCase):
+    """Test batch fetching functionality."""
+
+    @patch('code.src.audit.fetcher.fetch_html_to_file')
+    def test_fetch_urls_batch(self, mock_fetch_file):
+        """Test fetching multiple URLs."""
+        mock_fetch_file.side_effect = [
+            (Path("/fake/path1.html"), None),
+            (None, Exception("Failed")),
+            (Path("/fake/path3.html"), None)
+        ]
+
+        urls = ["http://example.com/1", "http://example.com/2", "http://example.com/3"]
+        output_dir = Path("/fake/output")
+
+        results = fetch_urls_batch(urls, output_dir, max_retries=0)
+
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0][0], "http://example.com/1")
+        self.assertIsNotNone(results[0][1])
+        self.assertIsNone(results[0][2])
+
+        self.assertEqual(results[1][0], "http://example.com/2")
+        self.assertIsNone(results[1][1])
+        self.assertIsNotNone(results[1][2])
+
+
+class TestIngestAndFetch(unittest.TestCase):
+    """Test reading URLs from CSV and fetching."""
+
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.temp_path = Path(self.temp_dir.name)
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
+
+    def test_read_urls_from_csv(self):
+        """Test reading URLs from a CSV file."""
+        csv_path = self.temp_path / "urls.csv"
+        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+            f.write("url\n")
+            f.write("http://example.com/1\n")
+            f.write("http://example.com/2\n")
+
+        # Mock the fetch function to avoid network calls
+        with patch('code.src.audit.fetcher.fetch_urls_batch') as mock_batch:
+            mock_batch.return_value = [
+                ("http://example.com/1", Path("/fake/1.html"), None),
+                ("http://example.com/2", Path("/fake/2.html"), None)
             ]
 
-            success, html, error = fetch_url_with_retry(
-                "http://example.com",
-                timeout=1,
-                max_retries=2
-            )
+            results = ingest_and_fetch(csv_path, Path("/fake/output"), max_retries=0)
 
-            assert success is True
-            assert html is not None
-            assert mock_get.call_count == 3
+            self.assertEqual(len(results), 2)
+            mock_batch.assert_called_once()
+            # Verify the URLs passed to fetch_urls_batch
+            call_args = mock_batch.call_args[0][0]
+            self.assertEqual(call_args, ["http://example.com/1", "http://example.com/2"])
 
-    def test_http_error(self):
-        """Test HTTP error handling."""
-        from requests.exceptions import HTTPError
+    def test_read_plain_csv(self):
+        """Test reading URLs from a CSV without headers."""
+        csv_path = self.temp_path / "plain_urls.csv"
+        with open(csv_path, 'w', encoding='utf-8') as f:
+            f.write("http://example.com/1\n")
+            f.write("http://example.com/2\n")
 
-        with patch('code.src.audit.fetcher.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 404
-            mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
-            mock_get.return_value = mock_response
+        with patch('code.src.audit.fetcher.fetch_urls_batch') as mock_batch:
+            mock_batch.return_value = []
+            ingest_and_fetch(csv_path, Path("/fake/output"), max_retries=0)
 
-            success, html, error = fetch_url_with_retry("http://example.com")
-
-            assert success is False
-            assert html is None
-            assert error is not None
-            assert "404" in error
+            call_args = mock_batch.call_args[0][0]
+            self.assertEqual(call_args, ["http://example.com/1", "http://example.com/2"])
 
 
-class TestFetchHtmlToFile:
-    """Tests for fetch_html_to_file function."""
-
-    def test_fetch_and_save(self):
-        """Test fetching and saving HTML to file."""
-        with patch('code.src.audit.fetcher.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.text = "<html><body>Test Content</body></html>"
-            mock_response.status_code = 200
-            mock_response.raise_for_status = MagicMock()
-            mock_get.return_value = mock_response
-
-            with tempfile.TemporaryDirectory() as tmpdir:
-                output_dir = Path(tmpdir)
-                success, filepath, error = fetch_html_to_file(
-                    "http://example.com/test",
-                    output_dir
-                )
-
-                assert success is True
-                assert filepath is not None
-                assert filepath.exists()
-                assert "example.com" in filepath.name
-                assert filepath.suffix == ".html"
-                assert "Test Content" in filepath.read_text()
-                assert error is None
-
-    def test_creates_output_directory(self):
-        """Test that output directory is created if it doesn't exist."""
-        with patch('code.src.audit.fetcher.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.text = "<html>Test</html>"
-            mock_response.status_code = 200
-            mock_response.raise_for_status = MagicMock()
-            mock_get.return_value = mock_response
-
-            with tempfile.TemporaryDirectory() as tmpdir:
-                output_dir = Path(tmpdir) / "new" / "subdir"
-                success, filepath, error = fetch_html_to_file(
-                    "http://example.com/test",
-                    output_dir
-                )
-
-                assert success is True
-                assert output_dir.exists()
-
-
-class TestFetchUrlsBatch:
-    """Tests for fetch_urls_batch function."""
-
-    def test_batch_fetch(self):
-        """Test fetching multiple URLs."""
-        with patch('code.src.audit.fetcher.requests.get') as mock_get:
-            def mock_response(*args, **kwargs):
-                m = MagicMock()
-                m.text = "<html>OK</html>"
-                m.status_code = 200
-                m.raise_for_status = MagicMock()
-                return m
-
-            mock_get.return_value = mock_response()
-
-            with tempfile.TemporaryDirectory() as tmpdir:
-                output_dir = Path(tmpdir)
-                urls = [
-                    "http://example.com/1",
-                    "http://example.com/2",
-                    "http://test.com/3"
-                ]
-
-                results = fetch_urls_batch(urls, output_dir)
-
-                assert len(results) == 3
-                for url, success, filepath, error in results:
-                    assert success is True
-                    assert filepath is not None
-                    assert filepath.exists()
-                    assert error is None
-
-
-class TestIngestAndFetch:
-    """Tests for ingest_and_fetch function."""
-
-    def test_ingest_and_fetch_from_csv(self):
-        """Test reading URLs from CSV and fetching."""
-        import csv
-
-        with patch('code.src.audit.fetcher.requests.get') as mock_get:
-            def mock_response(*args, **kwargs):
-                m = MagicMock()
-                m.text = "<html>OK</html>"
-                m.status_code = 200
-                m.raise_for_status = MagicMock()
-                return m
-
-            mock_get.return_value = mock_response()
-
-            with tempfile.TemporaryDirectory() as tmpdir:
-                input_csv = Path(tmpdir) / "urls_deduped.csv"
-                output_dir = Path(tmpdir) / "raw"
-
-                # Create input CSV
-                with open(input_csv, 'w', newline='') as f:
-                    writer = csv.writer(f)
-                    writer.writerow(['url'])
-                    writer.writerow(['http://example.com/1'])
-                    writer.writerow(['http://example.com/2'])
-
-                results = ingest_and_fetch(input_csv, output_dir)
-
-                assert len(results) == 2
-                for url, success, filepath, error in results:
-                    assert success is True
-                    assert filepath is not None
-
-
-class TestFetchUrlConstants:
-    """Tests for fetcher module constants."""
-
-    def test_default_timeout(self):
-        """Test default timeout is reasonable."""
-        assert DEFAULT_TIMEOUT >= 10
-        assert DEFAULT_TIMEOUT <= 60
-
-    def test_max_retries(self):
-        """Test max retries is positive."""
-        assert MAX_RETRIES >= 1
-        assert MAX_RETRIES <= 10
-
-    def test_retry_delay(self):
-        """Test retry delay is positive."""
-        assert RETRY_DELAY > 0
+if __name__ == "__main__":
+    unittest.main()

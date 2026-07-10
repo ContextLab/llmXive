@@ -54,7 +54,7 @@
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-summary-2
   verified_at: '2026-07-05T16:33:16.906324Z'
-- artifact_hash: 261cdf9d2380b37ffe0dcfe6784829cb0532ca3278d19a7ecc5561331d17d321
+- artifact_hash: 72d825e5646fcd40086f13dc8c489320d4aa78287b78033f3d4363d0716c6565
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,8 +64,8 @@
   value: https://www.wikidata.org/wiki/Q19873191
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q19873191
-  verified_at: '2026-07-10T06:51:37.804083Z'
-- artifact_hash: 261cdf9d2380b37ffe0dcfe6784829cb0532ca3278d19a7ecc5561331d17d321
+  verified_at: '2026-07-10T08:06:51.004598Z'
+- artifact_hash: 72d825e5646fcd40086f13dc8c489320d4aa78287b78033f3d4363d0716c6565
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -76,8 +76,8 @@
   value: https://arxiv.org/abs/2510.17487
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2510.17487
-  verified_at: '2026-07-10T06:51:37.804083Z'
-- artifact_hash: 261cdf9d2380b37ffe0dcfe6784829cb0532ca3278d19a7ecc5561331d17d321
+  verified_at: '2026-07-10T08:06:51.004598Z'
+- artifact_hash: 72d825e5646fcd40086f13dc8c489320d4aa78287b78033f3d4363d0716c6565
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -88,8 +88,8 @@
   value: https://arxiv.org/abs/1905.08726
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1905.08726
-  verified_at: '2026-07-10T06:51:37.804083Z'
-- artifact_hash: 261cdf9d2380b37ffe0dcfe6784829cb0532ca3278d19a7ecc5561331d17d321
+  verified_at: '2026-07-10T08:06:51.004598Z'
+- artifact_hash: 72d825e5646fcd40086f13dc8c489320d4aa78287b78033f3d4363d0716c6565
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -100,4 +100,4 @@
   value: https://arxiv.org/abs/1807.00365
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1807.00365
-  verified_at: '2026-07-10T06:51:37.804083Z'
+  verified_at: '2026-07-10T08:06:51.004598Z'
