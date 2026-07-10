@@ -172,10 +172,6 @@
   \ c_6ea75dbe \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
-? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
-  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration, and\
-  \ runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010]."
-: 2
 ? "T013 Create Dockerfile for optional local execution (uses only CPU\u2011compatible\
   \ base image [UNRESOLVED-CLAIM: c_0e949e9d \u2014 status=not_enough_info]) (build\
   \ Docker image successfully). **(No dependency on T012)**"
@@ -292,13 +288,6 @@
   \ per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning messages\
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
   \ ON:** T023."
-: 1
-? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
-  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
-  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
-  \ prevalence estimates** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
-  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
-  \ **DEPENDS ON:** T023."
 : 1
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\

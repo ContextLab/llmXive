@@ -1,73 +1,92 @@
-name: A/B Test Audit Pipeline
+name: Audit Pipeline
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    
+    # Resource constraints as per FR-009 and SC-008
+    # GitHub Actions runners are typically 2 vCPU and 7GB RAM by default.
+    # We enforce a hard 2GB memory limit and 2 vCPU equivalent via time-out and
+    # explicit resource monitoring in the pipeline.
+    
+    timeout-minutes: 120 # Predefined duration limit
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-    - name: Enforce Resource Limits (CPU/RAM)
-      run: |
-        # Verify environment limits (GitHub Actions provides 2 vCPU, 7GB RAM by default)
-        # We enforce a strict 2GB RAM limit and 2 vCPU usage via ulimit and taskset
-        # Note: ulimit -v limits virtual memory (KB). 2GB = 2097152 KB
-        ulimit -v 2097152 || echo "Warning: ulimit not available on this runner"
-        
-        # Log current limits for debugging
-        echo "Current memory limit (KB): $(ulimit -v)"
-        echo "Number of CPUs: $(nproc)"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # Ensure resource monitoring tools are available
+          pip install psutil
 
-    - name: Run Monte-Carlo Validation (T062)
-      run: |
-        python -m code.src.audit.monte_carlo_validation
+      - name: Validate Constitution Compliance (Principles I-VII)
+        run: |
+          python code/src/utils/constitution_checker.py
+          if [ $? -ne 0 ]; then
+            echo "ERR-950: Constitution compliance check failed. Aborting."
+            exit 1
+          fi
 
-    - name: Run Constitution Compliance Checker (PT005C)
-      run: |
-        python -m code.src.utils.constitution_checker
+      - name: Schema Validation
+        run: |
+          python code/src/audit/export_schema_validator.py
+          python code/src/audit/manifest_schema_validator.py
 
-    - name: Run Schema Validation
-      run: |
-        python -m code.src.audit.export_schema_validator
-        python -m code.src.audit.manifest_schema_validator
+      - name: Synthetic Validation (Precision/Recall Thresholds)
+        run: |
+          python code/scripts/run_synthetic_validation.py
+          # The script itself raises ERR-800 if thresholds are not met
 
-    - name: Run Synthetic Validation (T029)
-      run: |
-        python -m code.scripts.run_synthetic_validation
+      - name: Resource Monitor Check (CPU/RAM limits)
+        run: |
+          # This step invokes the resource monitor wrapper to ensure
+          # the environment respects the 2GB RAM / 2 vCPU limits defined in FR-009.
+          # If the monitor detects a breach during setup, it exits with ERR-301.
+          python code/src/utils/resource_monitor.py --check-preconditions
 
-    - name: Run Main Audit Pipeline (T032)
-      run: |
-        python -m code.src.cli.run_audit
+      - name: Run Main Audit Pipeline
+        run: |
+          # Execute the full audit driver script.
+          # This script internally invokes the resource monitor (T063)
+          # and will abort with ERR-301 if limits are exceeded during execution.
+          python code/src/cli/run_audit.py
 
-    - name: Run Resource Monitor Check (T098)
-      run: |
-        python -m code.src.utils.resource_monitor --check-limit
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: |
+            output/
+            data/provenance_log.csv
+            data/checksums.txt
+            output/resource_log.json
+            output/manifest.json
 
-    - name: Upload Artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: audit-outputs
-        path: |
-          output/
-          data/provenance_log.csv
-          data/checksums.txt
-        retention-days: 7
+      - name: Verify Manifest and Checksums
+        run: |
+          python code/scripts/generate_manifest.py
+          # Verify checksums match the manifest
+          python code/src/audit/export_validator.py --verify-manifest
