@@ -1,46 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Supernova Record Schema"
-description: "Schema for a single Type Ia Supernova record after ingestion and residual calculation."
+title: "Supernova Record"
+description: "Schema for a single Type Ia Supernova record after ingestion and cleaning."
 type: "object"
 properties:
   id:
     type: "string"
-    description: "Unique identifier from Pantheon+ (e.g., SN2012fr)"
+    description: "Unique identifier for the supernova."
   ra:
     type: "number"
-    description: "Right Ascension in degrees (J2000)"
+    description: "Right Ascension in degrees."
     minimum: 0
     maximum: 360
   dec:
     type: "number"
-    description: "Declination in degrees (J2000)"
+    description: "Declination in degrees."
     minimum: -90
     maximum: 90
-  redshift:
+  z:
     type: "number"
-    description: "Redshift (z)"
+    description: "Redshift."
+    exclusiveMinimum: 0
+  mu:
+    type: "number"
+    description: "Observed distance modulus."
+  mu_err:
+    type: "number"
+    description: "Uncertainty in distance modulus."
     minimum: 0
-  distance_modulus:
+  mu_th:
     type: "number"
-    description: "Observed distance modulus (mu_obs)"
-  uncertainty:
-    type: "number"
-    description: "Uncertainty in distance modulus (sigma_mu)"
-    minimum: 0
+    description: "Theoretical distance modulus calculated from LambdaCDM."
   residual:
     type: "number"
-    description: "Calculated residual (mu_obs - mu_th)"
-  healpix_index:
-    type: "integer"
-    description: "Pixel index on Nside=16 grid (for mask/visualization)"
-    minimum: 0
+    description: "Difference between observed and theoretical distance modulus."
 required:
   - id
   - ra
   - dec
-  - redshift
-  - distance_modulus
-  - uncertainty
+  - z
+  - mu
+  - mu_err
+  - mu_th
   - residual
-  - healpix_index
 additionalProperties: false

@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Output"
+description: "Schema for a single iteration of the null distribution simulation."
+type: "object"
+properties:
+  run_id:
+    type: "integer"
+    description: "Unique iteration ID."
+  dipole_amplitude:
+    type: "number"
+    description: "Dipole amplitude for this simulation run."
+  quadrupole_amplitude:
+    type: "number"
+    description: "Quadrupole amplitude for this simulation run."
+  seed:
+    type: "integer"
+    description: "Random seed used for this iteration (always 42)."
+required:
+  - run_id
+  - dipole_amplitude
+  - quadrupole_amplitude
+  - seed
+additionalProperties: false

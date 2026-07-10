@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result"
+description: "Schema for the final results of the isotropy analysis."
+type: "object"
+properties:
+  dataset_version:
+    type: "string"
+    description: "Version of the Pantheon+ dataset used."
+  cosmological_parameters:
+    type: "object"
+    properties:
+      H0:
+        type: "number"
+        description: "Hubble constant in km/s/Mpc."
+      Omega_m:
+        type: "number"
+        description: "Matter density parameter."
+      Omega_lambda:
+        type: "number"
+        description: "Dark energy density parameter."
+    required:
+      - H0
+      - Omega_m
+      - Omega_lambda
+  observed_dipole_amplitude:
+    type: "number"
+    description: "Magnitude of the observed dipole term."
+  observed_quadrupole_amplitude:
+    type: "number"
+    description: "Magnitude of the observed quadrupole term."
+  p_value_dipole:
+    type: "number"
+    description: "P-value for the dipole amplitude."
+    minimum: 0
+    maximum: 1
+  p_value_quadrupole:
+    type: "number"
+    description: "P-value for the quadrupole amplitude."
+    minimum: 0
+    maximum: 1
+  is_significant:
+    type: "boolean"
+    description: "True if p-value < 0.05 for the primary test (dipole)."
+  n_simulations:
+    type: "integer"
+    description: "Number of Monte Carlo simulations performed."
+  n_supernovae_used:
+    type: "integer"
+    description: "Number of supernovae used in the analysis."
+  runtime_seconds:
+    type: "number"
+    description: "Total wall‑clock runtime of the analysis (seconds)."
+required:
+  - dataset_version
+  - cosmological_parameters
+  - observed_dipole_amplitude
+  - observed_quadrupole_amplitude
+  - p_value_dipole
+  - p_value_quadrupole
+  - is_significant
+  - n_simulations
+  - n_supernovae_used
+  - runtime_seconds
+additionalProperties: false

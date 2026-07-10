@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-21T01:23:25.214771Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-753-testing-the-isotropy-of-cosmic-expansion
-last_run_id: 75a63a29-ed79-47e6-a338-3e5437ca5918
+last_run_id: 0dd95916-f4bf-46e6-b7f5-bdf3a9aeafa5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion
 title: "Testing the Isotropy of Cosmic Expansion with Type\u202FIa Supernova Data"
-updated_at: '2026-07-08T17:30:02.719774Z'
+updated_at: '2026-07-10T03:43:03.034752Z'

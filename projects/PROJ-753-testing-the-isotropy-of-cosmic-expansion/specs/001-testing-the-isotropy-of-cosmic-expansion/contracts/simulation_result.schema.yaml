@@ -5,7 +5,7 @@ type: "object"
 properties:
   run_id:
     type: "integer"
-    description: "Simulation iteration number (0 to N-1)"
+    description: "Simulation iteration number (0 to N‑1)"
     minimum: 0
   dipole_amplitude:
     type: "number"
