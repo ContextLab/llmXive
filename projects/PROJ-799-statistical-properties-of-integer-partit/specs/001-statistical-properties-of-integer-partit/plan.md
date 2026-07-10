@@ -1,0 +1,109 @@
+# Implementation Plan: Statistical Properties of Integer Partitions Into Distinct Prime Summands
+
+**Branch**: `001-statistical-properties-of-integer-partitions-into-distinct-prime-summands` | **Date**: 2026-07-10 | **Spec**: `specs/001-statistical-properties-of-integer-partitions-into-distinct-prime-summands/spec.md`
+
+## Summary
+
+This project computes the exact count of partitions of integers $n$ into distinct prime summands, $p_{\mathcal{P}}(n)$, for $n$ up to 50,000. It compares these exact counts against the rigorous asymptotic baseline $Q_{as}(n)$ derived from the **leading-order term** of the Roth & Szekeres (1954) expansion for distinct prime partitions (generating function $\prod (1+q^p)$). The core objective is to model the log-residuals $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ as a function of *higher-order* prime density metrics (e.g., inverse squared logarithmic terms, distance to nearest prime) and oscillatory components to determine if deviations are systematic corrections not captured by the leading-order term. The implementation strictly adheres to the constrained CPU and RAM resources of the GitHub Actions free tier by using optimized 1D dynamic programming arrays and CPU-tractable Generalized Additive Models (GAM).
+
+## Technical Context
+
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `numpy`, `scipy`, `scikit-learn`, `statsmodels`, `matplotlib`, `pandas`, `pygam` (or `spline` based fallback)  
+**Storage**: Local CSV files (`data/raw/partitions.csv`, `data/processed/features.csv`), JSON state files.  
+**Testing**: `pytest` (contract tests against known small values, integration tests for pipeline).  
+**Target Platform**: Linux (GitHub Actions Free Tier).  
+**Project Type**: Computational Mathematics / Data Analysis.  
+**Performance Goals**: Complete full pipeline (DP generation + GAM fitting + Plotting) within 6 hours; Peak memory < 6.5 GB.  
+**Constraints**: No GPU; No floating-point overflow in DP (use `int64` for counts); Exact integer matching for a range of small to moderate $n$.  
+**Scale/Scope**: $n_{max} = 50,000$; A large-scale dataset comprising approximately tens of thousands of rows..
+
+### Citation Verification (Constitution Principle II)
+Before any code generation, the `Reference-Validator` agent MUST verify the asymptotic formula against the primary source:
+*   **Source**: Roth, K. F., & Szekeres, G. (1954). "Some asymptotic formulae in the theory of partitions." *The Quarterly Journal of Mathematics*.
+*   **Verification**: The specific expansion for distinct prime partitions (including the prefactor and $\ln \ln n$ term) must be confirmed as the theoretical baseline $Q_{as}(n)$. The baseline used in the code will be strictly the **leading-order term** derived from this source. No fitted parameters will be used for the baseline itself.
+
+### Data Hygiene & Versioning (Constitution Principles III & V)
+*   **Checksums**: The `generate_partitions.py` script will generate a SHA-256 checksum for the output file `data/raw/partitions_raw.csv` and record it in the project state file (`state/projects/...yaml`).
+*   **Versioning**: The script will also output a content hash of the generated data file to the project state file. The `updated_at` timestamp in the state file will be updated upon artifact generation to reflect the new version.
+
+### Methodology Precision (Constitution Principles VI & VII)
+*   **Exact Computation**: The plan explicitly computes $R(n)$ for a finite range of $n$. The methodology for computing exact partition values (1D DP, no approximation) is documented as a distinct step separate from the asymptotic comparison, ensuring non-linear combinatorial aggregation is handled without approximation.
+*   **Non-Linear Analysis**: The analysis uses a Generalized Additive Model (GAM) with smooth splines for density terms and Fourier terms for periodicity, explicitly avoiding linear assumptions. The regression tests for *higher-order* corrections (not the leading term) to distinguish systematic bias from random noise. VIF checks are included to detect collinearity.
+
+## Constitution Check
+
+| Principle | Status | Action / Justification |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | All scripts will be deterministic. `numpy` and `scipy` random seeds (if any sampling occurs) will be pinned. Dependencies pinned in `requirements.txt`. |
+| **II. Verified Accuracy** | **PASS** | The asymptotic formula $Q_{as}(n)$ is derived from the verified Roth & Szekeres expansion. The Reference-Validator agent will confirm the citation and formula before implementation. No "black box" approximations. |
+| **III. Data Hygiene** | **PASS** | `data/raw` contains the raw DP output. A SHA-256 checksum will be generated for `partitions_raw.csv` and recorded in `state/projects/...yaml`. No in-place edits. |
+| **IV. Single Source of Truth** | **PASS** | All statistics in the final report will be generated by scripts reading from `data/`. No hand-calculated numbers. |
+| **V. Versioning Discipline** | **PASS** | The `generate_partitions.py` script will output a content hash of the generated data file to the project state file. The `updated_at` timestamp in the state file will be updated upon artifact generation. |
+| **VI. Finite-Regime Error Term Precision** | **PASS** | The plan explicitly computes $R(n)$ for a finite range of $n$. The methodology for computing exact partition values (1D DP, no approximation) is documented as a distinct step separate from the asymptotic comparison. |
+| **VII. Density-Dependent Correlation Rigor** | **PASS** | The analysis uses a Generalized Additive Model (GAM) with smooth splines for density terms and Fourier terms for periodicity, explicitly avoiding linear assumptions. The regression tests for *higher-order* corrections (not the leading term) to distinguish systematic bias from random noise. VIF checks are included. |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-statistical-properties-of-integer-partitions-into-distinct-prime-summands/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+└── contracts/           # Phase 1 output
+    ├── partition_record.schema.yaml
+    └── regression_output.schema.yaml
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-799-statistical-properties-of-integer-partit/
+├── code/
+│   ├── requirements.txt
+│   ├── generate_partitions.py      # FR-001, FR-002: DP generation & Asymptotic calc (Roth & Szekeres)
+│   ├── feature_engineering.py      # FR-003, FR-004: Residuals & Higher-order density features
+│   ├── regression_model.py         # FR-005, FR-006, FR-008: GAM fitting, CV, VIF check
+│   └── visualize_results.py        # FR-007: Plotting
+├── data/
+│   ├── raw/
+│   │   └── partitions_raw.csv      # Generated by generate_partitions.py
+│   └── processed/
+│       ├── features.csv            # Generated by feature_engineering.py
+│       └── model_results.json      # Generated by regression_model.py
+├── tests/
+│   ├── test_partition_logic.py     # SC-003: Exact match for n <= 100
+│   └── test_pipeline.py            # SC-004: End-to-end runtime check
+└── docs/
+    └── ...
+```
+
+**Structure Decision**: A single-project modular structure is selected. The computational intensity is contained in `generate_partitions.py`, while statistical analysis is separated into `feature_engineering.py` and `regression_model.py` to ensure clarity and testability. This aligns with the "Single Source of Truth" principle by keeping data flow linear.
+
+## Phase Execution Order
+
+1.  **Phase 0: Research & Design** (Current Step)
+    *   Verify Meinardus/Landau/Roth & Szekeres distinct-part variant formula via Reference-Validator.
+    *   Confirm prime generation logic fits memory.
+    *   Draft data schemas.
+2.  **Phase 1: Implementation** (Future)
+    *   Implement `generate_partitions.py` (Dynamic Programming with 1D array optimization, exact integer arithmetic).
+    *   Implement `feature_engineering.py` (Compute residuals and *higher-order* density features).
+    *   Implement `regression_model.py` (GAM with splines/Fourier terms, 10-fold CV, VIF check).
+    *   Implement `visualize_results.py`.
+    *   Generate checksums for `data/raw/partitions_raw.csv` and update project state.
+3.  **Phase 2: Validation** (Future)
+    *   Run unit tests against known small values.
+    *   Run full pipeline on CI (check memory < 6.5 GB, time < 6h).
+    *   Verify statistical significance (p-values) and apply Bonferroni correction.
+
+## Compute Feasibility Strategy
+
+*   **Memory Optimization**: The DP array for $p_{\mathcal{P}}(n)$ will use a 1D `int64` array of sufficient size to accommodate the target range of $n$. This consumes a negligible amount of memory, well within limits. The primes list up to 50,000 is negligible.
+*   **CPU Tractability**:
+    *   DP generation: $O(N \cdot \pi(N))$ operations. The prime-counting function $\pi(n)$ for large $n$ is approximately $n / \ln n$, consistent with the Prime Number Theorem (Gauss, early work; de la Vallée Poussin,). Total ops $\approx \times ^$. Feasible in Python with `numpy` vectorization or efficient loops within 2 hours.
+    *   GAM Regression: $N=50,000$ samples, $k \approx 5$ features. $O(N \cdot k^2)$ is trivial for `statsmodels`/`pygam` on CPU.
+*   **No GPU**: All operations are integer arithmetic or standard linear algebra on small matrices. No CUDA dependencies.
