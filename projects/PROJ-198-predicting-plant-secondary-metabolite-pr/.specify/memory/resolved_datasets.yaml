@@ -1,0 +1,603 @@
+resolved_at: '2026-07-10T17:18:25.553733+00:00'
+datasets:
+- intent: BGC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maaly/bgc-gene/resolve/main/devel.tsv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/api/resolve-cache/datasets/ulsit46420/bg-culture-exams/f71a2f068da5609c74c868be5db0055c4ad2db26/test%2Fdb.csv?%2Fdatasets%2Fulsit46420%2Fbg-culture-exams%2Fresolve%2Fmain%2Ftest%2Fdb.csv=&etag=%22bb7e30d7abec3c576c896b481e2c004b9444a5f0%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/V_deo_produzido_por_IA_Generativa_baseado_em_A_Intelig_ncia_Artificial_na_Preserva_o_do_Patrim_nio_Cultural_de_G_nese_Digital_de_Fernanda_de_C_ssia_Lima_Corr_a_e_Pablo_Gobira_/32957921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Operando_Synchrotron_X_ray_Diffraction_Studies_of_Reversible_Ag_Ion_Exchange_in_a_Bismuth_Oxide_Matrix/32957969
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957966
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957963
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16813914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2559290
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.v6f4d
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12553633
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19387584
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21289725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21289725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21289091
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21289091
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Metabolite_and_Helitron_analysis_TR4/29180096/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LOCO-CV
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/V_deo_produzido_por_IA_Generativa_baseado_em_A_Intelig_ncia_Artificial_na_Preserva_o_do_Patrim_nio_Cultural_de_G_nese_Digital_de_Fernanda_de_C_ssia_Lima_Corr_a_e_Pablo_Gobira_/32957921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Operando_Synchrotron_X_ray_Diffraction_Studies_of_Reversible_Ag_Ion_Exchange_in_a_Bismuth_Oxide_Matrix/32957969
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957966
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957963
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20278585
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10425921
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10298482
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.science.org/doi/10.1126/science.ns-9.208.92-a
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/17553006
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20745301
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20745301
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20091858
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20091858
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_2_of_Prediction_and_mechanistic_analysis_of_drug-induced_liver_injury_DILI_based_on_chemical_structure/13605383/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PIC-adjusted
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/V_deo_produzido_por_IA_Generativa_baseado_em_A_Intelig_ncia_Artificial_na_Preserva_o_do_Patrim_nio_Cultural_de_G_nese_Digital_de_Fernanda_de_C_ssia_Lima_Corr_a_e_Pablo_Gobira_/32957921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Operando_Synchrotron_X_ray_Diffraction_Studies_of_Reversible_Ag_Ion_Exchange_in_a_Bismuth_Oxide_Matrix/32957969
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957966
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957963
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15949973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15931681
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16523939
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16335934
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16503536
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rg1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21062212
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21062212
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qspmj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21033518
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LOCO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-Locomanipulation-GRAIL/resolve/main/checkpoint/GEM-SMPL/inputs/checkpoints/body_models/smplx/SMPLX_NEUTRAL.npz
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/temasarkisov/LoCo1_processed_V1/resolve/main/data/train-00000-of-00001-bf93f2d550f08828.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Krolesko/LoRa_loCon_dillanew/resolve/main/dilanew_dataset.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-Locomanipulation-GRAIL/resolve/main/checkpoint/GEM-SMPL/inputs/checkpoints/body_models/smplx/SMPLX_NEUTRAL.npz
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/temasarkisov/LoCo1_processed_V1/resolve/main/data/train-00000-of-00001-bf93f2d550f08828.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Krolesko/LoRa_loCon_dillanew/resolve/main/dilanew_dataset.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/hazyresearch/LoCoV1-Documents/resolve/main/documents/2wikimqa_test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/V_deo_produzido_por_IA_Generativa_baseado_em_A_Intelig_ncia_Artificial_na_Preserva_o_do_Patrim_nio_Cultural_de_G_nese_Digital_de_Fernanda_de_C_ssia_Lima_Corr_a_e_Pablo_Gobira_/32957921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Operando_Synchrotron_X_ray_Diffraction_Studies_of_Reversible_Ag_Ion_Exchange_in_a_Bismuth_Oxide_Matrix/32957969
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957966
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957963
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10298482
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10425921
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17553006
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.science.org/doi/10.1126/science.ns-9.208.92-a
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/12559389
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1143669
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.21133
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/y25482sg36/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/y25482sg36
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://osf.io/djksb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BGCs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/anon0416/bgc-submission/resolve/main/processed/chem_descriptors.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/anon0416/bgc-submission/resolve/main/processed/chem_descriptors.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/V_deo_produzido_por_IA_Generativa_baseado_em_A_Intelig_ncia_Artificial_na_Preserva_o_do_Patrim_nio_Cultural_de_G_nese_Digital_de_Fernanda_de_C_ssia_Lima_Corr_a_e_Pablo_Gobira_/32957921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Operando_Synchrotron_X_ray_Diffraction_Studies_of_Reversible_Ag_Ion_Exchange_in_a_Bismuth_Oxide_Matrix/32957969
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957966
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957963
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18483485
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.s7h44j168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8386397
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15096165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aca.pensoft.net/article/86928/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Predicted_Biosynthetic_Gene_Clusters_by_AntiSMASH/32900192/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Predicted_Biosynthetic_Gene_Clusters_by_AntiSMASH/32900192
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.confident-conference.org/index.php/Event:BGCS_2017
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://freidok.uni-freiburg.de/data/263845
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19137085
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PMDB
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/A_geometry-based_atlas_of_how_ESM3_organizes_modalities_across_depth/32928713
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/V_deo_produzido_por_IA_Generativa_baseado_em_A_Intelig_ncia_Artificial_na_Preserva_o_do_Patrim_nio_Cultural_de_G_nese_Digital_de_Fernanda_de_C_ssia_Lima_Corr_a_e_Pablo_Gobira_/32957921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Operando_Synchrotron_X_ray_Diffraction_Studies_of_Reversible_Ag_Ion_Exchange_in_a_Bismuth_Oxide_Matrix/32957969
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957966
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20511474
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10569821
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14731592
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7384703
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5651019
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20511474
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20511474
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18537780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/ZDGHA5
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/U2FJOO
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MetaboLights
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/A_geometry-based_atlas_of_how_ESM3_organizes_modalities_across_depth/32928713
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/V_deo_produzido_por_IA_Generativa_baseado_em_A_Intelig_ncia_Artificial_na_Preserva_o_do_Patrim_nio_Cultural_de_G_nese_Digital_de_Fernanda_de_C_ssia_Lima_Corr_a_e_Pablo_Gobira_/32957921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Operando_Synchrotron_X_ray_Diffraction_Studies_of_Reversible_Ag_Ion_Exchange_in_a_Bismuth_Oxide_Matrix/32957969
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Void-Bearing_Hierarchical_Coacervates_in_the_Decylammonium_Bromide_Sodium_Salicylate_Vesicle-to-Coacervate_Pathway/32957966
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19934869
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8186280
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3756211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15242386
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6528151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298933
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298933
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21248764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21248764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21231656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RefSeq
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_viral/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_fungi/resolve/main/data/train-00000-of-00038.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_archaea/resolve/main/data/train-00000-of-00012.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_viral/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_fungi/resolve/main/data/train-00000-of-00038.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_archaea/resolve/main/data/train-00000-of-00012.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/software/rapdtool_SIF/21375609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_geometry-based_atlas_of_how_ESM3_organizes_modalities_across_depth/32928713
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/V_deo_produzido_por_IA_Generativa_baseado_em_A_Intelig_ncia_Artificial_na_Preserva_o_do_Patrim_nio_Cultural_de_G_nese_Digital_de_Fernanda_de_C_ssia_Lima_Corr_a_e_Pablo_Gobira_/32957921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Operando_Synchrotron_X_ray_Diffraction_Studies_of_Reversible_Ag_Ion_Exchange_in_a_Bismuth_Oxide_Matrix/32957969
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.nzs7h44zk
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14200040
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6790337
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12707420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7928808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_7_of_GLYATL1_is_associated_with_metabolic_and_epigenetic_changes_and_with_endocrine_resistance_in_luminal_breast_cancer/32130861/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_7_of_GLYATL1_is_associated_with_metabolic_and_epigenetic_changes_and_with_endocrine_resistance_in_luminal_breast_cancer/32130861
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_GLYATL1_is_associated_with_metabolic_and_epigenetic_changes_and_with_endocrine_resistance_in_luminal_breast_cancer/32130843
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_GLYATL1_is_associated_with_metabolic_and_epigenetic_changes_and_with_endocrine_resistance_in_luminal_breast_cancer/32130843/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21285407
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Aligned Dataset Schema
+description: >
+  Schema for the output of the data alignment pipeline (US1).
+  Validates the structure of the joined genomic and metabolomic data.
+type: object
+required:
+  - species_id
+  - species_name
+  - bgc_counts
+  - metabolite_abundances
+properties:
+  species_id:
+    type: string
+    description: Unique identifier for the species (e.g., NCBI TaxID or assembly accession).
+  species_name:
+    type: string
+    description: Scientific name of the species.
+  bgc_counts:
+    type: object
+    description: >
+      Dictionary mapping BGC types to their counts.
+      Keys must be valid BgcType enum values (e.g., 'NRPS', 'PKS', 'Terpene').
+      Values must be non-negative integers.
+    additionalProperties:
+      type: integer
+      minimum: 0
+  metabolite_abundances:
+    type: object
+    description: >
+      Dictionary mapping metabolite identifiers (InChIKey) to log-transformed abundances.
+      Keys are strings (InChIKey).
+      Values are floats.
+    additionalProperties:
+      type: number
+additionalProperties: false

@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Dataset Schema"
+description: "Schema for the final aligned feature-target matrix used in modeling."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      species_count:
+        type: "integer"
+        minimum: 1
+        description: "Total number of valid species in the dataset (real or mock)."
+      clade_count:
+        type: "integer"
+        minimum: 1
+        description: "Number of distinct phylogenetic clades."
+      bgc_columns:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of BGC type column names."
+      metabolite_columns:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of metabolite InChIKey column names."
+      is_mock:
+        type: "boolean"
+        description: "True if the dataset is synthetic/mock for CI validation."
+  data:
+    type: "array"
+    description: "Array of species records."
+    items:
+      type: "object"
+      required:
+        - species_id
+        - clade
+        - bgc_features
+        - metabolite_targets
+      properties:
+        species_id:
+          type: "string"
+          description: "Unique species identifier."
+        clade:
+          type: "string"
+          description: "Phylogenetic family or clade."
+        bgc_features:
+          type: "object"
+          description: "Map of BGC type to presence (0/1) or count."
+          additionalProperties:
+            type: "integer"
+            minimum: 0
+        metabolite_targets:
+          type: "object"
+          description: "Map of InChIKey to log-transformed abundance."
+          additionalProperties:
+            type: "number"
+            description: "Finite float value (no NaN/Inf)."
+            minimum: -1000
+            maximum: 1000
+required:
+  - metadata
+  - data
+additionalProperties: false

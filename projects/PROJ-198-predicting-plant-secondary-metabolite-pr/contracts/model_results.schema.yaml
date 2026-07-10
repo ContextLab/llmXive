@@ -1,0 +1,105 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: >
+  Schema for the output of the modeling pipeline (US2).
+  Validates model performance metrics and statistical test results.
+type: object
+required:
+  - model_type
+  - cross_validation
+  - pvr_results
+  - permutation_test
+properties:
+  model_type:
+    type: string
+    description: Type of model trained (e.g., 'RandomForest', 'ElasticNet').
+  cross_validation:
+    type: object
+    description: Results from standard 5-fold cross-validation.
+    required:
+      - r2_mean
+      - r2_std
+      - mse_mean
+    properties:
+      r2_mean:
+        type: number
+        description: Mean R² score across folds.
+      r2_std:
+        type: number
+        description: Standard deviation of R² scores.
+      mse_mean:
+        type: number
+        description: Mean Squared Error.
+      fold_scores:
+        type: array
+        items:
+          type: number
+        description: R² score for each individual fold.
+  pvr_results:
+    type: object
+    description: Results from Phylogenetic Eigenvector Regression adjustment.
+    required:
+      - eigenvectors_used
+      - r2_adjusted
+      - p_value
+    properties:
+      eigenvectors_used:
+        type: integer
+        description: Number of phylogenetic eigenvectors included in the model.
+      r2_adjusted:
+        type: number
+        description: R² score after accounting for phylogenetic signal.
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: P-value for the significance of the BGC-metabolite relationship.
+  permutation_test:
+    type: object
+    description: Results from label permutation baseline test.
+    required:
+      - iterations
+      - null_distribution_mean
+      - observed_statistic
+      - p_value
+    properties:
+      iterations:
+        type: integer
+        minimum: 1
+        description: Number of permutation iterations performed.
+      null_distribution_mean:
+        type: number
+        description: Mean R² of the null distribution (permuted labels).
+      observed_statistic:
+        type: number
+        description: R² of the model trained on real labels.
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Empirical p-value based on the permutation distribution.
+  feature_importance:
+    type: array
+    description: Optional list of feature importance rankings.
+    items:
+      type: object
+      required:
+        - feature_name
+        - importance_score
+      properties:
+        feature_name:
+          type: string
+        importance_score:
+          type: number
+  metadata:
+    type: object
+    description: Optional metadata about the run.
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      dataset_version:
+        type: string
+      parameters:
+        type: object
+additionalProperties: false

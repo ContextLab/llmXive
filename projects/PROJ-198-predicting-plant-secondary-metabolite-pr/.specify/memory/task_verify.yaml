@@ -1,0 +1,10 @@
+T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `tests/`): 1
+? T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, pandas,
+  numpy, biopython, requests, dendropy, pyyaml, statsmodels, scipy)
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T004 Create `data/` directory structure and `checksums.txt` for data hygiene: 1
+? 'T005 [P] Implement `code/utils/phylogeny.py` for tree parsing (Newick) and PVR
+  (Phylogenetic Eigenvector Regression) calculation using `statsmodels` (Plan deviation:
+  replaces PIC)'
+: 1

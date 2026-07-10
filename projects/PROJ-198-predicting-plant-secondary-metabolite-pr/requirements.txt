@@ -1,0 +1,11 @@
+scikit-learn
+pandas
+numpy
+biopython
+requests
+dendropy
+pyyaml
+statsmodels
+scipy
+pytest
+jsonschema

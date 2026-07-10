@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for the final model evaluation metrics and diagnostics."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["RandomForest", "ElasticNet"]
+    description: "The type of model used."
+  cv_strategy:
+    type: "string"
+    enum: ["PVR", "StratifiedKFold"]
+    description: "Cross-validation/Phylogenetic control strategy used."
+  performance:
+    type: "object"
+    required:
+      - r2_test
+      - r2_perm_mean
+      - p_permutation
+    properties:
+      r2_test:
+        type: "number"
+        description: "R² score on the hold-out test set."
+      r2_perm_mean:
+        type: "number"
+        description: "Mean R² from label permutation baseline."
+      p_permutation:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "P-value from permutation test (count perm R² >= obs R² + 1) / (total + 1)."
+      p_pic:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "P-value from Phylogenetic Independent Contrasts test. **Deprecated: Not computed.**"
+        default: null
+  diagnostics:
+    type: "object"
+    required:
+      - vif_scores
+    properties:
+      vif_scores:
+        type: "object"
+        description: "Variance Inflation Factor scores for each BGC predictor."
+        additionalProperties:
+          type: "number"
+          description: "VIF value for the predictor."
+  sensitivity:
+    type: "array"
+    description: "Results from the threshold sweep analysis."
+    items:
+      type: "object"
+      properties:
+        threshold_percentile:
+          type: "integer"
+          enum: [10, 25, 50]
+        r2_value:
+          type: "number"
+required:
+  - model_type
+  - cv_strategy
+  - performance
+  - diagnostics
+additionalProperties: false
