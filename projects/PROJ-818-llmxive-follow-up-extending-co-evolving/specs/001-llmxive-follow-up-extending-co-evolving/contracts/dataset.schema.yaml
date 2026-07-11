@@ -1,0 +1,112 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Dataset Schema"
+description: "Schema for the generated propositional logic and grid-world tasks."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      generation_seed:
+        type: integer
+        description: "The random seed used for generation."
+      total_logic_tasks:
+        type: integer
+        description: "Number of logic proofs generated."
+      total_grid_tasks:
+        type: integer
+        description: "Number of grid tasks generated."
+      validity_rate:
+        type: number
+        description: "Percentage of generated tasks that passed validation (target: ≥99%)."
+    required:
+      - generation_seed
+      - total_logic_tasks
+      - total_grid_tasks
+      - validity_rate
+  logic_tasks:
+    type: array
+    items:
+      type: object
+      properties:
+        task_id:
+          type: string
+          description: "Unique identifier for the task."
+        domain_type:
+          type: string
+          enum: ["propositional_logic"]
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 10
+        rules_used:
+          type: array
+          items:
+            type: string
+          description: "List of axiom IDs used in this proof."
+        ground_truth:
+          type: string
+          description: "The valid logical proof string."
+        is_valid:
+          type: boolean
+          description: "Validation status."
+      required:
+        - task_id
+        - domain_type
+        - difficulty
+        - rules_used
+        - ground_truth
+        - is_valid
+  grid_tasks:
+    type: array
+    items:
+      type: object
+      properties:
+        task_id:
+          type: string
+          description: "Unique identifier for the task."
+        domain_type:
+          type: string
+          enum: ["grid_navigation"]
+        grid_size:
+          type: integer
+          description: "Size of the grid (e.g., 10 for 10x10)."
+        rules_used:
+          type: array
+          items:
+            type: string
+          description: "List of rule IDs (e.g., 'avoid_red', 'follow_diagonal')."
+        start_node:
+          type: array
+          items:
+            type: integer
+          minItems: 2
+          maxItems: 2
+        end_node:
+          type: array
+          items:
+            type: integer
+          minItems: 2
+          maxItems: 2
+        ground_truth_path:
+          type: array
+          items:
+            type: array
+            items:
+              type: integer
+          description: "List of coordinates representing the valid path."
+        is_valid:
+          type: boolean
+          description: "Validation status."
+      required:
+        - task_id
+        - domain_type
+        - grid_size
+        - rules_used
+        - start_node
+        - end_node
+        - ground_truth_path
+        - is_valid
+required:
+  - metadata
+  - logic_tasks
+  - grid_tasks

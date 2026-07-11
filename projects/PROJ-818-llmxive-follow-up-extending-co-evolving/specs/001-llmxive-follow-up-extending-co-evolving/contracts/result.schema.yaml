@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Forgetting Metric Schema"
+description: "Schema for the final forgetting metrics and statistical results."
+type: object
+properties:
+  agent_id:
+    type: string
+    description: "Unique identifier for the agent."
+  condition:
+    type: string
+    enum: ["sequential", "mixed", "coevolving"]
+    description: "The training strategy used."
+  initial_accuracy_task_a:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Accuracy on Task A before training on Task B (measured post-baseline)."
+  initial_accuracy_task_b:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Accuracy on Task B before training on Task A (measured post-baseline)."
+  final_accuracy_task_a:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Accuracy on Task A after full training (measured on same test set)."
+  final_accuracy_task_b:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Accuracy on Task B after full training (measured on same test set)."
+  forgetting_rate_a:
+    type: number
+    description: "Percentage drop in accuracy for Task A."
+  forgetting_rate_b:
+    type: number
+    description: "Percentage drop in accuracy for Task B."
+  avg_forgetting_rate:
+    type: number
+    description: "Average forgetting rate across both tasks."
+  generations_to_plateau:
+    type: integer
+    description: "Number of generations until performance plateau (convergence control)."
+  final_fitness_plateau:
+    type: number
+    description: "Final fitness score at plateau (convergence control)."
+required:
+  - agent_id
+  - condition
+  - initial_accuracy_task_a
+  - initial_accuracy_task_b
+  - final_accuracy_task_a
+  - final_accuracy_task_b
+  - forgetting_rate_a
+  - forgetting_rate_b
+  - avg_forgetting_rate
+  - generations_to_plateau
+  - final_fitness_plateau

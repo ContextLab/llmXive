@@ -1,0 +1,532 @@
+{
+  "fetched_at": "2026-07-11T13:57:39Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Co-Evolving Policy Distillation\"",
+      "target_n": 5
+    },
+    "duration_seconds": 58.831,
+    "ended_at": "2026-07-11T13:57:39Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "co-evolutionary policy distillation in large language models"
+        ],
+        [
+          2,
+          "iterative policy distillation for LLM alignment"
+        ],
+        [
+          3,
+          "evolutionary reinforcement learning for language models"
+        ],
+        [
+          4,
+          "multi-agent policy distillation in generative AI"
+        ],
+        [
+          5,
+          "co-evolving teacher-student networks for LLMs"
+        ],
+        [
+          6,
+          "dynamic policy transfer in large language models"
+        ],
+        [
+          7,
+          "self-improving language models via distillation"
+        ],
+        [
+          8,
+          "evolutionary strategies for LLM fine-tuning"
+        ],
+        [
+          9,
+          "collaborative policy learning in transformer models"
+        ],
+        [
+          10,
+          "recursive policy distillation for language agents"
+        ],
+        [
+          11,
+          "co-adaptive neural architecture search for LLMs"
+        ],
+        [
+          12,
+          "distillation-based reinforcement learning from human feedback"
+        ],
+        [
+          13,
+          "multi-objective policy optimization for language generation"
+        ],
+        [
+          14,
+          "adaptive knowledge transfer in large-scale language models"
+        ],
+        [
+          15,
+          "evolutionary fine-tuning of pre-trained language models"
+        ],
+        [
+          16,
+          "co-evolutionary algorithms for prompt engineering"
+        ],
+        [
+          17,
+          "iterative refinement of language model policies"
+        ],
+        [
+          18,
+          "distributed policy distillation for generative models"
+        ],
+        [
+          19,
+          "meta-learning for policy distillation in LLMs"
+        ],
+        [
+          20,
+          "synergistic training of language model ensembles"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "co-evolutionary policy distillation in large language models": 5,
+        "llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "policy distillation co-evolutionary reinforcement learning",
+      "multi-agent curriculum learning self-play",
+      "knowledge transfer teacher-student neural network",
+      "distillation loss convergence reward shaping",
+      "evolutionary strategy policy gradient alignment"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2504.19565"
+      ]
+    },
+    "per_query_hit_count": {
+      "distillation loss convergence reward shaping": 3,
+      "evolutionary strategy policy gradient alignment": 3,
+      "knowledge transfer teacher-student neural network": 3,
+      "llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science": 3,
+      "multi-agent curriculum learning self-play": 3,
+      "policy distillation co-evolutionary reinforcement learning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2312.05434",
+          "rationale": "The paper focuses on applying knowledge distillation to improve multimodal harmful meme detection, which is a specific downstream application, whereas the user's question targets the foundational \"Co-Evolving Policy Distillation\" mechanism in computer science. While both involve distillation, the candidate paper does not measure the co-evolutionary mechanism, policy dynamics, or the specific algorithmic properties central to the user's query, failing to meet the criteria for same-mechanism evide",
+          "title": "Beneath the Surface: Unveiling Harmful Memes with Multimodal Reasoning Distilled from Large Language Models"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving human-like qualities (emotional intelligence, conversational coherence) in LLMs, which is a distinct construct from the specific mechanism of \"Co-Evolving Policy Distillation\" (a multi-agent reinforcement learning or distillation framework). It fails to address the user's specific mechanism, domain, or variables, and does not fall under any of the inclusion criteria (a-f) as it lacks the necessary connection to policy distillation or co-evolu",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's specific focus on \"Co-Evolving Policy Distillation\" (a multi-agent reinforcement learning or knowledge distillation mechanism). While both fall under the broad domain of LLMs, the candidate paper does not measure the same mechanism, variables, or empirical setting required for a literature review on policy co-evolution and distillation, failing criteria (a) through (f).",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a specific architectural limitation of LLMs regarding character-level understanding, which is a distinct construct from the user's question about \"Co-Evolving Policy Distillation\" (a multi-agent reinforcement learning or policy optimization mechanism). There is no overlap in the biological pathway, algorithmic property, causal mechanism, or empirical variables (e.g., policy distillation, co-evolution, reward shaping) between the two topics, failing all inclusion criteria (",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T13:56:41Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"co-evolving policy distillation\" computer science",
+      "raw": "llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We focus on the problem of teaching a robot to solve tasks presented sequentially, i.e., in a continual learning scenario. The robot should be able to solve all tasks it has encountered, without forgetting past tasks. We provide preliminary work on applying Reinforcement Learning to such setting, on 2D navigation tasks for a 3 wheel omni-directional robot. Our approach takes advantage of state representation learning and policy distillation. Policies are trained using learned features as input, rather than raw observations, allowing better sample efficiency. Policy distillation is used to combine multiple policies into a single one that solves all encountered tasks.",
+          "claimed_authors": [
+            "René Traoré",
+            "Hugo Caselles-Dupré",
+            "Timothée Lesort",
+            "Te Sun",
+            "Natalia Díaz-Rodríguez",
+            "David Filliat"
+          ],
+          "claimed_title": "Continual Reinforcement Learning deployed in Real-life using Policy Distillation and Sim2Real Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.04452"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Continual Reinforcement Learning deployed in Real-life using Policy Distillation and Sim2Real Transfer')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many currently deployed Reinforcement Learning agents work in an environment shared with humans, be them co-workers, users or clients. It is desirable that these agents adjust to people's preferences, learn faster thanks to their help, and act safely around them. We argue that most current approaches that learn from human feedback are unsafe: rewarding or punishing the agent a-posteriori cannot immediately prevent it from wrong-doing. In this paper, we extend Policy Gradient to make it robust to external directives, that would otherwise break the fundamentally on-policy nature of Policy Gradient. Our technique, Directed Policy Gradient (DPG), allows a teacher or backup policy to override the agent before it acts undesirably, while allowing the agent to leverage human advice or directives to learn faster. Our experiments demonstrate that DPG makes the agent learn much faster than reward-based approaches, while requiring an order of magnitude less advice.",
+          "claimed_authors": [
+            "Hélène Plisnier",
+            "Denis Steckelmacher",
+            "Tim Brys",
+            "Diederik M. Roijers",
+            "Ann Nowé"
+          ],
+          "claimed_title": "Directed Policy Gradient for Safe Reinforcement Learning with Human Advice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.04096"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Directed Policy Gradient for Safe Reinforcement Learning with Human Advice')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pommerman is a multi-agent environment that has received considerable attention from researchers in recent years. This environment is an ideal benchmark for multi-agent training, providing a battleground for two teams with communication capabilities among allied agents. Pommerman presents significant challenges for model-free reinforcement learning due to delayed action effects, sparse rewards, and false positives, where opponent players can lose due to their own mistakes. This study introduces a system designed to train multi-agent systems to play Pommerman using a combination of curriculum learning and population-based self-play. We also tackle two challenging problems when deploying the multi-agent training system for competitive games: sparse reward and suitable matchmaking mechanism. Specifically, we propose an adaptive annealing factor based on agents' performance to adjust the dense exploration reward during training dynamically. Additionally, we implement a matchmaking mechanism utilizing the Elo rating system to pair agents effectively. Our experimental results demonstrate that our trained agent can outperform top learning agents without requiring communication among allied agents.",
+          "claimed_authors": [
+            "Nhat-Minh Huynh",
+            "Hoang-Giang Cao",
+            "I-Chen Wu"
+          ],
+          "claimed_title": "Multi-Agent Training for Pommerman: Curriculum Learning and Population-based Self-Play Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.00662"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Multi-Agent Training for Pommerman: Curriculum Learning and Population-based Self-Play Approach')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While there has been significant progress in curriculum learning and continuous learning for training agents to generalize across a wide variety of environments in the context of single-agent reinforcement learning, it is unclear if these algorithms would still be valid in a multi-agent setting. In a competitive setting, a learning agent can be trained by making it compete with a curriculum of increasingly skilled opponents. However, a general intelligent agent should also be able to learn to act around other agents and cooperate with them to achieve common goals. When cooperating with other agents, the learning agent must (a) learn how to perform the task (or subtask), and (b) increase the overall team reward. In this paper, we aim to answer the question of what kind of cooperative teammate, and a curriculum of teammates should a learning agent be trained with to achieve these two objectives. Our results on the game Overcooked show that a pre-trained teammate who is less skilled is the best teammate for overall team reward but the worst for the learning of the agent. Moreover, somewhat surprisingly, a curriculum of teammates with decreasing skill levels performs better than other types of curricula.",
+          "claimed_authors": [
+            "Rupali Bhati",
+            "Sai Krishna Gottipati",
+            "Clodéric Mars",
+            "Matthew E. Taylor"
+          ],
+          "claimed_title": "Curriculum Learning for Cooperation in Multi-Agent Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11768"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Curriculum Learning for Cooperation in Multi-Agent Reinforcement Learning')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Some scientists write literary fiction books in their spare time. If these books contain scientific knowledge, literary fiction becomes a mechanism of knowledge transfer. In this case, we could conceptualize literary fiction as non-formal knowledge transfer. We model knowledge transfer via literary fiction as a function of the type of scientist (academic or non-academic) and his/her scientific field. Academic scientists are those employed in academia and public research organizations whereas non-academic scientists are those with a scientific background employed in other sectors. We also distinguish between direct knowledge transfer (the book includes the scientist's research topics), indirect knowledge transfer (scientific authors talk about their research with cultural agents) and reverse knowledge transfer (cultural agents give scientists ideas for future research). Through mixed-methods research and a sample from Spain, we find that scientific authorship accounts for a considerable percentage of all literary fiction authorship. Academic scientists do not transfer knowledge directly so often as non-academic scientists, but the former engage into indirect and reverse transfer knowledge more often than the latter. Scientists from History stand out in direct knowledge transfer. We draw propositions about the role of the academic logic and scientific field on knowledge transfer via literary fiction. We advance some tentative conclusions regarding the consideration of scientific authorship of literary fiction as a valuable knowledge transfer mechanism.",
+          "claimed_authors": [
+            "Joaquín M. Azagra-Caro",
+            "Anabel Fernández-Mesa",
+            "Nicolás Robinson-García"
+          ],
+          "claimed_title": "'Getting out of the closet': Scientific authorship of literary fiction and knowledge transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.05012"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title=\"'Getting out of the closet': Scientific authorship of literary fiction and knowledge transfer\")",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
+          "claimed_authors": [
+            "Xiefeng Wu"
+          ],
+          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) models have continually evolved to navigate the exploration - exploitation trade-off in uncertain Markov Decision Processes (MDPs). In this study, I leverage the principles of stochastic thermodynamics and system dynamics to explore reward shaping via diffusion processes. This provides an elegant framework as a way to think about exploration-exploitation trade-off. This article sheds light on relationships between information entropy, stochastic system dynamics, and their influences on entropy production. This exploration allows us to construct a dual-pronged framework that can be interpreted as either a maximum entropy program for deriving efficient policies or a modified cost optimization program accounting for informational costs and benefits. This work presents a novel perspective on the physical nature of information and its implications for online learning in MDPs, consequently providing a better understanding of information-oriented formulations in RL.",
+          "claimed_authors": [
+            "Peeyush Kumar"
+          ],
+          "claimed_title": "Reward Shaping via Diffusion Process in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11885"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Reward Shaping via Diffusion Process in Reinforcement Learning')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 2023-2032 Planetary Science and Astrobiology Decadal Survey Origins, Worlds, and Life recommended that \"NASA develop scientific exploration strategies, as it has for Mars, in areas of broad scientific importance, e.g., Venus... that have an increasing number of U.S. missions and international collaboration opportunities\" (OWL, p.22-10). In NASA's initial responses to that Decadal Survey, the agency asserted that \"...specific scientific exploration strategies should be community generated by bodies such as the Analysis Groups,\" thus placing the onus on the planetary community to generate and support these exploration strategies. In late 2022, the Venus Exploration Analysis Group began a project to develop a new exploration strategy for Venus, reflecting the 2021 selections of the VERITAS, DAVINCI, and EnVision missions and the sweeping comparative planetology recommendations relevant to Venus in Origins, Worlds, and Life.\n  This is that strategy.\n  Taking a broad look at the scientific, technological, and programmatic advances required to address the key outstanding questions that Venus poses, and predicated on VERITAS, DAVINCI, and EnVision flying as planned in the early 2030s, this report outlines a set of actions available to NASA, VEXAG, and the planetary science community at large to establish a sustained program of Venus exploration in the years and decades ahead. Key to this approach is recognizing Venus as a unique setting where multiple, cross-disciplinary, Decadal-level planetary, Earth, heliophysics, and exoplanet science questions can be addressed, as well as being a worthy target of exploration in its own right.\n  This report offers Assessments of the current state of Venus exploration, and Actions for the U.S. and international Venus community, as well as NASA, to consider. This strategy is a living document and should be updated as warranted.",
+          "claimed_authors": [
+            "The VEXAG Exploration Strategy Study Analysis Workgroup"
+          ],
+          "claimed_title": "A New Strategy for the Exploration of Venus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06830"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='A New Strategy for the Exploration of Venus')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Exposing an Evolutionary Algorithm that is used to evolve robot controllers to variable conditions is necessary to obtain solutions which are robust and can cross the reality gap. However, we do not yet have methods for analyzing and understanding the impact of the varying morphological conditions which impact the evolutionary process, and therefore for choosing suitable variation ranges. By morphological conditions, we refer to the starting state of the robot, and to variations in its sensor readings during operation due to noise. In this article, we introduce a method that permits us to measure the impact of these morphological variations and we analyze the relation between the amplitude of variations, the modality with which they are introduced, and the performance and robustness of evolving agents. Our results demonstrate that (i) the evolutionary algorithm can tolerate morphological variations which have a very high impact, (ii) variations affecting the actions of the agent are tolerated much better than variations affecting the initial state of the agent or of the environment, and (iii) improving the accuracy of the fitness measure through multiple evaluations is not always useful. Moreover, our results show that morphological variations permit generating solutions which perform better both in varying and non-varying conditions.",
+          "claimed_authors": [
+            "Jonata Tyska Carvalho",
+            "Stefano Nolfi"
+          ],
+          "claimed_title": "The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.02809"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data-efficient image classification is a challenging task that aims to solve image classification using small training data. Neural network-based deep learning methods are effective for image classification, but they typically require large-scale training data and have major limitations such as requiring expertise to design network architectures and having poor interpretability. Evolutionary deep learning is a recent hot topic that combines evolutionary computation with deep learning. However, most evolutionary deep learning methods focus on evolving architectures of neural networks, which still suffer from limitations such as poor interpretability. To address this, this paper proposes a new genetic programming-based evolutionary deep learning approach to data-efficient image classification. The new approach can automatically evolve variable-length models using many important operators from both image and classification domains. It can learn different types of image features from colour or gray-scale images, and construct effective and diverse ensembles for image classification. A flexible multi-layer representation enables the new approach to automatically construct shallow or deep models/trees for different tasks and perform effective transformations on the input data via multiple internal nodes. The new approach is applied to solve five image classification tasks with different training set sizes. The results show that it achieves better performance in most cases than deep learning methods for data-efficient image classification. A deep analysis shows that the new approach has good convergence and evolves models with high interpretability, different lengths/sizes/shapes, and good transferability.",
+          "claimed_authors": [
+            "Ying Bi",
+            "Bing Xue",
+            "Mengjie Zhang"
+          ],
+          "claimed_title": "Genetic Programming-Based Evolutionary Deep Learning for Data-Efficient Image Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.13233"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"Co-Evolving Policy Distillation\" computer science', candidate_title='Genetic Programming-Based Evolutionary Deep Learning for Data-Efficient Image Classification')",
+        "failed_at": "2026-07-11T13:57:13Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Meng Xiao",
+            "Xunxin Cai",
+            "Qingqing Long",
+            "Chengrui Wang",
+            "Yuanchun Zhou",
+            "Hengshu Zhu"
+          ],
+          "title": "Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.19565",
+        "summary": "Corpus distillation for biomedical large language models (LLMs) seeks to address the pressing challenge of insufficient quantity and quality in open-source annotated scientific corpora, which remains a bottleneck for effective LLM training in biomedical research. This paper proposes a knowledge-driven, agentic framework for scientific corpus distillation, tailored explicitly for LLM training in the biomedical domain, addressing the challenge posed by the complex hierarchy of biomedical knowledge. Central to our approach is a collaborative multi-agent architecture, where specialized agents, each guided by the Medical Subject Headings (MeSH) hierarchy, work in concert to autonomously extract, synthesize, and self-evaluate high-quality textual data from vast scientific literature. This agentic framework collectively generates and refines domain-specific question-answer pairs, ensuring comprehensive coverage and consistency with biomedical ontologies while minimizing manual involvement. Extensive experimental results show that language models trained on our multi-agent distilled datasets achieve notable improvements in biomedical question-answering tasks, outperforming both strong life sciences LLM baselines and advanced proprietary models. Notably, our AI-Ready dataset enables Llama3-70B to surpass GPT-4 with MedPrompt and Med-PaLM-2, despite their larger scale. Detailed ablation studies and case analyses further validate the effectiveness and synergy of each agent within the framework, highlighting the potential of multi-agent collaboration in biomedical LLM training.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.19565",
+          "http_status": 200,
+          "pdf_sample_score": 0.3059,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T13:57:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"co-evolving policy distillation\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
