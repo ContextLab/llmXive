@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results JSON Schema"
+description: "Schema for statistical test results (Lomb-Scargle, bootstrap, shuffle)."
+type: "array"
+items:
+  type: "object"
+  properties:
+    detector:
+      type: "string"
+      enum:
+        - "IceCube"
+        - "Auger"
+      description: "Detector source."
+    proxy:
+      type: "string"
+      enum:
+        - "sunspot_number"
+        - "solar_wind_speed"
+        - "imf_magnitude"
+      description: "Solar proxy used in the test."
+    method:
+      type: "string"
+      enum:
+        - "lomb_scargle"
+        - "pearson"
+        - "spearman"
+        - "block_bootstrap"
+        - "monte_carlo_shuffle"
+      description: "Statistical method applied."
+    r:
+      type: "number"
+      description: "Correlation coefficient (Pearson/Spearman)."
+    p_value:
+      type: "number"
+      minimum: 0
+      maximum: 1
+      description: "Two-sided p-value for the correlation."
+    fap:
+      type: "number"
+      minimum: 0
+      maximum: 1
+      description: "False Alarm Probability from Monte-Carlo shuffle (shuffling solar proxy)."
+    bonferroni_adjusted:
+      type: "boolean"
+      description: "True if p-value was adjusted for multiple comparisons."
+    positive_result:
+      type: "boolean"
+      description: "True if |r| ≥ 0.4 and p ≤ 0.0017 (Bonferroni-corrected)."
+  required:
+    - "detector"
+    - "proxy"
+    - "method"
+    - "r"
+    - "p_value"
+    - "fap"
+    - "positive_result"
+  additionalProperties: false

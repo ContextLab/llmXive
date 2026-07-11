@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 25cda05e736e7821dccaebc1ed5bd9d31a597ad79f7a212c80d7d8aa57fc5926
+  artifact_path: projects/PROJ-121-investigating-the-relationship-between-c/specs/001-investigating-the-relationship-between-c/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://icecube.wisc.edu/science/data/open-data`
+  verification_status: mismatch
+  verified_against_url: https://icecube.wisc.edu/science/data/open-data
+  verified_at: '2026-07-11T21:15:02.513436Z'
+- artifact_hash: 25cda05e736e7821dccaebc1ed5bd9d31a597ad79f7a212c80d7d8aa57fc5926
+  artifact_path: projects/PROJ-121-investigating-the-relationship-between-c/specs/001-investigating-the-relationship-between-c/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.auger.org/archive/data.html`
+  verification_status: mismatch
+  verified_against_url: https://www.auger.org/archive/data.html
+  verified_at: '2026-07-11T21:15:02.513436Z'

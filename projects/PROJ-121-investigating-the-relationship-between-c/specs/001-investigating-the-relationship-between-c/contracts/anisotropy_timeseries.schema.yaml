@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Anisotropy Timeseries CSV Schema"
+description: "Schema for the relative dipole amplitude and phase time-series CSV output."
+type: "object"
+properties:
+  interval_start:
+    type: "string"
+    format: "date-time"
+    description: "Start of the binning interval in UTC ISO8601 format."
+  interval_end:
+    type: "string"
+    format: "date-time"
+    description: "End of the binning interval in UTC ISO8601 format."
+  detector:
+    type: "string"
+    enum:
+      - "IceCube"
+      - "Auger"
+    description: "Name of the detector source."
+  dipole_amp:
+    type: "number"
+    description: "Relative dipole amplitude (dimensionless, corrected for acceptance)."
+  dipole_phase:
+    type: "number"
+    description: "Dipole phase in radians (0 to 2π)."
+  quad_amp:
+    type: "number"
+    description: "Quadrupole amplitude (dimensionless)."
+  partial_interval:
+    type: "boolean"
+    description: "True if the interval is shorter than the configured bin size."
+  event_count:
+    type: "integer"
+    minimum: 1
+    description: "Number of events included in this interval."
+  coverage_status:
+    type: "string"
+    enum:
+      - "full"
+      - "partial"
+    description: "Status of dataset coverage for this interval."
+required:
+  - "interval_start"
+  - "interval_end"
+  - "detector"
+  - "dipole_amp"
+  - "dipole_phase"
+  - "quad_amp"
+  - "partial_interval"
+  - "event_count"
+  - "coverage_status"
+additionalProperties: false
