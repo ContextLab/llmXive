@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Schizophrenia fMRI Dataset Schema"
+description: "Schema for the processed feature dataset derived from OpenNeuro ds000030"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject (e.g., sub-001)"
+  diagnosis:
+    type: "string"
+    enum:
+      - "Schizophrenia"
+      - "Control"
+    description: "Diagnostic label"
+  motion_flag:
+    type: "boolean"
+    description: "True if subject exceeded motion threshold (>2mm)"
+  global_efficiency:
+    type: "number"
+    description: "Global efficiency of the functional network"
+  local_efficiency:
+    type: "number"
+    description: "Local efficiency of the functional network"
+  modularity:
+    type: "number"
+    description: "Modularity score (Louvain algorithm)"
+  prefrontal_centrality:
+    type: "number"
+    description: "Betweenness centrality for prefrontal regions"
+  hippocampal_centrality:
+    type: "number"
+    description: "Betweenness centrality for hippocampal regions"
+  medication_status:
+    type:
+      - "string"
+      - "null"
+    description: "Medication status if available, else null"
+required:
+  - "subject_id"
+  - "diagnosis"
+  - "motion_flag"
+  - "global_efficiency"
+  - "local_efficiency"
+  - "modularity"
+  - "prefrontal_centrality"
+  - "hippocampal_centrality"
+additionalProperties: false

@@ -1,0 +1,81 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Classification Output Schema"
+description: "Schema for the final model results and statistical validation"
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique hash for this analysis run"
+  model_type:
+    type: "string"
+    enum:
+      - "LogisticRegression"
+      - "SVM"
+    description: "Type of classifier used"
+  accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Classification accuracy on the held-out test set"
+  precision:
+    type: "number"
+    minimum: 0
+    maximum: 1
+  recall:
+    type: "number"
+    minimum: 0
+    maximum: 1
+  auc_roc:
+    type: "number"
+    minimum: 0
+    maximum: 1
+  confidence_interval:
+    type: "object"
+    properties:
+      lower:
+        type: "number"
+      upper:
+        type: "number"
+    description: "95% CI for accuracy"
+  meets_accuracy_threshold:
+    type: "boolean"
+    description: "True if the lower bound of the 95% CI is >= 0.65 (SC-001)"
+  permutation_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from permutation test (1000 iterations)"
+  fdr_adjusted_p_values:
+    type: "object"
+    description: "Dictionary of metric names to FDR-adjusted p-values for group differences"
+  effect_sizes:
+    type: "object"
+    description: "Dictionary of metric names to Cohen's d values"
+  feature_stability:
+    type: "object"
+    description: "Dictionary of feature names to stability scores (selection frequency)"
+  constraints_met:
+    type: "boolean"
+    description: "True if runtime < 6h and RAM < 7GB"
+  runtime_seconds:
+    type: "number"
+    description: "Total runtime in seconds"
+  minimum_detectable_effect:
+    type: "number"
+    description: "Calculated MDE for the observed sample size and power (0.8)"
+  threshold_sensitivity:
+    type: "string"
+    enum:
+      - "Robust"
+      - "Sensitive"
+      - "Not Tested"
+    description: "Result of threshold sensitivity analysis"
+required:
+  - "run_id"
+  - "model_type"
+  - "accuracy"
+  - "permutation_p_value"
+  - "constraints_met"
+  - "meets_accuracy_threshold"
+  - "runtime_seconds"
+additionalProperties: false
