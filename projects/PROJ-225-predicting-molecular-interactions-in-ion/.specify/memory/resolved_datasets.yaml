@@ -1,0 +1,610 @@
+resolved_at: '2026-07-11T02:49:01.475291+00:00'
+datasets:
+- intent: ILThermo
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/thesis/Promoting_the_Wellbeing_of_Teachers_Working_With_Students_With_Special_Needs_A_Mindfulness-Supporting_Programme/32962406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20218374
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cyberleninka.ru/article/n/identifying-the-relationship-between-ionic-liquid-density-shifts-and-structural-descriptors-using-machine-learning
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20218374
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20218374
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.se/sv/catalogue/dataset/2025-290
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.se/sv/catalogue/dataset/2025-290/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SAPT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Selinz/sap-toolcall-train/resolve/main/openchat_finetune_dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 186477
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/Saptarshi7/covid_qa_cleaned_CS/281503caa3c9ad9c9fd0ec9738f6fed6767bc213/covid_qa_cleaned_CS.json?%2Fdatasets%2FSaptarshi7%2Fcovid_qa_cleaned_CS%2Fresolve%2Fmain%2Fcovid_qa_cleaned_CS.json=&etag=%22a81e08a0a8333161f3690668cbb0c4bda425013c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/droneman223/SAP_test/968d137f8713b8d7d7d9bf31d27c2d86e481df16/SAP_%20hugging%20face%20-%20Sheet1.csv?%2Fdatasets%2Fdroneman223%2FSAP_test%2Fresolve%2Fmain%2FSAP_+hugging+face+-+Sheet1.csv=&etag=%2297332d39f5d0a518999fe30d5586a8559eb41c89%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Selinz/sap-toolcall-train/resolve/main/openchat_finetune_dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/Saptak123/Bhagavad-Gita_Dataset/39e0cc3509057988764dc2cc5895a8a116106ee0/geeta_dataset.csv?%2Fdatasets%2FSaptak123%2FBhagavad-Gita_Dataset%2Fresolve%2Fmain%2Fgeeta_dataset.csv=&etag=%226878f3996d6f688f6d4d9131845b4d06e638c011%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/thesis/Promoting_the_Wellbeing_of_Teachers_Working_With_Students_With_Special_Needs_A_Mindfulness-Supporting_Programme/32962406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4066243
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21215566
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18601659
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17224384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10547300
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/0eba4171-2800-415d-920d-2704b863b0c6
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21215566
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21215566
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/q42te/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/13825
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DFT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 180247
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: "https://huggingface.co/datasets/youngwoo3283/df_transportation_keyword/resolve/main/df_\uAD50\
+      \uD1B5.csv"
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/youngwoo3283/df_text_generation_20k/a7593f2818c220c3b12d23877708bb4487e29232/df_text_generateion_20k.csv?%2Fdatasets%2Fyoungwoo3283%2Fdf_text_generation_20k%2Fresolve%2Fmain%2Fdf_text_generateion_20k.csv=&etag=%229ff9a2b9e7682fdb9c25dbfa6ac91cb66bade221%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6417557
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8401258
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14186325
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3771172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7861665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/20e69389-7a3f-4f87-9161-6eaf15f9c2f9
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/0489db14-0c8a-4158-a51e-0c802af27ddb
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/aad79a5b-b1f6-426c-87af-1bd7272ef6b8
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/daaedf50-c18a-4ba5-af37-a7014e251b20
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/acbacbe5-61ae-4c6f-828c-98bf0a716d0a
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 108629
+      parsed: true
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336216
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336182
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336274
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6068475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21296601
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21296601
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21296535
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21296535
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/157c2ea5-aea0-4834-8571-c29de92dc766
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MANOVA
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/online_resource/_i_Five_Steps_to_Prove_Your_Music_Isn_t_AI_A_Provenance_Framework_for_Independent_Musicians_i_/32962436
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Coal_City_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962442
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20669198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14556084
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://neobiota.pensoft.net/article/141133/element/5/32/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pharmacia.pensoft.net/article/190792/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3897/neobiota.34.10820.suppl4
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9p8cz8x0j
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dias.library.tuc.gr/handle/123456789/43623
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26192/q3941
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 405'
+  - url: https://osf.io/wgfdz/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/kzs3m/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/_i_Five_Steps_to_Prove_Your_Music_Isn_t_AI_A_Provenance_Framework_for_Independent_Musicians_i_/32962436
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Coal_City_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962442
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302402
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302402
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302400
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BF4
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: PF6
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: XGBoost
+  status: unresolved
+  candidates: []
+  candidates_tried: []

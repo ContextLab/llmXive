@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+description: "Schema for the unified training table of ionic liquid pairs."
+properties:
+  pair_id:
+    type: "string"
+    description: "Unique identifier for the cation/anion pair."
+  cation_smiles:
+    type: "string"
+    description: "SMILES string of the cation."
+  anion_smiles:
+    type: "string"
+    description: "SMILES string of the anion."
+  cation_family:
+    type: "string"
+    description: "Structural family of the cation (e.g., imidazolium)."
+  anion_family:
+    type: "string"
+    description: "Structural family of the anion (e.g., BF4)."
+  partial_charge_cation:
+    type: "number"
+    description: "Partial charge of the cation."
+    nullable: true
+  partial_charge_anion:
+    type: "number"
+    description: "Partial charge of the anion."
+    nullable: true
+  polarizability_cation:
+    type: "number"
+    description: "Approximate polarizability of the cation."
+    nullable: true
+  polarizability_anion:
+    type: "number"
+    description: "Approximate polarizability of the anion."
+    nullable: true
+  h_bond_count_cation:
+    type: "integer"
+    description: "H-bond donor/acceptor count for the cation."
+  h_bond_count_anion:
+    type: "integer"
+    description: "H-bond donor/acceptor count for the anion."
+  embedding_cation:
+    type: "string"
+    description: "Base64 encoded Morgan fingerprint for the cation."
+  embedding_anion:
+    type: "string"
+    description: "Base64 encoded Morgan fingerprint for the anion."
+  inter_ionic_distance:
+    type: "number"
+    description: "Center-of-mass distance between ions (ETKDG)."
+    nullable: true
+  orientation_angle:
+    type: "number"
+    description: "Orientation angle between ions (ETKDG)."
+    nullable: true
+  target_electrostatic:
+    type: "number"
+    description: "Electrostatic energy component (kcal/mol)."
+  target_dispersion:
+    type: "number"
+    description: "Dispersion energy component (kcal/mol)."
+  target_h_bond:
+    type: "number"
+    description: "Hydrogen-bonding energy component (kcal/mol)."
+required:
+  - pair_id
+  - cation_smiles
+  - anion_smiles
+  - cation_family
+  - anion_family
+  - target_electrostatic
+  - target_dispersion
+  - target_h_bond
+additionalProperties: false
