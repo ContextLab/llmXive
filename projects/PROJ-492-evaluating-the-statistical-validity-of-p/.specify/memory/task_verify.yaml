@@ -296,13 +296,6 @@
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
   %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
-  \ prevalence estimates ** per FR\u2011004b (generate `AuditRecord` objects with\
-  \ data_quality_warning messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
-  \ **DEPENDS ON:** T023."
-: 1
-? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
-  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
-  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
   \ prevalence estimates [UNRESOLVED-CLAIM: c_e6013d5b \u2014 status=not_enough_info]**\
   \ per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning messages\
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\

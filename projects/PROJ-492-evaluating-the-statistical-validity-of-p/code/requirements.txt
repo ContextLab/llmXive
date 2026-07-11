@@ -13,5 +13,3 @@ black
 pre-commit
 pytest
 pydantic
-matplotlib
-seaborn
