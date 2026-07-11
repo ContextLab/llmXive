@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.15178",
+  "judged_at": "2026-07-11T19:35:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"sana-wm: efficient minute-scale world modeling with hybrid linear diff\" computer science",
+  "rationale": "The candidate paper is the foundational work introducing \"SANA-WM,\" which is explicitly named in the user's research question as the subject of a follow-up study; therefore, it satisfies criterion (d) as the canonical reference for the technique and system being extended.",
+  "relevant": true
+}

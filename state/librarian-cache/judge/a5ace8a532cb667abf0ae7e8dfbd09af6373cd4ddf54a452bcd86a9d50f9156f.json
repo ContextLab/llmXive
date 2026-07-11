@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.01780",
+  "judged_at": "2026-07-11T19:35:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"sana-wm: efficient minute-scale world modeling with hybrid linear diff\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (efficient world modeling for autonomous planning) and addresses the same dependent variable (computational efficiency/inference speed) as the user's question, even though it proposes a different architectural approach (Disentangled Dynamics Prediction) compared to the specific \"SANA-WM\" hybrid linear diffusion method mentioned. It represents the canonical prior work on the problem of \"efficient minute-scale wor",
+  "relevant": true
+}

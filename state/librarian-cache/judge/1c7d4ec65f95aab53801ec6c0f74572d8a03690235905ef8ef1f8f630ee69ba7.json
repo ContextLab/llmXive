@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.02516",
+  "judged_at": "2026-07-11T19:35:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"sana-wm: efficient minute-scale world modeling with hybrid linear diff\" computer science",
+  "rationale": "The paper focuses on video engagement prediction using Large Multimodal Models (LMMs) for recommendation systems, which is a distinct application domain from the user's question about \"minute-scale world modeling\" (a generative task for simulating physical dynamics). While both involve video and LLMs, the paper does not measure the same mechanism (world simulation vs. engagement scoring), variables, or empirical setting, and thus fails to satisfy any of the inclusion criteria (a-f).",
+  "relevant": false
+}

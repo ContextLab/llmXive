@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.02091",
+  "judged_at": "2026-07-11T19:35:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"sana-wm: efficient minute-scale world modeling with hybrid linear diff\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it provides a foundational theoretical framework and canonical alternative vocabulary (\"natural building blocks,\" \"structured world models,\" \"HMMs,\" \"sLDS\") for the domain of world modeling, which is the core subject of the user's question regarding the extension of SANA-WM. Even though it does not specifically mention the SANA-WM architecture or minute-scale efficiency, it establishes the theoretical baseline and modular components that any literatur",
+  "relevant": true
+}
