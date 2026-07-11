@@ -9,9 +9,7 @@ pyyaml
 jsonschema
 psutil
 pytest
-mypy
+pytest-cov
 ruff
 black
 pre-commit
-pydantic
-python-dotenv
