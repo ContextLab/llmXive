@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Analysis Schema"
+description: "Schema for data/results/sensitivity_analysis.json. Verifies monotonic trends for SC-005 and SC-002."
+type: "object"
+properties:
+  bias_trend:
+    type: "object"
+    description: "Monotonicity verification for bias vs. MNAR parameter (SC-005)."
+    properties:
+      spearman_rho:
+        type: "number"
+        description: "Spearman rank correlation coefficient for bias vs. beta."
+      p_value:
+        type: "number"
+        description: "P-value for the correlation test."
+      monotonicity_confirmed:
+        type: "boolean"
+        description: "True if rho > 0.9 AND p < 0.05. False otherwise."
+    required:
+      - spearman_rho
+      - p_value
+      - monotonicity_confirmed
+  coverage_trend:
+    type: "object"
+    description: "Negative slope verification for coverage vs. MNAR parameter (SC-002)."
+    properties:
+      slope:
+        type: "number"
+        description: "Regression slope of coverage rate vs. beta."
+      p_value:
+        type: "number"
+        description: "P-value for the slope test."
+      negative_slope_confirmed:
+        type: "boolean"
+        description: "True if slope < 0 AND p < 0.05. False otherwise."
+    required:
+      - slope
+      - p_value
+      - negative_slope_confirmed
+required:
+  - bias_trend
+  - coverage_trend
+additionalProperties: false

@@ -3,69 +3,74 @@
 ## Prerequisites
 
 - Python 3.11+
-- pip
-- git
+- Git
+- 4GB+ free disk space (for intermediate data)
+- 7GB+ RAM (recommended for full simulation)
 
 ## Installation
 
-1.  **Clone and Navigate**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-047-exploring-the-impact-of-data-imputation-/code
-    ```
+1. **Clone and Setup**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-047-exploring-the-impact-of-data-imputation-
+   ```
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create Virtual Environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: This installs CPU-only compatible versions of `scikit-learn`, `statsmodels`, `linearmodels`, etc.*
+3. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` pins all versions to ensure reproducibility (Constitution Principle I).*
 
 ## Running the Simulation
 
-### 1. Generate Synthetic Data (Single Run)
-To verify ground truth generation and alpha tuning:
+### 1. Run Unit Tests (Sanity Check)
+Verify the synthetic generator and estimators work before the full run.
 ```bash
-python simulate.py --seed 42 --beta 0.5 --n 1000
-```
-*Output*: `data/raw/synth_{run_id}.csv` and `data/results/ground_truth_42.json`.
-
-### 2. Run Full Simulation
-Execute the full study (multiple runs, 5 beta values, parallelized):
-```bash
-python main.py
-```
-*Output*: `data/results/simulation_summary.csv`, `data/results/trend_verification.json`, `data/results/coverage_slope_verification.json`, and `data/results/plots/`.
-
-### 3. Statistical Analysis & Plots
-If you have run the simulation and want to regenerate plots or re-run statistical tests:
-```bash
-python analyze.py --input data/results/simulation_summary.csv
-python visualize.py --input data/results/simulation_summary.csv
+pytest tests/unit/ -v
 ```
 
-### 4. Run Tests
-Verify reproducibility and logic:
+### 2. Run the Full Simulation
+Execute the main orchestration script. This will:
+- Generate synthetic datasets.
+- Apply multiple imputation methods.
+- Estimate ATEs using IPW and PSM.
+- Perform statistical tests and sensitivity analysis.
+- Save results to `data/results/`.
+
 ```bash
-pytest tests/ -v
+python code/run_simulation.py --runs 200 --beta-sweep 0.0,0.2,0.5,0.8,1.0
+```
+*Expected Runtime: < 4 hours on GitHub Actions free tier.*
+
+### 3. Validate Schema
+Before generating figures, validate that `simulation_summary.csv` contains all required columns:
+```bash
+python code/analysis.py --validate-schema --input data/results/simulation_summary.csv
 ```
 
-## Expected Outputs
+### 4. Generate Figures
+Once `simulation_summary.csv` is validated, create the paper figures.
+```bash
+python code/visualization.py --plot bias_vs_beta --input data/results/simulation_summary.csv --output docs/paper/figures/bias_vs_beta.png
+python code/visualization.py --plot coverage_vs_beta --input data/results/simulation_summary.csv --output docs/paper/figures/coverage_vs_beta.png
+python code/visualization.py --plot bias_distributions --input data/results/simulation_summary.csv --output docs/paper/figures/bias_distributions.png
+```
 
-- **`data/results/simulation_summary.csv`**: The single source of truth for all bias, RMSE, and coverage metrics.
-- **`data/results/trend_verification.json`**: Verification of the monotonic bias trend (Spearman rho).
-- **`data/results/coverage_slope_verification.json`**: Verification of the negative slope in coverage vs. beta.
-- **`data/results/plots/bias_vs_beta.png`**: Bias trends across MNAR strength.
-- **`data/results/plots/coverage_vs_beta.png`**: Confidence interval coverage trends.
-- **`data/results/plots/bias_distributions.png`**: Distribution of bias per method.
+### 5. Verify Results
+Check that the sensitivity analysis confirms monotonicity and coverage drop.
+```bash
+python code/analysis.py --verify-sensitivity --input data/results/sensitivity_analysis.json
+```
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure `sample_size` in `main.py` is not increased beyond 1000. The default is optimized for a moderate memory footprint.
-- **Convergence Failure (MICE)**: The script automatically flags runs where MICE fails to converge. These are excluded from the final bias average but recorded in `data/results/failed_runs.json`.
-- **Statistical Test Failure**: The LMM is robust to non-normality. If convergence fails, the script falls back to a non-parametric permutation test.
+- **Convergence Errors**: If MICE fails to converge, the system logs the run as "failed" and excludes it from the bias average (as per Edge Case handling).
+- **Memory Errors**: If RAM usage exceeds 7GB, reduce `--runs` or `--n-samples` in `run_simulation.py`.
+- **Statistical Test Warnings**: If Shapiro-Wilk fails due to small sample size, the system defaults to Friedman test.
+- **Schema Validation Failure**: If `simulation_summary.csv` is missing required columns, the schema validation task (T028.5) will fail and block figure generation. Ensure all imputation and estimation tasks complete successfully.

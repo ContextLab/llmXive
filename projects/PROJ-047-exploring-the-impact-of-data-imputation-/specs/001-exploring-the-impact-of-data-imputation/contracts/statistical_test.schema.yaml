@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Test Result Schema"
+description: "Schema for data/results/statistical_tests.json. One entry per beta level."
+type: "object"
+patternProperties:
+  "^beta_[0-9.]+$":
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        enum:
+          - "anova"
+          - "friedman"
+          - "bootstrap"
+        description: "Statistical test selected based on normality check (Shapiro-Wilk)."
+      p_value:
+        type: "number"
+        description: "P-value from the primary test (ANOVA or Friedman)."
+      test_statistic:
+        type: "number"
+        description: "F-statistic (ANOVA) or Chi-square value (Friedman)."
+      skewness:
+        type: "number"
+        description: "Skewness of the bias distribution. If |skewness| > 1, bootstrap CIs are computed."
+      bootstrap_ci_diff:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+        description: "Bootstrap confidence interval for difference in medians [lower, upper]. Computed whenever |skewness| > 1."
+      interaction_flag:
+        type: "boolean"
+        description: "True if divergence between IPW and PSM bias > 0.1, indicating an interaction effect."
+    required:
+      - test_type
+      - p_value
+      - test_statistic
+      - skewness
+      - interaction_flag
+additionalProperties: false

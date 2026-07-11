@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SyntheticDataset"
-description: "Schema for a single generated synthetic dataset with MNAR missingness. Defines the structure of data/raw/*.csv."
+description: "Schema for a single generated synthetic dataset with MNAR missingness."
 type: "object"
 properties:
   run_id:
@@ -14,7 +14,7 @@ properties:
     description: "Number of samples in the dataset."
   tau_true:
     type: "number"
-    description: "Ground-truth Average Treatment Effect (ATE) defined in the SCM."
+    description: "Ground-truth Average Treatment Effect (ATE) defined in the SCM, regenerated via regenerate_ground_truth."
   beta:
     type: "number"
     description: "MNAR parameter controlling the strength of missingness dependence on Y."
@@ -26,10 +26,10 @@ properties:
     description: "Proportion of missing values in the outcome variable Y."
   correlation_M_Y:
     type: "number"
-    description: "Spearman correlation between missingness indicator M and unobserved Y."
+    description: "Spearman correlation between missingness indicator M and unobserved Y (computed at generation time)."
   vif_max:
     type: "number"
-    description: "Maximum Variance Inflation Factor for confounders."
+    description: "Maximum Variance Inflation Factor for confounders. Runs with VIF > 10 are flagged."
   data_file_path:
     type: "string"
     description: "Relative path to the CSV file containing the data."

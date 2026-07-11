@@ -1,44 +1,66 @@
-- artifact_hash: f819d9790d1083a6ec9272c48da032d354e0521637bd58d741488377375d5df0
+- artifact_hash: c9d9094a126c9b80f1c8b31e97940b7f929ddb58b357d55ca6127971b728fbf7
   artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/research.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: syntheticdata.csv
+  kind: url
+  value: https://huggingface.co/datasets/tomaszj321/syntheticdataset1/resolve/main/syntheticdata.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/tomaszj321/syntheticdataset1/1a2962dd857bd16390b605f890211b657637638f/syntheticdata.csv?%2Fdatasets%2Ftomaszj321%2Fsyntheticdataset1%2Fresolve%2Fmain%2Fsyntheticdata.csv=&etag=%22c5c006b60fd50d0be42cc6c39a862444eb98b449%22
+  verified_at: '2026-07-11T14:03:08.765983Z'
+- artifact_hash: c9d9094a126c9b80f1c8b31e97940b7f929ddb58b357d55ca6127971b728fbf7
+  artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/research.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: test-00000-of-00001.parquet
   kind: url
   value: https://huggingface.co/datasets/pppereira3/HW4_REGRESSION_mnar/resolve/main/data/test-00000-of-00001.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6794eae0cbb6655a3cd15867/43cfa120a91385ea1f6e2f9744507af323cced0215b8414ee54adc8ecce47620?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783780063&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc5NGVhZTBjYmI2NjU1YTNjZDE1ODY3LzQzY2ZhMTIwYTkxMzg1ZWExZjZlMmY5NzQ0NTA3YWYzMjNjY2VkMDIxNWI4NDE0ZWU1NGFkYzhlY2NlNDc2MjBcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3ODAwNjN9fX1dfQ__&Signature=MEUCIQC1OFJzR32phBOCkQunlZgJxxa7y-7QsNscp57PeresPQIgc0od206Sk41ACjCiAs4V4J4OSupf0gu-YbSIWd0AiZ0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T13:27:43.542694Z'
-- artifact_hash: f819d9790d1083a6ec9272c48da032d354e0521637bd58d741488377375d5df0
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6794eae0cbb6655a3cd15867/43cfa120a91385ea1f6e2f9744507af323cced0215b8414ee54adc8ecce47620?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1783782188&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc5NGVhZTBjYmI2NjU1YTNjZDE1ODY3LzQzY2ZhMTIwYTkxMzg1ZWExZjZlMmY5NzQ0NTA3YWYzMjNjY2VkMDIxNWI4NDE0ZWU1NGFkYzhlY2NlNDc2MjBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3ODIxODh9fX1dfQ__&Signature=MEUCIQDkwWZJT2M9ILbcjceV9oIYAZBhfW1Gcon8dwdawmGY0wIgMTAJ0ly2iVwiUu8qAl8JoILohGhN1aDWuxvSoYSfnj4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T14:03:08.765983Z'
+- artifact_hash: c9d9094a126c9b80f1c8b31e97940b7f929ddb58b357d55ca6127971b728fbf7
   artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/research.md
-  cite_id: c-002
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: KNN-Data.csv
+  kind: url
+  value: https://huggingface.co/datasets/hscrown/knndata/resolve/main/KNN-Data.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/hscrown/knndata/b31a0e928fd35e309b83b75d2abd27a66114ec84/KNN-Data.csv?%2Fdatasets%2Fhscrown%2Fknndata%2Fresolve%2Fmain%2FKNN-Data.csv=&etag=%22d7416700730eba6e242939d2ac22c3abee7942d8%22
+  verified_at: '2026-07-11T14:03:08.765983Z'
+- artifact_hash: c9d9094a126c9b80f1c8b31e97940b7f929ddb58b357d55ca6127971b728fbf7
+  artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/research.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: gp2protein.mgi.parquet
   kind: url
   value: https://huggingface.co/datasets/pankajrajdeo/gp2protein_mice_JAX/resolve/main/gp2protein.mgi.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/663527cf02fd8c76ae2ebfb9/549fe161beda00c95e3baa2b46558babdc3efb4d95c6a04ee83ecd73c171a999?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gp2protein.mgi.parquet%3B+filename%3D%22gp2protein.mgi.parquet%22%3B&Expires=1783780063&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYzNTI3Y2YwMmZkOGM3NmFlMmViZmI5LzU0OWZlMTYxYmVkYTAwYzk1ZTNiYWEyYjQ2NTU4YmFiZGMzZWZiNGQ5NWM2YTA0ZWU4M2VjZDczYzE3MWE5OTlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3AycHJvdGVpbi5tZ2kucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmdwMnByb3RlaW4ubWdpLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzc4MDA2M319fV19&Signature=MEUCIDZYdnfsH78MGRXhorEY7nBwvvyFA04OZX2ugbPdfG94AiEAx2o%7E12-xy2vCLN8J5B1nsyZfWNQCPbXCB5ICKXjbqFE_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T13:27:43.542694Z'
-- artifact_hash: f819d9790d1083a6ec9272c48da032d354e0521637bd58d741488377375d5df0
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/663527cf02fd8c76ae2ebfb9/549fe161beda00c95e3baa2b46558babdc3efb4d95c6a04ee83ecd73c171a999?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gp2protein.mgi.parquet%3B+filename%3D%22gp2protein.mgi.parquet%22%3B&Expires=1783782189&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYzNTI3Y2YwMmZkOGM3NmFlMmViZmI5LzU0OWZlMTYxYmVkYTAwYzk1ZTNiYWEyYjQ2NTU4YmFiZGMzZWZiNGQ5NWM2YTA0ZWU4M2VjZDczYzE3MWE5OTlcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3AycHJvdGVpbi5tZ2kucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmdwMnByb3RlaW4ubWdpLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzc4MjE4OX19fV19&Signature=MEUCIQDrd%7ESvQKmQINI787MlRCu9uzjXsepPh09IlsPl1VOqKgIgfLHYUAzd0cAqSI81EDuIWTytdGTUTh888pUhRQPrxQE_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T14:03:08.765983Z'
+- artifact_hash: c9d9094a126c9b80f1c8b31e97940b7f929ddb58b357d55ca6127971b728fbf7
   artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/research.md
-  cite_id: c-003
+  cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: Identidock
   kind: url
   value: https://huggingface.co/datasets/mai-ll/ipw-sft-trajectories/resolve/main/all_correct_trajectories.jsonl`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69caed694fc9b385257987b0/28f5f0176df6dd3fd8b49402f0cdfbe16b00e311db80e2dcaf70ee3a12b9f321?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27all_correct_trajectories.jsonl%3B+filename%3D%22all_correct_trajectories.jsonl%22%3B&Expires=1783780064&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjljYWVkNjk0ZmM5YjM4NTI1Nzk4N2IwLzI4ZjVmMDE3NmRmNmRkM2ZkOGI0OTQwMmYwY2RmYmUxNmIwMGUzMTFkYjgwZTJkY2FmNzBlZTNhMTJiOWYzMjFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWxsX2NvcnJlY3RfdHJhamVjdG9yaWVzLmpzb25sJTNCK2ZpbGVuYW1lJTNEJTIyYWxsX2NvcnJlY3RfdHJhamVjdG9yaWVzLmpzb25sJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3ODAwNjR9fX1dfQ__&Signature=MEYCIQDO4V2rYQEEOmTZwRt8QiozokDu4vO5FkhXGNyU21sKZAIhAPilyW1heOyeUiKykhIUbXdft6V6KQ2trZU3wtYrib9p&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T13:27:43.542694Z'
-- artifact_hash: f819d9790d1083a6ec9272c48da032d354e0521637bd58d741488377375d5df0
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69caed694fc9b385257987b0/28f5f0176df6dd3fd8b49402f0cdfbe16b00e311db80e2dcaf70ee3a12b9f321?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27all_correct_trajectories.jsonl%3B+filename%3D%22all_correct_trajectories.jsonl%22%3B&Expires=1783782189&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjljYWVkNjk0ZmM5YjM4NTI1Nzk4N2IwLzI4ZjVmMDE3NmRmNmRkM2ZkOGI0OTQwMmYwY2RmYmUxNmIwMGUzMTFkYjgwZTJkY2FmNzBlZTNhMTJiOWYzMjFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWxsX2NvcnJlY3RfdHJhamVjdG9yaWVzLmpzb25sJTNCK2ZpbGVuYW1lJTNEJTIyYWxsX2NvcnJlY3RfdHJhamVjdG9yaWVzLmpzb25sJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3ODIxODl9fX1dfQ__&Signature=MEQCIDG71tRNIdaXiDcxw-LF-mqv4wKCv-In2bUUC9CZvNyTAiBM5eDvUAPPNO7IaNWHXn7Prjijt7k5qcKldi1jTA9bNw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T14:03:08.765983Z'
+- artifact_hash: c9d9094a126c9b80f1c8b31e97940b7f929ddb58b357d55ca6127971b728fbf7
   artifact_path: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/research.md
-  cite_id: c-004
+  cite_id: c-006
   cited_authors: []
   cited_title: null
-  fetched_title: dev-00000-of-00001-061757c1151c5a51.parquet
+  fetched_title: details_harness|arc:challenge|25_2023-08-09T19:07:45.652340.parquet
   kind: url
-  value: https://huggingface.co/datasets/mekaneeky/Synthetic_Ateso_MMS/resolve/main/data/dev-00000-of-00001-061757c1151c5a51.parquet`
+  value: https://huggingface.co/datasets/open-llm-leaderboard-old/details_psmathur__model_42_70b/resolve/main/2023-08-09T19:07:45.652340/details_harness|arc:challenge|25_2023-08-09T19:07:45.652340.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/653a853e33574f20f7ea291a/d426d7f2bb030267243157178df866e025fd50be92a6821b209a805dc657c13a?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev-00000-of-00001-061757c1151c5a51.parquet%3B+filename%3D%22dev-00000-of-00001-061757c1151c5a51.parquet%22%3B&user_id=public&Expires=1783780067&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUzYTg1M2UzMzU3NGYyMGY3ZWEyOTFhL2Q0MjZkN2YyYmIwMzAyNjcyNDMxNTcxNzhkZjg2NmUwMjVmZDUwYmU5MmE2ODIxYjIwOWE4MDVkYzY1N2MxM2FcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV2LTAwMDAwLW9mLTAwMDAxLTA2MTc1N2MxMTUxYzVhNTEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmRldi0wMDAwMC1vZi0wMDAwMS0wNjE3NTdjMTE1MWM1YTUxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzc4MDA2N319fV19&Signature=MEUCIEcU%7EtbGEvrRpQjvR4oGwln8hiS8CSVE1DKK4sHO4amTAiEA-TLG1fjgx24jc0g-M6pZqr9xp2Odz0GkNqdwG%7EoBMPs_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T13:27:43.542694Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64deb826e437d02ce6a7be38/bba5a7c4386103ba79452883820622c2eeec70fc24c81a2c7764691073a87ed2?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27details_harness%25257Carc%25253Achallenge%25257C25_2023-08-09T19%25253A07%25253A45.652340.parquet%3B+filename%3D%22details_harness%257Carc%253Achallenge%257C25_2023-08-09T19%253A07%253A45.652340.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783782192&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRkZWI4MjZlNDM3ZDAyY2U2YTdiZTM4L2JiYTVhN2M0Mzg2MTAzYmE3OTQ1Mjg4MzgyMDYyMmMyZWVlYzcwZmMyNGM4MWEyYzc3NjQ2OTEwNzNhODdlZDJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV0YWlsc19oYXJuZXNzJTI1MjU3Q2FyYyUyNTI1M0FjaGFsbGVuZ2UlMjUyNTdDMjVfMjAyMy0wOC0wOVQxOSUyNTI1M0EwNyUyNTI1M0E0NS42NTIzNDAucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmRldGFpbHNfaGFybmVzcyUyNTdDYXJjJTI1M0FjaGFsbGVuZ2UlMjU3QzI1XzIwMjMtMDgtMDlUMTklMjUzQTA3JTI1M0E0NS42NTIzNDAucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzgyMTkyfX19XX0_&Signature=MEUCICR2kEP4gLDm0dI5BJc%7E1PzKMcJh0-wMoxZATHt4GutiAiEA-xGoYaHgmP0pe5IOL2VwITH68-3w1mlJrj1kex99Yq4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T14:03:08.765983Z'

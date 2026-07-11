@@ -1,4 +1,4 @@
-resolved_at: '2026-07-11T13:13:23.937579+00:00'
+resolved_at: '2026-07-11T13:42:51.348484+00:00'
 datasets:
 - intent: ATE
   status: verified
@@ -25,7 +25,7 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/69ec8a7023951f22475c419c/f64a122d051825e71abf02e718dfd22eaa00f9accc15cf246783241908e13d7c?response-content-type=text%2Fcsv&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27final_dataset_augmented_v9_boundary.csv%3B+filename%3D%22final_dataset_augmented_v9_boundary.csv%22%3B&X-Xet-Cas-Uid=public&Expires=1783778921&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjllYzhhNzAyMzk1MWYyMjQ3NWM0MTljL2Y2NGExMjJkMDUxODI1ZTcxYWJmMDJlNzE4ZGZkMjJlYWEwMGY5YWNjYzE1Y2YyNDY3ODMyNDE5MDhlMTNkN2NcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3Nzg5MjF9fX1dfQ__&Signature=MEUCIE4ZhT5W2txWIwAawmZxtg3db6p~Hk3X0Hgtk55xxPd8AiEAmKnetWvUrYMeKzC~wnwCc2QLFNla~Ti8TeVXXVBsKGk_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/69ec8a7023951f22475c419c/f64a122d051825e71abf02e718dfd22eaa00f9accc15cf246783241908e13d7c?X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27final_dataset_augmented_v9_boundary.csv%3B+filename%3D%22final_dataset_augmented_v9_boundary.csv%22%3B&Expires=1783780673&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjllYzhhNzAyMzk1MWYyMjQ3NWM0MTljL2Y2NGExMjJkMDUxODI1ZTcxYWJmMDJlNzE4ZGZkMjJlYWEwMGY5YWNjYzE1Y2YyNDY3ODMyNDE5MDhlMTNkN2NcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3ODA2NzN9fX1dfQ__&Signature=MEUCIDa928kd~nmuK3w77MV9e2Z76LvaISGSQziwCeecSE4-AiEA1fbIiXPKgEb46GWlba1YL6DtIhLmY-2m1WL~2a5-3ys_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -41,23 +41,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Ammonia_Oxidation_with_a_Ruthenium_Polypyridyl_Complex_Mechanism-Guided_Approach_to_Low_Overpotential_Electrocatalysis/32963739
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Ammonia_Oxidation_with_a_Ruthenium_Polypyridyl_Complex_Mechanism-Guided_Approach_to_Low_Overpotential_Electrocatalysis/32963736
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Spatially_Resolved_Free_Fatty_Acid_Profiling_Reveals_Region-_and_Age-Dependent_Remodeling_of_Alzheimer_s_Disease_Plaques/32963733
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photopatterning_of_Hierarchical_Porous_Polymers_via_Flash-Freezing_and_Polymerization-Induced_Phase_Separation/32963730
+  - url: https://acs.figshare.com/articles/journal_contribution/Low-Surface_Resistance_High-Sensitivity_IPMC_Sensors_Enabled_by_Physical_Deposition_of_AgNPs_Au_Electrodes/32963846
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Comparison_of_Synthesized_Microstructured_and_Commercial_FePO_sub_4_sub_as_Precursors_for_High-Performance_LiFePO_sub_4_sub_C_Cathode_Materials/32963727
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095367
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -139,23 +139,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://acs.figshare.com/articles/journal_contribution/Can_LLMs_Solve_Solubility_Tasks_The_SoluBench_Benchmark_for_Pure_and_Mixed_Solvent_Systems/32963742
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Ammonia_Oxidation_with_a_Ruthenium_Polypyridyl_Complex_Mechanism-Guided_Approach_to_Low_Overpotential_Electrocatalysis/32963739
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Ammonia_Oxidation_with_a_Ruthenium_Polypyridyl_Complex_Mechanism-Guided_Approach_to_Low_Overpotential_Electrocatalysis/32963736
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Spatially_Resolved_Free_Fatty_Acid_Profiling_Reveals_Region-_and_Age-Dependent_Remodeling_of_Alzheimer_s_Disease_Plaques/32963733
+  - url: https://acs.figshare.com/articles/journal_contribution/Low-Surface_Resistance_High-Sensitivity_IPMC_Sensors_Enabled_by_Physical_Deposition_of_AgNPs_Au_Electrodes/32963846
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photopatterning_of_Hierarchical_Porous_Polymers_via_Flash-Freezing_and_Polymerization-Induced_Phase_Separation/32963730
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095367
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -195,10 +195,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/de087a13-2ec2-4962-88f7-e79b056c2602
+  - url: https://doi.org/10.24406/publica-5438
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''publica.fraunhofer.de'',
+      port=443): Read timed out. (read timeout=20.0)'
 - intent: MNAR
   status: verified
   candidates:
@@ -244,23 +245,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Can_LLMs_Solve_Solubility_Tasks_The_SoluBench_Benchmark_for_Pure_and_Mixed_Solvent_Systems/32963742
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Ammonia_Oxidation_with_a_Ruthenium_Polypyridyl_Complex_Mechanism-Guided_Approach_to_Low_Overpotential_Electrocatalysis/32963739
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Ammonia_Oxidation_with_a_Ruthenium_Polypyridyl_Complex_Mechanism-Guided_Approach_to_Low_Overpotential_Electrocatalysis/32963736
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Spatially_Resolved_Free_Fatty_Acid_Profiling_Reveals_Region-_and_Age-Dependent_Remodeling_of_Alzheimer_s_Disease_Plaques/32963733
+  - url: https://acs.figshare.com/articles/journal_contribution/Low-Surface_Resistance_High-Sensitivity_IPMC_Sensors_Enabled_by_Physical_Deposition_of_AgNPs_Au_Electrodes/32963846
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photopatterning_of_Hierarchical_Porous_Polymers_via_Flash-Freezing_and_Polymerization-Induced_Phase_Separation/32963730
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095367
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -341,23 +342,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://acs.figshare.com/articles/journal_contribution/Investigation_of_Magnetic_and_Structural_Transitions_in_Hybrid_Molybdenum_III_2D_Halide_Double_Perovskites/32963745
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Can_LLMs_Solve_Solubility_Tasks_The_SoluBench_Benchmark_for_Pure_and_Mixed_Solvent_Systems/32963742
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Ammonia_Oxidation_with_a_Ruthenium_Polypyridyl_Complex_Mechanism-Guided_Approach_to_Low_Overpotential_Electrocatalysis/32963739
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Ammonia_Oxidation_with_a_Ruthenium_Polypyridyl_Complex_Mechanism-Guided_Approach_to_Low_Overpotential_Electrocatalysis/32963736
+  - url: https://acs.figshare.com/articles/journal_contribution/Low-Surface_Resistance_High-Sensitivity_IPMC_Sensors_Enabled_by_Physical_Deposition_of_AgNPs_Au_Electrodes/32963846
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Spatially_Resolved_Free_Fatty_Acid_Profiling_Reveals_Region-_and_Age-Dependent_Remodeling_of_Alzheimer_s_Disease_Plaques/32963733
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095367
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -446,23 +447,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963751
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963748
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Investigation_of_Magnetic_and_Structural_Transitions_in_Hybrid_Molybdenum_III_2D_Halide_Double_Perovskites/32963745
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Can_LLMs_Solve_Solubility_Tasks_The_SoluBench_Benchmark_for_Pure_and_Mixed_Solvent_Systems/32963742
+  - url: https://acs.figshare.com/articles/journal_contribution/Low-Surface_Resistance_High-Sensitivity_IPMC_Sensors_Enabled_by_Physical_Deposition_of_AgNPs_Au_Electrodes/32963846
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Ammonia_Oxidation_with_a_Ruthenium_Polypyridyl_Complex_Mechanism-Guided_Approach_to_Low_Overpotential_Electrocatalysis/32963739
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095367
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -486,23 +487,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Germline_TWAS_Convergence_Between_NMN-Responsive_Aging_Pathways_and_Triple-Negative_Breast_Cancer_Susceptibility_Autophagy_and_MAP2K2_as_Translational_Leads/32963666/1
+  - url: https://usiena-air.unisi.it//handle/11365/1142524
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Germline_TWAS_Convergence_Between_NMN-Responsive_Aging_Pathways_and_Triple-Negative_Breast_Cancer_Susceptibility_Autophagy_and_MAP2K2_as_Translational_Leads/32963666
+  - url: https://usiena-air.unisi.it//handle/11365/1140697
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.uniupo.it//handle/11579/104068
+  - url: https://air.unimi.it/handle/2434/232586
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.uniupo.it//handle/11579/115194
+  - url: https://air.unimi.it/handle/2434/217462
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://usiena-air.unisi.it//handle/11365/1128669
+  - url: https://air.unimi.it/handle/2434/217168
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -559,23 +560,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Rheological_Carbon_Sequestration_and_Mechanical_Properties_of_Solid_Waste-Based_Carbon-Negative_Backfill_Materials_Effect_of_Reaction_Temperature/32963754
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963751
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963748
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Investigation_of_Magnetic_and_Structural_Transitions_in_Hybrid_Molybdenum_III_2D_Halide_Double_Perovskites/32963745
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Can_LLMs_Solve_Solubility_Tasks_The_SoluBench_Benchmark_for_Pure_and_Mixed_Solvent_Systems/32963742
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -607,18 +608,18 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/929289
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://iris.unitn.it/handle/11572/147019
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.gbif.org/occurrence/download/0033326-260623161305970
+  - url: https://unige.iris.cineca.it/handle/11567/929289
     source: datacite
     status: wrong_format
-    reason: HTTP 403
+    reason: unrecognized/non-dataset content
+  - url: https://juser.fz-juelich.de/record/1055498
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: IPW
   status: verified
   candidates:
@@ -664,23 +665,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Rheological_Carbon_Sequestration_and_Mechanical_Properties_of_Solid_Waste-Based_Carbon-Negative_Backfill_Materials_Effect_of_Reaction_Temperature/32963754
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963751
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963748
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Investigation_of_Magnetic_and_Structural_Transitions_in_Hybrid_Molybdenum_III_2D_Halide_Double_Perovskites/32963745
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Can_LLMs_Solve_Solubility_Tasks_The_SoluBench_Benchmark_for_Pure_and_Mixed_Solvent_Systems/32963742
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -769,23 +770,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/book/_p_p_p_dir_ltr_Subtraction_p_/32963558
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Rheological_Carbon_Sequestration_and_Mechanical_Properties_of_Solid_Waste-Based_Carbon-Negative_Backfill_Materials_Effect_of_Reaction_Temperature/32963754
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963751
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963748
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Investigation_of_Magnetic_and_Structural_Transitions_in_Hybrid_Molybdenum_III_2D_Halide_Double_Perovskites/32963745
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -874,23 +875,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/_p_p_p_dir_ltr_Subtraction_p_/32963558
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Rheological_Carbon_Sequestration_and_Mechanical_Properties_of_Solid_Waste-Based_Carbon-Negative_Backfill_Materials_Effect_of_Reaction_Temperature/32963754
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963751
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963748
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Investigation_of_Magnetic_and_Structural_Transitions_in_Hybrid_Molybdenum_III_2D_Halide_Double_Perovskites/32963745
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -953,27 +954,27 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&user_id=public&response-content-type=application%2Fjson&Expires=1783779159&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUzQitmaWxlbmFtZSUzRCUyMmdwdDRfc2luZ2xlX211bHRpX2F1dG9pZl9zaGFyZWdwdF9yYWdfbWl4Lmpzb24lMjIlM0ImdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzc5MTU5fX19XX0_&Signature=MEUCIQCusPda-MC7OP1cqAUAb1rriUcwYc7~85beSBaU0BFFYgIgNnZrJBgyBQtdkQbZJ06Jy0B1Ev6ZFtIDK58oQvW54rw_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&response-content-type=application%2Fjson&Expires=1783780927&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUzQitmaWxlbmFtZSUzRCUyMmdwdDRfc2luZ2xlX211bHRpX2F1dG9pZl9zaGFyZWdwdF9yYWdfbWl4Lmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzgwOTI3fX19XX0_&Signature=MEUCICvQqblPbzroS8PToj1YcsV1tGA5wWm5aWSdVBVqq6c6AiEA1tlLklyDkCSqDhWUH8ED8P4Kiee-49R6cNSHdKmyqe0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/_p_p_p_dir_ltr_Subtraction_p_/32963558
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Rheological_Carbon_Sequestration_and_Mechanical_Properties_of_Solid_Waste-Based_Carbon-Negative_Backfill_Materials_Effect_of_Reaction_Temperature/32963754
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963751
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963748
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Investigation_of_Magnetic_and_Structural_Transitions_in_Hybrid_Molybdenum_III_2D_Halide_Double_Perovskites/32963745
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -1062,23 +1063,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/book/_p_p_p_dir_ltr_Subtraction_p_/32963558
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Rheological_Carbon_Sequestration_and_Mechanical_Properties_of_Solid_Waste-Based_Carbon-Negative_Backfill_Materials_Effect_of_Reaction_Temperature/32963754
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963751
+  - url: https://figshare.com/articles/conference_contribution/_b_What_Future_Computer_Science_Teachers_Think_b_b_About_the_Use_of_GenAI_in_Programming_Lessons_b_b_A_Case_Study_-_Appendices_1_b_/31724443
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963748
+  - url: https://acs.figshare.com/articles/journal_contribution/Topochemistry_of_Ammonium_Perchlorate_How_Surface_Morphology_Mediates_Its_Sublimation/32963852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Investigation_of_Magnetic_and_Structural_Transitions_in_Hybrid_Molybdenum_III_2D_Halide_Double_Perovskites/32963745
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Compact_Behavioral_Model_Quantifying_the_Relationship_between_Optoelectronic_Memristor_Dynamics_and_Reservoir_Computing_Performance/32963849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -1102,23 +1103,11 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/book/_p_p_p_dir_ltr_Subtraction_p_/32963558
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Rheological_Carbon_Sequestration_and_Mechanical_Properties_of_Solid_Waste-Based_Carbon-Negative_Backfill_Materials_Effect_of_Reaction_Temperature/32963754
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963751
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/CRISPR_Biosensing_for_Environmental_Monitoring_Workflow_Design_and_Performance_Benchmarking/32963748
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Investigation_of_Magnetic_and_Structural_Transitions_in_Hybrid_Molybdenum_III_2D_Halide_Double_Perovskites/32963745
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mode_of_delivery_in_women_with_versus_without_psychiatric_vulnerability/32963864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
