@@ -1,0 +1,2 @@
+# This file is an alias to pyproject.toml for IDEs that prefer standalone config.
+# Configuration is defined in pyproject.toml [tool.ruff] section.

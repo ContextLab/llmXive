@@ -1,0 +1,6 @@
+T008 Implement `code/main.py` orchestrator with runtime monitoring (stop if >6h) and DATA_GAP stop condition: 2
+? 'T009 [P] [US1] Unit test for data download validation in `tests/unit/test_preprocessing.py`:
+  Implement `test_download_url_exists` which asserts `pipeline.download_url_exists(''https://openneuro.org/datasets/ds000030'')`
+  returns `True`. Implement `test_download_checksum` which asserts `pipeline.verify_checksum(''data/raw/ds000030.zip'',
+  ''expected_sha256'')` returns `True`.'
+: 2

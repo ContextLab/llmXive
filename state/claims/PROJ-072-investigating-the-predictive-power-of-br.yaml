@@ -1,0 +1,774 @@
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000030 used for data acquisition
+  claim_id: c_3878f90e
+  context: 'T011 [US1] Implement code/preprocessing/download.py: Download logic for
+    OpenNeuro dataset ds000030.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000030_used_for_data_acquisition
+  kind: entity_fact
+  raw_text: Download logic for OpenNeuro dataset ds000030.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:23:18Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Preprocessing output matrix shape is 90x90 with values in [-1.0, 1.0]
+  claim_id: c_b72a7c47
+  context: T010 [P] [US1] Integration test for preprocessing pipeline on 1 subject...
+    asserts the output file... has shape (90, 90)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output file data/processed/sub-<id>_matrix.npy exists, has shape (90,
+    90), contains no NaNs, and all values are within [-1.0, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:23:35Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Motion exclusion threshold set to >2mm translation
+  claim_id: c_51bfcf30
+  context: 'T014 [US1] Implement motion flagging logic: exclude subjects with >2mm
+    translation...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_threshold_set_to_%3E2mm_translation
+  kind: entity_fact
+  raw_text: Exclude subjects with >2mm translation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:23:54Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Permutation test iteration count set to 100
+  claim_id: c_fc879273
+  context: T024 [P] [US3] Unit test for permutation test logic... runs validation.permutation_test(y_real,
+    y_shuffled, 100)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `validation.permutation_test(y_real, y_shuffled, 100)`...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:24:12Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Stability Selection retention frequency threshold set to >60%
+  claim_id: c_1bdbeb3e
+  context: T027 [US3] Implement Stability Selection... and a retention frequency threshold
+    of >60%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A retention frequency threshold of >60%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:24:12Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: MDE calculated for sample size N=60 and power=0.8
+  claim_id: c_fc2dfe8d
+  context: T032b [US3] ...Calculate Minimum Detectable Effect (MDE) for the observed
+    sample size (N=60) and power=0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Minimum Detectable Effect (MDE) for the observed sample size
+    (N=60) and power=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:24:35Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Significance flag set to true if ci_lower_bound >= 0.65 and observed_effect
+    >= MDE
+  claim_id: c_c04028fc
+  context: 'T032b [US3] Compute significance_flag: If ci_lower_bound >= 0.65 AND observed_effect
+    >= MDE: true'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If ci_lower_bound >= 0.65 AND observed_effect >= MDE: true'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:24:54Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time target is less than 6 hours on 2-core CPU
+  claim_id: c_2c204f35
+  context: 'T035 Performance optimization: ensure pipeline completes <6h on 2-core
+    CPU'
+  evidence:
+    candidates:
+    - - ''
+      - 6.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Pipeline_completion_time_target_is_less_than_6_hours_on_2-co
+  kind: magnitude
+  raw_text: ensure pipeline completes <6h on 2-core CPU
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-11T13:25:10Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Memory usage target is less than 7GB
+  claim_id: c_d6fab39e
+  context: T034 Code cleanup and refactoring for memory efficiency (ensure <7GB RAM
+    usage)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_target_is_less_than_7GB
+  kind: magnitude
+  raw_text: ensure <7GB RAM usage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:25:39Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Dataset source is OpenNeuro ds000030
+  claim_id: c_17c0d028
+  context: Download logic for OpenNeuro dataset ds000030. The research question and
+    method remain unchanged as per the planning document guidelines, with specific
+    empirical identifiers generalized to reflect the dataset source without asserting
+    precise low-level values.
+  evidence:
+    entailment_evidence: Dataset source is OpenNeuro ds000030
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_is_OpenNeuro_ds000030
+  kind: entity_fact
+  raw_text: The dataset source is OpenNeuro ds000030.
+  resolved_value: Dataset source is OpenNeuro ds000030
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T13:32:28Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: AAL atlas used for parcellation to generate connectivity matrices
+  claim_id: c_85b6a556
+  context: 'Implement code/preprocessing/parcellate.py: AAL atlas parcellation to
+    generate connectivity matrices.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AAL_atlas_used_for_parcellation_to_generate_connectivity_mat
+  kind: entity_fact
+  raw_text: The AAL atlas is used for parcellation to generate connectivity matrices.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:33:40Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Sample size N=60 for MDE calculation
+  claim_id: c_e7629aa8
+  context: Calculate Minimum Detectable Effect (MDE) for the observed sample size
+    (N=60) and power=0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for the Minimum Detectable Effect calculation is N=60.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:34:04Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Stability Selection retention frequency threshold >60%
+  claim_id: c_44100a1b
+  context: Manually implement a loop with multiple subsamples, [deferred] sample size
+    per subsample, L1 penalty, and a retention frequency threshold of >60%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Stability Selection algorithm uses a retention frequency threshold
+    of >60%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:34:04Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Pipeline completes <6h on 2-core CPU
+  claim_id: c_d13f034c
+  context: 'Performance optimization: ensure pipeline completes <6h on 2-core CPU'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_completes_%3C6h_on_2-core_CPU
+  kind: magnitude
+  raw_text: The pipeline is designed to complete in less than 6 hours on a 2-core
+    CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:34:29Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Memory usage <7GB RAM
+  claim_id: c_2ea75ed7
+  context: Code cleanup and refactoring for memory efficiency (ensure <7GB RAM usage)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_%3C7GB_RAM
+  kind: magnitude
+  raw_text: The memory usage constraint for the pipeline is less than 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:35:03Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Subjects with >2mm translation excluded
+  claim_id: c_a57213c2
+  context: 'Implement motion flagging logic: exclude subjects with >2mm translation;
+    update data/metadata/subject_status.csv with exclusion flags and reasons.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_%3E2mm_translation_excluded
+  kind: magnitude
+  raw_text: Subjects with more than 2mm translation are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:35:18Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 0
+  canonical: Dataset source is OpenNeuro ds000030
+  claim_id: c_8423b5e0
+  context: Ingest raw rs-fMRI data from OpenNeuro ds000030, preprocess (motion correction,
+    normalization, bandpass low-frequency range), and generate subject-level connectivity
+    matrices.
+  evidence:
+    entailment_evidence: Dataset source is OpenNeuro ds000030
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_is_OpenNeuro_ds000030
+  kind: entity_fact
+  raw_text: The dataset source is OpenNeuro ds000030.
+  resolved_value: Dataset source is OpenNeuro ds000030
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T13:49:22Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: AAL atlas used for parcellation
+  claim_id: c_0ae37bac
+  context: 'Implement code/preprocessing/parcellate.py: AAL atlas parcellation to
+    generate connectivity matrices.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AAL_atlas_used_for_parcellation
+  kind: entity_fact
+  raw_text: The AAL atlas is used for parcellation to generate connectivity matrices.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:49:24Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Exclusion threshold is >2mm translation
+  claim_id: c_9310c0a1
+  context: 'Implement motion flagging logic: exclude subjects with >2mm translation;
+    update data/metadata/subject_status.csv with exclusion flags and reasons.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclusion_threshold_is_%3E2mm_translation
+  kind: magnitude
+  raw_text: Subjects with greater than 2mm translation are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:49:40Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Output matrix shape is 90x90
+  claim_id: c_c3215ed4
+  context: Implement test_preprocess_single_subject which runs pipeline.preprocess(subject_id='sub')
+    and asserts the output file data/processed/sub-<id>_matrix.npy exists, has shape
+    (90, 90), contains no NaNs, and all values are within [-1.0, 1.0].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output matrices have a shape of (90, 90).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:49:56Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: "Stability Selection uses Meinshausen & B\xFChlmann algorithm"
+  claim_id: c_804b6210
+  context: "Implement Stability Selection in code/classification/models.py using the\
+    \ Meinshausen & B\xFChlmann algorithm: Manually implement a loop with multiple\
+    \ subsamples, [deferred] sample size per subsample, L1 penalty, and a retention\
+    \ frequency threshold of >60%."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_Selection_uses_Meinshausen_&_B%C3%BChlmann_algorithm
+  kind: entity_fact
+  raw_text: "The Meinshausen & B\xFChlmann algorithm is used for Stability Selection."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:50:18Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Stability Selection retention threshold >60%
+  claim_id: c_b8457de7
+  context: "Implement Stability Selection in code/classification/models.py using the\
+    \ Meinshausen & B\xFChlmann algorithm: Manually implement a loop with multiple\
+    \ subsamples, [deferred] sample size per subsample, L1 penalty, and a retention\
+    \ frequency threshold of >60%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_Selection_retention_threshold_%3E60%25
+  kind: magnitude
+  raw_text: The retention frequency threshold for Stability Selection is greater than
+    60%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:50:41Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Random seed for simulated medication is 42
+  claim_id: c_270bb369
+  context: If medication_status_available is false, generate simulated covariate sim_med_status
+    (Bernoulli p=0.5, seed=42) and append it to data/processed/features.csv to create
+    a NEW file data/processed/features_sim_med.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for simulated medication status is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:51:11Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: MDE calculated for N=60 and power=0.8
+  claim_id: c_2b9262b4
+  context: Calculate Minimum Detectable Effect (MDE) for the observed sample size
+    (N=60) and power=0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Minimum Detectable Effect (MDE) is calculated for a sample size of
+    N=60 and power=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:51:35Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: 'Significance flag criteria: CI lower >= 0.65 AND effect >= MDE'
+  claim_id: c_865b0297
+  context: 'Compute significance_flag: If ci_lower_bound >= 0.65 AND observed_effect
+    >= MDE: true.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significance_flag_criteria:_CI_lower_%3E=_0.65_AND_effect_%3E=_M
+  kind: magnitude
+  raw_text: The significance flag is true if the CI lower bound is greater than or
+    equal to 0.65 and the observed effect is greater than or equal to the MDE.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:52:03Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime <6h on 2-core CPU
+  claim_id: c_9934ebc8
+  context: 'Performance optimization: ensure pipeline completes <6h on 2-core CPU'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_%3C6h_on_2-core_CPU
+  kind: magnitude
+  raw_text: The pipeline must complete in less than 6 hours on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:52:56Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: RAM usage <7GB
+  claim_id: c_72555c8f
+  context: Code cleanup and refactoring for memory efficiency (ensure <7GB RAM usage)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_%3C7GB
+  kind: magnitude
+  raw_text: RAM usage must be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:53:24Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: verify output matrices have valid dimensions, no NaNs, and values within
+    [-1.0, 1.0]
+  claim_id: c_7a84cd5e
+  context: 'Independent Test: Run on a cohort of subjects.; verify output is square
+    correlation matrices of appropriate dimension (CSV/NumPy) with valid dimensions,
+    no NaNs, and values within the valid range for correlation coefficients..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on a cohort of subjects; verify output is square correlation matrices
+    of appropriate dimension (CSV/NumPy) with valid dimensions, no NaNs, and values
+    within the valid range for correlation coefficients.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:55:05Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: verify preprocessing output matrix shape is (90, 90) with values in [-1.0,
+    1.0] and no NaNs
+  claim_id: c_e3db08d8
+  context: Implement test_preprocess_single_subject which runs pipeline.preprocess(subject_id='sub')
+    and asserts the output file data/processed/sub-<id>_matrix.npy exists, has shape
+    (90, 90), contains no NaNs, and all values are within [-1.0, 1.0].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserts the output file data/processed/sub-<id>_matrix.npy exists, has
+    shape (90, 90), contains no NaNs, and all values are within [-1.0, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:55:35Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: verify global efficiency is 1.0 for a fully connected graph
+  claim_id: c_5c128679
+  context: 'Independent Test: Run on synthetic matrix with known properties; verify
+    efficiency=1.0 for fully connected graph; verify output dimensions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify efficiency=1.0 for fully connected graph
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:55:55Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: verify permutation test p-value is greater than 0.05 on shuffled labels
+  claim_id: c_6ada17f6
+  context: Implement test_permutation_p_value which runs validation.permutation_test(y_real,
+    y_shuffled, 100) and asserts the returned p-value is > 0.05 when labels are shuffled.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_permutation_test_p-value_is_greater_than_0.05_on_shuf
+  kind: magnitude
+  raw_text: asserts the returned p-value is > 0.05 when labels are shuffled.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:56:27Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: calculate minimum detectable effect for sample size 60 and power 0.8
+  claim_id: c_40487ac8
+  context: Calculate Minimum Detectable Effect (MDE) for the observed sample size
+    (N=60) and power=0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Minimum Detectable Effect (MDE) for the observed sample size
+    (N=60) and power=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:56:27Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: set significance flag to true if lower confidence bound is at least 0.65
+    and effect exceeds MDE
+  claim_id: c_aaa81f67
+  context: 'Compute significance_flag: If ci_lower_bound >= 0.65 AND observed_effect
+    >= MDE: true'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Set_significance_flag_to_true_if_lower_confidence_bound_is_a
+  kind: magnitude
+  raw_text: 'If ci_lower_bound >= 0.65 AND observed_effect >= MDE: true'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:56:29Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: pipeline execution time under 6 hours on 2-core CPU
+  claim_id: c_4964b37a
+  context: 'Performance optimization: ensure pipeline completes <6h on 2-core CPU'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure pipeline completes <6h on 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:56:29Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: memory usage under 7 GB
+  claim_id: c_2408c42c
+  context: Code cleanup and refactoring for memory efficiency (ensure <7GB RAM usage)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure <7GB RAM usage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:56:29Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000030 dataset used
+  claim_id: c_7f023789
+  context: 'Goal: Ingest raw rs-fMRI data from OpenNeuro ds000030, preprocess...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000030_dataset_used
+  kind: entity_fact
+  raw_text: The study uses the OpenNeuro ds000030 dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:59:18Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Subjects with >2mm translation excluded
+  claim_id: c_17254845
+  context: 'Implement motion flagging logic: exclude subjects with >2mm translation...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_%3E2mm_translation_excluded
+  kind: entity_fact
+  raw_text: Subjects with >2mm translation are excluded due to motion.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:59:39Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: 90x90 connectivity matrices from AAL atlas
+  claim_id: c_6ae6a92f
+  context: 'Implement `code/preprocessing/parcellate.py`: AAL atlas parcellation to
+    generate connectivity matrices... output file... has shape (90, 90)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Connectivity matrices are generated with shape (90, 90) using AAL atlas
+    parcellation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T14:00:32Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Sample size N=60
+  claim_id: c_6dd1575b
+  context: Calculate Minimum Detectable Effect (MDE) for the observed sample size
+    (N=60) and power=0.8.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Assume that we need to estimate the average number of votes for each
+        candidate in an election. Assume that a country has 3 towns: Town A has 1
+        million factory workers, Town B has 2 million office workers and Town C has
+        3 million retirees. We can choose to get a random sample of size 60 over the
+        entire population but there is some chance that the resulting random sample
+        is poorly balanced across these towns and hence is biased, causing a significant
+        error in estimation (when the outcome of interest has a different distribution,
+        in terms of the parameter of interest, between the towns). Instead, if we
+        choose to take a random sample of 10, 20 and 30 from Town A, B and C respectively,
+        then we can produce a smaller error in estimation for the same total sample
+        size. This method is generally used when a population is not a homogeneous
+        group.'
+      source_id: Stratified sampling
+      url: https://en.wikipedia.org/wiki/Stratified_sampling
+      value: '60'
+    filled: true
+  kind: numeric
+  raw_text: The sample size for the analysis is N=60.
+  resolved_value: '60'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T14:00:39Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Stability selection retention threshold >60%
+  claim_id: c_41582c86
+  context: Implement Stability Selection... and a retention frequency threshold of
+    >60%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability selection retention frequency threshold is set to >60%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T14:00:39Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Pipeline completion <6h on 2-core CPU
+  claim_id: c_37f70ba7
+  context: 'Performance optimization: ensure pipeline completes <6h on 2-core CPU'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_completion_%3C6h_on_2-core_CPU
+  kind: magnitude
+  raw_text: The pipeline is designed to complete in less than 6 hours on a 2-core
+    CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T14:00:40Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: RAM usage <7GB
+  claim_id: c_8cb29afb
+  context: ensure <7GB RAM usage
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_%3C7GB
+  kind: magnitude
+  raw_text: The pipeline is designed to use less than 7GB of RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T14:01:05Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Significance flag true if CI lower >= 0.65 and effect >= MDE
+  claim_id: c_846bb292
+  context: 'If `ci_lower_bound >= 0.65` AND `observed_effect >= MDE`: `true`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The significance flag is set to true if the 95% CI lower bound is >= 0.65
+    and the observed effect is >= MDE.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T14:01:20Z'

@@ -1,0 +1,100 @@
+# Pydantic model definitions for llmXive project PROJ-072
+# This file serves as the source of truth for data validation.
+# The corresponding Python implementation is in code/metadata/schemas.py
+
+models:
+  Subject:
+    description: "Represents a single participant in the study."
+    fields:
+      subject_id:
+        type: str
+        description: "Unique identifier for the subject (e.g., 'sub-001')."
+        pattern: "^sub-\\d+$"
+      diagnosis:
+        type: str
+        description: "Diagnostic label (e.g., 'SZ', 'HC')."
+        enum: ["SZ", "HC"]
+      age:
+        type: float
+        description: "Age of the subject in years."
+        ge: 18
+        le: 100
+      sex:
+        type: str
+        description: "Biological sex of the subject."
+        enum: ["M", "F"]
+      motion_flag:
+        type: bool
+        description: "True if subject was excluded due to motion (>2mm)."
+        default: false
+      exclusion_reason:
+        type: str | null
+        description: "Reason for exclusion if motion_flag is true."
+        nullable: true
+      medication_status:
+        type: str | null
+        description: "Medication status if available (e.g., 'medicated', 'unmedicated')."
+        nullable: true
+
+  ConnectivityMatrix:
+    description: "Represents a functional connectivity matrix for a subject."
+    fields:
+      subject_id:
+        type: str
+        description: "Reference to the Subject ID."
+        pattern: "^sub-\\d+$"
+      matrix_path:
+        type: str
+        description: "Relative path to the matrix file (e.g., 'data/processed/sub-001_matrix.npy')."
+        pattern: "^data/processed/.*\\.(npy|csv)$"
+      atlas:
+        type: str
+        description: "Atlas used for parcellation (e.g., 'AAL')."
+        default: "AAL"
+      dimension:
+        type: int
+        description: "Dimension of the square matrix (e.g., 90 for AAL)."
+        gt: 0
+      is_psd:
+        type: bool
+        description: "True if the matrix is positive semi-definite."
+        default: false
+      regularization_applied:
+        type: bool
+        description: "True if regularization was applied to ensure PSD."
+        default: false
+
+  FeatureVector:
+    description: "Represents the extracted graph metrics for a subject."
+    fields:
+      subject_id:
+        type: str
+        description: "Reference to the Subject ID."
+        pattern: "^sub-\\d+$"
+      global_efficiency:
+        type: float
+        description: "Global efficiency of the network."
+        ge: 0.0
+        le: 1.0
+      local_efficiency:
+        type: float
+        description: "Local efficiency of the network."
+        ge: 0.0
+        le: 1.0
+      modularity:
+        type: float
+        description: "Modularity score (Louvain method)."
+      betweenness_centrality_mean:
+        type: float
+        description: "Mean betweenness centrality across all nodes."
+      prefrontal_centrality:
+        type: float
+        description: "Betweenness centrality for prefrontal ROIs."
+      hippocampal_centrality:
+        type: float
+        description: "Betweenness centrality for hippocampal ROIs."
+      feature_vector_path:
+        type: str
+        description: "Path to the full feature vector if stored separately."
+        nullable: true
+        pattern: "^data/processed/.*\\.csv$"

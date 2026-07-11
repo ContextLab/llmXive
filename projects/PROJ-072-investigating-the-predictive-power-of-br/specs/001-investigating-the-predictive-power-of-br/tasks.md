@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: Create root directories `code/`, `data/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/`, `docs/`, `scripts/`, `state/`. Create `requirements.txt` at root. Create `__init__.py` in `code/` and `tests/`. Ensure all directories exist before proceeding to Phase 2.
+- [X] T001 Create project structure per implementation plan: Create root directories `code/`, `data/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/`, `docs/`, `scripts/`, `state/`. Create `requirements.txt` at root. Create `__init__.py` in `code/` and `tests/`. Ensure all directories exist before proceeding to Phase 2.
 
 ---
 
@@ -53,11 +53,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Initialize Python 3.11 project with dependencies (`requirements.txt`: nibabel, numpy, pandas, scikit-learn, networkx, bctpy, scipy, huggingface_hub, nilearn, pydantic, joblib)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T005 Implement `scripts/hash_artifacts.sh` to generate SHA-256 hashes for `data/` and `code/` and update `state/` YAML (Constitution V)
-- [ ] T006 Create `code/__init__.py` and configure logging infrastructure
-- [ ] T007 Define `data/metadata/schema.yaml` (Pydantic models for Subject, ConnectivityMatrix, FeatureVector)
+- [X] T002 Initialize Python 3.11 project with dependencies (`requirements.txt`: nibabel, numpy, pandas, scikit-learn, networkx, bctpy, scipy, huggingface_hub, nilearn, pydantic, joblib)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T005 Implement `scripts/hash_artifacts.sh` to generate SHA-256 hashes for `data/` and `code/` and update `state/` YAML (Constitution V)
+- [X] T006 Create `code/__init__.py` and configure logging infrastructure
+- [X] T007 Define `data/metadata/schema.yaml` (Pydantic models for Subject, ConnectivityMatrix, FeatureVector)
 - [ ] T008 Implement `code/main.py` orchestrator with runtime monitoring (stop if >6h) and DATA_GAP stop condition
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,17 +75,17 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Unit test for data download validation in `tests/unit/test_preprocessing.py`: Implement `test_download_url_exists` which asserts `pipeline.download_url_exists('https://openneuro.org/datasets/ds000030')` returns `True`. Implement `test_download_checksum` which asserts `pipeline.verify_checksum('data/raw/ds000030.zip', 'expected_sha256')` returns `True`.
-- [ ] T010 [P] [US1] Integration test for preprocessing pipeline on 1 subject in `tests/integration/test_preprocessing.py`: Implement `test_preprocess_single_subject` which runs `pipeline.preprocess(subject_id='sub')` and asserts the output file `data/processed/sub-<id>_matrix.npy` exists, has shape `(90, 90)`, contains no NaNs, and all values are within `[-1.0, 1.0]`.
+- [~] T010 [P] [US1] Integration test for preprocessing pipeline on 1 subject in `tests/integration/test_preprocessing.py`: Implement `test_preprocess_single_subject` which runs `pipeline.preprocess(subject_id='sub')` and asserts the output file `data/processed/sub-<id>_matrix.npy` exists, has shape `(90, 90)`, contains no NaNs, and all values are within `[-1.0, 1.0]`.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/preprocessing/download.py`: Download logic for OpenNeuro dataset ds000030. The research question and method remain unchanged as per the planning document guidelines, with specific empirical identifiers generalized to reflect the dataset source without asserting precise low-level values. References: OpenNeuro (); handle missing diagnostic labels by excluding subjects and logging the count to `data/metadata/exclusion_log.txt`.
-- [ ] T012 [US1] Implement `code/preprocessing/preprocess.py`: motion correction, normalization, and bandpass filtering (low-frequency range) using nilearn's FSL-compatible wrappers; verify output headers match FSL standard logs to ensure Constitution Principle VI compliance.
-- [ ] T013 [US1] Implement `code/preprocessing/parcellate.py`: AAL atlas parcellation to generate connectivity matrices.
-- [ ] T014 [US1] Implement motion flagging logic: exclude subjects with >2mm translation; update `data/metadata/subject_status.csv` with exclusion flags and reasons.
-- [ ] T015 [US1] Implement `code/preprocessing/metadata.py`: metadata generation (Subject ID -> Label mapping) and save to `data/metadata/subject_labels.csv`.
+- [~] T011 [US1] Implement `code/preprocessing/download.py`: Download logic for OpenNeuro dataset ds000030. The research question and method remain unchanged as per the planning document guidelines, with specific empirical identifiers generalized to reflect the dataset source without asserting precise low-level values. References: OpenNeuro (); handle missing diagnostic labels by excluding subjects and logging the count to `data/metadata/exclusion_log.txt`.
+- [~] T012 [US1] Implement `code/preprocessing/preprocess.py`: motion correction, normalization, and bandpass filtering (low-frequency range) using nilearn's FSL-compatible wrappers; verify output headers match FSL standard logs to ensure Constitution Principle VI compliance.
+- [~] T013 [US1] Implement `code/preprocessing/parcellate.py`: AAL atlas parcellation to generate connectivity matrices.
+- [~] T014 [US1] Implement motion flagging logic: exclude subjects with >2mm translation; update `data/metadata/subject_status.csv` with exclusion flags and reasons.
+- [~] T015 [US1] Implement `code/preprocessing/metadata.py`: metadata generation (Subject ID -> Label mapping) and save to `data/metadata/subject_labels.csv`. <!-- FAILED: unspecified -->
 - [ ] T015.5 [US1] Implement metadata parsing in `code/preprocessing/metadata.py` to detect presence of `medication_status` field in OpenNeuro JSON sidecars; save result as `analysis_config.json` with key `medication_status_available: true/false`.
-- [ ] T016 [US1] Add validation for positive semi-definite matrices (apply regularization if needed) and log anomalies.
+- [~] T016 [US1] Add validation for positive semi-definite matrices (apply regularization if needed) and log anomalies.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,16 +99,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for graph metric calculator in `tests/unit/test_graph_metrics.py`: Implement `test_efficiency_full_graph` which creates a x10 matrix of all 1.0s and asserts `calculator.global_efficiency(matrix) == 1.0`. Implement `test_modularity_output` which asserts `calculator.modularity(matrix)` returns a value within the expected normalized range.
-- [ ] T018 [P] [US2] Integration test for feature extraction in `tests/integration/test_graph_metrics.py`: Implement `test_feature_extraction` which runs `calculator.extract_features(all_matrices)` and asserts the output `data/processed/features.csv` has a shape consistent with the number of subjects and the expected feature dimensionality., contains no NaNs, and includes columns for 'global_efficiency', 'local_efficiency', 'modularity', 'prefrontal_centrality', 'hippocampal_centrality'.
+- [~] T017 [P] [US2] Unit test for graph metric calculator in `tests/unit/test_graph_metrics.py`: Implement `test_efficiency_full_graph` which creates a x10 matrix of all 1.0s and asserts `calculator.global_efficiency(matrix) == 1.0`. Implement `test_modularity_output` which asserts `calculator.modularity(matrix)` returns a value within the expected normalized range.
+- [~] T018 [P] [US2] Integration test for feature extraction in `tests/integration/test_graph_metrics.py`: Implement `test_feature_extraction` which runs `calculator.extract_features(all_matrices)` and asserts the output `data/processed/features.csv` has a shape consistent with the number of subjects and the expected feature dimensionality., contains no NaNs, and includes columns for 'global_efficiency', 'local_efficiency', 'modularity', 'prefrontal_centrality', 'hippocampal_centrality'. <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `code/graph_metrics/calculator.py` to compute Global Efficiency, Local Efficiency, Modularity (Louvain), Betweenness Centrality.
-- [ ] T020 [US2] Implement `code/graph_metrics/calculator.py` to extract regional centrality specifically for Prefrontal and Hippocampal ROIs.
-- [ ] T021 [US2] Implement collinearity check (r > 0.8) in `code/graph_metrics/calculator.py`; if found, apply PCA and save reduced matrix to `data/processed/features_pca.csv`, OR drop features and log to `data/metadata/collinearity_log.txt`.
-- [ ] T022 [US2] Implement feature vector assembly (multiple metrics) and save to `data/processed/features.csv`. This task must run AFTER T019, T020, T021. It produces the PRIMARY feature set for the main analysis.
-- [ ] T023 [US2] Implement summary statistics report generation (mean/std per metric, stratified by group) in `docs/`.
+- [~] T019 [P] [US2] Implement `code/graph_metrics/calculator.py` to compute Global Efficiency, Local Efficiency, Modularity (Louvain), Betweenness Centrality.
+- [~] T020 [US2] Implement `code/graph_metrics/calculator.py` to extract regional centrality specifically for Prefrontal and Hippocampal ROIs.
+- [~] T021 [US2] Implement collinearity check (r > 0.8) in `code/graph_metrics/calculator.py`; if found, apply PCA and save reduced matrix to `data/processed/features_pca.csv`, OR drop features and log to `data/metadata/collinearity_log.txt`.
+- [~] T022 [US2] Implement feature vector assembly (multiple metrics) and save to `data/processed/features.csv`. This task must run AFTER T019, T020, T021. It produces the PRIMARY feature set for the main analysis.
+- [~] T023 [US2] Implement summary statistics report generation (mean/std per metric, stratified by group) in `docs/`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,7 +122,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for permutation test logic in `tests/unit/test_validation.py`: Implement `test_permutation_p_value` which runs `validation.permutation_test(y_real, y_shuffled, 100)` and asserts the returned p-value is > 0.05 when labels are shuffled.
+- [~] T024 [P] [US3] Unit test for permutation test logic in `tests/unit/test_validation.py`: Implement `test_permutation_p_value` which runs `validation.permutation_test(y_real, y_shuffled, 100)` and asserts the returned p-value is > 0.05 when labels are shuffled.
 - [ ] T025 [P] [US3] Integration test for full classification pipeline in `tests/integration/test_classification.py`: Implement `test_full_pipeline` which runs the full pipeline on a small subset and asserts `data/processed/results.json` exists, contains 'accuracy', 'p_value', 'mde', and 'significance_flag' keys, and that `significance_flag` is `False` when labels are shuffled.
 
 ### Implementation for User Story 3

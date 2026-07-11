@@ -1,0 +1,5 @@
+Collinearity Check Results
+Threshold: 0.8
+Dropped features: []
+Reason: Pearson correlation > 0.8
+Note: No collinearity detected above threshold in the current feature set.
