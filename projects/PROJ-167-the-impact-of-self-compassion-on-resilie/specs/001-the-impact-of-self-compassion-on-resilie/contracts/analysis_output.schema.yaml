@@ -50,10 +50,10 @@ properties:
     description: "True if dataset metadata confirms experimental randomization"
   bootstrap_convergence_status:
     type: "string"
- description: "Status of bootstrap convergence: 'converged' (stopped early), 'timeout' (reached [deferred] without convergence)"
-    enum:
-      - "converged"
-      - "timeout"
+    description: "Status of bootstrap convergence: 'converged', 'fallback_parametric', 'timeout'"
+  homogeneity_violated:
+    type: "boolean"
+    description: "True if Homogeneity of Regression Slopes test p < 0.10"
 required:
   - outcome
   - interaction_coef
@@ -69,4 +69,5 @@ required:
   - sample_size
   - randomization_confirmed
   - bootstrap_convergence_status
+  - homogeneity_violated
 additionalProperties: false

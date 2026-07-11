@@ -1,4 +1,4 @@
-resolved_at: '2026-07-11T14:06:10.116987+00:00'
+resolved_at: '2026-07-11T14:14:24.189606+00:00'
 datasets:
 - intent: SCS
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Held_Open_Identity_Without_Recursion_in_Hegel_and_Heidegger/30979120
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/The_Hermeneutic_Loop_Gustav_pet_and_the_Structural_Mediation_of_Sense/30625124
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_The_Phenomenology_of_Play_Eugen_Fink_and_the_Metamorphic_Continuity_of_the_World_b_/30625148
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Prediksi_Produksi_Padi_di_Pulau_Sumatera_Menggunakan_Random_Forest_dan_Decision_Tree_Analisis_Dampak_Perubahan_Iklim/32963771
+  - url: https://acs.figshare.com/articles/journal_contribution/Sequence-Directed_Control_of_Cyanine_Dye_Stacking_Geometry_within_DNA_Duplexes/32963938
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/The_Placeholder_Structure_Identity_Without_Reference/30850775
+  - url: https://acs.figshare.com/articles/journal_contribution/Redox-Neutral_Assembly_of_Selenobenzothiazine_1_Oxides_via_Rh_III_-Catalyzed_Cascade_4_2_Annulation_Selenylation/32963935
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -150,23 +150,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Bicyclo_1_1_1_pentane_as_a_Phenyl_Isosteric_Replacement/32963896
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Held_Open_Identity_Without_Recursion_in_Hegel_and_Heidegger/30979120
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/The_Hermeneutic_Loop_Gustav_pet_and_the_Structural_Mediation_of_Sense/30625124
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_The_Phenomenology_of_Play_Eugen_Fink_and_the_Metamorphic_Continuity_of_the_World_b_/30625148
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Prediksi_Produksi_Padi_di_Pulau_Sumatera_Menggunakan_Random_Forest_dan_Decision_Tree_Analisis_Dampak_Perubahan_Iklim/32963771
+  - url: https://acs.figshare.com/articles/journal_contribution/Sequence-Directed_Control_of_Cyanine_Dye_Stacking_Geometry_within_DNA_Duplexes/32963938
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -227,23 +227,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Subdiffusion_in_Dendrimer_Melts/32963899
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Bicyclo_1_1_1_pentane_as_a_Phenyl_Isosteric_Replacement/32963896
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Held_Open_Identity_Without_Recursion_in_Hegel_and_Heidegger/30979120
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/The_Hermeneutic_Loop_Gustav_pet_and_the_Structural_Mediation_of_Sense/30625124
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_The_Phenomenology_of_Play_Eugen_Fink_and_the_Metamorphic_Continuity_of_the_World_b_/30625148
+  - url: https://acs.figshare.com/articles/journal_contribution/Sequence-Directed_Control_of_Cyanine_Dye_Stacking_Geometry_within_DNA_Duplexes/32963938
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -267,6 +267,10 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://osf.io/suz4f/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://osf.io/a7w9p/
     source: datacite
     status: wrong_format
@@ -283,31 +287,27 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/8huzx/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: ANCOVA
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/Photocontrolled_Hydrogen_Bonding_in_Main-Chain_Azobenzene_Polymers/32963902
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Ex-centric_Life_Helmuth_Plessner_and_the_Phenomenology_of_Positional_Being/30625103
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Subdiffusion_in_Dendrimer_Melts/32963899
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Bicyclo_1_1_1_pentane_as_a_Phenyl_Isosteric_Replacement/32963896
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Held_Open_Identity_Without_Recursion_in_Hegel_and_Heidegger/30979120
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -345,12 +345,12 @@ datasets:
     reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
       port=443): Max retries exceeded with url: /concern/articles/3n204c75n (Caused
       by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
-      at 0x7f46e5b32b10>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+      at 0x7fc4184424d0>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
   - url: https://datadryad.org/dataset/doi:10.5061/dryad.9p8cz8x0j
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Processed_Dataset_and_Analysis_Code_for_/32954375
+  - url: https://figshare.com/articles/dataset/Processed_Dataset_and_Analysis_Code_for_/32954375/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -369,23 +369,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Direct_Correlation_between_Size_Photon_Statistics_and_Blinking_Mechanisms_in_Single_Cesium_Lead_Iodide_Perovskite_Nanocrystals/32963908
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photocontrolled_Hydrogen_Bonding_in_Main-Chain_Azobenzene_Polymers/32963902
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Ex-centric_Life_Helmuth_Plessner_and_the_Phenomenology_of_Positional_Being/30625103
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Subdiffusion_in_Dendrimer_Melts/32963899
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Bicyclo_1_1_1_pentane_as_a_Phenyl_Isosteric_Replacement/32963896
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -416,27 +416,27 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&user_id=public&Expires=1783782348&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdncHQ0X3NpbmdsZV9tdWx0aV9hdXRvaWZfc2hhcmVncHRfcmFnX21peC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZ3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzgyMzQ4fX19XX0_&Signature=MEUCIBZKB1O9jZJYxnbVGDBcA6HaWTXPGmhElmKoMafJEdASAiEAzhxCMfgz4M31~PyRqUBqPGzApHIBA7qzlrYInPAPDQQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1783782842&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUzQitmaWxlbmFtZSUzRCUyMmdwdDRfc2luZ2xlX211bHRpX2F1dG9pZl9zaGFyZWdwdF9yYWdfbWl4Lmpzb24lMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzgyODQyfX19XX0_&Signature=MEUCIHOgkCodVbeHkSnCWYN4c-a9JWWzM60gbWetaJjpTWXjAiEAt-QzZuOp3f3CGghEsS7YYASTJoXma0-K0c4FpkxKcmY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Iridium-Catalyzed_Decarboxylative_Annulation_of_2_o_Carboranylbenzoic_Acids_with_Internal_Alkynes/32963911
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Direct_Correlation_between_Size_Photon_Statistics_and_Blinking_Mechanisms_in_Single_Cesium_Lead_Iodide_Perovskite_Nanocrystals/32963908
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photocontrolled_Hydrogen_Bonding_in_Main-Chain_Azobenzene_Polymers/32963902
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Ex-centric_Life_Helmuth_Plessner_and_the_Phenomenology_of_Positional_Being/30625103
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Subdiffusion_in_Dendrimer_Melts/32963899
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,68 +1,68 @@
 # Data Model: The Impact of Self‑Compassion on Resilience to Negative Feedback
 
-## 1. Input Data Schema
+## Overview
 
-The raw dataset is expected to be a CSV file downloaded from the OSF project.
+This document defines the data structures, transformations, and schemas used in the analysis pipeline. It ensures that the data flowing from raw download to final report is consistent, validated, and traceable.
 
-| Column Name | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | string | Unique identifier | Not null |
-| `scf_total` | float | Total Self-Compassion Score | > 0 |
-| `scf_self_judgment` | float | Self-Judgment subscale | Optional |
-| `scf_self_kindness` | float | Self-Kindness subscale | Optional |
-| `stai_pre` | float | Pre-task Anxiety | > 0 |
-| `stai_post` | float | Post-task Anxiety | > 0 |
-| `rrs_pre` | float | Pre-task Rumination | > 0 |
-| `rrs_post` | float | Post-task Rumination | > 0 |
-| `gse_pre` | float | Pre-task Self-Efficacy | > 0 |
-| `gse_post` | float | Post-task Self-Efficacy | > 0 |
-| `feedback_cond` | string | Feedback Condition | Values: "Positive", "Neutral", "Negative" |
-| `age` | int | Participant Age | > 0 |
-| `gender` | string | Gender | Binary or categorical |
-| `big_five_openness` | float | Big Five Openness | Optional |
-| `big_five_conscientiousness`| float | Big Five Conscientiousness | Optional |
-| ... | ... | (Other Big Five traits) | Optional |
+## Raw Data Schema
 
-**Missing Data Handling**: Rows with `NaN` in any of the *required* columns (SCS, Baselines, Post-outcomes, Feedback) are dropped.
+The raw dataset is expected to be a CSV file with the following columns. The pipeline will abort if any of these are missing.
 
-## 2. Processed Data Schema
+| Column Name | Type | Description | Required |
+|-------------|------|-------------|----------|
+| `participant_id` | string | Unique ID | Yes |
+| `scf_total` | float | Self-Compassion Total | Yes |
+| `scf_self_judgment` | float | Self-Judgment Subscale | No |
+| `scf_self_kindness` | float | Self-Kindness Subscale | Yes (for robustness) |
+| `stai_pre` | float | Anxiety Pre | Yes |
+| `stai_post` | float | Anxiety Post | Yes |
+| `rrs_pre` | float | Rumination Pre | Yes |
+| `rrs_post` | float | Rumination Post | Yes |
+| `gse_pre` | float | Self-Efficacy Pre | Yes |
+| `gse_post` | float | Self-Efficacy Post | Yes |
+| `feedback_cond` | string | Feedback Condition | Yes |
+| `age` | int | Age | Yes |
+| `gender` | string | Gender | Yes |
+| `bigfive_openness` | float | Big Five (Optional) | No |
+| `bigfive_conscientiousness` | float | Big Five (Optional) | No |
+| `bigfive_extroversion` | float | Big Five (Optional) | No |
+| `bigfive_agreeableness` | float | Big Five (Optional) | No |
+| `bigfive_neuroticism` | float | Big Five (Optional) | No |
 
-Intermediate dataset after cleaning and encoding.
+## Processed Data Schema
 
-| Column Name | Type | Description | Transformation |
-| :--- | :--- | :--- | :--- |
-| `feedback_cond_cat` | category | Encoded Feedback | Reference: "Positive" |
-| `scf_total_z` | float | Standardized SCS | (X - mean) / std |
-| `stai_pre_z` | float | Standardized Baseline Anxiety | |
-| `rrs_pre_z` | float | Standardized Baseline Rumination | |
-| `gse_pre_z` | float | Standardized Baseline Self-Efficacy | |
-| `outcome_anxiety` | float | Post-task Anxiety | Target |
-| `outcome_rumination` | float | Post-task Rumination | Target |
-| `outcome_self_efficacy` | float | Post-task Self-Efficacy | Target |
+After cleaning and transformation, the data will be stored in a Parquet file with the following structure:
 
-## 3. Analysis Result Schema
+| Column Name | Type | Transformation Logic |
+|-------------|------|----------------------|
+| `participant_id` | string | Original |
+| `feedback_cond` | category | Encoded: 0=Positive, 1=Neutral, 2=Negative |
+| `scf_total_z` | float | Z-score of `scf_total` |
+| `scf_self_kindness_z` | float | Z-score of `scf_self_kindness` |
+| `stai_pre` | float | Original (Covariate) |
+| `stai_post` | float | Original (Outcome) |
+| `rrs_pre` | float | Original (Covariate) |
+| `rrs_post` | float | Original (Outcome) |
+| `gse_pre` | float | Original (Covariate) |
+| `gse_post` | float | Original (Outcome) |
+| `age` | int | Original |
+| `gender` | category | Encoded (Binary/Missing handling) |
 
-The structured output of the regression analysis.
+## Output Artifacts
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `outcome_variable` | string | Name of the dependent variable (e.g., "anxiety") |
-| `interaction_coeff` | float | Coefficient for `SCS_z * Feedback_Negative` |
-| `interaction_se` | float | Standard Error (HC3) |
-| `interaction_p` | float | Raw p-value |
-| `interaction_p_adj` | float | Holm-Bonferroni adjusted p-value |
-| `interaction_ci_lower` | float | 95% CI Lower |
-| `interaction_ci_upper` | float | 95% CI Upper |
-| `partial_eta_squared` | float | Effect size |
-| `vif_scs` | float | VIF for SCS predictor |
-| `vif_feedback` | float | VIF for Feedback predictor |
-| `heteroskedastic_flag` | boolean | True if Breusch-Pagan p < 0.10 |
-| `bootstrap_ci_lower` | float | 95% Bootstrap CI Lower |
-| `bootstrap_ci_upper` | float | 95% Bootstrap CI Upper |
-| `homogeneity_flag` | boolean | True if slope homogeneity test significant |
+### 1. Analysis Result (JSON/Dict)
+- **Structure**: Nested dictionary per outcome.
+- **Keys**: `interaction_coef`, `interaction_se`, `interaction_pval`, `interaction_ci_lower`, `interaction_ci_upper`, `partial_eta2`, `vif_values`, `bootstrap_ci`.
+- **Schema**: Must conform to `contracts/analysis_result.schema.yaml`.
 
-## 4. Output Artifacts
+### 2. Report HTML
+- **Content**: Aggregated statistics, tables, plots, and caveats.
+- **Schema**: Must conform to `contracts/report.schema.yaml`.
 
-- **Plots**: `anxiety_simple_slopes.png`, `rumination_simple_slopes.png`, `self_efficacy_simple_slopes.png`
-- **Report**: `report.html`
-- **State**: `state/projects/PROJ-167-the-impact-of-self-compassion-on-resilie.yaml` (contains SHA-256 hash)
+## Data Flow Diagram
+
+1. **Raw CSV** (OSF) -> `download.py` -> **Raw CSV (Checksummed)**
+2. **Raw CSV** -> `preprocess.py` -> **Processed Parquet** (Validation: N >= 92, Columns present, Enum values valid)
+3. **Processed Parquet** -> `models.py` -> **Regression Results** (HC3, Bootstrap, Homogeneity Test)
+4. **Regression Results** + **Processed Parquet** -> `visualize.py` -> **PNG Plots**
+5. **All Artifacts** -> `report.py` -> **report.html**

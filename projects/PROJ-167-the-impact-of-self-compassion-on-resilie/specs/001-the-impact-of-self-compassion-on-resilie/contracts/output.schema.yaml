@@ -18,15 +18,66 @@ properties:
         type: "boolean"
         description: "True if final_n < 92"
   models:
-    type: "object"
-    description: "Results for each outcome model"
-    properties:
-      anxiety:
-        $ref: "#/$defs/model_result"
-      rumination:
-        $ref: "#/$defs/model_result"
-      self_efficacy:
-        $ref: "#/$defs/model_result"
+    type: "array"
+    description: "Results for each outcome model."
+    items:
+      type: "object"
+      properties:
+        outcome:
+          type: "string"
+          description: "Name of the outcome variable (e.g., stai_post)."
+        interaction_term:
+          type: "string"
+          description: "Name of the interaction term (e.g., C(feedback)[T.2]:SCS_z)."
+        coefficient:
+          type: "number"
+          description: "Interaction coefficient."
+        p_value_raw:
+          type: "number"
+          description: "Unadjusted p-value."
+        p_value_adjusted:
+          type: "number"
+          description: "Holm-Bonferroni adjusted p-value."
+        ci_lower:
+          type: "number"
+          description: "Lower bound of 95% CI."
+        ci_upper:
+          type: "number"
+          description: "Upper bound of 95% CI."
+        ci_bootstrap_lower:
+          type: "number"
+          description: "Lower bound of bootstrap 95% CI."
+        ci_bootstrap_upper:
+          type: "number"
+          description: "Upper bound of bootstrap 95% CI."
+        ci_overlap_status:
+          type: "boolean"
+          description: "True if parametric and bootstrap CIs do not overlap."
+        caveat_text:
+          type: "string"
+          description: "Generated caveat text if CIs do not overlap."
+        partial_eta_squared:
+          type: "number"
+          description: "Partial eta-squared for the interaction."
+        robust_se:
+          type: "number"
+          description: "HC3 robust standard error."
+        vif_interaction:
+          type: "number"
+          description: "VIF for the interaction term."
+        homogeneity_violated:
+          type: "boolean"
+          description: "True if homogeneity of slopes assumption was violated."
+      required:
+        - outcome
+        - interaction_term
+        - coefficient
+        - p_value_raw
+        - p_value_adjusted
+        - ci_lower
+        - ci_upper
+        - robust_se
+        - vif_interaction
   robustness:
     type: "object"
     properties:

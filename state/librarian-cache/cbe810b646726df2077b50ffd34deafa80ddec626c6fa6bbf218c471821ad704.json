@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-28T21:36:42Z",
+  "fetched_at": "2026-07-11T14:37:37Z",
   "field": "psychology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,107 @@
       "idea_body_excerpt": "The Impact of Self-Compassion on Resilience to Negative Feedback",
       "target_n": 5
     },
-    "duration_seconds": 611.005,
-    "ended_at": "2026-06-28T21:36:42Z",
+    "duration_seconds": 54.999,
+    "ended_at": "2026-07-11T14:37:37Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "self-compassion coping with criticism"
+          "self-compassion and emotional regulation following failure"
         ],
         [
           2,
-          "self-compassion emotional regulation feedback"
+          "self-kindness as a buffer against social rejection"
         ],
         [
           3,
-          "psychological resilience negative evaluation"
+          "resilience to criticism in self-compassionate individuals"
         ],
         [
           4,
-          "self-kindness resilience to failure"
+          "mindfulness and self-compassion in response to negative evaluation"
         ],
         [
           5,
-          "ego threat self-compassion response"
+          "common humanity versus self-criticism after setbacks"
         ],
         [
           6,
-          "self-compassion performance feedback emotions"
+          "self-compassion interventions for coping with academic feedback"
         ],
         [
           7,
-          "mindfulness self-compassion criticism"
+          "the role of self-compassion in reducing shame after mistakes"
         ],
         [
           8,
-          "adaptive coping negative social feedback"
+          "psychological flexibility and self-compassion under stress"
         ],
         [
           9,
-          "self-forgiveness resilience criticism"
+          "self-compassion versus self-esteem in handling negative feedback"
         ],
         [
           10,
-          "self-compassion stress buffering feedback"
+          "coping mechanisms for performance anxiety using self-compassion"
         ],
         [
           11,
-          "shame reduction self-compassion feedback"
+          "neural correlates of self-compassion during negative feedback processing"
         ],
         [
           12,
-          "self-compassion workplace feedback resilience"
+          "self-compassion training for improving resilience to workplace criticism"
         ],
         [
           13,
-          "self-compassion academic feedback coping"
+          "attachment styles, self-compassion, and response to failure"
         ],
         [
           14,
-          "self-compassion versus self-esteem feedback"
+          "self-compassion and recovery from social exclusion"
         ],
         [
           15,
-          "negative affect self-compassion recovery"
+          "the effect of self-compassion on attribution styles after failure"
         ],
         [
           16,
-          "threat response self-compassion criticism"
+          "self-compassion and stress reduction in high-stakes evaluation contexts"
         ],
         [
           17,
-          "self-compassion intervention feedback resilience"
+          "reducing defensive reactions to negative feedback through self-compassion"
         ],
         [
           18,
-          "interpersonal feedback self-compassion well-being"
+          "self-compassion and growth mindset in the face of criticism"
         ],
         [
           19,
-          "self-compassion scale negative evaluation"
+          "comparative effects of self-compassion and self-criticism on resilience"
         ],
         [
           20,
-          "resilience building self-compassion feedback"
+          "self-compassion as a moderator of negative affect following feedback"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "The Impact of Self-Compassion on Resilience to Negative Feedback psychology": 0,
-        "self-compassion coping with criticism": 2,
-        "self-compassion emotional regulation feedback": 2
+        "mindfulness and self-compassion in response to negative evaluation": 2,
+        "resilience to criticism in self-compassionate individuals": 0,
+        "self-compassion and emotional regulation following failure": 3,
+        "self-kindness as a buffer against social rejection": 0
       },
-      "total_queries_issued": 2
+      "total_queries_issued": 4
     },
     "extracted_queries": [
       "self-kindness common humanity mindfulness",
-      "social evaluation feedback task",
-      "affective recovery persistence failure",
-      "resilience measure feedback scale",
-      "self-integrity buffering hypothesis"
+      "self-compassion scale negative feedback task",
+      "emotional regulation self-criticism coping",
+      "feedback rejection resilience psychological recovery",
+      "self-compassion intervention growth mindset threat"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -126,16 +128,16 @@
     },
     "per_query_hit_count": {
       "The Impact of Self-Compassion on Resilience to Negative Feedback psychology": 3,
-      "affective recovery persistence failure": 3,
-      "resilience measure feedback scale": 2,
-      "self-integrity buffering hypothesis": 3,
-      "self-kindness common humanity mindfulness": 3,
-      "social evaluation feedback task": 3
+      "emotional regulation self-criticism coping": 3,
+      "feedback rejection resilience psychological recovery": 2,
+      "self-compassion intervention growth mindset threat": 3,
+      "self-compassion scale negative feedback task": 3,
+      "self-kindness common humanity mindfulness": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 4,
+      "rejected_count": 5,
       "rejections": [
         {
           "primary_pointer": "2112.03789",
@@ -143,24 +145,29 @@
           "title": "Self-exciting price impact via negative resilience in stochastic order books"
         },
         {
-          "primary_pointer": "2602.18467",
-          "rationale": "The paper investigates self-compassion in the context of body composition metrics rather than resilience to negative feedback, failing to address the dependent variable or the specific psychological mechanism central to the user's research question. It does not meet inclusion criteria as it lacks a measurable connection to the core relationship under study (rejection rule: no measurable connection to user's mechanism, domain, or variables).",
-          "title": "Identifying Body Composition Measures That Correlate with Self-Compassion and Social Support"
-        },
-        {
           "primary_pointer": "2307.13187",
           "rationale": "This paper focuses on digital emotion regulation via social media, which does not measure the specific variables of self-compassion or resilience to negative feedback required for the user's question. It falls under the rejection rule for distinct constructs sharing only broad thematic keywords (emotion/psychology) without addressing the specific mechanisms or empirical setting.",
           "title": "Digital Emotion Regulation on Social Media"
         },
         {
-          "primary_pointer": "2212.00002",
-          "rationale": "The paper investigates Virtual Reality interventions for general emotion regulation in youth, which does not measure self-compassion or resilience to negative feedback specifically. It fails to meet any inclusion criteria as it addresses a distinct intervention and psychological constructs unrelated to the user's specific mechanism and variables.",
-          "title": "Investigating the Feasibility of Virtual Reality for Emotion Regulation with Youth"
+          "primary_pointer": "2305.10446",
+          "rationale": "The paper focuses on using machine learning to classify discrete emotions from narrative components within a specific French corpus, which does not measure the psychological constructs of self-compassion or resilience to negative feedback, nor does it establish a baseline or mechanism for the user's specific causal relationship. It falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (e.g., \"emotion\" and \"regulation\" are present, but the specific variables of sel",
+          "title": "Emotion Recognition based on Psychological Components in Guided Narratives for Emotion Regulation"
+        },
+        {
+          "primary_pointer": "2106.05894",
+          "rationale": "The paper focuses on natural language processing and training dialogue models using \"adversarial negative responses\" (a technical term for synthetic data generation), which is a distinct construct from the psychological concept of \"negative feedback\" and the human trait of \"self-compassion.\" This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"negative\" and \"feedback\" in a technical vs. psychological context) and is entirely off-domain (computer science vs.",
+          "title": "Synthesizing Adversarial Negative Responses for Robust Response Ranking and Evaluation"
+        },
+        {
+          "primary_pointer": "2602.18467",
+          "rationale": "The paper investigates self-compassion in the context of body composition metrics rather than resilience to negative feedback, failing to address the dependent variable or the specific psychological mechanism central to the user's research question. It does not meet inclusion criteria as it lacks a measurable connection to the core relationship under study (rejection rule: no measurable connection to user's mechanism, domain, or variables).",
+          "title": "Identifying Body Composition Measures That Correlate with Self-Compassion and Social Support"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-28T21:26:31Z",
+    "started_at": "2026-07-11T14:36:42Z",
     "term_input": {
       "normalized": "the impact of self-compassion on resilience to negative feedback psychology",
       "raw": "The Impact of Self-Compassion on Resilience to Negative Feedback psychology"
@@ -183,7 +190,7 @@
           "primary_pointer": "2503.17371"
         },
         "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='A Review of Urban Resilience Frameworks: Transferring Knowledge to Enhance Pandemic Resilience')",
-        "failed_at": "2026-06-28T21:29:41Z",
+        "failed_at": "2026-07-11T14:37:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -199,7 +206,7 @@
           "primary_pointer": "1711.01767"
         },
         "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Kurt Lewin, psychological constructs and sources of brain cognitive activity')",
-        "failed_at": "2026-06-28T21:29:41Z",
+        "failed_at": "2026-07-11T14:37:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -215,7 +222,7 @@
           "primary_pointer": "2511.05025"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='8bit-GPT: Exploring Human-AI Interaction on Obsolete Macintosh Operating Systems')",
-        "failed_at": "2026-06-28T21:29:41Z",
+        "failed_at": "2026-07-11T14:37:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -235,230 +242,230 @@
           "primary_pointer": "2201.05912"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Common Phone: A Multilingual Dataset for Robust Acoustic Modelling')",
-        "failed_at": "2026-06-28T21:29:41Z",
+        "failed_at": "2026-07-11T14:37:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Mindfulness training is widely recognized for its benefits in reducing depression, anxiety, and loneliness. With the rise of smartphone-based mindfulness apps, digital meditation has become more accessible, but sustaining long-term user engagement remains a challenge. This paper explores whether respiration biosignal feedback and mindfulness skill estimation enhance system usability and skill development. We develop a smartphone's accelerometer-based respiration tracking algorithm, eliminating the need for additional wearables. Unlike existing methods, our approach accurately captures slow breathing patterns typical of mindfulness meditation. Additionally, we introduce the first quantitative framework to estimate mindfulness skills-concentration, sensory clarity, and equanimity-based on accelerometer-derived respiration data. We develop and test our algorithms on 261 mindfulness sessions in both controlled and real-world settings. A user study comparing an experimental group receiving biosignal feedback with a control group using a standard app shows that respiration feedback enhances system usability. Our respiration tracking model achieves a mean absolute error (MAE) of 1.6 breaths per minute, closely aligning with ground truth data, while our mindfulness skill estimation attains F1 scores of 80-84% in tracking skill progression. By integrating respiration tracking and mindfulness estimation into a commercial app, we demonstrate the potential of smartphone sensors to enhance digital mindfulness training.",
+          "claimed_abstract": "This paper contributes to the compactification approach to study mean-field control problems with Poissonian common noise. To overcome the lack of compactness and continuity issues caused by common noise, we exploit the point process representation of the Poisson random measure with finite intensity and propose a pathwise formulation in a two-step procedure by freezing a sample path of the common noise. In the first step, we establish the existence of optimal relaxed controls in the pathwise formulation as if common noise is absent, but with finite deterministic jumping times. The second step plays the key role in our approach, which is to aggregate the optimal solutions in the pathwise formulation over all sample paths of common noise and show that it yields an optimal solution in the original model. To this end, with the help of concatenation techniques, we first develop a pathwise superposition principle in the model with deterministic jumping times, drawing a relationship between the pathwise relaxed control problem and the pathwise measure-valued control problem. We then further bridge the equivalence among different problem formulations and verify that the constructed solution under aggregation is indeed optimal in the original problem.",
           "claimed_authors": [
-            "Mohammad Nur Hossain Khan",
-            "David creswell",
-            "Jordan Albert",
-            "Patrick O'Connell",
-            "Shawn Fallon",
-            "Mathew Polowitz",
-            "Xuhai \"orson\" Xu",
-            "Bashima islam"
+            "Lijun Bo",
+            "Jingfei Wang",
+            "Xiaoli Wei",
+            "Xiang Yu"
           ],
-          "claimed_title": "Mindfulness Meditation and Respiration: Accelerometer-Based Respiration Rate and Mindfulness Progress Estimation to Enhance App Engagement and Mindfulness Skills",
+          "claimed_title": "Mean Field Control with Poissonian Common Noise: A Pathwise Compactification Approach",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2507.17688"
+          "primary_pointer": "2505.23441"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Mindfulness Meditation and Respiration: Accelerometer-Based Respiration Rate and Mindfulness Progress Estimation to Enhance App Engagement and Mindfulness Skills')",
-        "failed_at": "2026-06-28T21:29:41Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Mean Field Control with Poissonian Common Noise: A Pathwise Compactification Approach')",
+        "failed_at": "2026-07-11T14:37:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Although beneficial information abounds on social media, the dissemination of harmful information such as so-called ``fake news'' has become a serious issue. Therefore, many researchers have devoted considerable effort to limiting the diffusion of harmful information. A promising approach to limiting diffusion of such information is link deletion methods in social networks. Link deletion methods have been shown to be effective in reducing the size of information diffusion cascades generated by synthetic models on a given social network. In this study, we evaluate the effectiveness of link deletion methods by using actual logs of retweet cascades, rather than by using synthetic diffusion models. Our results show that even after deleting 10\\%--50\\% of links from a social network, the size of cascades after link deletion is estimated to be only 50\\% the original size under the optimistic estimation, which suggests that the effectiveness of the link deletion strategy for suppressing information diffusion is limited. Moreover, our results also show that there is a considerable number of cascades with many seed users, which renders link deletion methods inefficient.",
+          "claimed_abstract": "We describe the ADAPT system for the 2020 IWPT Shared Task on parsing enhanced Universal Dependencies in 17 languages. We implement a pipeline approach using UDPipe and UDPipe-future to provide initial levels of annotation. The enhanced dependency graph is either produced by a graph-based semantic dependency parser or is built from the basic tree using a small set of heuristics. Our results show that, for the majority of languages, a semantic dependency parser can be successfully applied to the task of parsing enhanced dependencies.\n  Unfortunately, we did not ensure a connected graph as part of our pipeline approach and our competition submission relied on a last-minute fix to pass the validation script which harmed our official evaluation scores significantly. Our submission ranked eighth in the official evaluation with a macro-averaged coarse ELAS F1 of 67.23 and a treebank average of 67.49. We later implemented our own graph-connecting fix which resulted in a score of 79.53 (language average) or 79.76 (treebank average), which would have placed fourth in the competition evaluation.",
           "claimed_authors": [
-            "Shiori Furukawa",
-            "Sho Tsugawa"
+            "James Barry",
+            "Joachim Wagner",
+            "Jennifer Foster"
           ],
-          "claimed_title": "Empirical Evaluation of Link Deletion Methods for Limiting Information Diffusion on Social Media",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2603.21470"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Empirical Evaluation of Link Deletion Methods for Limiting Information Diffusion on Social Media')",
-        "failed_at": "2026-06-28T21:29:41Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
-          "claimed_authors": [
-            "Przemyslaw Kazienko",
-            "Katarzyna Musial",
-            "Tomasz Kajdanowicz"
-          ],
-          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1303.0093"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Multidimensional Social Network in the Social Recommender System')",
-        "failed_at": "2026-06-28T21:29:41Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The increasing pervasiveness of social media creates new opportunities to study human social behavior, while challenging our capability to analyze their massive data streams. One of the emerging tasks is to distinguish between different kinds of activities, for example engineered misinformation campaigns versus spontaneous communication. Such detection problems require a formal definition of meme, or unit of information that can spread from person to person through the social network. Once a meme is identified, supervised learning methods can be applied to classify different types of communication. The appropriate granularity of a meme, however, is hardly captured from existing entities such as tags and keywords. Here we present a framework for the novel task of detecting memes by clustering messages from large streams of social data. We evaluate various similarity measures that leverage content, metadata, network features, and their combinations. We also explore the idea of pre-clustering on the basis of existing entities. A systematic evaluation is carried out using a manually curated dataset as ground truth. Our analysis shows that pre-clustering and a combination of heterogeneous features yield the best trade-off between number of clusters and their quality, demonstrating that a simple combination based on pairwise maximization of similarity is as effective as a non-trivial optimization of parameters. Our approach is fully automatic, unsupervised, and scalable for real-time detection of memes in streaming data.",
-          "claimed_authors": [
-            "Emilio Ferrara",
-            "Mohsen JafariAsbagh",
-            "Onur Varol",
-            "Vahed Qazvinian",
-            "Filippo Menczer",
-            "Alessandro Flammini"
-          ],
-          "claimed_title": "Clustering Memes in Social Media",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1310.2665"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Clustering Memes in Social Media')",
-        "failed_at": "2026-06-28T21:29:41Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper introduces BReG-NeXt, a residual-based network architecture using a function wtih bounded derivative instead of a simple shortcut path (a.k.a. identity mapping) in the residual units for automatic recognition of facial expressions based on the categorical and dimensional models of affect. Compared to ResNet, our proposed adaptive complex mapping results in a shallower network with less numbers of training parameters and floating point operations per second (FLOPs). Adding trainable parameters to the bypass function further improves fitting and training the network and hence recognizing subtle facial expressions such as contempt with a higher accuracy. We conducted comprehensive experiments on the categorical and dimensional models of affect on the challenging in-the-wild databases of AffectNet, FER2013, and Affect-in-Wild. Our experimental results show that our adaptive complex mapping approach outperforms the original ResNet consisting of a simple identity mapping as well as other state-of-the-art methods for Facial Expression Recognition (FER). Various metrics are reported in both affect models to provide a comprehensive evaluation of our method. In the categorical model, BReG-NeXt-50 with only 3.1M training parameters and 15 MFLOPs, achieves 68.50% and 71.53% accuracy on AffectNet and FER2013 databases, respectively. In the dimensional model, BReG-NeXt achieves 0.2577 and 0.2882 RMSE value on AffectNet and Affect-in-Wild databases, respectively.",
-          "claimed_authors": [
-            "Behzad Hasani",
-            "Pooran Singh Negi",
-            "Mohammad H. Mahoor"
-          ],
-          "claimed_title": "BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient",
+          "claimed_title": "The ADAPT Enhanced Dependency Parser at the IWPT 2020 Shared Task",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2004.08495"
+          "primary_pointer": "2009.01712"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient')",
-        "failed_at": "2026-06-28T21:29:41Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='The ADAPT Enhanced Dependency Parser at the IWPT 2020 Shared Task')",
+        "failed_at": "2026-07-11T14:37:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "How could we gather affect annotations in a rapid, unobtrusive, and accessible fashion? How could we still make sure that these annotations are reliable enough for data-hungry affect modelling methods? This paper addresses these questions by introducing PAGAN, an accessible, general-purpose, online platform for crowdsourcing affect labels in videos. The design of PAGAN overcomes the accessibility limitations of existing annotation tools, which often require advanced technical skills or even the on-site involvement of the researcher. Such limitations often yield affective corpora that are restricted in size, scope and use, as the applicability of modern data-demanding machine learning methods is rather limited. The description of PAGAN is accompanied by an exploratory study which compares the reliability of three continuous annotation tools currently supported by the platform. Our key results reveal higher inter-rater agreement when annotation traces are processed in a relative manner and collected via unbounded labelling.",
+          "claimed_abstract": "This paper describes our systems for IJCNLP 2017 Shared Task on Customer Feedback Analysis. We experimented with simple neural architectures that gave competitive performance on certain tasks. This includes shallow CNN and Bi-Directional LSTM architectures with Facebook's Fasttext as a baseline model. Our best performing model was in the Top 5 systems using the Exact-Accuracy and Micro-Average-F1 metrics for the Spanish (85.28% for both) and French (70% and 73.17% respectively) task, and outperformed all the other models on comment (87.28%) and meaningless (51.85%) tags using Micro Average F1 by Tags metric for the French task.",
           "claimed_authors": [
-            "David Melhart",
-            "Antonios Liapis",
-            "Georgios N. Yannakakis"
+            "Dushyanta Dhyani"
           ],
-          "claimed_title": "PAGAN: Video Affect Annotation Made Easy",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.01008"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='PAGAN: Video Affect Annotation Made Easy')",
-        "failed_at": "2026-06-28T21:29:41Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Developing robust and correctable visuomotor policies for robotic manipulation is challenging due to the lack of self-recovery mechanisms from failures and the limitations of simple language instructions in guiding robot actions. To address these issues, we propose a scalable data generation pipeline that automatically augments expert demonstrations with failure recovery trajectories and fine-grained language annotations for training. We then introduce Rich languAge-guided failure reCovERy (RACER), a supervisor-actor framework, which combines failure recovery data with rich language descriptions to enhance robot control. RACER features a vision-language model (VLM) that acts as an online supervisor, providing detailed language guidance for error correction and task execution, and a language-conditioned visuomotor policy as an actor to predict the next actions. Our experimental results show that RACER outperforms the state-of-the-art Robotic View Transformer (RVT) on RLbench across various evaluation settings, including standard long-horizon tasks, dynamic goal-change tasks and zero-shot unseen tasks, achieving superior performance in both simulated and real world environments. Videos and code are available at: https://rich-language-failure-recovery.github.io.",
-          "claimed_authors": [
-            "Yinpei Dai",
-            "Jayjun Lee",
-            "Nima Fazeli",
-            "Joyce Chai"
-          ],
-          "claimed_title": "RACER: Rich Language-Guided Failure Recovery Policies for Imitation Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2409.14674"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='RACER: Rich Language-Guided Failure Recovery Policies for Imitation Learning')",
-        "failed_at": "2026-06-28T21:29:41Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We are concerned with an appropriate mathematical measure of resilience in the face of targeted node attacks for arbitrary degree networks, and subsequently comparing the resilience of different scale-free network models with the proposed measure. We strongly motivate our resilience measure termed \\emph{vertex attack tolerance} (VAT), which is denoted mathematically as $τ(G) = \\min_{S \\subset V} \\frac{|S|}{|V-S-C_{max}(V-S)|+1}$, where $C_{max}(V-S)$ is the largest connected component in $V-S$. We attempt a thorough comparison of VAT with several existing resilience notions: conductance, vertex expansion, integrity, toughness, tenacity and scattering number. Our comparisons indicate that for artbitrary degree distributions VAT is the only measure that fully captures both the major \\emph{bottlenecks} of a network and the resulting \\emph{component size distribution} upon targeted node attacks (both captured in a manner proportional to the size of the attack set). For the case of $d$-regular graphs, we prove that $τ(G) \\le dΦ(G)$, where $Φ(G)$ is the conductance of the graph $G$. Conductance and expansion are well-studied measures of robustness and bottlenecks in the case of regular graphs but fail to capture resilience in the case of highly heterogeneous degree graphs. Regarding comparison of different scale-free graph models, our experimental results indicate that PLOD graphs with degree distributions identical to BA graphs of the same size exhibit consistently better vertex attack tolerance than the BA type graphs, although both graph types appear asymptotically resilient for BA generative parameter $m = 2$. BA graphs with $m = 1$ also appear to lack resilience, not only exhibiting very low VAT values, but also great transparency in the identification of the vulnerable node sets, namely the hubs, consistent with well known previous work.",
-          "claimed_authors": [
-            "John Matta",
-            "Jeffrey Borwey",
-            "Gunes Ercal"
-          ],
-          "claimed_title": "Comparative Resilience Notions and Vertex Attack Tolerance of Scale-Free Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1404.0103"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Comparative Resilience Notions and Vertex Attack Tolerance of Scale-Free Networks')",
-        "failed_at": "2026-06-28T21:29:41Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Networks are at the core of modeling many engineering contexts, mainly in the case of infrastructures and communication systems. The resilience of a network, which is the property of the system capable of absorbing external shocks, is then of paramount relevance in the applications. This paper deals with this topic by advancing a theoretical proposal for measuring the resilience of a network. The proposal is based on the study of the shocks propagation along the patterns of connections among nodes. The theoretical model is tested on the real-world instances of two important airport systems in the US air traffic network; Illinois (including the hub of Chicago) and New York states (with JFK airport).",
-          "claimed_authors": [
-            "Roy Cerqueti",
-            "Giovanna Ferraro",
-            "Antonio Iovanella"
-          ],
-          "claimed_title": "Measuring network resilience through connection patterns",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1808.07731"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Measuring network resilience through connection patterns')",
-        "failed_at": "2026-06-28T21:29:41Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Seeding strategies for influence maximization in social networks have been studied for more than a decade. They have mainly relied on the activation of all resources (seeds) simultaneously in the beginning; yet, it has been shown that sequential seeding strategies are commonly better. This research focuses on studying sequential seeding with buffering, which is an extension to basic sequential seeding concept. The proposed method avoids choosing nodes that will be activated through the natural diffusion process, which is leading to better use of the budget for activating seed nodes in the social influence process. This approach was compared with sequential seeding without buffering and single stage seeding. The results on both real and artificial social networks confirm that the buffer-based consecutive seeding is a good trade-off between the final coverage and the time to reach it. It performs significantly better than its rivals for a fixed budget. The gain is obtained by dynamic rankings and the ability to detect network areas with nodes that are not yet activated and have high potential of activating their neighbours.",
-          "claimed_authors": [
-            "Jarosław Jankowski",
-            "Piotr Bródka",
-            "Radosław Michalski",
-            "Przemysław Kazienko"
-          ],
-          "claimed_title": "Seeds Buffering for Information Spreading Processes",
+          "claimed_title": "OhioState at IJCNLP-2017 Task 4: Exploring Neural Architectures for Multilingual Customer Feedback Analysis",
           "claimed_venue": "arXiv",
           "claimed_year": 2017,
-          "primary_pointer": "1709.04863"
+          "primary_pointer": "1710.06931"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Seeds Buffering for Information Spreading Processes')",
-        "failed_at": "2026-06-28T21:29:41Z",
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='OhioState at IJCNLP-2017 Task 4: Exploring Neural Architectures for Multilingual Customer Feedback Analysis')",
+        "failed_at": "2026-07-11T14:37:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The sample complexity of simple binary hypothesis testing is the smallest number of i.i.d.\\ samples required to distinguish between two distributions $p$ and $q$ in either: (i) the prior-free setting, with type-I error at most $α$ and type-II error at most $β$; or (ii) the Bayesian setting, with Bayes error at most $δ$ and prior distribution $(π, 1-π)$. This problem has only been studied when $α= β$ (prior-free) or $π= 1/2$ (Bayesian), and the sample complexity is known to be characterized by the Hellinger divergence between $p$ and $q$, up to multiplicative constants. In this paper, we derive a formula that characterizes the sample complexity (up to multiplicative constants that are independent of $p$, $q$, and all error parameters) for: (i) all $0 \\le α, β\\le 1/8$ in the prior-free setting; and (ii) all $δ\\le π/4$ in the Bayesian setting. In particular, the formula admits equivalent expressions in terms of certain divergences from the Jensen--Shannon and Hellinger families. The main technical result concerns an $f$-divergence inequality between members of the Jensen--Shannon and Hellinger families, which is proved by a combination of information-theoretic tools and case-by-case analyses. We explore applications of our results to (i) robust hypothesis testing, (ii) distributed (locally-private and communication-constrained) hypothesis testing, (iii) sequential hypothesis testing, and (iv) hypothesis testing with erasures.",
+          "claimed_abstract": "The concepts of scale invariance, self-similarity and scaling have been fruitfully applied to the study of price fluctuations in financial markets. After a brief review of the properties of stable Levy distributions and their applications to market data we indicate the shortcomings of such models and describe the truncated Levy flight as an alternative model for price movements. Furthermore, studying the dependence structure of the price increments shows that while their autocorrelation function decreases rapidly to zero, the correlation of their squares and absolute values shows a slow power law decay, indicating persistence in the scale of fluctuations, a property which can be related to the anomalous scaling of the kurtosis. In the last section we review, in the light of these empirical facts, recent attempts to draw analogies between scaling in financial markets and in turbulent flows.",
           "claimed_authors": [
-            "Ankit Pensia",
-            "Varun Jog",
-            "Po-Ling Loh"
+            "Rama Cont",
+            "Marc Potters",
+            "Jean-Philippe Bouchaud"
           ],
-          "claimed_title": "The Sample Complexity of Simple Binary Hypothesis Testing",
+          "claimed_title": "Scaling in stock market data: stable laws and beyond",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.16981"
+          "claimed_year": 1997,
+          "primary_pointer": "cond-mat/9705087"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='The Sample Complexity of Simple Binary Hypothesis Testing')",
-        "failed_at": "2026-06-28T21:29:41Z",
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Scaling in stock market data: stable laws and beyond')",
+        "failed_at": "2026-07-11T14:37:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the paper, we first prove a sufficient condition for the Riemann hypothesis which involves the order of magnitude of the partial sum of the Liouville function. Then we show a formula which is curiously related to the proved sufficient condition.",
+          "claimed_abstract": "The ability to regulate and cope with strong emotions is essential for maintaining our mental health and well-being. However, learning how to emotionally regulate can be a bit of a mystery since it is largely an invisible process and it can be difficult to conjure up strong emotions to practice regulating them. This is where virtual reality (or VR) comes in. VR is a computer-generated 3D environment where the user experiences a simulated world through 360 visuals, stereo audio, and 3D interaction with tracking sensors. VR is a very visceral experience that feels 'real' even though you know it isn't. If a virtual ball came flying at your head, you would duck! My past research shows that we can provide VR experiences that elicit strong emotional reactions so that people can practice coping and regulating their emotional responses. For example, I helped create a VR experience of being in nature and then going into space to see the Earth; it created the emotional reaction of awe and wonder that led to a deeper connection with our planet. This shows that emotional VR experiences can impact our emotions and behaviour both in VR and beyond. My research proposal is to investigate the feasibility of emotion regulation skills development in VR with teenagers. The idea is to simulate emotional experiences (like the 1st day of high school) as a means to develop emotion regulation skills so that they will be able to better cope with their emotions. I will lead the design, development, and evaluation of this VR experience and work directly with youth to meet their needs. This proof of concept prototype is the first step in developing a VR platform that provides youth with an effective way to regulate their emotions and improve their mental health from their own homes, which will lead to improvements in education, socio-emotional, and economic outcomes for youth in Canada and globally.",
           "claimed_authors": [
-            "Hisanobu Shinya"
+            "Alexandra Kitson"
           ],
-          "claimed_title": "On an arithmetical approach to the Riemann hypothesis",
+          "claimed_title": "Investigating the Feasibility of Virtual Reality for Emotion Regulation with Youth",
           "claimed_venue": "arXiv",
-          "claimed_year": 2009,
-          "primary_pointer": "0906.4155"
+          "claimed_year": 2022,
+          "primary_pointer": "2212.00002"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='On an arithmetical approach to the Riemann hypothesis')",
-        "failed_at": "2026-06-28T21:29:41Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Investigating the Feasibility of Virtual Reality for Emotion Regulation with Youth')",
+        "failed_at": "2026-07-11T14:37:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The proposed European Artificial Intelligence Act (AIA) is the first attempt to elaborate a general legal framework for AI carried out by any major global economy. As such, the AIA is likely to become a point of reference in the larger discourse on how AI systems can (and should) be regulated. In this article, we describe and discuss the two primary enforcement mechanisms proposed in the AIA: the conformity assessments that providers of high-risk AI systems are expected to conduct, and the post-market monitoring plans that providers must establish to document the performance of high-risk AI systems throughout their lifetimes. We argue that AIA can be interpreted as a proposal to establish a Europe-wide ecosystem for conducting AI auditing, albeit in other words. Our analysis offers two main contributions. First, by describing the enforcement mechanisms included in the AIA in terminology borrowed from existing literature on AI auditing, we help providers of AI systems understand how they can prove adherence to the requirements set out in the AIA in practice. Second, by examining the AIA from an auditing perspective, we seek to provide transferable lessons from previous research about how to refine further the regulatory approach outlined in the AIA. We conclude by highlighting seven aspects of the AIA where amendments (or simply clarifications) would be helpful. These include, above all, the need to translate vague concepts into verifiable criteria and to strengthen the institutional safeguards concerning conformity assessments based on internal checks.",
+          "claimed_authors": [
+            "Jakob Mokander",
+            "Maria Axente",
+            "Federico Casolari",
+            "Luciano Floridi"
+          ],
+          "claimed_title": "Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.05071"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation')",
+        "failed_at": "2026-07-11T14:37:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Emotion regulation is the process of consciously altering one's affective state, that is the underlying emotional state such as happiness, confidence, guilt, anger etc. The ability to effectively regulate emotions is necessary for functioning efficiently in everyday life. Today, the pervasiveness of digital technology is being purposefully employed to modify our affective states, a process known as digital emotion regulation. Understanding digital emotion regulation can help support the rise of ethical technology design, development, and deployment. This article presents an overview of digital emotion regulation in social media applications, as well as a synthesis of recent research on emotion regulation interventions for social media. We share our findings from analysing state-of-the-art literature on how different social media applications are utilised at different stages in the process of emotion regulation.",
+          "claimed_authors": [
+            "Akriti Verma",
+            "Shama Islam",
+            "Valeh Moghaddam",
+            "Adnan Anwar"
+          ],
+          "claimed_title": "Digital Emotion Regulation on Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.13187"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Digital Emotion Regulation on Social Media')",
+        "failed_at": "2026-07-11T14:37:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Developing models and metrics that can address resilience against disruptions is vital to ensure power grid reliability and that adequate recovery and adaptation mechanisms are in place. In this paper, we propose a novel disruption mapping approach and apply it to the publicly available U.S. Department of Energy DOE-417 Electric Emergency and Disturbance Report to holistically analyze the origin of anomalous events and their propagation through the cyber, physical and human domains. We show that capturing the disruption process onset has implications for quantifying, mitigating, and reporting power grid resilience.",
+          "claimed_authors": [
+            "Maureen S. Golan",
+            "Javad Mohammadi"
+          ],
+          "claimed_title": "Mapping Disruption Sources in the Power Grid and Implications for Resilience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.08146"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Mapping Disruption Sources in the Power Grid and Implications for Resilience')",
+        "failed_at": "2026-07-11T14:37:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diabetic retinopathy (DR) is a major cause of visual impairment, and effective treatment options depend heavily on timely and accurate diagnosis. Deep learning models have demonstrated great success identifying DR from retinal images. However, relying only on predictions made by models, without any indication of model confidence, creates uncertainty and poses significant risk in clinical settings. This paper investigates an alternative in uncertainty-aware deep learning models, including a rejection mechanism to reject low-confidence predictions, contextualized by deferred decision-making in clinical practice. The results show there is a trade-off between prediction coverage and coverage reliability. The Variational Bayesian model adopted a more conservative strategy when predicting DR, subsequently rejecting the uncertain predictions. The model is evaluated by means of important performance metrics such as Accuracy on accepted predictions, the proportion of accepted cases (coverage), the rejection-ratio, and Expected Calibration Error (ECE). The findings also demonstrate a clear trade-off between accuracy and caution, establishing that the use of uncertainty estimation and selective rejection improves the model's reliability in safety-critical diagnostic use cases.",
+          "claimed_authors": [
+            "Madhushan Ramalingam",
+            "Yaish Riaz",
+            "Priyanthi Rajamanoharan",
+            "Piyumi Dasanayaka"
+          ],
+          "claimed_title": "Enhancing Safety in Diabetic Retinopathy Detection: Uncertainty-Aware Deep Learning Models with Rejection Capabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.00029"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Enhancing Safety in Diabetic Retinopathy Detection: Uncertainty-Aware Deep Learning Models with Rejection Capabilities')",
+        "failed_at": "2026-07-11T14:37:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding attitudes towards STEM means quantifying the cognitive and emotional ways in which individuals, and potentially large language models too, conceptualise such subjects. This study uses behavioural forma mentis networks (BFMNs) to investigate the STEM-focused mindset, i.e. ways of associating and perceiving ideas, of 177 human participants and 177 artificial humans simulated by GPT-3.5. Participants were split in 3 groups - trainees, experts and academics - to compare the influence of expertise level on their mindset. The results revealed that human forma mentis networks exhibited significantly higher clustering coefficients compared to GPT-3.5, indicating that human mindsets displayed a tendency to form and close triads of conceptual associations while recollecting STEM ideas. Human experts, in particular, demonstrated robust clustering coefficients, reflecting better integration of STEM concepts into their cognitive networks. In contrast, GPT-3.5 produced sparser mindsets. Furthermore, both human and GPT mindsets framed mathematics in neutral or positive terms, differently from STEM high schoolers, researchers and other large language models sampled in other works. This research contributes to understanding how mindset structure can provide cognitive insights about memory structure and machine limitations.",
+          "claimed_authors": [
+            "Edith Haim",
+            "Lars van den Bergh",
+            "Cynthia S. Q. Siew",
+            "Yoed N. Kenett",
+            "Daniele Marinazzo",
+            "Massimo Stella"
+          ],
+          "claimed_title": "Cognitive networks highlight differences and similarities in the STEM mindsets of human and LLM-simulated trainees, experts and academics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.19529"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Cognitive networks highlight differences and similarities in the STEM mindsets of human and LLM-simulated trainees, experts and academics')",
+        "failed_at": "2026-07-11T14:37:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Single crystals of iridates are usually grown by a flux method well above the boiling point of the SrCl2 solvent. This leads to non-equilibrium growth conditions and dramatically shortens the lifetime of expensive Pt crucibles. Here, we report the growth of Sr2IrO4, Sr3Ir2O7 and SrIrO3 single crystals in a reproducible way by using anhydrous SrCl2 flux well below its boiling point. We show that the yield of the different phases strongly depends on the nutrient/solvent ratio for fixed soak temperature and cooling rate. Using this low-temperature growth approach generally leads to a lower temperature-independent contribution to the magnetic susceptibility than previously reported. Crystals of SrIrO3 exhibit a paramagnetic behavior that can be remarkably well fitted with a Curie-Weiss law yielding physically reasonable parameters, in contrast to previous reports. Hence, reducing the soak temperature below the solvent boiling point not only provides more stable and controllable growth conditions in contrast to previously reported growth protocols, but also extends considerably the lifetime of expensive platinum crucibles and reduces the corrosion of heating and thermoelements of standard furnaces, thereby reducing growth costs.",
+          "claimed_authors": [
+            "Kaustuv Manna",
+            "Gizem Aslan-Cansever",
+            "Andrey Maljuk",
+            "Sabine Wurmehl",
+            "Silvia Seiro",
+            "Bernd Büchner"
+          ],
+          "claimed_title": "Flux growth of Sr(n+1)Ir(n)O(3n+1) [n=1, 2, infinity] crystals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.03654"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Flux growth of Sr(n+1)Ir(n)O(3n+1) [n=1, 2, infinity] crystals')",
+        "failed_at": "2026-07-11T14:37:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Controlling the growth kinetics from the vapor phase has been a powerful paradigm enabling a variety of metastable epitaxial semiconductors such as Sn-containing group IV semiconductors (Si)GeSn. In addition to its importance for emerging photonic and optoelectronic applications, this class of materials is also a rich platform to highlight the interplay between kinetics and thermodynamic driving forces during growth of strained, nonequilibrium alloys. Indeed, these alloys are inherently strained and supersaturated in Sn and thus can suffer instabilities that are still to be fully elucidated. In this vein, in this work the atomic-scale microstructure of Ge0.82Sn0.18 is investigated at the onset of phase separation as the epitaxial growth aborts. In addition to the expected accumulation of Sn on the surface leading to Sn-rich droplets and sub-surface regions with the anticipated equilibrium Sn composition of 1.0at.%, the diffusion of Sn atoms also yields conspicuous Sn-decorated filaments with nonuniform Sn content in the range of ~1 to 11at.% . The latter are attributed to the formation and propagation of dislocations, facilitating the Sn transport toward the surface through pipe diffusion. Furthermore, the interface between the Sn droplet and GeSn shows a distinct, defective layer with Sn content of ~22at.%. This layer is likely formed by the expelled excess equilibrium Ge as the Sn solidifies, and its content seems to be a consequence of strain minimization between tetragonal Sn-rich and cubic Ge-rich equilibrium phases. The elucidation of these phenomena is crucial to understand the stability of GeSn semiconductors and control their epitaxial growth at a uniform composition.",
+          "claimed_authors": [
+            "Jérôme Nicolas",
+            "Simone Assali",
+            "Samik Mukherjee",
+            "Andriy Lotnyk",
+            "Oussama Moutanabbir"
+          ],
+          "claimed_title": "Dislocation pipe diffusion and solute segregation during the growth of metastable GeSn",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.01308"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Dislocation pipe diffusion and solute segregation during the growth of metastable GeSn')",
+        "failed_at": "2026-07-11T14:37:09Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -483,12 +490,12 @@
           "final_url": "https://arxiv.org/abs/2502.15383",
           "http_status": 200,
           "pdf_sample_score": 0.1787,
-          "query_relevance_score": 0.5,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-28T21:31:20Z"
+          "verified_at": "2026-07-11T14:37:16Z"
         }
       }
     ]

@@ -1,82 +1,71 @@
 # Research: The Impact of Self‑Compassion on Resilience to Negative Feedback
 
-## 1. Scientific Context & Hypothesis
+## Executive Summary
 
-**Research Question**: Does self-compassion buffer the adverse psychological impact of negative feedback on anxiety, rumination, and self-efficacy?
+This research plan investigates the moderating role of self-compassion (SCS) on the relationship between negative feedback and psychological outcomes (anxiety, rumination, self-efficacy). The analysis relies on an experimental or quasi-experimental dataset hosted on OSF. The methodology prioritizes statistical rigor, including ANCOVA with interaction terms, Holm-Bonferroni corrections, and robust standard errors.
 
-**Hypothesis**: High levels of self-compassion will attenuate (moderate) the increase in anxiety and rumination, and the decrease in self-efficacy, following negative feedback compared to positive feedback.
+## Dataset Strategy
 
-**Theoretical Basis**:
-- **Self-Compassion Scale (SCS)**: Neff (2003). Validated measure of self-kindness, common humanity, and mindfulness vs. self-judgment.
-- **Anxiety**: State-Trait Anxiety Inventory (STAI-State). Spielberger et al.
-- **Rumination**: Ruminative Responses Scale (RRS). Nolen-Hoeksema & Morrow.
-- **Self-Efficacy**: General Self-Efficacy Scale (GSES). Schwarzer & Jerusalem.
+**Target Dataset**: "Feedback and Self-Compassion" (OSF).
+**Specified URL**: `https://osf.io/3k9r2/` (per `spec.md`).
 
-## 2. Dataset Strategy
-
-**Source**: The project relies on the "Feedback and Self-Compassion" dataset hosted on OSF.
-**Verified URL**: `https://osf.io/3k9r2/` (Cited in Spec FR-001).
-*Note: The "Verified datasets" block provided in the prompt lists OSF URLs, but the specific file `feedback_self_compassion.csv` is not explicitly listed in the "Verified datasets" block as a direct downloadable link. However, the Spec explicitly mandates downloading from `https://osf.io/3k9r2/`. The implementation will attempt to fetch the CSV from the OSF project page as per the Spec's FR-001. If the OSF project does not contain a direct CSV link matching the schema, the pipeline will halt with `DATA_UNAVAILABLE`.*
+**Verification Status**:
+- **CRITICAL**: The URL `https://osf.io/3k9r2/` is **NOT** present in the "Verified datasets" block provided for this planning session.
+- **Action**: The implementation pipeline **MUST** treat this as a potential failure point. The code will attempt to fetch the URL. If the fetch fails, the dataset format is invalid, or the required columns are missing, the pipeline will abort with `DATA_UNAVAILABLE`.
+- **Alternative**: If the OSF link is broken, the plan cannot proceed with this specific dataset. No substitute dataset is proposed as the variables (specific post-feedback measures) are unique to the study design.
 
 **Required Variables**:
-- **Predictors**: `scf_total` (Self-Compassion), `feedback_cond` (Condition: Positive, Neutral, Negative).
-- **Outcomes**: `stai_post`, `rrs_post`, `gse_post`.
-- **Covariates**: `stai_pre`, `rrs_pre`, `gse_pre`, `age`, `gender`.
-- **Optional**: Big Five personality traits.
+| Variable | Description | Source Column (Expected) |
+|----------|-------------|--------------------------|
+| `SCS_Total` | Self-Compassion Scale Total Score | `scf_total` |
+| `SCS_SelfKindness` | Self-Compassion Subscale | `scf_self_kindness` |
+| `Anxiety_Pre` | Baseline Anxiety (STAI) | `stai_pre` |
+| `Anxiety_Post` | Post-Feedback Anxiety | `stai_post` |
+| `Rumination_Pre` | Baseline Rumination (RRS) | `rrs_pre` |
+| `Rumination_Post` | Post-Feedback Rumination | `rrs_post` |
+| `SE_Pre` | Baseline Self-Efficacy (GSES) | `gse_pre` |
+| `SE_Post` | Post-Feedback Self-Efficacy | `gse_post` |
+| `Feedback_Cond` | Experimental Condition | `feedback_cond` |
+| `Age` | Participant Age | `age` |
+| `Gender` | Participant Gender | `gender` |
+| `BigFive` | Personality Traits (Optional) | (If present) |
 
-**Validation Strategy**:
-1.  **Schema Check**: Upon download, verify presence of all required columns.
-2.  **Randomization Check**: Inspect dataset metadata/documentation for confirmation of experimental randomization. If absent, flag findings as "associational" (FR-017).
-3.  **Completeness**: Check for missing values in key variables.
-4.  **Ethical Protocol Check**: Verify presence of a 'debriefing_complete' flag or metadata note confirming pre-screening and debriefing protocols (Constitution Principle VII).
+**Dataset Availability Check**:
+- **Status**: **UNVERIFIED**.
+- **Plan**: The `download.py` script will attempt to access `https://osf.io/3k9r2/`. If successful, it will validate the CSV structure. If the URL is unreachable or the data is missing required columns, the script exits with code 1 and the message: `[DATA_UNAVAILABLE: Required columns missing from source. The dataset 'Feedback and Self-Compassion' is required. If unavailable, the pipeline cannot proceed.]`.
 
-## 3. Methodological Approach
+## Statistical Methodology
 
-### 3.1 Data Preprocessing
+### 1. Data Preparation
 - **Listwise Deletion**: Remove rows with missing SCS, baseline, or post-feedback scores (FR-002).
-- **Encoding**: `feedback_cond` encoded as categorical (0=Positive, 1=Neutral, 2=Negative). Positive Feedback is the reference level.
-- **Standardization**: Continuous predictors (SCS, baselines) z-scored.
-- **Power & MDES**: Verify N ≥ 92.
-    - If N < 92: Calculate the **Minimum Detectable Effect Size (MDES)** for the observed N (f², α=0.05, power=0.80) and report this value.
-    - If power < 0.80 for the target f²=0.02: The report will explicitly state "Exploratory Findings" and provide the calculated MDES.
-    - The analysis proceeds with a caveat, not an abort, to allow reporting of null results with appropriate context.
+- **Encoding**:
+  - `feedback_cond`: Categorical. Reference = 'Positive Feedback' (0). Levels: Neutral (1), Negative (2).
+  - `SCS`: Z-scored (`SCS_z`).
+- **Centering**: Interaction terms constructed from centered variables to ensure orthogonality.
+- **Covariates**: Baseline scores (`stai_pre`, `rrs_pre`, `gse_pre`), Age, Gender.
+- **Big Five**: Conditionally included if present (FR-018).
+- **Interaction**: `C(feedback)[T.2]:SCS_z` (Negative Feedback × Self-Compassion).
 
-### 3.2 Statistical Modeling
-- **Model Type**: ANCOVA (Linear Regression with covariates).
-- **Equation**:
-  $$Y_{post} = \beta_0 + \beta_1(Y_{pre}) + \beta_2(Age) + \beta_3(Gender) + \beta_4(SCS_{z}) + \beta_5(Feedback) + \beta_6(SCS_{z} \times Feedback) + \epsilon$$
-- **Prerequisite: Homogeneity of Slopes**: Before interpreting the primary interaction, test the interaction between the covariate (`Y_pre`) and `Feedback`.
-    - **If significant (p < 0.10)**: The ANCOVA assumption is violated. The primary ANCOVA interaction p-value is flagged as potentially biased. The pipeline **automatically runs a Johnson-Neyman technique** to identify the specific range of the moderator (SCS) where the feedback effect is significant. The Johnson-Neyman results are reported as the primary conclusion for that outcome.
-    - **If not significant**: Proceed with the standard ANCOVA interaction test.
-- **Primary Test**: Significance of $\beta_6$ (Interaction term) for each outcome.
-- **Correction**: Holm-Bonferroni correction applied across the 3 primary outcomes (FR-011).
-- **Simple Slopes Direction**: Compute and report the **simple slopes of the feedback condition** (effect of feedback) at low (-1 SD), mean, and high (+1 SD) levels of SCS. This confirms the *direction* of the buffering (i.e., that the slope of feedback is flatter for high SCS).
-- **Robustness**:
-    - **Standard Errors**: HC3 (Heteroskedasticity Consistent) (FR-009).
-    - **Collinearity**: VIF calculated; >5 triggers warning (FR-013).
-    - **Bootstrap**: **Case Resampling** (stratified by feedback condition) with 5,000 resamples for the interaction coefficient CI (FR-008). This preserves the experimental design structure.
-    - **Convergence**: Assessed by stability of CI width.
+### 2. Primary Analysis (ANCOVA)
+- **Model**: $Y_{post} = \beta_0 + \beta_1(Y_{pre}) + \beta_2(SCS\_z) + \beta_3(Feedback) + \beta_4(Feedback \times SCS\_z) + \epsilon$
+- **Estimation**: OLS via `statsmodels`.
+- **Robustness**: HC3 Standard Errors (FR-009).
+- **Correction**: Holm-Bonferroni across the 3 primary outcomes (FR-011).
 
-### 3.3 Visualization
-- **Simple Slopes**: Plot predicted values for -1 SD, Mean, +1 SD of SCS across feedback conditions for each outcome (FR-007).
-- **Feedback Slopes**: Ensure plots clearly show the *effect of feedback* at different SCS levels to visualize the buffering.
+### 3. Homogeneity of Regression Slopes (FR-019)
+- **Test**: Fit interaction between `Covariate` and `Feedback`.
+- **Violation Handling**: If significant (p < 0.10), the standard ANCOVA is invalid. The plan **does not** use Johnson-Neyman. Instead, it runs a **Stratified Analysis** (separate models per feedback group) or a **Random Slopes Model**. The primary interaction result is flagged as "Uninterpretable under homogeneity violation".
 
-### 3.4 Reporting
-- **Output**: HTML report with sections for Data Cleaning, Descriptive Stats, Model Tables, Robustness, Visualizations, and Caveats (FR-010).
-- **Caveats**: Explicit statement on causality (associational vs. causal), power limitations (with MDES if applicable), and protocol verification status.
+### 4. Robustness & Diagnostics
+- **Bootstrap**: 5,000 resamples (seed=42) for interaction CI (FR-008).
+- **VIF**: Variance Inflation Factor for predictors (FR-013).
+- **Alternative Moderator**: Repeat with `SCS_SelfKindness` (FR-014).
+- **Correction**: Separate Holm-Bonferroni for robustness tests (FR-011b).
 
-## 4. Compute Feasibility Rationale
-- **CPU Only**: `statsmodels` OLS, Johnson-Neyman implementation, and bootstrap are CPU-efficient. No deep learning.
-- **Memory**: Dataset is expected to be < 100MB. Processing fits easily in available system memory.
-- **Time**: 3 models + 3 Johnson-Neyman checks (if needed) + 3 bootstrap runs + 3 plots will complete in < 1 hour on a 2-core runner.
+## Methodological Caveats
 
-## 5. Decision Log
-| Decision | Rationale |
-| :--- | :--- |
-| **Use ANCOVA** | Controls for baseline scores, increasing power and reducing error variance compared to ANOVA on change scores. |
-| **Homogeneity Gate** | Ensures the ANCOVA interaction term is a valid estimator of the moderation of change. If violated, Johnson-Neyman provides a valid alternative. |
-| **Johnson-Neyman** | Provides a robust alternative when homogeneity of slopes is violated, identifying the specific range of the moderator where effects are significant. |
-| **Case Resampling Bootstrap** | Preserves the experimental design structure (stratified by condition) better than residual bootstrap in this context. |
-| **MDES Calculation** | Provides a scientifically sound frame for null results when sample size is insufficient for the target effect size. |
-| **Simple Slopes of Feedback** | Explicitly tests the direction of the buffering effect, not just the interaction significance. |
-| **Associational Framing** | Mandatory if randomization metadata is missing to prevent causal overreach (Constitution Principle VII). |
+1. **Causal Inference**: If the dataset metadata does not explicitly confirm randomization, findings will be framed as **associational** (FR-017).
+2. **Power**: If N < 92, a "Power Insufficient" warning is included; only effect sizes and CIs are reported, no p-values.
+3. **Dataset Validity**: The primary risk is the unverified status of the OSF URL. The pipeline is designed to fail safely rather than hallucinate results.
+4. **Homogeneity Violation**: If the homogeneity of slopes assumption is violated, the primary moderation result is considered uninterpretable, and stratified results are reported instead.
+5. **Selection Bias**: If randomization is absent, results may be confounded by pre-existing group differences.

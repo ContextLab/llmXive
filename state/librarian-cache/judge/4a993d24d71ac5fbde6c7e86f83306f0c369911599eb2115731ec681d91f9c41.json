@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.10446",
+  "judged_at": "2026-07-11T14:37:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+  "rationale": "The paper focuses on using machine learning to classify discrete emotions from narrative components within a specific French corpus, which does not measure the psychological constructs of self-compassion or resilience to negative feedback, nor does it establish a baseline or mechanism for the user's specific causal relationship. It falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (e.g., \"emotion\" and \"regulation\" are present, but the specific variables of sel",
+  "relevant": false
+}

@@ -1,8 +1,8 @@
 # Feature Specification: The Impact of Self‑Compassion on Resilience to Negative Feedback
 
-**Feature Branch**: `001-self-compassion-feedback`
-**Created**: 2026‑06‑28
-**Status**: Draft
+**Feature Branch**: `001-self-compassion-feedback`  
+**Created**: 2026‑06‑28  
+**Status**: Draft  
 **Input**: User description: "Does self‑compassion buffer (moderate) the adverse psychological impact of negative feedback on anxiety, rumination, and self‑efficacy?"
 
 ## User Scenarios & Testing *(mandatory)*
@@ -17,9 +17,9 @@ A researcher wants to determine whether self‑compassion moderates the impact o
 
 **Acceptance Scenarios**:
 
-1. **Given** the verified dataset contains all required variables (SCS, pre/post outcomes, feedback condition) and the dataset metadata confirms experimental randomization of feedback, **When** the analysis script is executed, **Then** it outputs a regression table for each outcome including the `C(feedback)[T.2]:SCS_z` interaction term, with Holm‑Bonferroni adjusted p‑values reported, and a 95% confidence interval. The report explicitly states "Hypothesis Supported" if the CI excludes zero, or "Hypothesis Not Supported" if the CI includes zero.
+1. **Given** the verified dataset contains all required variables (SCS, pre/post outcomes, feedback condition) and the dataset metadata confirms experimental randomization of feedback, **When** the analysis script is executed, **Then** it outputs a regression table for each outcome including the `C(feedback, Treatment(reference='Positive'))[T.2]:SCS_z` interaction term, with Holm‑Bonferroni adjusted p‑values reported, and a 95% confidence interval that excludes zero if the hypothesis holds.
 2. **Given** the dataset lacks experimental randomization metadata, **When** the script executes, **Then** it explicitly frames the interaction result as "associational" in the report and flags the limitation, rather than claiming a causal moderation effect.
-3. **Given** the dataset is missing any of the required outcome variables (`stai_post`, `rrs_post`, or `gse_post`), **Then** the pipeline halts immediately with exit code 1 and the error message: `[DATA_UNAVAILABLE: Required post-feedback outcome variables missing from source. The dataset 'Feedback and Self-Compassion' is required. If unavailable, the pipeline cannot proceed.]`.
+3. **Given** the dataset is missing any of the required outcome variables (`stai_post`, `rrs_post`, or `gse_post`), **Then** the pipeline halts immediately with exit code 1 and the error message: `[DATA_UNAVAILABLE: Required post-feedback outcome variables missing from source. The dataset 'Feedback and Self-Compassion' is required. If unavailable, the pipeline cannot proceed.]`. This error message is a system control flow signal, not a computed result.
 4. **Given** the dataset contains the required variables but the hypothesis is NOT supported (confidence interval includes zero), **When** the script executes, **Then** it outputs a regression table for each outcome including the interaction term, with Holm‑Bonferroni adjusted p‑values reported, and a 95% confidence interval that includes zero, and the report explicitly states "Hypothesis Not Supported".
 
 ---
@@ -71,36 +71,38 @@ A researcher needs a concise, shareable summary of all analyses, visualizations,
 
 ### Edge Cases
 
-- **Missing Data**: Rows with missing SCS, baseline, or post‑feedback scores are dropped via listwise deletion; the number of exclusions is logged and the final N is reported. If N < 92 (based on power analysis), the pipeline reports a "Power Insufficient" warning but continues to generate results with a caveat.
+- **Missing Data**: Rows with missing SCS, baseline, or post‑feedback scores are dropped via listwise deletion; the number of exclusions is logged and the final N is reported. If N < 92 (based on power analysis for f²=0.02, α=0.05, power=0.80), the pipeline reports a "Power Insufficient" warning but continues to generate results with a caveat.
 - **Non‑Normal Residuals**: Robust (HC3) standard errors are computed; if the Breusch‑Pagan test yields p < 0.10, a heteroskedasticity flag is added to the report and the robust SEs are used for inference.
 - **Dataset Mismatch**: If the downloaded dataset lacks the required post‑feedback outcome columns, the pipeline terminates immediately with a specific error identifying the missing columns.
 - **Collinearity**: If VIF > 5 for the interaction term predictors, the report explicitly flags this and refrains from claiming independent effects for the collinear variables.
 - **Randomization Ambiguity**: If the dataset metadata does not confirm experimental randomization of the feedback condition, the system defaults to framing all interaction findings as "associational" rather than causal.
+- **Homogeneity Violation**: If the homogeneity of regression slopes assumption is violated (p < 0.10), the system reports a pre-specified secondary analysis including the covariate-by-factor interaction term, labeled as such, rather than reporting biased standard ANCOVA results as the primary finding.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the dataset from the verified OSF URL (https://osf.io/3k9r2/) and verify that it contains the columns: `scf_total`, `scf_self_judgment`, `scf_self_kindness`, `stai_pre`, `stai_post`, `rrs_pre`, `rrs_post`, `gse_pre`, `gse_post`, `feedback_cond`, `age`, `gender`, and personality traits (Big Five) if available. If any required column is missing, the system MUST abort with exit code 1 and the error message: `[DATA_UNAVAILABLE: Required columns missing from dataset. Expected: [list of missing columns]]`. The system MUST check if the total number of complete participant records (N) after listwise deletion is ≥ 92. If N < 92, the system MUST NOT abort but MUST generate a report with a "Power Insufficient" warning, explicitly stating: `[POWER_INSUFFICIENT: Sample size (N) is less than the required 92 for adequate power (f²=0.02, α=0.05, power=0.80). Results are reported with caution.]`. *(See US-1)*
+- **FR-001**: System MUST download the dataset from the verified OSF URL (https://osf.io/3k9r2/) and verify that it contains the columns: `scf_total`, `scf_self_judgment`, `scf_self_kindness`, `stai_pre`, `stai_post`, `rrs_pre`, `rrs_post`, `gse_pre`, `gse_post`, `feedback_cond`, `age`, `gender`, and personality traits (Big Five) if available. If any required column is missing, the system MUST abort with exit code 1 and the error message: `[DATA_UNAVAILABLE: Required columns missing from dataset. Expected: [list of missing columns]]`. The system MUST verify that the total number of complete participant records (N) after listwise deletion is ≥ 92 for adequate power (f²=0.02, α=0.05, power=0.80). If N < 92, the system MUST NOT abort but MUST calculate and report the detectable effect size (f²) for the observed N using the non-centrality parameter approximation for the F-test (f² = (F_crit * (k + 1)) / (N - k - 1), where F_crit is the critical F-value for α=0.05, df1=k, df2=N-k-1), generate a report with a "Power Insufficient" warning explicitly stating: `[POWER_INSUFFICIENT: Sample size (N) is less than the required 92 for adequate power (f²=0.02, α=0.05, power=0.80). Results are reported with caution. The detectable effect size for this N is [calculated_f2]. The primary hypothesis test for f²=0.02 is underpowered.]`, and proceed with the analysis. *(See US-1)*
 - **FR-002**: System MUST remove any participant rows with missing SCS, baseline, or feedback‑task data (listwise deletion) and log the number of exclusions and the final sample size (N) in the report. *(See US-1)*
-- **FR-003**: System MUST encode feedback condition as a categorical variable with 'Positive Feedback' as the reference level (0 = Positive, 1 = Neutral, 2 = Negative). The interaction term `C(feedback)[T.2]` specifically refers to the contrast between 'Negative Feedback' and the reference 'Positive Feedback'. The 'Neutral' condition is retained in the model but is not part of this specific interaction term. *(See US-1)*
+- **FR-003**: System MUST encode feedback condition as a categorical variable with 'Positive Feedback' as the reference level (0 = Positive, 1 = Neutral, 2 = Negative) and center/standardize continuous predictors (SCS, baseline anxiety, baseline rumination, baseline self‑efficacy) using z‑scores. The model formula MUST explicitly use `C(feedback, Treatment(reference='Positive'))` to ensure the interaction term `C(feedback, Treatment(reference='Positive'))[T.2]:SCS_z` corresponds to the contrast between 'Negative Feedback' and the reference 'Positive Feedback'. The 'Neutral' condition is excluded from this specific primary interaction test to focus on the extreme contrast (Negative vs Positive) as per the hypothesis. *(See US-1)*
 - **FR-004**: System MUST prepare the dependent variables as the post‑feedback scores (stai_post, rrs_post, gse_post) for anxiety, rumination, and self‑efficacy. The baseline scores (stai_pre, rrs_pre, gse_pre) will be used as covariates in the ANCOVA model. *(See US-1)*
-- **FR-005**: System MUST fit a linear regression (ANCOVA) for each outcome with the dependent variable = post‑feedback score, covariates = baseline outcome, age, gender, **main effect of SCS_z**, and the interaction term `C(feedback)[T.2]:SCS_z`, using statsmodels OLS. The reference level for feedback must be 'Positive Feedback'. The analysis focuses on the 'Negative vs Positive' contrast as the primary test of the buffering effect. *(See US-1)*
+- **FR-005**: System MUST fit a linear regression (ANCOVA) for each outcome with the dependent variable = post‑feedback score, covariates = baseline outcome, age, gender, **main effect of SCS_z**, and the interaction term `C(feedback, Treatment(reference='Positive'))[T.2]:SCS_z`, using statsmodels OLS. The reference level for feedback must be 'Positive Feedback'. *(See US-1)*
 - **FR-006**: System MUST output for each model: interaction coefficient, standard error, p‑value, confidence interval, partial η² (calculated using Type III sums of squares), and robust (HC3) standard errors. *(See US-1)*
 - **FR-007**: System MUST generate simple‑slope plots for low (‑1 SD), mean, and high (+1 SD) self‑compassion levels, saved as PNG files named `<outcome>_simple_slopes.png`. *(See US-2)*
-- **FR-008**: System MUST perform a bootstrap of the interaction coefficient using 5,000 resamples (random seed = 42) and report the 95% bootstrap confidence interval. *(See US-3)*
+- **FR-008**: System MUST perform a bootstrap of the interaction coefficient using exactly 5,000 resamples (random seed = 42) and report the bias-corrected and accelerated (BCa) confidence interval. The bootstrap method MUST be 'case bootstrap' (resampling rows with replacement) to ensure reproducibility and validity for i.i.d. data. The system MUST NOT use a dynamic convergence check; the fixed resample count ensures stability for interaction effects. *(See US-3)*
 - **FR-009**: System MUST automatically compute robust heteroskedasticity‑consistent standard errors (HC3) for all models and **flag** heteroskedasticity in the report when the Breusch‑Pagan test yields p < 0.10. *(See US-1)*
 - **FR-010**: System MUST produce a concise HTML report summarizing data cleaning, descriptive statistics, model results, robustness checks, visualizations, and methodological caveats. The report must render in a standard web browser without errors. *(See US-4)*
 - **FR-011**: System MUST apply Holm‑Bonferroni correction across the three primary hypothesis tests (anxiety, rumination, self‑efficacy interaction terms) and report adjusted p‑values. *(See US-1)*
-- **FR-011b**: System MUST apply Holm‑Bonferroni correction across the three robustness hypothesis tests (anxiety, rumination, self‑efficacy interaction terms using the Self-Kindness subscale) separately from the primary tests. *(See US-3)*
+- **FR-011b**: System MUST apply Holm‑Bonferroni correction across the three robustness hypothesis tests (anxiety, rumination, self‑efficacy interaction terms using the Self-Kindness subscale) separately from the primary tests. This separate correction is justified because the Self-Kindness analysis is an 'exploratory robustness check' distinct from the 'confirmatory' primary analysis, defining the 'family' strictly as these three interaction terms. *(See US-3)*
 - **FR-012**: System MUST set the random seed to `42` before any stochastic operation (e.g., bootstrap) to guarantee reproducibility. *(See US-3)*
 - **FR-013**: System MUST compute Variance Inflation Factors (VIF) for all predictors in the final models and report the values; if any VIF > 5, the report MUST explicitly flag potential collinearity. *(See US-3)*
 - **FR-014**: System MUST repeat the primary moderation analysis using the SCS‑Self‑Kindness subscale as the moderator, outputting the same set of statistics as in FR‑006. *(See US-3)*
-- **FR-015**: System MUST perform a sensitivity analysis by re-running the primary model with significance thresholds α across a range of conventional levels and report the count of interaction terms with p < α across the outcomes for each threshold. *(See US-3)*
+- **FR-015**: System MUST perform a sensitivity analysis by re-running the primary model with significance thresholds across a range of standard values and report the count of interaction terms with p < α across the 3 outcomes for each threshold. *(See US-3)*
 - **FR-016**: System MUST compute a SHA‑256 checksum of the raw dataset immediately after download and store this hash in the project state file (`state/projects/...yaml`). *(See US-4)*
 - **FR-017**: System MUST verify that the dataset metadata or documentation explicitly states that the feedback condition was experimentally randomized. If not, the system MUST default to framing all findings as "associational" in the report. *(See US-1)*
 - **FR-018**: System MUST include personality traits (Big Five) as covariates in the ANCOVA model if they are present in the dataset. If they are not present, the system MUST log a warning and proceed with the reduced model. *(See US-1)*
-- **FR-019**: System MUST test the homogeneity of regression slopes assumption by fitting an interaction term between the covariate (baseline score) and the feedback condition factor. If this interaction is significant (p < 0.10), the system MUST switch to an alternative model (e.g., change scores or a model with the baseline*feedback interaction included) and report the results from this alternative model in a structured recommendation block, explicitly noting the switch and the rationale. *(See US-1)*
+- **FR-019**: System MUST test the homogeneity of regression slopes assumption by fitting an interaction term between the covariate (baseline score) and the feedback condition factor. If this interaction is significant (p < 0.10), the system MUST report a pre-specified secondary analysis using a model that includes the covariate-by-factor interaction term (formula: `post ~ feedback * baseline + SCS_z + feedback:SCS_z + covariates`), explicitly labeling it as a secondary analysis to avoid researcher degrees of freedom, rather than replacing the primary result. *(See US-1)*
+- **FR-020**: System MUST compute all reported statistics (coefficients, p-values, confidence intervals) directly from the loaded dataset using the statistical models defined in FR-005 and FR-014. The system MUST NOT use hardcoded, simulated, or placeholder values for any *computed result* reported in the final HTML report. System error signals (e.g., `[DATA_UNAVAILABLE...]`) are exempt from this rule as they are control flow indicators, not analysis results. Any attempt to use non-computed values for analysis results MUST trigger an exception and halt the pipeline. Simulated data is strictly forbidden; results must be genuine measurements from the provided dataset. *(See US-1)*
 
 ### Key Entities
 
@@ -112,24 +114,25 @@ A researcher needs a concise, shareable summary of all analyses, visualizations,
 
 ### Measurable Outcomes
 
-- **SC-001**: The report includes the interaction coefficient for negative feedback × self‑compassion, its p‑value (adjusted), and its confidence interval. *(validated by User Story 1)*
-- **SC-002**: The report includes the calculated Partial η² value for the interaction term. *(validated by User Story 1)*
-- **SC-003**: The report includes the bootstrap confidence interval for the interaction coefficient, the parametric confidence interval, and a note on whether they overlap. If they do not overlap, a methodological caveat is added. *(validated by User Story 3)*
-- **SC-004**: Simple‑slope plot PNG files are generated for all three outcomes (`anxiety_simple_slopes.png`, `rumination_simple_slopes.png`, `self_efficacy_simple_slopes.png`) and each plot displays **three distinct lines** representing low (‑1 SD), mean, and high (+1 SD) self‑compassion. *(validated by User Story 2)*
-- **SC-005**: The HTML report (`report.html`) is renderable in a standard web browser and contains all required sections (Data Cleaning, Descriptive Statistics, Model Results, Robustness Checks, Visualizations, Methodological Caveats) with no rendering errors. *(validated by User Story 4)*
-- **SC-006**: The report explicitly states whether findings are causal or associational based on the dataset's randomization metadata, and if VIF > 5, a collinearity warning is present. *(validated by User Story 1 & 3)*
+- **SC-001**: The report includes the interaction coefficient for negative feedback × self‑compassion, its p‑value (adjusted), and its confidence interval. *(See US-1)*
+- **SC-002**: The report includes the calculated Partial η² value for the interaction term. *(See US-1)*
+- **SC-003**: The report includes the bootstrap confidence interval for the interaction coefficient, the parametric confidence interval, and a note on whether they overlap. If they do not overlap, a methodological caveat is added. *(See US-3)*
+- **SC-004**: Simple‑slope plot PNG files are generated for all three outcomes (`anxiety_simple_slopes.png`, `rumination_simple_slopes.png`, `self_efficacy_simple_slopes.png`) and each plot displays **three distinct lines** representing low (‑1 SD), mean, and high (+1 SD) self‑compassion. *(See US-2)*
+- **SC-005**: The HTML report (`report.html`) is renderable in a standard web browser and contains all required sections (Data Cleaning, Descriptive Statistics, Model Results, Robustness Checks, Visualizations, Methodological Caveats) with no rendering errors. *(See US-4)*
+- **SC-006**: The report explicitly states whether findings are causal or associational based on the dataset's randomization metadata, and if VIF > 5, a collinearity warning is present. *(See US-1 & US-3)*
 
 ## Assumptions
 
 - The OSF dataset at `https://osf.io/3k9r2/` is publicly accessible and provided as a CSV file.
-- The dataset contains at least enough complete participant records after listwise deletion to achieve power ≥ 0.80 for detecting a small interaction effect (f² = 0.02, α = 0.05) across three outcomes. If the final N is < 92, the system will report a power warning.
+- The analysis proceeds regardless of the final sample size (N); if N < 92, appropriate power caveats and detectable effect size calculations are generated.
 - If the dataset metadata does not explicitly confirm experimental randomization of the feedback condition, the analysis will frame all interaction findings as **associational** rather than causal, as required by methodological soundness.
 - Researchers have a Python 3.10+ environment with `pandas`, `statsmodels`, `seaborn`, and `matplotlib` installed.
 - Significance threshold for hypothesis testing is set to α = 0.05 (default community standard), with Holm‑Bonferroni correction applied for multiple comparisons within each family of tests.
 - Computational resources are limited to a single‑core CPU and ≤ 2 GB RAM on a GitHub Actions free‑tier runner; the analysis is designed to complete efficiently.
 - Gender is recorded as a binary categorical variable; any additional categories are treated as missing for the purpose of this analysis.
 - Anxiety is measured with the State‑Trait Anxiety Inventory (STAI‑State; Spielberger); rumination with the Ruminative Responses Scale (RRS; Nolen‑Hoeksema & Morrow); self‑efficacy with the General Self‑Efficacy Scale (GSES; Schwarzer & Jerusalem). All instruments have demonstrated reliability and validity in prior literature.
-- The Self‑Compassion Scale (SCS; Neff,) is used to assess self‑compassion; it has established psychometric properties.
+- The Self‑Compassion Scale (SCS; Neff) is used to assess self‑compassion; it has established psychometric properties.
+- The dataset contains the specific post‑feedback measures for anxiety, rumination, and self‑efficacy required for the ANCOVA analysis. If the dataset lacks these, the pipeline will halt with a specific error.
 - Robust (HC3) standard errors are computed; heteroskedasticity is flagged when the Breusch‑Pagan test yields p < 0.10.
 - All random operations use seed = 42 for reproducibility.
 - The raw dataset checksum is recorded as a SHA‑256 hash in the project state file to satisfy data‑hygiene requirements.
@@ -137,4 +140,6 @@ A researcher needs a concise, shareable summary of all analyses, visualizations,
 - The VIF threshold for flagging collinearity is set to 5, consistent with common social science standards.
 - The dataset is provided as a CSV file.
 - The 'Self-Kindness' subscale is used for the robustness check as it is a theoretically distinct component of self-compassion.
-- **No Simulated Results**: All analysis outputs (coefficients, p-values, confidence intervals) MUST be derived from the actual dataset. No simulated, placeholder, or hardcoded values are permitted.
+- All results are computed directly from the provided dataset; no simulated, hardcoded, or placeholder values are used for analysis results.
+- The data is assumed to be independent and identically distributed (i.i.d.), justifying the use of case bootstrap (row-wise resampling) for the interaction term confidence intervals.
+- The 'Neutral' feedback condition is treated as an intermediate control group; the primary hypothesis test specifically contrasts 'Negative' vs 'Positive' feedback to isolate the buffering effect, excluding 'Neutral' from the specific interaction term of interest.

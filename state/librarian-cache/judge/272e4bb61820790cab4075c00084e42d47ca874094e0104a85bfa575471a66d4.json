@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2106.05894",
+  "judged_at": "2026-07-11T14:37:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+  "rationale": "The paper focuses on natural language processing and training dialogue models using \"adversarial negative responses\" (a technical term for synthetic data generation), which is a distinct construct from the psychological concept of \"negative feedback\" and the human trait of \"self-compassion.\" This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"negative\" and \"feedback\" in a technical vs. psychological context) and is entirely off-domain (computer science vs.",
+  "relevant": false
+}

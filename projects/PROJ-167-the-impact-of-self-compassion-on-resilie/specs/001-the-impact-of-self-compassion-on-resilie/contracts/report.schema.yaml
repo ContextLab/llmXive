@@ -35,6 +35,12 @@ properties:
       data_availability_note:
         type: "string"
         description: "Note if the dataset was unavailable or if the project halted due to data issues."
+      homogeneity_violation_note:
+        type: "string"
+        description: "Note if homogeneity of slopes assumption was violated."
+      power_warning:
+        type: "string"
+        description: "Note if sample size < 92."
   visualizations:
     type: "array"
     items:

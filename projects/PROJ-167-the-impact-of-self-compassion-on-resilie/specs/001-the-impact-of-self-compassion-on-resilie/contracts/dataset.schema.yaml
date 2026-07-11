@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "FeedbackSelfCompassionDataset"
-description: "Schema for the raw dataset downloaded from OSF. Verifies required columns for the analysis."
+title: "Dataset Schema for Self-Compassion Feedback Study"
+description: "Schema for the raw and processed dataset columns required for the analysis."
 type: object
 properties:
   participant_id:
@@ -9,61 +9,41 @@ properties:
   scf_total:
     type: number
     description: "Total Self-Compassion Scale score"
-  scf_self_judgment:
-    type: ["number", "null"]
-    description: "Self-Judgment subscale (optional)"
   scf_self_kindness:
-    type: ["number", "null"]
-    description: "Self-Kindness subscale (optional)"
+    type: number
+    description: "Self-Kindness subscale score"
   stai_pre:
     type: number
-    description: "Pre-task State Anxiety Inventory score"
+    description: "State-Trait Anxiety Inventory pre-feedback score"
   stai_post:
     type: number
-    description: "Post-task State Anxiety Inventory score"
+    description: "State-Trait Anxiety Inventory post-feedback score"
   rrs_pre:
     type: number
-    description: "Pre-task Ruminative Responses Scale score"
+    description: "Ruminative Responses Scale pre-feedback score"
   rrs_post:
     type: number
-    description: "Post-task Ruminative Responses Scale score"
+    description: "Ruminative Responses Scale post-feedback score"
   gse_pre:
     type: number
-    description: "Pre-task General Self-Efficacy Scale score"
+    description: "General Self-Efficacy Scale pre-feedback score"
   gse_post:
     type: number
-    description: "Post-task General Self-Efficacy Scale score"
+    description: "General Self-Efficacy Scale post-feedback score"
   feedback_cond:
     type: string
-    description: "Feedback condition"
-    enum:
-      - "Positive"
-      - "Neutral"
-      - "Negative"
+    enum: ["Positive Feedback", "Neutral", "Negative Feedback"]
+    description: "Experimental feedback condition"
   age:
     type: integer
     description: "Participant age"
   gender:
     type: string
-    description: "Gender"
-  big_five_openness:
-    type: ["number", "null"]
-    description: "Big Five Openness (optional)"
-  big_five_conscientiousness:
-    type: ["number", "null"]
-    description: "Big Five Conscientiousness (optional)"
-  big_five_extraversion:
-    type: ["number", "null"]
-    description: "Big Five Extraversion (optional)"
-  big_five_agreeableness:
-    type: ["number", "null"]
-    description: "Big Five Agreeableness (optional)"
-  big_five_neuroticism:
-    type: ["number", "null"]
-    description: "Big Five Neuroticism (optional)"
+    description: "Participant gender"
 required:
   - participant_id
   - scf_total
+  - scf_self_kindness
   - stai_pre
   - stai_post
   - rrs_pre
