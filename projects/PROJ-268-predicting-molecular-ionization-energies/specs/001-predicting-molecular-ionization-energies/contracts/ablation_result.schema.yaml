@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ablation Result Schema"
+description: "Schema for ablation study results. Note: The ablation study involves retraining the model with zeroed features for 5 independent stochastic runs (paired with 5 baseline runs), not just inference-time noise."
+type: "object"
+properties:
+  ablation_config:
+    type: "object"
+    properties:
+      feature:
+        type: "string"
+        description: "Perturbed feature (e.g., bond_type)."
+      perturbation_type:
+        type: "string"
+        description: "Type of perturbation (e.g., zeroing, gaussian_noise)."
+      sigma:
+        type: "number"
+        description: "Standard deviation of noise (if applicable)."
+    required:
+      - feature
+      - perturbation_type
+  results:
+    type: "object"
+    properties:
+      baseline_mae:
+        type: "number"
+        description: "Mean MAE of the 5 baseline models."
+      perturbed_mae_mean:
+        type: "number"
+        description: "Mean MAE of the perturbed model (across 5 stochastic runs)."
+      perturbed_mae_std:
+        type: "number"
+        description: "Standard deviation of MAE of the perturbed model."
+      mae_increase:
+        type: "number"
+        description: "Absolute increase in MAE (mean)."
+      p_value:
+        type: "number"
+        description: "P-value from paired t-test on per-molecule error differences across 5 pairs."
+      is_significant:
+        type: "boolean"
+        description: "True if p-value < 0.05 (with Bonferroni correction)."
+      num_runs:
+        type: "integer"
+        description: "Number of stochastic runs performed (must be 5)."
+      test_type:
+        type: "string"
+        description: "Type of statistical test used (e.g., 'paired_t_test')."
+    required:
+      - baseline_mae
+      - perturbed_mae_mean
+      - perturbed_mae_std
+      - mae_increase
+      - p_value
+      - is_significant
+      - num_runs
+      - test_type
+required:
+  - ablation_config
+  - results

@@ -1,0 +1,11 @@
+- artifact_hash: 9556223ebad513d3799945e9599cef0ad0c83e72cdd6769325b90d4cdba66d19
+  artifact_path: projects/PROJ-268-predicting-molecular-ionization-energies/specs/001-predicting-molecular-ionization-energies/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://figshare.com/articles/dataset/qm9/1224189
+  verification_status: mismatch
+  verified_against_url: https://figshare.com/articles/dataset/qm9/1224189
+  verified_at: '2026-07-11T21:43:03.184747Z'

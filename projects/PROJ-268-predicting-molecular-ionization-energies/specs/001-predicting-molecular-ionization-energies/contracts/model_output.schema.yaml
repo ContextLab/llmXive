@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the model's predictions and metrics."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., MPNN)."
+  metrics:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error in eV."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error in eV."
+      r_squared:
+        type: "number"
+        description: "Coefficient of determination."
+    required:
+      - mae
+      - rmse
+      - r_squared
+  predictions:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        molecule_id:
+          type: "string"
+        true_value:
+          type: "number"
+        predicted_value:
+          type: "number"
+        error:
+          type: "number"
+      required:
+        - molecule_id
+        - true_value
+        - predicted_value
+        - error
+  runtime:
+    type: "object"
+    properties:
+      total_seconds:
+        type: "number"
+      peak_ram_gb:
+        type: "number"
+    required:
+      - total_seconds
+      - peak_ram_gb
+  attribution:
+    type: "object"
+    description: "Attribution map using Integrated Gradients."
+    properties:
+      algorithm:
+        type: "string"
+        const: "Integrated Gradients"
+      scores:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - algorithm
+      - scores
+required:
+  - model_name
+  - metrics
+  - predictions
+  - runtime

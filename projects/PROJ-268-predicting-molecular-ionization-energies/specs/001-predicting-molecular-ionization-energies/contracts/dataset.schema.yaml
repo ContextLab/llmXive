@@ -1,0 +1,86 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "QM9 Dataset Schema"
+description: "Schema for the preprocessed QM9 dataset used in training and evaluation. Note: The target variable is -HOMO (negative HOMO energy), used as a proxy for Ionization Energy via Koopmans' theorem."
+type: "object"
+properties:
+  molecule_id:
+    type: "string"
+    description: "Unique identifier for the molecule (e.g., SMILES hash)."
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string of the molecule."
+  negative_homo_proxy:
+    type: "number"
+    description: "Negative HOMO energy in eV, used as a proxy for Ionization Energy via Koopmans' theorem (IE ≈ -HOMO). This is an approximation with known systematic errors."
+    minimum: -100
+    maximum: 100
+  graph:
+    type: "object"
+    description: "2D Graph representation."
+    properties:
+      num_nodes:
+        type: "integer"
+        minimum: 1
+      num_edges:
+        type: "integer"
+        minimum: 0
+      node_features:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            atom_type:
+              type: "integer"
+            formal_charge:
+              type: "integer"
+            is_aromatic:
+              type: "boolean"
+            num_hydrogens:
+              type: "integer"
+          required:
+            - atom_type
+            - formal_charge
+            - is_aromatic
+            - num_hydrogens
+      edge_index:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "integer"
+          minItems: 2
+          maxItems: 2
+      edge_features:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            bond_type:
+              type: "integer"
+            is_conjugated:
+              type: "boolean"
+            stereo:
+              type: "integer"
+          required:
+            - bond_type
+            - is_conjugated
+            - stereo
+    required:
+      - num_nodes
+      - num_edges
+      - node_features
+      - edge_index
+      - edge_features
+  split:
+    type: "string"
+    enum:
+      - train
+      - val
+      - test
+    description: "Dataset split assignment based on scaffold."
+required:
+  - molecule_id
+  - smiles
+  - negative_homo_proxy
+  - graph
+  - split
