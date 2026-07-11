@@ -1,0 +1,5 @@
+[tool.ruff]
+select = ["E", "F", "W", "I"]
+
+[tool.black]
+line-length = 88

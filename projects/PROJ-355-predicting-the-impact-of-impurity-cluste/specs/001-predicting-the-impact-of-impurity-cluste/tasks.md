@@ -44,7 +44,7 @@
 **Purpose**: Project initialization, basic structure, and core validation utilities required by downstream tasks.
 
 - [X] T001 [P] Initialize project structure by creating root directory `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` and subdirectories `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` idempotently.
-- [ ] T002 Create `requirements.txt` with pinned versions: `The plan specifies using pymatgen version 2024.1.1. [UNRESOLVED-CLAIM: c_7eba6bc8 — status=not_enough_info] `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `, `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}} `
+- [ ] T002 Create `requirements.txt` with pinned versions: `The plan specifies using pymatgen version 2024.1.1. `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `, `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}} `
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`
 - [X] T004a [P] Implement `contracts/dataset.schema.yaml` defining required fields: `bulk_config_id`, `impurity_species`, `segregation_energy`, `clustering_descriptors`
 - [X] T004b [P] Implement `contracts/output_schema.schema.yaml` defining required fields: `r2`, `rmse`, `p_values`, `confidence_intervals`
@@ -75,8 +75,8 @@
  1. Define the *logical* sequence: `download_bulk_configs` -> `build_gb_supercells` -> `compute_descriptors` -> `run_simulation`.
  2. **Note**: This task defines the orchestration flow. The actual implementation of `download.py` (T013), `gb_builder.py` (T014), etc., occurs in Phase 3. The code in T007 will call these modules once they are implemented.
  3. Ensure the script handles the `[DATA_UNAVAILABLE]` error from T013 gracefully by logging and exiting cleanly.
-- [~] T010 [P] [US1] Unit test for retry logic in `tests/unit/test_download_retry.py`
-- [~] T011 [P] [US1] Unit test for interface-region descriptor filtering in `tests/unit/test_descriptor_interface.py`
+- [ ] T010 [P] [US1] Unit test for retry logic in `tests/unit/test_download_retry.py`
+- [ ] T011 [P] [US1] Unit test for interface-region descriptor filtering in `tests/unit/test_descriptor_interface.py`
 - [~] T012 [P] [US1] Integration test for full data pipeline in `tests/integration/test_data_pipeline.py` <!-- FAILED: unspecified -->
 - [~] T012a [P] [US1] Unit test for segregation energy generation verification in `tests/unit/test_energy_generation.py`. Logic: Verify that `simulate_energy.py` produces non-empty results and logs the count of generated energies. Tag [FR-003]. <!-- FAILED: unspecified -->
 
@@ -130,13 +130,13 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T020 [P] [US2] Unit test for CV split logic in `tests/unit/test_cv_split.py`
-- [ ] T021 [P] [US2] Unit test for metric calculation (R², RMSE, p-values) in `tests/unit/test_metrics.py`
-- [ ] T022 [P] [US2] Integration test for model training and evaluation in `tests/integration/test_model_training.py`
+- [~] T021 [P] [US2] Unit test for metric calculation (R², RMSE, p-values) in `tests/unit/test_metrics.py`
+- [~] T022 [P] [US2] Integration test for model training and evaluation in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Add contract validation in `code/modeling/train.py` to validate input against `contracts/dataset.schema.yaml` BEFORE training
-- [ ] T023 [US2] Implement `code/modeling/train.py` with **Linear Regression** as the primary model for the MVP to satisfy the 'coefficient p-values' requirement (US-2).
+- [~] T027 [US2] Add contract validation in `code/modeling/train.py` to validate input against `contracts/dataset.schema.yaml` BEFORE training
+- [~] T023 [US2] Implement `code/modeling/train.py` with **Linear Regression** as the primary model for the MVP to satisfy the 'coefficient p-values' requirement (US-2).
  1. **Cross-Validation**: Implement a **manual k-fold CV loop** (or use `sklearn`'s `cross_val_score` with a custom estimator wrapper) to satisfy FR-004. `statsmodels` OLS does not natively support CV loops.
  - Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702). For each fold: Train `statsmodels.api.OLS` with `cov_type='HC3'` on 4 folds, predict on 1 fold. Compute R², RMSE.
  - Aggregate metrics across folds.
@@ -144,9 +144,9 @@
  3. **Confidence Intervals**: Calculate confidence intervals for predictions as required by US-2.
  4. Save metrics to `results/metrics.json` with SHA256 hash recorded in `state/project.yaml` under key `code_version_hash` for provenance.
  **Dependency**: Requires T015 and T016c completion.
-- [ ] T025 [US2] Implement per-system evaluation logic to report R² values for each alloy system separately. **Dependency**: Requires `alloy_systems.json` from T015b to group samples. Use the `alloy_system_id` format defined in T015b (`f"{crystal_system}_{impurity_species}"`). If `alloy_systems.json` is missing, raise an error.
-- [ ] T026 [US2] Implement confidence interval calculation for predictions
-- [ ] T028 [US2] **REMOVED**: Logic merged into T023 to avoid race conditions and redundant writes.
+- [~] T025 [US2] Implement per-system evaluation logic to report R² values for each alloy system separately. **Dependency**: Requires `alloy_systems.json` from T015b to group samples. Use the `alloy_system_id` format defined in T015b (`f"{crystal_system}_{impurity_species}"`). If `alloy_systems.json` is missing, raise an error.
+- [~] T026 [US2] Implement confidence interval calculation for predictions
+- [~] T028 [US2] **REMOVED**: Logic merged into T023 to avoid race conditions and redundant writes.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -160,7 +160,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
+- [~] T029 [P] [US3] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
 - [ ] T030 [P] [US3] Unit test for multiple-comparison correction (Bonferroni/FDR) in `tests/unit/test_hypothesis.py`
 - [ ] T031 [P] [US3] Integration test for full hypothesis and sensitivity analysis in `tests/integration/test_hypothesis_sensitivity.py`
 

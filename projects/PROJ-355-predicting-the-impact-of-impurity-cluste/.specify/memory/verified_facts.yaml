@@ -1,5 +1,5 @@
-'|data fold split':
-  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
-  source_id: '2604.10702'
-  url: https://arxiv.org/abs/2604.10702
-  value: '5'
+'|collinearity detection factor inflation threshold variance':
+  quote: If the VIF is high (with 10 being the traditionally accepted thresh-
+  source_id: '2005.02245'
+  url: https://arxiv.org/abs/2005.02245
+  value: '10'

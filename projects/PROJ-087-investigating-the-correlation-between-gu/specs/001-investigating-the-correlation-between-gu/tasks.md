@@ -105,18 +105,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`: Implement `test_spearman_correlation_calculation()`.
-- [ ] T019 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`: Implement `test_benjamini_hochberg_correction()`.
+- [~] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`: Implement `test_spearman_correlation_calculation()`.
+- [~] T019 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`: Implement `test_benjamini_hochberg_correction()`.
 
 ### Implementation for User Story 2
 
-- [ ] T020a [US2] Implement rarefaction logic in `src/diversity.py`: Create function `rarefy_table(counts, depth)` to subsample OTU tables to a fixed sequencing depth.
-- [ ] T020b [US2] [BLOCKED UNTIL T020a PASSES] Implement alpha-diversity computation (Shannon, Simpson, Observed OTUs) **using the rarefied table** in `src/diversity.py`. **Requires: data/processed/cleaned_microbiome_sleep.csv (from T016).**
-- [ ] T021 [US2] Implement Spearman rank correlation test between diversity indices and sleep variables in `src/correlation.py`.
-- [ ] T022 [US2] Implement Benjamini-Hochberg FDR correction on p-values in `src/correlation.py`.
-- [ ] T023 [US2] Flag correlations: Add column `is_moderate` (|r| > 0.3) and column `is_meaningful` (q-value < 0.05 AND |r| > 0.3) to the results DataFrame in `src/correlation.py` to satisfy SC-002 machine-verifiability.
-- [ ] T024 [US2] Save correlation results (r, p, q, significance, is_moderate, is_meaningful) to `data/processed/correlation_results.csv`.
-- [ ] T025 [US2] Implement logic to handle "No significant associations" case gracefully in `src/correlation.py`.
+- [~] T020a [US2] Implement rarefaction logic in `src/diversity.py`: Create function `rarefy_table(counts, depth)` to subsample OTU tables to a fixed sequencing depth.
+- [~] T020b [US2] [BLOCKED UNTIL T020a PASSES] Implement alpha-diversity computation (Shannon, Simpson, Observed OTUs) **using the rarefied table** in `src/diversity.py`. **Requires: data/processed/cleaned_microbiome_sleep.csv (from T016).** <!-- FAILED: unspecified -->
+- [~] T021 [US2] Implement Spearman rank correlation test between diversity indices and sleep variables in `src/correlation.py`.
+- [~] T022 [US2] Implement Benjamini-Hochberg FDR correction on p-values in `src/correlation.py`.
+- [~] T023 [US2] Flag correlations: Add column `is_moderate` (|r| > 0.3) and column `is_meaningful` (q-value < 0.05 AND |r| > 0.3) to the results DataFrame in `src/correlation.py` to satisfy SC-002 machine-verifiability.
+- [~] T024 [US2] Save correlation results (r, p, q, significance, is_moderate, is_meaningful) to `data/processed/correlation_results.csv`.
+- [~] T025 [US2] Implement logic to handle "No significant associations" case gracefully in `src/correlation.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
@@ -130,12 +130,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for plot generation in `tests/unit/test_viz.py`: Implement `test_scatterplot_generation()`.
+- [~] T026 [P] [US3] Unit test for plot generation in `tests/unit/test_viz.py`: Implement `test_scatterplot_generation()`.
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement scatterplot generation with regression lines for significant correlations in `src/viz.py`.
-- [ ] T028 [US3] Implement boxplot generation by sleep quartile in `src/viz.py`.
+- [~] T027 [US3] Implement scatterplot generation with regression lines for significant correlations in `src/viz.py`.
+- [~] T028 [US3] Implement boxplot generation by sleep quartile in `src/viz.py`.
 - [ ] T029 [US3] Compile final report including summary table of correlations in `src/report.py`.
 - [ ] T030 [US3] Save all plot artifacts to `data/processed/plots/`.
 - [ ] T031 [US3] Generate final HTML/PDF report with all findings and "No significant associations" handling.

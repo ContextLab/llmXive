@@ -1,18 +1,18 @@
+# Core Scientific Libraries
 pymatgen==2024.1.1
-pandas>=2.0.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-statsmodels>=0.14.0
-scipy>=1.11.0
-requests>=2.31.0
-pyyaml>=6.0
-matplotlib>=3.7.0
-networkx>=3.1
-monty>=2023.5.8
-plotly>=5.15.0
-black==23.7.0
-ruff==0.0.285
-pytest>=7.4.0
-pytest-cov>=4.1.0
-sphinx>=6.2.0
-sphinx-rtd-theme>=1.2.0
+numpy==1.26.4
+pandas==2.2.1
+scipy==1.13.0
+
+# Machine Learning & Statistics
+scikit-learn==1.4.2
+statsmodels==0.14.1
+
+# Data Handling & Validation
+pyyaml==6.0.1
+requests==2.31.0
+
+# Development & Testing
+pytest==8.1.1
+ruff==0.3.4
+black==24.3.0

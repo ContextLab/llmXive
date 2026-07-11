@@ -1,277 +1,365 @@
 """
 Integration tests for mocked NPM and GitHub API responses.
 
-This module tests the API clients (NpmClient, GithubClient, AuditClient)
-using mocked responses to verify correct behavior without hitting
-external APIs.
+This module validates the interaction between the NpmClient, GithubClient,
+and AuditClient with mocked external API responses to ensure the data
+collection pipeline handles real-world scenarios correctly without
+making actual network calls.
+
+Tests cover:
+- Successful data retrieval with valid JSON responses
+- Handling of missing repository data (null dates)
+- Rate limiting simulation and backoff behavior
+- Error handling for HTTP errors and timeouts
 """
 
 import json
 import os
-import tempfile
-from unittest.mock import MagicMock, patch, PropertyMock
+import time
+from datetime import datetime, timezone
+from unittest.mock import patch, MagicMock, PropertyMock
+from pathlib import Path
 
 import pytest
+import requests
+from requests.exceptions import HTTPError, Timeout, ConnectionError
 
-# Import clients - assuming they will be implemented in Phase 3
-# Using try/except to handle case where clients aren't implemented yet
+# Import clients from the project structure
+# Adjust imports based on the actual project root structure
 try:
     from src.services.npm_client import NpmClient
     from src.services.github_client import GithubClient
     from src.services.audit_client import AuditClient
+    from src.config.settings import get_config
+    from src.utils.backoff import exponential_backoff
 except ImportError:
-    # Clients not yet implemented - tests will be skipped
-    NpmClient = None
-    GithubClient = None
-    AuditClient = None
+    # Fallback for different project root structures during testing
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    from src.services.npm_client import NpmClient
+    from src.services.github_client import GithubClient
+    from src.services.audit_client import AuditClient
+    from src.config.settings import get_config
+    from src.utils.backoff import exponential_backoff
 
+
+# --- Fixtures ---
 
 @pytest.fixture
-def mock_responses():
-    """Provide mock API responses for testing."""
-    return {
-        "npm_top_packages": {
-            "packages": [
-                {
-                    "name": "lodash",
-                    "downloads": 100000000,
-                    "date": "2024-01-01"
-                },
-                {
-                    "name": "express",
-                    "downloads": 50000000,
-                    "date": "2024-01-01"
+def mock_config():
+    """Provide a mock configuration object."""
+    config = MagicMock()
+    config.NPM_API_KEY = "test_npm_key"
+    config.GITHUB_TOKEN = "test_github_token"
+    config.RATE_LIMIT = 60
+    return config
+
+@pytest.fixture
+def npm_client(mock_config):
+    """Initialize NpmClient with mock config."""
+    return NpmClient(config=mock_config)
+
+@pytest.fixture
+def github_client(mock_config):
+    """Initialize GithubClient with mock config."""
+    return GithubClient(config=mock_config)
+
+@pytest.fixture
+def audit_client(mock_config):
+    """Initialize AuditClient with mock config."""
+    return AuditClient(config=mock_config)
+
+# --- Mock Data ---
+
+MOCK_NPM_SEARCH_RESPONSE = {
+    "objects": [
+        {
+            "package": {
+                "name": "lodash",
+                "version": "4.17.21",
+                "keywords": ["utility", "functional"],
+                "links": {
+                    "repository": "https://github.com/lodash/lodash"
                 }
-            ]
-        },
-        "npm_package_metadata": {
-            "name": "lodash",
-            "repository": {
-                "type": "git",
-                "url": "https://github.com/lodash/lodash.git"
             },
-            "version": "4.17.21",
-            "time": {
-                "created": "2024-01-01T00:00:00.000Z",
-                "modified": "2024-06-01T00:00:00.000Z"
-            }
+            "downloads": 25000000
         },
-        "github_commit": {
-            "sha": "abc123",
-            "commit": {
-                "author": {
-                    "date": "2024-06-01T00:00:00.000Z"
+        {
+            "package": {
+                "name": "express",
+                "version": "4.18.2",
+                "keywords": ["web", "framework"],
+                "links": {
+                    "repository": "https://github.com/expressjs/express"
                 }
             },
-            "url": "https://api.github.com/repos/lodash/lodash/commits/abc123"
-        },
-        "npm_audit": {
-            "advisories": {
-                "12345": {
-                    "id": 12345,
-                    "severity": "high",
-                    "title": "Prototype Pollution in lodash"
-                }
-            }
+            "downloads": 18000000
+        }
+    ]
+}
+
+MOCK_GITHUB_COMMIT_RESPONSE = {
+    "commit": {
+        "author": {
+            "date": "2023-10-15T14:30:00Z"
         }
     }
+}
 
+MOCK_GITHUB_RELEASE_RESPONSE = {
+    "tag_name": "v4.17.21",
+    "published_at": "2023-09-10T10:00:00Z"
+}
 
-@pytest.mark.skipif(NpmClient is None, reason="NpmClient not yet implemented")
-class TestNpmClient:
+MOCK_AUDIT_RESPONSE = {
+    "advisories": {
+        "CVE-2021-23337": {
+            "severity": "high",
+            "vulnerable_versions": "<4.17.20"
+        }
+    }
+}
+
+# --- Test Cases ---
+
+class TestNpmClientIntegration:
     """Integration tests for NpmClient with mocked responses."""
 
-    def test_get_top_packages(self, mock_responses):
-        """Test fetching top packages by weekly downloads."""
-        client = NpmClient()
+    @patch('src.services.npm_client.requests.get')
+    def test_fetch_top_packages_success(self, mock_get, npm_client):
+        """Test successful retrieval of top packages."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = MOCK_NPM_SEARCH_RESPONSE
+        mock_get.return_value = mock_response
 
-        with patch.object(client.session, 'get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = mock_responses["npm_top_packages"]
-            mock_get.return_value = mock_response
+        packages = npm_client.get_top_packages(limit=2)
 
-            packages = client.get_top_packages(limit=2)
+        assert len(packages) == 2
+        assert packages[0]["name"] == "lodash"
+        assert packages[0]["downloads"] == 25000000
+        mock_get.assert_called_once()
 
-            assert len(packages) == 2
-            assert packages[0]["name"] == "lodash"
-            assert packages[0]["downloads"] == 100000000
-            mock_get.assert_called_once()
+    @patch('src.services.npm_client.requests.get')
+    def test_fetch_top_packages_rate_limit(self, mock_get, npm_client):
+        """Test handling of rate limiting (429) with backoff."""
+        # First call fails with 429, second succeeds
+        error_response = MagicMock()
+        error_response.status_code = 429
+        error_response.raise_for_status.side_effect = HTTPError(response=error_response)
+        
+        success_response = MagicMock()
+        success_response.status_code = 200
+        success_response.json.return_value = MOCK_NPM_SEARCH_RESPONSE
 
-    def test_get_package_metadata(self, mock_responses):
-        """Test fetching package metadata."""
-        client = NpmClient()
+        mock_get.side_effect = [error_response, success_response]
 
-        with patch.object(client.session, 'get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = mock_responses["npm_package_metadata"]
-            mock_get.return_value = mock_response
+        # Should retry and succeed
+        packages = npm_client.get_top_packages(limit=2)
 
-            metadata = client.get_package_metadata("lodash")
+        assert len(packages) == 2
+        assert mock_get.call_count == 2  # Initial + 1 retry
 
-            assert metadata["name"] == "lodash"
-            assert metadata["version"] == "4.17.21"
-            assert "repository" in metadata
+    @patch('src.services.npm_client.requests.get')
+    def test_fetch_package_metadata_timeout(self, mock_get, npm_client):
+        """Test handling of network timeout."""
+        mock_get.side_effect = Timeout("Connection timed out")
 
-    def test_rate_limit_handling(self, mock_responses):
-        """Test that rate limit responses are handled correctly."""
-        client = NpmClient()
-
-        with patch.object(client.session, 'get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 429
-            mock_response.headers = {"Retry-After": "60"}
-            mock_get.return_value = mock_response
-
-            # Should raise an exception or return None on rate limit
-            with pytest.raises(Exception):
-                client.get_top_packages(limit=1)
+        with pytest.raises(Timeout):
+            npm_client.get_package_metadata("lodash")
 
 
-@pytest.mark.skipif(GithubClient is None, reason="GithubClient not yet implemented")
-class TestGithubClient:
+class TestGithubClientIntegration:
     """Integration tests for GithubClient with mocked responses."""
 
-    def test_get_last_commit_date(self, mock_responses):
-        """Test fetching last commit date for a repository."""
-        client = GithubClient()
+    @patch('src.services.github_client.requests.get')
+    def test_get_commit_date_success(self, mock_get, github_client):
+        """Test successful retrieval of last commit date."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = MOCK_GITHUB_COMMIT_RESPONSE
+        mock_get.return_value = mock_response
 
-        with patch.object(client.session, 'get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = mock_responses["github_commit"]
-            mock_get.return_value = mock_response
+        commit_date = github_client.get_last_commit_date("lodash/lodash")
 
-            commit_date = client.get_last_commit_date("lodash", "lodash")
+        assert commit_date is not None
+        assert isinstance(commit_date, datetime)
+        assert commit_date.year == 2023
+        assert commit_date.month == 10
 
-            assert commit_date == "2024-06-01T00:00:00.000Z"
-            mock_get.assert_called_once()
+    @patch('src.services.github_client.requests.get')
+    def test_get_release_date_success(self, mock_get, github_client):
+        """Test successful retrieval of last release date."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = MOCK_GITHUB_RELEASE_RESPONSE
+        mock_get.return_value = mock_response
 
-    def test_get_last_release_date(self, mock_responses):
-        """Test fetching last release date for a repository."""
-        client = GithubClient()
+        release_date = github_client.get_last_release_date("lodash/lodash")
 
-        with patch.object(client.session, 'get') as mock_get:
-            # Mock release endpoint
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = [
-                {
-                    "tag_name": "4.17.21",
-                    "published_at": "2024-05-01T00:00:00.000Z"
-                }
-            ]
-            mock_get.return_value = mock_response
+        assert release_date is not None
+        assert isinstance(release_date, datetime)
+        assert release_date.year == 2023
+        assert release_date.month == 9
 
-            release_date = client.get_last_release_date("lodash", "lodash")
+    @patch('src.services.github_client.requests.get')
+    def test_get_commit_date_not_found(self, mock_get, github_client):
+        """Test handling of repository not found (404)."""
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
+        mock_get.return_value = mock_response
 
-            assert release_date == "2024-05-01T00:00:00.000Z"
+        commit_date = github_client.get_last_commit_date("nonexistent/repo")
 
-    def test_missing_repository(self):
-        """Test handling of missing repository (404)."""
-        client = GithubClient()
+        assert commit_date is None
 
-        with patch.object(client.session, 'get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 404
-            mock_get.return_value = mock_response
+    @patch('src.services.github_client.requests.get')
+    def test_get_release_date_empty(self, mock_get, github_client):
+        """Test handling of empty release list."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = []  # Empty list
+        mock_get.return_value = mock_response
 
-            commit_date = client.get_last_commit_date("nonexistent", "nonexistent")
+        release_date = github_client.get_last_release_date("lodash/lodash")
 
-            assert commit_date is None
+        assert release_date is None
 
 
-@pytest.mark.skipif(AuditClient is None, reason="AuditClient not yet implemented")
-class TestAuditClient:
+class TestAuditClientIntegration:
     """Integration tests for AuditClient with mocked responses."""
 
-    def test_get_vulnerability_count(self, mock_responses):
-        """Test fetching vulnerability count for a package."""
-        client = AuditClient()
+    @patch('src.services.audit_client.requests.post')
+    def test_fetch_audit_data_success(self, mock_post, audit_client):
+        """Test successful retrieval of audit data."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = MOCK_AUDIT_RESPONSE
+        mock_post.return_value = mock_response
 
-        with patch.object(client.session, 'get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = mock_responses["npm_audit"]
-            mock_get.return_value = mock_response
+        vulnerabilities = audit_client.fetch_audit_data("lodash")
 
-            vulnerabilities = client.get_vulnerabilities("lodash")
+        assert len(vulnerabilities) == 1
+        assert "CVE-2021-23337" in vulnerabilities
+        assert vulnerabilities["CVE-2021-23337"]["severity"] == "high"
 
-            assert len(vulnerabilities) == 1
-            assert vulnerabilities[0]["id"] == 12345
-            assert vulnerabilities[0]["severity"] == "high"
+    @patch('src.services.audit_client.requests.post')
+    def test_fetch_audit_data_empty_advisories(self, mock_post, audit_client):
+        """Test handling of package with no vulnerabilities."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"advisories": {}}
+        mock_post.return_value = mock_response
 
-    def test_no_vulnerabilities(self):
-        """Test handling of packages with no vulnerabilities."""
-        client = AuditClient()
+        vulnerabilities = audit_client.fetch_audit_data("express")
 
-        with patch.object(client.session, 'get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = {"advisories": {}}
-            mock_get.return_value = mock_response
+        assert len(vulnerabilities) == 0
 
-            vulnerabilities = client.get_vulnerabilities("safe-package")
+    @patch('src.services.audit_client.requests.post')
+    def test_fetch_audit_data_http_error(self, mock_post, audit_client):
+        """Test handling of HTTP error from audit API."""
+        mock_response = MagicMock()
+        mock_response.status_code = 500
+        mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
+        mock_post.return_value = mock_response
 
-            assert len(vulnerabilities) == 0
+        # Should raise HTTPError
+        with pytest.raises(HTTPError):
+            audit_client.fetch_audit_data("lodash")
 
 
-@pytest.mark.skipif(
-    NpmClient is None or GithubClient is None or AuditClient is None,
-    reason="Clients not yet implemented"
-)
-class TestIntegrationPipeline:
-    """Integration test for the full data collection pipeline with mocks."""
+class TestBackoffIntegration:
+    """Integration tests for backoff logic."""
 
-    def test_end_to_end_data_collection(self, mock_responses):
-        """Test complete data collection flow with mocked APIs."""
-        npm_client = NpmClient()
-        github_client = GithubClient()
-        audit_client = AuditClient()
+    def test_exponential_backoff_max_retries(self):
+        """Test that exponential backoff respects max retries."""
+        call_count = 0
+        max_calls = 3
 
-        # Mock all API calls
-        with patch.object(npm_client.session, 'get') as mock_npm_get, \
-             patch.object(github_client.session, 'get') as mock_github_get, \
-             patch.object(audit_client.session, 'get') as mock_audit_get:
+        @exponential_backoff(max_retries=max_calls, initial_delay=0.01, multiplier=1.0, max_delay=0.1)
+        def failing_function():
+            nonlocal call_count
+            call_count += 1
+            raise ConnectionError("Simulated connection error")
 
-            # Setup mock responses
-            npm_response = MagicMock()
-            npm_response.status_code = 200
-            npm_response.json.return_value = mock_responses["npm_top_packages"]
-            mock_npm_get.return_value = npm_response
+        with pytest.raises(ConnectionError):
+            failing_function()
 
-            github_response = MagicMock()
-            github_response.status_code = 200
-            github_response.json.return_value = mock_responses["github_commit"]
-            mock_github_get.return_value = github_response
+        # Should have been called initial + max_retries times
+        assert call_count == max_calls + 1
 
-            audit_response = MagicMock()
-            audit_response.status_code = 200
-            audit_response.json.return_value = mock_responses["npm_audit"]
-            mock_audit_get.return_value = audit_response
+    def test_exponential_backoff_success_on_retry(self):
+        """Test that backoff stops on success."""
+        call_count = 0
 
-            # Collect data for top package
-            packages = npm_client.get_top_packages(limit=1)
-            package_name = packages[0]["name"]
+        @exponential_backoff(max_retries=3, initial_delay=0.01, multiplier=1.0, max_delay=0.1)
+        def eventually_succeeds():
+            nonlocal call_count
+            call_count += 1
+            if call_count < 2:
+                raise ConnectionError("Simulated connection error")
+            return "Success"
 
-            metadata = npm_client.get_package_metadata(package_name)
-            commit_date = github_client.get_last_commit_date("lodash", "lodash")
-            vulnerabilities = audit_client.get_vulnerabilities(package_name)
+        result = eventually_succeeds()
+        assert result == "Success"
+        assert call_count == 2
 
-            # Verify data collection
-            assert package_name == "lodash"
-            assert commit_date is not None
-            assert len(vulnerabilities) == 1
 
-            # Verify all API calls were made
-            assert mock_npm_get.call_count >= 2  # top packages + metadata
-            assert mock_github_get.call_count >= 1
-            assert mock_audit_get.call_count >= 1
+class TestEndToEndMockedPipeline:
+    """Integration test simulating the full data collection flow with mocks."""
 
-def test_mock_responses_structure(self, mock_responses):
-    """Verify that mock responses have the expected structure."""
-    assert "packages" in mock_responses["npm_top_packages"]
-    assert "name" in mock_responses["npm_package_metadata"]
-    assert "sha" in mock_responses["github_commit"]
-    assert "advisories" in mock_responses["npm_audit"]
+    @patch('src.services.npm_client.requests.get')
+    @patch('src.services.github_client.requests.get')
+    @patch('src.services.audit_client.requests.post')
+    def test_full_data_collection_flow(self, mock_audit_post, mock_github_get, mock_npm_get):
+        """Simulate collecting data for a single package end-to-end."""
+        # Setup NPM response
+        npm_resp = MagicMock()
+        npm_resp.status_code = 200
+        npm_resp.json.return_value = MOCK_NPM_SEARCH_RESPONSE
+        mock_npm_get.return_value = npm_resp
+
+        # Setup GitHub responses
+        github_commit_resp = MagicMock()
+        github_commit_resp.status_code = 200
+        github_commit_resp.json.return_value = MOCK_GITHUB_COMMIT_RESPONSE
+        
+        github_release_resp = MagicMock()
+        github_release_resp.status_code = 200
+        github_release_resp.json.return_value = MOCK_GITHUB_RELEASE_RESPONSE
+        
+        # Mock side effect for two calls (commit then release)
+        mock_github_get.side_effect = [github_commit_resp, github_release_resp]
+
+        # Setup Audit response
+        audit_resp = MagicMock()
+        audit_resp.status_code = 200
+        audit_resp.json.return_value = MOCK_AUDIT_RESPONSE
+        mock_audit_post.return_value = audit_resp
+
+        # Initialize clients
+        config = get_config()
+        npm = NpmClient(config)
+        github = GithubClient(config)
+        audit = AuditClient(config)
+
+        # 1. Get top package
+        packages = npm.get_top_packages(limit=1)
+        assert len(packages) == 1
+        pkg_name = packages[0]["name"]
+
+        # 2. Get GitHub metadata
+        commit_date = github.get_last_commit_date("lodash/lodash")
+        release_date = github.get_last_release_date("lodash/lodash")
+
+        assert commit_date is not None
+        assert release_date is not None
+
+        # 3. Get Audit data
+        vulns = audit.fetch_audit_data(pkg_name)
+        assert len(vulns) > 0
+
+        # Verify data consistency
+        assert commit_date > release_date or commit_date == release_date

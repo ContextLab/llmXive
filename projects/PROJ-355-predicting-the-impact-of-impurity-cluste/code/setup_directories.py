@@ -1,59 +1,41 @@
 import os
 import sys
 from pathlib import Path
-
-# Import helper functions from the sibling module
 from setup_project import ensure_directory, create_gitkeep
 
-def setup_directories() -> None:
+def setup_directories():
     """
-    Initialize the project directory structure for PROJ-355.
-    
-    Creates the following structure idempotently:
-    projects/PROJ-355-predicting-the-impact-of-impurity-cluste/
-    ├── code/
-    ├── data/
-    │   ├── raw/
-    │   └── processed/
-    ├── results/
-    ├── tests/
-    │   ├── unit/
-    │   └── integration/
-    └── .gitkeep (in each leaf directory to ensure git tracking)
+    Setup the required directory structure for the project.
+    Creates data/raw, data/processed, and results directories with .gitkeep files.
     """
-    # Define the project root relative to the current working directory
-    # The task specifies the path relative to the project root, so we assume
-    # the script is run from the root of the repository or the parent of 'projects'.
-    # We construct the path dynamically to ensure it lands in the correct spot.
-    
-    project_root_name = "projects/PROJ-355-predicting-the-impact-of-impurity-cluste"
-    base_path = Path(project_root_name)
-    
-    # Define the required subdirectories relative to the project root
-    subdirs = [
-        "code",
+    # Define the relative paths to create
+    directories = [
         "data/raw",
         "data/processed",
-        "results",
-        "tests/unit",
-        "tests/integration"
+        "results"
     ]
-    
-    print(f"Initializing project structure at: {base_path.absolute()}")
-    
-    for subdir in subdirs:
-        full_path = base_path / subdir
-        ensure_directory(full_path)
-        create_gitkeep(full_path)
-        print(f"  Created: {full_path}")
-    
-    print("Project structure initialization complete.")
 
-def main() -> None:
-    """
-    Entry point for running this script directly: python code/setup_directories.py
-    """
+    # Get the project root (assumed to be the parent of the 'code' directory)
+    # Since this script is in 'code/', we go up one level
+    project_root = Path(__file__).resolve().parent.parent
+
+    created_paths = []
+    for dir_name in directories:
+        full_path = project_root / dir_name
+        ensure_directory(full_path)
+        gitkeep_path = full_path / ".gitkeep"
+        create_gitkeep(gitkeep_path)
+        created_paths.append(str(full_path))
+        print(f"Created directory: {full_path}")
+        print(f"Created .gitkeep: {gitkeep_path}")
+
+    return created_paths
+
+def main():
+    """Entry point for the directory setup script."""
+    print("Starting directory setup for PROJ-355...")
     setup_directories()
+    print("Directory setup complete.")
 
 if __name__ == "__main__":
     main()

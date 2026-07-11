@@ -1,1 +1,1 @@
-# src package
+# Source package

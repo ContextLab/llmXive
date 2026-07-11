@@ -1,3 +1,6 @@
 """
-Integration tests for the impurity clustering and grain boundary segregation pipeline.
+Integration tests for the PROJ-355-predicting-the-impact-of-impurity-cluste pipeline.
+
+These tests verify interactions between multiple components.
 """
+pass

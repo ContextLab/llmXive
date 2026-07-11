@@ -1,1 +1,2 @@
-This directory stores processed, cleaned, and intermediate datasets.
+# This directory holds processed, cleaned, and derived data files.
+# Intermediate and final analysis outputs should be written here.

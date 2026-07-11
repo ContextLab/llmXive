@@ -1,14 +1,14 @@
-T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `output/`): 1
+T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `output/`): 2
 ? T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
   (pandas, numpy, scipy, requests, pyarrow, matplotlib, pytest, pytest-cov)
-: 1
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
 ? 'T004 [P] Create `src/utils/config.py` to define paths, random seeds, and metric
   thresholds (ROR>2.0, PRR>1.5, IC>0). **Include an embedded dictionary `KNOWN_BACKGROUND_RATES`
   mapping SOC codes to published incidence rates (source: CDC literature) for use
   in T024b.**'
-: 1
+: 2
 ? T005 [P] Create `contracts/dataset.schema.yaml` defining required columns (`VAX_TYPE`,
   `SOC_CODE`/`LLT`, `REPT_DATE`, `AGE`)
-: 1
-T006 [P] Create `contracts/signal.schema.yaml` defining output structure for signals (ROR, PRR, IC, CI, adjusted_p): 1
+: 2
+T006 [P] Create `contracts/signal.schema.yaml` defining output structure for signals (ROR, PRR, IC, CI, adjusted_p): 2

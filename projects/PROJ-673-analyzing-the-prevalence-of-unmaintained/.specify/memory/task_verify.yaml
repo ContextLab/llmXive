@@ -1,10 +1,10 @@
-T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009): 1
+T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009): 2
 ? T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to
   calculate and report the success/failure ratio as required by SC-004.
-: 1
+: 2
 ? T008 Implement local file caching mechanism to save raw API responses to `data/raw/`
   with immutable checksums (Constitution Principle III & VI)
-: 1
-T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`: 1
-T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`: 1
-T011 [US1] Write integration test for mocked NPM/GitHub API responses in `tests/integration/test_api_clients.py`: 1
+: 2
+T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`: 2
+T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`: 2
+T011 [US1] Write integration test for mocked NPM/GitHub API responses in `tests/integration/test_api_clients.py`: 2

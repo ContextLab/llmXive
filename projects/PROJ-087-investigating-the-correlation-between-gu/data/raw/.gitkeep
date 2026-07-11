@@ -1,1 +1,2 @@
-This directory stores raw, unmodified data downloaded from external sources.
+# This directory holds raw, unprocessed data files downloaded from external sources.
+# Do not modify files in this directory directly.

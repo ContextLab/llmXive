@@ -85,7 +85,6 @@ class TestDependencyAgeCalculation:
     def test_calculation_with_old_release_date(self):
         """Test age calculation for an old dependency."""
         # 2023-10-01 - 2020-01-01
-        expected_age = 1369  # Approximate, let's calculate precisely
         # 2020 is leap year.
         # 2020-01-01 to 2023-01-01 = 3 years = 365*3 + 1 (leap) = 1096
         # 2023-01-01 to 2023-10-01 = Jan(31)+Feb(28)+Mar(31)+Apr(30)+May(31)+Jun(30)+Jul(31)+Aug(31)+Sep(30) = 273

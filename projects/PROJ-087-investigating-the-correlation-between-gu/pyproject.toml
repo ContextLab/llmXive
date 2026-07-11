@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-gut-sleep-correlation"
+name = "llmxive-gut-sleep"
 version = "0.1.0"
 description = "Investigating the correlation between gut microbiome composition and sleep quality"
 requires-python = ">=3.11"
@@ -20,30 +20,26 @@ dependencies = [
 ]
 
 [tool.ruff]
-# Enable specific rules: E (pyflakes), F (pycodestyle errors), W (pycodestyle warnings), I (isort)
+# Enable specific rule sets
 select = ["E", "F", "W", "I"]
+# Line length for formatting (though ruff handles some formatting, black is also configured)
 line-length = 88
 target-version = "py311"
-ignore = []
-
-[tool.ruff.isort]
-known-first-party = ["src"]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''

@@ -1,13 +1,28 @@
+# Simulation module initialization
 """
-Simulation module for generating synthetic meta-analysis datasets.
+Simulation engine for generating synthetic meta-analysis datasets.
 
-Exposes core classes and functions for data generation with controlled
-heterogeneity levels.
+This module exposes the core classes and functions for data generation,
+including the simulation generator and related utilities.
 """
 
-from .generator import generate_replicates, create_base_dataset
+from .generator import (
+    generate_synthetic_meta_analysis,
+    create_replicate,
+    validate_simulation_output
+)
 
 __all__ = [
-    "generate_replicates",
-    "create_base_dataset",
+    "generate_synthetic_meta_analysis",
+    "create_replicate",
+    "validate_simulation_output"
 ]
+
+# Import logger if needed for module-level logging
+try:
+    from utils.logging import get_logger
+    logger = get_logger(__name__)
+except ImportError:
+    # Fallback if utils not yet available during initial setup
+    import logging
+    logger = logging.getLogger(__name__)

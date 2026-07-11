@@ -1,53 +1,49 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: AggregatedMetric
-description: >-
-  Schema for summary statistics aggregated across all replicates for a specific
-  heterogeneity level and estimator combination.
+description: >
+  Schema for aggregated results across multiple replicates for a specific
+  heterogeneity level and estimator.
 type: object
 required:
   - heterogeneity_level
   - estimator_name
   - n_replicates
   - mean_bias
-  - mean_i_squared
   - coverage_rate
-  - coverage_test_p_value
-  - coverage_test_passed
+  - mean_i_squared
+  - mean_tau_squared_estimate
+  - shapiro_p_value
+  - binomial_p_value
+  - is_coverage_significant
 properties:
   heterogeneity_level:
     type: number
     description: The target tau^2 level for this aggregation.
   estimator_name:
     type: string
-    enum: ["Fixed-Effects", "DerSimonian-Laird", "REML"]
-    description: Name of the estimator.
+    description: The estimator used.
   n_replicates:
     type: integer
-    description: Number of valid replicates included in this aggregate.
+    description: Number of replicates included in this aggregation.
   mean_bias:
     type: number
-    description: Average bias across all replicates.
-  mean_i_squared:
-    type: number
-    description: Average I-squared statistic across all replicates.
+    description: Average bias across replicates.
   coverage_rate:
     type: number
     description: Proportion of replicates where the CI covered the true effect.
-  coverage_test_p_value:
+  mean_i_squared:
     type: number
-    description: P-value from the binomial test comparing coverage_rate to 0.95.
-  coverage_test_passed:
+    description: Average I^2 statistic across replicates.
+  mean_tau_squared_estimate:
+    type: number
+    description: Average estimated tau^2 across replicates.
+  shapiro_p_value:
+    type: number
+    description: P-value from Shapiro-Wilk test for normality of bias distribution.
+  binomial_p_value:
+    type: number
+    description: P-value from exact binomial test for coverage deviation.
+  is_coverage_significant:
     type: boolean
-    description: True if the coverage rate is statistically indistinguishable from 0.95 (after correction).
-  kruskal_wallis_stat:
-    type: number
-    description: Optional: Statistic from Kruskal-Wallis test if normality failed.
-  kruskal_wallis_p_value:
-    type: number
-    description: Optional: P-value from Kruskal-Wallis test.
-  anova_f_stat:
-    type: number
-    description: Optional: F-statistic from ANOVA if normality passed.
-  anova_p_value:
-    type: number
-    description: Optional: P-value from ANOVA.
+    description: True if coverage rate is statistically significantly different from 0.95.
+additionalProperties: false

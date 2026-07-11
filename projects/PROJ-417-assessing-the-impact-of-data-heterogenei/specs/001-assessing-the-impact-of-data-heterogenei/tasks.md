@@ -41,9 +41,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` (mkdir `code/simulation`, `code/analysis`, `code/visualization`, `code/reporting`, `data/raw`, `data/processed`, `data/results`, `tests/unit`, `tests/integration`, `contracts`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`, `pytest`
-- [ ] T003 [P] Configure linting (flake8/black) and pre-commit hooks in `code/`
+- [X] T001 Create project structure per `plan.md` (mkdir `code/simulation`, `code/analysis`, `code/visualization`, `code/reporting`, `data/raw`, `data/processed`, `data/results`, `tests/unit`, `tests/integration`, `contracts`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`, `pytest`
+- [X] T003 [P] Configure linting (flake8/black) and pre-commit hooks in `code/`
 
 ---
 
@@ -55,9 +55,9 @@
 
 - [ ] T004 [P] Create JSON schemas for `SimulatedDataset`, `EstimationResult`, and `AggregatedMetric` in `specs/001-assess-heterogeneity-impact/contracts/` with filenames `simulated_dataset.schema.yaml`, `estimation_result.schema.yaml`, and `aggregated_metric.schema.yaml`. **Must include `I^2` as a required field in `EstimationResult`**.
 - [ ] T005 [P] Implement `code/simulation/__init__.py` and `code/analysis/__init__.py` to expose core classes
-- [ ] T006 Create `code/main.py` entry point that orchestrates the pipeline (generation -> estimation -> analysis -> reporting) with CLI argument support for seeds and levels <!-- ATOMIZE: requested -->
+- [ ] T006 Create `code/main.py` entry point that orchestrates the pipeline (generation -> estimation -> analysis -> reporting) with CLI argument support for seeds and levels <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T007 Setup logging infrastructure in `code/utils/logging.py` to capture convergence failures and simulation progress to `data/results/simulation.log`
-- [ ] T040 [P] **Fetch Real Data**: Execute a script to download a verified Cochrane meta-analysis dataset (or a verified synthetic base with explicitly cited parameters from literature, e.g., Jackson et al., 2010 [UNRESOLVED-CLAIM: c_2a4625e1 — status=not_enough_info]) into `data/raw/`. The task must specify the exact URL or package fetch command and save the file as `data/raw/cochrane_base.csv`.
+- [ ] T040 [P] **Fetch Real Data**: Execute a script to download a verified Cochrane meta-analysis dataset (or a verified synthetic base with explicitly cited parameters from literature, e.g., Jackson et al., 2010) into `data/raw/`. The task must specify the exact URL or package fetch command and save the file as `data/raw/cochrane_base.csv`.
 - [ ] T041 [P] **Document Data Source**: Create `data/raw/README.md` and update `research.md` to explicitly document the source URL, accession ID, and citation for the base dataset used in T040, satisfying Constitution Principle II (Verified Accuracy).
 
 **Checkpoint**: Foundation ready - data fetched, schemas defined, user story implementation can now begin.
@@ -74,7 +74,7 @@
 
 - [ ] T008 [P] [US1] Unit test `test_generator.py` verifying that generated variance matches injected $\tau^2$ within Monte Carlo error (500 replicates). **Verify output artifact `data/results/test_variance_check.json` contains mean variance within 0.01 of target **.
 - [ ] T009 [P] [US1] Unit test `test_generator.py` verifying that $\tau^2=0$ produces zero between-study variance (homogeneity). **Verify output artifact `data/results/test_homogeneity_check.json` confirms zero variance**.
-- [ ] T014 [P] [US1] **Full Scale Performance Test**: Run `generator.py` for the full set (5 levels $\times$ 500 replicates = 2,500 total). Verify the process completes within 360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner. [UNRESOLVED-CLAIM: c_959bd835 — status=not_enough_info] Verify integrity of `data/results/simulation_raw.json` (2,500 records).
+- [ ] T014 [P] [US1] **Full Scale Performance Test**: Run `generator.py` for the full set (5 levels $\times$ 500 replicates = 2,500 total). Verify the process completes within 360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner. Verify integrity of `data/results/simulation_raw.json` (2,500 records).
 
 ### Implementation for User Story 1
 
@@ -240,7 +240,7 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **CRITICAL**: All simulation tasks must run on CPU-only (2 cores, 7GB RAM) within 6 hours. [UNRESOLVED-CLAIM: c_eea9be01 — status=not_enough_info] No GPU/CUDA dependencies allowed.
+- **CRITICAL**: All simulation tasks must run on CPU-only (2 cores, 7GB RAM) within 6 hours. No GPU/CUDA dependencies allowed.
 - **CRITICAL**: Data must be real (Cochrane) or verified synthetic base. No fabrication of input data. T040 ensures this by mandating a fetch step in Phase 2.
 - **CRITICAL**: REML convergence failures must be handled gracefully (log/skip) to ensure full pipeline completion.
 - **CRITICAL**: T010 must implement a loop for ≥500 replicates per level.

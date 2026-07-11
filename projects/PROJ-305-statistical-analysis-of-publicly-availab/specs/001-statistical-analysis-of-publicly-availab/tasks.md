@@ -74,12 +74,12 @@
  - Map MedDRA codes to System Organ Classes (SOC) using an embedded mapping table
  - **Implement memory optimization (chunked reading) and RAM monitoring to process data if size > 5 GB, ensuring RAM usage stays < 7 GB.**
  - **Output artifacts: `data/processed/cleaned_vaers.parquet` and `data/processed/cleaned_vaers.csv`**
-- [ ] T016 [US1] Implement `src/data/clean.py` logic to separate data into:
+- [~] T016 [US1] Implement `src/data/clean.py` logic to separate data into:
  - `COVID-19` group
  - `Non-COVID` baseline group (Primary: all other vaccines)
  - `Non-COVID, Non-Flu` sensitivity group (Subset of Non-COVID)
  - `Flu-only` group for sensitivity analysis
-- [ ] T018 [US1] Add logging in `src/data/clean.py` to report row counts per group and memory usage stats
+- [~] T018 [US1] Add logging in `src/data/clean.py` to report row counts per group and memory usage stats
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -93,14 +93,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Unit test for `src/analysis/disproportionality.py` verifying ROR/PRR/IC calculation logic with continuity correction in `tests/unit/test_disproportionality.py`
-- [ ] T020 [P] [US2] Unit test for Benjamini-Hochberg correction ensuring monotonic p-values in `tests/unit/test_bh_correction.py`
-- [ ] T021 [P] [US2] Integration test for signal detection producing `output/signals.csv` in `tests/integration/test_signal_detection.py`
+- [~] T019 [P] [US2] Unit test for `src/analysis/disproportionality.py` verifying ROR/PRR/IC calculation logic with continuity correction in `tests/unit/test_disproportionality.py`
+- [~] T020 [P] [US2] Unit test for Benjamini-Hochberg correction ensuring monotonic p-values in `tests/unit/test_bh_correction.py`
+- [~] T021 [P] [US2] Integration test for signal detection producing `output/signals.csv` in `tests/integration/test_signal_detection.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `src/analysis/disproportionality.py` to generate 2x2 contingency tables for each SOC (Event/No Event vs. COVID-19/Non-COVID)
-- [ ] T023 [P] [US2] Implement continuity correction (add 0.5) in `src/analysis/disproportionality.py` for zero-count cells to prevent division by zero
+- [~] T022 [P] [US2] Implement `src/analysis/disproportionality.py` to generate 2x2 contingency tables for each SOC (Event/No Event vs. COVID-19/Non-COVID)
+- [~] T023 [P] [US2] Implement continuity correction (add 0.5) in `src/analysis/disproportionality.py` for zero-count cells to prevent division by zero
 - [ ] T024 [US2] Implement calculation of ROR, PRR, and IC with 95% confidence intervals in `src/analysis/disproportionality.py` for SOCs with ≥5 total reports
 - [ ] T024b [US2] Implement "Background Rate Unknown" flagging mechanism in `src/analysis/disproportionality.py`. **Implementation detail: Lookup SOC code against the `KNOWN_BACKGROUND_RATES` dictionary in `src/utils/config.py`. If not found, flag as 'Background Rate Unknown'.**
 - [ ] T025 [US2] Implement Benjamini-Hochberg FDR correction in `src/analysis/disproportionality.py` to adjust p-values across all SOC tests
