@@ -1,0 +1,638 @@
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Kepler DR25 Planet Table MAST Product ID kplr_dr25_planet
+  claim_id: c_43cdbd7d
+  context: 'T012a [P] [US1] Implement code/ingest/download_dr25.py to fetch the Kepler
+    DR25 Planet Table (MAST Product ID: kplr_dr25_planet) via astroquery.mast with
+    retry logic, saving to data/raw/dr25_raw.csv'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kepler_DR25_Planet_Table_MAST_Product_ID_kplr_dr25_planet
+  kind: entity_fact
+  raw_text: 'MAST Product ID: kplr_dr25_planet'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:07:20Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Kepler Input Catalog KIC MAST Product ID kic_v2
+  claim_id: c_37fb8827
+  context: 'T012c [P] [US1] Implement code/ingest/download_kic.py to fetch the Kepler
+    Input Catalog (KIC) (MAST Product ID: kic_v2) via astroquery.mast with retry logic,
+    saving to data/raw/kic_raw.csv'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kepler_Input_Catalog_KIC_MAST_Product_ID_kic_v2
+  kind: entity_fact
+  raw_text: 'MAST Product ID: kic_v2'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:07:55Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha 0.025 applied for two hypothesis tests
+  claim_id: c_dc6e1a07
+  context: "T034 [US3] Implement code/theory/theory_comparison.py to perform a Monte\
+    \ Carlo simulation sampling from the measured slope distribution and the theoretical\
+    \ distributions (from T033) to calculate the overlap area and p-value. Apply Bonferroni\
+    \ correction (\u03B1 = 0.025) for two tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.025) for two tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:08:08Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Owen & Wu photoevaporation scaling law parameters mean -0.11 standard
+    deviation 0.02
+  claim_id: c_1ebf7be7
+  context: 'T033 [US3] Implement `code/theory/scaling_laws.py` to define the Owen
+    & Wu (photoevaporation) and Ginzburg et al. (2018) (core-powered) scaling law
+    equations as **Gaussian distributions**. Load means and standard deviations from
+    `code/theory/config.yaml`. **Spec FR-007 Source of Truth**: Owen & Wu mean=-0.11,
+    std=0.02; Ginzburg mean=-0.15, std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Owen & Wu mean=-0.11, std=0.02
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:13:17Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Ginzburg et al. core-powered mass loss scaling law parameters mean -0.15
+    standard deviation 0.03
+  claim_id: c_d0479aa6
+  context: 'T033 [US3] Implement `code/theory/scaling_laws.py` to define the Owen
+    & Wu (photoevaporation) and Ginzburg et al. (2018) (core-powered) scaling law
+    equations as **Gaussian distributions**. Load means and standard deviations from
+    `code/theory/config.yaml`. **Spec FR-007 Source of Truth**: Owen & Wu mean=-0.11,
+    std=0.02; Ginzburg mean=-0.15, std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg mean=-0.15, std=0.03
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:13:43Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Ginzburg et al. 2018 core-powered mass loss theory
+  claim_id: c_3e29fa4d
+  context: T033 [US3] Implement `code/theory/scaling_laws.py` to define the Owen &
+    Wu (photoevaporation) and Ginzburg et al. (2018) (core-powered) scaling law equations
+    as **Gaussian distributions**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg et al. (2018)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:13:55Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Ginzburg et al. 2018 core-powered mass loss scaling law mean slope is
+    -0.15 with standard deviation 0.03
+  claim_id: c_71c2c402
+  context: 'Load means and standard deviations from `code/theory/config.yaml`. **Spec
+    FR-007 Source of Truth**: Owen & Wu mean=-0.11, std=0.02; Ginzburg mean=-0.15,
+    std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg et al. (2018) mean=-0.15, std=0.03
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:15:17Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Ginzburg et al. 2018 core-powered mass loss scaling law standard deviation
+    is 0.03
+  claim_id: c_4f5557b8
+  context: 'Load means and standard deviations from `code/theory/config.yaml`. **Spec
+    FR-007 Source of Truth**: Owen & Wu mean=-0.11, std=0.02; Ginzburg mean=-0.15,
+    std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg et al. (2018) mean=-0.15, std=0.03
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:15:17Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha level is 0.025 for two hypothesis tests
+  claim_id: c_9ec44ab3
+  context: "Apply Bonferroni correction** (\u03B1 = 0.025) for two tests. **Note**:\
+    \ Implements Spec FR-007 requirement for Monte Carlo propagation of theoretical\
+    \ uncertainty."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.025) for two tests"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:15:17Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Owen & Wu photoevaporation scaling law mean slope is -0.11 with standard
+    deviation 0.02
+  claim_id: c_3fa11360
+  context: 'T033 [US3] Implement code/theory/scaling_laws.py to define the Owen &
+    Wu (photoevaporation) ... scaling law equations ... Load means and standard deviations
+    from code/theory/config.yaml. Spec FR-007 Source of Truth: Owen & Wu mean=-0.11,
+    std=0.02'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Owen & Wu mean=-0.11, std=0.02
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:26:55Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Ginzburg et al. (2018) core-powered mass loss scaling law mean slope
+    is -0.15 with standard deviation 0.03
+  claim_id: c_4a2ee168
+  context: 'T033 [US3] ... Ginzburg et al. (2018) (core-powered) scaling law equations
+    ... Ginzburg mean=-0.15, std=0.03. (Note: Spec FR-007 overrides any conflicting
+    values in plan.md).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg mean=-0.15, std=0.03
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:26:55Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied with alpha 0.025 for two tests
+  claim_id: c_6871247a
+  context: "T034 [US3] ... Apply Bonferroni correction (\u03B1 = 0.025) for two tests.\
+    \ Note: Implements Spec FR-007 requirement for Monte Carlo propagation of theoretical\
+    \ uncertainty."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.025) for two tests"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:26:55Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Owen and Wu photoevaporation scaling law mean slope -0.11 standard deviation
+    0.02
+  claim_id: c_bd84fa43
+  context: 'Load means and standard deviations from code/theory/config.yaml. Spec
+    FR-007 Source of Truth: Owen & Wu mean=-0.11, std=0.02; Ginzburg mean=-0.15, std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Owen & Wu mean=-0.11, std=0.02
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:27:58Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Ginzburg et al. 2018 core-powered mass loss scaling law mean slope -0.15
+    standard deviation 0.03
+  claim_id: c_77f1dc98
+  context: 'Load means and standard deviations from code/theory/config.yaml. Spec
+    FR-007 Source of Truth: Owen & Wu mean=-0.11, std=0.02; Ginzburg mean=-0.15, std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg mean=-0.15, std=0.03
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:27:58Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha 0.025 for two tests
+  claim_id: c_bdf01b91
+  context: "Implement code/theory/theory_comparison.py to perform a Monte Carlo simulation\
+    \ sampling from the measured slope distribution and the theoretical distributions\
+    \ (from T033) to calculate the overlap area and p-value. Apply Bonferroni correction\
+    \ (\u03B1 = 0.025) for two tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.025) for two tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:28:31Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 2
+  canonical: Ginzburg et al. 2018 core-powered mass loss theory
+  claim_id: c_a8226788
+  context: Implement code/theory/scaling_laws.py to define the Owen & Wu (photoevaporation)
+    and Ginzburg et al. (2018) (core-powered) scaling law equations as Gaussian distributions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg et al. (2018) (core-powered)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:29:42Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied alpha 0.025 for two tests
+  claim_id: c_3bdde647
+  context: "Implement code/theory/theory_comparison.py to perform a Monte Carlo simulation\
+    \ sampling from the measured slope distribution and the theoretical distributions\
+    \ (from T033) to calculate the overlap area and p-value. Apply Bonferroni correction\
+    \ (\u03B1 = 0.025) for two tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.025) for two tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:29:42Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Kepler DR25 Planet Table MAST Product ID kplr_dr25_planet
+  claim_id: c_9d901a61
+  context: 'Implement code/ingest/download_dr25.py to fetch the Kepler DR25 Planet
+    Table (MAST Product ID: kplr_dr25_planet) via astroquery.mast with retry logic,
+    saving to data/raw/dr25_raw.csv'
+  evidence:
+    entailment_evidence: Kepler DR25 Planet Table MAST Product ID kplr dr25 planet
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Kepler_DR25_Planet_Table_MAST_Product_ID_kplr_dr25_planet
+  kind: entity_fact
+  raw_text: 'Kepler DR25 Planet Table (MAST Product ID: kplr_dr25_planet)'
+  resolved_value: Kepler DR25 Planet Table MAST Product ID kplr_dr25_planet
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T06:29:43Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Kepler Input Catalog KIC MAST Product ID kic_v2
+  claim_id: c_197b161c
+  context: 'Implement code/ingest/download_kic.py to fetch the Kepler Input Catalog
+    (KIC) (MAST Product ID: kic_v2) via astroquery.mast with retry logic, saving to
+    data/raw/kic_raw.csv'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kepler_Input_Catalog_KIC_MAST_Product_ID_kic_v2
+  kind: entity_fact
+  raw_text: 'Kepler Input Catalog (KIC) (MAST Product ID: kic_v2)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:30:51Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Kepler exoplanet filter radius uncertainty less than 20 percent period
+    uncertainty less than 1 percent
+  claim_id: c_fe7fb624
+  context: Implement code/ingest/preprocess.py to parse merged catalogs, filter for
+    radius uncertainty <20% and period uncertainty <1% (FR-002), and exclude entries
+    with missing stellar effective temperature.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kepler_exoplanet_filter_radius_uncertainty_less_than_20_perc
+  kind: magnitude
+  raw_text: filter for radius uncertainty <20% and period uncertainty <1%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:31:05Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Kepler exoplanet binning merge if less than 30 planets
+  claim_id: c_9d23b6c5
+  context: 'Implement code/analysis/binning.py to bin filtered planets by orbital
+    period using log-spaced bins spanning an early temporal range up to 100 days.
+    CRITICAL: Per spec FR-003, if a bin contains <30 planets, it MUST be merged with
+    the adjacent bin with the closest period.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kepler_exoplanet_binning_merge_if_less_than_30_planets
+  kind: magnitude
+  raw_text: if a bin contains <30 planets, it MUST be merged with the adjacent bin
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:31:58Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: GMM outlier exclusion 3 standard deviations
+  claim_id: c_8279d3a2
+  context: Implement outlier handling in code/analysis/gmm_fitter.py to flag/exclude
+    points >3 standard deviations from the bin's radius distribution before fitting
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag/exclude points >3 standard deviations from the bin's radius distribution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:31:58Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Unimodal distribution flagging BIC difference less than 10
+  claim_id: c_edb589c9
+  context: Implement graceful failure handling in code/analysis/gmm_fitter.py for
+    unimodal distributions (BIC diff < 10), flagging bins as unresolved rather than
+    forcing a fit.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unimodal_distribution_flagging_BIC_difference_less_than_10
+  kind: magnitude
+  raw_text: flagging bins as unresolved rather than forcing a fit for unimodal distributions
+    (BIC diff < 10)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:32:39Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Owen Wu photoevaporation slope mean -0.11 std 0.02
+  claim_id: c_a3b0d6d0
+  context: 'Spec FR-007 Source of Truth: Owen & Wu mean=-0.11, std=0.02; Ginzburg
+    mean=-0.15, std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Owen & Wu (photoevaporation) mean slope is -0.11 with standard deviation
+    0.02.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:37:09Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Ginzburg et al 2018 core-powered mass loss slope mean -0.15 std 0.03
+  claim_id: c_8e6a69e7
+  context: 'Spec FR-007 Source of Truth: Owen & Wu mean=-0.11, std=0.02; Ginzburg
+    mean=-0.15, std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg et al. (2018) core-powered mass loss mean slope is -0.15 with
+    standard deviation 0.03.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:37:18Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Ginzburg et al. 2018 core-powered mass loss scaling law mean slope -0.15
+    standard deviation 0.03
+  claim_id: c_c3d7c9ce
+  context: 'Spec FR-007 Source of Truth: Owen & Wu mean=-0.11, std=0.02; Ginzburg
+    mean=-0.15, std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg mean=-0.15, std=0.03
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:38:06Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction significance level 0.025 for two hypothesis tests
+  claim_id: c_1b7e0127
+  context: "Apply Bonferroni correction (\u03B1 = 0.025) for two tests. Note: Implements\
+    \ Spec FR-007 requirement for Monte Carlo propagation of theoretical uncertainty."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.025) for two tests"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:38:06Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: total pipeline execution time limit 6 hours on CPU-only runners
+  claim_id: c_a3ce3c5b
+  context: "Add runtime measurement and logging to code/main.py to ensure total pipeline\
+    \ execution remains \u2264 6 hours on CPU-only runners."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total pipeline execution remains \u2264 6 hours on CPU-only runners"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:38:06Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: bin merging threshold 30 planets for orbital period bins
+  claim_id: c_8b6182a0
+  context: Per spec FR-003, if a bin contains <30 planets, it MUST be merged with
+    the adjacent bin with the closest period.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if a bin contains <30 planets, it MUST be merged with the adjacent bin
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:38:06Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: outlier exclusion threshold 3 standard deviations from bin radius distribution
+  claim_id: c_e961e8a9
+  context: Implement outlier handling in code/analysis/gmm_fitter.py to flag/exclude
+    points >3 standard deviations from the bin's radius distribution before fitting.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag/exclude points >3 standard deviations from the bin's radius distribution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:38:07Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: unimodal distribution handling BIC difference threshold 10
+  claim_id: c_119e0a0a
+  context: Implement graceful failure handling in code/analysis/gmm_fitter.py for
+    unimodal distributions (BIC diff < 10), flagging bins as 'unresolved' rather than
+    forcing a fit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flagging bins as 'unresolved' rather than forcing a fit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:38:07Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: exoplanet filtering criteria radius uncertainty 20 percent period uncertainty
+    1 percent
+  claim_id: c_f7ec3106
+  context: Implement code/ingest/preprocess.py to parse merged catalogs, filter for
+    radius uncertainty <20% and period uncertainty <1% (FR-002), and exclude entries
+    with missing stellar effective temperature.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter for radius uncertainty <20% and period uncertainty <1%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:38:07Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 2
+  canonical: Owen and Wu photoevaporation scaling law mean slope -0.11 standard deviation
+    0.02
+  claim_id: c_6e2d39f8
+  context: 'Spec FR-007 Source of Truth: Owen & Wu mean=-0.11, std=0.02; Ginzburg
+    mean=-0.15, std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Owen & Wu mean=-0.11, std=0.02
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:40:36Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Ginzburg 2018 core-powered mass loss scaling law mean slope -0.15 standard
+    deviation 0.03
+  claim_id: c_c4a29c18
+  context: 'Spec FR-007 Source of Truth: Owen & Wu mean=-0.11, std=0.02; Ginzburg
+    mean=-0.15, std=0.03.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ginzburg mean=-0.15, std=0.03
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:40:36Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/README.md
+  attempts: 1
+  canonical: Owen & Wu photoevaporation model predicts slope of -0.11 with uncertainty
+    0.02
+  claim_id: c_f6c115a2
+  context: "Theoretical model parameters are defined in code/theory/config.yaml: Owen\
+    \ & Wu (photoevaporation): slope = -0.11 \xB1 0.02"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Owen & Wu (photoevaporation): slope = -0.11 \xB1 0.02"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:42:23Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/README.md
+  attempts: 1
+  canonical: Ginzburg et al. 2018 core-powered mass loss model predicts slope of -0.15
+    with uncertainty 0.03
+  claim_id: c_ebe21160
+  context: "Theoretical model parameters are defined in code/theory/config.yaml: Ginzburg\
+    \ et al. (2018) (core-powered): slope = -0.15 \xB1 0.03"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ginzburg et al. (2018) (core-powered): slope = -0.15 \xB1 0.03"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T06:42:32Z'

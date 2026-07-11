@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "created_by": "setup_data_dirs.py",
+  "directories": {
+    "raw": "data/raw",
+    "processed": "data/processed",
+    "interim": "data/interim"
+  },
+  "status": "initialized"
+}

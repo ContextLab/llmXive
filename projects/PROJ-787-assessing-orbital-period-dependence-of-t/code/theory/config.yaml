@@ -1,0 +1,58 @@
+# Pipeline Configuration for Exoplanet Radius Gap Analysis
+# This file contains default parameters for the analysis pipeline.
+# Override values via environment variables (prefix: PIPELINE_) or
+# by specifying a custom config path.
+
+# --- Directory Configuration ---
+data_dir: "data"
+raw_data_dir: "data/raw"
+processed_data_dir: "data/processed"
+log_dir: "data/logs"
+cache_dir: "data/cache"
+
+# --- API & Retry Configuration ---
+api_timeout: 60
+max_retries: 3
+
+# --- Logging Configuration ---
+log_level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+# --- Performance Configuration ---
+parallel_workers: 4
+enable_cache: true
+
+# --- Analysis Thresholds ---
+period_max_days: 100.0
+radius_uncertainty_threshold: 0.20  # 20%
+period_uncertainty_threshold: 0.01  # 1%
+min_bin_size: 30
+gmm_components: 2
+bootstrap_iterations: 100
+outlier_std_threshold: 3.0
+
+# --- Theory Comparison Parameters ---
+bonferroni_alpha: 0.025  # Adjusted for two tests (0.05 / 2)
+max_pipeline_runtime_hours: 6.0
+
+# --- Theoretical Scaling Laws (FR-007 Source of Truth) ---
+# Owen & Wu (photoevaporation) scaling law parameters
+owen_wu:
+  mean_slope: -0.11
+  std_slope: 0.02
+  description: "Photoevaporation model (Owen & Wu)"
+
+# Ginzburg et al. (2018) (core-powered mass loss) scaling law parameters
+ginzburg:
+  mean_slope: -0.15
+  std_slope: 0.03
+  description: "Core-powered mass loss model (Ginzburg et al. 2018)"
+
+# --- Output File Names ---
+output_files:
+  filtered_planets: "data/processed/filtered_planets.csv"
+  deduped_planets: "data/processed/deduped_planets.csv"
+  binned_planets: "data/processed/binned_planets.csv"
+  gap_locations: "data/processed/gap_locations.csv"
+  binned_stats: "data/processed/binned_stats.csv"
+  kde_validation: "data/processed/kde_validation.json"
+  synthetic_validation: "data/processed/synthetic_validation.json"

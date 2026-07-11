@@ -1,0 +1,9 @@
+pandas
+numpy
+scipy
+scikit-learn
+astropy
+astroquery
+pyyaml
+pytest
+tqdm
