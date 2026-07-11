@@ -1,0 +1,3 @@
+# This directory is for raw data files.
+# Data files should be downloaded or generated here by the ingestion scripts.
+# Do not commit large binary files; use .gitkeep to ensure the directory exists in git.

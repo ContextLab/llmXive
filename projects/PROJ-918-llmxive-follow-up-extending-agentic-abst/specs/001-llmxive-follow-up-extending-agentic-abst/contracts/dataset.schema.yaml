@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Dataset Schema"
+description: "Schema for the feature-engineered dataset used in Meta-Critic training. Excludes full semantic context."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task."
+  turn_number:
+    type: "integer"
+    description: "Current turn number in the trajectory."
+  cumulative_token_usage:
+    type: "number"
+    description: "Total tokens used up to current turn."
+  search_result_count:
+    type: "integer"
+    description: "Number of search results retrieved."
+  error_frequency:
+    type: "integer"
+    description: "Count of unique error types encountered."
+  query_context_embedding_distance:
+    type: "number"
+    description: "Cosine similarity between initial query and current context."
+  abstention_label:
+    type: "boolean"
+    description: "Ground truth: True if task is 'impossible' (Semantic Exhaustion)."
+  is_impossible:
+    type: "boolean"
+    description: "Boolean flag for task impossibility."
+  time_to_event:
+    type: "number"
+    description: "Turn number where abstention occurred or hard stop reached."
+  event_observed:
+    type: "boolean"
+    description: "True if abstention occurred, False if hard stop reached."
+required:
+  - task_id
+  - turn_number
+  - cumulative_token_usage
+  - search_result_count
+  - error_frequency
+  - query_context_embedding_distance
+  - abstention_label
+  - is_impossible
+  - time_to_event
+  - event_observed
+additionalProperties: false

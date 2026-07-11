@@ -1,0 +1,77 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Agentic Abstention Dataset Schema
+description: >
+  Schema for the processed dataset used to train the Meta-Critic.
+  Enforces the exclusion of full semantic context text columns to prevent
+  data leakage and ensure the model relies only on state features.
+type: object
+properties:
+  search_count:
+    description: Number of search actions taken in the trajectory.
+    type: integer
+    minimum: 0
+  error_frequency:
+    description: Frequency of errors encountered per turn.
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+  token_usage:
+    description: Total tokens consumed in the interaction so far.
+    type: integer
+    minimum: 0
+  turn_number:
+    description: Current turn number in the interaction.
+    type: integer
+    minimum: 1
+  query_context_embedding_distance:
+    description: >
+      Scalar proxy for semantic distance between the current query
+      and the context embedding (e.g., cosine distance).
+    type: number
+    minimum: 0.0
+    maximum: 2.0
+  abstention_label:
+    description: >
+      Ground truth label indicating if the agent should have abstained.
+      1 = Abstain, 0 = Continue.
+    type: integer
+    enum: [0, 1]
+  trajectory_id:
+    description: Unique identifier for the interaction trajectory.
+    type: string
+  timestamp:
+    description: ISO 8601 timestamp of the data point.
+    type: string
+    format: date-time
+
+required:
+  - search_count
+  - error_frequency
+  - token_usage
+  - turn_number
+  - query_context_embedding_distance
+  - abstention_label
+  - trajectory_id
+
+additionalProperties: false
+
+# Explicitly forbid full text context columns to satisfy the constraint
+# that the model must not see the raw semantic content.
+not:
+  anyOf:
+    - required: ["full_context_text"]
+    - required: ["context"]
+    - required: ["prompt_text"]
+    - required: ["raw_interaction"]
+    - required: ["semantic_content"]
+
+patternProperties:
+  # Catch any column starting with 'text_', 'context_', 'prompt_', or 'raw_'
+  "^(text_|context_|prompt_|raw_|semantic_)":
+    type: "null" # Effectively disallowing these by forcing them to be null if present,
+                 # but combined with 'additionalProperties: false' and 'not', this schema
+                 # rejects any object containing these keys.
+description: >
+  NOTE: The 'not' clause combined with 'additionalProperties: false' ensures that
+  any column containing full semantic text (e.g., 'full_context_text', 'context')
+  will cause validation to fail. Only numeric state features and IDs are allowed.

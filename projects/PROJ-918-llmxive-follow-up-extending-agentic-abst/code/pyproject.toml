@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-abstention"
+version = "0.1.0"
+description = "Agentic Abstention: Do Agents Know When to Stop Instead of Act?"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "xgboost",
+    "sentence-transformers",
+    "pandas",
+    "scikit-learn",
+    "lifelines",
+    "pyyaml",
+    "numpy",
+]
+optional-dependencies.dev = [
+    "ruff",
+    "black",
+    "flake8",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.venv
+    | venv
+    | data
+    | __pycache__
+    | \.eggs
+    | \.egg-info
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "data",
+    "__pycache__",
+    ".eggs",
+    "*.egg-info",
+]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E203", # Whitespace before ':', conflict with black
+    "W503", # Line break before binary operator, conflict with black
+]
+
+[tool.ruff.isort]
+known-first-party = ["logging_config"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

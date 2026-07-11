@@ -101,7 +101,7 @@ The system must perform statistical significance testing (Two-sample Kolmogorov-
 - The "query-context embedding distance" feature can be computed using a lightweight, CPU-tractable embedding model (SentenceTransformer v2.2, all-MiniLM-L6-v2) without requiring GPU acceleration.
 - A representative subset of the full dataset is sufficient for training a robust gradient-boosted tree model on a 2-core CPU instance.
 - The benchmark's ground truth labels for "impossibility" are accurate and non-circular with respect to the state features used for prediction.
-- Adequate computational resources (multiple CPU cores and sufficient RAM) are available to train the model and run the simulation loop within the 6-hour limit.
+- Adequate computational resources (multiple CPU cores and sufficient RAM) are available to train the model and run the simulation loop within a feasible timeframe.
 - The "full-context baseline" (CONVOLVE) can be simulated or approximated using the reference implementation with a fixed seed (42) and a hard stop at 20 turns to ensure a fair comparison.
 - No random assignment of tasks to conditions is performed; therefore, all findings will be framed as associational, not causal.
 - The threshold sweep for sensitivity analysis (0.4 to 0.6) covers the relevant range for decision boundaries in this context.

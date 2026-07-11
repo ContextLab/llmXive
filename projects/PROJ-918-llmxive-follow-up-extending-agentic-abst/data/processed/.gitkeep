@@ -1,0 +1,3 @@
+# This directory is for processed/feature-extracted data files.
+# Intermediate and final training datasets should be written here.
+# Do not commit large binary files; use .gitkeep to ensure the directory exists in git.

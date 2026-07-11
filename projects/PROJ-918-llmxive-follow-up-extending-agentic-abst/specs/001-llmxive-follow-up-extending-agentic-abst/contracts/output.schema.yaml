@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for statistical test (Survival Analysis) and sensitivity analysis results."
+type: "object"
+properties:
+  statistical_results:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        description: "Type of statistical test used (e.g., Log-Rank Test)."
+      p_value:
+        type: "number"
+        description: "p-value for difference in time-to-event distributions."
+      hazard_ratio:
+        type: "number"
+        description: "Hazard ratio comparing Meta-Critic to Baseline."
+      effect_size:
+        type: "number"
+        description: "Cohen's d for token consumption."
+      significance:
+        type: "boolean"
+        description: "True if p < 0.05."
+      utility_metric:
+        type: "number"
+        description: "Token Savings per Correct Abstention."
+    required:
+      - test_type
+      - p_value
+      - hazard_ratio
+      - effect_size
+      - significance
+      - utility_metric
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+          description: "Decision threshold value."
+        false_positive_rate:
+          type: "number"
+          description: "Rate of false positive predictions."
+        false_negative_rate:
+          type: "number"
+          description: "Rate of false negative predictions."
+        inconsistency_rate:
+          type: "number"
+          description: "Combined inconsistency rate."
+      required:
+        - threshold
+        - false_positive_rate
+        - false_negative_rate
+        - inconsistency_rate
+required:
+  - statistical_results
+  - sensitivity_analysis
+additionalProperties: false

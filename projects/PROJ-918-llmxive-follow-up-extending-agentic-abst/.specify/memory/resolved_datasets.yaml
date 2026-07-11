@@ -1,0 +1,99 @@
+resolved_at: '2026-07-11T16:01:27.287560+00:00'
+datasets:
+- intent: CUDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-CUDA-v1/resolve/main/data/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-CUDA-v1/resolve/main/data/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://preprints.opticaopen.org/articles/preprint/Asymmetric_high-harmonic_generation_from_subwavelength_bianisotropic_resonators/32964155
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Intracellular_luminescence_thermometry_A_story_of_disagreement_trust_and_hope/32964152
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Broadband_silicon_photonic_phase_shifters_driven_by_gradient_optical_forces/32964149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Optimal_slit_width_for_high-precision_orbital_angular_momentum_measurement_using_angular_double-slit_interferometry/32964146
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Doubly_resonant_enhancement_of_second-harmonic_generation_with_in-plane_phase_matching_in_plasmonic_metasurfaces_on_an_AlInP_slab_waveguide/32964143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308578
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308578
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297493
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
