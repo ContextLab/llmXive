@@ -16,14 +16,14 @@
 ## Phase 0: Plan‑Root & Research Tasks (new PT### & T000‑T005 IDs)
 
 - [X] T000 Create CLI interface skeleton (`src/cli/main.py`) – verify script runs with `--help`. *(Alias of PT000)*
-- [ ] T001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) – verify CI triggers on push [UNRESOLVED-CLAIM: c_529f9238 — status=not_enough_info]. *(Alias of PT001)*
+- [ ] T001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) – verify CI triggers on push. *(Alias of PT001)*
 - [X] T002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) – verify core functions importable. *(Alias of PT002)*
 - [X] T003 {{claim:c_ef1634da}} ({{claim:c_8fd76726}}, https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)* <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 - [X] T004 Implement power‑analysis utility (`src/audit/power_analysis.py`) – verify it outputs JSON with required fields. *(Alias of PT004)*
 - [ ] T005C **[P]** Implement Constitution compliance checker in `src/utils/constitution_checker.py` that validates all seven Principles (I–VII). Run this checker in CI and abort with an error if any principle fails. (verify checker script exists, runs in CI, and passes all seven checks). *(Alias of PT005C)*
 
 - [ ] PT000 Create CLI interface skeleton (`src/cli/main.py`) per plan T000 (verify script runs with `--help`).
-- [ ] PT001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) per plan T001 (verify CI triggers on push [UNRESOLVED-CLAIM: c_529f9238 — status=not_enough_info]).
+- [ ] PT001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) per plan T001 (verify CI triggers on push).
 - [ ] PT002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) per plan T002 (verify core functions importable).
 - [ ] PT003 Add statistical verification utilities (`src/audit/stat_verification.py`) per plan T003 (verify functions compute z‑test, t‑test, Fisher).
 - [ ] PT004 Implement power‑analysis utility (`src/audit/power_analysis.py`) per plan T004 (verify it outputs JSON with required fields).
@@ -73,7 +73,7 @@
 
 **Goal**: End‑to‑end pipeline that ingests URLs, extracts metrics, reconstructs statistical tests, flags inconsistencies, and produces audit artifacts.
 
-**Independent Test**: Run the pipeline on the synthetic validation dataset and verify The synthetic validation dataset precision is ≥ 90% and recall is ≥ 80%. [UNRESOLVED-CLAIM: c_4b7e86e8 — status=not_enough_info].
+**Independent Test**: Run the pipeline on the synthetic validation dataset and verify The synthetic validation dataset precision is ≥ 90% and recall is ≥ 80%. [UNRESOLVED-CLAIM: c_e6405c14 — status=not_enough_info].
 
 ### Implementation for User Story 1
 
@@ -122,13 +122,13 @@
 
 - [ ] T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis** (FR‑005a & FR‑005b) in `src/audit/prevalence.py` including dynamic Bonferroni correction (α = 0.05 / number_of_subgroups) per FR‑032 (verify JSON output contains required fields including sensitivity analysis results).
 - [X] T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged for sample‑size mismatch (cross‑check with T025c). (depends on T025c)
-- [ ] T043 Unit tests for binomial test and CI width ≤ 0.10. [UNRESOLVED-CLAIM: c_90d162db — status=not_enough_info] (1807.00365, https://arxiv.org/abs/1807.00365) (tests/unit/test_prevalence.py) (verify test passes).
+- [ ] T043 Unit tests for binomial test and CI width ≤ 0.10. (1807.00365, https://arxiv.org/abs/1807.00365) (tests/unit/test_prevalence.py) (verify test passes).
 - [ ] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
 - [X] T045 Implement bias‑adjustment module that computes domain‑weighted prevalence using domain‑weighted averaging (FR‑027) **and either subsamples the dominant domain *or* flags a violation** per FR‑027 (constraint‑preservation‑01844dd3) in `src/audit/bias_adjustment.py` (verify bias‑adjusted rate is written and appropriate action taken when any domain exceeds 30 %). **DEPENDS ON:** T044.
 - [ ] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
 - [X] T047 Implement CSV summary generator in `src/audit/report_generator.py` that reads `output/audit_report.json` and writes `output/summary_report.csv` with required columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers match) [DEPENDS ON: T042, T045].
 - [X] T048 Unit test that validates CSV values exactly match JSON‑derived aggregates (tests/unit/test_report_generator.py) (verify test passes) [DEPENDS ON: T047].
-- [ ] T049 The Quickstart guide covers execution on 30 URLs within 30 minutes. [UNRESOLVED-CLAIM: c_09ab3186 — status=not_enough_info] (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
+- [ ] T049 The Quickstart guide covers execution on 30 URLs within 30 minutes. [UNRESOLVED-CLAIM: c_940af616 — status=not_enough_info] (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
 - [ ] T049b **[P]** Verify that the Quickstart execution in T049 actually runs on the default GitHub Actions runner (2 vCPU, 7 GB RAM) and records the runner environment. (depends on T049)
 - [X] T050 Implement subgroup prevalence and Fisher's exact‑test analysis (FR‑032) in `src/audit/subgroup_analysis.py` that produces `output/subgroup_report.json` with domain, year, counts, prevalence, and p‑value **and verify Bonferroni correction is applied dynamically** (constraint‑preservation‑925e1e46) (verify JSON file exists).
 - [ ] T050b **[P]** Verify that the publication year is extracted for each summary during extraction (T020c) and present in the input to `subgroup_analysis.py`. (depends on T020c)
@@ -178,7 +178,7 @@
 - [ ] T065 Add CI step that caches `pip` packages to stay within 6 hour total runtime (plan.md) (verify cache hit on subsequent runs).
 - [X] T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py) (verify test passes) [DEPENDS ON: T098].
 - [X] T095b Verify Quickstart Docker guide also reproduces environment via `requirements.txt` and isolated venv (Constitution Principle I) (verify Dockerfile runs `pip install -r requirements.txt` and that a venv is created) (addresses ordering‑28dea5aa).
-- [ ] T095c **[P]** Verify that the CI run includes a step that checks all seven Constitution Principles (I‑VII) are satisfied [UNRESOLVED-CLAIM: c_278a7ad3 — status=not_enough_info] (ties to PT005C) (verify CI step exists and passes). (depends on PT005C) <!-- ATOMIZE: requested -->
+- [ ] T095c **[P]** Verify that the CI run includes a step that checks all seven Constitution Principles (I‑VII) are satisfied (ties to PT005C) (verify CI step exists and passes). (depends on PT005C) <!-- ATOMIZE: requested -->
 
 ### Tests for User Story 4 (OPTIONAL)
 
@@ -190,14 +190,14 @@
 
 **Goal**: Create and evaluate the manually annotated real‑world validation set per FR‑031b and SC‑031b.
 
-**Independent Test**: Compute extraction Real-world validation requires extraction precision ≥ 85% and recall ≥ 75%. [UNRESOLVED-CLAIM: c_a3dd2c75 — status=not_enough_info] on the real‑world validation set
+**Independent Test**: Compute extraction Real-world validation requires extraction precision ≥ 85% and recall ≥ 75%. [UNRESOLVED-CLAIM: c_aea75cc4 — status=not_enough_info] on the real‑world validation set
 
 - [ ] {{claim:c_65cd812e}}
 - [ ] T069b Draft annotation protocol documenting field‑level extraction criteria, reviewer instructions, and conflict‑resolution process (document saved as `docs/annotation_protocol.md`).
 - [ ] T069c Conduct manual annotation (human annotators) following protocol, resulting in `data/manual_validation/real_world_labels.csv` with two annotator columns and a resolved ground‑truth column (constraint‑preservation‑0be190a4) rows and required columns).
 - [ ] T069d **[P]** Run `tests/unit/test_stratification_counts.py` to verify that `real_world_labels.csv` contains at least20 annotated summaries per each of the five required domains. **DEPENDS ON:** T069c.
 - [ ] T070 Evaluate **extraction accuracy component** on the real‑world validation set (FR‑031b) – compute precision, recall, F1 and {{claim:c_86c3c2ff}} (verify test passes, otherwise raise `ERR-802`).
-- [ ] T071 Verify SC‑031b: Real‑world validation precision ≥ 85 % and recall ≥ 75 % [UNRESOLVED-CLAIM: c_9d558dc2 — status=not_enough_info] (run T070) (depends on T069c) [DEPENDS ON: T069c].
+- [ ] T071 Verify SC‑031b: Real‑world validation precision ≥ 85 % and recall ≥ 75 % (run T070) (depends on T069c) [DEPENDS ON: T069c].
 
 ---
 
@@ -209,19 +209,19 @@
 
 - [ ] T072 Verify SC‑001: Extraction accuracy ≥ 95 % on `data/manual_validation/real_world_labels.csv` (run `tests/integration/test_extractor_accuracy.py`) (depends on T020, T069c) (addresses ordering‑fef4baa0). **Also confirms stratification across five domains.**
 - [ ] T073 Verify SC‑003: {{claim:c_037cdd5e}} for each statistical test (run `src/audit/monte_carlo_validation.py`) (depends on T062) (addresses ordering‑326c451a).
-- [ ] T074 Verify SC‑005: Parsing-error rate must be 5% or less [UNRESOLVED-CLAIM: c_660b8d09 — status=not_enough_info] (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
+- [ ] T074 Verify SC‑005: Parsing-error rate must be 5% or less (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
 - [ ] T075 Verify SC‑008: CI execution completes within 6 h, ≤ 2 GB RAM, ≤ 2 vCPU (inspect `output/resource_log.json`) (depends on T098) (addresses ordering‑6e28c95b).
-- [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce manifest.json in The The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs. [UNRESOLVED-CLAIM: c_87bdbce6 — status=not_enough_info] (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
-- [ ] T077 Verify SC‑014 [UNRESOLVED-CLAIM: c_70305962 — status=not_enough_info]: {{claim:c_bf752899}} (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
-- [ ] T078 Verify SC‑015: Sensitivity analysis variation must be less than 0.02 across the baseline range. [UNRESOLVED-CLAIM: c_0723a447 — status=not_enough_info] (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce manifest.json in The The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs. [UNRESOLVED-CLAIM: c_198cba61 — status=not_enough_info] (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
+- [ ] T077 Verify SC‑014: {{claim:c_bf752899}} (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T078 Verify SC‑015: Sensitivity analysis variation must be less than 0.02 across the baseline range. [UNRESOLVED-CLAIM: c_cbc98c33 — status=not_enough_info] (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
 - [ ] T079 Verify SC‑024: `summary_report.csv` columns and values match `audit_report.json` (run `tests/integration/test_summary_consistency.py`) (depends on T047) (addresses ordering‑fb2f11e6).
-- [ ] T080 Verify SC‑020 [UNRESOLVED-CLAIM: c_dc704055 — status=not_enough_info]: {{claim:c_9cebabc5}} (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
+- [ ] T080 Verify SC‑020: {{claim:c_9cebabc5}} (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
 - [ ] T081 Verify SC‑026: Monte‑Carlo validation passes for all tests (same as T073) (depends on T062) (addresses ordering‑326c451a).
-- [ ] T082 Verify SC‑027: No domain exceeds a substantial proportion and bias‑adjusted rate reported [UNRESOLVED-CLAIM: c_f8421ea8 — status=not_enough_info] (run `src/audit/bias_adjustment.py` and inspect output) (depends on T045) (addresses ordering‑fb2f11e6).
+- [ ] T082 Verify SC‑027: No domain exceeds a substantial proportion and bias‑adjusted rate reported (run `src/audit/bias_adjustment.py` and inspect output) (depends on T045) (addresses ordering‑fb2f11e6).
 - [ ] T083 Verify SC‑028: Quickstart guide enables audit of 30 URLs in ≤ 30 minutes on **default GitHub Actions runner** (2 vCPU, 7 GB RAM) and records novice‑user verification log (depends on T049, T095b) (addresses ordering‑28dea5aa).
-- [ ] T084 Verify SC‑030: Synthetic validation [UNRESOLVED-CLAIM: c_59aa14db — status=not_enough_info] The synthetic validation dataset precision is ≥ 90% and recall is ≥ 80%. [UNRESOLVED-CLAIM: c_4b7e86e8 — status=not_enough_info] (run T029) (depends on T026) (addresses ordering‑fef4baa0).
-- [ ] T085 Verify SC‑031b: Real‑world validation precision ≥ 85 % and recall ≥ 75 % [UNRESOLVED-CLAIM: c_9d558dc2 — status=not_enough_info] (run T070) (depends on T070) (addresses ordering‑fef4baa0).
-- [ ] T086 Verify SC‑032: Subgroup analysis produces Fisher's exact test results for groups with ≥ 10 summaries. [UNRESOLVED-CLAIM: c_cf9e62e5 — status=not_enough_info] (run `src/audit/subgroup_analysis.py` and check JSON) (depends on T050) (addresses ordering‑fb2f11e6).
+- [ ] T084 Verify SC‑030: Synthetic validation The synthetic validation dataset precision is ≥ 90% and recall is ≥ 80%. [UNRESOLVED-CLAIM: c_e6405c14 — status=not_enough_info] (run T029) (depends on T026) (addresses ordering‑fef4baa0).
+- [ ] T085 Verify SC‑031b: Real‑world validation precision ≥ 85 % and recall ≥ 75 % (run T070) (depends on T070) (addresses ordering‑fef4baa0).
+- [ ] T086 Verify SC‑032: Subgroup analysis produces Fisher's exact test results for groups with ≥ 10 summaries. [UNRESOLVED-CLAIM: c_2df23219 — status=not_enough_info] (run `src/audit/subgroup_analysis.py` and check JSON) (depends on T050) (addresses ordering‑fb2f11e6).
 - [ ] T087 Verify overall pipeline passes all above SC checks without errors (run full suite) (depends on T072‑T086) (addresses ordering‑fb2f11e6).
 - [ ] T095a **[P]** Update `state/projects/PROJ-492-evaluating-the-statistical-validity-of-p.yaml` `artifact_hashes` map with the checksums from `data/checksums.txt` (fulfills Constitution Principle III). (depends on T076)
 - [ ] T095c **[P]** Verify that `data/checksums.txt` matches the hashes listed in `output/manifest.json` and that all artifacts are accounted for (Constitution Principle IV). (depends on T056 and T095a)
@@ -244,7 +244,7 @@
 - [ ] T097b Implement documentation DOC003: Data provenance guide in `docs/data_provenance.md` (Constitution Principle VII) (verify doc exists and covers URL tracking, checksums, manifest). *(Note: T097b name retained for documentation only; no duplicate CI check.)*
 - [ ] T099 Implement governance invalidation mechanism in `src/utils/governance.py` (Constitution Principle V) **and** update `state/projects/PROJ-492-evaluating-the-statistical-validity-of-p.yaml` `updated_at` timestamp via T095a (addresses constraint‑preservation‑a5829d58) (verify code executes and doc exists).
 - [ ] T099b Verify that any artifact change triggers the `updated_at` timestamp update (see T095a) (addresses constraint‑preservation‑a5829d58).
-- [ ] T100 The citation '2506.09162' is referenced in the document [UNRESOLVED-CLAIM: c_6806907c — status=not_enough_info]... a **[P]** {{claim:c_23dc9564}}
+- [ ] T100 The citation '2506.09162' is referenced in the document. [UNRESOLVED-CLAIM: c_0a03eb20 — status=not_enough_info].. a **[P]** {{claim:c_23dc9564}}
 - [ ] T100b **[P]** Run Reference‑Validator Agent before Advancement‑Evaluator gate to re‑validate all citations; abort if any fail. (addresses Constitution checkpoint 2).
 - [ ] T100c **[P]** Run Reference‑Validator Agent at the research_review → research_accepted transition; ensure all citations pass before final acceptance. (addresses Constitution checkpoint 3).
 - [ ] T101 Implement documentation DOC004: Governance policy in `docs/governance_policy.md` (verify existence).

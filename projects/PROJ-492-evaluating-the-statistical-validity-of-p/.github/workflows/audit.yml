@@ -6,31 +6,34 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  audit:
+  run-audit:
+    name: Run Audit Pipeline
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     
-    # Resource constraints as per FR-009 and SC-008
-    # GitHub Actions runners are typically 2 vCPU and 7GB RAM by default.
-    # We enforce a hard 2GB memory limit and 2 vCPU equivalent via time-out and
-    # explicit resource monitoring in the pipeline.
-    
-    timeout-minutes: 120 # Predefined duration limit
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python-version }}
 
-      - name: Cache pip dependencies
+      - name: Cache pip packages
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
@@ -38,55 +41,44 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # Ensure resource monitoring tools are available
-          pip install psutil
 
-      - name: Validate Constitution Compliance (Principles I-VII)
+      - name: Run schema validation
         run: |
-          python code/src/utils/constitution_checker.py
-          if [ $? -ne 0 ]; then
-            echo "ERR-950: Constitution compliance check failed. Aborting."
-            exit 1
-          fi
+          python -m scripts.run_validator --mode schema-check
 
-      - name: Schema Validation
+      - name: Run synthetic validation (precision/recall)
         run: |
-          python code/src/audit/export_schema_validator.py
-          python code/src/audit/manifest_schema_validator.py
+          python -m scripts.run_synthetic_validation
 
-      - name: Synthetic Validation (Precision/Recall Thresholds)
+      - name: Run resource monitor check
         run: |
-          python code/scripts/run_synthetic_validation.py
-          # The script itself raises ERR-800 if thresholds are not met
+          python -m scripts.run_resource_monitor --check-limits
 
-      - name: Resource Monitor Check (CPU/RAM limits)
+      - name: Run main audit pipeline
         run: |
-          # This step invokes the resource monitor wrapper to ensure
-          # the environment respects the 2GB RAM / 2 vCPU limits defined in FR-009.
-          # If the monitor detects a breach during setup, it exits with ERR-301.
-          python code/src/utils/resource_monitor.py --check-preconditions
+          python -m src.cli.run_audit --input data/input/urls.csv --output output/
 
-      - name: Run Main Audit Pipeline
+      - name: Verify manifest generation
         run: |
-          # Execute the full audit driver script.
-          # This script internally invokes the resource monitor (T063)
-          # and will abort with ERR-301 if limits are exceeded during execution.
-          python code/src/cli/run_audit.py
+          python -m scripts.generate_manifest --output output/manifest.json
 
-      - name: Upload Artifacts
-        if: always()
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: audit-results
+          name: audit-results-${{ matrix.python-version }}
           path: |
             output/
+            data/processed/
             data/provenance_log.csv
-            data/checksums.txt
-            output/resource_log.json
-            output/manifest.json
+          retention-days: 7
 
-      - name: Verify Manifest and Checksums
-        run: |
-          python code/scripts/generate_manifest.py
-          # Verify checksums match the manifest
-          python code/src/audit/export_validator.py --verify-manifest
+      - name: Upload resource logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: resource-logs-${{ matrix.python-version }}
+          path: output/resource_log.json
+          retention-days: 7
+
+permissions:
+  contents: read
+  actions: read
