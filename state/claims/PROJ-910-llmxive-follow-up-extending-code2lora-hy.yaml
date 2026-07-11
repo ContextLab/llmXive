@@ -1,0 +1,186 @@
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Latency reduction ratio of at least 10x between AST and neural generation
+  claim_id: c_2a1141d1
+  context: T049b task description regarding latency comparison and SC-001 requirement.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_reduction_ratio_of_at_least_10x_between_AST_and_neur
+  kind: magnitude
+  raw_text: "Ensure the reduction is \u2265 10\xD7 as required by SC\u2011001."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:53:18Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Peak RAM less than or equal to 7 GB and total runtime less than or equal
+    to 6 hours
+  claim_id: c_903fbd42
+  context: T050 task description regarding resource summary verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_less_than_or_equal_to_7_GB_and_total_runtime_less_t
+  kind: magnitude
+  raw_text: "Verify that peak RAM stays \u2264 7 GB and total runtime \u2264 6 h."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:55:15Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Minimum AST feature set maintains more than 80 percent of baseline accuracy
+  claim_id: c_796b1d2e
+  context: User Story 3 goal description.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_AST_feature_set_maintains_more_than_80_percent_of_ba
+  kind: magnitude
+  raw_text: Determine the minimum AST feature set required to maintain >80 % of baseline
+    accuracy.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:56:08Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Minimal feature set threshold is greater than 80 percent of baseline
+    accuracy
+  claim_id: c_05b103fe
+  context: T032 task description.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimal_feature_set_threshold_is_greater_than_80_percent_of
+  kind: magnitude
+  raw_text: Identify the minimal feature set meeting a threshold calculated dynamically
+    as >80% of the baseline accuracy score
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:57:14Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Stats output file contains p_value, statistic, and test_used
+  claim_id: c_8c220f23
+  context: T026 task description regarding Wilcoxon signed-rank test output.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stats_output_file_contains_p_value,_statistic,_and_test_used
+  kind: entity_fact
+  raw_text: Outputs data/results/stats.json containing p_value, statistic, and test_used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:58:01Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Verification step asserts p_value less than 0.05 on mock data
+  claim_id: c_5f02e547
+  context: T026 task description regarding statistical test verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verification_step_asserts_p_value_less_than_0.05_on_mock_dat
+  kind: magnitude
+  raw_text: Includes verification step asserting p_value < 0.05 on mock significant
+    data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:58:39Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Abort process if RAM usage exceeds 7 GB
+  claim_id: c_919dd127
+  context: T017 task description regarding memory enforcement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add memory check in adapter_generator.py to abort if RAM > 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:58:39Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Abort process if RAM usage exceeds 7 GB
+  claim_id: c_cee27ce1
+  context: T043 task description regarding memory enforcement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement RAM\u2011limit enforcement in code/utils/memory_monitor.py\
+    \ to abort gracefully if memory usage exceeds 7 GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:59:16Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Enforce 2-core CPU limit
+  claim_id: c_be49ec9f
+  context: T039 task description regarding CPU monitoring.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a 2-core limit via taskset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T23:59:49Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Verify process limited to 2 CPU cores
+  claim_id: c_5d24a28e
+  context: T048 task description regarding CPU audit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the process is limited to 2 CPU cores at runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T00:00:28Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Fetch RepoPeftBench Python subset from HuggingFace dataset
+  claim_id: c_ea51599e
+  context: T054 task description regarding data acquisition.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_RepoPeftBench_Python_subset_from_HuggingFace_dataset
+  kind: entity_fact
+  raw_text: Fetch the RepoPeftBench Python subset from the official HuggingFace dataset
+    (datasets.load_dataset('repo-peft-bench', 'python'))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T00:01:32Z'

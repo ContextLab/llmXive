@@ -1,0 +1,93 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-code2lora-hy"
+version = "0.1.0"
+description = "Extending Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "transformers",
+    "peft",
+    "torch",
+    "scikit-learn",
+    "networkx",
+    "pytest",
+    "pytest-cov",
+    "scipy",
+    "pyyaml",
+    "safetensors",
+    "datasets",
+    "psutil"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "isort"
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.setuptools.package-dir]
+"" = "code"
+
+# Ruff configuration
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+src = ["code"]
+
+# Lint rules
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "C",      # flake8-comprehensions
+    "B",      # flake8-bugbear
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "PTH",    # flake8-use-pathlib
+]
+ignore = [
+    "E501",   # line too long (handled by black)
+    "B008",   # do not perform function calls in argument defaults
+    "C901",   # too complex
+]
+
+# Per-file ignores
+[tool.ruff.lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"tests/*" = ["ARG", "B018"]
+
+# Black configuration
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# Isort configuration (compatible with Black)
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["utils", "feature_extractor", "hypernetwork", "evaluation"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]

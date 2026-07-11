@@ -1,0 +1,13 @@
+T008 [P] Setup `data/raw/`, `data/processed/`, `data/adapters/` directories with `.gitkeep`.: 2
+? T009 [P] Implement `code/main.py` CLI entry point with `argparse` for `generate`,
+  `evaluate`, `sensitivity` commands; verify execution via `python code/main.py --help`
+  listing all three commands.
+: 2
+? 'T010 [US1] Contract test for `ast_parser.py` in `tests/unit/test_ast_parser.py`:
+  Implement `test_parse_valid_file` (valid Python file input) and `test_parse_invalid_syntax`
+  (malformed syntax string input). *(Removed `[P]` to avoid running before code exists)*'
+: 1
+? "T011 [US1] Integration test for end\u2011to\u2011end adapter generation on `data/raw/sample_repo`\
+  \ in `tests/integration/test_adapter_generation.py`: Assert `data/adapters/sample_adapter.safetensors`\
+  \ exists and loads successfully. *(Removed `[P]`)* <!-- ATOMIZE: requested -->"
+: 1
