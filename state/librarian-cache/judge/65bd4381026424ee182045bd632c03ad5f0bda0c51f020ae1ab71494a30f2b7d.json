@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.03134",
+  "judged_at": "2026-07-10T23:43:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"visual generation in the new era: an evolution from atomic mapping to \" other",
+  "rationale": "The paper focuses on the practical application and workflow of GenAI tools by human creators on YouTube, which is a distinct construct from the user's question regarding the technical evolution of \"Visual Generation\" models (specifically the shift from \"Atomic Mapping\" to newer architectures). While both involve video generation, the candidate paper studies social media use cases rather than the underlying algorithmic mechanisms or model evolution the user is investigating, failing to meet the c",
+  "relevant": false
+}

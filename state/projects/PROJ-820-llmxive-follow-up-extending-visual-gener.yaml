@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T20:35:09.142467Z'
-current_stage: flesh_out_complete
+current_stage: analyzed
 failed_stage: null
 field: other
 human_escalation_reason: null
 id: PROJ-820-llmxive-follow-up-extending-visual-gener
-last_run_id: efae8826-eb75-4a12-8b1b-cd453c079fa5
+last_run_id: dbe662c6-b519-4571-bed7-f5355ff3c47a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener
 title: 'llmXive follow-up: extending "Visual Generation in the New Era: An Evolution
   from Atomic Mapping to "'
-updated_at: '2026-07-03T18:59:57.011538Z'
+updated_at: '2026-07-11T00:25:44.368645Z'
