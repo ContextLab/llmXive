@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.08370",
+  "judged_at": "2026-07-11T18:33:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of simulated social validation on self-perception in adolescents psychology",
+  "rationale": "The paper focuses on detecting coordinated behavior and disinformation patterns in political elections, which is an off-domain application of social media analysis compared to the user's specific question about the psychological impact of simulated social validation on adolescent self-perception. It does not measure the psychological mechanism, the specific population (adolescents), or the dependent variable (self-perception) required by the user's research question.",
+  "relevant": false
+}

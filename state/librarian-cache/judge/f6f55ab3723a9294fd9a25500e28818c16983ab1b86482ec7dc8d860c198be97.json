@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.00358",
+  "judged_at": "2026-07-11T18:31:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"guava: an effective and universal harness for embodied manipulation\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (e) as it investigates the same core mechanism (LLM-based agents for embodied manipulation and scene understanding) and operates within the exact same empirical domain (robotics and embodied AI) as the user's question regarding the \"Guava\" harness. Although it proposes a different specific architecture (VideoAgent vs. Guava), it provides the necessary canonical prior work on LLM-driven embodied manipulation that a literature review would require to contextua",
+  "relevant": true
+}

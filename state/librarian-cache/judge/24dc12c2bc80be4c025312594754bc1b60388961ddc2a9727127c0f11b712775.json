@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.11324",
+  "judged_at": "2026-07-11T18:31:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"guava: an effective and universal harness for embodied manipulation\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the same biological/physical mechanism (embodied manipulation and physical intelligence) and operates on the same domain (embodied AI and robotics) as the user's question, serving as a canonical reference for the \"Guava\" follow-up context. Although it proposes a new model rather than extending \"Guava\" specifically, it provides the necessary empirical baseline and state-of-the-art context for any literature review on universal harnesses for",
+  "relevant": true
+}

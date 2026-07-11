@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.18907",
+  "judged_at": "2026-07-11T18:33:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of simulated social validation on self-perception in adolescents psychology",
+  "rationale": "The paper focuses on using machine learning (multitask learning with BERT) to detect stress and depression from social media text, which is a methodological application for classification rather than an empirical study on the psychological mechanism of \"simulated social validation\" affecting \"self-perception\" in adolescents. It fails to meet criteria (a) or (b) as it does not measure the causal impact of validation on self-perception, nor does it study the specific population or construct in the",
+  "relevant": false
+}

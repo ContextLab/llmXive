@@ -5,27 +5,81 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Guava: An Effective and Universal Harness for Embodied Manipulation"
 
-## Summary of the prior work
-The paper introduces Guava, a harness framework that enables embodied manipulation by orchestrating iterative perception-reasoning-action loops, semantic action abstractions, and multimodal observations. It demonstrates that this design allows even small, open-source models (4B parameters) to achieve performance comparable to frontier proprietary models through distillation on fewer than 2,000 simulated trajectories. The core finding is that a well-structured harness can unlock emergent embodied capabilities in compact models with minimal data, serving as a scalable, model-agnostic interface.
+**Field**: computer science
 
-## Proposed extension
-Can a Guava-style harness achieve robust long-horizon task success in real-world embodied manipulation using *only* CPU-tractable, symbolic perception modules (e.g., bounding box logic, color histograms, and simple object detectors) instead of the computationally expensive multimodal vision encoders currently required? This question matters because it tests the hypothesis that the "harness" architecture itself, rather than the raw perceptual fidelity of the vision backbone, is the primary driver of generalization in embodied agents, potentially enabling deployment on edge devices without GPUs.
+## Research question
+
+Does replacing high-fidelity multimodal vision encoders with lightweight, symbolic perception modules (e.g., object bounding boxes and color histograms) preserve the long-horizon task success rates of a Guava-style harness in embodied manipulation, or does the "seeing-to-doing gap" necessitate raw pixel-level semantic grounding for robust generalization?
+
+## Motivation
+
+Current embodied AI frameworks often rely on computationally expensive vision-language models, limiting deployment on edge devices. This project tests whether the architectural "harness" (iterative reasoning loops and action abstraction) is the primary driver of performance, or if high-fidelity visual grounding is non-negotiable for complex, multi-step physical tasks. Answering this determines the feasibility of CPU-only, low-latency robotic agents for real-world environments.
+
+## Related work
+
+- [Guava: An Effective and Universal Harness for Embodied Manipulation](https://arxiv.org/abs/2606.18363) — Establishes that a structured harness can unlock embodied capabilities in small models via distillation, though it relies on multimodal observations that are computationally heavy.
+- [Embodied Tree of Thoughts: Deliberate Manipulation Planning with Embodied World Model](https://arxiv.org/abs/2512.08188) — Highlights the importance of world models and deliberate planning in manipulation, suggesting that reasoning structures (like the harness) may compensate for imperfect perception if the state representation is sufficient.
+- [Embodied-R1: Reinforced Embodied Reasoning for General Robotic Manipulation](https://arxiv.org/abs/2508.13998) — Identifies the "seeing-to-doing gap" as a key hurdle caused by data scarcity and embodiment heterogeneity, providing context for why symbolic vs. visual grounding is a critical variable.
+
+## Expected results
+
+We expect the symbolic-perception variant to achieve high success rates (>80%) on tasks defined by clear geometric primitives (e.g., stacking blocks, opening drawers) where object identity and location are sufficient, but to fail on tasks requiring texture, material, or fine-grained visual cues. This would confirm that the harness architecture drives generalization for geometric tasks, while visual fidelity remains a bottleneck for semantic nuance.
 
 ## Methodology sketch
-We will construct a "Symbolic-Guava" variant by replacing the multimodal vision encoder with a pipeline of lightweight CPU-only libraries (OpenCV for feature extraction and a pre-trained YOLO-tiny model running on CPU for object detection) to generate structured semantic observations (e.g., JSON lists of object locations and attributes). We will re-distill the 4B model using the existing <2K simulation trajectories, mapping the original visual inputs to these symbolic representations, and then evaluate performance on a held-out set of real-world long-horizon tasks (e.g., "stack red blocks then open the drawer") using a standard robotic arm in a lab setting. We expect the Symbolic-Guava agent to maintain at least 80% of the original Guava's success rate on tasks with clear geometric primitives, while failing significantly on tasks requiring fine-grained texture or material recognition, thereby isolating the contribution of perceptual depth versus structural reasoning in the harness.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Preparation**: Download the <2,000 simulated trajectories from the original Guava release (publicly available via the paper's repository) and the associated visual inputs.
+- **Symbolic Pipeline Construction**: Implement a CPU-only perception module using OpenCV for color/shape analysis and a quantized YOLO-tiny model (running on CPU via ONNX Runtime) to generate structured JSON observations (object classes, 2D bounding boxes, centroids) instead of raw image tensors.
+- **Dataset Transformation**: Re-process the original training trajectories to map visual inputs to the new symbolic representations, creating a "Symbolic-Guava" training dataset.
+- **Model Re-distillation**: Fine-tune the 4B parameter open-source LLM on the symbolic dataset using the original Guava prompt templates and action abstraction schemas, ensuring the model learns to reason over symbolic states.
+- **Evaluation Setup**: Select a held-out set of 50 long-horizon tasks from standard embodied benchmarks (e.g., ALFWorld or simulated Franka environments) that vary in reliance on geometric vs. semantic cues.
+- **Execution & Metric**: Run the Symbolic-Guava agent on a standard CPU-only server (simulating edge constraints) to execute tasks, measuring the "task success rate" (binary completion) and "step efficiency" (number of reasoning steps).
+- **Statistical Analysis**: Compare the success rates of the Symbolic-Guava agent against the original Guava baseline using a two-proportion z-test to determine if the performance drop is statistically significant (p < 0.05).
+- **Failure Mode Analysis**: Categorize failures into "geometric" (misalignment, collision) vs. "semantic" (wrong object, texture confusion) to pinpoint where symbolic abstraction breaks down.
 
-- **Guava: An Effective and Universal Harness for Embodied Manipulation** — Haowen Liu, Xirui Li, Shaoxiong Yao, Peng Shi, Tianyi Zhou, Jia-Bin Huang, Furong Huang, Jiayuan Mao. https://arxiv.org/abs/2606.18363.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_18363,
-  title = {Guava: An Effective and Universal Harness for Embodied Manipulation},
-  author = {Haowen Liu and Xirui Li and Shaoxiong Yao and Peng Shi and Tianyi Zhou and Jia-Bin Huang and Furong Huang and Jiayuan Mao},
-  year = {2026},
-  eprint = {2606.18363},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.18363},
-  url = {https://arxiv.org/abs/2606.18363}
-}
-```
+- Reviewed existing ideas: Guava extension (this project), Embodied Tree of Thoughts, Embodied-R1.
+- Closest match: Embodied Tree of Thoughts (similarity sketch: both focus on planning structures, but this project specifically isolates the *perception modality* variable which the others treat as fixed or implicit).
+- Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T18:32:01Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "Guava: An Effective and Universal Harness for Embodied Manipulation" computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Guava: An Effective and Universal Harness for Embodied Manipulation" computer science | 0 |
+| 1 | universal harness for embodied manipulation | 5 |
+| 2 | generalizable robotic manipulation frameworks | 0 |
+| 3 | embodied AI manipulation systems | 0 |
+| 4 | robot learning for diverse manipulation tasks | 0 |
+| 5 | sim-to-real transfer in robotic manipulation | 0 |
+| 6 | large language models for robot control | 0 |
+| 7 | vision-language-action models for robotics | 0 |
+| 8 | foundation models for embodied agents | 0 |
+| 9 | universal robotic policy learning | 0 |
+| 10 | cross-embodiment manipulation learning | 0 |
+| 11 | generalist robot agents | 0 |
+| 12 | promptable robotic manipulation | 0 |
+| 13 | zero-shot robotic manipulation | 0 |
+| 14 | multimodal learning for physical interaction | 0 |
+| 15 | hierarchical reinforcement learning for manipulation | 0 |
+| 16 | imitation learning for universal robots | 0 |
+| 17 | task-agnostic robotic control | 0 |
+| 18 | modular robotics software frameworks | 0 |
+| 19 | scalable robot learning architectures | 0 |
+| 20 | semantic robot manipulation | 0 |
+
+### Verified citations
+
+1. **Guava: An Effective and Universal Harness for Embodied Manipulation** (2026). Haowen Liu, Xirui Li, Shaoxiong Yao, Peng Shi, Tianyi Zhou, et al.. arXiv. [2606.18363](https://arxiv.org/abs/2606.18363). PDF-sampled: No.
+2. **Embodied Tree of Thoughts: Deliberate Manipulation Planning with Embodied World Model** (2025). Wenjiang Xu, Cindy Wang, Rui Fang, Mingkang Zhang, Lusong Li, et al.. arXiv. [2512.08188](https://arxiv.org/abs/2512.08188). PDF-sampled: No.
+3. **Embodied-R1.5: Evolving Physical Intelligence via Embodied Foundation Models** (2026). Yifu Yuan, Yaoting Huang, Xianze Yao, Yutong Li, Shuoheng Zhang, et al.. arXiv. [2606.11324](https://arxiv.org/abs/2606.11324). PDF-sampled: No.
+4. **Embodied-R1: Reinforced Embodied Reasoning for General Robotic Manipulation** (2025). Yifu Yuan, Haiqin Cui, Yaoting Huang, Yibin Chen, Fei Ni, et al.. arXiv. [2508.13998](https://arxiv.org/abs/2508.13998). PDF-sampled: No.
+5. **Embodied VideoAgent: Persistent Memory from Egocentric Videos and Embodied Sensors Enables Dynamic Scene Understanding** (2024). Yue Fan, Xiaojian Ma, Rongpeng Su, Jun Guo, Rujie Wu, et al.. arXiv. [2501.00358](https://arxiv.org/abs/2501.00358). PDF-sampled: No.

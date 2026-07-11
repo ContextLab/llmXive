@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.11326",
+  "judged_at": "2026-07-11T18:33:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of simulated social validation on self-perception in adolescents psychology",
+  "rationale": "The paper focuses on measuring \"politicization\" in online political discourse using topic shifts, which is a distinct construct from \"simulated social validation\" and its impact on \"self-perception\" in adolescents. While both involve social media, the paper fails to address the specific psychological mechanism (validation), the outcome variable (self-perception), or the target population (adolescents) required by the user's question, falling under the rejection rule for distinct constructs shari",
+  "relevant": false
+}

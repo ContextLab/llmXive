@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.13998",
+  "judged_at": "2026-07-11T18:31:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"guava: an effective and universal harness for embodied manipulation\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (bridging the \"seeing-to-doing\" or perception-action gap in embodied manipulation) and operates on the same domain (general robotic manipulation using VLMs), providing essential prior work on universal harnesses and generalization strategies that the user's follow-up research would need to cite.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.08188",
+  "judged_at": "2026-07-11T18:31:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"guava: an effective and universal harness for embodied manipulation\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the same domain (embodied manipulation planning) and mechanism (planning frameworks for robot agents) as the user's question regarding \"Guava,\" even though it proposes a different specific architecture (EToT vs. Guava). It provides the necessary canonical prior work on world models and planning strategies that a literature review on extending embodied manipulation harnesses would require.",
+  "relevant": true
+}

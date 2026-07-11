@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1611.04989",
+  "judged_at": "2026-07-11T18:33:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of simulated social validation on self-perception in adolescents psychology",
+  "rationale": "The paper focuses on natural language processing techniques (POS tagging) for code-mixed text, which is a distinct technical construct from the psychological mechanisms of social validation and self-perception. Although both involve the word \"social,\" the paper studies linguistic complexity in social media data rather than the psychological impact of social validation on adolescents, falling under the \"Distinct construct sharing only homonym keywords\" rejection rule.",
+  "relevant": false
+}

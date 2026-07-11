@@ -1,0 +1,602 @@
+{
+  "fetched_at": "2026-07-11T18:33:58Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Simulated Social Validation on Self-Perception in Adolescents",
+      "target_n": 5
+    },
+    "duration_seconds": 51.234,
+    "ended_at": "2026-07-11T18:33:58Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Social media feedback and adolescent self-esteem"
+        ],
+        [
+          2,
+          "Online social validation effects on teen identity"
+        ],
+        [
+          3,
+          "Digital peer approval and self-concept development"
+        ],
+        [
+          4,
+          "Artificial social reinforcement in adolescent psychology"
+        ],
+        [
+          5,
+          "Algorithmic social comparison and self-perception"
+        ],
+        [
+          6,
+          "Experimental manipulation of online feedback in teens"
+        ],
+        [
+          7,
+          "Virtual social acceptance and adolescent mental health"
+        ],
+        [
+          8,
+          "Quantified social validation and self-worth in youth"
+        ],
+        [
+          9,
+          "Simulated peer interaction and self-image formation"
+        ],
+        [
+          10,
+          "The role of likes and comments in adolescent self-evaluation"
+        ],
+        [
+          11,
+          "Social feedback loops and identity construction in adolescence"
+        ],
+        [
+          12,
+          "Computer-mediated social validation and self-esteem"
+        ],
+        [
+          13,
+          "Impact of curated online responses on teen self-perception"
+        ],
+        [
+          14,
+          "Social reward mechanisms in adolescent digital environments"
+        ],
+        [
+          15,
+          "Perceived social support in simulated online contexts"
+        ],
+        [
+          16,
+          "Experimental studies on online social approval and teens"
+        ],
+        [
+          17,
+          "Discrepancy between simulated and real social validation"
+        ],
+        [
+          18,
+          "Neurodevelopmental responses to digital social rewards in adolescents"
+        ],
+        [
+          19,
+          "Self-discrepancy theory in the context of online feedback"
+        ],
+        [
+          20,
+          "Longitudinal effects of virtual social validation on self-concept"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Social media feedback and adolescent self-esteem": 5,
+        "The Impact of Simulated Social Validation on Self-Perception in Adolescents psychology": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "social feedback self-concept identity formation",
+      "peer approval social media likes adolescents",
+      "social comparison theory upward downward comparison",
+      "self-esteem fluctuation mood manipulation experimental",
+      "validation seeking external locus self-worth"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2312.11326"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Simulated Social Validation on Self-Perception in Adolescents psychology": 3,
+      "peer approval social media likes adolescents": 3,
+      "self-esteem fluctuation mood manipulation experimental": 3,
+      "social comparison theory upward downward comparison": 2,
+      "social feedback self-concept identity formation": 1,
+      "validation seeking external locus self-worth": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2305.18907",
+          "rationale": "The paper focuses on using machine learning (multitask learning with BERT) to detect stress and depression from social media text, which is a methodological application for classification rather than an empirical study on the psychological mechanism of \"simulated social validation\" affecting \"self-perception\" in adolescents. It fails to meet criteria (a) or (b) as it does not measure the causal impact of validation on self-perception, nor does it study the specific population or construct in the",
+          "title": "Multitask learning for recognizing stress and depression in social media"
+        },
+        {
+          "primary_pointer": "2312.11326",
+          "rationale": "The paper focuses on measuring \"politicization\" in online political discourse using topic shifts, which is a distinct construct from \"simulated social validation\" and its impact on \"self-perception\" in adolescents. While both involve social media, the paper fails to address the specific psychological mechanism (validation), the outcome variable (self-perception), or the target population (adolescents) required by the user's question, falling under the rejection rule for distinct constructs shari",
+          "title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media"
+        },
+        {
+          "primary_pointer": "2008.08370",
+          "rationale": "The paper focuses on detecting coordinated behavior and disinformation patterns in political elections, which is an off-domain application of social media analysis compared to the user's specific question about the psychological impact of simulated social validation on adolescent self-perception. It does not measure the psychological mechanism, the specific population (adolescents), or the dependent variable (self-perception) required by the user's research question.",
+          "title": "Coordinated Behavior on Social Media in 2019 UK General Election"
+        },
+        {
+          "primary_pointer": "1604.02522",
+          "rationale": "The paper focuses on the relationship between musical diversity and socioeconomic status or personality traits (Openness), which is a distinct construct from the user's specific question about \"simulated social validation\" and its impact on \"self-perception.\" While both involve social media and adolescents (potentially), the paper does not measure the mechanism of social validation, the specific outcome of self-perception changes, or the experimental manipulation of simulated validation, failing",
+          "title": "Understanding Musical Diversity via Online Social Media"
+        },
+        {
+          "primary_pointer": "1611.04989",
+          "rationale": "The paper focuses on natural language processing techniques (POS tagging) for code-mixed text, which is a distinct technical construct from the psychological mechanisms of social validation and self-perception. Although both involve the word \"social,\" the paper studies linguistic complexity in social media data rather than the psychological impact of social validation on adolescents, falling under the \"Distinct construct sharing only homonym keywords\" rejection rule.",
+          "title": "Recurrent Neural Network based Part-of-Speech Tagger for Code-Mixed Social Media Text"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T18:33:06Z",
+    "term_input": {
+      "normalized": "the impact of simulated social validation on self-perception in adolescents psychology",
+      "raw": "The Impact of Simulated Social Validation on Self-Perception in Adolescents psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In 2016, a network of social media accounts animated by Russian operatives attempted to divert political discourse within the American public around the presidential elections. This was a coordinated effort, part of a Russian-led complex information operation. Utilizing the anonymity and outreach of social media platforms Russian operatives created an online astroturf that is in direct contact with regular Americans, promoting Russian agenda and goals. The elusiveness of this type of adversarial approach rendered security agencies helpless, stressing the unique challenges this type of intervention presents. Building on existing scholarship on the functions within influence networks on social media, we suggest a new approach to map those types of operations. We argue that pretending to be legitimate social actors obliges the network to adhere to social expectations, leaving a social footprint. To test the robustness of this social footprint we train artificial intelligence to identify it and create a predictive model. We use Twitter data identified as part of the Russian influence network for training the artificial intelligence and to test the prediction. Our model attains 88% prediction accuracy for the test set. Testing our prediction on two additional models results in 90.7% and 90.5% accuracy, validating our model. The predictive and validation results suggest that building a machine learning model around social functions within the Russian influence network can be used to map its actors and functions.",
+          "claimed_authors": [
+            "Ori Swed",
+            "Sachith Dassanayaka",
+            "Dimitri Volchenkov"
+          ],
+          "claimed_title": "Keeping it Authentic: The Social Footprint of the Trolls Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.07720"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Keeping it Authentic: The Social Footprint of the Trolls Network')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The convenience of social media has also enabled its misuse, potentially resulting in toxic behavior. Nearly 66% of internet users have observed online harassment, and 41% claim personal experience, with 18% facing severe forms of online harassment. This toxic communication has a significant impact on the well-being of young individuals, affecting mental health and, in some cases, resulting in suicide. These communications exhibit complex linguistic and contextual characteristics, making recognition of such narratives challenging. In this paper, we provide a multimodal dataset of toxic social media interactions between confirmed high school students, called ALONE (AdoLescents ON twittEr), along with descriptive explanation. Each instance of interaction includes tweets, images, emoji and related metadata. Our observations show that individual tweets do not provide sufficient evidence for toxic behavior, and meaningful use of context in interactions can enable highlighting or exonerating tweets with purported toxicity.",
+          "claimed_authors": [
+            "Thilini Wijesiriwardene",
+            "Hale Inan",
+            "Ugur Kursuncu",
+            "Manas Gaur",
+            "Valerie L. Shalin",
+            "Krishnaprasad Thirunarayan",
+            "Amit Sheth",
+            "I. Budak Arpinar"
+          ],
+          "claimed_title": "ALONE: A Dataset for Toxic Behavior among Adolescents on Twitter",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.06465"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='ALONE: A Dataset for Toxic Behavior among Adolescents on Twitter')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
+          "claimed_authors": [
+            "Emilio Ferrara"
+          ],
+          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.08134"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Stress and depression are prevalent nowadays across people of all ages due to the quick paces of life. People use social media to express their feelings. Thus, social media constitute a valuable form of information for the early detection of stress and depression. Although many research works have been introduced targeting the early recognition of stress and depression, there are still limitations. There have been proposed multi-task learning settings, which use depression and emotion (or figurative language) as the primary and auxiliary tasks respectively. However, although stress is inextricably linked with depression, researchers face these two tasks as two separate tasks. To address these limitations, we present the first study, which exploits two different datasets collected under different conditions, and introduce two multitask learning frameworks, which use depression and stress as the main and auxiliary tasks respectively. Specifically, we use a depression dataset and a stressful dataset including stressful posts from ten subreddits of five domains. In terms of the first approach, each post passes through a shared BERT layer, which is updated by both tasks. Next, two separate BERT encoder layers are exploited, which are updated by each task separately. Regarding the second approach, it consists of shared and task-specific layers weighted by attention fusion networks. We conduct a series of experiments and compare our approaches with existing research initiatives, single-task learning, and transfer learning. Experiments show multiple advantages of our approaches over state-of-the-art ones.",
+          "claimed_authors": [
+            "Loukas Ilias",
+            "Dimitris Askounis"
+          ],
+          "claimed_title": "Multitask learning for recognizing stress and depression in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.18907"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Multitask learning for recognizing stress and depression in social media')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Politicization is a social phenomenon studied by political science characterized by the extent to which ideas and facts are given a political tone. A range of topics, such as climate change, religion and vaccines has been subject to increasing politicization in the media and social media platforms. In this work, we propose a computational method for assessing politicization in online conversations based on topic shifts, i.e., the degree to which people switch topics in online conversations. The intuition is that topic shifts from a non-political topic to politics are a direct measure of politicization -- making something political, and that the more people switch conversations to politics, the more they perceive politics as playing a vital role in their daily lives. A fundamental challenge that must be addressed when one studies politicization in social media is that, a priori, any topic may be politicized. Hence, any keyword-based method or even machine learning approaches that rely on topic labels to classify topics are expensive to run and potentially ineffective. Instead, we learn from a seed of political keywords and use Positive-Unlabeled (PU) Learning to detect political comments in reaction to non-political news articles posted on Twitter, YouTube, and TikTok during the 2022 Brazilian presidential elections. Our findings indicate that all platforms show evidence of politicization as discussion around topics adjacent to politics such as economy, crime and drugs tend to shift to politics. Even the least politicized topics had the rate in which their topics shift to politics increased in the lead up to the elections and after other political events in Brazil -- an evidence of politicization.",
+          "claimed_authors": [
+            "Marcelo Sartori Locatelli",
+            "Pedro Calais",
+            "Matheus Prado Miranda",
+            "João Pedro Junho",
+            "Tomas Lacerda Muniz",
+            "Wagner Meira",
+            "Virgilio Almeida"
+          ],
+          "claimed_title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11326"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Topic Shifts as a Proxy for Assessing Politicization in Social Media')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Coordinated online behaviors are an essential part of information and influence operations, as they allow a more effective disinformation's spread. Most studies on coordinated behaviors involved manual investigations, and the few existing computational approaches make bold assumptions or oversimplify the problem to make it tractable. Here, we propose a new network-based framework for uncovering and studying coordinated behaviors on social media. Our research extends existing systems and goes beyond limiting binary classifications of coordinated and uncoordinated behaviors. It allows to expose different coordination patterns and to estimate the degree of coordination that characterizes diverse communities. We apply our framework to a dataset collected during the 2019 UK General Election, detecting and characterizing coordinated communities that participated in the electoral debate. Our work conveys both theoretical and practical implications and provides more nuanced and fine-grained results for studying online information manipulation.",
+          "claimed_authors": [
+            "Leonardo Nizzoli",
+            "Serena Tardelli",
+            "Marco Avvenuti",
+            "Stefano Cresci",
+            "Maurizio Tesconi"
+          ],
+          "claimed_title": "Coordinated Behavior on Social Media in 2019 UK General Election",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.08370"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Coordinated Behavior on Social Media in 2019 UK General Election')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Xiaohongshu Social Comparison Reader Elicitation (XHS-SCoRE), a reader-grounded benchmark for detecting whether text-only Xiaohongshu (RedNote) posts elicit Upward, Downward, or Neutral/no clear social comparison from a first-person reader perspective. The task targets a socially meaningful relational, behaviorally real signal not reducible to sentiment. Across prompted LLM classifiers and supervised Chinese encoders, we find a consistent generation--detection mismatch: the signal is textually learnable in-domain, but not robustly accessible to prompt-based classification. Prompted LLM classifiers show stable failures, especially neutralization of comparison-eliciting posts and model-specific directional skew. A controlled pilot shows that LLM-generated Xiaohongshu-style posts can shift perceived standing and comparison-related affect even when prompt-based detection of the same construct remains fragile. XHS-SCoRE contributes a benchmark for reader-grounded comparison detection and a diagnostic framework for studying when socially meaningful relational cues remain only partially visible to prompt-based inference.",
+          "claimed_authors": [
+            "Hua Zhao",
+            "Jiapei Gu",
+            "Michelle Mingyue Gu"
+          ],
+          "claimed_title": "Psychologically Potent, Computationally Invisible: LLMs Generate Social-Comparison-Eliciting Posts They Fail to Detect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.01017"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Psychologically Potent, Computationally Invisible: LLMs Generate Social-Comparison-Eliciting Posts They Fail to Detect')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In an interlaboratory key comparison, a data analysis procedure for this comparison was proposed and recommended by CIPM [1, 2, 3], therein the degrees of equivalence of measurement standards of the laboratories participated in the comparison and the ones between each two laboratories were introduced but a corresponding clear and plausible measurement model was not given. Authors in [4] offered possible measurement models for a given comparison and a suitable model was selected out after rigorous analyzing steps for expectation values of these degrees of equivalence. The systematic laboratory-effects model was then selected as a right one in this report. Those models were all based on the one true value existence assumption. However in the year 2008, a new version of the Vocabulary for International Metrology (VIM) [7] was issued where the true value of a given measurement standard should be now perceived as multi true values which following a given statistics distribution. Applying this perception of true values of a measurement standard with combination of the steps in [4], measurement models have been developed and degrees of equivalence have been analyzed. The results show that although with new definition, the systematic laboratory-effects model is still the reasonable one in a given key comparison.",
+          "claimed_authors": [
+            "Thang H. Le",
+            "Nguyen D. Do"
+          ],
+          "claimed_title": "Degrees of Equivalence in a Key Comparison",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.1069"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Degrees of Equivalence in a Key Comparison')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Starting from a microscopic approach and using the formalism of quantum Brownian motion, partition function of a system composed of two separated pieces of anisotropic matter and a fluctuating medium in finite temperature is obtained rigorously. A general expression for fluctuation-induced free energy between the separated anisotropic pieces of matter is obtained and it is shown that in the framework of induced-force, the free energy of mean-force and effective free energy are equivalent.",
+          "claimed_authors": [
+            "Fardin Kheirandish"
+          ],
+          "claimed_title": "From Brownian motion formalism to fluctuation-induced force in a general fluctuating medium",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.03006"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='From Brownian motion formalism to fluctuation-induced force in a general fluctuating medium')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fluctuation-enhanced sensing comprises the analysis of the stochastic component of the sensor signal and the utilization of the microscopic dynamics of the interaction between the agent and the sensor. We study the relationship between the measurement time window and the statistical error of the measurement data in the simplest case, when the output is the mean-square value of the stochastic signal. This situation is relevant at any practical case when the time window is finite, for example, when a sampling of the output of a fluctuation-enhanced array takes place; or a single sensor's activation (temperature, etc) is stepped up; or a single sensor's output is monitored by sampling subsequently in different frequency windows. Our study provides a lower limit of the relative error versus data window size with different types of power density spectra: white noise, 1/f (flicker, pink) noise, and 1/f^2 (red) noise spectra.",
+          "claimed_authors": [
+            "P. Makra",
+            "Z. Topalian",
+            "C. G. Granqvist",
+            "L. B. Kish",
+            "C. Kwan"
+          ],
+          "claimed_title": "Accuracy versus speed in fluctuation-enhanced sensing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1108.1957"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Accuracy versus speed in fluctuation-enhanced sensing')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We address the estimation of endogenous treatment models with social interactions in both the treatment and outcome equations. We model the interactions between individuals in an internally consistent manner via a game theoretic approach based on discrete Bayesian games. This introduces a substantial computational burden in estimation which we address through a sequential version of the nested fixed point algorithm. We also provide some relevant treatment effects, and procedures for their estimation, which capture the impact on both the individual and the total sample. Our empirical application examines the impact of an individual's exercise frequency on her level of self-esteem. We find that an individual's exercise frequency is influenced by her expectation of her friends'. We also find that an individual's level of self-esteem is affected by her level of exercise and, at relatively lower levels of self-esteem, by the expectation of her friends' self-esteem.",
+          "claimed_authors": [
+            "Zhongjian Lin",
+            "Francis Vella"
+          ],
+          "claimed_title": "Endogenous Treatment Models with Social Interactions: An Application to the Impact of Exercise on Self-Esteem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.13971"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Endogenous Treatment Models with Social Interactions: An Application to the Impact of Exercise on Self-Esteem')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is natural for humans to collaborate while dealing with complex problems. In this article I consider this process of collaboration in the context of information seeking. The study and discussion presented here are driven by two dissatisfactions: (1) the majority of IR systems today do not facilitate collaboration directly, and (2) the concept of collaboration itself is not well-understood. I begin by probing the notion of collaboration and propose a model that helps us understand the requirements for a successful collaboration. A model of a Collaborative Information Seeking (CIS) environment is then rendered based on an extended model of information seeking.",
+          "claimed_authors": [
+            "Chirag Shah"
+          ],
+          "claimed_title": "Toward Collaborative Information Seeking (CIS)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0908.0709"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Toward Collaborative Information Seeking (CIS)')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the locus of intermediate Jacobians of cubic threefolds within the moduli space of complex principally polarized abelian fivefolds, and its generalization to arbitrary genus - the locus of abelian varieties with a singular odd two-torsion point on the theta divisor. Assuming that this locus has expected codimension (which we show to be true for genus up to 5), we compute the class of this locus, and of is closure in the perfect cone toroidal compactification, in the Chow, homology, and the tautological ring.\n  We work out the cases of genus up to 5 in detail, obtaining explicit expressions for the classes of the closures of the locus of products of an elliptic curve and a hyperelliptic genus 3 curve, in moduli of principally polarized abelian fourfolds, and of the locus of intermediate Jacobians in genus 5. In the course of our computation we also deal with various intersections of boundary divisors of a level toroidal compactification, which is of independent interest in understanding the cohomology and Chow rings of the moduli spaces.",
+          "claimed_authors": [
+            "Samuel Grushevsky",
+            "Klaus Hulek"
+          ],
+          "claimed_title": "The class of the locus of intermediate Jacobians of cubic threefolds",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1103.1857"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='The class of the locus of intermediate Jacobians of cubic threefolds')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the many implicit references to the social aspects of search within Information Seeking and Retrieval research, there has been relatively little work that has specifically investigated the additional requirements for collaborative search software. In this paper we re-assess a recent evaluation framework, designed for individual information seeking experiences, to see a) how it could still be applied to collaborative search software; b) how it could produce additional requirements for collaborative search; and c) how it could be extended in future work to be even more appropriate for collaborative search evaluation. The position held after the assessment is that it can be used to evaluate collaborative search software, while providing new insights into their requirements. Finally, future work will validate the frameworks applicability to collaborative search and investigate roles within collaborative groups as a means to extend the framework.",
+          "claimed_authors": [
+            "Max L. Wilson",
+            "m. c. schraefel"
+          ],
+          "claimed_title": "Evaluating Collaborative Search Interfaces with Information Seeking Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0908.0703"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Validation on Self-Perception in Adolescents psyc', candidate_title='Evaluating Collaborative Search Interfaces with Information Seeking Theory')",
+        "failed_at": "2026-07-11T18:33:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Loukas Ilias",
+            "Dimitris Askounis"
+          ],
+          "title": "Multitask learning for recognizing stress and depression in social media",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.18907",
+        "summary": "Stress and depression are prevalent nowadays across people of all ages due to the quick paces of life. People use social media to express their feelings. Thus, social media constitute a valuable form of information for the early detection of stress and depression. Although many research works have been introduced targeting the early recognition of stress and depression, there are still limitations. There have been proposed multi-task learning settings, which use depression and emotion (or figurative language) as the primary and auxiliary tasks respectively. However, although stress is inextricably linked with depression, researchers face these two tasks as two separate tasks. To address these limitations, we present the first study, which exploits two different datasets collected under different conditions, and introduce two multitask learning frameworks, which use depression and stress as the main and auxiliary tasks respectively. Specifically, we use a depression dataset and a stressful dataset including stressful posts from ten subreddits of five domains. In terms of the first approach, each post passes through a shared BERT layer, which is updated by both tasks. Next, two separate BERT encoder layers are exploited, which are updated by each task separately. Regarding the second approach, it consists of shared and task-specific layers weighted by attention fusion networks. We conduct a series of experiments and compare our approaches with existing research initiatives, single-task learning, and transfer learning. Experiments show multiple advantages of our approaches over state-of-the-art ones.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.18907",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T18:33:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Marcelo Sartori Locatelli",
+            "Pedro Calais",
+            "Matheus Prado Miranda",
+            "João Pedro Junho",
+            "Tomas Lacerda Muniz",
+            "Wagner Meira",
+            "Virgilio Almeida"
+          ],
+          "title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2312.11326",
+        "summary": "Politicization is a social phenomenon studied by political science characterized by the extent to which ideas and facts are given a political tone. A range of topics, such as climate change, religion and vaccines has been subject to increasing politicization in the media and social media platforms. In this work, we propose a computational method for assessing politicization in online conversations based on topic shifts, i.e., the degree to which people switch topics in online conversations. The intuition is that topic shifts from a non-political topic to politics are a direct measure of politicization -- making something political, and that the more people switch conversations to politics, the more they perceive politics as playing a vital role in their daily lives. A fundamental challenge that must be addressed when one studies politicization in social media is that, a priori, any topic may be politicized. Hence, any keyword-based method or even machine learning approaches that rely on topic labels to classify topics are expensive to run and potentially ineffective. Instead, we learn from a seed of political keywords and use Positive-Unlabeled (PU) Learning to detect political comments in reaction to non-political news articles posted on Twitter, YouTube, and TikTok during the 2022 Brazilian presidential elections. Our findings indicate that all platforms show evidence of politicization as discussion around topics adjacent to politics such as economy, crime and drugs tend to shift to politics. Even the least politicized topics had the rate in which their topics shift to politics increased in the lead up to the elections and after other political events in Brazil -- an evidence of politicization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2312.11326",
+          "http_status": 200,
+          "pdf_sample_score": 0.2781,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T18:33:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Leonardo Nizzoli",
+            "Serena Tardelli",
+            "Marco Avvenuti",
+            "Stefano Cresci",
+            "Maurizio Tesconi"
+          ],
+          "title": "Coordinated Behavior on Social Media in 2019 UK General Election",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.08370",
+        "summary": "Coordinated online behaviors are an essential part of information and influence operations, as they allow a more effective disinformation's spread. Most studies on coordinated behaviors involved manual investigations, and the few existing computational approaches make bold assumptions or oversimplify the problem to make it tractable. Here, we propose a new network-based framework for uncovering and studying coordinated behaviors on social media. Our research extends existing systems and goes beyond limiting binary classifications of coordinated and uncoordinated behaviors. It allows to expose different coordination patterns and to estimate the degree of coordination that characterizes diverse communities. We apply our framework to a dataset collected during the 2019 UK General Election, detecting and characterizing coordinated communities that participated in the electoral debate. Our work conveys both theoretical and practical implications and provides more nuanced and fine-grained results for studying online information manipulation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.08370",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T18:33:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Minsu Park",
+            "Ingmar Weber",
+            "Mor Naaman",
+            "Sarah Vieweg"
+          ],
+          "title": "Understanding Musical Diversity via Online Social Media",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1604.02522",
+        "summary": "Musicologists and sociologists have long been interested in patterns of music consumption and their relation to socioeconomic status. In particular, the Omnivore Thesis examines the relationship between these variables and the diversity of music a person consumes. Using data from social media users of Last.fm and Twitter, we design and evaluate a measure that reasonably captures diversity of musical tastes. We use that measure to explore associations between musical diversity and variables that capture socioeconomic status, demographics, and personal traits such as openness and degree of interest in music (into-ness). Our musical diversity measure can provide a useful means for studies of musical preferences and consumption. Also, our study of the Omnivore Thesis provides insights that extend previous survey and interview-based studies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1604.02522",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T18:33:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Raj Nath Patel",
+            "Prakash B. Pimpale",
+            "M Sasikumar"
+          ],
+          "title": "Recurrent Neural Network based Part-of-Speech Tagger for Code-Mixed Social Media Text",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1611.04989",
+        "summary": "This paper describes Centre for Development of Advanced Computing's (CDACM) submission to the shared task-'Tool Contest on POS tagging for Code-Mixed Indian Social Media (Facebook, Twitter, and Whatsapp) Text', collocated with ICON-2016. The shared task was to predict Part of Speech (POS) tag at word level for a given text. The code-mixed text is generated mostly on social media by multilingual users. The presence of the multilingual words, transliterations, and spelling variations make such content linguistically complex. In this paper, we propose an approach to POS tag code-mixed social media text using Recurrent Neural Network Language Model (RNN-LM) architecture. We submitted the results for Hindi-English (hi-en), Bengali-English (bn-en), and Telugu-English (te-en) code-mixed data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1611.04989",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T18:33:44Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of simulated social validation on self-perception in adolescents psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

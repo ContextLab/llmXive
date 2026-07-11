@@ -363,6 +363,10 @@
     "classified_at": "2026-07-02T12:51:24Z",
     "verdict": false
   },
+  "PROJ-447-the-impact-of-simulated-social-validatio::1.6.0": {
+    "classified_at": "2026-07-11T18:33:35Z",
+    "verdict": false
+  },
   "PROJ-460-investigating-the-impact-of-network-cent::1.6.0": {
     "classified_at": "2026-07-04T01:42:24Z",
     "verdict": false
@@ -965,6 +969,10 @@
   },
   "PROJ-841-llmxive-follow-up-extending-shuttermuse::1.6.0": {
     "classified_at": "2026-07-07T16:02:47Z",
+    "verdict": false
+  },
+  "PROJ-846-llmxive-follow-up-extending-guava-an-eff::1.6.0": {
+    "classified_at": "2026-07-11T18:31:38Z",
     "verdict": false
   },
   "PROJ-848-llmxive-follow-up-extending-molmomotion::1.6.0": {

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.18363",
+  "judged_at": "2026-07-11T18:31:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"guava: an effective and universal harness for embodied manipulation\" computer science",
+  "rationale": "The candidate paper is the foundational work (\"Guava\") that the user's research question explicitly references as the subject of a follow-up study, making it the canonical reference required for the literature review (Category d). Additionally, it establishes the empirical baseline and design principles for the \"harness\" mechanism that the user intends to extend (Category a).",
+  "relevant": true
+}
