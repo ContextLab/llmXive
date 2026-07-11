@@ -9,9 +9,9 @@ pyyaml
 jsonschema
 psutil
 pytest
+mypy
 ruff
 black
 pre-commit
 pydantic
-aiohttp
-httpx
+python-dotenv
