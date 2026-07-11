@@ -1,0 +1,99 @@
+resolved_at: '2026-07-11T10:25:16.111271+00:00'
+datasets:
+- intent: DreamBank
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gustavecortal/DreamBank-annotated/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/DReAMy-lib/DreamBank-dreams/resolve/main/data/train-00000-of-00001-612108f52c64b64f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/DReAMy-lib/DreamBank-dreams-en/resolve/main/data/train-00000-of-00001-24937aef854be1c9.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gustavecortal/DreamBank-annotated/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/DReAMy-lib/DreamBank-dreams/resolve/main/data/train-00000-of-00001-612108f52c64b64f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DReAMy-lib/DreamBank-dreams-en/resolve/main/data/train-00000-of-00001-24937aef854be1c9.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jimmyclchu/dreambank-net/resolve/main/dreams.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/mujo-labs/sandman-dreambank-v2/resolve/main/dreambank-v2.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/_b_uric_acid_excretion_b_b_predictive_model_additional_documents_b_/32963489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Suspension_stabilizer_products_failure_mechanism_and_consequences_for_cement_slurry_at_extremely_high_temperatures/32963498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/An_exploratory_evaluation_of_the_therapeutic_potential_of_i_Parmentiera_aculeata_i_/32963495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Barriers_to_satisfactory_primary_care_contacts_for_Swedish_cancer_survivors_a_cross-sectional_survey/32963492
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_Ver_Claude_Fable5_Data_189_The_Structure_of_Misalignment_as_Primary_Source_Material_in_Structural_Psychology_Observational_Record_/32963480
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18159468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18089278
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.qbzkh18fr
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6nmuv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.qbzkh18fr
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18159468
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18159468
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18131750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dream Data Schema (Latent Variables)"
+description: "Schema for input dream data (synthetic raw data). Note: 'condition' is NOT stored; it is derived from 'deprivation_intensity' at runtime."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for each participant"
+    minLength: 1
+  deprivation_intensity:
+    type: number
+    description: "Continuous measure of deprivation intensity (0.0-1.0)"
+    minimum: 0.0
+    maximum: 1.0
+  latent_bizarreness:
+    type: number
+    description: "Continuous latent variable for bizarreness"
+  recall:
+    type: integer
+    description: "Binary dream recall (0 or 1)"
+    minimum: 0
+    maximum: 1
+  bizarreness:
+    type: integer
+    description: "Subjective bizarreness score (1-7)"
+    minimum: 1
+    maximum: 7
+  ground_truth_scenario:
+    type: string
+    description: "Ground truth scenario for synthetic data (A, B, C)"
+    enum:
+      - "A"
+      - "B"
+      - "C"
+  true_icc:
+    type: number
+    description: "True intra-class correlation used in generation"
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - participant_id
+  - deprivation_intensity
+  - latent_bizarreness
+  - recall
+  - bizarreness
+  - ground_truth_scenario
+  - true_icc
+additionalProperties: false

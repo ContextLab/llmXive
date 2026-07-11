@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for statistical model results"
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model fitted"
+    enum:
+      - "logistic"
+      - "linear"
+      - "ordinal"
+  fixed_effect:
+    type: number
+    description: "Estimated fixed effect coefficient"
+  odds_ratio:
+    type: number
+    description: "Exponentiated coefficient (for logistic models)"
+    nullable: true
+  std_error:
+    type: number
+    description: "Standard error of the estimate"
+  ci_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval"
+  ci_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval"
+  p_value:
+    type: number
+    description: "Two-tailed p-value"
+  ground_truth_scenario:
+    type: string
+    description: "Ground truth scenario for synthetic data (A, B, C)"
+    enum:
+      - "A"
+      - "B"
+      - "C"
+    nullable: true
+  threshold_type:
+    type: string
+    description: "Threshold type for sensitivity analysis"
+    enum:
+      - "strict"
+      - "moderate"
+      - "partial"
+    nullable: true
+  coverage_probability:
+    type: number
+    description: "Proportion of datasets where CI contains true value (for bootstrap validation)"
+    minimum: 0.0
+    maximum: 1.0
+    nullable: true
+required:
+  - model_type
+  - fixed_effect
+  - std_error
+  - ci_lower
+  - ci_upper
+  - p_value
+additionalProperties: false
