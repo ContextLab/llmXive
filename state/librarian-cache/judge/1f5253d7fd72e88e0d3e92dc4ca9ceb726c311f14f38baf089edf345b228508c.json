@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.13073",
+  "judged_at": "2026-07-11T16:11:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-4d: 4d embodied world models for robotic manipulation\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of \"large VLM-based VLA models for robotic manipulation,\" which is the specific technical context of the user's follow-up question regarding \"RynnWorld-4D.\" Additionally, it explicitly addresses the \"4D perception\" and \"world model integration\" aspects mentioned in the user's target paper, making it essential background literature for any review extending that work.",
+  "relevant": true
+}

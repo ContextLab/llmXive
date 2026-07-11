@@ -1,145 +1,46 @@
-# Dataset Schema for Plant Drought Tolerance Prediction Project
+# Dataset Schema for Plant Drought Tolerance Study
 # Defines the structure and validation rules for input datasets
-# Corresponds to T007: Base data validation schema checks
 
-version: "1.0.0"
-description: "Schema for validating raw and derived datasets used in the RSA-based drought tolerance pipeline"
-
-datasets:
-  - name: "nppn_root_images"
-    type: "directory"
-    path: "data/raw/nppn_images"
-    description: "Raw root images from NPPN Plant Phenome Pipeline"
-    validation:
-      - check: "directory_exists"
-        message: "NPPN root images directory must exist"
-      - check: "file_extension"
-        extensions: [".png", ".jpg", ".jpeg", ".tif", ".tiff"]
-        message: "Images must be in supported formats"
-      - check: "non_empty"
-        min_files: 1
-        message: "Directory must contain at least one image file"
-
-  - name: "rsametrics"
-    type: "csv"
-    path: "data/derived/rsametrics.csv"
-    description: "Root System Architecture metrics extracted from images"
-    columns:
-      - name: "species_id"
-        type: "string"
-        required: true
-        validation:
-          - check: "not_null"
-          - check: "non_empty"
-      - name: "depth"
-        type: "float"
-        required: true
-        validation:
-          - check: "not_null"
-          - check: "positive"
-          - check: "finite"
-      - name: "branching_density"
-        type: "float"
-        required: true
-        validation:
-          - check: "not_null"
-          - check: "non_negative"
-          - check: "finite"
-      - name: "surface_area"
-        type: "float"
-        required: true
-        validation:
-          - check: "not_null"
-          - check: "positive"
-          - check: "finite"
-    validation:
-      - check: "no_null_values"
-        columns: ["species_id", "depth", "branching_density", "surface_area"]
-        message: "All required columns must have non-null values"
-      - check: "positive_numerical"
-        columns: ["depth", "surface_area"]
-        message: "Depth and surface area must be positive numbers"
-      - check: "non_negative_numerical"
-        columns: ["branching_density"]
-        message: "Branching density must be non-negative"
-
-  - name: "physiological_traits"
-    type: "csv"
-    path: "data/derived/physiological_traits.csv"
-    description: "Physiological trait data from TRY database"
-    columns:
-      - name: "species_id"
-        type: "string"
-        required: true
-        validation:
-          - check: "not_null"
-          - check: "non_empty"
-      - name: "stomatal_conductance"
-        type: "float"
-        required: false
-        validation:
-          - check: "finite"
-      - name: "photosynthesis"
-        type: "float"
-        required: false
-        validation:
-          - check: "finite"
-      - name: "survival_rate"
-        type: "float"
-        required: false
-        validation:
-          - check: "finite"
-    validation:
-      - check: "at_least_one_trait"
-        columns: ["stomatal_conductance", "photosynthesis", "survival_rate"]
-        message: "At least one physiological trait must be present per species"
-
-  - name: "merged_dataset"
-    type: "csv"
-    path: "data/derived/merged_data.csv"
-    description: "Merged RSA and physiological trait data"
-    columns:
-      - name: "species_id"
-        type: "string"
-        required: true
-      - name: "depth"
-        type: "float"
-        required: true
-      - name: "branching_density"
-        type: "float"
-        required: true
-      - name: "surface_area"
-        type: "float"
-        required: true
-      - name: "stomatal_conductance"
-        type: "float"
-        required: false
-      - name: "photosynthesis"
-        type: "float"
-        required: false
-      - name: "survival_rate"
-        type: "float"
-        required: false
-    validation:
-      - check: "minimum_sample_size"
-        min_rows: 55
-        message: "Insufficient species after merge (N < 55). Pipeline must halt."
-      - check: "no_null_rsa"
-        columns: ["depth", "branching_density", "surface_area"]
-        message: "RSA metrics must not be null in merged dataset"
-
-  - name: "phylogenetic_tree"
-    type: "newick"
-    path: "data/derived/phylogenetic_tree.newick"
-    description: "Phylogenetic tree from Open Tree of Life"
-    validation:
-      - check: "file_exists"
-        message: "Phylogenetic tree file must exist for PGLS analysis"
-      - check: "valid_newick"
-        message: "File must contain valid Newick format tree"
-
-  metadata:
-    schema_version: "1.0.0"
-    created_for: "PROJ-464-predicting-plant-drought-tolerance-from"
-    task_id: "T007"
-    validation_library: "pydantic"
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Plant Drought Tolerance Dataset Schema"
+type: "object"
+required:
+  - species
+  - traits
+properties:
+  species:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - species_id
+        - species_name
+      properties:
+        species_id:
+          type: "string"
+          pattern: "^[a-zA-Z0-9_-]+$"
+        species_name:
+          type: "string"
+          minLength: 1
+  traits:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - trait_name
+        - trait_type
+      properties:
+        trait_name:
+          type: "string"
+        trait_type:
+          type: "string"
+          enum:
+            - "rsa_metric"
+            - "physiological"
+            - "environmental"
+        values:
+          type: "array"
+          items:
+            type: "number"
+            minimum: 0
+additionalProperties: false

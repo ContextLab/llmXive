@@ -19,16 +19,15 @@
   FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
   <!-- FAILED: unspecified -->'
 : 1
-? 'T006 [P] Create base utility module `code/utils.py` for logging, checksumming,
-  and config loading. **Function**: `checksum_file(path)` must be implemented and
-  tested.'
-: 2
-T007 Setup directory structure for `data/raw/`, `data/processed/`, `data/models/`, `logs/`: 1
-? T008 Configure error handling and retry logic (multiple attempts, fixed time intervals)
-  for data fetching in `code/utils.py`
+? 'T004b [P] Fix corrupted SC-005 text in `spec.md` by replacing the unrelated text
+  with the measurable resource thresholds (Several CPU, sufficient RAM, 6h) defined
+  in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!--
+  FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+  <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
 : 1
-T009 [P] [US1] Contract test for synthetic data schema validation in `tests/contract/test_data_schema.py`: 1
-T010 [P] [US1] Integration test for data download and filtering pipeline in `tests/integration/test_data_pipeline.py`: 1
+T007 Setup directory structure for `data/raw/`, `data/processed/`, `data/models/`, `logs/`: 2
+T009 [P] [US1] Contract test for synthetic data schema validation in `tests/contract/test_data_schema.py`: 2
+T010 [P] [US1] Integration test for data download and filtering pipeline in `tests/integration/test_data_pipeline.py`: 2
 ? "T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts\
   \ for GM12878, K562, HMEC, IMR90, HepG2 [UNRESOLVED-CLAIM: c_f760ea31 \u2014 status=not_enough_info]\
   \ with dimensions \u226410,000 peaks \xD7 5 cell lines, \u226510,000 genes [UNRESOLVED-CLAIM:\

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.10168",
+  "judged_at": "2026-07-11T15:29:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"self-distilled agentic reinforcement learning\" computer science",
+  "rationale": "The paper focuses on \"language-conditioned reinforcement learning\" for robotic instruction-following and action correction, which is a distinct domain from the user's question about \"Self-Distilled Agentic Reinforcement Learning\" for Large Language Models (LLMs). While both involve reinforcement learning, the paper does not measure the same mechanism (self-distillation), address the same domain (LLMs vs. robotics), or provide a canonical baseline for the specific agentic self-distillation framew",
+  "relevant": false
+}

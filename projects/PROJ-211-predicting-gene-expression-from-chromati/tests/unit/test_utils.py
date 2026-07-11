@@ -1,132 +1,141 @@
-"""
-Unit tests for code/utils.py module.
-
-Tests cover:
-- checksum_file: valid file, missing file, content change detection
-- load_config: valid yaml, missing file, empty config
-- retry_request: success on first try, retry on failure, max attempts exceeded
-"""
 import os
 import tempfile
 import pytest
-import yaml
-from unittest.mock import patch, MagicMock
-import logging
-
-# Import the module under test
 from utils import checksum_file, load_config, retry_request
-
+import yaml
 
 class TestChecksumFile:
-    """Tests for the checksum_file function."""
-    
-    def test_checksum_file_valid(self, tmp_path):
+    def test_checksum_valid_file(self, tmp_path):
         """Test checksum calculation on a valid file."""
         test_file = tmp_path / "test.txt"
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
+        test_content = "Hello, World!"
+        test_file.write_text(test_content)
         
         checksum = checksum_file(str(test_file))
-        
         assert len(checksum) == 64  # SHA256 hex length
         assert isinstance(checksum, str)
-        
-    def test_checksum_file_missing(self):
-        """Test that FileNotFoundError is raised for missing file."""
-        with pytest.raises(FileNotFoundError):
-            checksum_file("/nonexistent/path/file.txt")
-            
-    def test_checksum_file_content_change(self, tmp_path):
+    
+    def test_checksum_different_content(self, tmp_path):
         """Test that different content produces different checksums."""
-        test_file = tmp_path / "test.txt"
+        file1 = tmp_path / "file1.txt"
+        file2 = tmp_path / "file2.txt"
         
-        test_file.write_bytes(b"Content A")
-        checksum_a = checksum_file(str(test_file))
+        file1.write_text("Content A")
+        file2.write_text("Content B")
         
-        test_file.write_bytes(b"Content B")
-        checksum_b = checksum_file(str(test_file))
+        checksum1 = checksum_file(str(file1))
+        checksum2 = checksum_file(str(file2))
         
-        assert checksum_a != checksum_b
-
+        assert checksum1 != checksum2
+    
+    def test_checksum_same_content(self, tmp_path):
+        """Test that same content produces identical checksums."""
+        file1 = tmp_path / "file1.txt"
+        file2 = tmp_path / "file2.txt"
+        
+        content = "Identical Content"
+        file1.write_text(content)
+        file2.write_text(content)
+        
+        checksum1 = checksum_file(str(file1))
+        checksum2 = checksum_file(str(file2))
+        
+        assert checksum1 == checksum2
+    
+    def test_checksum_nonexistent_file(self):
+        """Test that FileNotFoundError is raised for non-existent file."""
+        with pytest.raises(FileNotFoundError):
+            checksum_file("/nonexistent/path/to/file.txt")
+    
+    def test_checksum_binary_file(self, tmp_path):
+        """Test checksum calculation on a binary file."""
+        test_file = tmp_path / "binary.bin"
+        binary_content = b"\x00\x01\x02\x03\x04\x05"
+        test_file.write_bytes(binary_content)
+        
+        checksum = checksum_file(str(test_file))
+        assert len(checksum) == 64
+        assert isinstance(checksum, str)
 
 class TestLoadConfig:
-    """Tests for the load_config function."""
-    
-    def test_load_config_valid(self, tmp_path):
-        """Test loading a valid YAML config."""
+    def test_load_valid_yaml(self, tmp_path):
+        """Test loading a valid YAML configuration file."""
         config_file = tmp_path / "config.yaml"
-        test_config = {
+        config_data = {
             "setting1": "value1",
             "setting2": 42,
-            "nested": {"key": "value"}
+            "nested": {
+                "key": "value"
+            }
         }
-        config_file.write_text(yaml.dump(test_config))
         
-        loaded = load_config(str(config_file))
+        with open(config_file, 'w') as f:
+            yaml.dump(config_data, f)
         
-        assert loaded == test_config
+        config = load_config(str(config_file))
         
-    def test_load_config_missing(self):
-        """Test that FileNotFoundError is raised for missing config."""
-        with pytest.raises(FileNotFoundError):
-            load_config("/nonexistent/config.yaml")
-            
-    def test_load_config_empty(self, tmp_path):
-        """Test loading an empty YAML file."""
+        assert config["setting1"] == "value1"
+        assert config["setting2"] == 42
+        assert config["nested"]["key"] == "value"
+    
+    def test_load_empty_yaml(self, tmp_path):
+        """Test loading an empty YAML file returns empty dict."""
         config_file = tmp_path / "empty.yaml"
         config_file.write_text("")
         
-        loaded = load_config(str(config_file))
-        
-        assert loaded == {}
-
+        config = load_config(str(config_file))
+        assert config == {}
+    
+    def test_load_nonexistent_config(self):
+        """Test that FileNotFoundError is raised for non-existent config."""
+        with pytest.raises(FileNotFoundError):
+            load_config("/nonexistent/config.yaml")
 
 class TestRetryRequest:
-    """Tests for the retry_request function."""
-    
-    def test_retry_success_first_attempt(self):
+    def test_success_on_first_attempt(self, mocker):
         """Test successful execution on first attempt."""
-        def mock_func():
-            return "success"
-            
-        success, result = retry_request(mock_func, max_attempts=3)
+        mock_func = mocker.Mock(return_value="success")
+        
+        success, result = retry_request(mock_func)
         
         assert success is True
         assert result == "success"
+        mock_func.assert_called_once()
+    
+    def test_retry_on_failure(self, mocker):
+        """Test retry logic on transient failure."""
+        import requests
         
-    def test_retry_success_after_failure(self):
-        """Test successful execution after initial failures."""
-        attempt_count = 0
+        call_count = 0
+        def mock_func(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            if call_count < 3:
+                raise requests.RequestException("Transient error")
+            return "success"
         
-        def flaky_func():
-            nonlocal attempt_count
-            attempt_count += 1
-            if attempt_count < 3:
-                raise Exception("Simulated failure")
-            return "success after retries"
-            
-        with patch('time.sleep'):  # Skip actual sleep in tests
-            success, result = retry_request(
-                flaky_func, 
-                max_attempts=5, 
-                delay_seconds=0
-            )
-            
+        success, result = retry_request(
+            mock_func,
+            max_attempts=3,
+            delay_seconds=0.01  # Fast retry for testing
+        )
+        
         assert success is True
-        assert result == "success after retries"
-        assert attempt_count == 3
+        assert result == "success"
+        assert call_count == 3
+    
+    def test_failure_after_max_attempts(self, mocker):
+        """Test failure after exhausting max attempts."""
+        import requests
         
-    def test_retry_max_attempts_exceeded(self):
-        """Test failure when all retry attempts are exhausted."""
-        def always_fail():
-            raise Exception("Always fails")
-            
-        with patch('time.sleep'):  # Skip actual sleep in tests
-            success, result = retry_request(
-                always_fail,
-                max_attempts=3,
-                delay_seconds=0
-            )
-            
+        def mock_func(*args, **kwargs):
+            raise requests.RequestException("Persistent error")
+        
+        success, result = retry_request(
+            mock_func,
+            max_attempts=2,
+            delay_seconds=0.01
+        )
+        
         assert success is False
         assert result is None

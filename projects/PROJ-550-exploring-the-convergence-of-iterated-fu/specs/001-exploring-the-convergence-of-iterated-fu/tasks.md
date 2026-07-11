@@ -55,8 +55,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` with exact keys: `SEED=42`, `GRID_SIZE_CONTRACTIVE=1000`, `GRID_SIZE_NON_CONTRACTIVE=5000` (for non-contractive validation), `BOX_COUNTING_SCALES=50`, `ITERATIONS_DEFAULT=1000000`, `ITERATIONS_EDGE_CASE=5000000`, `BOUNDING_BOX_MIN=-1.0`, `BOUNDING_BOX_MAX=2.0`, `W2_THRESHOLD=0.01`, `FILE_PATHS` (dict mapping raw/derived paths).
-- [ ] T005 [P] Create `code/generators.py` skeleton: Define `IFSInstance` dataclass with fields `id`, `maps`, `lipschitz_target`, `grid_size` (type stubs only, no logic).
+- [X] T004 Implement `code/config.py` with exact keys: `SEED=42`, `GRID_SIZE_CONTRACTIVE=1000`, `GRID_SIZE_NON_CONTRACTIVE=5000` (for non-contractive validation), `BOX_COUNTING_SCALES=50`, `ITERATIONS_DEFAULT=1000000`, `ITERATIONS_EDGE_CASE=5000000`, `BOUNDING_BOX_MIN=-1.0`, `BOUNDING_BOX_MAX=2.0`, `W2_THRESHOLD=0.01`, `FILE_PATHS` (dict mapping raw/derived paths).
+- [X] T005 [P] Create `code/generators.py` skeleton: Define `IFSInstance` dataclass with fields `id`, `maps`, `lipschitz_target`, `grid_size` (type stubs only, no logic).
 - [ ] T006 [P] Create `code/chaos_game.py` skeleton: Define `run_chaos_game(ifs_instance, iterations, seed)` function signature (type stubs only).
 - [ ] T007 [P] Create `code/topology.py` skeleton: Define `compute_box_counting_dimension(points, scales)` function signature (type stubs only).
 - [ ] T008 [P] Create `code/analysis.py` skeleton: Define `fit_logistic_regression(features, labels)` and `sensitivity_analysis(results)` function signatures (type stubs only).
@@ -72,18 +72,18 @@
 
 **Goal**: Generate diverse synthetic IFS with controlled Lipschitz constants (0.5 to 2.0 in 0.1 increments) and validate numerical properties.
 
-**Independent Test**: Generate 50 instances, compute Lipschitz on 1000-point grid, verify computed values are within ±0.05 of targets. [UNRESOLVED-CLAIM: c_11a4e600 — status=not_enough_info]
+**Independent Test**: Generate 50 instances, compute Lipschitz on 1000-point grid, verify computed values are within ±0.05 of targets. [UNRESOLVED-CLAIM: c_9450dcbc — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Unit test `test_lipschitz_accuracy` in `tests/unit/test_generators.py`: Generate 50 instances with seed 42, compute Lipschitz on 1000-point grid, verify MAE ≤ 0.05 against targets. [UNRESOLVED-CLAIM: c_f9ba40b6 — status=not_enough_info]
+- [ ] T012 [P] [US1] Unit test `test_lipschitz_accuracy` in `tests/unit/test_generators.py`: Generate 50 instances with seed 42, compute Lipschitz on 1000-point grid, verify MAE ≤ 0.05 against targets. [UNRESOLVED-CLAIM: c_a0e60f57 — status=not_enough_info]
 - [ ] T013 [P] [US1] Unit test `test_benchmark_reconstruction` in `tests/unit/test_benchmarks.py`: Load benchmarks, verify Sierpinski/Barnsley parameters match literature values.
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement synthetic IFS generator in `code/generators.py`: Create 2-4 affine maps with **Lipschitz targets in fine increments from 0.5 to 2.0** (discrete set, not continuous random).
+- [ ] T014 [US1] Implement synthetic IFS generator in `code/generators.py`: Create 2-4 affine maps with **Lipschitz targets in fine increments from 0.5 to 2.0 [UNRESOLVED-CLAIM: c_53e70586 — status=not_enough_info]** (discrete set, not continuous random).
 - [ ] T015 [US1] Implement numerical Lipschitz estimator in `code/generators.py`: Gradient estimation on a fine-point grid for contractive, a denser grid for non-contractive. (as per config).
 - [ ] T016 [US1] Implement validation logic in `code/generators.py`: Flag outliers (>±0.05 error) and trigger re-generation.
 - [ ] T017 [US1] Implement benchmark loader in `code/benchmarks.py`: Hardcode Sierpinski Triangle, Barnsley Fern, and da Cunha expanding map parameters per **da Cunha et al. (2021)** (Affine matrix: `[[scale_factor, 0.0], [0.0, scale_factor]]`, Translation: `[0.0, 0.0]`, Probability: `1.0`).
@@ -111,7 +111,7 @@
 - [ ] T022 [US2] Implement Chaos Game loop in `code/chaos_game.py`: Vectorized NumPy operations for efficiency.
 - [ ] T023 [US2] Implement divergence detector in `code/chaos_game.py`: Stop simulation if points leave `[-1, 2]²` bounding box.
 - [ ] T024 [US2] Implement convergence classifier in `code/chaos_game.py`: Classify as "Converged" (W2 < 0.01 AND bounded) or "Divergent" (escape OR W2 >= 0.01). **Note: No "Chaotic Boundedness" state; bounded non-convergent cases are "Divergent" or "Uniform Filling" (distinct from escape).**
-- [ ] T025 [US2] Implement histogram generator in `code/chaos_game.py`: Use Sturges' rule for binning.
+- [ ] T025 [US2] Implement histogram generator in `code/chaos_game.py`: Use Sturges' rule for binning [UNRESOLVED-CLAIM: c_c6451912 — status=not_enough_info].
 - [ ] T026 [US2] Create script `code/run_simulation.py`: Process `data/raw/ifs_instances.parquet`, output `data/derived/chaos_results.parquet` with schema: `id`, `lipschitz`, `w2_distance`, `convergence_status`, `histogram_bins`, `escape_flag`.
 - [ ] T027 [US2] Add edge case handling for Lipschitz = 1.0: Run extended iterations before classifying.
 - [ ] T028 [US2] Implement logic to distinguish "Uniform Filling" (bounded, high entropy, W2 fails) from "Divergence" (escape) based on density checks, but map both to "Divergent" status for downstream binary analysis unless explicitly logged as "Uniform Filling" for research notes.
@@ -134,7 +134,7 @@
 ### Implementation for User Story 3
 
 - [ ] T031 [US3] Implement box-counting dimension calculator in `code/topology.py`: Multi-scale grid analysis using **exactly 50 scale levels** as mandated by Constitution Principle VI.
-- [ ] T031B [US3] **Validate SC-002**: Load `data/derived/benchmark_results.parquet` (Depends on T017B), compute box-counting dimensions for benchmarks, compare against theoretical values, record MAE in `data/derived/benchmark_validation.csv`. **Fail build if MAE > 0.1 **.
+- [ ] T031B [US3] **Validate SC-002**: Load `data/derived/benchmark_results.parquet` (Depends on T017B), compute box-counting dimensions for benchmarks, compare against theoretical values, record MAE in `data/derived/benchmark_validation.csv`. **Fail build if MAE > 0.1 [UNRESOLVED-CLAIM: c_0f6bc40c — status=not_enough_info] **.
 - [ ] T032 [US3] Implement map overlap geometry calculator in `code/topology.py`: Intersection area ratio of map images to unit square.
 - [ ] T033 [US3] Implement logistic regression model in `code/analysis.py`: Predict "convergence stability" from **Lipschitz parameters AND map overlap geometry (output of T032)**.
 - [ ] T034 [US3] Implement sensitivity analysis in `code/analysis.py`: Sweep thresholds over the **discrete set of representative values**, compute stability rate std dev.
@@ -161,7 +161,7 @@
 - [ ] T042 [US3] Create script `code/run_visualization.py`: Generate `data/derived/visualizations/` (PDF/PNG) for key threshold cases (L=0.8, 1.0, 1.2).
 - [ ] T043 [US3] **Address Rockmore**: Implement `code/complex_dynamics_bridge.py`: Compute and compare Mandelbrot-like boundary metrics for selected IFS maps to visualize the "boundary between interior and exterior" analogous to complex dynamics. **Depends on T026**.
 - [ ] T044a [US3] **Address Wolfram (Metric)**: Define "complexity metric" for orbit traces (e.g., entropy, Lyapunov exponent approximation) in `code/ruliad_explorer.py`.
-- [ ] T044b [US3] **Address Wolfram (Sweep)**: Run a large-scale parameter sweep of non-contractive maps using the metric from Ta. [UNRESOLVED-CLAIM: c_7e780a0a — status=not_enough_info]
+- [ ] T044b [US3] **Address Wolfram (Sweep)**: Run a large-scale parameter sweep of non-contractive maps using the metric from Ta.
 - [ ] T044c [US3] **Address Wolfram (Selection)**: Select top 100 most "complex" cases (high entropy, bounded) and save raw orbit traces to `data/derived/ruliad_samples/`.
 - [ ] T044d [US3] **Address Wolfram (Taxonomy)**: Generate a "behavioral taxonomy" plot based on visual inspection of the traces from T044c. **Scope Justification**: These tasks address explicit reviewer feedback (Wolfram) regarding empirical visualization and are not silent scope expansion.
 

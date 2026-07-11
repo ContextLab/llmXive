@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.01557",
+  "judged_at": "2026-07-11T16:11:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-4d: 4d embodied world models for robotic manipulation\" computer science",
+  "rationale": "This paper satisfies criterion (b) by measuring the dependent variable (simulated robotic manipulation performance) on the user's specific domain (robotic manipulation), providing the necessary empirical baseline and metrics to evaluate world models like RynnWorld-4D. It also aligns with criterion (c) as it establishes a canonical benchmark for characterizing the success and deficiencies of simulated environments, which is essential for any follow-up work on 4D embodied world models.",
+  "relevant": true
+}

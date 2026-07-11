@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.00917",
+  "judged_at": "2026-07-11T16:10:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-4d: 4d embodied world models for robotic manipulation\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (e) as a foundational survey and canonical reference for the specific domain of \"embodied world models\" and \"physical simulators\" in robotics, which are the core mechanisms and technologies explicitly named in the user's target paper (\"RynnWorld-4D\"). Even though it is a survey rather than a specific 4D manipulation study, it provides the essential literature review context and state-of-the-art baseline that any follow-up work on this topic must cite.",
+  "relevant": true
+}

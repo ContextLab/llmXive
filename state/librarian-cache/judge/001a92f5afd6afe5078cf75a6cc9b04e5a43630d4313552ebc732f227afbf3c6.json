@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.19565",
+  "judged_at": "2026-07-11T15:29:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"self-distilled agentic reinforcement learning\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism of \"agentic\" frameworks applied to \"corpus distillation\" for LLM training, even though it focuses on the biomedical domain rather than the specific \"Self-Distilled\" variant mentioned in the user's follow-up. It provides essential prior work on the intersection of agentic systems and data distillation strategies, which is a canonical component of the literature review for extending self-distilled agentic reinforc",
+  "relevant": true
+}

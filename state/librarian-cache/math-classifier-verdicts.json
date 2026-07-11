@@ -107,6 +107,10 @@
     "classified_at": "2026-07-06T11:30:00Z",
     "verdict": false
   },
+  "PROJ-1023-llmxive-follow-up-extending-rynnworld-4d::1.6.0": {
+    "classified_at": "2026-07-11T16:10:39Z",
+    "verdict": false
+  },
   "PROJ-114-the-impact-of-ambient-noise-on-cognitive::1.6.0": {
     "classified_at": "2026-06-16T05:23:46Z",
     "verdict": false
@@ -929,6 +933,10 @@
   },
   "PROJ-820-llmxive-follow-up-extending-visual-gener::1.6.0": {
     "classified_at": "2026-07-03T18:58:54Z",
+    "verdict": false
+  },
+  "PROJ-825-llmxive-follow-up-extending-self-distill::1.6.0": {
+    "classified_at": "2026-07-11T15:29:14Z",
     "verdict": false
   },
   "PROJ-827-llmxive-follow-up-extending-causal-forci::1.6.0": {

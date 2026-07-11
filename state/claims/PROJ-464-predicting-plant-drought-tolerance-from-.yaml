@@ -1347,3 +1347,123 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T15:04:33Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if species overlap N is less than 55
+  claim_id: c_de917ba1
+  context: 'Phase 2, Task T008: Implement code/power_analysis.py. Logic: Fetch species
+    list from NPPN/MGB3 and TRY. If overlap N < 55, HALT with critical error...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_species_overlap_N_is_less_than_55
+  kind: magnitude
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:51:04Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Data merge halts if sample size N is less than 55
+  claim_id: c_657ae517
+  context: 'Phase 4, Task T021: Implement code/merge_data.py... Constraint: If sample
+    size < 55, HALT with critical error...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_merge_halts_if_sample_size_N_is_less_than_55
+  kind: magnitude
+  raw_text: If sample size < 55, HALT with critical error 'Insufficient species after
+    merge (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:51:55Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Regression uses 100 estimators
+  claim_id: c_bd5d1cce
+  context: "Phase 4, Task T023c: Implement code/models.py function fit_random_forest()...\
+    \ Specs: R\xB2 metric, 5-fold GroupKFold..., n_estimators=100..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:52:21Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage is less than 7GB RAM
+  claim_id: c_387e45fd
+  context: 'Phase N, Task T034: Profile and optimize image loading... ensure memory
+    usage <7GB RAM...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_usage_is_less_than_7GB_RAM
+  kind: magnitude
+  raw_text: memory usage <7GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:52:42Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime is within 6 hours
+  claim_id: c_0ea9a2bc
+  context: 'Phase N, Task T034: ...ensure ... full pipeline runs within 6 hours on
+    2 CPU/7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: full pipeline runs within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:53:04Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest Classification uses 100 estimators
+  claim_id: c_34e72778
+  context: 'Phase 5, Task T027b: ...Train Random Forest Classification model. Specs:
+    F1-score metric, 5-fold GroupKFold..., n_estimators=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:53:04Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Models use 5-fold GroupKFold cross-validation
+  claim_id: c_8e9c2da6
+  context: 'Phase 4, Task T023a and T023c: ...5-fold GroupKFold (groups=species_name)
+    to prevent phylogenetic leakage...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-fold GroupKFold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:53:17Z'

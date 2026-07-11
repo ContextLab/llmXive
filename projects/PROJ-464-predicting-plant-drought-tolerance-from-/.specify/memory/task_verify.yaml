@@ -5,17 +5,39 @@
   \ **Note**: `pandas-phy` and `ete3` excluded to align with Plan's Primary Dependencies\
   \ list."
 : 1
-T007 [P] Create base data validation schema checks in `contracts/` (dataset.schema.yaml, output.schema.yaml).: 1
+? 'T002 [P] Initialize Python 3.11 project with dependencies in `requirements.txt`
+  (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, scipy>=1.11.0, statsmodels>=0.14.0,
+  opencv-python-headless>=4.8.0, scikit-image>=0.21.0, requests>=2.31.0, huggingface_hub>=0.16.0,
+  pytest>=7.0.0, networkx>=3.0). **Note**: `pandas-phy` and `ete3` excluded to align
+  with Plan''s Primary Dependencies list.'
+: 1
+T007 [P] Create base data validation schema checks in `contracts/` (dataset.schema.yaml, output.schema.yaml).: 2
 ? 'T008 [P] Implement `code/power_analysis.py`: Calculate required sample size (N)
   using `statsmodels.stats.power.FTestPower` with explicit parameters: {{claim:c_bcec7d3b}}.
   **Logic**: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, **HALT**
   with critical error "Insufficient species for power analysis (N < 55)". **Deliverable**:
   `state/power_analysis_report.yaml`. <!-- FAILED: unspecified -->'
-: 1
+: 2
 ? "T013 [US1] Implement `code/preprocess_images.py`: Extract RSA traits using OpenCV/scikit-image\
   \ on CPU. **Algorithm**: `skeletonize` (8-connectivity) for depth/branching; `find_contours`\
   \ for surface area. Branching density = (branch_points - endpoints) / total_length\
   \ [UNRESOLVED-CLAIM: c_3d1f500b \u2014 status=not_enough_info]. **Includes**: Error\
   \ logging for corrupted images (skipping them gracefully) and validation logic to\
   \ ensure no null values and positive numerical values for all traits in output."
+: 1
+? 'T013 [US1] Implement `code/preprocess_images.py`: Extract RSA traits using OpenCV/scikit-image
+  on CPU. **Algorithm**: `skeletonize` (8-connectivity) for depth/branching; `find_contours`
+  for surface area. Branching density = (branch_points - endpoints) / total_length.
+  **Includes**: Error logging for corrupted images (skipping them gracefully) and
+  validation logic to ensure no null values and positive numerical values for all
+  traits in output.'
+: 1
+? 'T015 [US1] [D:T013] Generate `data/derived/rsametrics.csv` with columns: species_id,
+  depth, branching_density, surface_area. **Includes**: Validation to ensure no null
+  values and positive numerical values for all traits (logic merged into T013).'
+: 1
+? 'T016 [P] [US1] [D:T012,T013] Unit test in `tests/unit/test_image_processing.py`:
+  Implement `test_load_image_handles_corrupted_file_returns_error` (asserts specific
+  error message) and `test_skeletonize_returns_valid_branch_points` (asserts branch_points
+  > 0).'
 : 1

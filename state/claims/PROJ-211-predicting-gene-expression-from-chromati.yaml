@@ -221,21 +221,6 @@
   updated_at: '2026-07-07T19:00:47Z'
 - artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
   attempts: 1
-  canonical: All models run on 2 CPU cores
-  claim_id: c_b154f85b
-  context: "Constraint: No GPU/CUDA; all models run on 2 CPU cores, \u22647GB RAM."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: All models run on 2 CPU cores
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T19:01:15Z'
-- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
-  attempts: 1
   canonical: Memory usage limit is 7GB
   claim_id: c_9748d24c
   context: "Constraint: No GPU/CUDA; all models run on 2 CPU cores, \u22647GB RAM."
@@ -251,46 +236,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T19:01:38Z'
-- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
-  attempts: 1
-  canonical: Download paired RNA-seq and DNase-seq/ATAC-seq count data for at least
-    5 human cell lines
-  claim_id: c_b10721a0
-  context: "Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
-    5 human cell lines, preprocess accessibility signal within \xB150kb windows, and\
-    \ filter genes."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Download_paired_RNA-seq_and_DNase-seq/ATAC-seq_count_data_fo
-  kind: magnitude
-  raw_text: "Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
-    5 human cell lines"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-09T01:18:23Z'
-- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
-  attempts: 1
-  canonical: Preprocess accessibility signal within 50kb windows
-  claim_id: c_8d09be0c
-  context: "Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
-    5 human cell lines, preprocess accessibility signal within \xB150kb windows, and\
-    \ filter genes."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Preprocess_accessibility_signal_within_50kb_windows
-  kind: entity_fact
-  raw_text: "preprocess accessibility signal within \xB150kb windows"
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-09T01:18:52Z'
 - artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
   attempts: 1
   canonical: Pipeline produces gene matrices fitting within 7GB RAM
@@ -468,3 +413,197 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-09T01:28:32Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 2
+  canonical: Download paired RNA-seq and DNase-seq/ATAC-seq count data for at least
+    5 human cell lines
+  claim_id: c_b10721a0
+  context: "Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines, preprocess accessibility signal within \xB150kb windows, and\
+    \ filter genes."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_paired_RNA-seq_and_DNase-seq/ATAC-seq_count_data_fo
+  kind: magnitude
+  raw_text: "Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:32:05Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 2
+  canonical: Preprocess accessibility signal within 50kb windows
+  claim_id: c_8d09be0c
+  context: "Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines, preprocess accessibility signal within \xB150kb windows, and\
+    \ filter genes."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocess_accessibility_signal_within_50kb_windows
+  kind: entity_fact
+  raw_text: "preprocess accessibility signal within \xB150kb windows"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:32:40Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Gene matrices fit within 7GB RAM
+  claim_id: c_b168d632
+  context: 'Independent Test: Verify pipeline produces matching gene matrices (accessibility
+    features and expression values) that fit within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gene_matrices_fit_within_7GB_RAM
+  kind: entity_fact
+  raw_text: pipeline produces matching gene matrices that fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:32:58Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Synthetic counts for 5 cell lines with 10000 peaks and 10000 genes
+  claim_id: c_a640c509
+  context: "Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts\
+    \ for GM12878, K562, HMEC, IMR90, HepG2 with dimensions \u226410,000 peaks \xD7\
+    \ 5 cell lines, \u226510,000 genes for CI validation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC,\
+    \ IMR90, HepG2 with dimensions \u226410,000 peaks \xD7 5 cell lines, \u226510,000\
+    \ genes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:32:58Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Aggregate accessibility signal within 50kb of TSS
+  claim_id: c_8964b203
+  context: "Execute `bedtools coverage` to aggregate accessibility signal within \xB1\
+    50kb of TSS using the synthetic peak and gene coordinate files."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aggregate_accessibility_signal_within_50kb_of_TSS
+  kind: entity_fact
+  raw_text: "aggregate accessibility signal within \xB150kb of TSS using the synthetic\
+    \ peak and gene coordinate files"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:33:25Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Select top 1000 variable peaks
+  claim_id: c_b8fddb0f
+  context: Select top N variable peaks based on variance across samples in `code/preprocess.py`,
+    where N=1000 (configurable via CLI).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select top 1000 variable peaks based on variance across samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:33:46Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Define 500 cell-type-specific genes with variance greater than 0.5
+  claim_id: c_ff563af3
+  context: Define 500 cell-type-specific genes with variance > 0.5 in `code/preprocess.py`
+    by calculating expression variance across cell lines.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_500_cell-type-specific_genes_with_variance_greater_th
+  kind: magnitude
+  raw_text: Define 500 cell-type-specific genes with variance > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:34:27Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Implement 5-fold cross-validation loop
+  claim_id: c_aec2c6af
+  context: Implement k-fold cross-validation loop in `code/train.py` with k=5 (document
+    justification for k=5 being a 'reasonable number' in code comments).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement k-fold cross-validation loop with k=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:35:57Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Calculate percentage of top 100 features within 10kb of TSS
+  claim_id: c_feea5aaf
+  context: "Calculate percentage of top-100 features within \xB110kb of TSS in `code/interpret.py`\
+    \ (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate percentage of top-100 features within \xB110kb of TSS"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:36:26Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 2
+  canonical: All models run on 2 CPU cores
+  claim_id: c_b154f85b
+  context: "Constraint: No GPU/CUDA; all models run on 2 CPU cores, \u22647GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All models run on 2 CPU cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:36:46Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Models run with at most 7GB RAM
+  claim_id: c_6659ee74
+  context: "Constraint: No GPU/CUDA; all models run on 2 CPU cores, \u22647GB RAM."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Models_run_with_at_most_7GB_RAM
+  kind: magnitude
+  raw_text: "models run with \u22647GB RAM"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:37:26Z'

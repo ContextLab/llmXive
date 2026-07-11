@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.22882",
+  "judged_at": "2026-07-11T16:10:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-4d: 4d embodied world models for robotic manipulation\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the exact same domain (4D embodied world models for robotic manipulation) and mechanism (generating physically consistent futures for action execution) as the user's question, serving as a direct canonical reference for the specific research niche of \"RynnWorld-4D\" follow-up work.",
+  "relevant": true
+}

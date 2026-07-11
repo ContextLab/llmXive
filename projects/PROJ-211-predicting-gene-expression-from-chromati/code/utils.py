@@ -60,12 +60,17 @@ def retry_request(
     **kwargs
 ) -> Tuple[bool, Any]:
     """
-    Retry a function call with exponential backoff.
+    Retry a function call with fixed time intervals.
+    
+    This function implements error handling and retry logic for data fetching.
+    It attempts to execute the provided function up to `max_attempts` times.
+    If an exception occurs, it waits for a fixed `delay_seconds` interval before
+    retrying, rather than using exponential backoff.
     
     Args:
         func: The function to call (must accept *args, **kwargs).
         max_attempts: Maximum number of retry attempts.
-        delay_seconds: Initial delay between retries in seconds.
+        delay_seconds: Fixed delay between retries in seconds.
         *args: Positional arguments to pass to the function.
         **kwargs: Keyword arguments to pass to the function.
         
@@ -73,7 +78,6 @@ def retry_request(
         Tuple of (success: bool, result: Any).
     """
     attempt = 0
-    current_delay = delay_seconds
     
     while attempt < max_attempts:
         try:
@@ -87,9 +91,8 @@ def retry_request(
             
             logging.warning(
                 f"Request failed (attempt {attempt}/{max_attempts}): {e}. "
-                f"Retrying in {current_delay}s..."
+                f"Retrying in {delay_seconds}s..."
             )
-            time.sleep(current_delay)
-            current_delay *= 2  # Exponential backoff
+            time.sleep(delay_seconds)
     
     return False, None

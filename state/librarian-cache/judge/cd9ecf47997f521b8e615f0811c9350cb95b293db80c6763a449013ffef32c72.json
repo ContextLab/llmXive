@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.06559",
+  "judged_at": "2026-07-11T16:10:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-4d: 4d embodied world models for robotic manipulation\" computer science",
+  "rationale": "The candidate paper is the foundational work (\"RynnWorld-4D\") that the user's research question explicitly names as the subject of a follow-up study, making it the canonical reference required for any literature review on this specific topic (Category d). Additionally, it establishes the empirical baseline and methodology for the 4D embodied world models the user intends to extend (Category c).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.07996",
+  "judged_at": "2026-07-11T16:11:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-4d: 4d embodied world models for robotic manipulation\" computer science",
+  "rationale": "This paper is a foundational survey that explicitly covers the domain of \"4D world modeling\" and \"embodied agents,\" directly satisfying criteria (d) as a canonical reference and (f) as a cross-vocabulary cluster for the user's specific topic of extending 4D embodied world models. It provides the necessary taxonomy, definitions, and literature baseline that a researcher would expect to cite when framing a follow-up study in this exact subfield.",
+  "relevant": true
+}
