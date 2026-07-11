@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.01933",
+  "judged_at": "2026-07-11T09:43:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"identifying stimulus-driven neural activity patterns in multi-patient \" biology",
+  "rationale": "This paper satisfies criteria (a) and (e) as it directly measures the same biological mechanism (stimulus-driven neural activity patterns) and studies the exact empirical population (multi-patient intracranial recordings) referenced in the user's question, serving as the foundational methodological review for this specific domain.",
+  "relevant": true
+}

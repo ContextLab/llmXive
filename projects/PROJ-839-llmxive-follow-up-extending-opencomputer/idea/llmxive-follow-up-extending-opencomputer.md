@@ -5,31 +5,80 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "OpenComputer: Verifiable Software Worlds for Computer-Use Agents"
 
-## Summary of the prior work
-OpenComputer introduces a verifier-grounded framework for evaluating computer-use agents by integrating app-specific state verifiers, a self-evolving verification layer, and a task-generation pipeline across 33 desktop applications. It demonstrates that hard-coded verifiers significantly outperform LLM-as-judge evaluations in assessing fine-grained application state, revealing a persistent gap in robust automation for both frontier and open-source models. The system provides auditable, partial-credit rewards based on execution trajectories, highlighting that while agents make partial progress, they frequently fail to achieve end-to-end task completion.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a lightweight, CPU-tractable "Verifier-Guided Repair" module, which injects corrective context only when a hard-coded verifier detects a state deviation, improve the end-to-end completion rate of computer-use agents without requiring model retraining or GPU acceleration?
+## Research question
 
-This direction matters because OpenComputer identifies that agents often fail at the final step despite making partial progress; by leveraging the existing hard-coded verifiers as a low-cost feedback signal rather than just an evaluation metric, we can test if simple, rule-based intervention strategies can bridge the robustness gap identified in the original study without the computational overhead of fine-tuning or large-scale inference loops.
+Does injecting corrective context based on hard-coded state verifier deviations improve the end-to-end task completion rate of computer-use agents, and is this improvement recoverable via lightweight, CPU-tractable intervention without model retraining?
+
+## Motivation
+
+OpenComputer demonstrates that while agents make partial progress, they frequently fail at final execution steps due to state mismatches, revealing a gap between partial capability and robust automation. By transforming the existing hard-coded verifiers from passive evaluation metrics into active feedback signals, this research tests whether simple, rule-based interventions can bridge the robustness gap without the computational overhead of fine-tuning or complex inference loops.
+
+## Related work
+
+- [OpenComputer: Verifiable Software Worlds for Computer-Use Agents](https://arxiv.org/abs/2605.19769) — Establishes the baseline framework of app-specific state verifiers and demonstrates the persistent gap between partial progress and end-to-end completion in computer-use agents.
+- [Hack-Verifiable Environments: Towards Evaluating Reward Hacking at Scale](https://arxiv.org/abs/2605.20744) — Highlights the critical importance of verifiable evaluation signals to prevent agents from optimizing for superficial success rather than genuine task completion, supporting the need for verifier-grounded feedback.
+- [Agent-Driven Automatic Software Improvement](https://arxiv.org/abs/2406.16739) — Provides a precedent for using automated agents to iteratively refine software states, though it focuses on code quality rather than runtime state correction in desktop applications.
+
+## Expected results
+
+We expect the Verifier-Guided Repair module to increase end-to-end completion rates by 15-20% on tasks where agents previously achieved partial credit, confirming that final-step failures are often recoverable via targeted feedback. The study will measure success via the delta in completion rates between the baseline and repair-augmented runs, with statistical significance determined by a paired t-test across the filtered task subset.
 
 ## Methodology sketch
-**Data:** Utilize the existing 1,000 finalized tasks from OpenComputer, specifically filtering for the subset where agents achieved >50% partial credit but <100% completion.
-**Procedure:** Implement a CPU-only repair loop where, after each agent action, the app-specific state verifier checks for the expected intermediate state; if a deviation is detected, the system constructs a minimal, structured "repair prompt" containing the current state, the target state, and the specific error type, then feeds this back to the agent for immediate correction before proceeding to the next step. We will compare the new end-to-end success rates against the original OpenComputer baselines using the same agent models.
-**Expected Result:** We hypothesize that the Verifier-Guided Repair module will increase the end-to-end completion rate by 15-20% on the filtered subset, demonstrating that the primary failure mode is recoverable via targeted, verifier-grounded feedback rather than a fundamental lack of model capability, all while maintaining a CPU-only execution profile.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Download the OpenComputer dataset (1,000 tasks) from the official repository and filter for the subset where baseline agents achieved >50% partial credit but <100% completion.
+- Implement a CPU-only "Verifier-Guided Repair" loop that executes after each agent action: the app-specific state verifier checks the current environment state against the expected intermediate state.
+- If a deviation is detected, construct a minimal, structured "repair prompt" containing the current state, the target state, and the specific error type, then inject this context into the agent's next inference step.
+- Run the augmented agents on the filtered subset using the same model architectures as the OpenComputer baselines, ensuring no GPU acceleration or model retraining occurs.
+- Collect end-to-end success metrics for both the baseline and repair-augmented runs, calculating the improvement delta and performing a paired t-test to assess statistical significance.
+- Analyze failure modes in the repair-augmented runs to determine if the intervention resolves state deviations or introduces new errors due to context injection.
 
-- **OpenComputer: Verifiable Software Worlds for Computer-Use Agents** — Jinbiao Wei, Qianran Ma, Yilun Zhao, Xiao Zhou, Kangqi Ni, Guo Gan, Arman Cohan, {'name': 'llmXive-implementer-v1.0', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': '1.0.0', 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-27T10:18:44.627145Z'}. https://arxiv.org/abs/2605.19769.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_19769,
-  title = {OpenComputer: Verifiable Software Worlds for Computer-Use Agents},
-  author = {Jinbiao Wei and Qianran Ma and Yilun Zhao and Xiao Zhou and Kangqi Ni and Guo Gan and Arman Cohan and \{'name': 'llmXive-implementer-v1.0', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': '1.0.0', 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-27T10:18:44.627145Z'\}},
-  year = {2026},
-  eprint = {2605.19769},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.19769},
-  url = {https://arxiv.org/abs/2605.19769}
-}
-```
+- Reviewed existing ideas: OpenComputer baseline evaluation, Verifier-Guided Repair module.
+- Closest match: OpenComputer baseline evaluation (similarity sketch: the prior work establishes the verifier framework but does not implement an active repair loop; this idea extends the framework by using verifiers as active feedback signals).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T09:45:24Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "OpenComputer: Verifiable Software Worlds for Computer-Use Agents" computer science
+**Verified citation count**: 6
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "OpenComputer: Verifiable Software Worlds for Computer-Use Agents" computer science | 0 |
+| 1 | verifiable software environments for autonomous agents | 4 |
+| 2 | computer-use agent execution frameworks | 0 |
+| 3 | OpenComputer agent verification methods | 0 |
+| 4 | formal verification of LLM-driven software interactions | 0 |
+| 5 | sandboxed execution for AI software agents | 0 |
+| 6 | reproducible software worlds for autonomous computing | 0 |
+| 7 | LLM-based computer control verification | 0 |
+| 8 | trusted execution environments for generative AI agents | 0 |
+| 9 | semantic verification of agent software actions | 0 |
+| 10 | dynamic software world modeling for AI agents | 0 |
+| 11 | automated reasoning in computer-use agent systems | 0 |
+| 12 | safe execution of LLM-generated code in virtual worlds | 0 |
+| 13 | agent-based software testing in verifiable environments | 0 |
+| 14 | formal methods for autonomous computer interaction | 0 |
+| 15 | runtime verification of AI software agents | 0 |
+| 16 | open-source frameworks for verifiable agent computation | 0 |
+| 17 | isolating LLM software actions for verification | 0 |
+| 18 | deterministic execution of computer-use agents | 0 |
+| 19 | verifying agent behavior in simulated software ecosystems | 0 |
+| 20 | next-generation verifiable agent platforms | 0 |
+
+### Verified citations
+
+1. **OpenComputer: Verifiable Software Worlds for Computer-Use Agents** (2026). Jinbiao Wei, Qianran Ma, Yilun Zhao, Xiao Zhou, Kangqi Ni, et al.. arXiv. [2605.19769](https://arxiv.org/abs/2605.19769). PDF-sampled: No.
+2. **HealthAdminBench: Evaluating Computer-Use Agents on Healthcare Administration Tasks** (2026). Suhana Bedi, Ryan Welch, Ethan Steinberg, Michael Wornow, Taeil Matthew Kim, et al.. arXiv. [2604.09937](https://arxiv.org/abs/2604.09937). PDF-sampled: No.
+3. **BIMgent: Towards Autonomous Building Modeling via Computer-use Agents** (2025). Zihan Deng, Changyu Du, Stavros Nousias, André Borrmann. arXiv. [2506.07217](https://arxiv.org/abs/2506.07217). PDF-sampled: No.
+4. **Hack-Verifiable Environments: Towards Evaluating Reward Hacking at Scale** (2026). Amit Roth, Ankur Samanta, Matan Halevy, Yoav Levine, Yonathan Efroni. arXiv. [2605.20744](https://arxiv.org/abs/2605.20744). PDF-sampled: No.
+5. **Agent-Driven Automatic Software Improvement** (2024). Fernando Vallecillos Ruiz. arXiv. [2406.16739](https://arxiv.org/abs/2406.16739). PDF-sampled: No.
+6. **AI Agents with Decentralized Identifiers and Verifiable Credentials** (2025). Sandro Rodriguez Garzon, Awid Vaziry, Enis Mert Kuzu, Dennis Enrique Gehrmann, Buse Varkan, et al.. arXiv. [2511.02841](https://arxiv.org/abs/2511.02841). PDF-sampled: No.

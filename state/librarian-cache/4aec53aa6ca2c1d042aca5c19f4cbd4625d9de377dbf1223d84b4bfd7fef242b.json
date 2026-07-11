@@ -1,0 +1,612 @@
+{
+  "fetched_at": "2026-07-11T09:45:24Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Computer-Use Agents\"",
+      "target_n": 5
+    },
+    "duration_seconds": 51.824,
+    "ended_at": "2026-07-11T09:45:24Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "verifiable software environments for autonomous agents"
+        ],
+        [
+          2,
+          "computer-use agent execution frameworks"
+        ],
+        [
+          3,
+          "OpenComputer agent verification methods"
+        ],
+        [
+          4,
+          "formal verification of LLM-driven software interactions"
+        ],
+        [
+          5,
+          "sandboxed execution for AI software agents"
+        ],
+        [
+          6,
+          "reproducible software worlds for autonomous computing"
+        ],
+        [
+          7,
+          "LLM-based computer control verification"
+        ],
+        [
+          8,
+          "trusted execution environments for generative AI agents"
+        ],
+        [
+          9,
+          "semantic verification of agent software actions"
+        ],
+        [
+          10,
+          "dynamic software world modeling for AI agents"
+        ],
+        [
+          11,
+          "automated reasoning in computer-use agent systems"
+        ],
+        [
+          12,
+          "safe execution of LLM-generated code in virtual worlds"
+        ],
+        [
+          13,
+          "agent-based software testing in verifiable environments"
+        ],
+        [
+          14,
+          "formal methods for autonomous computer interaction"
+        ],
+        [
+          15,
+          "runtime verification of AI software agents"
+        ],
+        [
+          16,
+          "open-source frameworks for verifiable agent computation"
+        ],
+        [
+          17,
+          "isolating LLM software actions for verification"
+        ],
+        [
+          18,
+          "deterministic execution of computer-use agents"
+        ],
+        [
+          19,
+          "verifying agent behavior in simulated software ecosystems"
+        ],
+        [
+          20,
+          "next-generation verifiable agent platforms"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Computer-Use Agents\" computer science": 0,
+        "verifiable software environments for autonomous agents": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "verifiable computer-use agent benchmark",
+      "OpenComputer software world simulation",
+      "embodied agent environment verification",
+      "code execution reward signal",
+      "training data contamination software agent"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2506.07217"
+      ]
+    },
+    "per_query_hit_count": {
+      "OpenComputer software world simulation": 2,
+      "code execution reward signal": 3,
+      "embodied agent environment verification": 3,
+      "llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Computer-Use Agents\" computer science": 3,
+      "training data contamination software agent": 3,
+      "verifiable computer-use agent benchmark": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2602.04518",
+          "rationale": "The paper focuses on learning ethical value systems and moral alignment in multi-agent agreement technologies using inverse reinforcement learning, which is a distinct construct from the user's question about extending \"OpenComputer\" to create verifiable software worlds for computer-use agents. While both involve autonomous agents, the candidate paper does not address the specific mechanism of verifiable execution environments, the OpenComputer framework, or the technical challenges of computer-",
+          "title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T09:44:32Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"opencomputer: verifiable software worlds for computer-use agents\" computer science",
+      "raw": "llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Computer-Use Agents\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-11T09:45:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-11T09:45:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "External knowledge has played a crucial role in the recent development of computer use agents. We identify a critical knowledge-execution gap: retrieved knowledge often fails to translate into effective real-world task execution. Our analysis shows even 90% correct knowledge yields only 41% execution success rate. To bridge this gap, we propose UI-Evol, a plug-and-play module for autonomous GUI knowledge evolution. UI-Evol consists of two stages: a Retrace Stage that extracts faithful objective action sequences from actual agent-environment interactions, and a Critique Stage that refines existing knowledge by comparing these sequences against external references. We conduct comprehensive experiments on the OSWorld benchmark with the state-of-the-art Agent S2. Our results demonstrate that UI-Evol not only significantly boosts task performance but also addresses a previously overlooked issue of high behavioral standard deviation in computer use agents, leading to superior performance on computer use tasks and substantially improved agent reliability.",
+          "claimed_authors": [
+            "Ziyun Zhang",
+            "Xinyi Liu",
+            "Xiaoyi Zhang",
+            "Jun Wang",
+            "Gang Chen",
+            "Yan Lu"
+          ],
+          "claimed_title": "UI-Evol: Automatic Knowledge Evolving for Computer Use Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.21964"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='UI-Evol: Automatic Knowledge Evolving for Computer Use Agents')",
+        "failed_at": "2026-07-11T09:45:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software plays a central role in modern societies, with its high economic value and potential for advancing societal change. In this paper, we characterise challenges and opportunities for a country progressing towards entering the global software industry, focusing on Papua New Guinea (PNG). By hosting a Software Engineering workshop, we conducted a qualitative study by recording talks (n=3), employing a questionnaire (n=52), and administering an in-depth focus group session with local actors (n=5). Based on a thematic analysis, we identified challenges as barriers and opportunities for the PNG software engineering community. We also discuss the state of practices and how to make it inclusive for practitioners, researchers, and educators from both the local and global software engineering community.",
+          "claimed_authors": [
+            "Raula Gaikovina Kula",
+            "Christoph Treude",
+            "Hideaki Hata",
+            "Sebastian Baltes",
+            "Igor Steinmacher",
+            "Marco Aurelio Gerosa",
+            "Winifred Kula Amini"
+          ],
+          "claimed_title": "Challenges for Inclusion in Software Engineering: The Case of the Emerging Papua New Guinean Society",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.04016"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Challenges for Inclusion in Software Engineering: The Case of the Emerging Papua New Guinean Society')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ability of Generative AI (GAI) technology to automatically check, synthesize and modify software engineering artifacts promises to revolutionize all aspects of software engineering. Using GAI for software engineering tasks is consequently one of the most rapidly expanding fields of software engineering research, with over a hundred LLM-based code models having been published since 2021. However, the overwhelming majority of existing code models share a major weakness - they are exclusively trained on the syntactic facet of software, significantly lowering their trustworthiness in tasks dependent on software semantics. To address this problem, a new class of \"Morescient\" GAI is needed that is \"aware\" of (i.e., trained on) both the semantic and static facets of software. This, in turn, will require a new generation of software observation platforms capable of generating large quantities of execution observations in a structured and readily analyzable way. In this paper, we present a vision and roadmap for how such \"Morescient\" GAI models can be engineered, evolved and disseminated according to the principles of open science.",
+          "claimed_authors": [
+            "Marcus Kessel",
+            "Colin Atkinson"
+          ],
+          "claimed_title": "Morescient GAI for Software Engineering (Extended Version)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.04710"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Morescient GAI for Software Engineering (Extended Version)')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied agents struggle to generalize to new environments, even when those environments share similar underlying structures to their training settings. Most current approaches to generating these training environments follow an open-loop paradigm, without considering the agent's current performance. While procedural generation methods can produce diverse scenes, diversity without feedback from the agent is inefficient. The generated environments may be trivially easy, providing limited learning signal. To address this, we present a proof-of-concept for closed-loop environment generation that adapts difficulty to the agent's current capabilities. Our system employs a controllable environment representation, extracts fine-grained performance feedback beyond binary success or failure, and implements a closed-loop adaptation mechanism that translates this feedback into environment modifications. This feedback-driven approach generates training environments that more challenging in the ways the agent needs to improve, enabling more efficient learning and better generalization to novel settings.",
+          "claimed_authors": [
+            "Teresa Yeo",
+            "Dulaj Weerakoon",
+            "Dulanga Weerakoon",
+            "Archan Misra"
+          ],
+          "claimed_title": "Towards Adaptive Environment Generation for Training Embodied Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.06366"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Towards Adaptive Environment Generation for Training Embodied Agents')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied artificial intelligence emphasizes the role of an agent's body in generating human-like behaviors. The recent efforts on EmbodiedAI pay a lot of attention to building up machine learning models to possess perceiving, planning, and acting abilities, thereby enabling real-time interaction with the world. However, most works focus on bounded indoor environments, such as navigation in a room or manipulating a device, with limited exploration of embodying the agents in open-world scenarios. That is, embodied intelligence in the open and outdoor environment is less explored, for which one potential reason is the lack of high-quality simulators, benchmarks, and datasets. To address it, in this paper, we construct a benchmark platform for embodied intelligence evaluation in real-world city environments. Specifically, we first construct a highly realistic 3D simulation environment based on the real buildings, roads, and other elements in a real city. In this environment, we combine historically collected data and simulation algorithms to conduct simulations of pedestrian and vehicle flows with high fidelity. Further, we designed a set of evaluation tasks covering different EmbodiedAI abilities. Moreover, we provide a complete set of input and output interfaces for access, enabling embodied agents to easily take task requirements and current environmental observations as input and then make decisions and obtain performance evaluations. On the one hand, it expands the capability of existing embodied intelligence to higher levels. On the other hand, it has a higher practical value in the real world and can support more potential applications for artificial general intelligence. Based on this platform, we evaluate some popular large language models for embodied intelligence capabilities of different dimensions and difficulties.",
+          "claimed_authors": [
+            "Chen Gao",
+            "Baining Zhao",
+            "Weichen Zhang",
+            "Jinzhu Mao",
+            "Jun Zhang",
+            "Zhiheng Zheng",
+            "Fanhang Man",
+            "Jianjie Fang",
+            "Zile Zhou",
+            "Jinqiang Cui",
+            "Xinlei Chen",
+            "Yong Li"
+          ],
+          "claimed_title": "EmbodiedCity: A Benchmark Platform for Embodied Agent in Real-world City Environment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.09604"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='EmbodiedCity: A Benchmark Platform for Embodied Agent in Real-world City Environment')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied agents have made strong progress in navigating to target objects, but reaching the goal vicinity does not guarantee that the agent has found the correct instance: subtle attribute differences (e.g., \"white floral\" vs. \"white striped\") often require close-range, multi-view inspection. We address this gap with Active Instance Verification (AIV), a task in which an agent actively selects viewpoints around a candidate object to decide whether it matches a fine-grained natural-language description. We formalize AIV as a finite-horizon decision process and introduce PInVerify, an offline embodied benchmark for AIV: 3,000 evaluation episodes across 18 object categories, delivered as multi-view captures with a 6-sector navigation topology that exposes trap views (navigable but uninformative) and unreachable sectors. As reference baselines we build a training-free pipeline and a LoRA-fine-tuned end-to-end agent around open-source multimodal large language models (MLLMs) at on-device scale ($\\leq$8B parameters), with attribute decomposition, a visibility-weighted multi-view tracker, and three next-best-view (NBV) strategies. In our evaluation across Qwen3-VL (4B/8B), SenseNova-SI-1.2-InternVL3-8B, CLIP, and SigLIP2, the best MLLM-based baseline exceeds the best embedding baseline by 4.9 pp; GT-box ablations show a +3.1 pp detection gap; and we do not observe reliable gains from active viewpoint selection within the tested NBV strategies. A LoRA-fine-tuned agent (SFT+GSPO) reaches 85.6%. PInVerify aims to support further work on active, fine-grained semantic verification in embodied AI. Code: https://github.com/Avalon-S/PInVerify.",
+          "claimed_authors": [
+            "Yuhang Jiang"
+          ],
+          "claimed_title": "PInVerify: An Offline Embodied Benchmark for Active Instance Verification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.30639"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='PInVerify: An Offline Embodied Benchmark for Active Instance Verification')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current large language models (LLMs) often struggle to produce accurate responses on the first attempt for complex reasoning tasks like code generation. Prior research tackles this challenge by generating multiple candidate solutions and validating them with LLM-generated unit tests. The execution results of unit tests serve as reward signals to identify correct solutions. As LLMs always confidently make mistakes, these unit tests are not reliable, thereby diminishing the quality of reward signals. Motivated by the observation that scaling the number of solutions improves LLM performance, we explore the impact of scaling unit tests to enhance reward signal quality. Our pioneer experiment reveals a positive correlation between the number of unit tests and reward signal quality, with greater benefits observed in more challenging problems. Based on these insights, we propose CodeRM-8B, a lightweight yet effective unit test generator that enables efficient and high-quality unit test scaling. Additionally, we implement a dynamic scaling mechanism that adapts the number of unit tests based on problem difficulty, further improving efficiency. Experimental results show that our approach significantly improves performance across various models on three benchmarks (e.g., with gains of 18.43% for Llama3-8B and 3.42% for GPT-4o-mini on HumanEval Plus).",
+          "claimed_authors": [
+            "Zeyao Ma",
+            "Xiaokang Zhang",
+            "Jing Zhang",
+            "Jifan Yu",
+            "Sijia Luo",
+            "Jie Tang"
+          ],
+          "claimed_title": "Dynamic Scaling of Unit Tests for Code Reward Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.01054"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Dynamic Scaling of Unit Tests for Code Reward Modeling')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Speculative execution attacks leverage the speculative and out-of-order execution features in modern computer processors to access secret data or execute code that should not be executed. Secret information can then be leaked through a covert channel. While software patches can be installed for mitigation on existing hardware, these solutions can incur big performance overhead. Hardware mitigation is being studied extensively by the computer architecture community. It has the benefit of preserving software compatibility and the potential for much smaller performance overhead than software solutions.\n  This paper presents a systematization of the hardware defenses against speculative execution attacks that have been proposed. We show that speculative execution attacks consist of 6 critical attack steps. We propose defense strategies, each of which prevents a critical attack step from happening, thus preventing the attack from succeeding. We then summarize 20 hardware defenses and overhead-reducing features that have been proposed. We show that each defense proposed can be classified under one of our defense strategies, which also explains why it can thwart the attack from succeeding. We discuss the scope of the defenses, their performance overhead, and the security-performance trade-offs that can be made.",
+          "claimed_authors": [
+            "Guangyuan Hu",
+            "Zecheng He",
+            "Ruby Lee"
+          ],
+          "claimed_title": "SoK: Hardware Defenses Against Speculative Execution Attacks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.03724"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='SoK: Hardware Defenses Against Speculative Execution Attacks')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose an interpretable denoising method for graph signals using regularization by denoising (RED). RED is a technique developed for image restoration that uses an efficient (and sometimes black-box) denoiser in the regularization term of the optimization problem. By using RED, optimization problems can be designed with the explicit use of the denoiser, and the gradient of the regularization term can be easily computed under mild conditions. We adapt RED for denoising of graph signals beyond image processing. We show that many graph signal denoisers, including graph neural networks, theoretically or practically satisfy the conditions for RED. We also study the effectiveness of RED from a graph filter perspective. Furthermore, we propose supervised and unsupervised parameter estimation methods based on deep algorithm unrolling. These methods aim to enhance the algorithm applicability, particularly in the unsupervised setting. Denoising experiments for synthetic and real-world datasets show that our proposed method improves signal denoising accuracy in mean squared error compared to existing graph signal denoising methods.",
+          "claimed_authors": [
+            "Hayate Kojima",
+            "Hiroshi Higashi",
+            "Yuichi Tanaka"
+          ],
+          "claimed_title": "Graph Signal Denoising Using Regularization by Denoising and Its Parameter Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.14213"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Graph Signal Denoising Using Regularization by Denoising and Its Parameter Estimation')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With software maintenance accounting for 50% of the cost of developing software, enhancing code quality and reliability has become more critical than ever. In response to this challenge, this doctoral research proposal aims to explore innovative solutions by focusing on the deployment of agents powered by Large Language Models (LLMs) to perform software maintenance tasks. The iterative nature of agents, which allows for continuous learning and adaptation, can help surpass common challenges in code generation. One distinct challenge is the last-mile problems, errors at the final stage of producing functionally and contextually relevant code. Furthermore, this project aims to surpass the inherent limitations of current LLMs in source code through a collaborative framework where agents can correct and learn from each other's errors. We aim to use the iterative feedback in these systems to further fine-tune the LLMs underlying the agents, becoming better aligned to the task of automated software improvement. Our main goal is to achieve a leap forward in the field of automatic software improvement by developing new tools and frameworks that can enhance the efficiency and reliability of software development.",
+          "claimed_authors": [
+            "Fernando Vallecillos Ruiz"
+          ],
+          "claimed_title": "Agent-Driven Automatic Software Improvement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.16739"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"OpenComputer: Verifiable Software Worlds for Compu', candidate_title='Agent-Driven Automatic Software Improvement')",
+        "failed_at": "2026-07-11T09:45:02Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jinbiao Wei",
+            "Qianran Ma",
+            "Yilun Zhao",
+            "Xiao Zhou",
+            "Kangqi Ni",
+            "Guo Gan",
+            "Arman Cohan"
+          ],
+          "title": "OpenComputer: Verifiable Software Worlds for Computer-Use Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.19769",
+        "summary": "We present OpenComputer, a verifier-grounded framework for constructing verifiable software worlds for computer-use agents. OpenComputer integrates four components: (1) app-specific state verifiers that expose structured inspection endpoints over real applications, (2) a self-evolving verification layer that improves verifier reliability using execution-grounded feedback, (3) a task-generation pipeline that synthesizes realistic and machine-checkable desktop tasks, and (4) an evaluation harness that records full trajectories and computes auditable partial-credit rewards. In its current form, OpenComputer covers 33 desktop applications and 1,000 finalized tasks spanning browsers, office tools, creative software, development environments, file managers, and communication applications. Experiments show that OpenComputer's hard-coded verifiers align more closely with human adjudication than LLM-as-judge evaluation, especially when success depends on fine-grained application state. Frontier agents struggle with end-to-end completion despite partial progress, and open-source models exhibit sharp drops from their OSWorld-Verified scores, exposing a persistent gap in robust computer automation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.19769",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6364,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:45:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Suhana Bedi",
+            "Ryan Welch",
+            "Ethan Steinberg",
+            "Michael Wornow",
+            "Taeil Matthew Kim",
+            "Haroun Ahmed",
+            "Peter Sterling",
+            "Bravim Purohit",
+            "Qurat Akram",
+            "Angelic Acosta",
+            "Esther Nubla",
+            "Pritika Sharma",
+            "Michael A. Pfeffer",
+            "Sanmi Koyejo",
+            "Nigam H. Shah"
+          ],
+          "title": "HealthAdminBench: Evaluating Computer-Use Agents on Healthcare Administration Tasks",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.09937",
+        "summary": "Healthcare administration accounts for over $1 trillion in annual spending, making it a promising target for LLM-based computer-use agents (CUAs). While clinical applications of LLMs have received significant attention, no benchmark exists for evaluating CUAs on end-to-end administrative workflows. To address this gap, we introduce HealthAdminBench, a benchmark comprising four realistic GUI environments: an EHR, two payer portals, and a fax system, and 135 expert-defined tasks spanning three administrative task types: Prior Authorization, Appeals and Denials Management, and Durable Medical Equipment (DME) Order Processing. Each task is decomposed into fine-grained, verifiable subtasks, yielding 1,698 evaluation points. We evaluate seven agent configurations under multiple prompting and observation settings and find that, despite strong subtask performance, end-to-end reliability remains low: the best-performing agent (Claude Opus 4.6 CUA) achieves only 36.3 percent task success, while GPT-5.4 CUA attains the highest subtask success rate (82.8 percent). These results reveal a substantial gap between current agent capabilities and the demands of real-world administrative workflows. HealthAdminBench provides a rigorous foundation for evaluating progress toward safe and reliable automation of healthcare administrative workflows.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.09937",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:45:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zihan Deng",
+            "Changyu Du",
+            "Stavros Nousias",
+            "André Borrmann"
+          ],
+          "title": "BIMgent: Towards Autonomous Building Modeling via Computer-use Agents",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.07217",
+        "summary": "Existing computer-use agents primarily focus on general-purpose desktop automation tasks, with limited exploration of their application in highly specialized domains. In particular, the 3D building modeling process in the Architecture, Engineering, and Construction (AEC) sector involves open-ended design tasks and complex interaction patterns within Building Information Modeling (BIM) authoring software, which has yet to be thoroughly addressed by current studies. In this paper, we propose BIMgent, an agentic framework powered by multimodal large language models (LLMs), designed to enable autonomous building model authoring via graphical user interface (GUI) operations. BIMgent automates the architectural building modeling process, including multimodal input for conceptual design, planning of software-specific workflows, and efficient execution of the authoring GUI actions. We evaluate BIMgent on real-world building modeling tasks, including both text-based conceptual design generation and reconstruction from existing building design. The design quality achieved by BIMgent was found to be reasonable. Its operations achieved a 32% success rate, whereas all baseline models failed to complete the tasks (0% success rate). Results demonstrate that BIMgent effectively reduces manual workload while preserving design intent, highlighting its potential for practical deployment in real-world architectural modeling scenarios. Project page: https://tumcms.github.io/BIMgent.github.io/",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.07217",
+          "http_status": 200,
+          "pdf_sample_score": 0.2683,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:45:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Amit Roth",
+            "Ankur Samanta",
+            "Matan Halevy",
+            "Yoav Levine",
+            "Yonathan Efroni"
+          ],
+          "title": "Hack-Verifiable Environments: Towards Evaluating Reward Hacking at Scale",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.20744",
+        "summary": "Aligning autonomous agents with human intent remains a central challenge in modern AI. A key manifestation of this challenge is reward hacking, whereby agents appear successful under the evaluation signal while violating the intended objective. Reward hacking has been observed across a wide range of settings, yet methods for reliably measuring it at scale remain lacking. In this work, we introduce a new evaluation paradigm for measuring reward hacking. Whereas prior studies have primarily analyzed it post hoc by inspecting agent trajectories, we instead embed detectable reward hacking opportunities directly into environments. This makes their exploitation verifiable by design, enabling deterministic and automated measurement of whether and how agents exploit such vulnerabilities. We instantiate this approach in $\\textit{TextArena}$ and release $\\textit{Hack-Verifiable TextArena}$, a testbed in which reward hacking can be measured reliably. Using this benchmark, we analyze reward hacking behavior across language models in diverse environments and settings. We open source the code at https://github.com/MajoRoth/hack-verifiable-environments/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.20744",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:45:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fernando Vallecillos Ruiz"
+          ],
+          "title": "Agent-Driven Automatic Software Improvement",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.16739",
+        "summary": "With software maintenance accounting for 50% of the cost of developing software, enhancing code quality and reliability has become more critical than ever. In response to this challenge, this doctoral research proposal aims to explore innovative solutions by focusing on the deployment of agents powered by Large Language Models (LLMs) to perform software maintenance tasks. The iterative nature of agents, which allows for continuous learning and adaptation, can help surpass common challenges in code generation. One distinct challenge is the last-mile problems, errors at the final stage of producing functionally and contextually relevant code. Furthermore, this project aims to surpass the inherent limitations of current LLMs in source code through a collaborative framework where agents can correct and learn from each other's errors. We aim to use the iterative feedback in these systems to further fine-tune the LLMs underlying the agents, becoming better aligned to the task of automated software improvement. Our main goal is to achieve a leap forward in the field of automatic software improvement by developing new tools and frameworks that can enhance the efficiency and reliability of software development.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.16739",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:45:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sandro Rodriguez Garzon",
+            "Awid Vaziry",
+            "Enis Mert Kuzu",
+            "Dennis Enrique Gehrmann",
+            "Buse Varkan",
+            "Alexander Gaballa",
+            "Axel Küpper"
+          ],
+          "title": "AI Agents with Decentralized Identifiers and Verifiable Credentials",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.02841",
+        "summary": "A fundamental limitation of current LLM-based AI agents is their inability to build differentiated trust among each other at the onset of an agent-to-agent dialogue. However, autonomous and interoperable trust establishment becomes essential once agents start to operate beyond isolated environments and engage in dialogues across individual or organizational boundaries. A promising way to fill this gap in Agentic AI is to equip agents with long-lived digital identities and introduce tamper-proof and flexible identity-bound attestations of agents, provisioned by commonly trusted third parties and designed for cross-domain verifiability. This article presents a conceptual framework and a prototypical multi-agent system, where each agent is endowed with a self-sovereign digital identity. It combines a unique and ledger-anchored W3C Decentralized Identifier (DID) of an agent with a set of third-party issued W3C Verifiable Credentials (VCs). This enables agents at the start of a dialog to prove ownership of their self-controlled DIDs for authentication purposes and to establish various cross-domain trust relationships through the spontaneous exchange of their self-hosted DID-bound VCs. A comprehensive evaluation of the prototypical implementation demonstrates technical feasibility but also reveals limitations once an agent's LLM is in sole charge to control the respective security procedures.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.02841",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:45:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"opencomputer: verifiable software worlds for computer-use agents\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

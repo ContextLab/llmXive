@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: robotics
 human_escalation_reason: null
 id: PROJ-014-robotic-artificial-intelligence-for-auto
-last_run_id: bf8d8ae2-51ae-43bf-947c-74faa7c91a72
+last_run_id: 745fdae6-609c-4fdb-99fb-c5aba3827517
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-014-robotic-artificial-intelligence-for-auto/specs/001-robotic-artificial-intelligence-for-auto
 title: Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation
-updated_at: '2026-07-10T19:37:27.981115Z'
+updated_at: '2026-07-11T09:42:08.454396Z'

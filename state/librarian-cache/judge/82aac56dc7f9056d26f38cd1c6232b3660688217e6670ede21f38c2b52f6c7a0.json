@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.19769",
+  "judged_at": "2026-07-11T09:45:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"opencomputer: verifiable software worlds for computer-use agents\" computer science",
+  "rationale": "This paper is the foundational source for the \"OpenComputer\" framework explicitly mentioned in the user's question, satisfying category (d) as the canonical reference for the technique and system the user intends to extend. Additionally, it establishes the empirical baseline (category c) regarding agent performance and verification gaps that the user's follow-up research aims to address.",
+  "relevant": true
+}

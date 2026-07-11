@@ -1,0 +1,626 @@
+{
+  "fetched_at": "2026-07-11T09:42:57Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved Generation\"",
+      "target_n": 5
+    },
+    "duration_seconds": 47.299,
+    "ended_at": "2026-07-11T09:42:57Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "agentic interleaved generation"
+        ],
+        [
+          2,
+          "reinforcement learning for interleaved reasoning"
+        ],
+        [
+          3,
+          "interleaved thinking patterns in language models"
+        ],
+        [
+          4,
+          "agentic workflows for LLM reasoning"
+        ],
+        [
+          5,
+          "iterative generation with reinforcement learning"
+        ],
+        [
+          6,
+          "multi-step reasoning in large language models"
+        ],
+        [
+          7,
+          "interleaved thought-action generation"
+        ],
+        [
+          8,
+          "agentic LLM inference strategies"
+        ],
+        [
+          9,
+          "reinforcement learning for structured generation"
+        ],
+        [
+          10,
+          "dynamic reasoning trajectories in LLMs"
+        ],
+        [
+          11,
+          "interleaved policy optimization for agents"
+        ],
+        [
+          12,
+          "agentic search and reasoning frameworks"
+        ],
+        [
+          13,
+          "iterative refinement in language model generation"
+        ],
+        [
+          14,
+          "reinforcement learning for complex reasoning tasks"
+        ],
+        [
+          15,
+          "interleaved planning and execution in AI agents"
+        ],
+        [
+          16,
+          "adaptive generation strategies for LLMs"
+        ],
+        [
+          17,
+          "reasoning chains with interleaved steps"
+        ],
+        [
+          18,
+          "agentic behavior in generative models"
+        ],
+        [
+          19,
+          "interleaved sampling methods for reasoning"
+        ],
+        [
+          20,
+          "reinforcement learning for agentic decision making"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "agentic interleaved generation": 5,
+        "llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved Generation\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "interleaved reasoning long-context generation",
+      "agentic workflow multi-step planning LLM",
+      "chain-of-thought interleaved action execution",
+      "reasoning trajectory verification step-wise evaluation",
+      "test-time compute scaling inference optimization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.01244"
+      ]
+    },
+    "per_query_hit_count": {
+      "agentic workflow multi-step planning LLM": 3,
+      "chain-of-thought interleaved action execution": 3,
+      "interleaved reasoning long-context generation": 3,
+      "llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved Generation\" computer science": 3,
+      "reasoning trajectory verification step-wise evaluation": 2,
+      "test-time compute scaling inference optimization": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2605.05287",
+          "rationale": "The paper focuses on security, multitenancy, and access control in enterprise RAG systems, which is a distinct construct from the user's question about \"InterleaveThinker\" and the specific mechanism of \"agentic interleaved generation\" (a reasoning/decoding strategy). While both involve \"agents,\" the candidate paper does not measure the same generation mechanism, establish a baseline for interleaved reasoning, or provide foundational methodology for the specific algorithmic property the user is i",
+          "title": "Securing the Agent: Vendor-Neutral, Multitenant Enterprise Retrieval and Tool Use"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T09:42:10Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"interleavethinker: reinforcing agentic interleaved generation\" computer science",
+      "raw": "llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved Generation\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study a pipeline that curates reasoning data from initial structured data for improving long-context reasoning in large language models (LLMs). Our approach, $π^2$, constructs high-quality reasoning data through rigorous QA curation: 1) extracting and expanding tables from Wikipedia, 2) from the collected tables and relevant context, generating realistic and multi-hop analytical reasoning questions whose answers are automatically determined and verified through dual-path code execution, and 3) back-translating step-by-step structured reasoning traces as solutions of QA pairs given realistic web-search context. Supervised fine-tuning with \\textsc{\\small{gpt-oss-20b}} and \\textsc{\\small{Qwen3-4B-Instruct-2507}} on $π^2$ yields consistent improvements across four long-context reasoning benchmarks and our alike $π^2$-Bench, with average absolute accuracy gains of +4.3% and +2.7% respectively. Notably, our dataset facilitates self-distillation, where \\textsc{\\small{gpt-oss-20b}} even improves its average performance by +4.4% with its own reasoning traces, demonstrating $π^2$'s usefulness. Our code, data, and models are open-source at https://github.com/vt-pi-squared/pi-squared.",
+          "claimed_authors": [
+            "Quyet V. Do",
+            "Thinh Pham",
+            "Nguyen Nguyen",
+            "Sha Li",
+            "Pratibha Zunjare",
+            "Tu Vu"
+          ],
+          "claimed_title": "$π^2$: Structure-Originated Reasoning Data Improves Long-Context Reasoning Ability of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.05114"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='$π^2$: Structure-Originated Reasoning Data Improves Long-Context Reasoning Ability of Large Language Models')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in video generation can produce realistic, minute-long single-shot videos with scalable diffusion transformers. However, real-world narrative videos require multi-shot scenes with visual and dynamic consistency across shots. In this work, we introduce Long Context Tuning (LCT), a training paradigm that expands the context window of pre-trained single-shot video diffusion models to learn scene-level consistency directly from data. Our method expands full attention mechanisms from individual shots to encompass all shots within a scene, incorporating interleaved 3D position embedding and an asynchronous noise strategy, enabling both joint and auto-regressive shot generation without additional parameters. Models with bidirectional attention after LCT can further be fine-tuned with context-causal attention, facilitating auto-regressive generation with efficient KV-cache. Experiments demonstrate single-shot models after LCT can produce coherent multi-shot scenes and exhibit emerging capabilities, including compositional generation and interactive shot extension, paving the way for more practical visual content creation. See https://guoyww.github.io/projects/long-context-video/ for more details.",
+          "claimed_authors": [
+            "Yuwei Guo",
+            "Ceyuan Yang",
+            "Ziyan Yang",
+            "Zhibei Ma",
+            "Zhijie Lin",
+            "Zhenheng Yang",
+            "Dahua Lin",
+            "Lu Jiang"
+          ],
+          "claimed_title": "Long Context Tuning for Video Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.10589"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Long Context Tuning for Video Generation')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have demonstrated remarkable capabilities across diverse tasks, but optimizing LLM-based agentic systems remains challenging due to the vast search space of agent configurations, prompting strategies, and communication patterns. Existing approaches often rely on heuristic-based tuning or exhaustive evaluation, which can be computationally expensive and suboptimal. This paper proposes Agentic Predictor, a lightweight predictor for efficient agentic workflow evaluation. Agentic Predictor is equipped with a multi-view workflow encoding technique that leverages multi-view representation learning of agentic systems by incorporating code architecture, textual prompts, and interaction graph features. To achieve high predictive accuracy while significantly reducing the number of required workflow evaluations for training a predictor, Agentic Predictor employs cross-domain unsupervised pretraining. By learning to approximate task success rates, Agentic Predictor enables fast and accurate selection of optimal agentic workflow configurations for a given task, significantly reducing the need for expensive trial-and-error evaluations. Experiments on a carefully curated benchmark spanning three domains show that our predictor outperforms several strong graph-based baselines in both predictive accuracy and workflow utility, highlighting the potential of performance predictors in streamlining the design of LLM-based agentic workflows.",
+          "claimed_authors": [
+            "Patara Trirat",
+            "Wonyong Jeong",
+            "Sung Ju Hwang"
+          ],
+          "claimed_title": "Multi-View Encoders for Performance Prediction in LLM-Based Agentic Workflows",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.19764"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Multi-View Encoders for Performance Prediction in LLM-Based Agentic Workflows')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI agents deployed for IT operations are typically permanent cost centers because every execution requires full LLM inference, even for previously solved problems. This paper introduces progressive crystallization, a lifecycle that treats agent exploration as a discovery mechanism rather than a permanent execution model. It defines a three-stage execution taxonomy, from fully agent-orchestrated to hybrid to fully deterministic workflows, together with an evidence-based promotion mechanism that converts repeatedly validated agent behaviors into cheaper and more reproducible deterministic workflows, while automatically demoting workflows that regress. Evaluated on a production cloud networking AIOps system processing tens of thousands of incidents per month, the approach increased deterministic execution from 0% to 45% over eight months, reduced per-incident agent costs by more than 70% despite doubling incident volume, and improved safety through greater reproducibility and auditability. The paper also presents the execution taxonomy, promotion and demotion criteria, trace extraction methodology, economic model, safety considerations, and discusses limitations and threats to validity.",
+          "claimed_authors": [
+            "Arun Malik"
+          ],
+          "claimed_title": "Progressive Crystallization: Turning Agent Exploration into Deterministic, Lower-Cost Workflows in Production",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.07052"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Progressive Crystallization: Turning Agent Exploration into Deterministic, Lower-Cost Workflows in Production')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating large language model (LLM)-based multi-agent systems remains a critical challenge, as these systems must exhibit reliable coordination, transparent decision-making, and verifiable performance across evolving tasks. Existing evaluation approaches often limit themselves to single-response scoring or narrow benchmarks, which lack stability, extensibility, and automation when deployed in enterprise settings at multi-agent scale. We present AEMA (Adaptive Evaluation Multi-Agent), a process-aware and auditable framework that plans, executes, and aggregates multi-step evaluations across heterogeneous agentic workflows under human oversight. Compared to a single LLM-as-a-Judge, AEMA achieves greater stability, human alignment, and traceable records that support accountable automation. Our results on enterprise-style agent workflows simulated using realistic business scenarios demonstrate that AEMA provides a transparent and reproducible pathway toward responsible evaluation of LLM-based multi-agent systems.\n  Keywords Agentic AI, Multi-Agent Systems, Trustworthy AI, Verifiable Evaluation, Human Oversight",
+          "claimed_authors": [
+            "YenTing Lee",
+            "Keerthi Koneru",
+            "Zahra Moslemi",
+            "Sheethal Kumar",
+            "Ramesh Radhakrishnan"
+          ],
+          "claimed_title": "AEMA: Verifiable Evaluation Framework for Trustworthy and Controlled Agentic LLM Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.11903"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='AEMA: Verifiable Evaluation Framework for Trustworthy and Controlled Agentic LLM Systems')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Speculative execution attacks leverage the speculative and out-of-order execution features in modern computer processors to access secret data or execute code that should not be executed. Secret information can then be leaked through a covert channel. While software patches can be installed for mitigation on existing hardware, these solutions can incur big performance overhead. Hardware mitigation is being studied extensively by the computer architecture community. It has the benefit of preserving software compatibility and the potential for much smaller performance overhead than software solutions.\n  This paper presents a systematization of the hardware defenses against speculative execution attacks that have been proposed. We show that speculative execution attacks consist of 6 critical attack steps. We propose defense strategies, each of which prevents a critical attack step from happening, thus preventing the attack from succeeding. We then summarize 20 hardware defenses and overhead-reducing features that have been proposed. We show that each defense proposed can be classified under one of our defense strategies, which also explains why it can thwart the attack from succeeding. We discuss the scope of the defenses, their performance overhead, and the security-performance trade-offs that can be made.",
+          "claimed_authors": [
+            "Guangyuan Hu",
+            "Zecheng He",
+            "Ruby Lee"
+          ],
+          "claimed_title": "SoK: Hardware Defenses Against Speculative Execution Attacks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.03724"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='SoK: Hardware Defenses Against Speculative Execution Attacks')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
+          "claimed_authors": [
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
+          ],
+          "claimed_title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Understanding Reasoning in Chain-of-Thought from the Hopfieldian View')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chain-of-Thought (CoT) prompting elicits large language models (LLMs) to produce a series of intermediate reasoning steps before arriving at the final answer. However, when transitioning to vision-language models (VLMs), their text-only rationales struggle to express the fine-grained associations with the original image. In this paper, we propose an image-incorporated multimodal Chain-of-Thought, named \\textbf{Interleaved-modal Chain-of-Thought (ICoT)}, which generates sequential reasoning steps consisting of paired visual and textual rationales to infer the final answer. Intuitively, the novel ICoT requires VLMs to enable the generation of fine-grained interleaved-modal content, which is hard for current VLMs to fulfill. Considering that the required visual information is usually part of the input image, we propose \\textbf{Attention-driven Selection (ADS)} to realize ICoT over existing VLMs. ADS intelligently inserts regions of the input image to generate the interleaved-modal reasoning steps with ignorable additional latency. ADS relies solely on the attention map of VLMs without the need for parameterization, and therefore it is a plug-and-play strategy that can be generalized to a spectrum of VLMs. We apply ADS to realize ICoT on two popular VLMs of different architectures. Extensive evaluations of three benchmarks have shown that ICoT prompting achieves substantial performance (up to 14\\%) and interpretability improvements compared to existing multimodal CoT prompting methods.",
+          "claimed_authors": [
+            "Jun Gao",
+            "Yongqi Li",
+            "Ziqiang Cao",
+            "Wenjie Li"
+          ],
+          "claimed_title": "Interleaved-Modal Chain-of-Thought",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.19488"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Interleaved-Modal Chain-of-Thought')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mathematical reasoning presents a significant challenge for Large Language Models (LLMs) due to the extensive and precise chain of reasoning required for accuracy. Ensuring the correctness of each reasoning step is critical. To address this, we aim to enhance the robustness and factuality of LLMs by learning from human feedback. However, Direct Preference Optimization (DPO) has shown limited benefits for long-chain mathematical reasoning, as models employing DPO struggle to identify detailed errors in incorrect answers. This limitation stems from a lack of fine-grained process supervision. We propose a simple, effective, and data-efficient method called Step-DPO, which treats individual reasoning steps as units for preference optimization rather than evaluating answers holistically. Additionally, we have developed a data construction pipeline for Step-DPO, enabling the creation of a high-quality dataset containing 10K step-wise preference pairs. We also observe that in DPO, self-generated data is more effective than data generated by humans or GPT-4, due to the latter's out-of-distribution nature. Our findings demonstrate that as few as 10K preference data pairs and fewer than 500 Step-DPO training steps can yield a nearly 3% gain in accuracy on MATH for models with over 70B parameters. Notably, Step-DPO, when applied to Qwen2-72B-Instruct, achieves scores of 70.8% and 94.0% on the test sets of MATH and GSM8K, respectively, surpassing a series of closed-source models, including GPT-4-1106, Claude-3-Opus, and Gemini-1.5-Pro. Our code, data, and models are available at https://github.com/dvlab-research/Step-DPO.",
+          "claimed_authors": [
+            "Xin Lai",
+            "Zhuotao Tian",
+            "Yukang Chen",
+            "Senqiao Yang",
+            "Xiangru Peng",
+            "Jiaya Jia"
+          ],
+          "claimed_title": "Step-DPO: Step-wise Preference Optimization for Long-chain Reasoning of LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.18629"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Step-DPO: Step-wise Preference Optimization for Long-chain Reasoning of LLMs')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Legal judgment prediction (LJP) aims to function as a judge by making final rulings based on case claims and facts, which plays a vital role in the judicial domain for supporting court decision-making and improving judicial efficiency. However, existing methods often struggle with logical errors when conducting complex legal reasoning. We propose LegalReasoner, which enhances LJP reliability through step-wise verification and correction of the reasoning process. Specifically, it first identifies dispute points to decompose complex cases, and then conducts step-wise reasoning while employing a process verifier to validate each step's logic from correctness, progressiveness, and potential perspectives. When errors are detected, expert-designed attribution and resolution strategies are applied for correction. To fine-tune LegalReasoner, we release the LegalHK dataset, containing 58,130 Hong Kong court cases with detailed annotations of dispute points, step-by-step reasoning chains, and process verification labels. Experiments demonstrate that LegalReasoner significantly improves concordance with court decisions from 72.37 to 80.27 on LLAMA-3.1-70B. The data is available at https://huggingface.co/datasets/weijiezz/LegalHK.",
+          "claimed_authors": [
+            "Weijie Shi",
+            "Han Zhu",
+            "Jiaming Ji",
+            "Mengze Li",
+            "Jipeng Zhang",
+            "Ruiyuan Zhang",
+            "Jia Zhu",
+            "Jiajie Xu",
+            "Sirui Han",
+            "Yike Guo"
+          ],
+          "claimed_title": "LegalReasoner: Step-wised Verification-Correction for Legal Judgment Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.07443"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='LegalReasoner: Step-wised Verification-Correction for Legal Judgment Reasoning')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling test-time compute has emerged as a key ingredient for enabling large language models (LLMs) to solve difficult problems, but comes with high latency and inference cost. We introduce sleep-time compute, which allows models to \"think\" offline about contexts before queries are presented: by anticipating what queries users might ask and pre-computing useful quantities, we can significantly reduce the compute requirements at test-time. To demonstrate the efficacy of our method, we create modified versions of two reasoning tasks - Stateful GSM-Symbolic and Stateful AIME. We find that sleep-time compute can reduce the amount of test-time compute needed to achieve the same accuracy by ~ 5x on Stateful GSM-Symbolic and Stateful AIME and that by scaling sleep-time compute we can further increase accuracy by up to 13% on Stateful GSM-Symbolic and 18% on Stateful AIME. Furthermore, we introduce Multi-Query GSM-Symbolic, which extends GSM-Symbolic by including multiple related queries per context. By amortizing sleep-time compute across related queries about the same context using Multi-Query GSM-Symbolic, we can decrease the average cost per query by 2.5x. We then conduct additional analysis to understand when sleep-time compute is most effective, finding the predictability of the user query to be well correlated with the efficacy of sleep-time compute. Finally, we conduct a case-study of applying sleep-time compute to a realistic agentic SWE task.",
+          "claimed_authors": [
+            "Kevin Lin",
+            "Charlie Snell",
+            "Yu Wang",
+            "Charles Packer",
+            "Sarah Wooders",
+            "Ion Stoica",
+            "Joseph E. Gonzalez"
+          ],
+          "claimed_title": "Sleep-time Compute: Beyond Inference Scaling at Test-time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13171"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Sleep-time Compute: Beyond Inference Scaling at Test-time')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interest in components with detailed structures increased with the progress in advanced manufacturing techniques in recent years. Parts with graded lattice elements can provide interesting mechanical, thermal, and acoustic properties compared to parts where only coarse features are included. One of these improvements is better global buckling resistance of the component. However, thin features are prone to local buckling. Normally, analyses with high computational effort are conducted on high-resolution finite element meshes to optimize parts with good global and local stability. Until recently, works focused only on either global or local buckling behavior. We use two-scale optimization based on asymptotic homogenization of elastic properties and local buckling behavior to reduce the effort of full-scale analyses. For this, we present an approach for concurrent local and global buckling optimization of parameterized graded lattice structures. It is based on a worst-case model for the homogenized buckling load factor, which acts as a safeguard against pure local buckling. Cross-modes residing on both scales are not detected. We support our theory with numerical examples and validations on dehomogenized designs, which show the capabilities of our method, and discuss the advantages and limitations of the worst-case model.",
+          "claimed_authors": [
+            "Daniel Hübner",
+            "Fabian Wein",
+            "Michael Stingl"
+          ],
+          "claimed_title": "Two-Scale Optimization of Graded Lattice Structures respecting Buckling on Micro- and Macroscale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.08710"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='Two-Scale Optimization of Graded Lattice Structures respecting Buckling on Micro- and Macroscale')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces and investigates a regularity condition in the asymptotic sense for optimization problems whose objective functions are polynomial. Under this regularity condition, the normalization argument in asymptotic analysis enables us to see the solution existence as well as the solution stability of these problems. We prove a Frank-Wolfe type theorem for regular optimization problems and an Eaves type theorem for non-regular pseudoconvex optimization problems. Moreover, we show results on the stability such as upper semicontinuity and local upper-Hölder stability of the solution map of polynomial optimization problems. At the end of the paper, we discuss the genericity of the regularity condition.",
+          "claimed_authors": [
+            "Vu Trung Hieu"
+          ],
+          "claimed_title": "On the solution existence and stability of polynomial optimization problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.06100"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"InterleaveThinker: Reinforcing Agentic Interleaved', candidate_title='On the solution existence and stability of polynomial optimization problems')",
+        "failed_at": "2026-07-11T09:42:37Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhiyang Xu",
+            "Minqian Liu",
+            "Ying Shen",
+            "Joy Rimchala",
+            "Jiaxin Zhang",
+            "Qifan Wang",
+            "Yu Cheng",
+            "Lifu Huang"
+          ],
+          "title": "Modality-Specialized Synergizers for Interleaved Vision-Language Generalists",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.03604",
+        "summary": "Recent advancements in Vision-Language Models (VLMs) have led to the emergence of Vision-Language Generalists (VLGs) capable of understanding and generating both text and images. However, seamlessly generating an arbitrary sequence of text and images remains a challenging task for the current VLGs. One primary limitation lies in applying a unified architecture and the same set of parameters to simultaneously model discrete text tokens and continuous image features. Recent works attempt to tackle this fundamental problem by introducing modality-aware expert models. However, they employ identical architectures to process both text and images, disregarding the intrinsic inductive biases in these two modalities. In this work, we introduce MODALITY-SPECIALIZED SYNERGIZERS (MOSS), a novel design that efficiently optimizes existing unified architectures of VLGs with modality-specialized adaptation layers, i.e., a Convolutional LoRA for modeling the local priors of image patches and a Linear LoRA for processing sequential text. This design enables more effective modeling of modality-specific features while maintaining the strong cross-modal integration gained from pretraining. In addition, to improve the instruction-following capability on interleaved text-and-image generation, we introduce LEAFINSTRUCT, the first open-sourced interleaved instruction tuning dataset comprising 184,982 high-quality instances on more than 10 diverse domains. Extensive experiments show that VLGs integrated with M OSS achieve state-of-the-art performance, significantly surpassing baseline VLGs in complex interleaved generation tasks. Furthermore, our method exhibits strong generalizability on different VLGs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.03604",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:42:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dian Zheng",
+            "Harry Lee",
+            "Manyuan Zhang",
+            "Kaituo Feng",
+            "Zoey Guo",
+            "Ray Zhang",
+            "Hongsheng Li"
+          ],
+          "title": "InterleaveThinker: Reinforcing Agentic Interleaved Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.13679",
+        "summary": "Recent image generators have demonstrated impressive photorealism and instruction-following capabilities in single-image generation and editing. However, constrained by their architectures, they cannot achieve interleaved generation (text-image sequence), which has crucial applications in visual narratives, guidance, and embodied manipulation. Even the latest open-source Unified Multimodal Models (UMMs) exhibit limited performance in this regard. In this paper, we introduce InterleaveThinker, the first multi-agent pipeline designed to endow any existing image generator with interleaved generation capabilities. Specifically, we employ a planner agent to organize the image-text input sequence, instructing the image generator on the required execution at each step. Subsequently, we introduce a critic agent to evaluate the generator's outputs, identify samples that deviate from the planned instructions, and refine the instructions for regeneration. To implement this pipeline, we construct the Interleave-Planner-SFT-80k and Interleave-Critic-SFT-112k to perform a format cold-start. Then we develop Interleave-Critic-RL-13k to reinforce the step-wise instruction correction capability within a generation trajectory using GRPO. Since a single interleaved generation trajectory may involve over 25 generator calls, optimizing the entire trajectory is computationally impractical. Therefore, we propose accuracy reward and step-wise reward, allowing single-step RL to effectively guide the entire generation trajectory. The results show that InterleaveThinker improves performance across various image generators. On interleaved generation benchmarks, it achieves performance comparable to Nano Banana and GPT-5. Surprisingly, it also significantly enhances the base model on reasoning-based benchmarks; for example, on 4-step FLUX.2-klein, we observe substantial gains on WISE and RISE.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.13679",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:42:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yinuo Liu",
+            "Zi Qian",
+            "Heng Zhou",
+            "Jiahao Zhang",
+            "Yajie Zhang",
+            "Zhihang Li",
+            "Mengyu Zhou",
+            "Erchao Zhao",
+            "Xiaoxi Jiang",
+            "Guanjun Jiang"
+          ],
+          "title": "ATP-Bench: Towards Agentic Tool Planning for MLLM Interleaved Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.29902",
+        "summary": "Interleaved text-and-image generation represents a significant frontier for Multimodal Large Language Models (MLLMs), offering a more intuitive way to convey complex information. Current paradigms rely on either image generation or retrieval augmentation, yet they typically treat the two as mutually exclusive paths, failing to unify factuality with creativity. We argue that the next milestone in this field is Agentic Tool Planning, where the model serves as a central controller that autonomously determines when, where, and which tools to invoke to produce interleaved responses for visual-critical queries. To systematically evaluate this paradigm, we introduce ATP-Bench, a novel benchmark comprising 7,702 QA pairs (including 1,592 VQA pairs) across eight categories and 25 visual-critical intents, featuring human-verified queries and ground truths. Furthermore, to evaluate agentic planning independent of end-to-end execution and changing tool backends, we propose a Multi-Agent MLLM-as-a-Judge (MAM) system. MAM evaluates tool-call precision, identifies missed opportunities for tool use, and assesses overall response quality without requiring ground-truth references. Our extensive experiments on 10 state-of-the-art MLLMs reveal that models struggle with coherent interleaved planning and exhibit significant variations in tool-use behavior, highlighting substantial room for improvement and providing actionable guidance for advancing interleaved generation. Dataset and code are available at https://github.com/Qwen-Applications/ATP-Bench.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.29902",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:42:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Siwei Wu",
+            "Yizhi Li",
+            "Yuyang Song",
+            "Wei Zhang",
+            "Yang Wang",
+            "Riza Batista-Navarro",
+            "Xian Yang",
+            "Mingjie Tang",
+            "Bryan Dai",
+            "Jian Yang",
+            "Chenghua Lin"
+          ],
+          "title": "Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.01244",
+        "summary": "Training agentic models for terminal-based tasks critically depends on high-quality terminal trajectories that capture realistic long-horizon interactions across diverse domains. However, constructing such data at scale remains challenging due to two key requirements: \\textbf{\\emph{Executability}}, since each instance requires a suitable and often distinct Docker environment; and \\textbf{\\emph{Verifiability}}, because heterogeneous task outputs preclude unified, standardized verification. To address these challenges, we propose \\textbf{TerminalTraj}, a scalable pipeline that (i) filters high-quality repositories to construct Dockerized execution environments, (ii) generates Docker-aligned task instances, and (iii) synthesizes agent trajectories with executable validation code. Using TerminalTraj, we curate 32K Docker images and generate 50,733 verified terminal trajectories across eight domains. Models trained on this data with the Qwen2.5-Coder backbone achieve consistent performance improvements on TerminalBench (TB), with gains of up to 20\\% on TB~1.0 and 10\\% on TB~2.0 over their respective backbones. Notably, \\textbf{TerminalTraj-32B} achieves strong performance among models with fewer than 100B parameters, reaching 35.30\\% on TB~1.0 and 22.00\\% on TB~2.0, and demonstrates improved test-time scaling behavior. All code and data are available at https://github.com/Wusiwei0410/TerminalTraj.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.01244",
+          "http_status": 200,
+          "pdf_sample_score": 0.2553,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T09:42:44Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"interleavethinker: reinforcing agentic interleaved generation\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

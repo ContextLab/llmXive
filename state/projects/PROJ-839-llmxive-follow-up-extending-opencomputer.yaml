@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T03:08:57.279315Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-839-llmxive-follow-up-extending-opencomputer
-last_run_id: null
+last_run_id: 1edcece0-c45f-494d-a229-d48b54b5fd2c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "OpenComputer: Verifiable Software Worlds for
   Computer-Use Agents"'
-updated_at: '2026-07-02T03:08:57.279315Z'
+updated_at: '2026-07-11T09:45:40.216512Z'

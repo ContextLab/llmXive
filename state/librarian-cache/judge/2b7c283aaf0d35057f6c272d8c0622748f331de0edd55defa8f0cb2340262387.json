@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1707.03046",
+  "judged_at": "2026-07-11T09:44:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"identifying stimulus-driven neural activity patterns in multi-patient \" biology",
+  "rationale": "This paper satisfies criterion (a) as it provides evidence on the same biological mechanism (stimulus-driven neural activity patterns) and methodology (fMRI-based mapping of neuronal populations) that the user's question targets, even though it focuses on visual cortex retinotopy rather than the specific multi-patient context mentioned in the user's title fragment. It also aligns with criterion (e) by offering a canonical empirical study of how specific stimuli drive measurable neural activity p",
+  "relevant": true
+}

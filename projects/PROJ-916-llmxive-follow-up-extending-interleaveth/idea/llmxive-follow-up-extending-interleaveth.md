@@ -5,33 +5,80 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "InterleaveThinker: Reinforcing Agentic Interleaved Generation"
 
-## Summary of the prior work
-InterleaveThinker introduces a multi-agent pipeline (Planner, Critic, Generator) that enables existing image generators to perform interleaved text-image sequences by using a step-wise RL framework to refine instructions and correct deviations. The system demonstrates that this agentic decomposition not only achieves state-of-the-art interleaved generation but also significantly boosts reasoning capabilities on benchmarks like WISE and RISE through emergent chain-of-thought validation.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can the emergent reasoning gains observed in InterleaveThinker be replicated and sustained using a "Text-Only Simulation" of the interleaved generation process, thereby eliminating the computational cost of actual image generation while preserving the logical benefits of the planner-critic loop?
+## Research question
 
-This direction matters because it tests whether the performance boost stems from the *visual* feedback loop or merely from the *structural* decomposition of tasks into sequential planning and verification steps, potentially enabling high-fidelity reasoning training on standard CPU infrastructure without expensive GPU-based image rendering.
+Does the reasoning improvement in agentic interleaved generation stem primarily from the structural decomposition of tasks into planning and verification loops, or is it contingent upon the feedback provided by actual visual (pixel-level) generation?
+
+## Motivation
+
+Current agentic frameworks like InterleaveThinker achieve state-of-the-art performance on interleaved benchmarks, but the computational cost of generating high-fidelity images at every step limits scalability and accessibility. Determining whether the "visual" modality is essential for the reasoning gains or merely a byproduct of the iterative agent structure would allow researchers to replicate these benefits on CPU-only infrastructure using text-only simulations, significantly lowering the barrier to entry for advanced agentic reasoning research.
+
+## Related work
+
+- [InterleaveThinker: Reinforcing Agentic Interleaved Generation](https://arxiv.org/abs/2606.13679) — Establishes the baseline multi-agent pipeline (Planner, Critic, Generator) that uses actual image generation to refine instructions, demonstrating that this agentic decomposition boosts reasoning on WISE and RISE benchmarks.
+- [ATP-Bench: Towards Agentic Tool Planning for MLLM Interleaved Generation](https://arxiv.org/abs/2603.29902) — Provides a benchmark and analysis of current paradigms in interleaved text-and-image generation, highlighting the reliance on multimodal models for complex information conveyance.
+- [Modality-Specialized Synergizers for Interleaved Vision-Language Generalists](https://arxiv.org/abs/2407.03604) — Discusses the architecture of Vision-Language Generalists (VLGs) capable of understanding and generating both modalities, offering context on how modality integration is typically handled in generalist models.
+- [Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments](https://arxiv.org/abs/2602.01244) — While focused on terminal tasks, this work illustrates the viability of training agentic models on structured, non-visual trajectory data, supporting the hypothesis that agent decomposition can be effective without continuous visual rendering.
+
+## Expected results
+
+We expect the text-only simulation to achieve reasoning scores within 5-10% of the full image-based InterleaveThinker system, indicating that the iterative planning and verification loop is the primary driver of performance. A significant drop in performance (e.g., >20%) would suggest that visual feedback provides critical grounding that text descriptions cannot replicate, while a null result (no difference) would imply the visual modality is redundant for the specific reasoning tasks tested.
 
 ## Methodology sketch
-**Data:** Utilize the existing `Interleave-Planner-SFT-80k` and `Interleave-Critic-SFT-112k` datasets, but replace the actual image generation step with a deterministic, text-based "image description simulator" that generates a static, abstract representation (e.g., a JSON object describing scene elements) based on the prompt, rather than a pixel array.
 
-**Procedure:** Train a lightweight, CPU-tractable language model to act as the "Generator" that outputs these abstract scene descriptions instead of images, while keeping the Planner and Critic agents identical to the original paper; run the full interleaved trajectory on reasoning benchmarks (WISE, RISE) and compare the final reasoning scores against the original image-based pipeline and a baseline single-pass LLM.
+- **Data Acquisition**: Download the `Interleave-Planner-SFT-80k` and `Interleave-Critic-SFT-112k` datasets from the original InterleaveThinker repository (or equivalent HuggingFace/ArXiv source).
+- **Simulator Construction**: Implement a deterministic, text-based "image description simulator" that takes a prompt and outputs a structured JSON object representing scene elements (objects, spatial relationships, attributes) instead of generating pixel arrays.
+- **Model Training**: Train a lightweight, CPU-tractable Language Model (e.g., Llama-3-8B or Mistral-7B quantized) to act as the "Generator" agent, mapping the Planner's intent to the JSON scene descriptions using the SFT datasets.
+- **Pipeline Execution**: Run the full interleaved trajectory (Planner → Text-Generator → Critic → Planner) on the WISE and RISE reasoning benchmarks, ensuring the Critic agent evaluates the JSON descriptions rather than images.
+- **Baseline Comparison**: Execute the same benchmarks using a single-pass baseline LLM and the original InterleaveThinker pipeline (if pre-computed results are available, otherwise simulate the image step with a standard VLM API for comparison).
+- **Statistical Analysis**: Perform paired t-tests or Wilcoxon signed-rank tests on the reasoning scores (accuracy/F1) between the text-only simulation and the image-based baseline to determine if the difference is statistically significant.
+- **Ablation Study**: Isolate the contribution of the Critic loop by running the text-only generator without the Critic feedback step to measure the specific gain attributed to iterative correction.
 
-**Expected Result:** We hypothesize that the "Text-Only Simulation" will achieve within 5-10% of the reasoning performance of the full InterleaveThinker system, confirming that the agentic decomposition and iterative correction mechanisms are the primary drivers of the reasoning improvement, rather than the photorealistic image generation itself.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: None (this is a novel extension proposal).
+- Closest match: N/A.
+- Verdict: NOT a duplicate.
 
-- **InterleaveThinker: Reinforcing Agentic Interleaved Generation** — {'name': 'Dian Zheng', 'kind': 'human'}, {'name': 'Harry Lee', 'kind': 'human'}, {'name': 'Manyuan Zhang', 'kind': 'human'}, {'name': 'Kaituo Feng', 'kind': 'human'}, {'name': 'Zoey Guo', 'kind': 'human'}, {'name': 'Ray Zhang', 'kind': 'human'}, {'name': 'Hongsheng Li', 'kind': 'human'}, {'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-30T14:12:01.658011Z'}. https://arxiv.org/abs/2606.13679.
 
-```bibtex
-@article{orig_arxiv_2606_13679,
-  title = {InterleaveThinker: Reinforcing Agentic Interleaved Generation},
-  author = {\{'name': 'Dian Zheng', 'kind': 'human'\} and \{'name': 'Harry Lee', 'kind': 'human'\} and \{'name': 'Manyuan Zhang', 'kind': 'human'\} and \{'name': 'Kaituo Feng', 'kind': 'human'\} and \{'name': 'Zoey Guo', 'kind': 'human'\} and \{'name': 'Ray Zhang', 'kind': 'human'\} and \{'name': 'Hongsheng Li', 'kind': 'human'\} and \{'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-30T14:12:01.658011Z'\}},
-  year = {2026},
-  eprint = {2606.13679},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.13679},
-  url = {https://arxiv.org/abs/2606.13679}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T09:42:57Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "InterleaveThinker: Reinforcing Agentic Interleaved Generation" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "InterleaveThinker: Reinforcing Agentic Interleaved Generation" computer science | 0 |
+| 1 | agentic interleaved generation | 5 |
+| 2 | reinforcement learning for interleaved reasoning | 0 |
+| 3 | interleaved thinking patterns in language models | 0 |
+| 4 | agentic workflows for LLM reasoning | 0 |
+| 5 | iterative generation with reinforcement learning | 0 |
+| 6 | multi-step reasoning in large language models | 0 |
+| 7 | interleaved thought-action generation | 0 |
+| 8 | agentic LLM inference strategies | 0 |
+| 9 | reinforcement learning for structured generation | 0 |
+| 10 | dynamic reasoning trajectories in LLMs | 0 |
+| 11 | interleaved policy optimization for agents | 0 |
+| 12 | agentic search and reasoning frameworks | 0 |
+| 13 | iterative refinement in language model generation | 0 |
+| 14 | reinforcement learning for complex reasoning tasks | 0 |
+| 15 | interleaved planning and execution in AI agents | 0 |
+| 16 | adaptive generation strategies for LLMs | 0 |
+| 17 | reasoning chains with interleaved steps | 0 |
+| 18 | agentic behavior in generative models | 0 |
+| 19 | interleaved sampling methods for reasoning | 0 |
+| 20 | reinforcement learning for agentic decision making | 0 |
+
+### Verified citations
+
+1. **Modality-Specialized Synergizers for Interleaved Vision-Language Generalists** (2024). Zhiyang Xu, Minqian Liu, Ying Shen, Joy Rimchala, Jiaxin Zhang, et al.. arXiv. [2407.03604](https://arxiv.org/abs/2407.03604). PDF-sampled: No.
+2. **InterleaveThinker: Reinforcing Agentic Interleaved Generation** (2026). Dian Zheng, Harry Lee, Manyuan Zhang, Kaituo Feng, Zoey Guo, et al.. arXiv. [2606.13679](https://arxiv.org/abs/2606.13679). PDF-sampled: No.
+3. **ATP-Bench: Towards Agentic Tool Planning for MLLM Interleaved Generation** (2026). Yinuo Liu, Zi Qian, Heng Zhou, Jiahao Zhang, Yajie Zhang, et al.. arXiv. [2603.29902](https://arxiv.org/abs/2603.29902). PDF-sampled: No.
+4. **Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments** (2026). Siwei Wu, Yizhi Li, Yuyang Song, Wei Zhang, Yang Wang, et al.. arXiv. [2602.01244](https://arxiv.org/abs/2602.01244). PDF-sampled: No.

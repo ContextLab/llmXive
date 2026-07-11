@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.09937",
+  "judged_at": "2026-07-11T09:45:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"opencomputer: verifiable software worlds for computer-use agents\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides empirical evidence on the same mechanism (computer-use agents performing verifiable software tasks) and measures the dependent variable (agent success rates on GUI-based workflows) within the specific domain of software automation, serving as a canonical benchmark study for the \"OpenComputer\" framework's application.",
+  "relevant": true
+}
