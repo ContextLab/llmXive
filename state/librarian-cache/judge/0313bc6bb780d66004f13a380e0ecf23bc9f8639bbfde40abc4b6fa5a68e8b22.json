@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.04107",
+  "judged_at": "2026-07-11T00:28:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available transcriptomic data biology",
+  "rationale": "This paper satisfies criterion (a) as it measures the same biological mechanism (plant stress response) and utilizes the same data type (RNA-Seq transcriptomic data) to investigate stress tolerance, even though it focuses on a specific mutant and includes electrophysiology. It also meets criterion (b) by providing empirical data on the dependent variable (stress response/tolerance) and the independent variable (transcriptomic changes) within the user's specified domain of plant biology.",
+  "relevant": true
+}

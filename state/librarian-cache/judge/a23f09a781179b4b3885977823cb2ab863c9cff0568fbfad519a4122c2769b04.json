@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1502.02001",
+  "judged_at": "2026-07-11T00:28:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available transcriptomic data biology",
+  "rationale": "This paper satisfies criteria (a) and (e) as it provides empirical evidence of the specific biological mechanism (transcriptomic response to abiotic stress) in a relevant plant-like organism (brown algae), establishing a canonical dataset for stress response pathways that can be used to validate or compare predictive models.",
+  "relevant": true
+}

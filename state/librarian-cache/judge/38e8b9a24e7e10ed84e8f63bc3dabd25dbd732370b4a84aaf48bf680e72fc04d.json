@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1709.09496",
+  "judged_at": "2026-07-11T00:28:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available transcriptomic data biology",
+  "rationale": "The paper focuses on drought stress classification using 3D phenotypic models (canopy structure and images) rather than transcriptomic data, meaning it does not measure the same biological mechanism (gene expression) or the specific data domain (transcriptomics) required by the user's question. While both address plant stress, the paper falls under the \"Distinct construct sharing only homonym keywords\" rejection rule because it studies a completely different modality (phenotyping vs. genomics) w",
+  "relevant": false
+}
