@@ -1,0 +1,601 @@
+{
+  "fetched_at": "2026-07-11T20:01:51Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Ima\"",
+      "target_n": 5
+    },
+    "duration_seconds": 47.379,
+    "ended_at": "2026-07-11T20:01:51Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multimodal tabular data learning"
+        ],
+        [
+          2,
+          "benchmarking multimodal table understanding"
+        ],
+        [
+          3,
+          "table-text-image fusion for ML"
+        ],
+        [
+          4,
+          "multimodal table benchmarks"
+        ],
+        [
+          5,
+          "integrating tabular data with vision and language"
+        ],
+        [
+          6,
+          "cross-modal table reasoning"
+        ],
+        [
+          7,
+          "multimodal structured data learning"
+        ],
+        [
+          8,
+          "table question answering with images and text"
+        ],
+        [
+          9,
+          "evaluating multimodal table models"
+        ],
+        [
+          10,
+          "tabular data augmentation with images"
+        ],
+        [
+          11,
+          "multimodal datasets for tabular analysis"
+        ],
+        [
+          12,
+          "vision-language-table models"
+        ],
+        [
+          13,
+          "table representation learning with multimodal inputs"
+        ],
+        [
+          14,
+          "assessing multimodal performance on structured data"
+        ],
+        [
+          15,
+          "unified multimodal table benchmarks"
+        ],
+        [
+          16,
+          "table understanding with text and visual context"
+        ],
+        [
+          17,
+          "multimodal machine learning on tables"
+        ],
+        [
+          18,
+          "hybrid table-text-image datasets"
+        ],
+        [
+          19,
+          "multimodal evaluation of table-based models"
+        ],
+        [
+          20,
+          "extending multimodal tabular benchmarks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Ima\" computer science": 0,
+        "multimodal tabular data learning": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multimodal tabular data fusion text image",
+      "MulTaBench benchmark multimodal table learning",
+      "tabular text image integration representation",
+      "multimodal tabular evaluation metrics accuracy",
+      "table reasoning vision language pretraining"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2412.16243"
+      ]
+    },
+    "per_query_hit_count": {
+      "MulTaBench benchmark multimodal table learning": 3,
+      "llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Ima\" computer science": 3,
+      "multimodal tabular data fusion text image": 3,
+      "multimodal tabular evaluation metrics accuracy": 3,
+      "table reasoning vision language pretraining": 3,
+      "tabular text image integration representation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T20:01:04Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"multabench: benchmarking multimodal tabular learning with text and ima\" computer science",
+      "raw": "llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Ima\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-11T20:01:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-11T20:01:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-11T20:01:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Infrared and visible image fusion (IVIF) is essential for integrating thermal saliency with textural details to support downstream perception. However, most existing approaches suffer from \"semantic blindness,\" leading to the erroneous suppression of thermal targets and the introduction of visual artifacts. To address this, we propose SAM-Guided Diffusion Fusion Network (SGDFuse), a novel Semantic-Guided Generation (SGG) framework that reframes IVIF as a semantically-steered generative task rather than simplistic pixel mapping. Our method uniquely couples high-level semantic priors from the Segment Anything Model (SAM) with the high-fidelity generative power of a conditional diffusion model. We employ a deliberate two-stage strategy to decouple multimodal alignment from iterative refinement: Stage I establishes a robust structural foundation via preliminary fusion, while Stage II utilizes dual-modality semantic masks as spatial anchors to guide the diffusion process toward a semantically coherent, high-fidelity reconstruction. Comprehensive experiments demonstrate that SGDFuse not only delivers state-of-the-art image quality but also enhances downstream task performance, confirming its effectiveness as a new Methodological Framework for semantically aware image fusion. The code is available at https://github.com/boshizhang123/SGDFuse.",
+          "claimed_authors": [
+            "Xiaoyang Zhang",
+            "jinjiang Li",
+            "Guodong Fan",
+            "Yakun Ju",
+            "Linwei Fan",
+            "Jun Liu",
+            "Alex C. Kot"
+          ],
+          "claimed_title": "SGDFuse: SAM-Guided Diffusion Model for High-Fidelity Infrared and Visible Image Fusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.05264"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='SGDFuse: SAM-Guided Diffusion Model for High-Fidelity Infrared and Visible Image Fusion')",
+        "failed_at": "2026-07-11T20:01:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: AI-driven prediction algorithms have the potential to enhance emergency medicine by enabling rapid and accurate decision-making regarding patient status and potential deterioration. However, the integration of multimodal data, including raw waveform signals, remains underexplored in clinical decision support. Methods: We present a dataset and benchmarking protocol designed to advance multimodal decision support in emergency care. Our models utilize demographics, biometrics, vital signs, laboratory values, and electrocardiogram (ECG) waveforms as inputs to predict both discharge diagnoses and patient deterioration. Results: The diagnostic model achieves area under the receiver operating curve (AUROC) scores above 0.8 for 609 out of 1,428 conditions, covering both cardiac (e.g., myocardial infarction) and non-cardiac (e.g., renal disease, diabetes) diagnoses. The deterioration model attains AUROC scores above 0.8 for 14 out of 15 targets, accurately predicting critical events such as cardiac arrest, mechanical ventilation, ICU admission, and mortality. Conclusions: Our study highlights the positive impact of incorporating raw waveform data into decision support models, improving predictive performance. By introducing a unique, publicly available dataset and baseline models, we provide a foundation for measurable progress in AI-driven decision support for emergency care.",
+          "claimed_authors": [
+            "Juan Miguel Lopez Alcaraz",
+            "Hjalmar Bouma",
+            "Nils Strodthoff"
+          ],
+          "claimed_title": "Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.17856"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "After a natural disaster, such as a hurricane, millions are left in need of emergency assistance. To allocate resources optimally, human planners need to accurately analyze data that can flow in large volumes from several sources. This motivates the development of multimodal machine learning frameworks that can integrate multiple data sources and leverage them efficiently. To date, the research community has mainly focused on unimodal reasoning to provide granular assessments of the damage. Moreover, previous studies mostly rely on post-disaster images, which may take several days to become available. In this work, we propose a multimodal framework (GaLeNet) for assessing the severity of damage by complementing pre-disaster images with weather data and the trajectory of the hurricane. Through extensive experiments on data from two hurricanes, we demonstrate (i) the merits of multimodal approaches compared to unimodal methods, and (ii) the effectiveness of GaLeNet at fusing various modalities. Furthermore, we show that GaLeNet can leverage pre-disaster images in the absence of post-disaster images, preventing substantial delays in decision making.",
+          "claimed_authors": [
+            "Rohit Saha",
+            "Mengyi Fang",
+            "Angeline Yasodhara",
+            "Kyryl Truskovskyi",
+            "Azin Asgarian",
+            "Daniel Homola",
+            "Raahil Shah",
+            "Frederik Dieleman",
+            "Jack Weatheritt",
+            "Thomas Rogers"
+          ],
+          "claimed_title": "GaLeNet: Multimodal Learning for Disaster Prediction, Management and Relief",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.09242"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='GaLeNet: Multimodal Learning for Disaster Prediction, Management and Relief')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fundus photography is prone to suffer from image quality degradation that impacts clinical examination performed by ophthalmologists or intelligent systems. Though enhancement algorithms have been developed to promote fundus observation on degraded images, high data demands and limited applicability hinder their clinical deployment. To circumvent this bottleneck, a generic fundus image enhancement network (GFE-Net) is developed in this study to robustly correct unknown fundus images without supervised or extra data. Levering image frequency information, self-supervised representation learning is conducted to learn robust structure-aware representations from degraded images. Then with a seamless architecture that couples representation learning and image enhancement, GFE-Net can accurately correct fundus images and meanwhile preserve retinal structures. Comprehensive experiments are implemented to demonstrate the effectiveness and advantages of GFE-Net. Compared with state-of-the-art algorithms, GFE-Net achieves superior performance in data dependency, enhancement performance, deployment efficiency, and scale generalizability. Follow-up fundus image analysis is also facilitated by GFE-Net, whose modules are respectively verified to be effective for image enhancement.",
+          "claimed_authors": [
+            "Heng Li",
+            "Haofeng Liu",
+            "Huazhu Fu",
+            "Yanwu Xu",
+            "Hui Shu",
+            "Ke Niu",
+            "Yan Hu",
+            "Jiang Liu"
+          ],
+          "claimed_title": "A Generic Fundus Image Enhancement Network Boosted by Frequency Self-supervised Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.00885"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='A Generic Fundus Image Enhancement Network Boosted by Frequency Self-supervised Representation Learning')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rings of symmetric polynomials form an inverse system whose limit, the ring of symmetric functions, is the model for the bosonic Fock space representation of the affine Lie algebra. We categorify this construction by considering an inverse limit of categories of polynomial representation of general linear groups. We show that this limit naturally carries an action of the affine Lie algebra (in the sense of Rouquier), thereby obtaining a famiy of categorifications of the bosonic Fock space representation.",
+          "claimed_authors": [
+            "Jiuzu Hong",
+            "Oded Yacobi"
+          ],
+          "claimed_title": "Polynomial representations and categorifications of Fock Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.2456"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='Polynomial representations and categorifications of Fock Space')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The integration of diverse clinical modalities such as medical imaging and the tabular data extracted from patients' Electronic Health Records (EHRs) is a crucial aspect of modern healthcare. Integrative analysis of multiple sources can provide a comprehensive understanding of the clinical condition of a patient, improving diagnosis and treatment decision. Deep Neural Networks (DNNs) consistently demonstrate outstanding performance in a wide range of multimodal tasks in the medical domain. However, the complex endeavor of effectively merging medical imaging with clinical, demographic and genetic information represented as numerical tabular data remains a highly active and ongoing research pursuit.\n  We present a novel framework based on hypernetworks to fuse clinical imaging and tabular data by conditioning the image processing on the EHR's values and measurements. This approach aims to leverage the complementary information present in these modalities to enhance the accuracy of various medical applications. We demonstrate the strength and generality of our method on two different brain Magnetic Resonance Imaging (MRI) analysis tasks, namely, brain age prediction conditioned by subject's sex and multi-class Alzheimer's Disease (AD) classification conditioned by tabular data. We show that our framework outperforms both single-modality models and state-of-the-art MRI tabular data fusion methods. A link to our code can be found at https://github.com/daniel4725/HyperFusion",
+          "claimed_authors": [
+            "Daniel Duenias",
+            "Brennan Nichyporuk",
+            "Tal Arbel",
+            "Tammy Riklin Raviv"
+          ],
+          "claimed_title": "HyperFusion: A Hypernetwork Approach to Multimodal Integration of Tabular and Medical Imaging Data for Predictive Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.13319"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='HyperFusion: A Hypernetwork Approach to Multimodal Integration of Tabular and Medical Imaging Data for Predictive Modeling')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent work shows that text-only reinforcement learning with verifiable rewards (RLVR) can match or outperform image-text RLVR on multimodal medical VQA benchmarks, suggesting current evaluation protocols may fail to measure causal visual dependence. We introduce a counterfactual evaluation framework using real, blank, and shuffled images across four medical VQA benchmarks: PathVQA, PMC-VQA, SLAKE, and VQA-RAD. Beyond accuracy, we measure Visual Reliance Score (VRS), Image Sensitivity (IS), and introduce Hallucinated Visual Reasoning Rate (HVRR) to detect cases where models generate visual claims despite producing image-invariant answers. Our findings reveal that RLVR improves accuracy while degrading visual grounding: text-only RLVR achieves negative VRS on PathVQA (-0.09), performing better with mismatched images, while image-text RLVR reduces image sensitivity to 39.8% overall despite improving accuracy. On VQA-RAD, both variants achieve 63% accuracy through different mechanisms: text-only RLVR retains 81% performance with blank images, while image-text RLVR shows only 29% image sensitivity. Models generate visual claims in 68-74% of responses, yet 38-43% are ungrounded (HVRR). These findings demonstrate that accuracy-only rewards enable shortcut exploitation, and progress requires grounding-aware evaluation protocols and training objectives that explicitly enforce visual dependence.",
+          "claimed_authors": [
+            "Anas Zafar",
+            "Leema Krishna Murali",
+            "Ashish Vashist"
+          ],
+          "claimed_title": "Beyond Accuracy: Evaluating Visual Grounding In Multimodal Medical Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03437"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='Beyond Accuracy: Evaluating Visual Grounding In Multimodal Medical Reasoning')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The emergence of unified multimodal understanding and generation models is rapidly attracting attention because of their ability to enhance instruction-following capabilities while minimizing model redundancy. However, there is a lack of a unified evaluation framework for these models, which would enable an elegant, simplified, and overall evaluation. Current models conduct evaluations on multiple task-specific benchmarks, but there are significant limitations, such as the lack of overall results, errors from extra evaluation models, reliance on extensive labeled images, benchmarks that lack diversity, and metrics with limited capacity for instruction-following evaluation. To tackle these challenges, we introduce UniEval, the first evaluation framework designed for unified multimodal models without extra models, images, or annotations. This facilitates a simplified and unified evaluation process. The UniEval framework contains a holistic benchmark, UniBench (supports both unified and visual generation models), along with the corresponding UniScore metric. UniBench includes 81 fine-grained tags contributing to high diversity. Experimental results indicate that UniBench is more challenging than existing benchmarks, and UniScore aligns closely with human evaluations, surpassing current metrics. Moreover, we extensively evaluated SoTA unified and visual generation models, uncovering new insights into Univeral's unique values.",
+          "claimed_authors": [
+            "Yi Li",
+            "Haonan Wang",
+            "Qixiang Zhang",
+            "Boyu Xiao",
+            "Chenchang Hu",
+            "Hualiang Wang",
+            "Xiaomeng Li"
+          ],
+          "claimed_title": "UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.10483"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+          "claimed_authors": [
+            "Feilong Chen",
+            "Duzhen Zhang",
+            "Minglun Han",
+            "Xiuyi Chen",
+            "Jing Shi",
+            "Shuang Xu",
+            "Bo Xu"
+          ],
+          "claimed_title": "VLP: A Survey on Vision-Language Pre-training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09061"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='VLP: A Survey on Vision-Language Pre-training')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fusion of language and vision in large vision-language models (LVLMs) has revolutionized deep learning-based object detection by enhancing adaptability, contextual reasoning, and generalization beyond traditional architectures. This in-depth review presents a structured exploration of the state-of-the-art in LVLMs, systematically organized through a three-step research review process. First, we discuss the functioning of vision language models (VLMs) for object detection, describing how these models harness natural language processing (NLP) and computer vision (CV) techniques to revolutionize object detection and localization. We then explain the architectural innovations, training paradigms, and output flexibility of recent LVLMs for object detection, highlighting how they achieve advanced contextual understanding for object detection. The review thoroughly examines the approaches used in integration of visual and textual information, demonstrating the progress made in object detection using VLMs that facilitate more sophisticated object detection and localization strategies. This review presents comprehensive visualizations demonstrating LVLMs' effectiveness in diverse scenarios including localization and segmentation, and then compares their real-time performance, adaptability, and complexity to traditional deep learning systems. Based on the review, its is expected that LVLMs will soon meet or surpass the performance of conventional methods in object detection. The review also identifies a few major limitations of the current LVLM modes, proposes solutions to address those challenges, and presents a clear roadmap for the future advancement in this field. We conclude, based on this study, that the recent advancement in LVLMs have made and will continue to make a transformative impact on object detection and robotic applications in the future.",
+          "claimed_authors": [
+            "Ranjan Sapkota",
+            "Manoj Karkee"
+          ],
+          "claimed_title": "Object Detection with Multimodal Large Vision-Language Models: An In-depth Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.19294"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MulTaBench: Benchmarking Multimodal Tabular Learni', candidate_title='Object Detection with Multimodal Large Vision-Language Models: An In-depth Review')",
+        "failed_at": "2026-07-11T20:01:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhiqiang Tang",
+            "Zihan Zhong",
+            "Tong He",
+            "Gerald Friedland"
+          ],
+          "title": "Bag of Tricks for Multimodal AutoML with Image, Text, and Tabular Data",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.16243",
+        "summary": "This paper studies the best practices for automatic machine learning (AutoML). While previous AutoML efforts have predominantly focused on unimodal data, the multimodal aspect remains under-explored. Our study delves into classification and regression problems involving flexible combinations of image, text, and tabular data. We curate a benchmark comprising 22 multimodal datasets from diverse real-world applications, encompassing all 4 combinations of the 3 modalities. Across this benchmark, we scrutinize design choices related to multimodal fusion strategies, multimodal data augmentation, converting tabular data into text, cross-modal alignment, and handling missing modalities. Through extensive experimentation and analysis, we distill a collection of effective strategies and consolidate them into a unified pipeline, achieving robust performance on diverse datasets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.16243",
+          "http_status": 200,
+          "pdf_sample_score": 0.1844,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T20:01:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhong Li",
+            "Qi Huang",
+            "Lincen Yang",
+            "Jiayang Shi",
+            "Zhao Yang",
+            "Niki van Stein",
+            "Thomas Bäck",
+            "Matthijs van Leeuwen"
+          ],
+          "title": "Diffusion and Flow Matching Models for Tabular Data: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.17119",
+        "summary": "Deep generative models have made rapid progress in image, text, audio, and video generation, and are increasingly being applied to structured records. For tabular data, however, generative modeling remains difficult: a dataset may contain numerical and categorical attributes, missing values, sensitive fields, imbalanced categories, complex feature dependencies, and domain constraints. Earlier tabular data modeling methods based on GANs or VAEs have achieved useful results, but they can suffer from unstable training, mode collapse, weak modeling of multimodal distributions, and fragile handling of mixed-type features. Diffusion models have therefore attracted growing interest because their noising-and-denoising formulation provides a flexible and stable way to model complex data distributions, and has been adapted to tabular synthesis, missing-value imputation, trustworthy data generation, and anomaly detection. Flow matching offers a closely related route by learning transport vector fields along probability paths, often with more direct control over path design and sampling efficiency. Despite this progress, the literature on diffusion and flow matching models for tabular data remains difficult to compare because methods target different tasks and rely on different representations, objectives, evaluation protocols, and domain assumptions. To the best of our knowledge, this is the first survey dedicated specifically to diffusion and flow matching models for tabular data. We review work from June 2015 to May 2026, organize it around data-engineering challenges, tasks, design choices, and evaluation dimensions, and discuss open problems in scalability, feature dependency modeling, privacy, fairness, benchmarking, and constraint-aware generation. We maintain updates in a GitHub repository.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.17119",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T20:01:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alan Arazi",
+            "Eilam Shapira",
+            "Shoham Grunblat",
+            "Mor Ventura",
+            "Elad Hoffer",
+            "Gioia Blayer",
+            "David Holzmüller",
+            "Lennart Purucker",
+            "Gaël Varoquaux",
+            "Frank Hutter",
+            "Roi Reichart"
+          ],
+          "title": "MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.10616",
+        "summary": "Tabular Foundation Models have recently established the state of the art in supervised tabular learning, by leveraging pretraining to learn generalizable representations of numerical and categorical structured data. However, they lack native support for unstructured modalities such as text and image, and rely on frozen, pretrained embeddings to process them. On established Multimodal Tabular Learning benchmarks, we show that tuning the embeddings to the task improves performance. Existing benchmarks, however, often focus on the mere co-occurrence of modalities; this leads to high variance across datasets and masks the benefits of task-specific tuning. To address this gap, we introduce MulTaBench, a benchmark of 40 datasets, split equally between image-tabular and text-tabular tasks. We focus on predictive tasks where the modalities provide complementary predictive signal, and where generic embeddings lose critical information, necessitating Target-Aware Representations that are aligned with the task. Our experimental results demonstrate that the gains from target-aware representation tuning generalize across both text and image modalities, several tabular learners, encoder scales, and embedding dimensions. MulTaBench constitutes the largest image-tabular benchmarking effort to date, spanning high-impact domains such as healthcare and e-commerce. It is designed to enable the research of novel architectures which incorporate joint modeling and target-aware representations, paving the way for the development of novel Multimodal Tabular Foundation Models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.10616",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T20:01:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wei-Yao Wang",
+            "Wei-Wei Du",
+            "Derek Xu",
+            "Wei Wang",
+            "Wen-Chih Peng"
+          ],
+          "title": "A Survey on Self-Supervised Learning for Non-Sequential Tabular Data",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.01204",
+        "summary": "Self-supervised learning (SSL) has been incorporated into many state-of-the-art models in various domains, where SSL defines pretext tasks based on unlabeled datasets to learn contextualized and robust representations. Recently, SSL has become a new trend in exploring the representation learning capability in the realm of tabular data, which is more challenging due to not having explicit relations for learning descriptive representations. This survey aims to systematically review and summarize the recent progress and challenges of SSL for non-sequential tabular data (SSL4NS-TD). We first present a formal definition of NS-TD and clarify its correlation to related studies. Then, these approaches are categorized into three groups - predictive learning, contrastive learning, and hybrid learning, with their motivations and strengths of representative methods in each direction. Moreover, application issues of SSL4NS-TD are presented, including automatic data engineering, cross-table transferability, and domain knowledge integration. In addition, we elaborate on existing benchmarks and datasets for NS-TD applications to analyze the performance of existing tabular models. Finally, we discuss the challenges of SSL4NS-TD and provide potential directions for future research. We expect our work to be useful in terms of encouraging more research on lowering the barrier to entry SSL for the tabular domain, and of improving the foundations for implicit tabular data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.01204",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T20:01:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Astrid Franz",
+            "Frederik Hoppe",
+            "Marianne Michaelis",
+            "Udo Göbel"
+          ],
+          "title": "Universal Embeddings of Tabular Data",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.05904",
+        "summary": "Tabular data in relational databases represents a significant portion of industrial data. Hence, analyzing and interpreting tabular data is of utmost importance. Application tasks on tabular data are manifold and are often not specified when setting up an industrial database. To address this, we present a novel framework for generating universal, i.e., task-independent embeddings of tabular data for performing downstream tasks without predefined targets. Our method transforms tabular data into a graph structure, leverages Graph Auto-Encoders to create entity embeddings, which are subsequently aggregated to obtain embeddings for each table row, i.e., each data sample. This two-step approach has the advantage that unseen samples, consisting of similar entities, can be embedded without additional training. Downstream tasks such as regression, classification or outlier detection, can then be performed by applying a distance-based similarity measure in the embedding space. Experiments on real-world datasets demonstrate that our method achieves superior performance compared to existing universal tabular data embedding techniques.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.05904",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T20:01:39Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"multabench: benchmarking multimodal tabular learning with text and ima\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

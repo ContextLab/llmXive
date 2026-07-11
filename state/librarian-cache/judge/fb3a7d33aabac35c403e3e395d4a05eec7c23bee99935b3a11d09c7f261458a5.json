@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.10616",
+  "judged_at": "2026-07-11T20:01:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"multabench: benchmarking multimodal tabular learning with text and ima\" computer science",
+  "rationale": "This paper is the foundational methodology and canonical reference (category d) for the user's question, as it introduces the \"MulTaBench\" benchmark explicitly named in the user's query (\"extending 'MulTaBench...'\"). It establishes the empirical baseline (category c) and the specific domain of multimodal tabular learning with text and image that the user intends to extend.",
+  "relevant": true
+}
