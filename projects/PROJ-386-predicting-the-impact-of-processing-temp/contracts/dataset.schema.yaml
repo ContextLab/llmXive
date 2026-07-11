@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Aluminum Alloy Processing Dataset Schema
+description: >-
+  Schema defining the required fields for the dataset used to predict
+  the impact of processing temperature on the grain size of rolled aluminum alloys.
+type: object
+required:
+  - rolling_temperature
+  - grain_size
+  - composition
+  - process_type
+properties:
+  rolling_temperature:
+    type: number
+    description: >-
+      The temperature at which the rolling process was performed.
+      Unit: Kelvin (K) or Celsius (C) - must be consistent across dataset.
+      Range: Typically between 298K and 800K for aluminum alloys.
+    minimum: 0
+  grain_size:
+    type: number
+    description: >-
+      The resulting grain size of the aluminum alloy after processing.
+      Unit: micrometers (µm).
+    minimum: 0
+  composition:
+    type: object
+    description: >-
+      A dictionary mapping chemical element symbols (string) to their
+      weight percentage (float) in the alloy.
+      Example: {"Mg": 0.5, "Si": 0.2, "Cu": 0.1}
+      Must contain at least one alloying element (not pure aluminum).
+    additionalProperties:
+      type: number
+      minimum: 0
+    minProperties: 1
+  process_type:
+    type: string
+    description: >-
+      The type of manufacturing process applied.
+      Valid values include 'Rolling', 'Casting', 'SPD', etc.
+      Filtering is applied to ensure only 'Rolling' data is used for the primary model.
+    pattern: "^[A-Za-z]+$"
+additionalProperties: true
+metadata:
+  source: "NOMAD/OpenML"
+  version: "1.0"
+  created_by: "llmXive pipeline T004"

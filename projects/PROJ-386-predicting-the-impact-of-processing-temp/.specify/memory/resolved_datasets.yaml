@@ -1,0 +1,298 @@
+resolved_at: '2026-07-11T23:10:39.587826+00:00'
+datasets:
+- intent: NOMAD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/n0w0f/nomad-structure-csv/resolve/main/nomad_structure_hf.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NomaDamas/Ko-StrategyQA/resolve/main/ko-strategy-qa_paragraphs.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NomaDamas/qasper/resolve/main/data/train-00000-of-00001-3680898125c9caaf.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/NomaDamas/Ko-StrategyQA/resolve/main/ko-strategy-qa_paragraphs.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NomaDamas/qasper/resolve/main/data/train-00000-of-00001-3680898125c9caaf.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/n0w0f/nomad-structure-csv/resolve/main/nomad_structure_hf.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NomaDamas/DSTC-11-Track-5/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NomaDamas/concurrentqa/resolve/main/CQA_dev_all.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/journal_contribution/Generative_AI_in_the_Software_Startups_Customer_Discovery_Activities_-_Appendix/32959769
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Validate_It_Then_Run_It/32964884
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/when_the_graph_is_a_sheaf_and_routing_was_always_a_cocycle_2026/32964881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/when_the_architecture_is_the_theorem_categorical_deep_learning_constructively_2026/32964878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Defect_Is_the_Identity/32964875
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7980518
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14283994
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12760499
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12760539
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3370385
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nomad-lab.eu/prod/v1/gui/dataset/doi/10.17172/nomad.ag6p-p46c
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''nomad-lab.eu'', port=443): Read timed out.
+      (read timeout=20)'
+  - url: https://air.unimi.it/handle/2434/215748
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21251333
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21251333
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nomad-lab.eu/prod/v1/gui/dataset/doi/10.17172/nomad.5asg-sy33
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ALL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/allenai/c4/resolve/main/en.noblocklist/c4-train.00000-of-01024.json.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/allenai/olmOCR-bench/resolve/main/bench_data/arxiv_math.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/allenai/peS2o/resolve/main/data/v1/train-00000-of-00020.json.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/allenai/c4/resolve/main/en.noblocklist/c4-train.00000-of-01024.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/allenai/olmOCR-bench/resolve/main/bench_data/arxiv_math.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/allenai/peS2o/resolve/main/data/v1/train-00000-of-00020.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/DL3DV/DL3DV-ALL-960P/resolve/main/10K/970a5c674c27b504d592d0a70c496d0e35ab0dc76802fb6e1bf336a4c1fe150a.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/allenai/tmax-15k-open-instruct/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Supplementary_table_Processed_data_for_RNA-seq_using_SVCs/32964803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Pose_Tracking_for_Automated_Video-Oculography_Using_Handheld_Mobile_Devices/32964851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Generative_AI_in_the_Software_Startups_Customer_Discovery_Activities_-_Appendix/32959769
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Validate_It_Then_Run_It/32964884
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/when_the_graph_is_a_sheaf_and_routing_was_always_a_cocycle_2026/32964881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12525194
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12524979
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7246539
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7246569
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7246579
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/56urh/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  - url: https://huggingface.co/datasets/Type-1-Civilisation/Liber-Primus-Not-Decoded/resolve/main/liber_primus_undecoded_pseudolatin_lower.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 38904
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Type-1-Civilisation/Liber-Primus-Not-Decoded/resolve/main/liber_primus_undecoded_pseudolatin_lower.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/microsoft/NOTSOFAR/resolve/main/benchmark-datasets/dev_set/240130.1_dev/MTG/MTG_30860/devices.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/The_Spectrum_Has_a_Modulus/32964887
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_table_Processed_data_for_RNA-seq_using_SVCs/32964803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Pose_Tracking_for_Automated_Video-Oculography_Using_Handheld_Mobile_Devices/32964851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Generative_AI_in_the_Software_Startups_Customer_Discovery_Activities_-_Appendix/32959769
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Validate_It_Then_Run_It/32964884
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15779328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7654336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content

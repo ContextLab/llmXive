@@ -1,0 +1,6 @@
+T001a [P] Create `code/` directory: 2
+T001b [P] Create `data/raw/` directory: 2
+T001c [P] Create `data/processed/` directory: 2
+T001d [P] Create `artifacts/models/` directory: 2
+T001e [P] Create `artifacts/reports/` directory: 2
+T001f [P] Create `tests/unit/` directory: 2

@@ -1,0 +1,113 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelArtifactOutput"
+description: "Schema for the output of the modeling pipeline (Linear and Random Forest)."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "LinearRegression"
+      - "RandomForest"
+  hyperparameters:
+    type: "object"
+    properties:
+      n_estimators:
+        type: "integer"
+        minimum: 10
+      max_depth:
+        type: "integer"
+        minimum: 1
+      random_state:
+        type: "integer"
+  metrics:
+    type: "object"
+    properties:
+      r2:
+        type: "number"
+        description: "Coefficient of determination."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error."
+  feature_importances:
+    type: "object"
+    description: "Dictionary of feature names to importance scores (or coefficients)."
+    additionalProperties:
+      type: "number"
+  collinearity_diagnostic:
+    type: "object"
+    properties:
+      high_correlation_pairs:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            variables:
+              type: "array"
+              items:
+                type: "string"
+              minItems: 2
+              maxItems: 2
+            correlation_coefficient:
+              type: "number"
+              minimum: -1
+              maximum: 1
+            classification:
+              type: "string"
+              enum:
+                - "ChemicalCoupling"
+                - "Spurious"
+                - "None"
+            interpretation:
+              type: "string"
+              description: "Descriptive framing of the joint effect."
+      max_correlation:
+        type: "number"
+        description: "Maximum absolute correlation found in the dataset."
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the threshold sweep (0.01, 0.05, 0.1)."
+    properties:
+      threshold_sweep:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            threshold:
+              type: "number"
+            significant_features:
+              type: "array"
+              items:
+                type: "string"
+      stability_score:
+        type: "number"
+        description: "Percentage of top-5 features stable across thresholds."
+  confounder_analysis:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+          - "Computed"
+          - "N/A"
+      e_value:
+        type: "number"
+        nullable: true
+        description: "E-value for the observed effect (if proxies missing)."
+      r2_without_proxies:
+        type: "number"
+        nullable: true
+      r2_with_proxies:
+        type: "number"
+        nullable: true
+      conclusion:
+        type: "string"
+required:
+  - "model_type"
+  - "metrics"
+  - "feature_importances"
+  - "collinearity_diagnostic"
+  - "confounder_analysis"
+additionalProperties: false

@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 970b42d3de220ca30730f0fb7c5efab8320a8540a26fb8191aa70a0e0cb365a4
+  artifact_path: projects/PROJ-386-predicting-the-impact-of-processing-temp/specs/001-predicting-the-impact-of-processing-temp/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: nomad_structure_hf.csv
+  kind: url
+  value: https://huggingface.co/datasets/n0w0f/nomad-structure-csv/resolve/main/nomad_structure_hf.csv`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/655113ea380ee26b49e50de9/a1f339ff813547634f88a9cf5befa57f7841c9fd6488e6ecfac292152666ca78?X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27nomad_structure_hf.csv%3B+filename%3D%22nomad_structure_hf.csv%22%3B&Expires=1783815435&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU1MTEzZWEzODBlZTI2YjQ5ZTUwZGU5L2ExZjMzOWZmODEzNTQ3NjM0Zjg4YTljZjViZWZhNTdmNzg0MWM5ZmQ2NDg4ZTZlY2ZhYzI5MjE1MjY2NmNhNzhcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bm9tYWRfc3RydWN0dXJlX2hmLmNzdiUzQitmaWxlbmFtZSUzRCUyMm5vbWFkX3N0cnVjdHVyZV9oZi5jc3YlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzgxNTQzNX19fV19&Signature=MEQCIHS07NUXkMaKlGrU2kiYgKb5UzjHfO4kptp3vmJz4oJwAiAoz3z1p5ZGrRyKid8-dEADvUQCkj6FAZbsS6hhQfJgKg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T23:17:15.506165Z'

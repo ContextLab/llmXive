@@ -1,0 +1,104 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloySampleDataset"
+description: "Schema for the processed aluminum alloy dataset containing temperature, composition, grain size, and process type."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Name of the original dataset source."
+      processed_at:
+        type: "string"
+        format: "date-time"
+        description: "ISO timestamp of processing."
+      row_count:
+        type: "integer"
+        description: "Total number of valid rows."
+  columns:
+    type: "array"
+    items:
+      type: "string"
+      enum:
+        - "id"
+        - "source"
+        - "source_study"
+        - "temperature"
+        - "grain_size"
+        - "alloy_series"
+        - "process_type"
+        - "Mg"
+        - "Si"
+        - "Cu"
+        - "Zn"
+        - "Mn"
+        - "temp_Mg_interaction"
+        - "temp_Si_interaction"
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        source:
+          type: "string"
+        source_study:
+          type: "string"
+          nullable: true
+        temperature:
+          type: "number"
+          minimum: 0
+          description: "Rolling temperature in Celsius."
+        grain_size:
+          type: "number"
+          minimum: 0
+          description: "Grain size in micrometers."
+        alloy_series:
+          type: "string"
+          nullable: true
+        process_type:
+          type: "string"
+          description: "Type of process (e.g., 'Rolling', 'Casting')."
+        composition:
+          type: "object"
+          properties:
+            Mg:
+              type: "number"
+              minimum: 0
+              maximum: 100
+            Si:
+              type: "number"
+              minimum: 0
+              maximum: 100
+            Cu:
+              type: "number"
+              minimum: 0
+              maximum: 100
+            Zn:
+              type: "number"
+              minimum: 0
+              maximum: 100
+            Mn:
+              type: "number"
+              minimum: 0
+              maximum: 100
+        interactions:
+          type: "object"
+          properties:
+            temp_Mg_interaction:
+              type: "number"
+            temp_Si_interaction:
+              type: "number"
+      required:
+        - "id"
+        - "temperature"
+        - "grain_size"
+        - "process_type"
+      additionalProperties: false
+required:
+  - "metadata"
+  - "columns"
+  - "data"
+additionalProperties: false

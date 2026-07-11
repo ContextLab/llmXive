@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T01:01:23.572043Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-386-predicting-the-impact-of-processing-temp
-last_run_id: 623fe49c-7c4e-4925-9f54-7c9b826e90bf
+last_run_id: 710e1f79-50e9-4c95-9348-849fd3af1bb7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-386-predicting-the-impact-of-processing-temp/specs/001-predicting-the-impact-of-processing-temp
 title: Predicting the Impact of Processing Temperature on the Grain Size of Rolled
   Aluminum Alloys
-updated_at: '2026-07-10T05:58:41.946928Z'
+updated_at: '2026-07-11T23:37:19.873629Z'
