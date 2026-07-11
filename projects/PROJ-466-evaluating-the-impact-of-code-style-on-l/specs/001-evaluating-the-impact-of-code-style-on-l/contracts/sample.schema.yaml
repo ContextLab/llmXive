@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sample Record Schema"
+description: "Schema for a single code sample record in samples_all.csv or samples_valid.csv"
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the HumanEval task (e.g., HumanEval/0)"
+  style:
+    type: "string"
+    description: "The style constraint applied"
+    enum:
+      - "neutral"
+      - "pep8"
+      - "minified"
+  sample_id:
+    type: "integer"
+    description: "Sample index within the task/style group (0-19)"
+    minimum: 0
+    maximum: 19
+  code:
+    type: "string"
+    description: "The generated Python source code"
+  pass_status:
+    type: "boolean"
+    description: "True if the sample passed all unit tests, False otherwise"
+  generation_time:
+    type: "number"
+    description: "Time taken to generate the sample in seconds"
+    minimum: 0
+required:
+  - task_id
+  - style
+  - sample_id
+  - code
+  - pass_status
+  - generation_time
+additionalProperties: false
