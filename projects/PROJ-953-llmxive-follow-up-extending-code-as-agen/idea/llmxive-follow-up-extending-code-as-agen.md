@@ -9,44 +9,45 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does a static-analysis-driven "harness diff" mechanism, which isolates and re-validates only the code artifacts modified by an agent's planning step, significantly reduce the computational cost of regression verification compared to full-environment re-execution without degrading safety guarantees?
+How does the semantic complexity and dependency depth of code modifications in agent-generated artifacts correlate with the necessity of dynamic re-execution for ensuring safety, and what structural features distinguish changes that are safe to verify via static analysis alone?
 
 ## Motivation
 
-The "Code as Agent Harness" framework identifies regression-free harness improvement as a critical bottleneck for scaling multi-agent scientific discovery. Current approaches rely on full-environment re-execution, which is computationally prohibitive for long-horizon tasks. A method that decouples verification from full execution could enable efficient, safe iteration on agent harnesses using standard CPU hardware, directly addressing the scalability constraints highlighted in recent literature.
+Current verification strategies for agent-generated code rely on full-environment re-execution, which is computationally prohibitive for long-horizon tasks. This project addresses the gap in understanding which code artifacts can be safely validated through lightweight static analysis versus those requiring costly dynamic execution. By mapping structural code features to verification necessity, we aim to enable scalable, safe iteration on agent harnesses using standard CPU hardware.
 
 ## Related work
 
-- [Code as Agent Harness](https://arxiv.org/abs/2605.18747) — Establishes the theoretical framework where code acts as the operational substrate for agent reasoning and verification, identifying the need for more efficient regression strategies.
-- [AutoHarness: improving LLM agents by automatically synthesizing a code harness](https://arxiv.org/abs/2603.03329) — Demonstrates automated harness synthesis but relies on dynamic execution for validation, highlighting the gap this project aims to fill with static analysis.
-- [Evolving Agents in the Dark: Retrospective Harness Optimization via Self-Preference](https://arxiv.org/abs/2606.05922) — Explores harness optimization via self-preference, emphasizing the necessity of continual improvement but not yet addressing the computational cost of the verification loop.
-- [Your Code Agent Can Grow Alongside You with Structured Memory](https://arxiv.org/abs/2603.13258) — Discusses the limitations of static code snapshots in agents, reinforcing the need for dynamic yet efficient tracking of code state changes for verification.
+- [Code as Agent Harness](https://arxiv.org/abs/2605.18747) — Establishes the theoretical framework where code acts as the operational substrate for agent reasoning, identifying the critical bottleneck of regression verification scalability.
+- [AutoHarness: improving LLM agents by automatically synthesizing a code harness](https://arxiv.org/abs/2603.03329) — Demonstrates automated harness synthesis but relies entirely on dynamic execution for validation, highlighting the specific gap this project aims to fill with static analysis.
+- [Evolving Agents in the Dark: Retrospective Harness Optimization via Self-Preference](https://arxiv.org/abs/2606.05922) — Explores harness optimization via self-preference, emphasizing the necessity of continual improvement but currently lacking mechanisms to reduce the computational cost of the verification loop.
+- [Your Code Agent Can Grow Alongside You with Structured Memory](https://arxiv.org/abs/2603.13258) — Discusses the limitations of static code snapshots in agents, reinforcing the need for dynamic yet efficient tracking of code state changes to support safe verification.
 
 ## Expected results
 
-The proposed static-analysis approach is expected to reduce verification time and CPU cycles by at least 90% compared to a full re-execution baseline on a curated dataset of 500 tasks. Crucially, this efficiency gain must be achieved without a statistically significant increase in false-negative safety errors, proving that selective re-verification maintains equivalent safety guarantees.
+We expect to identify a strong positive correlation between specific structural features (e.g., dependency depth, semantic complexity scores) and the failure of static-only verification, while finding a distinct subset of low-complexity modifications that pass static checks with zero false negatives. The outcome will be a decision boundary model that predicts when dynamic re-execution is strictly necessary, potentially reducing verification cycles by over 90% for a significant portion of agent tasks without compromising safety.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download and parse the SWE-bench and AgentBench datasets (publicly available via HuggingFace/GitHub) to extract 500 agent tasks containing code artifacts, execution traces, and known failure modes.
-- **Graph Construction**: Convert the extracted code artifacts into a text-based dependency graph using a lightweight static analysis tool (e.g., `pycparser` or `tree-sitter`) to map function calls and variable dependencies.
-- **Diff Implementation**: Implement a "harness diff" algorithm that, given a proposed code change, traverses the dependency graph to identify the minimal set of dependent functions and environment states requiring re-verification.
-- **Execution Strategy**: Create a CPU-only prototype that executes only the identified minimal subset of the test suite against the modified code, while a baseline runner executes the full test suite for the same tasks.
-- **Metric Collection**: Record execution time (wall-clock) and CPU cycle counts for both the static-analysis approach and the full re-execution baseline across all 500 tasks.
-- **Safety Validation**: Compare the pass/fail outcomes of the minimal subset execution against the full suite execution to calculate the false-negative rate (cases where the minimal subset passed but the full suite failed).
-- **Statistical Analysis**: Perform a paired t-test (or Wilcoxon signed-rank test if non-normal) on the execution times to determine if the reduction is statistically significant (p < 0.05).
-- **Threshold Verification**: Confirm that the false-negative rate remains below a pre-defined safety threshold (e.g., < 0.1%) to validate that efficiency does not compromise safety.
+- **Data Acquisition**: Download and parse the SWE-bench and AgentBench datasets (via HuggingFace) to extract 500 agent tasks containing code artifacts, execution traces, and known failure modes.
+- **Graph Construction**: Convert extracted code artifacts into text-based dependency graphs using `tree-sitter` to map function calls, variable dependencies, and control flow structures.
+- **Feature Engineering**: Calculate semantic complexity metrics (e.g., cyclomatic complexity, depth of inheritance) and dependency depth for every code modification within the tasks.
+- **Static Diff Implementation**: Implement a "harness diff" algorithm that traverses the dependency graph to identify the minimal set of dependent functions requiring re-verification.
+- **Baseline Execution**: Run a full-environment re-execution baseline on all 500 tasks to establish the ground-truth safety outcomes (pass/fail) and execution costs.
+- **Selective Execution**: Run the proposed static-analysis-driven selective execution on the same tasks, recording which modifications were flagged for dynamic re-checking versus those cleared statically.
+- **Validation Strategy**: Compare the selective execution outcomes against the full-suite ground truth; specifically, identify cases where static analysis passed a modification that the full suite failed (false negatives).
+- **Statistical Modeling**: Fit a logistic regression or random forest model to predict "need for dynamic execution" based on the extracted structural features, using the full-suite failure as the independent target variable.
+- **Threshold Analysis**: Determine the structural feature thresholds that maximize the reduction in dynamic execution while maintaining a false-negative rate below 0.1%.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: None provided in the immediate context (assuming this is the first fleshed-out iteration of this specific extension).
+- Reviewed existing ideas: None provided in the immediate context.
 - Closest match: N/A (No prior fleshed-out ideas in the corpus to compare against).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T21:28:24Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T11:08:38Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Code as Agent Harness" linguistics
 **Verified citation count**: 4
@@ -55,27 +56,7 @@ The proposed static-analysis approach is expected to reduce verification time an
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Code as Agent Harness" linguistics | 0 |
-| 1 | Code as Agent Harness linguistic analysis | 5 |
-| 2 | natural language programming paradigms | 0 |
-| 3 | agent-oriented programming linguistics | 0 |
-| 4 | code generation as agent interaction | 0 |
-| 5 | semantic analysis of code-as-agent frameworks | 0 |
-| 6 | linguistic properties of agent harness systems | 0 |
-| 7 | program synthesis as natural language processing | 0 |
-| 8 | syntax and semantics of code agents | 0 |
-| 9 | human-agent communication through code | 0 |
-| 10 | computational linguistics of automated agents | 0 |
-| 11 | code interpretation as linguistic act | 0 |
-| 12 | formal linguistics of programming agents | 0 |
-| 13 | language models for agent code generation | 0 |
-| 14 | pragmatics of code-based agent control | 0 |
-| 15 | morphological analysis of agent harness code | 0 |
-| 16 | discourse analysis in code-as-agent systems | 0 |
-| 17 | linguistic frameworks for LLM agent orchestration | 0 |
-| 18 | code semantics in multi-agent systems | 0 |
-| 19 | natural language interfaces for code agents | 0 |
-| 20 | syntactic structures of agent programming languages | 0 |
+| 0 (initial) | llmXive follow-up: extending "Code as Agent Harness" linguistics | 4 |
 
 ### Verified citations
 

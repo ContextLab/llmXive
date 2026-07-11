@@ -1,0 +1,22 @@
+- artifact_hash: 873d2f8f2703cc854fbbab3afbfa760064bf6470a7c03dacc9f998df1aad81dd
+  artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "princeton-nlp/SWE-bench_Verified \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified
+  verified_at: '2026-07-11T11:21:39.223837Z'
+- artifact_hash: 873d2f8f2703cc854fbbab3afbfa760064bf6470a7c03dacc9f998df1aad81dd
+  artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "iFurySt/AgentBench \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/iFurySt/AgentBench`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/iFurySt/AgentBench
+  verified_at: '2026-07-11T11:21:39.223837Z'

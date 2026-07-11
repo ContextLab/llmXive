@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Task Artifact Schema
+description: Schema for validating task artifact data produced by the ingestion pipeline.
+type: object
+required:
+  - task_id
+  - code_diff
+  - dynamic_execution_outcome
+properties:
+  task_id:
+    type: string
+    description: Unique identifier for the task (e.g., from SWE-bench or AgentBench).
+    pattern: "^[a-zA-Z0-9_-]+$"
+  code_diff:
+    type: string
+    description: The git diff or code patch associated with the task.
+  original_code:
+    type: string
+    description: The original code before the patch (optional, for context).
+  dynamic_execution_outcome:
+    type: string
+    description: Result of executing the task in the baseline environment.
+    enum:
+      - Pass
+      - Fail
+      - Timeout
+      - Unparseable
+      - Error
+  metadata:
+    type: object
+    description: Optional metadata about the task source or processing.
+    properties:
+      source_dataset:
+        type: string
+        enum:
+          - SWE-bench
+          - AgentBench
+      source_id:
+        type: string
+      processing_timestamp:
+        type: string
+        format: date-time
+additionalProperties: false

@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Model Outcome Schema
+description: Schema for validating model training outcomes and threshold analysis results.
+type: object
+required:
+  - model_type
+  - thresholds
+  - minimum_fnr
+  - is_safe
+  - correlation_coefficient
+properties:
+  model_type:
+    type: string
+    description: Type of model trained (e.g., LogisticRegression, RandomForest).
+    enum:
+      - LogisticRegression
+      - RandomForest
+  training_seed:
+    type: integer
+    description: Random seed used for training reproducibility.
+  thresholds:
+    type: object
+    description: False Negative Rates (FNR) for each evaluated threshold.
+    properties:
+      0.01:
+        type: number
+        minimum: 0
+        maximum: 1
+      0.05:
+        type: number
+        minimum: 0
+        maximum: 1
+      0.1:
+        type: number
+        minimum: 0
+        maximum: 1
+    required:
+      - 0.01
+      - 0.05
+      - 0.1
+  minimum_fnr:
+    type: number
+    description: The minimum achievable False Negative Rate across all thresholds.
+    minimum: 0
+    maximum: 1
+  target_fnr:
+    type: number
+    description: The target False Negative Rate constraint (0.001 for 0.1%).
+    default: 0.001
+  is_safe:
+    type: boolean
+    description: Indicates if the model meets the safety constraint (FNR <= target).
+  correlation_coefficient:
+    type: number
+    description: Correlation coefficient between structural features and execution necessity.
+    minimum: -1
+    maximum: 1
+  associational_statement:
+    type: string
+    description: Explicit statement framing results as associational per FR-006.
+  optimal_threshold:
+    type: number
+    description: The selected optimal threshold based on safety constraints.
+  model_path:
+    type: string
+    description: Path to the saved model artifact.
+    pattern: "^models/.*\\.pkl$"
+additionalProperties: false

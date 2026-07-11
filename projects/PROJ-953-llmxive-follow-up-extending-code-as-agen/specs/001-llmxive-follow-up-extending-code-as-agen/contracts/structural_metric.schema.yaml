@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StructuralMetric Schema"
+description: "Schema for the structural feature metrics derived from code artifacts."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Foreign key to TaskArtifact."
+  dependency_depth:
+    type: "integer"
+    description: "Maximum depth of the dependency graph."
+    minimum: 0
+  cyclomatic_complexity:
+    type: "integer"
+    description: "McCabe cyclomatic complexity score."
+    minimum: 1
+  semantic_complexity_score:
+    type:
+      - "number"
+      - "null"
+    description: "Normalized semantic complexity score. Null if fallback metrics used."
+  lines_of_code:
+    type: "integer"
+    description: "Total lines of code in the diff."
+    minimum: 0
+  node_count:
+    type: "integer"
+    description: "Total nodes in the dependency graph."
+    minimum: 0
+  edge_count:
+    type: "integer"
+    description: "Total edges in the dependency graph."
+    minimum: 0
+required:
+  - task_id
+  - dependency_depth
+  - cyclomatic_complexity
+  - lines_of_code
+  - node_count
+  - edge_count
+additionalProperties: false

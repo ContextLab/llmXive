@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutcome Schema"
+description: "Schema for the model prediction results and validation metrics."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Identifier for the model run."
+  threshold:
+    type: "number"
+    description: "Decision boundary probability used for classification."
+    minimum: 0
+    maximum: 1
+  predicted_label:
+    type: "string"
+    description: "Predicted classification."
+    enum:
+      - "Static_Safe"
+      - "Dynamic_Required"
+  actual_label:
+    type: "string"
+    description: "Ground truth label."
+    enum:
+      - "Pass"
+      - "Fail"
+  is_false_negative:
+    type: "boolean"
+    description: "True if predicted Safe but actual Fail."
+  confidence_score:
+    type: "number"
+    description: "Model probability score."
+    minimum: 0
+    maximum: 1
+required:
+  - model_id
+  - threshold
+  - predicted_label
+  - actual_label
+  - is_false_negative
+  - confidence_score
+additionalProperties: false

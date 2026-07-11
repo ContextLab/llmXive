@@ -1,0 +1,13 @@
+T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`): 1
+? T002 [P] Initialize Python 3.11 project with `requirements.txt` (datasets, tree-sitter,
+  scikit-learn, pandas, networkx, radon, pytest, jsonschema)
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+? T004 [P] Create YAML schemas in `contracts/` named `task_artifact.schema.yaml`,
+  `structural_metric.schema.yaml`, and `model_outcome.schema.yaml` (YAML format, not
+  JSON) to validate data artifacts. The `structural_metric.schema.yaml` MUST explicitly
+  define `semantic_complexity_score` as optional and include the fallback metrics
+  (`lines_of_code`) in the schema definition.
+: 1
+T005 [P] Implement `scripts/update_state.py` to update `state/projects/...yaml` (Constitution Principle V): 1
+T006 [P] Setup `data/raw/`, `data/processed/`, and `data/graphs/` directories with `.gitkeep`: 1

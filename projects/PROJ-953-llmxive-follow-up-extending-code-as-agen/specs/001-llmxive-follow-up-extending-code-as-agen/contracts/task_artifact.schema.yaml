@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TaskArtifact Schema"
+description: "Schema for the ground truth task artifact dataset."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task instance."
+  dataset_name:
+    type: "string"
+    description: "Source dataset name (e.g., swe-bench-verified)."
+    enum:
+      - "swe-bench-verified"
+      - "swe-bench-lite"
+      - "agentbench-os"
+      - "agentbench-mas"
+  code_diff:
+    type: "string"
+    description: "The code modification patch."
+  original_code:
+    type: "string"
+    description: "The baseline code before modification."
+  dynamic_execution_outcome:
+    type: "string"
+    description: "Result of the full-environment execution."
+    enum:
+      - "Pass"
+      - "Fail"
+      - "Timeout/Fail"
+  is_unparseable:
+    type: "boolean"
+    description: "True if tree-sitter failed to parse the code."
+  parse_error_msg:
+    type:
+      - "string"
+      - "null"
+    description: "Error message if unparseable, otherwise null."
+required:
+  - task_id
+  - dataset_name
+  - code_diff
+  - dynamic_execution_outcome
+  - is_unparseable
+additionalProperties: false

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Structural Metric Schema
+description: Schema for validating structural metrics extracted from code artifacts.
+type: object
+required:
+  - task_id
+  - dependency_depth
+  - cyclomatic_complexity
+properties:
+  task_id:
+    type: string
+    description: Unique identifier for the task.
+    pattern: "^[a-zA-Z0-9_-]+$"
+  dependency_depth:
+    type: integer
+    description: Maximum depth of the dependency graph.
+    minimum: 0
+  cyclomatic_complexity:
+    type: integer
+    description: Cyclomatic complexity of the code.
+    minimum: 1
+  semantic_complexity_score:
+    type: number
+    description: Semantic complexity score derived from tree-sitter node analysis.
+    minimum: 0
+    nullable: true
+    x-optional: true
+    default: null
+  lines_of_code:
+    type: integer
+    description: Lines of code count (used as a fallback metric when semantic nodes are missing).
+    minimum: 0
+  fallback_metrics_used:
+    type: boolean
+    description: Indicates if fallback metrics were used instead of semantic analysis.
+    default: false
+  graph_file:
+    type: string
+    description: Path to the serialized dependency graph JSON file.
+    pattern: "^data/graphs/.*\\.json$"
+additionalProperties: false
