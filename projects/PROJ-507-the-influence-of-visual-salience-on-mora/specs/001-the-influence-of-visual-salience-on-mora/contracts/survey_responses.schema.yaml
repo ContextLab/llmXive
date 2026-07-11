@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Survey Responses Schema"
+description: "Schema for raw survey response data collected from participants."
+type: "object"
+properties:
+  response_id:
+    type: "string"
+    description: "Unique identifier for the response."
+    pattern: "^RESP_[0-9]+$"
+  stimulus_id:
+    type: "string"
+    description: "Foreign key linking to the stimulus manifest."
+    pattern: "^STI_[0-9]+_[LMH]$"
+  user_id:
+    type: "string"
+    description: "Anonymous session identifier."
+  blame_rating:
+    type: "integer"
+    description: "Participant's blame rating on a 1-7 Likert scale."
+    minimum: 1
+    maximum: 7
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of submission."
+  attention_check_pass:
+    type: "boolean"
+    description: "Whether the participant passed the attention check."
+  completion_status:
+    type: "string"
+    enum:
+      - "complete"
+      - "incomplete"
+      - "flagged"
+    description: "Status of the survey completion."
+required:
+  - response_id
+  - stimulus_id
+  - user_id
+  - blame_rating
+  - timestamp
+  - attention_check_pass
+  - completion_status
+additionalProperties: false

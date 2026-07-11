@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stimuli Manifest Schema"
+description: "Schema for the manifest file linking scenarios to manipulated stimuli. Used to validate data integrity before analysis."
+type: "object"
+properties:
+  scenario_id:
+    type: "string"
+    description: "Unique identifier for the source scenario."
+    pattern: "^SCN_[0-9]+$"
+  stimulus_id:
+    type: "string"
+    description: "Unique identifier for the specific stimulus variant."
+    pattern: "^STI_[0-9]+_[LMH]$"
+  salience_level:
+    type: "string"
+    enum:
+      - "low"
+      - "medium"
+      - "high"
+    description: "The level of visual salience applied."
+  image_path:
+    type: "string"
+    description: "Relative path to the processed image file."
+  ssim_score:
+    type: "number"
+    description: "Structural Similarity Index Score for non-target regions."
+    minimum: 0.0
+    maximum: 1.0
+  brightness_delta:
+    type: "number"
+    description: "Difference in mean brightness between target region and original."
+  artifact_flag:
+    type: "boolean"
+    description: "True if the image failed the realism/artifact check."
+required:
+  - scenario_id
+  - stimulus_id
+  - salience_level
+  - image_path
+  - ssim_score
+  - brightness_delta
+  - artifact_flag
+additionalProperties: false

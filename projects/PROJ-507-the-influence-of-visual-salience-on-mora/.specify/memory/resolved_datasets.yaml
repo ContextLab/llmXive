@@ -1,0 +1,108 @@
+resolved_at: '2026-07-11T14:31:29.171335+00:00'
+datasets:
+- intent: COCO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/prithivMLmods/COCO-Mini-DeepCaption-10K/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/detection-datasets/coco/resolve/main/data/train-00000-of-00040-67e35002d152155c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vikhyatk/coco-val/resolve/main/data/validation-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/prithivMLmods/COCO-Mini-DeepCaption-10K/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/laion/relaion-coco/resolve/main/part-00000-df26b0e6-b461-4259-8120-323af778933f-c000.snappy.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/detection-datasets/coco/resolve/main/data/train-00000-of-00040-67e35002d152155c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/vikhyatk/coco-val/resolve/main/data/validation-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Ultralytics/COCO8/resolve/main/labels/train/000000000009.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/journal_contribution/_b_Penerapan_Model_Hybrid_ARIMA-LSTM_dengan_Penambahan_Variabel_Nilai_Tukar_USD_IDR_dalam_Prediksi_Harga_Emas_b_/32963963
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Hydrogen_Plasma_Core_Transport_Systems_with_Dual_Counter-Rotating_Magnetic_Lenses_for_Cislunar_Infrastructure/32963957
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_How_Health_Chatbots_Influence_the_Adoption_of_AI-Generated_Health_Advice_in_Different_Populations_The_Moderation_Effects_of_Age_and_Goal_b_/32963954
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Pressure_volume_loop_dataset_biventricular_EF_determinants_in_endotoxic_shock_porcine_b_/32107939
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Breath_of_the_Cosmos_Generation_Decomposition_and_Hierarchical_Cycles/32963906
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13930108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20573001
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19722207
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14671547
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14615263
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/169153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.24406/publica-6987
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''publica.fraunhofer.de'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://ww2.nemar.org/dataset/nm000133?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/nm000133?v=v1.0.2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/nm000133
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
