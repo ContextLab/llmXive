@@ -1,0 +1,9 @@
+Complete the following Python function according to the specification below.
+Your code MUST be minified:
+- No whitespace except where syntactically required
+- No comments
+- No newlines except where syntactically required
+- Variable names should be as short as possible (e.g., a, b, i, x)
+- No docstrings
+
+{prompt}

@@ -1,0 +1,9 @@
+? "T005 [P] Create `config/analysis.yaml` defining seeds (42) [UNRESOLVED-CLAIM: c_7cf2fd2d\
+  \ \u2014 status=not_enough_info], thresholds (\u03B1), batch size start (50) [UNRESOLVED-CLAIM:\
+  \ c_1bdc0b9a \u2014 status=not_enough_info], and timeout limits (5m) [UNRESOLVED-CLAIM:\
+  \ c_f3367aaf \u2014 status=not_enough_info]"
+: 1
+T010 [P] [US1] Write failing unit test for prompt loading and validation in `tests/unit/test_prompts.py`: 1
+? T011 [US1] Write failing integration test for generation loop with timeout and memory
+  probing in `tests/integration/test_generation.py`
+: 1

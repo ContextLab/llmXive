@@ -1,0 +1,427 @@
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: project uses openai/human-eval dataset
+  claim_id: c_c0246840
+  context: Implement code/generation/loader.py to download openai/human-eval via datasets
+    library and cache to data/raw/humaneval/
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_openai/human-eval_dataset
+  kind: entity_fact
+  raw_text: The project uses the openai/human-eval dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T10:38:33Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: analysis uses Spearman correlation coefficient
+  claim_id: c_0df4d78e
+  context: 'Implement code/analysis/metrics.py collinearity check: compute Spearman
+    correlation coefficient between AST distance and n-gram entropy (per FR-017)...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: rs = 0.90303.
+      source_id: '0805.0383'
+      url: https://arxiv.org/abs/0805.0383
+      value: '0.90303'
+    filled: true
+  kind: entity_fact
+  raw_text: The analysis uses the Spearman correlation coefficient.
+  resolved_value: '0.90303'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T10:38:55Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: power limitation warning flags if N=164 tasks is insufficient
+  claim_id: c_a471b138
+  context: 'Implement power limitation warning in code/analysis/reporter.py: flag
+    if effect sizes are small or N=164 tasks is insufficient for robust conclusion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power limitation warning flags if N=164 tasks is insufficient for
+    robust conclusion.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T10:39:18Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: project uses Python 3.11
+  claim_id: c_ba1add3c
+  context: Initialize Python 3.11 virtual environment and create code/requirements.txt
+    with pinned versions...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T10:39:33Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: flag if N=164 tasks is insufficient for robust conclusion
+  claim_id: c_8fcb6ac2
+  context: 'Implement power limitation warning in code/analysis/reporter.py: flag
+    if effect sizes are small or N=164 tasks is insufficient for robust conclusion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag if effect sizes are small or N=164 tasks is insufficient for robust
+    conclusion
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T10:44:16Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: verify total runtime < 6 hours
+  claim_id: c_bd02c6d6
+  context: 'Performance optimization: verify total runtime < 6 hours on CI (simulate
+    with subset if needed)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify total runtime < 6 hours on CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T10:44:16Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: generation temperature 0.7 seed 42
+  claim_id: c_c10e1eb5
+  context: 'Implement code/generation/generator.py generation loop: generate multiple
+    samples per task per style (T=0.7, seed=42), enforce 5m timeout per task, log
+    a timeout error and skip the task if exceeded, and immediately write raw samples
+    to data/processed/samples_all.csv (task_id, style, sample_id, code, pass_status=null)
+    before any testing or filtering occurs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T=0.7, seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T10:59:49Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: enforce 5 minute timeout per task
+  claim_id: c_ae024adc
+  context: 'Implement code/generation/generator.py generation loop: generate multiple
+    samples per task per style (T=0.7, seed=42), enforce 5m timeout per task, log
+    a timeout error and skip the task if exceeded, and immediately write raw samples
+    to data/processed/samples_all.csv (task_id, style, sample_id, code, pass_status=null)
+    before any testing or filtering occurs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce 5m timeout per task
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:00:08Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: reduce batch size if memory usage exceeds 7GB
+  claim_id: c_60526725
+  context: 'Implement code/generation/generator.py with dynamic batch sizing: probe
+    memory, reduce batch size if >7GB, log every reduction step to memory_log.json'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reduce_batch_size_if_memory_usage_exceeds_7GB
+  kind: entity_fact
+  raw_text: reduce batch size if >7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:00:47Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: configuration seeds set to 42
+  claim_id: c_7cf2fd2d
+  context: "Create config/analysis.yaml defining seeds (42), thresholds (\u03B1),\
+    \ batch size start (50), and timeout limits (5m)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seeds (42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:01:45Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: configuration batch size start set to 50
+  claim_id: c_1bdc0b9a
+  context: "Create config/analysis.yaml defining seeds (42), thresholds (\u03B1),\
+    \ batch size start (50), and timeout limits (5m)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: batch size start (50)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:02:11Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: configuration timeout limits set to 5 minutes
+  claim_id: c_f3367aaf
+  context: "Create config/analysis.yaml defining seeds (42), thresholds (\u03B1),\
+    \ batch size start (50), and timeout limits (5m)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: timeout limits (5m)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:02:29Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: effect size analysis based on 164 tasks
+  claim_id: c_6e91249c
+  context: 'Implement power limitation warning in code/analysis/reporter.py: flag
+    if effect sizes are small or N=164 tasks is insufficient for robust conclusion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=164 tasks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:02:42Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 2
+  canonical: N=164 tasks insufficient for robust conclusion
+  claim_id: c_7234363a
+  context: 'Implement power limitation warning in code/analysis/reporter.py: flag
+    if effect sizes are small or N=164 tasks is insufficient for robust conclusion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=164 tasks is insufficient for robust conclusion
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:23:27Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Spearman correlation between AST distance and n-gram entropy for collinearity
+    check
+  claim_id: c_ff684a34
+  context: 'Implement code/analysis/metrics.py collinearity check: compute Spearman
+    correlation coefficient between AST distance and n-gram entropy (per FR-017) using
+    data from T025/T026. If r > 0.9, flag Redundant Metrics and recommend AST distance
+    as primary.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_correlation_between_AST_distance_and_n-gram_entropy
+  kind: entity_fact
+  raw_text: Spearman correlation coefficient between AST distance and n-gram entropy
+    is used to check collinearity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:23:51Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Dunn's test with Bonferroni correction performed if Kruskal-Wallis significant
+  claim_id: c_333db2e8
+  context: 'Implement code/analysis/stats.py post-hoc analysis: perform Dunn''s test
+    with Bonferroni correction if Kruskal-Wallis is significant (US-3 Acceptance Scenario
+    1)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dunn's_test_with_Bonferroni_correction_performed_if_Kruskal-
+  kind: entity_fact
+  raw_text: Dunn's test with Bonferroni correction is performed if Kruskal-Wallis
+    is significant
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:24:12Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Kruskal-Wallis H-test used to compare diversity distributions across
+    three style groups
+  claim_id: c_74eafbd5
+  context: Implement code/analysis/stats.py Kruskal-Wallis H-test using scipy to compare
+    diversity distributions across three style groups (FR-006, US-3)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kruskal-Wallis_H-test_used_to_compare_diversity_distribution
+  kind: entity_fact
+  raw_text: Kruskal-Wallis H-test is used to compare diversity distributions across
+    three style groups
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:24:31Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Python 3.11 virtual environment used
+  claim_id: c_1ac921f0
+  context: Initialize Python 3.11 virtual environment and create code/requirements.txt
+    with pinned versions (transformers, torch-cpu, datasets, networkx, scipy, pandas,
+    pytest)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 virtual environment is used
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:24:45Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Batch size starts at 50
+  claim_id: c_0d9fec22
+  context: "Create config/analysis.yaml defining seeds (42), thresholds (\u03B1),\
+    \ batch size start (50), and timeout limits (5m)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Batch size starts at 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:24:45Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Timeout limit is 5 minutes per task
+  claim_id: c_f28950c9
+  context: "Create config/analysis.yaml defining seeds (42), thresholds (\u03B1),\
+    \ batch size start (50), and timeout limits (5m)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Timeout limit is 5 minutes per task
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:24:59Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Total runtime less than 6 hours on CI
+  claim_id: c_7223ea64
+  context: 'Performance optimization: verify total runtime < 6 hours on CI (simulate
+    with subset if needed)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: Total runtime must be less than 6 hours on CI
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:25:24Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Memory usage threshold for batch size reduction is 7GB
+  claim_id: c_b65c65fb
+  context: 'Implement code/generation/generator.py with dynamic batch sizing: probe
+    memory, reduce batch size if >7GB, log every reduction step to memory_log.json'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_threshold_for_batch_size_reduction_is_7GB
+  kind: entity_fact
+  raw_text: Memory usage threshold for batch size reduction is 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:25:43Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Pass rate threshold for halting execution is 1%
+  claim_id: c_31b01a2b
+  context: Implement code/generation/pipeline.py to calculate pass rates; if pass
+    rate for any style group is < 1%, HALT execution immediately, log Model Incapability
+    warning, and prevent entry into Phase 4 (Metrics).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pass rate threshold for halting execution is 1%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:25:43Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Spearman correlation r greater than 0.9 flags Redundant Metrics
+  claim_id: c_77a20fce
+  context: 'Implement code/analysis/metrics.py collinearity check: compute Spearman
+    correlation coefficient between AST distance and n-gram entropy (per FR-017) using
+    data from T025/T026. If r > 0.9, flag Redundant Metrics and recommend AST distance
+    as primary.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spearman_correlation_r_greater_than_0.9_flags_Redundant_Metr
+  kind: magnitude
+  raw_text: Spearman correlation coefficient r greater than 0.9 flags Redundant Metrics
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T11:26:44Z'

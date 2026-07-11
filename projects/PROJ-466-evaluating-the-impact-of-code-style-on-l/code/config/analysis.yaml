@@ -1,0 +1,26 @@
+# Configuration for the Code Style Diversity Evaluation Pipeline
+# Generated for PROJ-466
+
+# Random seeds for reproducibility
+seeds:
+  generation: 42
+  analysis: 42
+
+# Thresholds for statistical significance and bias detection
+thresholds:
+  alpha: 0.05
+  bias_magnitude: 0.1
+  min_pass_rate: 0.01
+
+# Batch processing configuration
+batch:
+  start_size: 50
+  min_size: 1
+  memory_threshold_gb: 7.0
+
+# Timeout limits in minutes
+timeouts:
+  generation_task: 5
+  testing_task: 2
+  metrics_task: 5
+  stats_task: 5

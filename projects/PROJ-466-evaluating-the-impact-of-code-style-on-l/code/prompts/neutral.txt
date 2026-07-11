@@ -1,0 +1,5 @@
+Complete the following Python function according to the specification below.
+You may use any coding style, formatting, or variable naming convention you prefer.
+There are no style constraints imposed. Focus solely on correctness.
+
+{prompt}

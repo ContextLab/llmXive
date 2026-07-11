@@ -1,0 +1,28 @@
+# Configuration for Code Style Diversity Evaluation
+# Matches task T005 requirements
+
+seeds:
+  generation: 42
+  analysis: 42
+
+thresholds:
+  alpha: 0.05
+  bias_magnitude: 0.10
+  min_pass_rate: 0.01
+
+generation:
+  batch_size_start: 50
+  samples_per_task: 20
+  temperature: 0.7
+  timeout_minutes: 5
+
+memory:
+  max_usage_gb: 7.0
+  reduction_step: 10
+
+paths:
+  raw_data: data/raw/humaneval
+  processed: data/processed
+  figures: figures
+  logs: logs
+  state: state
