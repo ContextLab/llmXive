@@ -1,0 +1,78 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: VAERS Dataset Schema
+description: >
+  Schema defining the required columns and data types for the cleaned VAERS dataset
+  used in the statistical analysis of COVID-19 vaccine adverse event reports.
+type: object
+required:
+  - VAX_TYPE
+  - SOC_CODE
+  - LLT
+  - REPT_DATE
+  - AGE
+properties:
+  VAX_TYPE:
+    type: string
+    description: >
+      Vaccine type classification. Must be one of:
+      - "COVID-19" (for COVID-19 vaccine reports)
+      - "Non-COVID" (for all other vaccines)
+      - "Non-COVID, Non-Flu" (subset of Non-COVID excluding influenza)
+      - "Flu-only" (subset for sensitivity analysis)
+    minLength: 1
+  SOC_CODE:
+    type: string
+    description: >
+      System Organ Class code (MedDRA SOC). Must be a valid 5-digit MedDRA SOC code
+      (e.g., "100000004" for Blood and lymphatic system disorders).
+    pattern: "^[0-9]{8}$"
+  LLT:
+    type: string
+    description: >
+      Lowest Level Term (MedDRA LLT) description corresponding to the adverse event.
+      May contain alphanumeric characters, spaces, and punctuation.
+    minLength: 1
+  REPT_DATE:
+    type: string
+    description: >
+      Report date in YYYY-MM-DD format. Used for temporal analysis and filtering.
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+  AGE:
+    type: number
+    description: >
+      Age of the patient in years. Must be a non-negative number.
+      Missing ages should be represented as null or a sentinel value (e.g., -1)
+      depending on the data loading strategy.
+    minimum: -1
+  # Optional metadata columns that may be present but are not strictly required
+  # for the core statistical analysis
+  CASE_ID:
+    type: string
+    description: Unique VAERS case identifier.
+  STATE:
+    type: string
+    description: US state code or "Unknown".
+  SEX:
+    type: string
+    description: Patient sex (M, F, U).
+  DEATH:
+    type: boolean
+    description: Whether the outcome was fatal.
+  DAYS_TO_ONSET:
+    type: integer
+    description: Days from vaccination to symptom onset (if available).
+additionalProperties: true
+# Validation rules for data quality
+rules:
+  - name: valid_vax_type
+    description: VAX_TYPE must be one of the expected categories
+    condition: "VAX_TYPE in ['COVID-19', 'Non-COVID', 'Non-COVID, Non-Flu', 'Flu-only']"
+  - name: valid_soc_format
+    description: SOC_CODE must be an 8-digit MedDRA code
+    condition: "SOC_CODE matches regex '^[0-9]{8}$'"
+  - name: valid_date_format
+    description: REPT_DATE must be in ISO 8601 format
+    condition: "REPT_DATE matches regex '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'"
+  - name: non_negative_age
+    description: AGE must be >= -1 (where -1 indicates missing)
+    condition: "AGE >= -1"

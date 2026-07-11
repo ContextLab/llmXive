@@ -1,6 +1,6 @@
 # Tasks: Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports
 
-**Input**: Design documents from `/specs/001-covid-vaccine-signal-detection/`
+**Input**: Design documents from `/specs/001-statistical-analysis-covid-vaers/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -20,31 +20,15 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+---
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create project directory structure (`code/`, `data/`, `tests/`, `docs/`) per implementation plan
-- [ ] T001b Create `requirements.txt` with pinned dependencies: pandas, polars, statsmodels, scipy, matplotlib, requests
+- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `output/`)
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, numpy, scipy, requests, pyarrow, matplotlib, pytest, pytest-cov)
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -54,44 +38,48 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Initialize Python 3.11 virtual environment and install dependencies from `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Setup `data/raw/`, `data/processed/`, and `data/outputs/` directory structure with `.gitkeep`
-- [ ] T005b [P] Run "Repository-Hygiene Agent's PII scan" as a blocking gate before any data download or commit; generate pass/fail report artifact (Constitution Principle III)
-- [ ] T005 [P] Implement `code/ingestion/download.py` skeleton with checksum verification logic; write checksum to `state/...yaml` artifact_hashes map (Constitution Principle III)
-- [ ] T006 [P] Create MedDRA hierarchy loader in `code/ingestion/meddra_loader.py` using official mapping
-- [ ] T007 [P] Create base data models (VAERS_Report, SOC_Cluster) in `code/analysis/models.py`
-- [ ] T008 [P] Configure logging infrastructure in `code/utils/logging_config.py`
-- [ ] T009 [P] Create `code/main.py` orchestrator skeleton with argument parsing and basic flow
-- [ ] T010 [P] Setup environment configuration management for data paths and random seeds in `code/config.py`
-- [ ] T012a [P] Verify source data schema for `vaccination_date` and `onset_date` fields; if missing, document the absence and formally record the waiver of FR-007's 14-30 day window in favor of Calendar-Time Anomaly Detection
-- [ ] T012b [P] Generate the "Media Event Flag" dataset (derived from CDC press releases/news) and save to `data/processed/media_event_flag.csv` for use in Bias Adjustment and Temporal Analysis
+- [ ] T004 [P] Create `src/utils/config.py` to define paths, random seeds, and metric thresholds (ROR>2.0, PRR>1.5, IC>0). **Include an embedded dictionary `KNOWN_BACKGROUND_RATES` mapping SOC codes to published incidence rates (source: CDC literature) for use in T024b.**
+- [ ] T005 [P] Create `contracts/dataset.schema.yaml` defining required columns (`VAX_TYPE`, `SOC_CODE`/`LLT`, `REPT_DATE`, `AGE`)
+- [ ] T006 [P] Create `contracts/signal.schema.yaml` defining output structure for signals (ROR, PRR, IC, CI, adjusted_p)
+- [~] T007 Implement `src/data/validate.py` to check raw data against `dataset.schema.yaml` and exit with `E_SCHEMA_MISSING` if failed
+- [~] T008 Implement `src/utils/plots.py` with helpers for generating matplotlib figures (weekly counts, signal tables)
+- [~] T009 Create `src/main.py` as the pipeline orchestrator that enforces phase order and memory checks
+- [~] T039 [US1] Integrate memory check logic into `src/main.py` to halt if RAM usage > 5 GB during data cleaning and enable chunked processing. **Must be completed before T014.**
+- [~] T040 [US2] Integrate memory check logic into `src/main.py` to halt if RAM usage > 7 GB during disproportionality analysis. **Must be completed before T024.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Data Acquisition and Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Download, clean, merge, and map VAERS datasets (2020-2023) to create a unified, analysis-ready dataset with SOC mappings.
+**Goal**: Download, clean, and merge VAERS 2020-2023 datasets, filtering by vaccine type and mapping MedDRA to SOCs.
 
-**Independent Test**: The pipeline can be fully tested by running the ingestion script on a small, synthetic subset of VAERS data and verifying that the output CSV contains correctly mapped SOCs, distinct vaccine type flags, and no duplicate or malformed records.
+**Independent Test**: The pipeline runs end-to-end on CPU, outputting a consolidated CSV with valid `VAX_TYPE` ("COVID-19" or "Non-COVID") and non-empty `SOC` fields, with row count > 0.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T011 [P] [US1] Unit test for MedDRA mapping logic in `tests/unit/test_meddra_mapping.py`
-- [ ] T012 [P] [US1] Unit test for chunked processing memory limits in `tests/unit/test_chunked_processing.py`
+- [~] T010 [P] [US1] Unit test for `src/data/download.py` verifying checksum logic in `tests/unit/test_download.py`
+- [~] T011 [P] [US1] Unit test for `src/data/validate.py` ensuring `E_SCHEMA_MISSING` is raised on missing columns in `tests/unit/test_validate.py`
+- [~] T012 [P] [US1] Integration test for data pipeline producing valid cleaned CSV in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `code/ingestion/download.py` to fetch VAERS 2020-2023 CSVs from official CDC source (depends on T005 skeleton)
-- [ ] T014 [P] [US1] Implement `code/ingestion/preprocess.py` to filter records, handle missing critical fields, and deduplicate (depends on T006 MedDRA loader for validation)
-- [ ] T015 [US1] Implement `code/ingestion/merge.py` to join COVID vs. non-COVID data and map MedDRA codes to SOCs using `code/ingestion/meddra_loader.py`
-- [ ] T016 [US1] Implement chunked processing logic in `code/ingestion/merge.py` to ensure peak RAM usage remains within acceptable memory constraints.
-- [ ] T017 [US1] Add validation logic to ensure `VAX_TYPE`, `SOC_CODE`, `SOC_NAME`, and `REPORT_DATE` are present in output
-- [ ] T018 [US1] Add logging for ingestion steps, warnings for missing MedDRA codes, and memory usage metrics
+- [~] T013 [P] [US1] Implement `src/data/download.py` to fetch VAERS 2020-2023 CSVs from ` or verified mirror, saving to `data/raw/`
+- [~] T014 [US1] Implement `src/data/clean.py` to:
+ - Filter records where `VAX_TYPE` contains "COVID-19"
+ - Filter records where `VAX_TYPE` does NOT contain "COVID-19" to define the primary "Non-COVID" baseline group (all other vaccines).
+ - Create a subset of the "Non-COVID" group where `VAX_TYPE` does NOT contain "Influenza" to define the "Non-COVID, Non-Flu" sensitivity group.
+ - Exclude records with missing `SOC` or `REPT_DATE`
+ - Map MedDRA codes to System Organ Classes (SOC) using an embedded mapping table
+ - **Implement memory optimization (chunked reading) and RAM monitoring to process data if size > 5 GB, ensuring RAM usage stays < 7 GB.**
+ - **Output artifacts: `data/processed/cleaned_vaers.parquet` and `data/processed/cleaned_vaers.csv`**
+- [ ] T016 [US1] Implement `src/data/clean.py` logic to separate data into:
+ - `COVID-19` group
+ - `Non-COVID` baseline group (Primary: all other vaccines)
+ - `Non-COVID, Non-Flu` sensitivity group (Subset of Non-COVID)
+ - `Flu-only` group for sensitivity analysis
+- [ ] T018 [US1] Add logging in `src/data/clean.py` to report row counts per group and memory usage stats
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,66 +87,77 @@
 
 ## Phase 4: User Story 2 - Disproportionality Signal Detection (Priority: P2)
 
-**Goal**: Calculate ROR, PRR, and IC for every SOC, apply Benjamini-Hochberg correction, and identify robust signals based on multi-metric consistency.
+**Goal**: Calculate ROR, PRR, and IC for each SOC, apply Benjamini-Hochberg correction, and identify signals based on 2-out-of-3 metric thresholds.
 
-**Independent Test**: The analysis can be tested by running the calculation module on a static, pre-computed contingency table and verifying that the output ROR, PRR, and IC values match manual calculations or known benchmarks within an acceptable tolerance.
+**Independent Test**: Analysis script produces a table of metrics with finite, non-NaN values for all SOCs with ≥5 reports, and correctly flags signals meeting the 2-out-of-3 rule.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Contract test for ROR calculation in `tests/unit/test_ror_calculation.py`
-- [ ] T020 [P] [US2] Unit test for Benjamini-Hochberg FDR control in `tests/unit/test_fdr_control.py` using synthetic data
-- [ ] T021 [P] [US2] Unit test for edge case handling (zero denominator) in `tests/unit/test_edge_cases.py`
+- [ ] T019 [P] [US2] Unit test for `src/analysis/disproportionality.py` verifying ROR/PRR/IC calculation logic with continuity correction in `tests/unit/test_disproportionality.py`
+- [ ] T020 [P] [US2] Unit test for Benjamini-Hochberg correction ensuring monotonic p-values in `tests/unit/test_bh_correction.py`
+- [ ] T021 [P] [US2] Integration test for signal detection producing `output/signals.csv` in `tests/integration/test_signal_detection.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `code/analysis/disproportionality.py` with ROR, PRR, and IC calculation functions
-- [ ] T023 [US2] Implement Benjamini-Hochberg correction logic in `code/analysis/disproportionality.py` for multiple SOC testing
-- [ ] T024 [US2] Implement `code/analysis/signal_detection.py` to identify signals where ROR lower 95% CI > 1.0 AND consistency across ≥2 metrics; MUST include the "Bias Adjustment" step by including the "Media Event Flag" (from T012b at `data/processed/media_event_flag.csv`) as a covariate in the calculation to isolate signals from reporting artifacts (depends on T012b)
-- [ ] T025 [US2] Implement logic to handle division-by-zero in PRR/IC calculations (return infinity or skip with warning)
-- [ ] T026 [US2] Implement validation gate in `code/main.py` (depends on T009) to check SC-001 (≥95% SOCs have valid ROR with non-zero denominator) and exit with error code 1 if failed
-- [ ] T027 [US2] Add logging for signal detection steps, FDR control results, and excluded SOCs due to insufficient data
+- [ ] T022 [P] [US2] Implement `src/analysis/disproportionality.py` to generate 2x2 contingency tables for each SOC (Event/No Event vs. COVID-19/Non-COVID)
+- [ ] T023 [P] [US2] Implement continuity correction (add 0.5) in `src/analysis/disproportionality.py` for zero-count cells to prevent division by zero
+- [ ] T024 [US2] Implement calculation of ROR, PRR, and IC with 95% confidence intervals in `src/analysis/disproportionality.py` for SOCs with ≥5 total reports
+- [ ] T024b [US2] Implement "Background Rate Unknown" flagging mechanism in `src/analysis/disproportionality.py`. **Implementation detail: Lookup SOC code against the `KNOWN_BACKGROUND_RATES` dictionary in `src/utils/config.py`. If not found, flag as 'Background Rate Unknown'.**
+- [ ] T025 [US2] Implement Benjamini-Hochberg FDR correction in `src/analysis/disproportionality.py` to adjust p-values across all SOC tests
+- [ ] T026 [US2] Implement signal validation logic in `src/analysis/disproportionality.py` to flag signals meeting the 2-out-of-3 rule (ROR>2.0/CI>1.0, PRR>1.5/CI>1.0, IC>0/CI>0)
+- [ ] T028 [US2] Generate `output/signals.csv` containing all metrics, adjusted p-values, and signal flags. **This task must complete before T027.**
+- [ ] T027 [US2] Implement sensitivity analysis in `src/analysis/sensitivity.py` comparing "Non-COVID, Non-Flu" baseline vs. "Flu-only" baseline for top 5 signals, explicitly calculating and writing the delta in metrics to `output/sensitivity_analysis.csv`. **Depends on T028 (output/signals.csv).**
+- [ ] T029 [US2] Generate `output/sensitivity_analysis.csv` containing delta metrics for top 5 signals
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Temporal Clustering and Visualization (Priority: P3)
+## Phase 5: User Story 3 - Descriptive Temporal Profile (Priority: P3)
 
-**Goal**: Perform calendar-time anomaly detection (Poisson regression) on top signals, compare against non-COVID baseline, and generate forest plots.
+**Goal**: Generate weekly reporting profiles for top 5 candidate SOCs relative to median report date, acknowledging data limitations.
 
-**Independent Test**: The visualization module can be tested by feeding it a static set of ROR values and confidence intervals and verifying that the generated PDF/PNG forest plot correctly displays the point estimates and error bars for a representative subset of SOCs.
+**Independent Test**: Script generates time-series plots for top SOCs labeled as "Reporting Time" and correctly applies Benjamini-Hochberg correction to cross-sectional metrics.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 3
 
-- [ ] T028 [P] [US3] Unit test for Poisson regression on synthetic weekly counts in `tests/unit/test_temporal.py` (verify that the model identifies the known spike with p < 0.05)
-- [ ] T029 [P] [US3] Unit test for forest plot generation in `tests/unit/test_forest_plot.py`
+- [ ] T030 [P] [US3] Unit test for `src/analysis/temporal.py` verifying weekly aggregation logic in `tests/unit/test_temporal.py`
+- [ ] T031 [P] [US3] Integration test for temporal profile generation producing plots in `tests/integration/test_temporal_profiles.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement control-group comparison using Reports per Million Doses (RPMD) with non-COVID vaccine doses from CDC reports (depends on T009 for data download; URL:; output: `data/processed/rpmd_denominators.csv`)
-- [ ] T035 [US3] Implement `code/analysis/temporal.py` with Poisson regression for weekly reporting counts (Calendar-Time Anomaly Detection); MUST load the "Media Event Flag" from `data/processed/media_event_flag.csv` (created in T012b) and include it as a mandatory covariate in the model to control for reporting artifacts (depends on T012b and T030)
-- [ ] T031 [US3] Implement `code/visualization/forest_plot.py` to generate forest plots for top candidate signals with 95% CI (depends on T035 results and T030 for context)
-- [ ] T032 [US3] Implement logic to handle missing background rates (mark as 'N/A' and proceed with internal baseline)
-- [ ] T033 [US3] Add validation to ensure temporal clustering p-values are calculated correctly and reported
-- [ ] T034 [US3] Add logging for temporal analysis steps, model convergence, and visualization output paths
+- [ ] T032 [US3] Implement `src/analysis/temporal.py` to identify top 5 candidate SOCs from `output/signals.csv`. **Prerequisite: T028 must be complete.**
+- [ ] T033 [US3] Implement weekly aggregation in `src/analysis/temporal.py` relative to the group median `REPT_DATE` (not vaccination date) and generate the specific weekly count plot files (PNG) for the top-ranked SOCs
+- [ ] T034 [US3] Implement plotting logic in `src/analysis/temporal.py` to generate figures labeled "Reporting Time" (explicitly noting lack of `VACCINATION_DATE` data)
+- [ ] T035 [US3] Generate `output/temporal_profiles/` directory containing weekly count plots for top 5 SOCs
+- [ ] T037 [US3] Add disclaimer in `output/report.md` that temporal analysis is descriptive and does not establish causality
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 7: Output & Validation (Priority: P1)
+
+**Goal**: Generate final report and validate that all required output files exist.
+
+**Independent Test**: `output/report.md` contains all metrics, temporal profiles, sensitivity analysis, and limitations.
+
+- [ ] T043 [US3] Generate `output/report.md` compiling all metrics, temporal profiles, sensitivity analysis, and limitations. **Note: SC-005 is deferred per spec; do not include validation logic for it.**
+- [ ] T044 [P] Run final validation script to ensure all required output files exist and are non-empty
+- [ ] T045 [P] Verify `output/report.md` includes explicit disclaimer about "Reporting Propensity" vs "Absolute Risk"
+
+**Checkpoint**: Final validation complete
+
+---
+
+## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036a [P] Profile memory usage in `code/ingestion/merge.py` and optimize chunk size
-- [ ] T036b [P] Profile memory usage in `code/analysis/disproportionality.py` and optimize data structures
-- [ ] T036c [P] Instrument pipeline to log actual peak RAM metric to `state/...yaml` artifact to verify SC-004 (≤7GB)
-- [ ] T036d [P] Add explicit instrumentation to log the *actual* peak RAM measurement during the full run to the `state/...yaml` artifact to satisfy SC-004 verification (distinct from profiling in T036a/b)
-- [ ] T037 Run end-to-end timing test on `code/main.py` with full dataset to verify runtime ≤ 6 hours
-- [ ] T038 [P] Documentation updates in `docs/research.md` detailing methodology and limitations
-- [ ] T039 [P] Additional integration tests in `tests/integration/test_pipeline.py` for end-to-end flow
-- [ ] T040 [P] Security hardening: Run data sanitization scripts and validate security posture (distinct from PII scan in T005b)
-- [ ] T041 Run `quickstart.md` validation to ensure all paths and dependencies are correct
+- [ ] T046 [P] Documentation updates in `README.md` and `docs/`
+- [ ] T047 Code cleanup and refactoring
+- [ ] T049 [P] Additional unit tests for edge cases (zero counts, missing background rates) in `tests/unit/`
+- [ ] T050 Run quickstart.md validation
 
 ---
 
@@ -171,19 +170,19 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Output & Validation (Phase 7)**: Depends on all user stories
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on signals from US2 and data from US1
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 signal identification
 
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
+- Models/Config before services/logic
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -191,9 +190,8 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, US1, US2, US3 can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
 ---
@@ -201,12 +199,14 @@
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for MedDRA mapping logic in tests/unit/test_meddra_mapping.py"
-Task: "Unit test for chunked processing memory limits in tests/unit/test_chunked_processing.py"
+# Launch all tests for User Story 1 together:
+Task: "Unit test for src/data/download.py in tests/unit/test_download.py"
+Task: "Unit test for src/data/validate.py in tests/unit/test_validate.py"
+Task: "Integration test for data pipeline in tests/integration/test_pipeline.py"
 
-# Launch all models for User Story 1 together:
-Task: "Create base data models (VAERS_Report, SOC_Cluster) in code/analysis/models.py"
+# Launch all data processing tasks together:
+Task: "Implement src/data/download.py"
+Task: "Implement src/data/clean.py (filtering and mapping)"
 ```
 
 ---
@@ -235,9 +235,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Disproportionality Analysis)
+ - Developer C: User Story 3 (Temporal Analysis)
 3. Stories complete and integrate independently
 
 ---
@@ -251,3 +251,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical**: Ensure all data processing tasks respect the 7 GB RAM limit and use chunked processing where necessary.
+- **Critical**: Ensure all statistical calculations handle zero counts via continuity correction.
+- **Critical**: Ensure temporal analysis is explicitly labeled as "Reporting Time" and not "Post-Vaccination Time".
+- **Critical**: SC-005 is marked [deferred] in the spec; no implementation is required for the proportion of signals satisfying the 2-out-of-3 rule beyond the initial validation in T026.

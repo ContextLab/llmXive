@@ -1,100 +1,100 @@
 # Feature Specification: Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports
 
-**Feature Branch**: `001-covid-vaccine-signal-detection`  
+**Feature Branch**: `001-statistical-analysis-covid-vaers`  
 **Created**: 2026-07-05  
 **Status**: Draft  
 **Input**: User description: "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
+### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
 
-The system MUST download, clean, and merge VAERS datasets for both COVID-19 and non-COVID vaccines across recent reporting years., mapping raw MedDRA codes to System Organ Classes (SOCs) to create a unified analysis-ready dataset.
+The system must successfully download, clean, and merge the VAERS 2020-2023 datasets (COVID-19 and non-COVID) and filter them by vaccine type to prepare for analysis.
 
-**Why this priority**: Without a clean, merged, and categorized dataset, no statistical analysis can be performed. This is the foundational data layer required for all subsequent signal detection.
+**Why this priority**: This is the foundational step; without clean, filtered data, no statistical analysis can be performed. It represents the Minimum Viable Product (MVP) for data readiness.
 
-**Independent Test**: The pipeline can be fully tested by running the ingestion script on a small, synthetic subset of VAERS data and verifying that the output CSV contains correctly mapped SOCs, distinct vaccine type flags, and no duplicate or malformed records.
+**Independent Test**: The pipeline can be run end-to-end on a CPU-only environment, outputting a consolidated CSV file containing only valid records with `VAX_TYPE` classified as "COVID-19" or "Non-COVID" and valid MedDRA-coded adverse events.
 
 **Acceptance Scenarios**:
 
-1. **Given** raw VAERS CSV files for 2020-2023, **When** the ingestion script runs, **Then** the output file contains a unified table with columns for `VAX_TYPE`, `SOC_CODE`, `SOC_NAME`, and `REPORT_DATE`, filtering out records with missing critical fields.
-2. **Given** a raw MedDRA code (e.g., 10007541), **When** the mapping logic executes, **Then** the record is correctly assigned to the corresponding System Organ Class (e.g., "Cardiac disorders") based on the provided MedDRA hierarchy.
-3. **Given** a dataset exceeding 7GB in raw size, **When** the processing runs on a 7GB RAM environment, **Then** the script processes the data in chunks or streams to prevent memory overflow, completing within 6 hours.
+1. **Given** the VAERS 2020-2023 raw data files are available at the specified URL, **When** the download and extraction script runs, **Then** the local storage contains the extracted CSV files with no corruption.
+2. **Given** the raw data files, **When** the cleaning script filters for `VAX_TYPE` and removes records with missing MedDRA codes, **Then** the output dataset contains only records with a valid `VAX_TYPE` classification and a non-empty `SOC` field.
+3. **Given** the merged dataset, **When** the script validates the output, **Then** the output file is a valid CSV with a row count > 0 and all required columns (`VAX_TYPE`, `SOC`, `REPT_DATE`) are populated.
 
 ---
 
 ### User Story 2 - Disproportionality Signal Detection (Priority: P2)
 
-The system MUST calculate Reporting Odds Ratio (ROR), Proportional Reporting Ratio (PRR), and Information Component (IC) for every System Organ Class comparing COVID-19 vaccines against non-COVID vaccines, applying Benjamini-Hochberg correction for multiple comparisons.
+The system must calculate Reporting Odds Ratio (ROR), Proportional Reporting Ratio (PRR), and Information Component (IC) for each System Organ Class (SOC) comparing COVID-19 vaccines to non-COVID vaccines, and perform a sensitivity analysis against a Flu-only baseline.
 
-**Why this priority**: This is the core statistical engine of the project. It directly addresses the research question by quantifying the association between vaccine types and adverse event frequencies.
+**Why this priority**: This is the core analytical engine. It directly addresses the research question by identifying potential safety signals. It is independent of the temporal analysis.
 
-**Independent Test**: The analysis can be tested by running the calculation module on a static, pre-computed contingency table and verifying that the output ROR, PRR, and IC values match manual calculations or known benchmarks within an acceptable tolerance.
+**Independent Test**: The analysis script produces a table of metrics (ROR, PRR, IC) and 95% confidence intervals for every SOC, where the calculation logic is verifiable against the 2x2 contingency tables derived from the preprocessed data.
 
 **Acceptance Scenarios**:
 
-1. **Given** a contingency table of COVID-19 vs. Non-COVID reports for a specific SOC, **When** the ROR function executes, **Then** the output includes the point estimate, 95% confidence interval, and a flag indicating if the lower bound > 1.0.
-2. **Given** a list of 20+ SOCs tested simultaneously, **When** the Benjamini-Hochberg correction is applied, **Then** the adjusted p-values are calculated correctly to control the False Discovery Rate at α=0.05.
-3. **Given** a specific SOC with zero events in the control group, **When** the PRR calculation runs, **Then** the system handles the division-by-zero edge case by returning a defined infinity value or skipping the metric with a logged warning, rather than crashing.
+1. **Given** the preprocessed dataset with COVID-19 and non-COVID groups, **When** the ROR calculation runs, **Then** the output includes an ROR value and a lower 95% confidence bound for every SOC with at least 5 reported events in the COVID-19 group.
+2. **Given** the same dataset, **When** the PRR and IC metrics are computed, **Then** the output table contains finite, non-NaN, non-Infinity positive numbers for all three metrics for every SOC with ≥ 5 total reports.
+3. **Given** the computed metrics, **When** the system identifies signals, **Then** a signal is flagged if it meets the threshold criteria (ROR > 2.0, lower 95% CI > 1.0; PRR > 1.5, lower 95% CI > 1.0; IC > 0, lower 95% CI > 0) in at least two of the three metrics.
+4. **Given** the computed metrics for the 'Non-COVID' baseline, **When** the sensitivity analysis runs against a 'Flu-only' baseline, **Then** the system outputs a comparison table showing the delta in ROR/PRR/IC values for the top 5 candidate signals to assess robustness against confounding.
 
 ---
 
-### User Story 3 - Temporal Clustering and Visualization (Priority: P3)
+### User Story 3 - Descriptive Temporal Profile (Priority: P3)
 
-The system MUST perform time-series analysis on the top candidate SOCs using Poisson regression to detect temporal clustering within the first 14-30 days post-vaccination and generate forest plots visualizing the results. The system MUST compare observed rates to background rates *only if* such rates are available in reference literature; otherwise, it MUST rely on the internal non-COVID baseline.
+The system must generate a descriptive weekly reporting profile for top candidate SOCs to identify reporting spikes, acknowledging the limitation that vaccination dates are unavailable.
 
-**Why this priority**: While the disproportionality metrics identify *what* is associated, the temporal analysis determines *when* the signals occur, distinguishing acute reactions from background noise. Visualization is required for human interpretation.
+**Why this priority**: This adds a layer of descriptive context to the signal detection by checking for temporal patterns in reporting, refining the initial P1/P2 findings. It is explicitly non-causal due to data limitations.
 
-**Independent Test**: The visualization module can be tested by feeding it a static set of ROR values and confidence intervals and verifying that the generated PDF/PNG forest plot correctly displays the point estimates and error bars for a representative subset of SOCs.
+**Independent Test**: The script generates a time-series plot for top SOCs showing weekly counts relative to the median report date of the cohort.
 
 **Acceptance Scenarios**:
 
-1. **Given** weekly reporting counts for a candidate SOC, **When** the Poisson regression model runs, **Then** the output includes a p-value for the temporal trend and identifies if significant clustering (p < 0.05) occurs within the 14-30 day window, without requiring a specific 'peak' location.
-2. **Given** a set of validated signals (consistent across ≥2 metrics), **When** the forest plot is generated, **Then** the plot displays the ROR point estimate with 95% CI for each signal, clearly distinguishing those with lower bounds > 1.0.
-3. **Given** a comparison against background incidence rates (if available), **When** the contextualization step runs, **Then** the output report includes a table comparing the observed VAERS rate to the established background rate for each signal. If no background rate is available, the system MUST mark the comparison as 'N/A' and proceed with internal baseline analysis only.
+1. **Given** the top 5 candidate SOCs identified in User Story 2, **When** the temporal profile analysis runs, **Then** the output includes a weekly count plot relative to the group median report date, explicitly labeled as 'Reporting Time' and not 'Post-Vaccination Time'.
+2. **Given** the list of all tested SOCs, **When** the Benjamini-Hochberg correction is applied to the cross-sectional metrics, **Then** the final output list contains only SOCs with an adjusted p-value < 0.05.
+3. **Given** the ROR, PRR, and IC results, **When** the consistency check runs, **Then** a signal is included in the final report only if it meets the threshold criteria in at least two of the three metrics.
 
 ### Edge Cases
 
-- **What happens when** a specific MedDRA code is missing from the current hierarchy version? The system MUST log a warning and exclude that record from SOC aggregation rather than failing the entire pipeline.
-- **How does the system handle** a scenario where the non-COVID control group has zero reports for a specific rare SOC? The system MUST flag this as "insufficient data" for that specific metric and exclude it from the primary signal list, preventing false positives from division by zero.
-- **What happens when** the background incidence rate for a specific event is unavailable in the reference literature? The system MUST mark that specific comparison as 'N/A' in the output report and proceed with the internal ROR/PRR analysis only, ensuring the Poisson regression (which relies on internal counts) continues unaffected.
+- **Zero-Count Events**: What happens when a specific SOC has zero reports in the non-COVID group? The system must apply a standard continuity correction (e.g., adding a small constant) to the contingency table to allow ROR calculation without division by zero.
+- **Missing Background Rates**: How does the system handle SOCs where no published background incidence rate exists? The system must flag these SOCs as "Background Rate Unknown" in the final report. This is a known limitation of the VAERS dataset which lacks denominator data; the analysis is strictly limited to 'Reporting Disproportionality' and cannot calculate 'Incidence Rates'.
+- **Sparse Data**: How does the system handle SOCs with very few total reports (e.g., < 5)? The system must exclude these SOCs from the disproportionality analysis to prevent statistical noise from generating false positives.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and parse VAERS datasets (2020-2023) from the official source, filtering for `VAX_TYPE` to separate COVID-19 and non-COVID reports (See US-1).
-- **FR-002**: System MUST map raw MedDRA codes to System Organ Classes (SOCs) using the official MedDRA hierarchy to reduce dimensionality (See US-1).
-- **FR-003**: System MUST calculate Reporting Odds Ratio (ROR) with 95% confidence intervals for every SOC comparing COVID-19 vs. non-COVID vaccines (See US-2).
-- **FR-004**: System MUST calculate Proportional Reporting Ratio (PRR) and Information Component (IC) as alternative estimators for all SOCs to support robustness checks (See US-2).
-- **FR-005**: System MUST apply Benjamini-Hochberg correction to all calculated p-values to control the False Discovery Rate across multiple SOC tests (See US-2).
-- **FR-006**: System MUST identify signals as "positive" only if the ROR lower 95% CI bound > 1.0 AND the signal is consistent across at least two of the three metrics (ROR, PRR, IC), where PRR requires a lower 95% CI > 1.0 and IC requires a lower 95% CI > 0. This multi-metric consistency is required per FDA/EMA pharmacovigilance conventions to ensure robustness against metric-specific anomalies (See US-3).
-- **FR-007**: System MUST perform Poisson regression on weekly reporting counts for top candidate SOCs to detect temporal clustering within 14-30 days post-vaccination (See US-3).
-- **FR-008**: System MUST generate a forest plot visualization of the top 20 candidate signals with 95% confidence intervals. If background incidence rates are available in reference literature, the system SHOULD include them in the visualization; otherwise, it MUST omit the comparison (See US-3).
-- **FR-009**: System MUST execute all data processing and statistical modeling within a peak memory limit of ≤ 7GB and a total runtime of ≤ 6 hours on a CPU-only environment (See US-1, US-2, US-3).
-- **FR-010**: System MUST perform a control-group time-series comparison (comparing COVID-19 reporting trends against non-COVID reporting trends over the same time window) to distinguish biological signals from general reporting artifacts (See US-3).
+- **FR-001**: System MUST download and parse VAERS 2020-2023 datasets, filtering records by `VAX_TYPE` to separate COVID-19 and non-COVID groups, ensuring all MedDRA codes are mapped to System Organ Classes (SOC) (See US-1).
+- **FR-002**: System MUST calculate the Reporting Odds Ratio (ROR), Proportional Reporting Ratio (PRR), and Information Component (IC) for each SOC with ≥ 5 total reports using 2x2 contingency tables derived from the filtered data (See US-2).
+- **FR-003**: System MUST apply the Benjamini-Hochberg procedure to control the false discovery rate (FDR) across all SOC tests for the cross-sectional ROR/PRR/IC metrics, outputting adjusted p-values for every metric (See US-3).
+- **FR-004**: System MUST generate a descriptive weekly reporting profile for the top 5 candidate SOCs, aggregating counts relative to the median report date of the cohort, and explicitly label this analysis as 'Reporting Time' (not 'Post-Vaccination Time') to acknowledge the absence of `VACCINATION_DATE` data (See US-3).
+- **FR-005**: System MUST validate a safety signal only if it meets the threshold criteria (ROR > 2.0, lower 95% CI > 1.0; PRR > 1.5, lower 95% CI > 1.0; IC > 0, lower 95% CI > 0) in at least two of the three disproportionality metrics (ROR, PRR, IC) (See US-2).
+- **FR-006**: System MUST execute the entire analysis pipeline on a CPU-only environment with memory usage optimized to remain under 7 GB RAM, avoiding any GPU-dependent libraries (See US-1).
+- **FR-007**: System MUST perform a sensitivity analysis comparing the 'Non-COVID' baseline (all other vaccines) against a 'Flu-only' baseline (VAX_TYPE contains 'Influenza') for the top 5 candidate signals, outputting the delta in metrics to assess robustness against confounding (See US-2).
 
 ### Key Entities
 
-- **VAERS_Report**: Represents a single adverse event report, containing attributes for vaccine type, date, and MedDRA codes.
-- **SOC_Cluster**: Represents a System Organ Class aggregation, containing the count of reports for COVID-19 and non-COVID vaccines, and calculated statistical metrics.
-- **Signal_Candidate**: Represents a validated statistical signal, containing the SOC name, ROR/PRR/IC values, p-values, and temporal cluster status.
+- **Report**: A single adverse event entry containing `VAX_TYPE`, `SOC`, `REPT_DATE`, and `AGE`.
+- **Signal**: A specific SOC identified as having a statistically significant disproportionality, characterized by ROR, PRR, IC values, and an adjusted p-value.
+- **Contingency Table**: A 2x2 matrix representing the counts of (Event/No Event) vs. (COVID-19/Non-COVID) for a specific SOC.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-- **SC-001**: At least ≥ 95% of SOCs present in the merged dataset must have valid ROR calculations (non-zero denominator) (See US-2).
-- **SC-002**: The system MUST correctly implement the Benjamini-Hochberg procedure such that the theoretical False Discovery Rate is controlled at ≤ 0.05 for the set of identified signals (See US-2).
-- **SC-003**: The system MUST correctly calculate temporal clustering significance (p-values) such that when tested against synthetic data with known clusters, it identifies the cluster with p < 0.05 (See US-3).
-- **SC-004**: The memory usage peak during the full pipeline execution is measured against the 7GB RAM constraint to ensure feasibility on free-tier CI (See US-1).
-- **SC-005**: The total runtime of the end-to-end analysis is measured against the 6-hour limit to ensure compatibility with GitHub Actions free-tier jobs (See US-1).
+- **SC-001**: The proportion of SOCs with valid ROR, PRR, and IC calculations (finite, non-NaN, non-Infinity) must be ≥ 95% of the total number of unique SOCs that meet the minimum sample size (≥ 5 reports) (See US-2).
+- **SC-002**: The implementation of the Benjamini-Hochberg correction MUST produce monotonically increasing adjusted p-values when sorted by raw p-value, verifying algorithmic correctness (See US-3).
+- **SC-003**: The temporal profile analysis MUST successfully generate weekly count plots for the top 5 candidate signals relative to the group median report date (See US-3).
+- **SC-004**: The memory footprint of the data processing pipeline is measured against the 7 GB RAM constraint of the target CI environment (See US-1).
+- **SC-005**: [deferred] of reported signals MUST satisfy the 2-out-of-3 metrics validation rule defined in FR-005 (See US-2).
 
 ## Assumptions
 
-- **Assumption about data availability**: The VAERS public datasets for 2020-2023 contain sufficient granularity (VAX_TYPE and MedDRA codes) to perform the required separation and mapping. If specific years lack required fields, the analysis will be restricted to the available years.
-- **Assumption about background rates**: Published background incidence rates for the specific System Organ Classes of interest are available in the referenced CDC/NCIRD literature or peer-reviewed sources. If a specific SOC lacks a background rate, the analysis will rely solely on the internal non-COVID vaccine baseline.
-- **Assumption about computational load**: The aggregated dataset, after grouping by SOC and filtering for the 2020-2023 window, will fit within 7GB of RAM. If the raw data exceeds this, the system assumes chunked processing or sampling will be sufficient without biasing the ROR/PRR calculations.
-- **Assumption about methodological framing**: The analysis is strictly observational; all findings regarding associations between vaccine types and adverse events will be framed as associational (disproportionality) rather than causal, consistent with the limitations of spontaneous reporting systems.
-- **Assumption about threshold justification**: The ROR lower bound threshold of > 1.0 and the requirement for consistency across ≥2 metrics are based on standard pharmacovigilance practices (e.g., FDA/EMA guidelines) to balance sensitivity and specificity.
-- **Assumption about multiple testing**: The number of System Organ Classes is small enough that the Benjamini-Hochberg correction will effectively control the FDR without overly penalizing statistical power.
+- The VAERS 2020-2023 datasets are publicly available and downloadable via `wget` without authentication or rate-limiting that exceeds the 6-hour CI job limit.
+- The MedDRA coding system in the VAERS data is consistent enough to allow aggregation into System Organ Classes (SOC) without requiring manual curation of every code.
+- The background incidence rates for adverse events, if required for context, are available in the cited literature or CDC resources and can be hard-coded or fetched as static values rather than dynamic API calls.
+- The relationship between vaccine type and adverse event reporting is observational; therefore, all findings will be framed as associational signals rather than causal evidence.
+- The dataset size (after filtering for 2020-2023) will fit within the ~7 GB RAM constraint of the free-tier GitHub Actions runner without requiring complex chunking strategies.
+- The "non-COVID" comparison group will include all other vaccine types reported in VAERS during the same period, assuming this provides a sufficient baseline for disproportionality analysis.
+- **Flu-only Baseline**: The 'Flu-only' baseline for sensitivity analysis (FR-007) is defined as any record where `VAX_TYPE` contains the string "Influenza".
+- **Temporal Limitation**: The dataset lacks `VACCINATION_DATE` for the vast majority of records; therefore, temporal analysis is limited to 'Reporting Time' relative to the median report date and cannot establish biological causality or post-vaccination clustering.

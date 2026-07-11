@@ -1,0 +1,116 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Signal Detection Output Schema
+description: >
+  Schema for the output of the disproportionality analysis.
+  Defines the structure for ROR, PRR, IC, Confidence Intervals,
+  and adjusted p-values per System Organ Class (SOC).
+type: object
+properties:
+  meta:
+    type: object
+    description: Metadata about the analysis run
+    properties:
+      version:
+        type: string
+        description: Schema version
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      source_dataset:
+        type: string
+        description: Path or identifier of the source cleaned dataset
+      parameters:
+        type: object
+        description: Analysis parameters used
+        properties:
+          min_reports:
+            type: integer
+            description: Minimum total reports threshold (default 5)
+          continuity_correction:
+            type: number
+            description: Value added to zero cells (default 0.5)
+          fdr_method:
+            type: string
+            description: Method used for p-value adjustment (e.g., 'benjamini-hochberg')
+items:
+  type: object
+  required:
+    - soc_code
+    - soc_name
+    - n_exposed_cases
+    - n_exposed_total
+    - n_unexposed_cases
+    - n_unexposed_total
+    - nor
+    - nor_ci_lower
+    - nor_ci_upper
+    - prr
+    - prr_ci_lower
+    - prr_ci_upper
+    - ic
+    - ic_ci_lower
+    - ic_ci_upper
+    - p_value_raw
+    - p_value_adjusted
+    - is_signal
+    - background_rate_known
+  properties:
+    soc_code:
+      type: string
+      description: System Organ Class code (e.g., '10000000')
+    soc_name:
+      type: string
+      description: Full name of the System Organ Class
+    n_exposed_cases:
+      type: integer
+      description: Count of events in the exposed (COVID-19) group
+    n_exposed_total:
+      type: integer
+      description: Total count of reports in the exposed group
+    n_unexposed_cases:
+      type: integer
+      description: Count of events in the unexposed (Non-COVID) group
+    n_unexposed_total:
+      type: integer
+      description: Total count of reports in the unexposed group
+    nor:
+      type: number
+      description: Reporting Odds Ratio (ROR)
+    nor_ci_lower:
+      type: number
+      description: Lower bound of 95% CI for ROR
+    nor_ci_upper:
+      type: number
+      description: Upper bound of 95% CI for ROR
+    prr:
+      type: number
+      description: Proportional Reporting Ratio (PRR)
+    prr_ci_lower:
+      type: number
+      description: Lower bound of 95% CI for PRR
+    prr_ci_upper:
+      type: number
+      description: Upper bound of 95% CI for PRR
+    ic:
+      type: number
+      description: Information Component (IC)
+    ic_ci_lower:
+      type: number
+      description: Lower bound of 95% CI for IC
+    ic_ci_upper:
+      type: number
+      description: Upper bound of 95% CI for IC
+    p_value_raw:
+      type: number
+      description: Raw p-value from the statistical test (Chi-square or Fisher's exact)
+    p_value_adjusted:
+      type: number
+      description: Benjamini-Hochberg adjusted p-value
+    is_signal:
+      type: boolean
+      description: True if the signal meets the 2-out-of-3 rule thresholds
+    background_rate_known:
+      type: boolean
+      description: True if the SOC has a known background rate in config
+additionalProperties: false

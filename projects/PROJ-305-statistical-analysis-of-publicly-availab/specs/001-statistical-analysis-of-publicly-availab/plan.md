@@ -1,143 +1,141 @@
 # Implementation Plan: Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports
 
-**Branch**: `001-covid-vaccine-signal-detection` | **Date**: 2026-07-05 | **Spec**: `specs/001-statistical-analysis-of-publicly-availab/spec.md`
+**Branch**: `001-statistical-analysis-covid-vaers` | **Date**: 2026-07-05 | **Spec**: `specs/001-statistical-analysis-covid-vaers/spec.md`
+**Input**: Feature specification from `specs/001-statistical-analysis-covid-vaers/spec.md`
 
 ## Summary
 
-This feature implements a statistical signal detection pipeline for VAERS data. The system ingests VAERS reports (-2023), maps MedDRA codes to System Organ Classes (SOCS), and calculates disproportionality metrics (ROR, PRR, IC) comparing COVID-19 vs. non-COVID vaccines. It applies Benjamini-Hochberg correction for multiple testing (on SOCs passing a minimum count threshold), identifies robust signals based on multi-metric consistency, and performs Calendar-Time Anomaly Detection (revised from days-post-vaccination due to data limitations) to detect reporting spikes. All processing is optimized for CPU-only execution within 7GB RAM and 6 hours runtime.
+This project implements a reproducible, CPU-only statistical pipeline to analyze VAERS (Vaccine Adverse Event Reporting System) data from 2020-2023. The primary requirement is to detect safety signals by calculating Reporting Odds Ratios (ROR), Proportional Reporting Ratios (PRR), and Information Components (IC) for System Organ Classes (SOCs), comparing COVID-19 vaccines against a **Non-COVID, Non-Flu** baseline to minimize confounding. The technical approach involves downloading verified datasets, cleaning and merging records by `VAX_TYPE`, mapping MedDRA codes to SOCs, and performing disproportionality analysis with Benjamini-Hochberg correction for multiple testing. All analysis is constrained to run on free-tier GitHub Actions runners with limited CPU and RAM resources without GPU dependencies. A critical **Schema Validation Gate** ensures the dataset contains required fields before proceeding, preventing fatal downstream failures.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: pandas (data manipulation), polars (memory-efficient streaming), statsmodels (Poisson regression only), scipy (statistics), matplotlib (visualization), requests (data download).
-**Custom Logic**: ROR, PRR, and IC calculations are implemented via custom Python functions in `code/analysis/disproportionality.py` (not natively in statsmodels).
-**Storage**: Local CSV/Parquet files in `data/` directory
-**Testing**: pytest with parameterized tests for statistical formulas and FDR control verification
-**Target Platform**: Linux (GitHub Actions free-tier runner)
-**Project Type**: Data analysis pipeline / CLI
-**Performance Goals**: Peak RAM ≤ 7GB, Runtime ≤ 6h
-**Constraints**: No GPU, no deep learning, chunked processing for large files
-**Scale/Scope**: Recent years VAERS data (large-scale records), ~25 SOCs, 20 candidate signals max
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `requests`, `pyarrow` (for parquet), `matplotlib`  
+**Storage**: Local CSV/Parquet files in `data/` (raw) and `data/processed/` (cleaned); results in `output/`  
+**Testing**: `pytest` with `pytest-cov` for coverage, including memory profiling tests.  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Data analysis pipeline / CLI tool  
+**Performance Goals**: Complete pipeline execution < 6 hours; memory usage < 7 GB RAM (enforced via chunked processing).  
+**Constraints**: No GPU; no external API calls during analysis (data must be local); strict reproducibility via pinned seeds and checksums.  
+**Scale/Scope**: ~-2023 VAERS data (estimated 500k-1M rows); ~30 SOCs.
 
-> **Dataset Verification**: The official CDC VAERS dataset (-2023) is verified at `. The plan uses this specific URL as the canonical source.
+> **Dataset Validation**: The pipeline halts immediately if the verified dataset lacks `VAX_TYPE` or MedDRA/SOC columns (Phase 1.2).
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Note |
-|-----------|--------|---------------------|
-| I. Reproducibility | ✅ | Random seeds pinned in `code/`; `requirements.txt` pins all deps; **CDC VAERS URL pinned** as canonical source. |
-| II. Verified Accuracy | ✅ | Citations validated against primary sources (CDC, FDA, EMA); **CDC VAERS URL verified**. |
-| III. Data Hygiene | ✅ | Raw data checksummed; transformations produce new files; PII scan enabled. |
-| IV. Single Source of Truth | ✅ | All stats trace to `data/` rows and `code/` blocks. |
-| V. Versioning Discipline | ✅ | Content hashes tracked; `state/` updated on artifact changes. |
-| VI. Pharmacovigilance Signal Integrity | ✅ | ROR/PRR/IC calculated against defined baselines; no ad-hoc thresholds. |
-| VII. MedDRA Coding Consistency | ✅ | Official MedDRA hierarchy used; no ad-hoc aggregation. |
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. Reproducibility | PASS | Plan mandates pinned seeds, checksummed data, and isolated `requirements.txt`. |
+| II. Verified Accuracy | PASS | Plan restricts dataset citations to the "Verified datasets" block only and includes a **Schema Validation Gate** to ensure data usability. |
+| III. Data Hygiene | PASS | Plan requires raw data preservation, checksumming, and no in-place modification. |
+| IV. Single Source of Truth | PASS | All figures/stats trace to `data/` rows and `code/` blocks; no hand-typed numbers. |
+| V. Versioning Discipline | PASS | Content hashes for artifacts will be managed by the Advancement-Evaluator. |
+| VI. Epidemiological Signal Disproportionality | PASS | Methodology explicitly uses ROR/PRR/IC comparing vaccine types vs. **Non-COVID, Non-Flu** baseline, and includes **Flu-only** sensitivity analysis. |
+| VII. Null-Hypothesis Equivalence | PASS | Plan treats null results as valid contributions; no "failure" framing for non-significant signals. |
 
 ## Project Structure
 
+### Documentation (this feature)
+
 ```text
-projects/PROJ-305-statistical-analysis-of-publicly-availab/
-├── code/
-│ ├── __init__.py
-│ ├── ingestion/
-│ │ ├── __init__.py
-│ │ ├── download.py # FR-001: Download VAERS data
-│ │ ├── preprocess.py # FR-002: MedDRA mapping & cleaning
-│ │ └── merge.py # FR-001 & FR-002: Merge COVID/non-COVID & Map SOCs
-│ ├── analysis/
-│ │ ├── __init__.py
-│ │ ├── disproportionality.py # FR-003, FR-004, FR-005: Custom ROR, PRR, IC, BH correction
-│ │ ├── signal_detection.py # FR-006: Multi-metric consistency + Bias Adjustment
-│ │ └── temporal.py # FR-007 (Revised), FR-010: Calendar-Time Anomaly & Control Comparison
-│ ├── visualization/
-│ │ ├── __init__.py
-│ │ └── forest_plot.py # FR-008: Forest plot generation
-│ └── main.py # Orchestrator
-├── data/
-│ ├── raw/ # Unmodified VAERS downloads (checksummed)
-│ ├── processed/ # Cleaned, merged, SOC-mapped data
-│ └── outputs/ # Statistical results, plots
-├── tests/
-│ ├── unit/
-│ │ ├── test_disproportionality.py
-│ │ ├── test_fdr_control.py # SC-002: Synthetic FDR verification
-│ │ └── test_temporal.py
-│ └── integration/
-│ └── test_pipeline.py
-├── docs/
-│ └── research.md
-└── requirements.txt
+specs/001-statistical-analysis-covid-vaers/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    └── signal.schema.yaml
 ```
 
-**Structure Decision**: Single project structure with modular subpackages. Chosen for simplicity and ease of testing. No web/mobile components.
+### Source Code (repository root)
+
+```text
+src/
+├── data/
+│   ├── download.py          # Fetches and checksums raw data
+│   ├── clean.py             # Filters, merges, maps MedDRA->SOC
+│   └── validate.py          # Checks data integrity against dataset.schema.yaml
+├── analysis/
+│   ├── disproportionality.py # ROR, PRR, IC calculations
+│   ├── temporal.py          # Weekly reporting profiles
+│   └── sensitivity.py       # Flu-only baseline comparison
+├── utils/
+│   ├── config.py            # Paths, seeds, thresholds
+│   └── plots.py             # Visualization helpers
+├── main.py                  # Pipeline orchestrator
+└── requirements.txt         # Pinned dependencies
+
+tests/
+├── contract/
+│   ├── test_dataset_schema.py
+│   └── test_signal_schema.py
+├── integration/
+│   └── test_pipeline.py
+└── unit/
+    ├── test_disproportionality.py
+    ├── test_temporal.py
+    └── test_memory_profile.py  # Validates SC-004
+```
+
+**Structure Decision**: Single project structure selected for simplicity and alignment with the data-analysis nature of the project. All code resides under `src/` with clear separation of concerns (data, analysis, utils). Tests mirror this structure.
+
+## Implementation Phases
+
+### Phase 0: Data Acquisition & Schema Validation (Critical Gate)
+1. **Download**: Fetch `chrisvoncsefalvay/vaers-outcomes` (or specified verified source) to `data/raw/`.
+2. **Checksum**: Verify SHA256 hash against recorded value.
+3. **Schema Validation (Blocking)**: Run `src/data/validate.py` against `contracts/dataset.schema.yaml`.
+   - **Check**: Verify presence of `VAX_TYPE`, `SOC_CODE` (or `LLT`), `REPT_DATE`.
+   - **Action**: If missing, **HALT** with error code `E_SCHEMA_MISSING`. Do not proceed to Phase 1.
+   - **Action**: If present, proceed.
+
+### Phase 1: Data Cleaning & Baseline Construction
+1. **Filter**: Separate data into `COVID-19`, `Non-COVID, Non-Flu` (Baseline), and `Flu-only` (Sensitivity).
+   - **Baseline Definition**: `VAX_TYPE` != "COVID-19" AND `VAX_TYPE` does NOT contain "Influenza".
+2. **Map MedDRA**: Map available codes to SOC using the embedded mapping table.
+3. **Handle Missing**: Exclude records with missing `SOC` or `REPT_DATE`.
+4. **Memory Check**: Log RAM usage; if > 5 GB, enable chunked processing for subsequent steps.
+
+### Phase 2: Disproportionality Analysis
+1. **Contingency Tables**: Generate 2x2 tables for each SOC (Event/No Event vs. COVID/Non-COVID).
+2. **Continuity Correction**: Apply a small constant additive smoothing factor to cells with zero counts to prevent undefined statistical measures..
+3. **Calculate Metrics**: Compute ROR, PRR, IC with confidence intervals.
+4. **Multiple Testing**: Apply Benjamini-Hochberg correction to p-values.
+5. **Signal Validation**: Flag signals meeting a majority of metric thresholds
+
+The research question, method, and references remain unchanged as per the planning document requirements. (FR-005).
+
+### Phase 3: Temporal & Sensitivity Analysis
+1. **Temporal Profile**: Generate weekly counts for top 5 signals relative to median `REPT_DATE`.
+   - **Label**: Explicitly label as "Reporting Time" (not "Post-Vaccination Time").
+   - **Limitation**: Include note that `REPT_DATE` is a biased proxy for event onset.
+2. **Sensitivity**: Compare "Non-COVID, Non-Flu" baseline vs. "Flu-only" baseline for top 5 signals.
+3. **Reporting Propensity**: Add disclaimer that metrics reflect reporting intensity, not absolute risk.
+
+### Phase 4: Memory Profiling & Constraint Enforcement (SC-004)
+1. **Profile**: Measure peak RAM usage during Phase 2 and 3.
+2. **Validate**: Ensure usage < 7 GB. If exceeded, log failure and halt.
+3. **Report**: Include memory profile in `output/report.md`.
+
+### Phase 5: Output & Validation (SC-005)
+1. **Generate**: Create `signals.csv`, `temporal_profiles/`, `sensitivity_analysis.csv`.
+2. **Validate SC-005**: Calculate proportion of signals meeting 2/3 rule.
+3. **Final Report**: Compile `output/report.md` with all metrics, limitations, and validation results.
 
 ## Complexity Tracking
 
-No violations detected. Complexity is managed via chunked processing, CPU-optimized libraries, and explicit data limitations.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| N/A | No violations identified. | N/A |
 
-## Validation & Testing Strategy
+## Risk Management
 
-### SC-001: Coverage Validation
-A **Validation Gate** step is added to `main.py`. After ROR calculation, the system computes the percentage of SOCs with valid (non-zero denominator) ROR values.
-- **Pass**: Percentage >= 95%.
-- **Fail**: Pipeline exits with error code 1 and logs "SC-001 Violation: Coverage < 95%".
-
-### SC-002: FDR Control Verification
-`tests/unit/test_fdr_control.py` generates a **synthetic dataset** with known true nulls ([deferred]) and true signals ([deferred]).
-- **Method**: Apply BH correction to the synthetic p-values.
-- **Verification**: Calculate the empirical False Discovery Rate (FDR) from the known ground truth.
-- **Pass**: Empirical FDR <= 0.05.
-
-### SC-003: Temporal Clustering
-`tests/unit/test_temporal.py` uses synthetic weekly counts with a known "spike" in a specific window.
-- **Method**: Run Poisson regression on synthetic data.
-- **Verification**: Check if the model identifies the spike with p < 0.05.
-
-### Data Integrity
-- **Checksums**: `data/raw/` files are checksummed on download.
-- **PII**: Automated scan on commit.
-
-## Signal Detection Logic (FR-006 Compliance)
-
-The `code/analysis/signal_detection.py` module implements the strict signal definition mandated by FR-006. A signal is classified as **positive** ONLY if ALL of the following conditions are met:
-
-1. **Primary Threshold**: The **ROR lower 95% CI bound > 1.0**. If this condition is not met, the record is immediately rejected as a signal, regardless of other metrics.
-2. **Multi-Metric Consistency**: At least **two** of the three metrics (ROR, PRR, IC) must indicate a signal:
- * ROR lower 95% CI > 1.0 (Already satisfied by step 1).
- * PRR lower 95% CI > 1.0.
- * IC lower 95% CI > 0.
-3. **Bias Adjustment**: The metrics are calculated on **Media Event Flag adjusted residuals** or the model includes the flag as a covariate to isolate signals from reporting artifacts.
-
-This strict ordering ensures that the "ROR lower 95% CI > 1.0" prerequisite is never bypassed, addressing the specific coverage gap identified in the specification review.
-
-## Methodological Revisions (Data Limitations)
-
-### Temporal Analysis (FR-007)
-**Original Requirement**: Detect clustering within Two weeks to one month post-vaccination.
-**Data Limitation**: The VAERS dataset **lacks** `vaccination_date` and `onset_date` fields required to calculate "days post-vaccination".
-**Revised Approach**: The plan implements **Calendar-Time Anomaly Detection**.
-- **Method**: Poisson regression on **weekly counts** (Calendar Weeks) to detect reporting spikes.
-- **Covariates**: Includes a **Media Event Flag** (derived from CDC press releases/news) to control for reporting artifacts.
-- **Note**: This is a limitation of the data source, not a methodological choice. The "14-30 day" window is uncomputable.
-
-### Control Group Normalization (FR-010)
-**Original Requirement**: Compare trends against non-COVID baseline.
-**Revision**: To control for vaccination volume confounding, the plan uses **Reports per Million Doses (RPMD)**.
-- **Denominator**: Non-COVID vaccine doses (flu, Tdap, etc.) are derived from CDC "Vaccine Coverage" annual reports.
-- **Model**: Poisson regression with an **interaction term** (Vaccine_Type * Time) to test if trends differ significantly.
-
-## Constitution Check (Revised)
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Status | Implementation Note |
-|-----------|--------|---------------------|
-| I. Reproducibility | ✅ | Random seeds pinned; **CDC VAERS URL pinned**; `requirements.txt` pins all deps. |
-| II. Verified Accuracy | ✅ | **CDC VAERS URL verified**; Citations validated against primary sources. |
-| III. Data Hygiene | ✅ | Raw data checksummed; transformations produce new files; PII scan enabled. |
-| IV. Single Source of Truth | ✅ | All stats trace to `data/` rows and `code/` blocks. |
-| V. Versioning Discipline | ✅ | Content hashes tracked; `state/` updated on artifact changes. |
-| VI. Pharmacovigilance Signal Integrity | ✅ | ROR/PRR/IC calculated against defined baselines; no ad-hoc thresholds. |
-| VII. MedDRA Coding Consistency | ✅ | Official MedDRA hierarchy used; no ad-hoc aggregation. |
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **Missing Schema** | **Fatal** | **Phase 0 Schema Validation Gate** halts execution immediately. |
+| **Memory Exceeded** | High | **Phase 4** enforces < 7 GB limit; chunked processing enabled if needed. |
+| **Reporting Bias** | Medium | Explicitly framed as "Reporting Time" and "Reporting Propensity" in output. |
+| **Confounding Baseline** | High | Baseline redefined to "Non-COVID, Non-Flu" to ensure independence. |

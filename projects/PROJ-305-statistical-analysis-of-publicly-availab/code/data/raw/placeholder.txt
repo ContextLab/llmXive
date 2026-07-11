@@ -1,0 +1,10 @@
+This directory is intended to hold the raw VAERS CSV files downloaded by T013.
+Please ensure the following files are present before running T014:
+- 2020.csv
+- 2021.csv
+- 2022.csv
+- 2023.csv
+Or a single consolidated file named VAERS_DATA.csv.
+
+If you are running tests, the test suite generates a temporary mock CSV.
+Do not delete this file unless you have replaced it with real data.

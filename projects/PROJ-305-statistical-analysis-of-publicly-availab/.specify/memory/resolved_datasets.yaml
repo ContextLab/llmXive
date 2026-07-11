@@ -1,4 +1,4 @@
-resolved_at: '2026-07-11T18:51:23.893109+00:00'
+resolved_at: '2026-07-11T19:03:40.607222+00:00'
 datasets:
 - intent: VAERS
   status: verified
@@ -37,6 +37,10 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://tandf.figshare.com/articles/figure/Almost_a_coin_flip_Chance-like_performance_on_TOMM_Trial_1_using_a_sham_extrasensory_perception_condition/32964323
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/Artificial_Intelligence_for_Solar_Power_Monitoring_and_Predictive_Energy_Management/32964317
     source: figshare
     status: wrong_format
@@ -50,10 +54,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/Accessibility_and_Usability_of_AI_Language_Tester_Cefr_app_for_Diverse_Learners_Mobile-First_Focus_/32964287
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Zuogui_Pill_Modulates_Osteoblast-Osteoclast_Coupling_in_Ovariectomized_Rats_A_Three_by_Three_Factorial_Study/32964314
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -142,6 +142,10 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
+  - url: https://tandf.figshare.com/articles/figure/Almost_a_coin_flip_Chance-like_performance_on_TOMM_Trial_1_using_a_sham_extrasensory_perception_condition/32964323
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/Artificial_Intelligence_for_Solar_Power_Monitoring_and_Predictive_Energy_Management/32964317
     source: figshare
     status: wrong_format
@@ -158,10 +162,6 @@ datasets:
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Zuogui_Pill_Modulates_Osteoblast-Osteoclast_Coupling_in_Ovariectomized_Rats_A_Three_by_Three_Factorial_Study/32964314
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://link.springer.com/article/10.1186/s12875-025-02960-5
     source: zenodo
     status: wrong_format
@@ -174,11 +174,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4028687
+  - url: https://zenodo.org/records/3932953#.Xx_f7Z4za70
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3932953#.Xx_f7Z4za70
+  - url: https://zenodo.org/records/4028687
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -228,6 +228,10 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://tandf.figshare.com/articles/figure/Almost_a_coin_flip_Chance-like_performance_on_TOMM_Trial_1_using_a_sham_extrasensory_perception_condition/32964323
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/Artificial_Intelligence_for_Solar_Power_Monitoring_and_Predictive_Energy_Management/32964317
     source: figshare
     status: wrong_format
@@ -244,10 +248,6 @@ datasets:
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Zuogui_Pill_Modulates_Osteoblast-Osteoclast_Coupling_in_Ovariectomized_Rats_A_Three_by_Three_Factorial_Study/32964314
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10576421
     source: zenodo
     status: wrong_format
@@ -260,11 +260,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18788975
+  - url: https://zenodo.org/records/5207932
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5207932
+  - url: https://zenodo.org/records/18788975
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -285,197 +285,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21312898
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: SOCs
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/socratesft/SocSci210/resolve/main/data/train-00000-of-00017.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/linoky/SocSci210-flattened/resolve/main/data/train-00000-of-00017.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/api/resolve-cache/datasets/socsys/Synthetic-PII/1b6b9852d51918cf69a8478d2f1f8d7a916e27fb/Llama2-19_th0.5.csv?%2Fdatasets%2Fsocsys%2FSynthetic-PII%2Fresolve%2Fmain%2FLlama2-19_th0.5.csv=&etag=%222126e655a0dd50f66dbfb818774c895f076c64a7%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/socratesft/SocSci210/resolve/main/data/train-00000-of-00017.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/linoky/SocSci210-flattened/resolve/main/data/train-00000-of-00017.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/preprint/Artificial_Intelligence_for_Solar_Power_Monitoring_and_Predictive_Energy_Management/32964317
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Monetary-Fiscal_Nexus_and_Price_Level_Dynamics_in_Ghana_A_Nonlinear_ARDL_Analysis_of_Public_Debt_Servicing_Short-Term_Debt_and_Inflation_1980_2020_b_/32661102
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_p_dir_ltr_A_Self-Regenerating_Torsional_Nanotube_Memory_Cell_with_Collective_Elastic_Stabilization_Achieving_Near-Landauer_Energy_Efficiency_at_Room_Temperature_p_/32964185
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Accessibility_and_Usability_of_AI_Language_Tester_Cefr_app_for_Diverse_Learners_Mobile-First_Focus_/32964287
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Zuogui_Pill_Modulates_Osteoblast-Osteoclast_Coupling_in_Ovariectomized_Rats_A_Three_by_Three_Factorial_Study/32964314
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5121/ijesa.2014.4102
-    source: zenodo
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
-  - url: https://zenodo.org/records/17148722
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15146222
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://journals.lww.com/00001751-200506000-00020
-    source: zenodo
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/14044789
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Additive_Manufacturing_of_Glass_Sealants_Using_Recycled_PVB_Binder_for_Solid_Oxide_and_Protonic_Ceramic_Cells/32955929/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Additive_Manufacturing_of_Glass_Sealants_Using_Recycled_PVB_Binder_for_Solid_Oxide_and_Protonic_Ceramic_Cells/32955929
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.16106
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2604.04795
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21250803
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: ROR
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/fmi-unibuc/RoRuDi/resolve/main/RoAcReL.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/lucianistrati/RoRuDi/resolve/main/data.json
-    source: huggingface
-    format: json
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 4363
-      parsed: true
-  - url: https://huggingface.co/datasets/RoryCochrane/fakemon-dataset/resolve/main/data/train-00000-of-00001-c848aec4b06c5911.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/fmi-unibuc/RoRuDi/resolve/main/RoAcReL.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/lucianistrati/RoRuDi/resolve/main/data.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://huggingface.co/datasets/RoryCochrane/fakemon-dataset/resolve/main/data/train-00000-of-00001-c848aec4b06c5911.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/RoryCochrane/pokemon-and-fakemon/resolve/main/data/train-00000-of-00001-023bf2eb9de82a2c.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/preprint/Artificial_Intelligence_for_Solar_Power_Monitoring_and_Predictive_Energy_Management/32964317
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Monetary-Fiscal_Nexus_and_Price_Level_Dynamics_in_Ghana_A_Nonlinear_ARDL_Analysis_of_Public_Debt_Servicing_Short-Term_Debt_and_Inflation_1980_2020_b_/32661102
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_p_dir_ltr_A_Self-Regenerating_Torsional_Nanotube_Memory_Cell_with_Collective_Elastic_Stabilization_Achieving_Near-Landauer_Energy_Efficiency_at_Room_Temperature_p_/32964185
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Accessibility_and_Usability_of_AI_Language_Tester_Cefr_app_for_Diverse_Learners_Mobile-First_Focus_/32964287
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Zuogui_Pill_Modulates_Osteoblast-Osteoclast_Coupling_in_Ovariectomized_Rats_A_Three_by_Three_Factorial_Study/32964314
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4538493
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3677557
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8074996
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5534785
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4538497
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://iris.uniupo.it//handle/11579/114772
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21307848
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21307848
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://metadata-game-changers.github.io/recuration-watch/rorRetriever.html
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://metadata-game-changers.github.io/recuration-watch/metadataConnectivity.html
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -552,12 +361,20 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6901252
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4784241
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6901252
-    source: zenodo
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21312243
@@ -572,11 +389,104 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://juser.fz-juelich.de/record/1058910
+- intent: ROR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/fmi-unibuc/RoRuDi/resolve/main/RoAcReL.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lucianistrati/RoRuDi/resolve/main/data.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 4363
+      parsed: true
+  - url: https://huggingface.co/datasets/RoryCochrane/fakemon-dataset/resolve/main/data/train-00000-of-00001-c848aec4b06c5911.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/fmi-unibuc/RoRuDi/resolve/main/RoAcReL.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/lucianistrati/RoRuDi/resolve/main/data.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/RoryCochrane/fakemon-dataset/resolve/main/data/train-00000-of-00001-c848aec4b06c5911.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/RoryCochrane/pokemon-and-fakemon/resolve/main/data/train-00000-of-00001-023bf2eb9de82a2c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/figure/Almost_a_coin_flip_Chance-like_performance_on_TOMM_Trial_1_using_a_sham_extrasensory_perception_condition/32964323
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Artificial_Intelligence_for_Solar_Power_Monitoring_and_Predictive_Energy_Management/32964317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Monetary-Fiscal_Nexus_and_Price_Level_Dynamics_in_Ghana_A_Nonlinear_ARDL_Analysis_of_Public_Debt_Servicing_Short-Term_Debt_and_Inflation_1980_2020_b_/32661102
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_p_dir_ltr_A_Self-Regenerating_Torsional_Nanotube_Memory_Cell_with_Collective_Elastic_Stabilization_Achieving_Near-Landauer_Energy_Efficiency_at_Room_Temperature_p_/32964185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Accessibility_and_Usability_of_AI_Language_Tester_Cefr_app_for_Diverse_Learners_Mobile-First_Focus_/32964287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4538493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8074996
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4538497
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3677557
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3901745
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/114772
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21310419
+  - url: https://zenodo.org/records/21307848
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21307848
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://metadata-game-changers.github.io/recuration-watch/rorRetriever.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://metadata-game-changers.github.io/recuration-watch/metadataConnectivity.html
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -677,11 +587,101 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Minimal_dataset_for_safety_analysis_of_entrectinib_in_NSCLC_using_FAERS_and_JADER/32923298
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/dataset/Minimal_dataset_for_safety_analysis_of_entrectinib_in_NSCLC_using_FAERS_and_JADER/32923298/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Minimal_dataset_for_safety_analysis_of_entrectinib_in_NSCLC_using_FAERS_and_JADER/32923298
+- intent: SOCs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/socratesft/SocSci210/resolve/main/data/train-00000-of-00017.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/linoky/SocSci210-flattened/resolve/main/data/train-00000-of-00017.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/socsys/Synthetic-PII/1b6b9852d51918cf69a8478d2f1f8d7a916e27fb/Llama2-19_th0.5.csv?%2Fdatasets%2Fsocsys%2FSynthetic-PII%2Fresolve%2Fmain%2FLlama2-19_th0.5.csv=&etag=%222126e655a0dd50f66dbfb818774c895f076c64a7%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/socratesft/SocSci210/resolve/main/data/train-00000-of-00017.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/linoky/SocSci210-flattened/resolve/main/data/train-00000-of-00017.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Continuous_Electro-Alkali_Coproduction_via_the_Low-Temperature_Na-Ion-_Exchange_Membrane_Direct_Formate_Fuel_Cell/32964335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/figure/Almost_a_coin_flip_Chance-like_performance_on_TOMM_Trial_1_using_a_sham_extrasensory_perception_condition/32964323
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Artificial_Intelligence_for_Solar_Power_Monitoring_and_Predictive_Energy_Management/32964317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Monetary-Fiscal_Nexus_and_Price_Level_Dynamics_in_Ghana_A_Nonlinear_ARDL_Analysis_of_Public_Debt_Servicing_Short-Term_Debt_and_Inflation_1980_2020_b_/32661102
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_p_dir_ltr_A_Self-Regenerating_Torsional_Nanotube_Memory_Cell_with_Collective_Elastic_Stabilization_Achieving_Near-Landauer_Energy_Efficiency_at_Room_Temperature_p_/32964185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5121/ijesa.2014.4102
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/17148722
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.lww.com/00001751-200506000-00020
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/15146222
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8136178
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Additive_Manufacturing_of_Glass_Sealants_Using_Recycled_PVB_Binder_for_Solid_Oxide_and_Protonic_Ceramic_Cells/32955929
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Additive_Manufacturing_of_Glass_Sealants_Using_Recycled_PVB_Binder_for_Solid_Oxide_and_Protonic_Ceramic_Cells/32955929/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.16106
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.04795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21250803
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

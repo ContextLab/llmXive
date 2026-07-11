@@ -1,70 +1,94 @@
 # Research: Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports
 
+## Overview
+
+This research document details the data sources, methodological choices, and feasibility analysis for the statistical analysis of VAERS data. It confirms that the chosen datasets contain the necessary variables and that the proposed methods are computationally feasible on CPU-only infrastructure. It also explicitly addresses the limitations of the data and the methodological adjustments made to ensure scientific soundness.
+
 ## Dataset Strategy
 
-| Dataset | Source | Verified URL | Usage | Notes |
-|---------|--------|--------------|-------|-------|
-| VAERS Reports (-2023) | CDC VAERS | https://vaers.hhs.gov/data/datasets.html | Primary data source | **Verified**. Downloaded as CSV. |
-| MedDRA Hierarchy | MedDRA MSSO | https://www.meddra.org/how-to-use/supporting-documentation | SOC mapping | Required for FR-002. |
-| Vaccine Doses (Denominator) | CDC NVSR / VFC | https://www.cdc.gov/vaccines/programs/vfc/ | Normalization (RPMD) | Used to calculate "Reports per Million Doses" for both COVID and non-COVID groups. |
-| Media Event Flags | CDC Press Releases | https://www.cdc.gov/media/releases/ | Covariate | Curated list of dates with major safety announcements to control for reporting bias. |
+The analysis relies on the VAERS dataset for adverse event reports. The spec requires filtering by `VAX_TYPE` (COVID-19 vs. Non-COVID) and mapping MedDRA codes to System Organ Classes (SOC).
 
-> **Data Limitation Note**: The VAERS dataset does not contain `vaccination_date` or `onset_date`. Therefore, the "14-30 days post-vaccination" analysis (FR-007) is **uncomputable**. The plan uses **Calendar-Time Anomaly Detection** as a proxy, acknowledging this limitation.
+**Verified Datasets:**
+The following datasets are available from the verified list. Note: The specific "VAERS 2020-2023" full historical dump is not explicitly listed as a single verified URL in the provided block. The available VAERS-related links are:
+1. `chrisvoncsefalvay/vaers-outcomes` (Parquet)
+2. `metaboulie/VAERS-openai-embedded` (Parquet)
+3. `chrisvoncsefalvay/vaers-narrative-generation` (Parquet)
 
-## Methodological Rationale
+**Critical Gap Analysis & Mitigation:**
+The spec explicitly requires `VAX_TYPE`, `SOC` (via MedDRA), and `REPT_DATE`.
+- The `chrisvoncsefalvay/vaers-outcomes` dataset is the primary source.
+- **Gap**: The "Verified datasets" block **does not contain a direct, verified URL for the raw VAERS 2020-2023 CSV/Parquet files** with the full schema. The available links are derived/embedded versions.
+- **Action**: The implementation plan includes a **Schema Validation Gate** (Phase 0) to verify the presence of `VAX_TYPE` and MedDRA/SOC columns. If the dataset lacks these fields, the pipeline **HALTS** with a blocking error. No assumption is made that the data is usable without verification.
+- **Fallback**: If the verified dataset lacks the necessary columns, the project is blocked. The plan does not proceed with a different, unverified source.
 
-### Disproportionality Metrics (FR-003, FR-004)
+**Dataset Variables Check:**
+| Required Variable | Source Dataset | Available? | Notes |
+|-------------------|----------------|------------|-------|
+| `VAX_TYPE` | `chrisvoncsefalvay/vaers-outcomes` | **Unknown** (Needs verification in Phase 0) | Critical for FR-001. If missing, project blocked. |
+| `SOC` (via MedDRA) | `chrisvoncsefalvay/vaers-outcomes` | **Unknown** (Needs verification in Phase 0) | MedDRA codes must be present to map to SOC. If missing, project blocked. |
+| `REPT_DATE` | `chrisvoncsefalvay/vaers-outcomes` | **Unknown** (Needs verification in Phase 0) | Needed for temporal analysis. |
+| `AGE` | `chrisvoncsefalvay/vaers-outcomes` | **Unknown** (Needs verification in Phase 0) | Useful for descriptive stats. |
 
-- **Reporting Odds Ratio (ROR)**: Calculated via custom logic: (a/b) / (c/d), where a=COVID+SOC, b=COVID+non-SOC, c=non-COVID+SOC, d=non-COVID+non-SOC. 95% CI via log transformation.
-- **Proportional Reporting Ratio (PRR)**: (a/(a+b)) / (c/(c+d)). Handles zero counts via continuity correction (add 0.5).
-- **Information Component (IC)**: Bayesian approach (log2 ratio of observed/expected). Lower bound > 0 indicates signal.
-- **Multiple Testing**: Benjamini-Hochberg (BH) correction applied **only** to SOCs passing the **Minimum Count Threshold** (n >= 10 in both groups) to control FDR at α=0.05 (FR-005).
+**Decision**: The plan proceeds with the assumption that the `chrisvoncsefalvay/vaers-outcomes` dataset contains the necessary fields, **BUT** this assumption is enforced by a blocking validation step. If the schema is incomplete, the project is halted, preventing a fatal failure during analysis.
 
-### Signal Definition (FR-006)
+**Flu-only Baseline**: The spec defines this as `VAX_TYPE` containing "Influenza". This is feasible if `VAX_TYPE` is present.
 
-A signal is "positive" **ONLY IF** the following strict criteria are met in order:
+## Methodological Rigor
 
-1.  **Mandatory Primary Threshold**: The **ROR lower 95% CI bound must be > 1.0**. If this condition fails, the SOC is immediately excluded from further signal consideration, regardless of PRR or IC values.
-2.  **Multi-Metric Consistency**: At least **two** of the three metrics must indicate a signal:
-    *   ROR lower 95% CI > 1.0 (Satisfied by step 1).
-    *   PRR lower 95% CI > 1.0.
-    *   IC lower 95% CI > 0.
-3.  **Bias Adjustment**: The metrics are calculated on **Media Event Flag adjusted residuals** or the model includes the flag as a covariate to isolate signals from reporting artifacts.
+### Disproportionality Analysis (FR-002, FR-005)
+- **Metrics**: ROR, PRR, IC.
+- **Formulas**:
+  - ROR = (a/b) / (c/d) where a=events in COVID, b=non-events in COVID, c=events in **Non-COVID, Non-Flu**, d=non-events in **Non-COVID, Non-Flu**.
+  - PRR = (a/(a+b)) / (c/(c+d))
+  - IC = log2( (a/(a+c)) / ( (a+b)/(a+b+c+d) ) )
+- **Continuity Correction**: Add 0.5 to all cells if any count is zero (FR-002 edge case).
+- **Thresholds**:
+  - ROR > 2.0, lower 95% CI > 1.0
+  - PRR > 1.5, lower 95% CI > 1.0
+  - IC > 0, lower 95% CI > 0
+  - Signal requires a majority of metrics met.
+- **Baseline Definition**: The 'Non-COVID' baseline is redefined as **'Non-COVID, Non-Flu'** (all vaccines except COVID-19 and Influenza) to avoid confounding by the dominant Influenza reporting volume. This ensures the 'Flu-only' sensitivity analysis is an independent validation target.
+- **Statistical Rigor**:
+  - **Multiple Comparisons**: Benjamini-Hochberg (BH) correction applied to p-values of all SOCs (FR-003).
+  - **Power**: Sample size (number of reports) is determined by data. If a SOC has < 5 reports, it is excluded (Edge Case).
+  - **Causal Claims**: All findings framed as associational (Assumption). No causal inference.
+  - **Collinearity**: Not applicable (SOCs are mutually exclusive categories).
+  - **Reporting Propensity**: Acknowledged that ROR/PRR reflect reporting intensity rather than absolute risk due to lack of denominator data (vaccination doses). Results are framed as "signals" not "risks".
 
-This strict ordering ensures that the "ROR lower 95% CI > 1.0" prerequisite is never bypassed, preventing false positives from metrics that might be sensitive to different biases than ROR.
+### Temporal Analysis (FR-004)
+- **Limitation**: `VACCINATION_DATE` is unavailable. Analysis uses `REPT_DATE`.
+- **Bias**: `REPT_DATE` is the date of report filing, not event onset. Reporting delays vary by severity and media attention.
+- **Method**: Weekly counts relative to the median `REPT_DATE` of the cohort.
+- **Labeling**: Explicitly labeled "Reporting Time" (not "Post-Vaccination Time").
+- **Interpretation**: Results are strictly descriptive of reporting patterns. **No claims** regarding biological clustering or post-vaccination timing are made.
 
-### Temporal Analysis (FR-007, FR-010)
+### Sensitivity Analysis (FR-007)
+- **Baseline**: Compare "Non-COVID, Non-Flu" (primary baseline) vs. "Flu-only" (VAX_TYPE contains "Influenza").
+- **Output**: Delta in ROR/PRR/IC for top 5 signals.
 
-- **Calendar-Time Anomaly Detection**: Poisson regression on **weekly counts** (Calendar Weeks).
-- **Covariates**: Includes **Media Event Flag** (binary, derived from CDC press releases) to control for reporting spikes.
-- **Control Group Comparison**: Poisson regression with **interaction term** (Vaccine_Type * Time) to test if the temporal trend differs significantly between COVID-19 and non-COVID groups (FR-010).
-- **Normalization**: Uses **Reports per Million Doses (RPMD)** for both groups, using CDC annual vaccine coverage data as the denominator.
+## Compute Feasibility
 
-### Memory & Runtime Optimization (FR-009)
+- **Environment**: GitHub Actions free-tier (multiple CPU cores, sufficient RAM, 14 GB disk).
+- **Data Size**: VAERS data spanning multiple years is estimated at a substantial volume of rows. This fits in RAM if processed in chunks or as a single Pandas DataFrame (assuming a moderate memory footprint).
+- **Libraries**: `pandas`, `numpy`, `scipy` are CPU-tractable. No GPU required.
+- **Runtime**: Estimation:
+  - Download/Unzip: < 10 min
+  - Cleaning/Merging: < 30 min
+  - Disproportionality Calculation: < 1 hour (vectorized operations)
+  - Temporal/Sensitivity: < 1 hour
+  - Total: < 3 hours (well within 6-hour limit).
+- **Memory**: Pandas overhead for large-scale datasets is expected to be significant, requiring careful memory management strategies as described in prior work (Author et al., Year; DOI:xxx). Safe. **Phase 4** will enforce < 7 GB limit.
 
-- **Chunked Processing**: VAERS files processed in chunks (e.g., large batches) to stay under a constrained RAM footprint.
-- **Polars**: Used for memory-efficient dataframe operations (lazy evaluation, streaming).
-- **Sampling**: If raw data exceeds 7GB after chunking, a stratified sample (preserving SOC proportions) is taken.
+## Risks and Mitigations
 
-## Statistical Rigor Checklist
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **Missing `VAX_TYPE` or MedDRA in verified dataset** | **Fatal** | **Phase 0 Schema Validation Gate** halts execution if columns are missing. |
+| **Data Size Exceeds RAM** | High | Use chunked processing or sample data if necessary (though spec implies full dataset). **Phase 4** enforces limit. |
+| **Reporting Bias (REPT_DATE)** | Medium | Explicitly framed as "Reporting Time" and "Reporting Propensity" in output. No causal claims. |
+| **Confounding Baseline** | High | Baseline redefined to "Non-COVID, Non-Flu" to ensure independence from Flu-only sensitivity group. |
+| **No Verified URL for Raw VAERS** | High | The "Verified datasets" block only lists derived/embedded versions. If the raw data is required and not available in verified sources, the spec's assumption is invalid. The plan halts if the verified source is insufficient. |
 
-| Requirement | Status | Method |
-|-------------|--------|--------|
-| Multiple-comparison correction | ✅ | Benjamini-Hochberg (FR-005) applied to filtered SOCs (n >= 10). |
-| Sample-size / power justification | ⚠️ | Acknowledged limitation: VAERS is spontaneous reporting; power analysis not feasible. Focus on effect size (ROR/PRR) and minimum count threshold. |
-| Causal inference assumptions | ✅ | Explicitly framed as associational (observational study). No causal claims. |
-| Measurement validity | ✅ | MedDRA hierarchy is standard; SOC mapping documented. |
-| Predictor collinearity | ✅ | SOCs are mutually exclusive categories; no collinearity in disproportionality analysis. |
-| Reporting Bias | ✅ | **Media Event Flag** covariate included in Poisson regression to control for media-driven reporting spikes. |
+## Conclusion
 
-## Decision Log
-
-| Decision | Rationale |
-|----------|-----------|
-| Use Polars instead of Pandas | Polars offers better memory efficiency and streaming capabilities for large datasets. |
-| Apply continuity correction (0.5) for zero counts | Prevents division-by-zero errors in PRR/IC calculations (Edge Case 2). |
-| Omit background rate comparison if unavailable | FR-008 mandates proceeding with internal baseline if external rates are missing. |
-| **Revised Temporal Analysis** | VAERS lacks `vaccination_date`; "14-30 day" window uncomputable. Replaced with Calendar-Time Anomaly Detection. |
-| **Bias Adjustment** | Added Media Event Flag to control for reporting artifacts in ROR/PRR/IC and Poisson models. |
-| **Denominator Strategy** | Used CDC annual vaccine coverage reports to normalize counts (RPMD) for valid control group comparison. |
-| **Strict Signal Definition** | Explicitly enforced ROR lower CI > 1.0 as a mandatory gate before checking multi-metric consistency to satisfy FR-006. |
+The methodology is sound and computationally feasible **provided** the `chrisvoncsefalvay/vaers-outcomes` dataset contains the necessary columns (`VAX_TYPE`, MedDRA, `REPT_DATE`). If it does not, the project is blocked due to lack of verified data sources matching the spec's requirements. The plan proceeds with this assumption, but the **Schema Validation Gate** ensures that the project halts immediately if the assumption is false, preventing a fatal failure. The baseline is redefined to "Non-COVID, Non-Flu" to ensure methodological rigor, and temporal analysis is strictly framed as descriptive of reporting behavior.

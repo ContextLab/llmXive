@@ -1,77 +1,11 @@
-- artifact_hash: 3e08b322da9cc746eee1c7e42df2af80fe84eed33cd4b1e90c57f3b7821e8f4e
-  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: VAERS - Data Sets
-  kind: url
-  value: https://vaers.hhs.gov/data/datasets.html`
-  verification_status: verified
-  verified_against_url: https://vaers.hhs.gov/data/datasets.html
-  verified_at: '2026-07-11T19:02:38.624351Z'
-- artifact_hash: 289124da3d4c61cbe4e97ffa44bc3f4e9bc7933cd868ed4ad16516b562486409
-  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: VAERS - Data Sets
-  kind: url
-  value: https://vaers.hhs.gov/data/datasets.html
-  verification_status: verified
-  verified_against_url: https://vaers.hhs.gov/data/datasets.html
-  verified_at: '2026-07-11T19:02:50.062908Z'
-- artifact_hash: 289124da3d4c61cbe4e97ffa44bc3f4e9bc7933cd868ed4ad16516b562486409
-  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: MedDRA
-  kind: url
-  value: https://www.meddra.org/how-to-use/supporting-documentation
-  verification_status: verified
-  verified_against_url: https://www.meddra.org/how-to-use/supporting-documentation
-  verified_at: '2026-07-11T19:02:50.062908Z'
-- artifact_hash: 289124da3d4c61cbe4e97ffa44bc3f4e9bc7933cd868ed4ad16516b562486409
-  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: About the Vaccines for Children (VFC) Program | VFC Program | CDC
-  kind: url
-  value: https://www.cdc.gov/vaccines/programs/vfc/
-  verification_status: verified
-  verified_against_url: https://www.cdc.gov/vaccines-for-children/about/index.html
-  verified_at: '2026-07-11T19:02:50.062908Z'
-- artifact_hash: 289124da3d4c61cbe4e97ffa44bc3f4e9bc7933cd868ed4ad16516b562486409
-  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: CDC Newsroom Releases | CDC Newsroom
-  kind: url
-  value: https://www.cdc.gov/media/releases/
-  verification_status: verified
-  verified_against_url: https://www.cdc.gov/media/releases/
-  verified_at: '2026-07-11T19:02:50.062908Z'
-- artifact_hash: ee27646d1d4e106816389a340e535f257cf9acfcd96f0f7f21b54c98c973447c
+- artifact_hash: 00f637b17eb4a4397e7af88b70e0a3f4c28eee7359e4cf9c77069850364a3bee
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: VAERS - Data Sets
+  fetched_title: test-00000-of-00001.parquet
   kind: url
-  value: https://vaers.hhs.gov/data/datasets.html`
+  value: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/test-00000-of-00001.parquet`
   verification_status: verified
-  verified_against_url: https://vaers.hhs.gov/data/datasets.html
-  verified_at: '2026-07-11T19:03:10.184627Z'
-- artifact_hash: be86e4c1852e3d675e06d5ac471529dac24f0871cf5750f7e814c1ffdd6b2113
-  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.cdc.gov/vaccines/imz-managers/coverage/vacc-coverage-covid-19-data.csv
-  verification_status: mismatch
-  verified_against_url: https://www.cdc.gov/vaccines/imz-managers/coverage/vacc-coverage-covid-19-data.csv
-  verified_at: '2026-07-11T19:28:26.393508Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65b55d93a17a940832db690c/213b157dff9ac87c44cf3dc5d40e92a48e6dd954c5f83154a56ce43c8061f785?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1783800669&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjViNTVkOTNhMTdhOTQwODMyZGI2OTBjLzIxM2IxNTdkZmY5YWM4N2M0NGNmM2RjNWQ0MGU5MmE0OGU2ZGQ5NTRjNWY4MzE1NGE1NmNlNDNjODA2MWY3ODVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM4MDA2Njl9fX1dfQ__&Signature=MEUCIHeWir7HA7hQ0jpXj98PNf1xFUlGNdWV6MeuX2a%7ENKCgAiEAyxbjKg%7Ej-H%7EEbPSLo6wxdvzXvJ7qMH%7E-R6nBiyBRWbo_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T19:11:09.798988Z'

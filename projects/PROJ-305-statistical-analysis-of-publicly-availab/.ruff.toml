@@ -1,0 +1,27 @@
+# Ruff configuration for llmXive Statistical Analysis Project
+line-length = 88
+target-version = "py311"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in data pipelines)
+    "C901", # complex structure (allow for now in analysis scripts)
+]
+
+[lint.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "ARG"] # Allow asserts in tests, unused args in fixtures
+"src/data/*" = ["C408"]     # Allow dict/list literals over constructors in data loading

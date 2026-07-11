@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VAERS Dataset Schema"
+description: "Schema for the cleaned and filtered VAERS dataset used in analysis. Must contain VAX_TYPE and MedDRA/SOC columns."
+type: object
+properties:
+  VAERS_ID:
+    type: integer
+    description: "Unique identifier for the adverse event report."
+  VAX_TYPE:
+    type: string
+    description: "Vaccine type (e.g., 'COVID-19', 'Influenza', 'Tetanus')."
+  SOC_CODE:
+    type: string
+    description: "MedDRA System Organ Class code."
+  SOC_NAME:
+    type: string
+    description: "Human-readable name of the System Organ Class."
+  REPT_DATE:
+    type: string
+    format: date
+    description: "Date of the adverse event report (YYYY-MM-DD)."
+  AGE:
+    type: number
+    description: "Age of the patient in years."
+  SEX:
+    type: string
+    enum: ["M", "F", "U"]
+    description: "Gender of the patient."
+  VAX_DATE:
+    type: string
+    format: date
+    description: "Date of vaccination (may be missing)."
+  EVENT_DATE:
+    type: string
+    format: date
+    description: "Date of the adverse event."
+  OUTCOME:
+    type: string
+    description: "Outcome of the adverse event."
+required:
+  - VAERS_ID
+  - VAX_TYPE
+  - SOC_CODE
+  - SOC_NAME
+  - REPT_DATE
+additionalProperties: true

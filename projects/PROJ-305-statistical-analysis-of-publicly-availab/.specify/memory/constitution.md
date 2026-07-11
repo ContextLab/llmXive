@@ -37,13 +37,27 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-305-statistical-analysis-of-publicly-availab.yaml` `updated_at` timestamp.
 
-### VI. Pharmacovigilance Signal Integrity
+### VI. Epidemiological Signal Disproportionality
 
-Statistical signals (e.g., Reporting Odds Ratios, Proportional Reporting Ratios, Information Components) MUST be calculated strictly against the defined background rates and non-COVID vaccine baselines as specified in the methodology, ensuring that elevated reporting frequencies are not artifacts of spontaneous reporting system biases. This principle is grounded in the project's core inquiry to distinguish true safety signals from background noise in the MedDRA-coded adverse event data.
+Statistical claims regarding safety signals MUST be grounded in the
+calculation of reporting disproportionality (e.g., Reporting Odds Ratios or
+Proportional Reporting Ratios) comparing specific vaccine types against
+non-COVID-19 vaccine baselines, as defined in the project's research question
+verification. The methodology must explicitly distinguish between the
+vaccine type predictor variable and the independent adverse event category
+outcome, ensuring that identified signals represent deviations from
+background reporting norms rather than mathematical artifacts of the dataset
+structure.
 
-### VII. MedDRA Coding Consistency
+### VII. Null-Hypothesis Equivalence
 
-All adverse event categories MUST be processed using the standardized MedDRA hierarchy without ad-hoc aggregation that obscures specific signal categories. Any transformation of raw MedDRA codes into higher-level groupings MUST be documented and reproducible to ensure that the association between specific vaccine types and adverse event frequencies remains transparent and verifiable. This requirement is derived from the project's reliance on MedDRA-coded outcome variables to answer the research question regarding disproportionate reporting.
+The project MUST treat a null result (finding no significant
+disproportionality after statistical correction) as a valid and
+publishable contribution to the safety profile analysis, rather than a
+failure condition. Evaluation metrics and final conclusions MUST be framed
+around the presence or absence of actionable epidemiological insights,
+ensuring that the absence of a signal is reported with the same rigor as
+the presence of one.
 
 ## Reproducibility Requirements
 

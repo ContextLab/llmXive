@@ -1,101 +1,72 @@
 # Data Model: Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports
 
-## Entity Relationships
+## Overview
 
-```mermaid
-erDiagram
-    VAERS_Report ||--|{ SOC_Cluster : "aggregated_by"
-    SOC_Cluster ||--|{ Signal_Candidate : "validated_as"
-    VAERS_Report {
-        string report_id "PK"
-        string vaccine_type "COVID-19 or non-COVID"
-        date report_date
-        string meddra_code
-        string soc_code
-        string soc_name
-        string age_group
-        string sex
-    }
-    SOC_Cluster {
-        string soc_code "PK"
-        string soc_name
-        int covid_count
-        int non_covid_count
-        float ror
-        float ror_lower_ci
-        float ror_upper_ci
-        float prr
-        float prr_lower_ci
-        float ic
-        float ic_lower_ci
-        float p_value
-        float p_adj
-    }
-    Signal_Candidate {
-        string soc_code "PK, FK"
-        bool is_positive
-        string metrics_consistent "ROR, PRR, IC"
-        bool temporal_cluster
-        float temporal_p_value
-    }
-```
+This document defines the data structures used throughout the pipeline, from raw ingestion to final signal reporting. It ensures alignment with the spec's requirements for filtering, mapping, and statistical analysis.
 
-## Schema Definitions
+## Entities
 
-### VAERS_Report (Raw/Processed)
+### Report
+A single adverse event entry.
 
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| report_id | str | Unique report identifier | PK, not null |
-| vaccine_type | str | "COVID-19" or "non-COVID" | not null |
-| report_date | date | Date of report | not null |
-| meddra_code | str | Raw MedDRA code | not null |
-| soc_code | str | System Organ Class code | not null |
-| soc_name | str | System Organ Class name | not null |
-| age_group | str | Age category (e.g., "0-17", "18-64") | nullable |
-| sex | str | Sex (M/F/U) | nullable |
+| Field | Type | Description | Source |
+|-------|------|-------------|--------|
+| `VAERS_ID` | int | Unique identifier | Raw VAERS |
+| `VAX_TYPE` | str | Vaccine type (e.g., "COVID-19", "Influenza", "Tetanus") | Raw VAERS |
+| `SOC_CODE` | str | MedDRA System Organ Class code (e.g., "100000004880") | Raw VAERS (mapped from `SOC` or `LLT` if available) |
+| `SOC_NAME` | str | Human-readable SOC name | MedDRA mapping |
+| `REPT_DATE` | date | Date of report | Raw VAERS |
+| `AGE` | float | Age of patient (years) | Raw VAERS |
+| `SEX` | str | Gender | Raw VAERS |
+| `VAX_DATE` | date | Vaccination date (often missing) | Raw VAERS |
+| `EVENT_DATE` | date | Date of adverse event | Raw VAERS |
+| `OUTCOME` | str | Outcome of event | Raw VAERS |
 
-> **Data Limitation**: The VAERS dataset **does not** contain `vaccination_date` or `onset_date`. Therefore, the "14-30 days post-vaccination" analysis (FR-007) is **uncomputable**. The plan uses `report_date` (Calendar Week) as a proxy for temporal analysis, acknowledging this limitation.
+### Signal
+A statistically significant disproportionality result for a specific SOC.
 
-### SOC_Cluster (Aggregated)
+| Field | Type | Description |
+|-------|------|-------------|
+| `SOC_CODE` | str | MedDRA SOC code |
+| `SOC_NAME` | str | Human-readable SOC name |
+| `ROR` | float | Reporting Odds Ratio |
+| `ROR_CI_lower` | float | Lower bound of 95% CI for ROR |
+| `ROR_CI_upper` | float | Upper bound of 95% CI for ROR |
+| `PRR` | float | Proportional Reporting Ratio |
+| `PRR_CI_lower` | float | Lower bound of 95% CI for PRR |
+| `PRR_CI_upper` | float | Upper bound of 95% CI for PRR |
+| `IC` | float | Information Component |
+| `IC_CI_lower` | float | Lower bound of 95% CI for IC |
+| `IC_CI_upper` | float | Upper bound of 95% CI for IC |
+| `p_value_raw` | float | Raw p-value (before BH correction) |
+| `p_value_adj` | float | BH-adjusted p-value |
+| `is_signal` | bool | True if meets 2/3 metric thresholds |
+| `signal_metrics` | list | List of metrics that met thresholds (e.g., ["ROR", "PRR"]) |
 
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| soc_code | str | System Organ Class code | PK |
-| soc_name | str | System Organ Class name | not null |
-| covid_count | int | Count of COVID-19 reports | ≥ 0 |
-| non_covid_count | int | Count of non-COVID reports | ≥ 0 |
-| ror | float | Reporting Odds Ratio | nullable |
-| ror_lower_ci | float | ROR 95% CI lower bound | nullable |
-| ror_upper_ci | float | ROR 95% CI upper bound | nullable |
-| prr | float | Proportional Reporting Ratio | nullable |
-| prr_lower_ci | float | PRR 95% CI lower bound | nullable |
-| ic | float | Information Component | nullable |
-| ic_lower_ci | float | IC 95% CI lower bound | nullable |
-| p_value | float | Raw p-value | [0, 1] |
-| p_adj | float | BH-adjusted p-value | [0, 1] |
+### TemporalProfile
+Weekly reporting counts for a specific SOC.
 
-### Signal_Candidate (Validated)
-
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| soc_code | str | System Organ Class code | PK, FK → SOC_Cluster |
-| is_positive | bool | Signal status (true if FR-006 met) | not null |
-| metrics_consistent | str | Comma-separated list of consistent metrics | not null |
-| temporal_cluster | bool | True if Poisson regression p < 0.05 | not null |
-| temporal_p_value | float | Poisson regression p-value | [0, 1] |
+| Field | Type | Description |
+|-------|------|-------------|
+| `SOC_CODE` | str | MedDRA SOC code |
+| `week_offset` | int | Weeks relative to median report date |
+| `count_covid` | int | Number of reports in COVID-19 group |
+| `count_non_covid` | int | Number of reports in Non-COVID group |
+| `total_count` | int | Total reports |
 
 ## Data Flow
 
-1. **Ingestion**: Raw VAERS CSV → `data/raw/` (checksummed)
-2. **Preprocessing**: Raw CSV → Filtered/Mapped → `data/processed/merged_soc.csv`
-3. **Analysis**: `merged_soc.csv` → Disproportionality metrics → `data/outputs/soc_clusters.csv`
-4. **Signal Detection**: `soc_clusters.csv` → Validated signals → `data/outputs/signals.csv`
-5. **Visualization**: `signals.csv` → Forest plot → `data/outputs/forest_plot.png`
+1. **Raw Data**: Downloaded from verified source (`chrisvoncsefalvay/vaers-outcomes` or similar).
+2. **Cleaned Data**: Filtered by `VAX_TYPE` (COVID-19 vs. **Non-COVID, Non-Flu**), MedDRA mapped to SOC, missing values handled.
+3. **Contingency Tables**: Generated for each SOC (Event/No Event vs. COVID/Non-COVID).
+4. **Signal Calculation**: ROR, PRR, IC computed; BH correction applied.
+5. **Temporal Analysis**: Weekly counts aggregated for top 5 signals.
+6. **Sensitivity Analysis**: Flu-only baseline comparison.
 
 ## Constraints
 
-- **Memory**: All intermediate dataframes must fit in ≤ 7GB RAM. Use chunked processing.
-- **Time**: Total pipeline ≤ 6 hours.
-- **Data Integrity**: No modification of raw data; all derivations produce new files.
-- **Data Limitation**: `vaccination_date` and `onset_date` are missing; temporal analysis uses Calendar Weeks.
+- **Memory**: All DataFrames must fit within 7 GB RAM. If not, chunked processing is required.
+- **Date Format**: `REPT_DATE` must be parsed as `YYYY-MM-DD`.
+- **SOC Mapping**: MedDRA codes must be mapped to SOC using a verified MedDRA-to-SOC mapping table (included in `data/` or generated).
+- **Zero Counts**: Continuity correction (0.5) applied if any cell in contingency table is zero.
+- **Schema Validation**: The `src/data/validate.py` script must enforce `contracts/dataset.schema.yaml` before processing.

@@ -3,81 +3,84 @@
 ## Prerequisites
 
 - Python 3.11+
-- 7GB RAM available
-- Internet access (for data download)
+- `pip`
+- Access to a GitHub Actions runner (or local environment with 7 GB+ RAM)
 
 ## Installation
 
-```bash
-# Clone repository
-git clone <repo-url>
-cd projects/PROJ-305-statistical-analysis-of-publicly-availab
+1. **Clone the repository**:
+ ```bash
+ git clone <repo-url>
+ cd <repo-name>
+ ```
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-# Install dependencies
-pip install -r requirements.txt
-```
+3. **Install dependencies**:
+ ```bash
+ pip install -r src/requirements.txt
+ ```
+
+## Data Setup
+
+The pipeline requires the VAERS dataset. The verified source is:
+
+- **Dataset Name**: `chrisvoncsefalvay/vaers-outcomes`
+- **Accession ID**: `chrisvoncsefalvay/vaers-outcomes`
+- **URL**: `
+
+> **Note**: This is a derived dataset. The pipeline includes a **Schema Validation Gate** to verify it contains `VAX_TYPE` and MedDRA/SOC columns. If not, the pipeline will halt.
+
+1. **Download the dataset**:
+ ```bash
+ python src/data/download.py
+ ```
+ This script will:
+ - Fetch the dataset from the verified URL.
+ - Verify the checksum.
+ - Save to `data/raw/vaers.parquet`.
+
+2. **Verify data integrity**:
+ ```bash
+ python src/data/validate.py
+ ```
+ This checks for required columns (`VAX_TYPE`, `SOC`, `REPT_DATE`) against `contracts/dataset.schema.yaml`. If validation fails, the pipeline halts.
 
 ## Running the Pipeline
 
-### Step 1: Download Data
+Execute the full pipeline:
 
 ```bash
-python code/ingestion/download.py
-```
-
-> **Note**: This script downloads VAERS data from the official CDC source (`).
-
-### Step 2: Preprocess Data
-
-```bash
-python code/ingestion/preprocess.py
-python code/ingestion/merge.py
-```
-
-### Step 3: Run Analysis
-
-```bash
-python code/main.py
+python src/main.py
 ```
 
 This will:
-1. Calculate ROR, PRR, IC for all SOCs (with minimum count threshold).
-2. Apply Benjamini-Hochberg correction (on filtered SOCs).
-3. Identify signals based on multi-metric consistency + bias adjustment.
-4. Perform **Calendar-Time Anomaly Detection** (Poisson regression with Media Event Flag).
-5. Generate forest plot.
+1. Clean and filter the data.
+2. Calculate ROR, PRR, IC for all SOCs.
+3. Apply Benjamini-Hochberg correction.
+4. Generate temporal profiles for top 5 signals.
+5. Perform sensitivity analysis (Flu-only baseline).
+6. Save results to `output/`.
 
-### Step 4: View Results
+## Output
 
-- **Statistical Results**: `data/outputs/soc_clusters.csv`, `data/outputs/signals.csv`
-- **Forest Plot**: `data/outputs/forest_plot.png`
-
-## Testing
-
-```bash
-# Run unit tests
-pytest tests/unit/
-
-# Run integration tests
-pytest tests/integration/
-```
+- `output/signals.csv`: Final list of signals with metrics and adjusted p-values.
+- `output/temporal_profiles/`: Plots and data for top 5 signals.
+- `output/sensitivity_analysis.csv`: Delta metrics for Flu-only comparison.
+- `output/report.md`: Summary of findings, including memory profile and limitations.
 
 ## Troubleshooting
 
-### Memory Error
+- **Missing Columns**: If `VAX_TYPE` or `SOC` is missing, the pipeline will fail with a specific error code `E_SCHEMA_MISSING`. Check the dataset schema in `data/raw/`.
+- **Memory Error**: If the dataset is too large, reduce the sample size or use chunked processing (modify `src/data/clean.py`).
+- **Zero Counts**: The pipeline automatically applies a 0.5 continuity correction.
 
-If you encounter a memory error:
-1. Ensure you are using Polars (not Pandas) for large datasets.
-2. Check that chunked processing is enabled in `preprocess.py`.
-3. Reduce the date range or sample the data.
+## Next Steps
 
-### Missing Data
-
-If VAERS data is missing:
-1. Verify internet connection.
-2. Check the official CDC VAERS website for data availability.
-3. Ensure the URL ` is accessible.
+- Review `output/report.md` for findings.
+- Run `pytest tests/` to ensure all tests pass.
+- Update `paper/` with the results.

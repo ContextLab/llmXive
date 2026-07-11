@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Signal Schema"
+description: "Schema for the final safety signal output."
+type: object
+properties:
+  SOC_CODE:
+    type: string
+    description: "MedDRA System Organ Class code."
+  SOC_NAME:
+    type: string
+    description: "Human-readable name of the System Organ Class."
+  ROR:
+    type: number
+    description: "Reporting Odds Ratio."
+  ROR_CI_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval for ROR."
+  ROR_CI_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval for ROR."
+  PRR:
+    type: number
+    description: "Proportional Reporting Ratio."
+  PRR_CI_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval for PRR."
+  PRR_CI_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval for PRR."
+  IC:
+    type: number
+    description: "Information Component."
+  IC_CI_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval for IC."
+  IC_CI_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval for IC."
+  p_value_raw:
+    type: number
+    description: "Raw p-value before multiple testing correction."
+  p_value_adj:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+  is_signal:
+    type: boolean
+    description: "True if the SOC meets the signal criteria (2/3 metrics)."
+  signal_metrics:
+    type: array
+    items:
+      type: string
+      enum: ["ROR", "PRR", "IC"]
+    description: "List of metrics that met the threshold criteria."
+required:
+  - SOC_CODE
+  - SOC_NAME
+  - ROR
+  - ROR_CI_lower
+  - ROR_CI_upper
+  - PRR
+  - PRR_CI_lower
+  - PRR_CI_upper
+  - IC
+  - IC_CI_lower
+  - IC_CI_upper
+  - p_value_raw
+  - p_value_adj
+  - is_signal
+  - signal_metrics
+additionalProperties: true
