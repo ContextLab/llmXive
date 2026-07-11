@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.27351",
+  "judged_at": "2026-07-11T16:27:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"heterogeneous scientific foundation model collaboration\" other",
+  "rationale": "This paper is the foundational work (category d) that introduces the \"Heterogeneous Scientific Foundation Model Collaboration\" framework (Eywa) explicitly referenced in the user's question as the subject of a follow-up study. It establishes the canonical methodology and empirical baseline for the specific mechanism of integrating language models with domain-specific scientific foundation models, which is the core topic the user intends to extend.",
+  "relevant": true
+}

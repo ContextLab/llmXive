@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.03307",
+  "judged_at": "2026-07-11T16:27:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"heterogeneous scientific foundation model collaboration\" other",
+  "rationale": "The paper focuses on tabular foundation models and adversarial training using synthetic data, which does not share the same mechanism, variables, or empirical domain as the user's question regarding \"Heterogeneous Scientific Foundation Model Collaboration.\" While both involve foundation models, the specific context of scientific collaboration and heterogeneity is distinct from the tabular data and robustness focus of the candidate paper, failing to meet criteria (a) through (f) for inclusion in ",
+  "relevant": false
+}

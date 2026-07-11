@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.08959",
+  "judged_at": "2026-07-11T16:27:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"heterogeneous scientific foundation model collaboration\" other",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology and canonical reference for the \"Foundation Model\" aspect of the user's question, and criterion (b) by establishing an empirical baseline for evaluating foundation models on a specific scientific data domain (EEG), which is directly relevant to the user's topic of \"Heterogeneous Scientific Foundation Model Collaboration.\"",
+  "relevant": true
+}

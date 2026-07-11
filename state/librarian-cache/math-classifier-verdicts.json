@@ -931,6 +931,10 @@
     "classified_at": "2026-07-11T13:57:13Z",
     "verdict": false
   },
+  "PROJ-819-llmxive-follow-up-extending-heterogeneou::1.6.0": {
+    "classified_at": "2026-07-11T16:26:54Z",
+    "verdict": false
+  },
   "PROJ-820-llmxive-follow-up-extending-visual-gener::1.6.0": {
     "classified_at": "2026-07-03T18:58:54Z",
     "verdict": false

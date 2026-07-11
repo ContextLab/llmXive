@@ -1,0 +1,593 @@
+{
+  "fetched_at": "2026-07-11T16:27:14Z",
+  "field": "other",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "other",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collaboration\"",
+      "target_n": 5
+    },
+    "duration_seconds": 50.776,
+    "ended_at": "2026-07-11T16:27:14Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Heterogeneous scientific foundation models"
+        ],
+        [
+          2,
+          "Multi-model collaboration in scientific domains"
+        ],
+        [
+          3,
+          "Federated learning for scientific foundation models"
+        ],
+        [
+          4,
+          "Cross-domain foundation model integration"
+        ],
+        [
+          5,
+          "Ensemble methods for scientific AI"
+        ],
+        [
+          6,
+          "Modular scientific AI architectures"
+        ],
+        [
+          7,
+          "Interoperable scientific large language models"
+        ],
+        [
+          8,
+          "Collaborative scientific AI systems"
+        ],
+        [
+          9,
+          "Heterogeneous neural network ensembles"
+        ],
+        [
+          10,
+          "Multi-agent scientific reasoning systems"
+        ],
+        [
+          11,
+          "Distributed scientific model training"
+        ],
+        [
+          12,
+          "Composite foundation models for science"
+        ],
+        [
+          13,
+          "Cross-architecture scientific model fusion"
+        ],
+        [
+          14,
+          "Scientific AI model orchestration"
+        ],
+        [
+          15,
+          "Hybrid scientific foundation models"
+        ],
+        [
+          16,
+          "Collaborative machine learning for research"
+        ],
+        [
+          17,
+          "Multi-modal scientific foundation models"
+        ],
+        [
+          18,
+          "Decentralized scientific AI collaboration"
+        ],
+        [
+          19,
+          "Federated scientific model ensembles"
+        ],
+        [
+          20,
+          "Integrating diverse scientific AI systems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Heterogeneous scientific foundation models": 4,
+        "llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collaboration\" other": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multi-institutional scientific model federation",
+      "LLM collaborative fine-tuning benchmark dataset",
+      "decentralized foundation model training homophily",
+      "cross-domain scientific knowledge transfer evaluation",
+      "model merging parameter efficient adaptation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.27351"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM collaborative fine-tuning benchmark dataset": 3,
+      "cross-domain scientific knowledge transfer evaluation": 2,
+      "decentralized foundation model training homophily": 3,
+      "llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collaboration\" other": 3,
+      "model merging parameter efficient adaptation": 3,
+      "multi-institutional scientific model federation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2407.13493",
+          "rationale": "The paper focuses on the legal and copyright implications of model weights as compressed data, which is a distinct construct from the user's question about extending a specific scientific foundation model collaboration framework. While it touches on \"foundation models,\" it does not address the mechanism of heterogeneous collaboration, the specific variables of the user's proposed extension, or the empirical population of scientific collaboration, failing to meet any of the inclusion criteria (a-",
+          "title": "Training Foundation Models as Data Compression: On Information, Model Weights and Copyright Law"
+        },
+        {
+          "primary_pointer": "2512.03307",
+          "rationale": "The paper focuses on tabular foundation models and adversarial training using synthetic data, which does not share the same mechanism, variables, or empirical domain as the user's question regarding \"Heterogeneous Scientific Foundation Model Collaboration.\" While both involve foundation models, the specific context of scientific collaboration and heterogeneity is distinct from the tabular data and robustness focus of the candidate paper, failing to meet criteria (a) through (f) for inclusion in ",
+          "title": "Robust Tabular Foundation Models"
+        },
+        {
+          "primary_pointer": "1802.05012",
+          "rationale": "The paper focuses on the sociological phenomenon of scientists writing literary fiction as a mode of knowledge transfer, which is a distinct construct from the user's question regarding \"Heterogeneous Scientific Foundation Model Collaboration\" (a technical topic involving AI model architectures and multi-disciplinary scientific AI). The shared keywords \"scientific\" and \"knowledge transfer\" are homonyms in this context, as the paper does not address foundation models, heterogeneous collaboration ",
+          "title": "'Getting out of the closet': Scientific authorship of literary fiction and knowledge transfer"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T16:26:24Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"heterogeneous scientific foundation model collaboration\" other",
+      "raw": "llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collaboration\" other"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In a previous study [Jo, 2026], STAR reasoning (Situation, Task, Action, Result) raised car wash problem accuracy from 0% to 85% on Claude Sonnet 4.5, and to 100% with\n  additional prompt layers. This follow-up asks: does STAR maintain its effectiveness in a production system prompt?\n  We tested STAR inside InterviewMate's 60+ line production prompt, which had evolved through iterative additions of style guidelines, format instructions, and profile\n  features. Three conditions, 20 trials each, on Claude Sonnet 4.6: (A) production prompt with Anthropic profile, (B) production prompt with default profile, (C) original\n  STAR-only prompt. C scored 100% (verified at n=100). A and B scored 0% and 30%.\n  Prompt complexity dilutes structured reasoning. STAR achieves 100% in isolation but degrades to 0-30% when surrounded by competing instructions. The mechanism: directives\n  like \"Lead with specifics\" force conclusion-first output, reversing the reason-then-conclude order that makes STAR effective. In one case, the model output \"Short answer:\n  Walk.\" then executed STAR reasoning that correctly identified the constraint -- proving the model could reason correctly but had already committed to the wrong answer.\n  Cross-model comparison shows STAR-only improved from 85% (Sonnet 4.5) to 100% (Sonnet 4.6) without prompt changes, suggesting model upgrades amplify structured reasoning\n  in isolation.\n  These results imply structured reasoning frameworks should not be assumed to transfer from isolated testing to complex prompt environments. The order in which a model\n  reasons and concludes is a first-class design variable.",
+          "claimed_authors": [
+            "Heejin Jo"
+          ],
+          "claimed_title": "Prompt Complexity Dilutes Structured Reasoning: A Follow-Up Study on the Car Wash Problem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.13351"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='Prompt Complexity Dilutes Structured Reasoning: A Follow-Up Study on the Car Wash Problem')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The NASA Exoplanet Archive and the Exoplanet Follow-up Observing Program service are two widely used resources for the exoplanet community. The NASA Exoplanet Archive provides a complete and accurate accounting of exoplanetary systems published by NASA missions and by the community in the refereed literature. In anticipation of continued exponential growth in the number of exoplanetary systems, and the increasing complexity in our characterization of these systems, the NASA Exoplanet Archive has restructured its primary tables and interfaces, as well as extending and standardizing their modes of access. The Exoplanet Follow-up Observing Program service provides the exoplanet community with a venue for coordinating and sharing follow-up and precursor data for exoplanets, their host stars, and stars that might eventually be targets for future planet searches, and recently reached one million files uploaded by the community. In this paper we describe the updates to our data holdings, functionality, accessibility, and tools, as well as future priorities for these two services.",
+          "claimed_authors": [
+            "Jessie L. Christiansen",
+            "Douglas L. McElroy",
+            "Marcy Harbut",
+            "David R. Ciardi",
+            "Megan Crane",
+            "John Good",
+            "Kevin K. Hardegree-Ullman",
+            "Aurora Y. Kesseli",
+            "Michael B. Lund",
+            "Meca Lynn",
+            "Ananda Muthiar",
+            "Ricky Nilsson",
+            "Toba Oluyide",
+            "Michael Papin",
+            "Amalia Rivera",
+            "Melanie Swain",
+            "Nicholas D. Susemiehl",
+            "Raymond Tam",
+            "Julian van Eyken",
+            "Charles Beichman"
+          ],
+          "claimed_title": "The NASA Exoplanet Archive and Exoplanet Follow-up Observing Program: Data, Tools, and Usage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.03299"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='The NASA Exoplanet Archive and Exoplanet Follow-up Observing Program: Data, Tools, and Usage')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we summarize discussions and conclusions from the conference ``The Era of Binary Supermassive Black Holes: Coordination of Nanohertz-Frequency Gravitational-Wave Follow-up,'' held at the Aspen Center for Physics from February 2-7, 2025. The meeting facilitated a crucial knowledge exchange between electromagnetic and gravitational-wave theorists, observers, and cyber-infrastructure experts. The central goal was to guide the development of multi-messenger follow-up strategies for binary supermassive black hole detections by pulsar timing arrays. To build a common basis of understanding for the broader scientific community, this summary outlines the main considerations and recommendations from the meeting, summarizes the knowledge gaps identified, and ends with a potential roadmap to catalyze discussion about the search for electromagnetic counterparts to massive black hole binaries detected by pulsar timing arrays.",
+          "claimed_authors": [
+            "Sarah Burke-Spolaor",
+            "Tamara Bogdanović",
+            "Daniel J. D'Orazio",
+            "Michael Eracleous",
+            "Suvi Gezari",
+            "Matthew J. Graham",
+            "Kayhan Gültekin",
+            "Jeffrey Hazboun",
+            "Chiara M. F. Mingarelli",
+            "Gautham Narayan",
+            "Polina Petrov",
+            "Nicolo Veronesi"
+          ],
+          "claimed_title": "The Era of Binary Supermassive Black Holes: Coordination of Nanohertz-Frequency Gravitational-Wave Follow-up",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.15911"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='The Era of Binary Supermassive Black Holes: Coordination of Nanohertz-Frequency Gravitational-Wave Follow-up')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The International Particle Physics Outreach Group (IPPOG) has been making concerted and systematic efforts to present and popularise particle physics across all audiences and age groups since 1997. Today the scientific community has in IPPOG a strategic pillar in fostering long-term, sustainable support for fundamental research around the world. One of the main tools IPPOG has been offering to the scientific community, teachers and educators for almost 10 years is the Resource Database (RDB), an online platform containing a collection of high quality engaging education and outreach materials in particle physics and related sciences.",
+          "claimed_authors": [
+            "Barbora Bruant Gulejova"
+          ],
+          "claimed_title": "IPPOG : Bridging the gap between science education at school and modern scientific research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.14743"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='IPPOG : Bridging the gap between science education at school and modern scientific research')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Federated learning enables collaborative model training across geographically distributed medical centers while preserving data privacy. However, domain shifts and heterogeneity in data often lead to a degradation in model performance. Medical imaging applications are particularly affected by variations in acquisition protocols, scanner types, and patient populations. To address these issues, we introduce Federated Template and Task Learning (FeTTL), a novel framework designed to harmonize multi-institutional medical imaging data in federated environments. FeTTL learns a global template together with a task model to align data distributions among clients. We evaluated FeTTL on two challenging and diverse multi-institutional medical imaging tasks: retinal fundus optical disc segmentation and histopathological metastasis classification. Experimental results show that FeTTL significantly outperforms the state-of-the-art federated learning baselines (p-values <0.002) for optical disc segmentation and classification of metastases from multi-institutional data. Our experiments further highlight the importance of jointly learning the template and the task. These findings suggest that FeTTL offers a principled and extensible solution for mitigating distribution shifts in federated learning, supporting robust model deployment in real-world, multi-institutional environments.",
+          "claimed_authors": [
+            "Abhijeet Parida",
+            "Antonia Alomar",
+            "Zhifan Jiang",
+            "Pooneh Roshanitabrizi",
+            "Austin Tapp",
+            "Ziyue Xu",
+            "Syed Muhammad Anwar",
+            "Maria J. Ledesma-Carbayo",
+            "Holger R. Roth",
+            "Marius George Linguraru"
+          ],
+          "claimed_title": "FeTTL: Federated Template and Task Learning for Multi-Institutional Medical Imaging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.16302"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='FeTTL: Federated Template and Task Learning for Multi-Institutional Medical Imaging')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the plans for gravitational-wave observations and astrophysics that will be carried out by the LIGO Scientific Collaboration (LSC) in the next decade using data from the LIGO Observatories in the US, and sister facilities abroad in Europe, Japan and India. We provide an overview of gravitational wave signal types that we are targeting, and the role of gravitational waves in time-domain multi-messenger astronomy. We briefly summarize what we can infer from the properties of detected signals, including astrophysical event rates and populations, tests of gravitational-wave properties, highly-dynamical and strong-field tests of General Relativity, probing matter under extreme conditions in neutron stars, and making cosmological measurements with gravitational-wave sources.",
+          "claimed_authors": [
+            " The LIGO Scientific collaboration"
+          ],
+          "claimed_title": "Gravitational wave astronomy with LIGO and similar detectors in the next decade",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.03187"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='Gravitational wave astronomy with LIGO and similar detectors in the next decade')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fine-tuning large language models (LLMs) on resource-constrained clients remains a challenging problem. Recent works have fused low-rank adaptation (LoRA) techniques with federated fine-tuning to mitigate challenges associated with client model sizes and data scarcity. Still, the heterogeneity of resources remains a critical bottleneck: while higher-rank modules generally enhance performance, varying client capabilities constrain LoRA's feasible rank range. Existing approaches attempting to resolve this issue either lack analytical justification or impose additional computational overhead, leaving a wide gap for efficient and theoretically-grounded solutions. To address these challenges, we propose federated sketching LoRA (FSLoRA), which leverages a sketching mechanism to enable clients to selectively update submatrices of global LoRA modules maintained by the server. By adjusting the sketching ratios, which determine the ranks of the submatrices on the clients, FSLoRA flexibly adapts to client-specific communication and computational constraints. We provide a rigorous convergence analysis of FSLoRA that characterizes how the sketching ratios affect the convergence rate. Through extensive experiments, we demonstrate that FSLoRA outperforms baselines and significantly improves training efficiency while preserving stable convergence.",
+          "claimed_authors": [
+            "Wenzhi Fang",
+            "Dong-Jun Han",
+            "Liangqi Yuan",
+            "Seyyedali Hosseinalipour",
+            "Christopher G. Brinton"
+          ],
+          "claimed_title": "Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.19389"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "High-quality and open datasets remain a major bottleneck for text-to-image (T2I) fine-tuning. Despite rapid progress in model architectures and training pipelines, most publicly available fine-tuning datasets suffer from low resolution, poor text-image alignment, or limited diversity, resulting in a clear performance gap between open research models and enterprise-grade models. In this work, we present Fine-T2I, a large-scale, high-quality, and fully open dataset for T2I fine-tuning. Fine-T2I spans 10 task combinations, 32 prompt categories, 11 visual styles, and 5 prompt templates, and combines synthetic images generated by strong modern models with carefully curated real images from professional photographers. All samples are rigorously filtered for text-image alignment, visual fidelity, and prompt quality, with over 95% of initial candidates removed. The final dataset contains over 6 million text-image pairs, around 2 TB on disk, approaching the scale of pretraining datasets while maintaining fine-tuning-level quality. Across a diverse set of pretrained diffusion and autoregressive models, fine-tuning on Fine-T2I consistently improves both generation quality and instruction adherence, as validated by human evaluation, visual comparison, and automatic metrics. We release Fine-T2I under an open license to help close the data gap in T2I fine-tuning in the open community.",
+          "claimed_authors": [
+            "Xu Ma",
+            "Yitian Zhang",
+            "Qihua Dong",
+            "Yun Fu"
+          ],
+          "claimed_title": "Fine-T2I: An Open, Large-Scale, and Diverse Dataset for High-Quality T2I Fine-Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.09439"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='Fine-T2I: An Open, Large-Scale, and Diverse Dataset for High-Quality T2I Fine-Tuning')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Decentralized Multi-agent Learning (DML) enables collaborative model training while preserving data privacy. However, inherent heterogeneity in agents' resources (computation, communication, and task size) may lead to substantial variations in training time. This heterogeneity creates a bottleneck, lengthening the overall training time due to straggler effects and potentially wasting spare resources of faster agents. To minimize training time in heterogeneous environments, we present a Communication-Efficient Training Workload Balancing for Decentralized Multi-Agent Learning (ComDML), which balances the workload among agents through a decentralized approach. Leveraging local-loss split training, ComDML enables parallel updates, where slower agents offload part of their workload to faster agents. To minimize the overall training time, ComDML optimizes the workload balancing by jointly considering the communication and computation capacities of agents, which hinges upon integer programming. A dynamic decentralized pairing scheduler is developed to efficiently pair agents and determine optimal offloading amounts. We prove that in ComDML, both slower and faster agents' models converge, for convex and non-convex functions. Furthermore, extensive experimental results on popular datasets (CIFAR-10, CIFAR-100, and CINIC-10) and their non-I.I.D. variants, with large models such as ResNet-56 and ResNet-110, demonstrate that ComDML can significantly reduce the overall training time while maintaining model accuracy, compared to state-of-the-art methods. ComDML demonstrates robustness in heterogeneous environments, and privacy measures can be seamlessly integrated for enhanced data protection.",
+          "claimed_authors": [
+            "Seyed Mahmoud Sajjadi Mohammadabadi",
+            "Lei Yang",
+            "Feng Yan",
+            "Junshan Zhang"
+          ],
+          "claimed_title": "Communication-Efficient Training Workload Balancing for Decentralized Multi-Agent Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.00839"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='Communication-Efficient Training Workload Balancing for Decentralized Multi-Agent Learning')",
+        "failed_at": "2026-07-11T16:26:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we describe the details of the neural dependency parser sub-mitted by our team to the NLPCC 2019 Shared Task of Semi-supervised do-main adaptation subtask on Cross-domain Dependency Parsing. Our system is based on the stack-pointer networks(STACKPTR). Considering the im-portance of context, we utilize self-attention mechanism for the representa-tion vectors to capture the meaning of words. In addition, to adapt three dif-ferent domains, we utilize neural network based deep transfer learning which transfers the pre-trained partial network in the source domain to be a part of deep neural network in the three target domains (product comments, product blogs and web fiction) respectively. Results on the three target domains demonstrate that our model performs competitively.",
+          "claimed_authors": [
+            "Zhentao Xia",
+            "Likai Wang",
+            "Weiguang Qu",
+            "Junsheng Zhou",
+            "Yanhui Gu"
+          ],
+          "claimed_title": "Neural Network based Deep Transfer Learning for Cross-domain Dependency Parsing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.02895"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='Neural Network based Deep Transfer Learning for Cross-domain Dependency Parsing')",
+        "failed_at": "2026-07-11T16:26:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Model merging via Mixture-of-Experts (MoE) has emerged as a scalable solution for consolidating multiple task-specific models into a unified sparse architecture, where each expert is derived from a model fine-tuned on a distinct task. While effective for multi-task integration, this paradigm introduces a critical yet underexplored challenge: how to attribute and protect the intellectual property (IP) of individual experts after merging. We propose RouteMark, a framework for IP protection in merged MoE models through the design of expert routing fingerprints. Our key insight is that task-specific experts exhibit stable and distinctive routing behaviors under probing inputs. To capture these patterns, we construct expert-level fingerprints using two complementary statistics: the Routing Score Fingerprint (RSF), quantifying the intensity of expert activation, and the Routing Preference Fingerprint (RPF), characterizing the input distribution that preferentially activates each expert. These fingerprints are reproducible, task-discriminative, and lightweight to construct. For attribution and tampering detection, we introduce a similarity-based matching algorithm that compares expert fingerprints between a suspect and a reference (victim) model. Extensive experiments across diverse tasks and CLIP-based MoE architectures show that RouteMark consistently yields high similarity for reused experts and clear separation from unrelated ones. Moreover, it remains robust against both structural tampering (expert replacement, addition, deletion) and parametric tampering (fine-tuning, pruning, permutation), outperforming weight- and activation-based baseliness. Our work lays the foundation for RouteMark as a practical and broadly applicable framework for IP verification in MoE-based model merging.",
+          "claimed_authors": [
+            "Xin He",
+            "Junxi Shen",
+            "Zhenheng Tang",
+            "Xiaowen Chu",
+            "Bo Li",
+            "Ivor W. Tsang",
+            "Yew-Soon Ong"
+          ],
+          "claimed_title": "RouteMark: A Fingerprint for Intellectual Property Attribution in Routing-based Model Merging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.01784"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='RouteMark: A Fingerprint for Intellectual Property Attribution in Routing-based Model Merging')",
+        "failed_at": "2026-07-11T16:26:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fine-tuning pre-trained language models has become the prevalent paradigm for building downstream NLP models. Oftentimes fine-tuned models are readily available but their training data is not, due to data privacy or intellectual property concerns. This creates a barrier to fusing knowledge across individual models to yield a better single model. In this paper, we study the problem of merging individual models built on different training data sets to obtain a single model that performs well both across all data set domains and can generalize on out-of-domain data. We propose a dataless knowledge fusion method that merges models in their parameter space, guided by weights that minimize prediction differences between the merged model and the individual models. Over a battery of evaluation settings, we show that the proposed method significantly outperforms baselines such as Fisher-weighted averaging or model ensembling. Further, we find that our method is a promising alternative to multi-task learning that can preserve or sometimes improve over the individual models without access to the training data. Finally, model merging is more efficient than training a multi-task model, thus making it applicable to a wider set of scenarios.",
+          "claimed_authors": [
+            "Xisen Jin",
+            "Xiang Ren",
+            "Daniel Preotiuc-Pietro",
+            "Pengxiang Cheng"
+          ],
+          "claimed_title": "Dataless Knowledge Fusion by Merging Weights of Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.09849"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='Dataless Knowledge Fusion by Merging Weights of Language Models')",
+        "failed_at": "2026-07-11T16:26:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Models trained on different datasets can be merged by a weighted-averaging of their parameters, but why does it work and when can it fail? Here, we connect the inaccuracy of weighted-averaging to mismatches in the gradients and propose a new uncertainty-based scheme to improve the performance by reducing the mismatch. The connection also reveals implicit assumptions in other schemes such as averaging, task arithmetic, and Fisher-weighted averaging. Our new method gives consistent improvements for large language models and vision transformers, both in terms of performance and robustness to hyperparameters. Code available here.",
+          "claimed_authors": [
+            "Nico Daheim",
+            "Thomas Möllenhoff",
+            "Edoardo Maria Ponti",
+            "Iryna Gurevych",
+            "Mohammad Emtiyaz Khan"
+          ],
+          "claimed_title": "Model Merging by Uncertainty-Based Gradient Matching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.12808"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Heterogeneous Scientific Foundation Model Collabor', candidate_title='Model Merging by Uncertainty-Based Gradient Matching')",
+        "failed_at": "2026-07-11T16:26:55Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Saleem A. Al Dajani",
+            "Abel Sanchez",
+            "John R. Williams"
+          ],
+          "title": "DeepSeq: High-Throughput Single-Cell RNA Sequencing Data Labeling via Web Search-Augmented Agentic Generative AI Foundation Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.13817",
+        "summary": "Generative AI foundation models offer transformative potential for processing structured biological data, particularly in single-cell RNA sequencing, where datasets are rapidly scaling toward billions of cells. We propose the use of agentic foundation models with real-time web search to automate the labeling of experimental data, achieving up to 82.5% accuracy. This addresses a key bottleneck in supervised learning for structured omics data by increasing annotation throughput without manual curation and human error. Our approach enables the development of virtual cell foundation models capable of downstream tasks such as cell-typing and perturbation prediction. As data volume grows, these models may surpass human performance in labeling, paving the way for reliable inference in large-scale perturbation screens. This application demonstrates domain-specific innovation in health monitoring and diagnostics, aligned with efforts like the Human Cell Atlas and Human Tumor Atlas Network.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.13817",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T16:26:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zihao Li",
+            "Jiaru Zou",
+            "Feihao Fang",
+            "Xuying Ning",
+            "Mengting Ai",
+            "Tianxin Wei",
+            "Sirui Chen",
+            "Xiyuan Yang",
+            "Jingrui He"
+          ],
+          "title": "Heterogeneous Scientific Foundation Model Collaboration",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.27351",
+        "summary": "Agentic large language model systems have demonstrated strong capabilities. However, their reliance on language as the universal interface fundamentally limits their applicability to many real-world problems, especially in scientific domains where domain-specific foundation models have been developed to address specialized tasks beyond natural language. In this work, we introduce Eywa, a heterogeneous agentic framework designed to extend language-centric systems to a broader class of scientific foundation models. The key idea of Eywa is to augment domain-specific foundation models with a language-model-based reasoning interface, enabling language models to guide inference over non-linguistic data modalities. This design allows predictive foundation models, which are typically optimized for specialized data and tasks, to participate in higher-level reasoning and decision-making processes within agentic systems. Eywa can serve as a drop-in replacement for a single-agent pipeline (EywaAgent) or be integrated into existing multi-agent systems by replacing traditional agents with specialized agents (EywaMAS). We further investigate a planning-based orchestration framework in which a planner dynamically coordinates traditional agents and Eywa agents to solve complex tasks across heterogeneous data modalities (EywaOrchestra). We evaluate Eywa across a diverse set of scientific domains spanning physical, life, and social sciences. Experimental results demonstrate that Eywa improves performance on tasks involving structured and domain-specific data, while reducing reliance on language-based reasoning through effective collaboration with specialized foundation models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.27351",
+          "http_status": 200,
+          "pdf_sample_score": 0.2944,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T16:27:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ard Kastrati",
+            "Josua Bürki",
+            "Jonas Lauer",
+            "Cheng Xuan",
+            "Raffaele Iaquinto",
+            "Roger Wattenhofer"
+          ],
+          "title": "EEG-Bench: A Benchmark for EEG Foundation Models in Clinical Applications",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.08959",
+        "summary": "We introduce a unified benchmarking framework focused on evaluating EEG-based foundation models in clinical applications. The benchmark spans 11 well-defined diagnostic tasks across 14 publicly available EEG datasets, including epilepsy, schizophrenia, Parkinson's disease, OCD, and mild traumatic brain injury. It features minimal preprocessing, standardized evaluation protocols, and enables side-by-side comparisons of classical baselines and modern foundation models. Our results show that while foundation models achieve strong performance in certain settings, simpler models often remain competitive, particularly under clinical distribution shifts. To facilitate reproducibility and adoption, we release all prepared data and code in an accessible and extensible format.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.08959",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T16:27:00Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"heterogeneous scientific foundation model collaboration\" other",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

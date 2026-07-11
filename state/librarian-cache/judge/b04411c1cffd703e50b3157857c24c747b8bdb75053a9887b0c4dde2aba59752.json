@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.13817",
+  "judged_at": "2026-07-11T16:27:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"heterogeneous scientific foundation model collaboration\" other",
+  "rationale": "This paper satisfies criterion (b) as it measures the application of generative AI foundation models to structured biological data (single-cell RNA sequencing), which is a core component of the user's domain regarding \"Scientific Foundation Model Collaboration\" in biology. It also aligns with criterion (e) by providing an empirical study on the specific population (single-cell omics data) that the user's question implicitly targets for foundation model development.",
+  "relevant": true
+}
