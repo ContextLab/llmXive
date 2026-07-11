@@ -1,14 +1,12 @@
 """
-Inconsistency validator for A/B test summaries.
-Applies FR-004 thresholds and flags data quality issues per FR-012.
+Validator module for T025: Inconsistency validation and T025b: Missing baseline flagging.
+Implements FR-004 thresholds and FR-012 missing data flagging.
 """
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
 import numpy as np
-from scipy import stats
 
 from code.src.models.data_models import ABTestSummary, AuditRecord
 from code.src.utils.logger import get_default_logger, get_error_message, AuditLogger
@@ -16,144 +14,103 @@ from code.src.config import SEED
 
 logger = get_default_logger(__name__)
 
-def calculate_p_value_diff(p_reported: Optional[float], p_reconstructed: Optional[float]) -> Optional[float]:
-    """Calculate absolute difference between reported and reconstructed p-values."""
-    if p_reported is None or p_reconstructed is None:
-        return None
-    return abs(p_reported - p_reconstructed)
-
-def calculate_effect_size_diff(
-    effect_reported: Optional[float],
-    effect_reconstructed: Optional[float]
-) -> Optional[float]:
-    """Calculate absolute difference between reported and reconstructed effect sizes."""
-    if effect_reported is None or effect_reconstructed is None:
-        return None
-    return abs(effect_reported - effect_reconstructed)
-
-def calculate_relative_effect_size_diff(
-    effect_reported: Optional[float],
-    effect_reconstructed: Optional[float]
-) -> Optional[float]:
-    """Calculate relative difference in effect sizes."""
-    if effect_reported is None or effect_reconstructed is None:
-        return None
-    if effect_reported == 0:
-        return None
-    return abs((effect_reported - effect_reconstructed) / effect_reported)
-
-def validate_single_record(
-    summary: ABTestSummary,
-    reconstruction: Dict[str, Any]
-) -> AuditRecord:
+def validate_single_record(summary: ABTestSummary, reconstructed: Dict[str, Any]) -> AuditRecord:
     """
-    Validate a single A/B test summary against its reconstruction.
-    Flags inconsistencies per FR-004 and data quality issues per FR-012.
+    Validates a single ABTestSummary against its reconstructed statistical values.
+    Flags inconsistencies and missing data as per FR-004 and FR-012.
 
     Args:
         summary: The extracted ABTestSummary object.
-        reconstruction: Dictionary containing reconstructed statistical values.
+        reconstructed: Dictionary of reconstructed statistical values.
 
     Returns:
-        AuditRecord with consistency flags and notes.
+        AuditRecord with flags and notes.
     """
     notes = []
-    is_inconsistent = False
     data_quality_warning = None
+    is_inconsistent = False
 
-    # Check for missing baseline conversion rate (FR-012)
+    # FR-012: Check for missing baseline conversion rate
     if summary.conversion_rate_control is None:
-        notes.append("baseline conversion rate missing")
-        data_quality_warning = "Missing baseline conversion rate prevents full statistical reconstruction"
-        is_inconsistent = True  # Mark as inconsistent due to missing data
+        notes.append("Missing baseline conversion rate. Statistical reconstruction may be incomplete.")
+        data_quality_warning = "Missing baseline data"
+        # We do not mark as statistically inconsistent due to missing data,
+        # but we flag the data quality issue.
+    else:
+        # Check for missing treatment rate as well
+        if summary.conversion_rate_treatment is None:
+            notes.append("Missing treatment conversion rate.")
+            data_quality_warning = "Missing treatment data"
 
-    # Check for missing treatment conversion rate
-    if summary.conversion_rate_treatment is None:
-        notes.append("treatment conversion rate missing")
-        if not data_quality_warning:
-            data_quality_warning = "Missing treatment conversion rate prevents full statistical reconstruction"
-        is_inconsistent = True
+    # FR-004: Check for sample size mismatches
+    if (summary.sample_size_control is not None and summary.sample_size_treatment is not None and
+        reconstructed.get('sample_size_control') is not None and reconstructed.get('sample_size_treatment') is not None):
+        if summary.sample_size_control != reconstructed['sample_size_control'] or \
+           summary.sample_size_treatment != reconstructed['sample_size_treatment']:
+            notes.append("Sample size mismatch between reported and reconstructed data.")
+            data_quality_warning = "Sample size mismatch"
+            # Per FR-004b, this is a data quality warning, not necessarily a statistical inconsistency
+            # unless it leads to p-value discrepancies.
 
-    # Check for sample size mismatch (FR-004b)
-    if summary.sample_size_control is not None and summary.sample_size_treatment is not None:
-        if summary.sample_size_control != summary.sample_size_treatment:
-            notes.append("sample size mismatch between control and treatment")
-            if not data_quality_warning:
-                data_quality_warning = "Sample size mismatch detected"
+    # Statistical consistency checks (only if data is present)
+    if summary.conversion_rate_control is not None and summary.conversion_rate_treatment is not None:
+        p_reported = summary.p_value_reported
+        p_reconstructed = reconstructed.get('p_value_reconstructed')
 
-    # Compare p-values if both are available
-    p_reported = summary.p_value_reported
-    p_reconstructed = reconstruction.get("p_value_reconstructed")
-    p_diff = calculate_p_value_diff(p_reported, p_reconstructed)
+        if p_reported is not None and p_reconstructed is not None:
+            # Absolute p-difference > 0.05 threshold
+            if abs(p_reported - p_reconstructed) > 0.05:
+                notes.append(f"P-value discrepancy: reported={p_reported:.4f}, reconstructed={p_reconstructed:.4f}")
+                is_inconsistent = True
 
-    if p_diff is not None:
-        if p_diff > 0.05:  # FR-004 threshold
-            notes.append(f"p-value difference exceeds threshold: {p_diff:.4f}")
-            is_inconsistent = True
+            # Relative effect-size > 5% threshold
+            effect_reported = summary.effect_size_reported
+            effect_reconstructed = reconstructed.get('effect_size_reconstructed')
 
-    # Compare effect sizes if both are available
-    effect_reported = summary.effect_size_reported
-    effect_reconstructed = reconstruction.get("effect_size_reconstructed")
-    effect_diff = calculate_effect_size_diff(effect_reported, effect_reconstructed)
-    relative_effect_diff = calculate_relative_effect_size_diff(effect_reported, effect_reconstructed)
+            if effect_reported is not None and effect_reconstructed is not None and effect_reported != 0:
+                rel_diff = abs(effect_reported - effect_reconstructed) / abs(effect_reported)
+                if rel_diff > 0.05:
+                    notes.append(f"Effect size discrepancy: reported={effect_reported:.4f}, reconstructed={effect_reconstructed:.4f}")
+                    is_inconsistent = True
 
-    if effect_diff is not None and relative_effect_diff is not None:
-        if relative_effect_diff > 0.05:  # FR-004 threshold: 5% relative difference
-            notes.append(f"effect size relative difference exceeds threshold: {relative_effect_diff:.2%}")
-            is_inconsistent = True
-
-    # Create the audit record
-    audit_record = AuditRecord(
+    return AuditRecord(
         url=summary.url,
         domain=summary.domain,
-        publication_year=summary.publication_year,
         is_inconsistent=is_inconsistent,
-        notes="; ".join(notes) if notes else "All checks passed",
+        notes=" ".join(notes) if notes else None,
         data_quality_warning=data_quality_warning,
-        p_value_difference=p_diff,
-        effect_size_difference=effect_diff,
-        relative_effect_size_difference=relative_effect_diff
+        publication_year=summary.publication_year
     )
 
-    return audit_record
-
-def validate_all_records(
-    summaries: List[ABTestSummary],
-    reconstructions: List[Dict[str, Any]]
-) -> List[AuditRecord]:
+def validate_all_records(summaries: List[ABTestSummary], reconstructed_list: List[Dict[str, Any]]) -> List[AuditRecord]:
     """
-    Validate a list of summaries against their reconstructions.
+    Validates a list of ABTestSummary objects against their reconstructed values.
 
     Args:
         summaries: List of ABTestSummary objects.
-        reconstructions: List of reconstruction dictionaries.
+        reconstructed_list: List of reconstructed value dictionaries.
 
     Returns:
         List of AuditRecord objects.
     """
-    if len(summaries) != len(reconstructions):
-        raise ValueError(f"Number of summaries ({len(summaries)}) does not match number of reconstructions ({len(reconstructions)})")
+    if len(summaries) != len(reconstructed_list):
+        raise ValueError("Number of summaries and reconstructed records must match.")
 
     audit_records = []
-    for summary, reconstruction in zip(summaries, reconstructions):
-        record = validate_single_record(summary, reconstruction)
+    for summary, reconstructed in zip(summaries, reconstructed_list):
+        record = validate_single_record(summary, reconstructed)
         audit_records.append(record)
-        logger.info(f"Validated {summary.url}: inconsistent={record.is_inconsistent}")
 
     return audit_records
 
 def main():
     """
     Main entry point for running validation on a dataset.
-    Expects input data to be processed by the reconstructor first.
+    Expects input JSON files and writes audit report.
     """
-    logger.info("Starting validation process")
-
-    # This would typically load from files generated by the reconstructor
-    # For now, we demonstrate the validation logic
-    logger.info("Validation module loaded successfully")
-    return 0
+    # This is a placeholder for the actual CLI execution logic
+    # The test suite T025b validates the core logic of validate_single_record
+    logger.info("Validator module loaded. Run specific validation tasks via test suite or CLI.")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()
