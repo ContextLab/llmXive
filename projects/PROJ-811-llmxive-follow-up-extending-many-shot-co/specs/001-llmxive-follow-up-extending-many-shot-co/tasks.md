@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure matching directory tree in `plan.md` Section "Project Structure" (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (networkx, llama-cpp-python, pandas, statsmodels, sentence-transformers, pyyaml, huggingface_hub)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure matching directory tree in `plan.md` Section "Project Structure" (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (networkx, llama-cpp-python, pandas, statsmodels, sentence-transformers, pyyaml, huggingface_hub)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `data/` directory structure (`raw/`, `processed/`, `results/`) and `artifacts/` for checksums
-- [ ] T005 [P] Implement `code/src/update_state.py` for Constitution Principle V (artifact hashing and state YAML updates)
-- [ ] T006 [P] Setup environment configuration management (load seeds, model paths from `.env` or YAML)
+- [X] T004 Setup `data/` directory structure (`raw/`, `processed/`, `results/`) and `artifacts/` for checksums
+- [X] T005 [P] Implement `code/src/update_state.py` for Constitution Principle V (artifact hashing and state YAML updates)
+- [X] T006 [P] Setup environment configuration management (load seeds, model paths from `.env` or YAML)
 - [ ] T007 Create base data loading utilities for HuggingFace datasets (`aaabiao/DAG_sft`)
-- [ ] T008 Implement `code/src/parser.py` skeleton with `networkx` DAG initialization logic
+- [X] T008 Implement `code/src/parser.py` skeleton with `networkx` DAG initialization logic
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,12 +82,19 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement CoT trace parser in `code/src/parser.py` to convert text steps to `networkx` DAG nodes/edges
-- [ ] T013 [US1] Implement cycle detection logic (max cycle length of 5 steps, >3 incoming edges) and flagging mechanism in `code/src/parser.py`
-- [ ] T014 [US1] Implement "Logical Difficulty Score" calculation (max path depth) in `code/src/parser.py`
-- [ ] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, generate a template file with instructions for expert annotation (handling the 'deferred' assumption) rather than failing.
-- [ ] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6) (Plan Deviation: GeoQA replaced by SFT human ratings). **Depends on: T014, T015**.
-- [ ] T017 [US1] Implement filtering and exclusion logic to remove invalid traces (cycles) from `data/processed/dag_manifest.json` and ensure they are not included in downstream prompt generation (US-001 AC-2)
-- [ ] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
+- [~] T013 [US1] Implement cycle detection logic (max cycle length of 5 steps, >3 incoming edges) and flagging mechanism in `code/src/parser.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+ in "<unicode string>", line 4, column 1:
+ **Input**: Design documents from...
+ ^
+expected alphabetic or numeric character, but found '*'
+ in "<unicode string>", line 4, column 2:
+ **Input**: Design documents from...
+ ^) -->
+- [~] T014 [US1] Implement "Logical Difficulty Score" calculation (max path depth) in `code/src/parser.py`
+- [~] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, generate a template file with instructions for expert annotation (handling the 'deferred' assumption) rather than failing.
+- [~] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6) (Plan Deviation: GeoQA replaced by SFT human ratings). **Depends on: T014, T015**.
+- [~] T017 [US1] Implement filtering and exclusion logic to remove invalid traces (cycles) from `data/processed/dag_manifest.json` and ensure they are not included in downstream prompt generation (US-001 AC-2)
+- [~] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
 
 **⚠️ GATING CHECK**: T016 must pass (r ≥ 0.6) AND T017 must complete before Phase 4 can begin.
 
@@ -103,18 +110,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for "Logical Ascending" sort order verification in `code/tests/test_prompt_gen.py`
-- [ ] T020 [P] [US2] Unit test for deterministic shuffling with fixed seed in `code/tests/test_prompt_gen.py`
-- [ ] T021 [P] [US2] Integration test for prompt file generation across multiple seeds in `code/tests/test_integration.py`
+- [~] T019 [P] [US2] Unit test for "Logical Ascending" sort order verification in `code/tests/test_prompt_gen.py`
+- [~] T020 [P] [US2] Unit test for deterministic shuffling with fixed seed in `code/tests/test_prompt_gen.py`
+- [~] T021 [P] [US2] Integration test for prompt file generation across multiple seeds in `code/tests/test_integration.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement "Logical Ascending" sorter in `code/src/prompt_gen.py` (sort by DAG depth from T018, non-decreasing). **Depends on: T016 (Validation Pass)**.
-- [ ] T023 [US2] Implement "Logical Random" shuffler in `code/src/prompt_gen.py` (fixed seed, preserve distribution)
-- [ ] T024a [US2] Implement "Original CDS" (Semantic Curvature) metric calculation in `code/src/prompt_gen.py`. Algorithm: Compute sentence embeddings via SBERT, calculate cosine similarity between adjacent sentences, then compute the variance of these similarities as the "Curvature Score".
-- [ ] T024b [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024a.
-- [ ] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
-- [ ] T026 [US2] Create batch runner to generate prompts for multiple seeds across three strategies, saving to `data/processed/prompts/`
+- [~] T022 [US2] Implement "Logical Ascending" sorter in `code/src/prompt_gen.py` (sort by DAG depth from T018, non-decreasing). **Depends on: T016 (Validation Pass)**.
+- [~] T023 [US2] Implement "Logical Random" shuffler in `code/src/prompt_gen.py` (fixed seed, preserve distribution)
+- [~] T024a [US2] Implement "Original CDS" (Semantic Curvature) metric calculation in `code/src/prompt_gen.py`. Algorithm: Compute sentence embeddings via SBERT, calculate cosine similarity between adjacent sentences, then compute the variance of these similarities as the "Curvature Score".
+- [~] T024b [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024a.
+- [~] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
+- [~] T026 [US2] Create batch runner to generate prompts for multiple seeds across three strategies, saving to `data/processed/prompts/`
 - [ ] T027 [US2] Add validation to ensure no duplicate orderings within a strategy group across seeds
 - [ ] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
 
@@ -170,8 +177,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -239,9 +246,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Parser + Validation + Exclusion) - **Must complete first**
-   - Developer B: (Wait for US1 completion before starting US2)
-   - Developer C: (Wait for US2 completion before starting US3)
+ - Developer A: User Story 1 (Parser + Validation + Exclusion) - **Must complete first**
+ - Developer B: (Wait for US1 completion before starting US2)
+ - Developer C: (Wait for US2 completion before starting US3)
 3. Stories complete and integrate sequentially due to data flow dependencies.
 
 ---

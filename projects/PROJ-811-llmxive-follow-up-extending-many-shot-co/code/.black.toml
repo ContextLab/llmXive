@@ -1,0 +1,2 @@
+# Extends the main pyproject.toml configuration if needed.
+# Currently, all configuration is centralized in pyproject.toml.

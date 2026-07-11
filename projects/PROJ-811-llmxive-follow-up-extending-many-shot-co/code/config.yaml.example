@@ -1,0 +1,32 @@
+# Configuration file for llmXive Project
+# This file provides default settings.
+# Environment variables (.env) override these values.
+
+seeds:
+  - 42
+  - 123
+  - 456
+
+model_paths:
+  reasoning: "models/reasoning_model.gguf"
+  non_reasoning: "models/non_reasoning_model.gguf"
+
+inference_params:
+  temperature: 0.7
+  max_tokens: 2048
+  top_p: 0.9
+  repeat_penalty: 1.1
+
+parser_params:
+  max_cycle_length: 5
+  max_incoming_edges: 3
+
+dataset:
+  name: "aaabiao/DAG_sft"
+  split: "train"
+
+data_dirs:
+  raw: "data/raw"
+  processed: "data/processed"
+  results: "data/results"
+  artifacts: "artifacts"

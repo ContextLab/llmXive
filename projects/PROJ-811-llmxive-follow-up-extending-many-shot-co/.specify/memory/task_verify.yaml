@@ -1,0 +1,5 @@
+T007 Create base data loading utilities for HuggingFace datasets (`aaabiao/DAG_sft`): 2
+T009 [P] [US1] Unit test for cycle detection and invalid trace flagging in `code/tests/test_parser.py`: 1
+T010 [P] [US1] Unit test for DAG depth calculation logic in `code/tests/test_parser.py`: 1
+"T011 [P] [US1] Integration test for gold-standard correlation validation (r \u2265 0.6) in `code/tests/test_integration.py`": 1
+T012 [US1] Implement CoT trace parser in `code/src/parser.py` to convert text steps to `networkx` DAG nodes/edges: 1
