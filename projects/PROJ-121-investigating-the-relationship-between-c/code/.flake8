@@ -1,0 +1,20 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    env,
+    build,
+    dist,
+    .eggs,
+    *.egg-info
+per-file-ignores =
+    # Allow unused imports in __init__.py for package exposure
+    */__init__.py:F401
+    # Allow asserts in tests
+    tests/*:S101
+    # Allow asserts in validation scripts for strict checks
+    */validation.py:S101
+max-complexity = 15

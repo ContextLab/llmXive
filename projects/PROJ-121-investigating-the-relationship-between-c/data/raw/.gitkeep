@@ -1,0 +1,2 @@
+# This directory stores raw downloaded data (IceCube, Auger, NOAA)
+# Files here are gitignored but managed via data loader

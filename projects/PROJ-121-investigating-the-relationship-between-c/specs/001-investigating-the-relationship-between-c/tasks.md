@@ -20,33 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `data/`, `tests/`, `output/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies: `astropy`, `healpy`, `numpy`, `scipy`, `pandas`, `matplotlib`, `seaborn`, `requests`, `lxml`, `jinja2`, `pyyaml`, `statsmodels`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
-- [ ] T004 [P] Create `requirements.txt` with pinned versions ensuring CPU-only execution (no CUDA)
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-121-investigating-the-relationship-between-c/`)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (no CUDA/GPU libs)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `.pre-commit-config.yaml`
 
 ---
 
@@ -56,13 +55,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `src/utils/checksum.py` for SHA-256 verification of downloaded files
-- [ ] T006 Implement `src/utils/logging.py` for structured logging with timestamps and log levels
-- [ ] T007 Create `src/data/models/event_dataset.py` and `src/data/models/solar_proxy_series.py` entities
-- [ ] T008 Implement `src/data/models/anisotropy_interval.py` entity with schema validation
-- [ ] T009 Create `src/utils/config.py` to handle `--bin-size` argument (7-60 days, A default value will be established for the parameter, pending empirical determination during the implementation phase.) and validate constraints
-- [ ] T010 Setup `data/raw/`, `data/processed/`, `data/results/`, and `output/` directory structure
-- [ ] T019 [P] [US1] Implement `src/data/preprocess.py` sampling logic: if dataset > 7GB RAM, apply energy threshold (>10 TeV) or random sampling to fit memory limits (Prerequisite for T015/T016)
+Examples of foundational tasks (adjust based on your project):
+
+- [X] T004 Setup directory structure: `data/raw`, `data/processed`, `data/results`, `reports`, `code/src`
+- [X] T005 [P] Implement `src/data_loader.py` for downloading IceCube and Auger data with SHA-256 checksum verification
+- [X] T006 [P] Implement `src/solar_proxies.py` to fetch NOAA NGDC indices (sunspot, solar wind, IMF) with retry logic, specifically implementing **exponential backoff** strategy and a hard limit of **3 attempts** per request as required by FR-002
+- [ ] T007 Create base data entities: `EventDataset` and `SolarProxySeries` in `src/entities.py`
+- [ ] T008 Configure `src/config.py` for environment variables and default bin size (27 days)
+- [ ] T009 Setup `src/utils.py` for logging, error handling, and UTC Julian date conversion
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,14 +83,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `src/data/download.py` with retry logic (multiple retries, exponential back-off) for IceCube (HuggingFace), Auger (fallback if unavailable), and NOAA NGDC; **explicitly invoke SHA-256 checksum verification for all downloaded files** as per FR-001, logging success or failure for each source
-- [ ] T014 [P] [US1] Implement `src/data/solar_proxy.py` to fetch and align daily sunspot, solar wind, and IMF indices; **explicitly invoke SHA-256 checksum verification** for any cached or downloaded proxy data files as per FR-002
-- [ ] T018 [US1] Implement `src/cli/run_all.sh` to orchestrate download, preprocess, and reporting; **accept `--bin-size` argument** and pass it to the preprocess module; exit 0 on success
-- [ ] T015 [US1] Implement `src/data/preprocess.py` to convert timestamps to UTC Julian dates, **accept `bin_size` parameter from orchestrator**, and bin events into non-overlapping intervals
-- [ ] T015b [US1] Implement `src/data/preprocess.py` to generate HEALPix sky maps with a resolution parameter suitable for the study scale for each interval; **verify Nside 64 map exists in `data/processed/`** before proceeding
-- [ ] T016 [US1] Implement `src/data/preprocess.py` logic to fit spherical harmonics (ℓ=2) and extract dipole amplitude/phase; **write coefficients to `data/processed/spherical_harmonics.json` and update CSV**
-- [ ] T017 [US1] Implement `src/data/preprocess.py` to write `data/results/dipole_timeseries.csv` with headers `interval_start, dipole_amp, dipole_phase, quad_amp`
-- [ ] T020 [US1] Add error handling for missing IceCube/Auger data to proceed with available data and log warnings
+- [ ] T012 [P] [US1] Implement `src/binning.py` to convert timestamps to UTC Julian dates and bin events into configurable intervals (FR-010)
+- [~] T013 [P] [US1] Implement `src/anisotropy.py` to generate HEALPix maps at an appropriate resolution and fit spherical harmonic coefficients (ℓ≤2)
+- [~] T014 [US1] Implement `src/pipeline.py` to orchestrate download, binning, and map generation per interval
+- [~] T015 [US1] Implement `run_pipeline.sh` wrapper script that calls `src/pipeline.py` with `--bin-size` argument
+- [~] T016 [US1] Add logic to handle partial intervals (last bin) and explicitly **set the `partial_interval` boolean flag to `true` in the output CSV** if the final interval is shorter than the bin size, as required by FR-003
+- [~] T017 [US1] Implement `run_all.sh` orchestrator that calls `run_pipeline.sh`, logs "Data acquisition completed", and **handles missing sources by logging a warning and proceeding with available data** (e.g., Auger-only) to ensure the output CSV contains ≥90% of expected rows, satisfying US-1 Acceptance Scenario 2
+- [~] T018 [US1] Create `data/results/dipole_timeseries.csv` with columns: `interval_start, dipole_amp, dipole_phase, quad_amp, partial_interval`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,22 +103,20 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Contract test for statistical calculations in `tests/contract/test_statistics.py`
-- [ ] T022 [P] [US2] Integration test for correlation analysis in `tests/integration/test_correlation_analysis.py`
+- [~] T019 [P] [US2] Contract test for statistical methods in `tests/contract/test_stats.py`
+- [~] T020 [P] [US2] Integration test for correlation analysis in `tests/integration/test_correlation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `src/analysis/stats_utils.py` for autocorrelation estimation (optional for future enhancement)
-- [ ] T024 [P] [US2] Implement `src/analysis/correlation.py` for Lomb-Scargle periodogram analysis on dipole amplitude series
-- [ ] T025 [US2] Implement `src/analysis/correlation.py` for Pearson/Spearman cross-correlation with solar proxies
-- [ ] T026 [US2] Implement `src/analysis/significance.py` for block-bootstrap (a large number of resamples) with **block length = 2 × bin_size** (per FR-005); **calculate number of bootstrap blocks and trigger T026b if blocks < 10**
-- [ ] T026b [US2] Implement `src/analysis/significance.py` fallback to Fourier-based surrogate generation (phase randomization) **if T026 reports blocks < 10**, ensuring statistical validity
-- [ ] T027 [US2] Implement `src/analysis/significance.py` for Monte-Carlo shuffle (a large number of permutations) where **the solar proxy time-series is shuffled relative to the anisotropy series** (per FR-005/SC-005); note: Plan suggests both series, but Spec requires proxy-only
-- [ ] T028 [US2] Implement `src/analysis/significance.py` to apply Bonferroni correction (α = 0.0017) and flag positive results (|r| ≥ 0.4 AND p ≤ 0.0017)
-- [ ] T029 [US2] Add logic to report frequency resolution limits (Δf ≈ a low magnitude in cycles/year) and flag inability to resolve 11-year cycle explicitly
-- [ ] T030 [US2] Implement `src/analysis/correlation.py` to generate PDF output with periodogram; **calculate noise level as median power in a low-frequency band and report peak power relative to this noise level**
-- [ ] T030a [US2] **Specific Implementation for SC-003**: Implement logic to explicitly identify the peak at the approximately decadal frequency (if present) and report the calculated noise level and the peak power relative to it (e.g., "3.2σ above median noise") in the output metrics
-- [ ] T030b [US2] Implement `src/analysis/correlation.py` to **identify and report peak at approximately decadal frequency** (if found) or flag null result, ensuring SC-003 compliance
+- [~] T021 [P] [US2] Implement `src/stats.py` with Lomb-Scargle periodogram function (using `astropy.timeseries`)
+- [~] T022 [US2] Implement block-bootstrap resampling in `src/stats.py` with **conditional logic**: if the number of independent blocks is < 30, reduce block length to **1 × bin_size**; otherwise use **2 × bin_size**, ensuring compliance with FR-005
+- [~] T023 [US2] Implement Monte-Carlo shuffle test (sufficient permutations) shuffling solar proxy series relative to anisotropy, **and ensure the block-bootstrap logic in T022 is fully integrated here** with the conditional fallback (if blocks < 30, use 1x bin_size) to satisfy FR-005
+- [~] T024 [US2] Implement Bonferroni correction logic (α=0.0017) and "positive result" flagging in `src/stats.py`
+- [~] T025 [US2] Create `analyze_correlation.py` entry point to run all statistical tests per detector (IceCube, Auger)
+- [~] T026 [US2] Generate PDF output with periodogram plots, correlation heatmaps, and FAP reports
+- [~] T027 [US2] **Generate synthetic dataset with injected known correlation signal**: Implement `src/validation.py` to create a simulated dataset with a known ground truth correlation (specific amplitude and phase) between anisotropy and solar proxy, **saving the output to `data/synthetic/validation_input.csv`**, serving as the input for the blind validation step (FR-011)
+- [~] T028 [US2] Implement blind validation in `src/validation.py` using the synthetic dataset generated in T027; **write metrics (fp_rate, power) to `data/results/validation_metrics.json`** to verify FR-011 requirements. The JSON must contain keys `fp_rate` (float) and `power` (float).
+- [~] T029 [US2] **Add an assertion in `tests/unit/test_validation.py` that raises an error if `fp_rate > 0.05` or `power < 0.8`** using the metrics from T028, ensuring the system fails the build if thresholds are not met. This task enforces the verification step required by FR-011 and SC-008.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,17 +130,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [P] [US3] Contract test for report generation in `tests/contract/test_report.py`
-- [ ] T033 [P] [US3] Integration test for full report build in `tests/integration/test_report_build.py`
+- [~] T030 [P] [US3] Contract test for report generation in `tests/contract/test_report.py`
+- [~] T031 [P] [US3] Integration test for full report build in `tests/integration/test_report_build.py`
 
 ### Implementation for User Story 3
 
-- [ ] T034 [P] [US3] Implement `src/report/generate_plots.py` to create time-series, heat-maps, and periodogram plots (PNG/SVG)
-- [ ] T035 [US3] Implement `src/report/latex_report.py` using Jinja2 to render `report.pdf` with methods, results, and hypothesis statement
-- [ ] T036 [US3] Implement logic in `src/report/latex_report.py` to **programmatically generate hypothesis support statement**: check if p ≤ 0.00135 (3σ) AND |r| ≥ 0.4, AND check if Bonferroni-corrected p-value ≤ 0.0017; generate "Supported" only if BOTH conditions are met, otherwise "Not Supported" (per SC-006)
-- [ ] T037 [US3] Create `src/cli/make_report.sh` to orchestrate plot generation and LaTeX compilation; abort if `requirements.txt` missing
-- [ ] T038 [US3] Ensure `report.pdf` is ≤ 25 pages and includes all required visualizations and quantitative results
-- [ ] T039 [US3] Verify `requirements.txt` contains exact versions and CPU-only constraints
+- [~] T032 [P] [US3] Create LaTeX template `reports/report_template.tex` with sections for methods, results, and figures
+- [~] T033 [US3] Implement `make_report.sh` to compile `report.pdf` using `pdflatex` and copy figures
+- [~] T034 [US3] Add script to generate `requirements.txt` with exact versions of all Python packages
+- [~] T035 [US3] Implement figure generation scripts for time-series, heatmaps, and periodograms
+- [~] T036 [US3] Add error handling for missing `requirements.txt` with clear abort message
+- [~] T037 [US3] Ensure report includes statement on hypothesis support based on Bonferroni-corrected p-values
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -183,8 +180,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -251,9 +248,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Statistics)
+ - Developer C: User Story 3 (Reporting)
 3. Stories complete and integrate independently
 
 ---

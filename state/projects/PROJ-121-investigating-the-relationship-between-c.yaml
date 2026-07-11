@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T03:15:48.614143Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-121-investigating-the-relationship-between-c
-last_run_id: 41f40ca5-4a02-40b2-a240-9dabe831a33c
+last_run_id: a47b8a7f-98fe-4250-994d-c1586719de93
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-121-investigating-the-relationship-between-c/specs/001-investigating-the-relationship-between-c
 title: Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle
   Variations
-updated_at: '2026-07-11T22:41:15.661707Z'
+updated_at: '2026-07-11T22:31:55.305646Z'

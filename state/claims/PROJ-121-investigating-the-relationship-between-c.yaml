@@ -1,0 +1,22 @@
+- artifact_path: projects/PROJ-121-investigating-the-relationship-between-c/code/reports/report_template.tex
+  attempts: 1
+  canonical: Blind validation achieved signal recovery power greater than 0.8 and
+    false positive rate less than 0.05
+  claim_id: c_d201a503
+  context: A synthetic dataset with a known injected correlation was used to validate
+    the pipeline. The system successfully recovered the signal with a power > 0.8
+    and a false positive rate < 0.05, confirming the reliability of the statistical
+    methods.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Blind_validation_achieved_signal_recovery_power_greater_than
+  kind: magnitude
+  raw_text: The system successfully recovered the signal with a power > 0.8 and a
+    false positive rate < 0.05, confirming the reliability of the statistical methods.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T23:04:00Z'
