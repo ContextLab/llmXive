@@ -1,0 +1,15 @@
+T008 Create `code/data/extract.py` to parse raw parquet and isolate top-level function definitions via `ast` (US-1): 2
+T010 Create `code/data/preprocess.py` to sanitize code (remove I/O/network calls, mock stdlib) (FR-011): 1
+? T011 [P] [US1] Unit test for `download.py` to verify file count and checksum in
+  `tests/unit/test_download.py`; tests components of the full pipeline flow
+: 1
+? T012 [P] [US1] Unit test for `validate.py` to ensure `SyntaxError` functions are
+  excluded in `tests/unit/test_validate.py`; tests components of the full pipeline
+  flow
+: 1
+? T013 [P] [US1] Integration test for the full pipeline (download -> validate -> preprocess)
+  in `tests/integration/test_data_pipeline.py`
+: 1
+? T014a [US1] Define strata boundaries (0-10, 11-50, 51+ LOC) and sampling weights
+  for 200 functions in `code/data/sample.py` (FR-008)
+: 1

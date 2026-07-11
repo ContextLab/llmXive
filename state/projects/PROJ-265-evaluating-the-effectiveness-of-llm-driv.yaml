@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T17:39:24.090851Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-265-evaluating-the-effectiveness-of-llm-driv
-last_run_id: 71f86cad-83ac-4cf6-bade-f297c2cb09e7
+last_run_id: 8c455f65-5da7-49ef-a1a5-08c41d2c3b40
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-265-evaluating-the-effectiveness-of-llm-driv/specs/001-evaluating-the-effectiveness-of-llm-driv
 title: Evaluating the Effectiveness of LLM-Driven Code Simplification on Performance
-updated_at: '2026-07-11T11:01:55.459451Z'
+updated_at: '2026-07-11T11:45:51.506323Z'

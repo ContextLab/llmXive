@@ -20,33 +20,33 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (code/, data/, results/, state/)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (datasets, transformers, accelerate, torch-cpu, scikit-learn, pytest)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Setup `checksum.py` script for artifact versioning (Constitution Principle V)
+- [X] T001 Create project structure per implementation plan (code/, data/, results/, state/)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (datasets, transformers, accelerate, torch-cpu, scikit-learn, pytest)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T004 [P] Setup `checksum.py` script for artifact versioning (Constitution Principle V)
 
 ---
 
@@ -56,11 +56,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `code/utils/sandbox.py` with hard 5s timeout and 500MB memory limit wrappers (FR-005)
-- [ ] T006 Implement `code/utils/logger.py` for structured JSON logging of pipeline stages
-- [ ] T007 Create `code/data/download.py` to fetch `codeparrot/codesearchnet-python` via `datasets` library (FR-001)
+- [X] T005 Implement `code/utils/sandbox.py` with hard 5s timeout and 500MB memory limit wrappers (FR-005)
+- [X] T006 Implement `code/utils/logger.py` for structured JSON logging of pipeline stages
+- [X] T007 Create `code/data/download.py` to fetch `codeparrot/codesearchnet-python` via `datasets` library (FR-001)
 - [ ] T008 Create `code/data/extract.py` to parse raw parquet and isolate top-level function definitions via `ast` (US-1)
-- [ ] T009 Create `code/data/validate.py` for syntax checking and import mocking (FR-001, FR-010)
+- [X] T009 Create `code/data/validate.py` for syntax checking and import mocking (FR-001, FR-010)
 - [ ] T010 Create `code/data/preprocess.py` to sanitize code (remove I/O/network calls, mock stdlib) (FR-011)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -84,11 +84,11 @@
 ### Implementation for User Story 1
 
 - [ ] T014a [US1] Define strata boundaries (0-10, 11-50, 51+ LOC) and sampling weights for 200 functions in `code/data/sample.py` (FR-008)
-- [ ] T014b [US1] Implement sampling function to extract 200 functions from the **validated pool (output of T009, filtered for <=3 external imports)** in `code/data/sample.py` (FR-001, FR-008). **Output**: `data/processed/validated_functions.jsonl`. **Verify**: Count == 200.
-- [ ] T014c [US1] Generate the stratified pilot sample of 50 functions from `data/processed/validated_functions.jsonl` in `code/data/sample.py` (FR-008). **Output**: `data/processed/pilot_sample.jsonl`. **Verify**: 50 functions distributed across strata.
-- [ ] T015 [Shared] Implement functional equivalence check logic (AST diff + Type-aware random inputs) in `code/benchmark/equivalence.py` with clear I/O contracts (Input: original_code, simplified_code, random_inputs; Output: bool, drift_log). **Deliverable**: `code/benchmark/equivalence.py`. **Verify**: Run on a set of pairs, expect matches. **Note**: This logic MUST be invoked during Phase 4 (Simplification) to satisfy FR-007 and is used by T016 and T033. (FR-006, FR-007, FR-012)
-- [ ] T017 [US1] Implement full data pipeline orchestrator in `code/main_data.py` to produce `data/processed/functions.jsonl`
-- [ ] T018 [US1] Add logging for exclusion reasons (syntax error, import failure, equivalence drift) in `code/utils/logger.py`
+- [~] T014b [US1] Implement sampling function to extract 200 functions from the **validated pool (output of T009, filtered for <=3 external imports)** in `code/data/sample.py` (FR-001, FR-008). **Output**: `data/processed/validated_functions.jsonl`. **Verify**: Count == 200.
+- [~] T014c [US1] Generate the stratified pilot sample of 50 functions from `data/processed/validated_functions.jsonl` in `code/data/sample.py` (FR-008). **Output**: `data/processed/pilot_sample.jsonl`. **Verify**: 50 functions distributed across strata.
+- [~] T015 [Shared] Implement functional equivalence check logic (AST diff + Type-aware random inputs) in `code/benchmark/equivalence.py` with clear I/O contracts (Input: original_code, simplified_code, random_inputs; Output: bool, drift_log). **Deliverable**: `code/benchmark/equivalence.py`. **Verify**: Run on a set of pairs, expect matches. **Note**: This logic MUST be invoked during Phase 4 (Simplification) to satisfy FR-007 and is used by T016 and T033. (FR-006, FR-007, FR-012)
+- [~] T017 [US1] Implement full data pipeline orchestrator in `code/main_data.py` to produce `data/processed/functions.jsonl`
+- [~] T018 [US1] Add logging for exclusion reasons (syntax error, import failure, equivalence drift) in `code/utils/logger.py`
 
 **Checkpoint**: At this point, User Stories should be fully functional and testable independently with a validated dataset (simplification logic pending).
 
@@ -102,24 +102,24 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for `loader.py` to verify model loads in 4-bit precision on CPU within 7GB RAM in `tests/unit/test_model_loader.py`
-- [ ] T020 [P] [US2] Unit test for `simplify.py` to ensure retry logic handles generation failures in `tests/unit/test_simplify.py`
-- [ ] T021 [P] [US2] Integration test for simplification of a batch of functions in `tests/integration/test_simplification.py`
+- [~] T019 [P] [US2] Unit test for `loader.py` to verify model loads in 4-bit precision on CPU within 7GB RAM in `tests/unit/test_model_loader.py`
+- [~] T020 [P] [US2] Unit test for `simplify.py` to ensure retry logic handles generation failures in `tests/unit/test_simplify.py`
+- [~] T021 [P] [US2] Integration test for simplification of a batch of functions in `tests/integration/test_simplification.py`
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] **Pilot Gate**: Execute pilot validation on `data/processed/pilot_sample.jsonl` (50 functions) to verify ≥10 valid, equivalent pairs per stratum. **Mandatory Step**: Invoke T015 equivalence check logic for each pair. **Output**: `results/pilot_validation_report.json`. **Verify**: Report contains ≥10 valid pairs per stratum. (FR-008, FR-006)
-- [ ] T022 [P] [US2] Implement `code/models/loader.py` to load CodeLlama model (4-bit, CPU) with `accelerate` (FR-002)
-- [ ] T023 [US2] Implement `code/models/simplify.py` with the standard simplification prompt and retry logic (configurable retry limit) (FR-002, US-2)
-- [ ] T024 [US2] Implement AST validation for generated code in `code/models/simplify.py`; **integrate into T023 retry loop (a limited number of retries) before discard** (US-2)
-- [ ] T025 [US2] Create `code/main_simplify.py` to process `data/processed/validated_functions.jsonl` and output `data/processed/simplified_functions.jsonl`
-- [ ] T026 [US2] Add functional drift detection: run equivalence check (T015) on simplified code; log pairs with drift in `results/simplification_log.json` (FR-007)
+- [~] T016 [US2] **Pilot Gate**: Execute pilot validation on `data/processed/pilot_sample.jsonl` (50 functions) to verify ≥10 valid, equivalent pairs per stratum. **Mandatory Step**: Invoke T015 equivalence check logic for each pair. **Output**: `results/pilot_validation_report.json`. **Verify**: Report contains ≥10 valid pairs per stratum. (FR-008, FR-006) <!-- ATOMIZE: requested -->
+- [~] T022 [P] [US2] Implement `code/models/loader.py` to load CodeLlama model (4-bit, CPU) with `accelerate` (FR-002)
+- [~] T023 [US2] Implement `code/models/simplify.py` with the standard simplification prompt and retry logic (configurable retry limit) (FR-002, US-2)
+- [~] T024 [US2] Implement AST validation for generated code in `code/models/simplify.py`; **integrate into T023 retry loop (a limited number of retries) before discard** (US-2)
+- [~] T025 [US2] Create `code/main_simplify.py` to process `data/processed/validated_functions.jsonl` and output `data/processed/simplified_functions.jsonl`
+- [~] T026 [US2] Add functional drift detection: run equivalence check (T015) on simplified code; log pairs with drift in `results/simplification_log.json` (FR-007)
 
 **Checkpoint**: Pilot validation passed. Proceed to full simplification.
 
 ### Phase 4 Checkpoint: Valid Pairs Generation
 
-- [ ] T026b [US2] **Filter Drifted Pairs**: Create `code/main_filter_drift.py` to filter `data/processed/simplified_functions.jsonl` based on T026 logs. **Mandatory**: Log exclusion reason as 'equivalence_unverifiable' (if AST diff insufficient) or 'drift_detected' per FR-012. **Output**: `data/processed/valid_pairs.jsonl`. **Verify**: `valid_pairs.jsonl` exists and contains >= 10 pairs per stratum. **Blocks Phase 5**. (FR-007, FR-012)
+- [~] T026b [US2] **Filter Drifted Pairs**: Create `code/main_filter_drift.py` to filter `data/processed/simplified_functions.jsonl` based on T026 logs. **Mandatory**: Log exclusion reason as 'equivalence_unverifiable' (if AST diff insufficient) or 'drift_detected' per FR-012. **Output**: `data/processed/valid_pairs.jsonl`. **Verify**: `valid_pairs.jsonl` exists and contains >= 10 pairs per stratum. **Blocks Phase 5**. (FR-007, FR-012)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, producing a final set of valid (Original, Simplified) pairs and a validated pilot.
 
@@ -135,17 +135,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for `runner.py` to verify a sufficient number of iterations and timeout enforcement in `tests/unit/test_benchmark_runner.py`
-- [ ] T029 [P] [US3] Unit test for `stats.py` to verify Shapiro-Wilk and conditional t-test/Wilcoxon logic in `tests/unit/test_stats.py`
-- [ ] T030 [P] [US3] Integration test for full benchmark and stats pipeline in `tests/integration/test_benchmark_stats.py`
+- [~] T028 [P] [US3] Unit test for `runner.py` to verify a sufficient number of iterations and timeout enforcement in `tests/unit/test_benchmark_runner.py`
+- [~] T029 [P] [US3] Unit test for `stats.py` to verify Shapiro-Wilk and conditional t-test/Wilcoxon logic in `tests/unit/test_stats.py`
+- [~] T030 [P] [US3] Integration test for full benchmark and stats pipeline in `tests/integration/test_benchmark_stats.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [P] [US3] Implement `code/benchmark/runner.py` to execute code repeatedly using `time.perf_counter()` and `tracemalloc`. **Integrate sandbox.py wrappers into a multi-iteration loop to enforce 5s/500MB limits on EVERY iteration** (FR-003, FR-005, FR-009)
-- [ ] T032 [US3] Implement `code/benchmark/stats.py` with Shapiro-Wilk normality check, t-test/Wilcoxon selection, and Bonferroni correction. **Perform statistical tests on the distribution of N=200 means (not raw iterations)** as required by FR-009 and SC-001/SC-002. (FR-004, SC-001, SC-002)
-- [ ] T033 [US3] Create `code/main_benchmark.py` to orchestrate the full run: load **`data/processed/valid_pairs.jsonl`** (output of T026b), run benchmarks, aggregate means, run stats
-- [ ] T034 [US3] Generate `results/summary.csv` with mean deltas, std, p-values, and significance flags (US-3)
-- [ ] T035b [US3] Generate `results/statistical_summary.json` with p-values and significance flags derived from SC-001/SC-002 metrics (NO narrative text) (SC-001, SC-002)
+- [~] T031 [P] [US3] Implement `code/benchmark/runner.py` to execute code repeatedly using `time.perf_counter()` and `tracemalloc`. **Integrate sandbox.py wrappers into a multi-iteration loop to enforce 5s/500MB limits on EVERY iteration** (FR-003, FR-005, FR-009)
+- [~] T032 [US3] Implement `code/benchmark/stats.py` with Shapiro-Wilk normality check, t-test/Wilcoxon selection, and Bonferroni correction. **Perform statistical tests on the distribution of N=200 means (not raw iterations)** as required by FR-009 and SC-001/SC-002. (FR-004, SC-001, SC-002)
+- [~] T033 [US3] Create `code/main_benchmark.py` to orchestrate the full run: load **`data/processed/valid_pairs.jsonl`** (output of T026b), run benchmarks, aggregate means, run stats
+- [~] T034 [US3] Generate `results/summary.csv` with mean deltas, std, p-values, and significance flags (US-3)
+- [~] T035b [US3] Generate `results/statistical_summary.json` with p-values and significance flags derived from SC-001/SC-002 metrics (NO narrative text) (SC-001, SC-002)
 
 **Checkpoint**: All user stories should now be independently functional. The pipeline produces the final research results.
 
@@ -155,11 +155,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `docs/` (Quickstart, API reference)
-- [ ] T037 Code cleanup and refactoring for readability
-- [ ] T038 Performance optimization for the benchmark loop (multiprocessing) to meet a target runtime.
-- [ ] T039 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T040 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T036 [P] Documentation updates in `docs/` (Quickstart, API reference)
+- [~] T037 Code cleanup and refactoring for readability <!-- ATOMIZE: requested -->
+- [~] T038 Performance optimization for the benchmark loop (multiprocessing) to meet a target runtime.
+- [~] T039 [P] Additional unit tests (if requested) in `tests/unit/`
+- [~] T040 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -170,8 +170,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -179,7 +179,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 output (validated functions)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires US2 output (simplified functions)
-  - *Note: US3 depends on the existence of pairs from US1+US2, but the code for US3 can be written in parallel with US2 implementation.*
+ - *Note: US3 depends on the existence of pairs from US1+US2, but the code for US3 can be written in parallel with US2 implementation.*
 
 ### Within Each User Story
 
@@ -238,9 +238,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Pipeline)
-   - Developer B: User Story 2 (LLM Simplification)
-   - Developer C: User Story 3 (Benchmarking & Stats)
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (LLM Simplification)
+ - Developer C: User Story 3 (Benchmarking & Stats)
 3. Stories complete and integrate independently
 
 ---

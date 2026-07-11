@@ -1,0 +1,1 @@
+"""Integration tests for the LLM-driven code simplification pipeline."""
