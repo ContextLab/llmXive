@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 52c7a594628dc7d2df4a24c9170cfe46fa5d26cd37ed73b7e1393b7e5ad6bf33
+  artifact_path: projects/PROJ-210-predicting-the-yield-strength-of-steel-a/code/data/results/sensitivity_report.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: 10.1214/09-AOS726
+  fetched_title: Empirical risk minimization in inverse problems
+  kind: url
+  value: https://doi.org/10.1214/09-AOS726
+  verification_status: verified
+  verified_against_url: https://projecteuclid.org/journals/annals-of-statistics/volume-38/issue-1/Empirical-risk-minimization-in-inverse-problems/10.1214/09-AOS726.full
+  verified_at: '2026-07-11T01:04:25.398457Z'
+- artifact_hash: 52c7a594628dc7d2df4a24c9170cfe46fa5d26cd37ed73b7e1393b7e5ad6bf33
+  artifact_path: projects/PROJ-210-predicting-the-yield-strength-of-steel-a/code/data/results/sensitivity_report.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Empirical risk minimization in inverse problems
+  kind: doi
+  value: 10.1214/09-AOS726
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1214/09-aos726
+  verified_at: '2026-07-11T01:04:25.398457Z'

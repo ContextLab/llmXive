@@ -1,0 +1,37 @@
+- artifact_path: projects/PROJ-210-predicting-the-yield-strength-of-steel-a/code/data/results/sensitivity_report.md
+  attempts: 1
+  canonical: Jaccard index primary validity metric set overlap stability Meinshausen
+    and Buhlmann 2010
+  claim_id: c_093ce43d
+  context: "The Jaccard index is the primary validity metric for set overlap stability,\
+    \ as recommended in stability selection literature (Meinshausen & B\xFChlmann,\
+    \ 2010)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Jaccard index is the primary validity metric for set overlap stability,\
+    \ as recommended in stability selection literature (Meinshausen & B\xFChlmann,\
+    \ 2010)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:03:57Z'
+- artifact_path: projects/PROJ-210-predicting-the-yield-strength-of-steel-a/code/data/results/sensitivity_report.md
+  attempts: 1
+  canonical: Kuncheva index corrected measure varying subset sizes Kuncheva 2007
+  claim_id: c_9860374b
+  context: The Kuncheva index provides a corrected measure for varying subset sizes
+    (Kuncheva, 2007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Kuncheva index provides a corrected measure for varying subset sizes
+    (Kuncheva, 2007).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:04:25Z'

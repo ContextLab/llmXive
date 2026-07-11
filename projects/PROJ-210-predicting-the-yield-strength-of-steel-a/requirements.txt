@@ -1,0 +1,22 @@
+# Python 3.11+ Dependencies for Steel Yield Strength Prediction Project
+# Pinned versions for reproducibility
+
+# Core Data & Numerical
+numpy==1.26.4
+pandas==2.2.1
+
+# Machine Learning Models
+scikit-learn==1.4.1.post1
+xgboost==2.0.3
+pygam==0.9.1
+
+# Interpretability
+shap==0.44.1
+
+# Web & Scraping
+requests==2.31.0
+beautifulsoup4==4.12.3
+lxml==5.1.0
+
+# Utilities (needed by loader.py per API surface)
+psutil==5.9.8

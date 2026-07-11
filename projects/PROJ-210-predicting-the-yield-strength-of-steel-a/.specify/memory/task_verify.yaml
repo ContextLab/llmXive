@@ -1,0 +1,19 @@
+? T007 Setup `data/raw/`, `data/processed/`, and `data/results/` directory structure
+  with `.gitkeep` files in each (verify existence of `.gitkeep` files to mark complete).
+: 1
+T008 Implement `src/main.py` orchestration script with CLI entry points for each pipeline stage: 1
+? T009 [P] [US1] Contract test for data schema in `tests/contract/test_data_schema.py`
+  validating against `contracts/dataset.schema.yaml`
+: 1
+? 'T010 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingest_pipeline.py`
+  validating against `contracts/dataset.schema.yaml` <!-- SKIPPED: YAML+regex parse
+  failed (mapping values are not allowed here'
+: 1
+? 'T011 [US1] Implement `src/data/ingest.py`: Fetch data from NIST/Materials Project
+  URLs (real sources), remove rows with missing yield strength (FR-001)'
+: 1
+? "T039 [P] **Amend `specs/001-predicting-the-yield-strength-of-steel-a/spec.md` Assumptions\
+  \ block**: Specifically edit the 'Assumptions' section in `specs/001-predicting-the-yield-strength-of-steel-a/spec.md`\
+  \ to align resource limits (\u22644h runtime, \u22646GB RAM) with Constitution VI,\
+  \ resolving contradiction with Plan.md."
+: 1
