@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.03595",
+  "judged_at": "2026-07-11T08:20:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"many-shot cot-icl: making in-context learning truly learn\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by investigating the same core mechanism (Chain-of-Thought reasoning) and providing a theoretical framework for how LLMs \"learn\" or process information during inference, which is directly relevant to the user's goal of extending the \"Many-Shot CoT-ICL\" work linguistically. It also meets criterion (d) as a foundational methodological paper offering a specific cognitive neuroscience framework (Hopfieldian view) for analyzing CoT, which a literature review on the ",
+  "relevant": true
+}

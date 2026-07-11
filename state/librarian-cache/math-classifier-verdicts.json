@@ -883,6 +883,10 @@
     "classified_at": "2026-07-11T04:42:49Z",
     "verdict": false
   },
+  "PROJ-811-llmxive-follow-up-extending-many-shot-co::1.6.0": {
+    "classified_at": "2026-07-11T08:20:17Z",
+    "verdict": false
+  },
   "PROJ-813-llmxive-follow-up-extending-mint-managed::1.6.0": {
     "classified_at": "2026-07-05T07:28:23Z",
     "verdict": false

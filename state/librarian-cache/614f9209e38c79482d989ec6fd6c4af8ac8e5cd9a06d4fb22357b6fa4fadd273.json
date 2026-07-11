@@ -1,0 +1,625 @@
+{
+  "fetched_at": "2026-07-11T08:20:44Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Truly Learn\"",
+      "target_n": 5
+    },
+    "duration_seconds": 58.139,
+    "ended_at": "2026-07-11T08:20:44Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Many-shot in-context learning with chain-of-thought reasoning"
+        ],
+        [
+          2,
+          "Scaling in-context learning examples for linguistic tasks"
+        ],
+        [
+          3,
+          "Emergent reasoning capabilities in large language models"
+        ],
+        [
+          4,
+          "Chain-of-thought prompting in few-shot and many-shot settings"
+        ],
+        [
+          5,
+          "In-context learning as implicit fine-tuning"
+        ],
+        [
+          6,
+          "Contextual weight updates via large demonstration sets"
+        ],
+        [
+          7,
+          "Scaling laws for in-context learning performance"
+        ],
+        [
+          8,
+          "Meta-learning in large language models through examples"
+        ],
+        [
+          9,
+          "Long-context linguistic reasoning with LLMs"
+        ],
+        [
+          10,
+          "Demonstration set size effects on LLM reasoning accuracy"
+        ],
+        [
+          11,
+          "In-context learning convergence in natural language processing"
+        ],
+        [
+          12,
+          "Implicit gradient descent in transformer attention mechanisms"
+        ],
+        [
+          13,
+          "Cognitive modeling of in-context learning in linguistics"
+        ],
+        [
+          14,
+          "Few-shot versus many-shot prompting strategies"
+        ],
+        [
+          15,
+          "Contextual retrieval and reasoning in language models"
+        ],
+        [
+          16,
+          "Scaling demonstration data for linguistic generalization"
+        ],
+        [
+          17,
+          "In-context learning as a form of rapid adaptation"
+        ],
+        [
+          18,
+          "Transformer attention mechanisms for example-based learning"
+        ],
+        [
+          19,
+          "Linguistic pattern recognition via large context windows"
+        ],
+        [
+          20,
+          "Empirical analysis of in-context learning scaling behaviors"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Many-shot in-context learning with chain-of-thought reasoning": 5,
+        "llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Truly Learn\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "in-context learning few-shot prompting memorization",
+      "chain-of-thought reasoning linguistic benchmarks GLUE",
+      "syntactic generalization in-context learning parameter-free",
+      "linguistic competence in-context learning evaluation metrics",
+      "training data contamination few-shot language models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2503.09567"
+      ]
+    },
+    "per_query_hit_count": {
+      "chain-of-thought reasoning linguistic benchmarks GLUE": 3,
+      "in-context learning few-shot prompting memorization": 3,
+      "linguistic competence in-context learning evaluation metrics": 1,
+      "llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Truly Learn\" linguistics": 3,
+      "syntactic generalization in-context learning parameter-free": 3,
+      "training data contamination few-shot language models": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2504.16021",
+          "rationale": "The paper focuses on human cognitive flow and behavioral interventions in AI-augmented reasoning, which is a distinct construct from the user's question about extending \"Many-Shot CoT-ICL\" (a specific in-context learning mechanism for LLMs) through a linguistics lens. It fails the \"distinct construct\" rejection rule as it addresses human psychology and interaction design rather than the algorithmic properties, training dynamics, or linguistic mechanisms of in-context learning in large language m",
+          "title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T08:19:46Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"many-shot cot-icl: making in-context learning truly learn\" linguistics",
+      "raw": "llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Truly Learn\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the realm of few-shot learning, foundation models like CLIP have proven effective but exhibit limitations in cross-domain robustness especially in few-shot settings. Recent works add text as an extra modality to enhance the performance of these models. Most of these approaches treat text as an auxiliary modality without fully exploring its potential to elucidate the underlying class visual features distribution. In this paper, we present a novel approach that leverages text-derived statistics to predict the mean and covariance of the visual feature distribution for each class. This predictive framework enriches the latent space, yielding more robust and generalizable few-shot learning models. We demonstrate the efficacy of incorporating both mean and covariance statistics in improving few-shot classification performance across various datasets. Our method shows that we can use text to predict the mean and covariance of the distribution offering promising improvements in few-shot learning scenarios.",
+          "claimed_authors": [
+            "Yassir Bendou",
+            "Vincent Gripon",
+            "Bastien Pasdeloup",
+            "Giulia Lioi",
+            "Lukas Mauch",
+            "Fabien Cardinaux",
+            "Ghouthi Boukli Hacene"
+          ],
+          "claimed_title": "Inferring Latent Class Statistics from Text for Robust Visual Few-Shot Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.14544"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Inferring Latent Class Statistics from Text for Robust Visual Few-Shot Learning')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid expansion of the digital world has propelled sentiment analysis into a critical tool across diverse sectors such as marketing, politics, customer service, and healthcare. While there have been significant advancements in sentiment analysis for widely spoken languages, low-resource languages, such as Bangla, remain largely under-researched due to resource constraints. Furthermore, the recent unprecedented performance of Large Language Models (LLMs) in various applications highlights the need to evaluate them in the context of low-resource languages. In this study, we present a sizeable manually annotated dataset encompassing 33,606 Bangla news tweets and Facebook comments. We also investigate zero- and few-shot in-context learning with several language models, including Flan-T5, GPT-4, and Bloomz, offering a comparative analysis against fine-tuned models. Our findings suggest that monolingual transformer-based models consistently outperform other models, even in zero and few-shot scenarios. To foster continued exploration, we intend to make this dataset and our research tools publicly available to the broader research community.",
+          "claimed_authors": [
+            "Md. Arid Hasan",
+            "Shudipta Das",
+            "Afiyat Anjum",
+            "Firoj Alam",
+            "Anika Anjum",
+            "Avijit Sarker",
+            "Sheak Rashed Haider Noori"
+          ],
+          "claimed_title": "Zero- and Few-Shot Prompting with LLMs: A Comparative Study with Fine-tuned Models for Bangla Sentiment Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.10783"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Zero- and Few-Shot Prompting with LLMs: A Comparative Study with Fine-tuned Models for Bangla Sentiment Analysis')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the prevalence of tabular datasets, few-shot learning remains under-explored within this domain. Existing few-shot methods are not directly applicable to tabular datasets due to varying column relationships, meanings, and permutational invariance. To address these challenges, we propose FLAT-a novel approach to tabular few-shot learning, encompassing knowledge sharing between datasets with heterogeneous feature spaces. Utilizing an encoder inspired by Dataset2Vec, FLAT learns low-dimensional embeddings of datasets and their individual columns, which facilitate knowledge transfer and generalization to previously unseen datasets. A decoder network parametrizes the predictive target network, implemented as a Graph Attention Network, to accommodate the heterogeneous nature of tabular datasets. Experiments on a diverse collection of 118 UCI datasets demonstrate FLAT's successful generalization to new tabular datasets and a considerable improvement over the baselines.",
+          "claimed_authors": [
+            "Max Zhu",
+            "Katarzyna Kobalczyk",
+            "Andrija Petrovic",
+            "Mladen Nikolic",
+            "Mihaela van der Schaar",
+            "Boris Delibasic",
+            "Petro Lio"
+          ],
+          "claimed_title": "Tabular Few-Shot Generalization Across Heterogeneous Feature Spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.10051"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Tabular Few-Shot Generalization Across Heterogeneous Feature Spaces')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
+          "claimed_authors": [
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
+          ],
+          "claimed_title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03595"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Understanding Reasoning in Chain-of-Thought from the Hopfieldian View')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chain-of-Thought (CoT) reasoning improves multi-step mathematical problem solving in large language models but remains vulnerable to exposure bias and error accumulation, as early mistakes propagate irreversibly through autoregressive decoding. In this work, we propose DiffCoT, a diffusion-styled CoT framework that reformulates CoT reasoning as an iterative denoising process. DiffCoT integrates diffusion principles at the reasoning-step level via a sliding-window mechanism, enabling unified generation and retrospective correction of intermediate steps while preserving token-level autoregression. To maintain causal consistency, we further introduce a causal diffusion noise schedule that respects the temporal structure of reasoning chains. Extensive experiments on three multi-step CoT reasoning benchmarks across diverse model backbones demonstrate that DiffCoT consistently outperforms existing CoT preference optimization methods, yielding improved robustness and error-correction capability in CoT reasoning.",
+          "claimed_authors": [
+            "Shidong Cao",
+            "Hongzhan Lin",
+            "Yuxuan Gu",
+            "Ziyang Luo",
+            "Jing Ma"
+          ],
+          "claimed_title": "DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03559"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in reasoning with large language models (RLLMs), such as OpenAI-O1 and DeepSeek-R1, have demonstrated their impressive capabilities in complex domains like mathematics and coding. A central factor in their success lies in the application of long chain-of-thought (Long CoT) characteristics, which enhance reasoning abilities and enable the solution of intricate problems. However, despite these developments, a comprehensive survey on Long CoT is still lacking, limiting our understanding of its distinctions from traditional short chain-of-thought (Short CoT) and complicating ongoing debates on issues like \"overthinking\" and \"inference-time scaling.\" This survey seeks to fill this gap by offering a unified perspective on Long CoT. (1) We first distinguish Long CoT from Short CoT and introduce a novel taxonomy to categorize current reasoning paradigms. (2) Next, we explore the key characteristics of Long CoT: deep reasoning, extensive exploration, and feasible reflection, which enable models to handle more complex tasks and produce more efficient, coherent outcomes compared to the shallower Short CoT. (3) We then investigate key phenomena such as the emergence of Long CoT with these characteristics, including overthinking, and inference-time scaling, offering insights into how these processes manifest in practice. (4) Finally, we identify significant research gaps and highlight promising future directions, including the integration of multi-modal reasoning, efficiency improvements, and enhanced knowledge frameworks. By providing a structured overview, this survey aims to inspire future research and further the development of logical reasoning in artificial intelligence.",
+          "claimed_authors": [
+            "Qiguang Chen",
+            "Libo Qin",
+            "Jinhao Liu",
+            "Dengyun Peng",
+            "Jiannan Guan",
+            "Peng Wang",
+            "Mengkang Hu",
+            "Yuhang Zhou",
+            "Te Gao",
+            "Wanxiang Che"
+          ],
+          "claimed_title": "Towards Reasoning Era: A Survey of Long Chain-of-Thought for Reasoning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.09567"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Towards Reasoning Era: A Survey of Long Chain-of-Thought for Reasoning Large Language Models')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study theoretical guarantees for solving linear systems in-context using a linear transformer architecture. For in-domain generalization, we provide neural scaling laws that bound the generalization error in terms of the number of tasks and sizes of samples used in training and inference. For out-of-domain generalization, we find that the behavior of trained transformers under task distribution shifts depends crucially on the distribution of the tasks seen during training. We introduce a novel notion of task diversity and show that it defines a necessary and sufficient condition for pre-trained transformers generalize under task distribution shifts. We also explore applications of learning linear systems in-context, such as to in-context operator learning for PDEs. Finally, we provide some numerical experiments to validate the established theory.",
+          "claimed_authors": [
+            "Frank Cole",
+            "Yulong Lu",
+            "Wuzhe Xu",
+            "Tianhao Zhang"
+          ],
+          "claimed_title": "In-Context Learning of Linear Systems: Generalization Theory and Applications to Operator Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.12293"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='In-Context Learning of Linear Systems: Generalization Theory and Applications to Operator Learning')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Predicting the biophysical and functional properties of proteins is essential for in silico protein design. Machine learning has emerged as a promising technique for such prediction tasks. However, the relative scarcity of in vitro annotations means that these models often have little, or no, specific data on the desired fitness prediction task. As a result of limited data, protein language models (PLMs) are typically trained on general protein sequence modeling tasks, and then fine-tuned, or applied zero-shot, to protein fitness prediction. When no task data is available, the models make strong assumptions about the correlation between the protein sequence likelihood and fitness scores. In contrast, we propose meta-learning over a distribution of standard fitness prediction tasks, and demonstrate positive transfer to unseen fitness prediction tasks. Our method, called Metalic (Meta-Learning In-Context), uses in-context learning and fine-tuning, when data is available, to adapt to new tasks. Crucially, fine-tuning enables considerable generalization, even though it is not accounted for during meta-training. Our fine-tuned models achieve strong results with 18 times fewer parameters than state-of-the-art models. Moreover, our method sets a new state-of-the-art in low-data settings on ProteinGym, an established fitness-prediction benchmark. Due to data scarcity, we believe meta-learning will play a pivotal role in advancing protein engineering.",
+          "claimed_authors": [
+            "Jacob Beck",
+            "Shikha Surana",
+            "Manus McAuliffe",
+            "Oliver Bent",
+            "Thomas D. Barrett",
+            "Juan Jose Garau Luis",
+            "Paul Duckworth"
+          ],
+          "claimed_title": "Metalic: Meta-Learning In-Context with Protein Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.08355"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Metalic: Meta-Learning In-Context with Protein Language Models')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interpretation of natural language is inherently context-sensitive. Most words in natural language are ambiguous and their meanings are heavily dependent on the linguistic context in which they are used. The study of lexical semantics can not be separated from the notion of context. This paper takes a contextual approach to lexical semantics and studies the linguistic context of lexical atoms, or \"sticky\" phrases such as \"hot dog\". Since such lexical atoms may occur frequently in unrestricted natural language text, recognizing them is crucial for understanding naturally-occurring text. The paper proposes several heuristic approaches to exploiting the linguistic context to identify lexical atoms from arbitrary natural language text.",
+          "claimed_authors": [
+            "Chengxiang Zhai"
+          ],
+          "claimed_title": "Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "cmp-lg/9701001"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Task-oriented dialogue systems use four connected modules, namely, Natural Language Understanding (NLU), a Dialogue State Tracking (DST), Dialogue Policy (DP) and Natural Language Generation (NLG). A research challenge is to learn each module with the least amount of samples (i.e., few-shots) given the high cost related to the data collection. The most common and effective technique to solve this problem is transfer learning, where large language models, either pre-trained on text or task-specific data, are fine-tuned on the few samples. These methods require fine-tuning steps and a set of parameters for each task. Differently, language models, such as GPT-2 (Radford et al., 2019) and GPT-3 (Brown et al., 2020), allow few-shot learning by priming the model with few examples. In this paper, we evaluate the priming few-shot ability of language models in the NLU, DST, DP and NLG tasks. Importantly, we highlight the current limitations of this approach, and we discuss the possible implication for future work.",
+          "claimed_authors": [
+            "Andrea Madotto",
+            "Zihan Liu",
+            "Zhaojiang Lin",
+            "Pascale Fung"
+          ],
+          "claimed_title": "Language Models as Few-Shot Learner for Task-Oriented Dialogue Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.06239"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Language Models as Few-Shot Learner for Task-Oriented Dialogue Systems')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models pretrained on extensive web corpora demonstrate remarkable performance across a wide range of downstream tasks. However, a growing concern is data contamination, where evaluation datasets may be contained in the pretraining corpus, inflating model performance. Decontamination, the process of detecting and removing such data, is a potential solution; yet these contaminants may originate from altered versions of the test set, evading detection during decontamination. How different types of contamination impact the performance of language models on downstream tasks is not fully understood. We present a taxonomy that categorizes the various types of contamination encountered by LLMs during the pretraining phase and identify which types pose the highest risk. We analyze the impact of contamination on two key NLP tasks -- summarization and question answering -- revealing how different types of contamination influence task performance during evaluation.",
+          "claimed_authors": [
+            "Medha Palavalli",
+            "Amanda Bertsch",
+            "Matthew R. Gormley"
+          ],
+          "claimed_title": "A Taxonomy for Data Contamination in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.08716"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='A Taxonomy for Data Contamination in Large Language Models')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data contamination poses a significant threat to the reliable evaluation of Large Language Models (LLMs). This issue arises when benchmark samples may inadvertently appear in training sets, compromising the validity of reported performance. While detection methods have been developed for the pre-training and Supervised Fine-Tuning stages, a critical research gap exists for the increasingly significant phase of Reinforcement Learning (RL) post-training. As RL post-training becomes pivotal for advancing LLM reasoning, the absence of specialized contamination detection methods in this paradigm presents a critical vulnerability. To address this, we conduct the first systematic study of data detection within RL post-training scenario and propose Self-Critique. Our method is motivated by a key observation: after RL phase, the output entropy distribution of LLMs tends to collapse into highly specific and sparse modes. Self-Critique probes for the underlying policy collapse, i.e., the model's convergence to a narrow reasoning path, which causes this entropy reduction. To facilitate this research, we also introduce RL-MIA, a benchmark constructed to simulate this specific contamination scenario. Extensive experiments show that Self-Critique significantly outperforms baseline methods across multiple models and contamination tasks, achieving an AUC improvement of up to 30%. Whereas existing methods are close to a random guess for RL-phase contamination, our method makes detection possible.",
+          "claimed_authors": [
+            "Yongding Tao",
+            "Tian Wang",
+            "Yihong Dong",
+            "Huanyu Liu",
+            "Kechi Zhang",
+            "Xiaolong Hu",
+            "Ge Li"
+          ],
+          "claimed_title": "Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.09259"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Many-Shot CoT-ICL: Making In-Context Learning Trul', candidate_title='Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models')",
+        "failed_at": "2026-07-11T08:20:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rylan Schaeffer",
+            "Mikail Khona",
+            "Sanmi Koyejo"
+          ],
+          "title": "In-Context Learning of Energy Functions",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.12785",
+        "summary": "In-context learning is a powerful capability of certain machine learning models that arguably underpins the success of today's frontier AI models. However, in-context learning is critically limited to settings where the in-context distribution of interest $p_θ^{ICL}( x|\\mathcal{D})$ can be straightforwardly expressed and/or parameterized by the model; for instance, language modeling relies on expressing the next-token distribution as a categorical distribution parameterized by the network's output logits. In this work, we present a more general form of in-context learning without such a limitation that we call \\textit{in-context learning of energy functions}. The idea is to instead learn the unconstrained and arbitrary in-context energy function $E_θ^{ICL}(x|\\mathcal{D})$ corresponding to the in-context distribution $p_θ^{ICL}(x|\\mathcal{D})$. To do this, we use classic ideas from energy-based modeling. We provide preliminary evidence that our method empirically works on synthetic data. Interestingly, our work contributes (to the best of our knowledge) the first example of in-context learning where the input space and output space differ from one another, suggesting that in-context learning is a more-general capability than previously realized.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.12785",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T08:20:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
+          ],
+          "title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.03595",
+        "summary": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.03595",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T08:20:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shidong Cao",
+            "Hongzhan Lin",
+            "Yuxuan Gu",
+            "Ziyang Luo",
+            "Jing Ma"
+          ],
+          "title": "DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.03559",
+        "summary": "Chain-of-Thought (CoT) reasoning improves multi-step mathematical problem solving in large language models but remains vulnerable to exposure bias and error accumulation, as early mistakes propagate irreversibly through autoregressive decoding. In this work, we propose DiffCoT, a diffusion-styled CoT framework that reformulates CoT reasoning as an iterative denoising process. DiffCoT integrates diffusion principles at the reasoning-step level via a sliding-window mechanism, enabling unified generation and retrospective correction of intermediate steps while preserving token-level autoregression. To maintain causal consistency, we further introduce a causal diffusion noise schedule that respects the temporal structure of reasoning chains. Extensive experiments on three multi-step CoT reasoning benchmarks across diverse model backbones demonstrate that DiffCoT consistently outperforms existing CoT preference optimization methods, yielding improved robustness and error-correction capability in CoT reasoning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.03559",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T08:20:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Qiguang Chen",
+            "Libo Qin",
+            "Jinhao Liu",
+            "Dengyun Peng",
+            "Jiannan Guan",
+            "Peng Wang",
+            "Mengkang Hu",
+            "Yuhang Zhou",
+            "Te Gao",
+            "Wanxiang Che"
+          ],
+          "title": "Towards Reasoning Era: A Survey of Long Chain-of-Thought for Reasoning Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.09567",
+        "summary": "Recent advancements in reasoning with large language models (RLLMs), such as OpenAI-O1 and DeepSeek-R1, have demonstrated their impressive capabilities in complex domains like mathematics and coding. A central factor in their success lies in the application of long chain-of-thought (Long CoT) characteristics, which enhance reasoning abilities and enable the solution of intricate problems. However, despite these developments, a comprehensive survey on Long CoT is still lacking, limiting our understanding of its distinctions from traditional short chain-of-thought (Short CoT) and complicating ongoing debates on issues like \"overthinking\" and \"inference-time scaling.\" This survey seeks to fill this gap by offering a unified perspective on Long CoT. (1) We first distinguish Long CoT from Short CoT and introduce a novel taxonomy to categorize current reasoning paradigms. (2) Next, we explore the key characteristics of Long CoT: deep reasoning, extensive exploration, and feasible reflection, which enable models to handle more complex tasks and produce more efficient, coherent outcomes compared to the shallower Short CoT. (3) We then investigate key phenomena such as the emergence of Long CoT with these characteristics, including overthinking, and inference-time scaling, offering insights into how these processes manifest in practice. (4) Finally, we identify significant research gaps and highlight promising future directions, including the integration of multi-modal reasoning, efficiency improvements, and enhanced knowledge frameworks. By providing a structured overview, this survey aims to inspire future research and further the development of logical reasoning in artificial intelligence.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.09567",
+          "http_status": 200,
+          "pdf_sample_score": 0.2423,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T08:20:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rishabh Agarwal",
+            "Avi Singh",
+            "Lei M. Zhang",
+            "Bernd Bohnet",
+            "Luis Rosias",
+            "Stephanie Chan",
+            "Biao Zhang",
+            "Ankesh Anand",
+            "Zaheer Abbas",
+            "Azade Nova",
+            "John D. Co-Reyes",
+            "Eric Chu",
+            "Feryal Behbahani",
+            "Aleksandra Faust",
+            "Hugo Larochelle"
+          ],
+          "title": "Many-Shot In-Context Learning",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.11018",
+        "summary": "Large language models (LLMs) excel at few-shot in-context learning (ICL) -- learning from a few examples provided in context at inference, without any weight updates. Newly expanded context windows allow us to investigate ICL with hundreds or thousands of examples -- the many-shot regime. Going from few-shot to many-shot, we observe significant performance gains across a wide variety of generative and discriminative tasks. While promising, many-shot ICL can be bottlenecked by the available amount of human-generated examples. To mitigate this limitation, we explore two new settings: Reinforced and Unsupervised ICL. Reinforced ICL uses model-generated chain-of-thought rationales in place of human examples. Unsupervised ICL removes rationales from the prompt altogether, and prompts the model only with domain-specific questions. We find that both Reinforced and Unsupervised ICL can be quite effective in the many-shot regime, particularly on complex reasoning tasks. Finally, we demonstrate that, unlike few-shot learning, many-shot learning is effective at overriding pretraining biases, can learn high-dimensional functions with numerical inputs, and performs comparably to fine-tuning. We also find that inference cost increases linearly in the many-shot regime, and frontier LLMs benefit from many-shot ICL to varying degrees. Our analysis also reveals the limitations of next-token prediction loss as an indicator of downstream ICL performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.11018",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T08:20:25Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"many-shot cot-icl: making in-context learning truly learn\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

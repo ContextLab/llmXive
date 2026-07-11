@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Inference Results Schema"
+description: "Schema for the aggregated inference results and statistical analysis output."
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique ID for the experiment run."
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        prompt_id:
+          type: "string"
+        model_id:
+          type: "string"
+          description: "Model identifier (e.g., 'qwen2.5-7b')."
+        strategy:
+          type: "string"
+          enum:
+            - "logical_ascending"
+            - "logical_random"
+            - "original_cds"
+        seed:
+          type: "integer"
+        accuracy:
+          type: "integer"
+          enum:
+            - 0
+            - 1
+          description: "1 if correct, 0 if incorrect."
+        latency_ms:
+          type: "number"
+          description: "Inference time in milliseconds."
+      required:
+        - prompt_id
+        - model_id
+        - strategy
+        - seed
+        - accuracy
+  statistics:
+    type: "object"
+    description: "Aggregated statistical results."
+    properties:
+      anova_interaction_pvalue:
+        type: "number"
+        description: "P-value for the Model Type x Strategy interaction."
+      bonferroni_adjusted:
+        type: "boolean"
+        description: "True if Bonferroni correction was applied."
+      effect_size:
+        type: "number"
+        description: "Partial eta-squared value."
+required:
+  - experiment_id
+  - results
+  - statistics

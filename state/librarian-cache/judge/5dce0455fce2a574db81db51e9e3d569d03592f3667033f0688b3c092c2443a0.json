@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.03559",
+  "judged_at": "2026-07-11T08:20:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"many-shot cot-icl: making in-context learning truly learn\" linguistics",
+  "rationale": "This paper satisfies criterion (a) as it investigates the same core mechanism (Chain-of-Thought reasoning in LLMs) and addresses the same underlying problem of error propagation and robustness that the user's question regarding \"Many-Shot CoT-ICL\" implies, even though it proposes a diffusion-based solution rather than a many-shot in-context learning one. It also fits criterion (f) as it belongs to the canonical alternative-vocabulary cluster for improving CoT reasoning (e.g., \"error accumulation",
+  "relevant": true
+}

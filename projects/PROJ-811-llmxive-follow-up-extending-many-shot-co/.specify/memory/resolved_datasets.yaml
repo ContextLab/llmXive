@@ -1,0 +1,258 @@
+resolved_at: '2026-07-11T08:30:41.927099+00:00'
+datasets:
+- intent: DAGs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AI-Math-TCS/tcs_dags/resolve/main/FOCS_2010/gpt_5_4-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mokshaannigeri/CS482_Dagster_Dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/aaabiao/DAG_sft/resolve/main/chains_sample_final_sharegpt.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mokshaannigeri/CS482_Dagster_Dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/aaabiao/DAG_sft/resolve/main/chains_sample_final_sharegpt.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/rbaks/test-dagster/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/baksEtech/pipeline_output_dagster/resolve/main/augmented/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/AI-Math-TCS/tcs_dags/resolve/main/FOCS_2010/gpt_5_4-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Judokas_Data_set/32963204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095367
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Biophysical_effects_of_woody_plant_encroachment_on_land_surface_temperature_are_regulated_by_climate_vegetation_cover_and_structure/32963168
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_material_for_the_manuscript_b_Impact_of_b_b_s_b_b_oybean_b_b_h_b_b_ulls_b_b_on_milk_composition_b_b_nutrient_digestibility_serum_metabolites_rumen_fermentation_and_gut_microbiota_of_postpartum_dairy_cows_b_/32963186
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Kaolin-phosphoric_acid-PBI_membrane_for_wide-temperature-range_proton_exchange_membrane_fuel_cells/32963180
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.10358
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/entities/publication/e713e80c-88e7-4fdc-8b03-f1acd37d81c6
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/2ra51-paq09
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/2ra51-paq09
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.06425
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DAG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/DAGroup-PKU/RBench/resolve/main/checkpoints/BERT/google-bert/bert-base-uncased/config.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 570
+      parsed: true
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies/resolve/main/data/train-00000-of-00001-04b98bfdb9e41ce3.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies-by-domain/resolve/main/data/train-00000-of-00003-e19b1e2ad46064b8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/DAGroup-PKU/RBench/resolve/main/checkpoints/BERT/google-bert/bert-base-uncased/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies/resolve/main/data/train-00000-of-00001-04b98bfdb9e41ce3.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies-by-domain/resolve/main/data/train-00000-of-00003-e19b1e2ad46064b8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies-normalized-by-domain/resolve/main/data/train-00000-of-00002-0c05feefbd53c497.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies-by-domain-with-pos-tags/resolve/main/data/train-00000-of-00003-4053c520c39822ad.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Judokas_Data_set/32963204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095367
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Biophysical_effects_of_woody_plant_encroachment_on_land_surface_temperature_are_regulated_by_climate_vegetation_cover_and_structure/32963168
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_material_for_the_manuscript_b_Impact_of_b_b_s_b_b_oybean_b_b_h_b_b_ulls_b_b_on_milk_composition_b_b_nutrient_digestibility_serum_metabolites_rumen_fermentation_and_gut_microbiota_of_postpartum_dairy_cows_b_/32963186
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Kaolin-phosphoric_acid-PBI_membrane_for_wide-temperature-range_proton_exchange_membrane_fuel_cells/32963180
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16097506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.11572869
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.12808889
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://doi.org/10.5281/zenodo.12721047
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://doi.org/10.5281/zenodo.12721049
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://iris.uniupo.it//handle/11579/115578
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21305207
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://doi.org/10.5281/zenodo.21305208
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.858324
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21293936
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 108629
+      parsed: true
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Judokas_Data_set/32963204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095367
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Biophysical_effects_of_woody_plant_encroachment_on_land_surface_temperature_are_regulated_by_climate_vegetation_cover_and_structure/32963168
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_material_for_the_manuscript_b_Impact_of_b_b_s_b_b_oybean_b_b_h_b_b_ulls_b_b_on_milk_composition_b_b_nutrient_digestibility_serum_metabolites_rumen_fermentation_and_gut_microbiota_of_postpartum_dairy_cows_b_/32963186
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Kaolin-phosphoric_acid-PBI_membrane_for_wide-temperature-range_proton_exchange_membrane_fuel_cells/32963180
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

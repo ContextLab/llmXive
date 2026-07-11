@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CoT Trace Dataset Schema"
+description: "Schema for the raw and processed CoT traces used in DAG construction."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the trace."
+  problem:
+    type: "string"
+    description: "The problem statement text."
+  cot_trace:
+    type: "string"
+    description: "The Chain-of-Thought reasoning text."
+  source:
+    type: "string"
+    description: "Source dataset name (e.g., 'aaabiao/DAG_sft')."
+  metadata:
+    type: "object"
+    properties:
+      original_index:
+        type: "integer"
+      is_valid:
+        type: "boolean"
+        description: "True if the trace was successfully parsed into a DAG."
+      error_msg:
+        type: "string"
+        description: "Error message if parsing failed (e.g., cycle detected)."
+required:
+  - id
+  - problem
+  - cot_trace
+  - source
