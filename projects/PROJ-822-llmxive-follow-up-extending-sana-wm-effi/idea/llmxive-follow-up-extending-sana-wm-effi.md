@@ -9,57 +9,41 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-To what extent do the inductive biases of linear attention mechanisms, compared to standard self-attention, inherently encode separable 3D geometric world models when trained on purely synthetic kinematic data versus natural video distributions?
+To what extent does the geometric consistency of SANA-WM's minute-scale video generation depend on learned semantic priors versus its architectural inductive biases when driven exclusively by symbolic, rule-based 6-DoF camera trajectories?
 
 ## Motivation
 
-Current world models often conflate architectural inductive biases with data-driven memorization, making it unclear if they possess a genuine, separable understanding of geometric dynamics. Demonstrating that a linear-attention architecture can maintain temporal and geometric coherence when trained exclusively on rule-based kinematic equations—without any natural video priors—would prove that the model's geometric grounding is intrinsic to the architecture rather than the dataset. This would enable reliable, interpretable simulation for resource-constrained robotics where GPU acceleration and massive training datasets are unavailable.
+Current world models like SANA-WM rely heavily on data-driven training to learn the correlation between camera motion and scene dynamics, making it unclear if the architecture itself encodes a robust geometric prior separable from semantic content. Determining whether symbolic, non-differentiable control signals can successfully guide a hybrid linear diffusion transformer without learned priors would reveal the fundamental limits of the model's structural inductive biases and its potential for interpretable, low-compute simulation.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-We queried Semantic Scholar and arXiv using terms such as "linear attention world models," "synthetic kinematic training video generation," "inductive biases geometric consistency," and "SANA-WM architecture analysis." We broadened the search to "efficient minute-scale video modeling" and "decoupling neural priors from geometric dynamics." The search returned five primary results. While several papers address efficiency or theoretical building blocks, none empirically compare the geometric encoding capabilities of linear attention versus standard self-attention when trained specifically on synthetic kinematic data.
-
-### What is known
-- [SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer](https://arxiv.org/abs/2605.15178) — Establishes that hybrid linear attention enables high-fidelity, minute-scale video generation with precise 6-DoF camera control, but relies entirely on training on 213K natural video clips.
-- [DDP-WM: Disentangled Dynamics Prediction for Efficient World Models](https://arxiv.org/abs/2602.01780) — Highlights the computational overhead of dense Transformer-based world models and proposes disentangled dynamics for efficiency, though it does not explore training on synthetic kinematic data or isolate architectural inductive biases.
-- [Natural Building Blocks for Structured World Models: Theory, Evidence, and Scaling](https://arxiv.org/abs/2511.02091) — Proposes a theoretical framework for identifying natural building blocks in world model architectures but provides no empirical evidence on the specific impact of linear attention inductive biases on geometric consistency under synthetic training.
-- [Video Diffusion Models: A Survey](https://arxiv.org/abs/2405.03150) — Provides a comprehensive overview of diffusion video generation but does not specifically address the comparative inductive biases of linear versus standard attention mechanisms in the context of geometric world modeling.
-- [Out of Sight but Not Out of Mind: Hybrid Memory for Dynamic Video World Models](https://arxiv.org/abs/2603.25716) — Addresses memory mechanisms for dynamic subjects in video world models but does not investigate the robustness of geometric consistency when trained on purely symbolic or synthetic kinematic signals.
-
-### What is NOT known
-No published work has empirically tested whether linear attention mechanisms inherently encode stronger or more separable 3D geometric world models compared to standard self-attention when the training data is restricted to purely synthetic kinematic trajectories. Furthermore, there is no evidence regarding the specific degradation or preservation of geometric fidelity when shifting from natural video distributions to rule-based synthetic data in these architectures.
-
-### Why this gap matters
-Filling this gap is critical for autonomous robotics and edge simulation, where agents require world models that can be trained on small, synthetic datasets without access to massive real-world video collections. If linear attention mechanisms inherently encode robust geometric priors, it would allow for the deployment of high-fidelity, interpretable simulators on resource-constrained devices, reducing reliance on data memorization and enabling precise control over simulated dynamics.
-
-### How this project addresses the gap
-This project addresses the gap by training parallel SANA-WM (linear attention) and standard Transformer baselines on a synthetic dataset of 500 rigid-body kinematic trajectories. By measuring 3D geometric consistency and temporal coherence against the ground-truth kinematic equations, we directly isolate and compare the inductive biases of linear versus standard attention mechanisms in the absence of natural video priors.
+- [SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer (2026)](https://arxiv.org/abs/2605.15178) — Establishes the baseline capability of a 2.6B-parameter hybrid linear attention model to generate minute-scale, 720p videos with precise 6-DoF camera control, serving as the primary architecture for this extension.
+- [DAWM: Diffusion Action World Models for Offline Reinforcement Learning via Action-Inferred Transitions (2025)](https://arxiv.org/abs/2509.19538) — Demonstrates the efficacy of diffusion-based world models in offline RL by linking action sequences to state transitions, providing a conceptual precedent for using explicit action/control signals rather than semantic prompts.
+- [Improving World Models using Deep Supervision with Linear Probes (2025)](https://arxiv.org/abs/2504.03861) — Investigates how internal representations in world models capture underlying physical dynamics, supporting the hypothesis that the model's latent space may inherently encode geometric structure even when semantic priors are removed.
 
 ## Expected results
 
-We expect to observe that the linear attention architecture maintains higher geometric consistency and 6-DoF pose adherence than standard self-attention when trained on synthetic kinematic data, confirming that linear attention inherently encodes stronger geometric priors. Conversely, we anticipate a significant drop in pixel-level texture fidelity for both models due to the lack of natural semantic priors, but the linear model's structural coherence should remain within 5% of the natural-video-trained baseline.
+We expect that while pixel-level texture fidelity will degrade due to the absence of learned semantic priors, the geometric consistency metrics (e.g., camera trajectory error, 3D structure preservation) will remain within 5% of the original baseline. This would confirm that SANA-WM's hybrid linear attention mechanism encodes a strong, separable geometric world model that functions independently of the data-driven text-to-image encoder.
 
 ## Methodology sketch
 
-- **Data Synthesis**: Generate a dataset of 500 synthetic 6-DoF camera trajectories using kinematic equations (constant velocity, sinusoidal oscillation, circular motion) to create ground-truth pose sequences and corresponding synthetic video frames, avoiding real-world video data.
-- **Model Selection & Training**: Initialize two model variants: one with the hybrid linear attention architecture (SANA-WM) and one with standard self-attention layers. Train both models exclusively on the synthetic kinematic dataset for a fixed number of epochs.
-- **Quantization & Resource Adaptation**: Apply 4-bit quantization (e.g., NF4 or similar) to both models to ensure they fit within the 7 GB RAM constraint of the GitHub Actions runner, enabling CPU-only training and inference.
-- **Inference Execution**: Run the generation loop on a multi-core CPU (no GPU), synthesizing 1-minute, 720p video sequences for both models using the same test set of kinematic trajectories.
-- **Metric Calculation**: Compute the 6-DoF pose adherence error (Euclidean distance between generated and target trajectories) and temporal coherence metrics (frame-to-frame optical flow consistency) for each generated video.
-- **Baseline Comparison**: Compare the computed metrics against the reported baseline performance of the original SANA-WM model (trained on natural video) and the standard self-attention baseline trained on the same synthetic data.
-- **Statistical Analysis**: Perform a paired t-test on the pose error and coherence metrics across the 500 samples to determine if the linear attention model's performance is statistically significantly better than the standard attention model in preserving geometric consistency.
+- **Data Synthesis**: Generate a synthetic dataset of 500 rigid-body motion trajectories using kinematic equations (constant velocity, sinusoidal oscillation) to create ground-truth 6-DoF pose sequences without real-world video data.
+- **Symbolic Encoder Replacement**: Replace SANA-WM's learned text-to-image encoder with a hard-coded symbolic function that directly maps the kinematic rules to the model's camera condition vectors, bypassing semantic embedding.
+- **Quantized Inference Setup**: Load the distilled NVFP4 quantized weights of SANA-WM and configure the inference pipeline to run on a multi-core CPU (2 cores, 7GB RAM) to simulate low-compute constraints.
+- **Generation Execution**: Run the generation loop for 1-minute sequences (720p) using the symbolic camera conditions, ensuring no external semantic prompts are provided.
+- **Metric Computation**: Calculate camera trajectory error (Euclidean distance between generated and ground-truth poses) and structural similarity (SSIM) against a baseline generated with full learned priors.
+- **Statistical Analysis**: Perform a paired t-test comparing the geometric consistency metrics of the symbolic-driven generation against the learned-prior baseline to determine if the difference is statistically significant (p < 0.05).
 
 ## Duplicate-check
 
-- Reviewed existing ideas: None provided in context.
-- Closest match: None identified.
+- Reviewed existing ideas: None (this is the first fleshed-out iteration for this specific extension).
+- Closest match: N/A (similarity sketch: no prior ideas in corpus).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T19:38:01Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T18:52:10Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diff" computer science
 **Verified citation count**: 5
@@ -68,12 +52,32 @@ We expect to observe that the linear attention architecture maintains higher geo
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diff" computer science | 5 |
+| 0 (initial) | llmXive follow-up: extending "SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diff" computer science | 0 |
+| 1 | hybrid linear diffusion models for world modeling | 4 |
+| 2 | efficient minute-scale video generation with linear diffusion | 0 |
+| 3 | SANA-WM architecture for rapid world simulation | 0 |
+| 4 | fast world model generation using linear diffusion processes | 0 |
+| 5 | hybrid linear diffusion transformers for video prediction | 0 |
+| 6 | minute-scale dynamic world modeling with diffusion | 0 |
+| 7 | efficient video synthesis via hybrid linear diffusion | 0 |
+| 8 | linear diffusion models for real-time world simulation | 0 |
+| 9 | accelerated world modeling with linear attention diffusion | 0 |
+| 10 | SANA-WM extension for low-latency video generation | 0 |
+| 11 | hybrid linear stochastic differential equations for video | 0 |
+| 12 | efficient generative world models with linear diffusion | 0 |
+| 13 | rapid temporal prediction using linear diffusion networks | 0 |
+| 14 | linear diffusion-based video generation for world modeling | 0 |
+| 15 | scalable world modeling with hybrid linear diffusion architectures | 0 |
+| 16 | fast-forward video generation using linear diffusion | 0 |
+| 17 | efficient latent world modeling with linear diffusion priors | 0 |
+| 18 | hybrid linear diffusion for high-speed video prediction | 0 |
+| 19 | real-time world simulation via linear diffusion transformers | 0 |
+| 20 | low-compute world modeling with linear diffusion dynamics | 0 |
 
 ### Verified citations
 
 1. **SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer** (2026). Haoyi Zhu, Haozhe Liu, Yuyang Zhao, Tian Ye, Junsong Chen, et al.. arXiv. [2605.15178](https://arxiv.org/abs/2605.15178). PDF-sampled: No.
-2. **DDP-WM: Disentangled Dynamics Prediction for Efficient World Models** (2026). Shicheng Yin, Kaixuan Yin, Weixing Chen, Yang Liu, Guanbin Li, et al.. arXiv. [2602.01780](https://arxiv.org/abs/2602.01780). PDF-sampled: No.
-3. **Natural Building Blocks for Structured World Models: Theory, Evidence, and Scaling** (2025). Lancelot Da Costa, Sanjeev Namjoshi, Mohammed Abbas Ansari, Bernhard Schölkopf. arXiv. [2511.02091](https://arxiv.org/abs/2511.02091). PDF-sampled: No.
-4. **Video Diffusion Models: A Survey** (2024). Andrew Melnik, Michal Ljubljanac, Cong Lu, Qi Yan, Weiming Ren, et al.. arXiv. [2405.03150](https://arxiv.org/abs/2405.03150). PDF-sampled: No.
-5. **Out of Sight but Not Out of Mind: Hybrid Memory for Dynamic Video World Models** (2026). Kaijin Chen, Dingkang Liang, Xin Zhou, Yikang Ding, Xiaoqiang Liu, et al.. arXiv. [2603.25716](https://arxiv.org/abs/2603.25716). PDF-sampled: No.
+2. **Out of Sight but Not Out of Mind: Hybrid Memory for Dynamic Video World Models** (2026). Kaijin Chen, Dingkang Liang, Xin Zhou, Yikang Ding, Xiaoqiang Liu, et al.. arXiv. [2603.25716](https://arxiv.org/abs/2603.25716). PDF-sampled: No.
+3. **Improving World Models using Deep Supervision with Linear Probes** (2025). Andrii Zahorodnii. arXiv. [2504.03861](https://arxiv.org/abs/2504.03861). PDF-sampled: No.
+4. **DAWM: Diffusion Action World Models for Offline Reinforcement Learning via Action-Inferred Transitions** (2025). Zongyue Li, Xiao Han, Yusong Li, Niklas Strauss, Matthias Schubert. arXiv. [2509.19538](https://arxiv.org/abs/2509.19538). PDF-sampled: No.
+5. **A Tutorial on Diffusion Theory: From Differential Equations to Diffusion Models** (2026). Jiayi Fu, Yuxia Wang. arXiv. [2605.22586](https://arxiv.org/abs/2605.22586). PDF-sampled: No.

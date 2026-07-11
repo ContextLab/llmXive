@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GeometricMetric"
+description: "Schema for aggregated geometric consistency metrics per trajectory."
+type: "object"
+required:
+  - "trajectory_id"
+  - "condition_type"
+  - "mean_euclidean_error"
+  - "ssim"
+  - "valid_frame_count"
+  - "excluded_frame_count"
+  - "is_failure"
+  - "capped_error_value"
+properties:
+  trajectory_id:
+    type: "string"
+    description: "Reference to the SyntheticTrajectory ID."
+  condition_type:
+    type: "string"
+    description: "Encoder type used for generation."
+    enum:
+      - "symbolic"
+      - "learned_baseline"
+  mean_euclidean_error:
+    type: "number"
+    description: "Mean Euclidean distance between estimated and ground-truth poses (meters) after Procrustes alignment."
+    minimum: 0.0
+  ssim:
+    type: "number"
+    description: "Structural Similarity Index."
+    minimum: 0.0
+    maximum: 1.0
+  valid_frame_count:
+    type: "integer"
+    description: "Number of frames successfully estimated."
+    minimum: 0
+  excluded_frame_count:
+    type: "integer"
+    description: "Number of frames excluded due to low confidence or black frame."
+    minimum: 0
+  is_failure:
+    type: "boolean"
+    description: "True if >50% of frames were invalid (trajectory marked as failed)."
+  capped_error_value:
+    type: "number"
+    description: "Maximum error value assigned if is_failure is True (e.g., 100.0)."
+    minimum: 0.0
+  metadata:
+    type: "object"
+    description: "Additional metadata."
+    properties:
+      resolution:
+        type: "string"
+        description: "Video resolution (e.g., '720p')."
+      fps:
+        type: "integer"
+        description: "Frames per second."
+      scale_aligned:
+        type: "boolean"
+        description: "True if Procrustes alignment was applied."

@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalTestResult"
+description: "Schema for the final hypothesis test result (Permutation or T-Test)."
+type: "object"
+required:
+  - "test_type"
+  - "metric"
+  - "n"
+  - "p_value"
+  - "conclusion"
+  - "failure_handling_method"
+properties:
+  test_type:
+    type: "string"
+    description: "Type of statistical test performed."
+    enum:
+      - "paired_t_test"
+      - "permutation_test"
+  metric:
+    type: "string"
+    description: "Metric being compared."
+    const: "mean_euclidean_error"
+  n:
+    type: "integer"
+    description: "Sample size (number of trajectories)."
+    minimum: 1
+  t_statistic:
+    type: "number"
+    description: "Calculated t-statistic (if paired_t_test)."
+    nullable: true
+  permutation_statistic:
+    type: "number"
+    description: "Calculated permutation statistic (if permutation_test)."
+    nullable: true
+  p_value:
+    type: "number"
+    description: "Calculated p-value."
+    minimum: 0.0
+    maximum: 1.0
+  degrees_of_freedom:
+    type: "integer"
+    description: "Degrees of freedom (n-1) for t-test."
+    nullable: true
+  n_permutations:
+    type: "integer"
+    description: "Number of permutations for permutation test."
+    nullable: true
+  conclusion:
+    type: "string"
+    description: "Statistical conclusion based on alpha=0.05."
+    enum:
+      - "significant"
+      - "not_significant"
+  alpha:
+    type: "number"
+    description: "Significance level used."
+    const: 0.05
+  description:
+    type: "string"
+    description: "Human-readable interpretation of the result."
+  failure_handling_method:
+    type: "string"
+    description: "Method used to handle failed trajectories."
+    enum:
+      - "capped_max_error"
+      - "excluded"
+  failure_rate:
+    type: "number"
+    description: "Observed failure rate (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0

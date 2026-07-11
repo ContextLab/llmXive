@@ -1,0 +1,103 @@
+resolved_at: '2026-07-11T18:57:24.223558+00:00'
+datasets:
+- intent: COLMAP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cssen/colmap_test/resolve/main/images.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fantasticoven/youtube-colmap/resolve/main/job_1/scene_10/scene_10.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 301
+      parsed: true
+  - url: https://huggingface.co/datasets/IsaacLabe/DAVIS_COLMAP_dataset/resolve/main/bear_scene.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/cssen/colmap_test/resolve/main/images.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/DL3DV/DL3DV-ALL-ColmapCache/resolve/main/10K/970a5c674c27b504d592d0a70c496d0e35ab0dc76802fb6e1bf336a4c1fe150a.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/fantasticoven/youtube-colmap/resolve/main/job_1/scene_10/scene_10.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/IsaacLabe/DAVIS_COLMAP_dataset/resolve/main/bear_scene.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://tandf.figshare.com/articles/figure/Almost_a_coin_flip_Chance-like_performance_on_TOMM_Trial_1_using_a_sham_extrasensory_perception_condition/32964323
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Artificial_Intelligence_for_Solar_Power_Monitoring_and_Predictive_Energy_Management/32964317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Monetary-Fiscal_Nexus_and_Price_Level_Dynamics_in_Ghana_A_Nonlinear_ARDL_Analysis_of_Public_Debt_Servicing_Short-Term_Debt_and_Inflation_1980_2020_b_/32661102
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_p_dir_ltr_A_Self-Regenerating_Torsional_Nanotube_Memory_Cell_with_Collective_Elastic_Stabilization_Achieving_Near-Landauer_Energy_Efficiency_at_Room_Temperature_p_/32964185
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Accessibility_and_Usability_of_AI_Language_Tester_Cefr_app_for_Diverse_Learners_Mobile-First_Focus_/32964287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10312809
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10423042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10300268
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10364813
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10264900
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/IXRSLA
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/KB0PPL
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/GLMJ38
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/P7PKCV
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/DKBTGK
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

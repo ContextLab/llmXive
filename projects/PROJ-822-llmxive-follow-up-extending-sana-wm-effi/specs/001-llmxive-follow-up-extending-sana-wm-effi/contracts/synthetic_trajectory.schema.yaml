@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticTrajectory"
+description: "Schema for a single ground-truth 6-DoF camera motion sequence."
+type: "object"
+required:
+  - "id"
+  - "type"
+  - "parameters"
+  - "duration"
+  - "frames"
+  - "texture_seed"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the trajectory."
+    pattern: "^traj_[0-9]{3}$"
+  type:
+    type: "string"
+    description: "Kinematic motion type."
+    enum:
+      - "constant_velocity"
+      - "sinusoidal"
+      - "chaotic"
+      - "high_freq"
+  parameters:
+    type: "object"
+    description: "Kinematic parameters used to generate the trajectory."
+    properties:
+      velocity:
+        type: "number"
+        description: "Constant velocity in m/s (for constant_velocity type)."
+      frequency:
+        type: "number"
+        description: "Oscillation frequency in Hz."
+      amplitude:
+        type: "number"
+        description: "Oscillation amplitude in meters."
+      chaos_seed:
+        type: "integer"
+        description: "Random seed for chaotic motion generation."
+  duration:
+    type: "number"
+    description: "Total duration of the sequence in seconds."
+    minimum: 10.0
+  frames:
+    type: "array"
+    description: "List of pose frames."
+    items:
+      type: "object"
+      required:
+        - "timestamp"
+        - "position"
+        - "rotation"
+      properties:
+        timestamp:
+          type: "number"
+          description: "Timestamp in seconds."
+        position:
+          type: "array"
+          description: "3D position (x, y, z) in meters."
+          items:
+            type: "number"
+          minItems: 3
+          maxItems: 3
+        rotation:
+          type: "array"
+          description: "Euler angles (roll, pitch, yaw) in radians."
+          items:
+            type: "number"
+          minItems: 3
+          maxItems: 3
+  texture_seed:
+    type: "integer"
+    description: "Seed for procedural texture generation (Perlin noise) to ensure COLMAP feature tracking."

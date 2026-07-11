@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "2603.25716",
-  "judged_at": "2026-07-11T19:35:25Z",
+  "judged_at": "2026-07-11T18:52:02Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"sana-wm: efficient minute-scale world modeling with hybrid linear diff\" computer science",
-  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (world modeling with memory for dynamic subjects) and domain (video generation) as the user's question, specifically addressing the \"out of sight\" continuity problem that the user's referenced \"SANA-WM\" paper likely aims to solve or extend. It provides the canonical prior work on hybrid memory architectures for dynamic world models, which is essential for a literature review on extending minute-scale world model",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (world modeling with memory for dynamic subjects) and domain (video generation) as the user's question, specifically addressing the \"hybrid\" architecture and \"world model\" concepts central to the referenced SANA-WM work, even though it focuses on the specific sub-problem of occlusion handling rather than the exact minute-scale efficiency metric.",
   "relevant": true
 }

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.03861",
+  "judged_at": "2026-07-11T18:52:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"sana-wm: efficient minute-scale world modeling with hybrid linear diff\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (world modeling) and domain (predicting next observations in complex environments) as the user's question, specifically exploring architectural and supervision techniques (linear probes, deep supervision) to improve model efficiency and stability, which is directly relevant to the \"Efficient... World Modeling\" focus of the cited SANA-WM work.",
+  "relevant": true
+}

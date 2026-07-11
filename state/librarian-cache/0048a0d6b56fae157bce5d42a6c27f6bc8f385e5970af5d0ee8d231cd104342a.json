@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-11T19:35:30Z",
+  "fetched_at": "2026-07-11T18:52:10Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diff\"",
       "target_n": 5
     },
-    "duration_seconds": 64.146,
-    "ended_at": "2026-07-11T19:35:30Z",
+    "duration_seconds": 98.232,
+    "ended_at": "2026-07-11T18:52:10Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "efficient minute-scale world modeling"
+          "hybrid linear diffusion models for world modeling"
         ],
         [
           2,
-          "hybrid linear diffusion models for video prediction"
+          "efficient minute-scale video generation with linear diffusion"
         ],
         [
           3,
-          "SANA-WM architecture extensions"
+          "SANA-WM architecture for rapid world simulation"
         ],
         [
           4,
-          "linear diffusion transformers for dynamic environments"
+          "fast world model generation using linear diffusion processes"
         ],
         [
           5,
-          "scalable world model inference"
+          "hybrid linear diffusion transformers for video prediction"
         ],
         [
           6,
-          "real-time generative world simulation"
+          "minute-scale dynamic world modeling with diffusion"
         ],
         [
           7,
-          "hybrid diffusion-attention mechanisms"
+          "efficient video synthesis via hybrid linear diffusion"
         ],
         [
           8,
-          "low-latency video generation with diffusion"
+          "linear diffusion models for real-time world simulation"
         ],
         [
           9,
-          "efficient temporal modeling in generative AI"
+          "accelerated world modeling with linear attention diffusion"
         ],
         [
           10,
-          "linear attention diffusion for long-horizon prediction"
+          "SANA-WM extension for low-latency video generation"
         ],
         [
           11,
-          "minute-scale video synthesis"
+          "hybrid linear stochastic differential equations for video"
         ],
         [
           12,
-          "hybrid generative models for robotics"
+          "efficient generative world models with linear diffusion"
         ],
         [
           13,
-          "efficient continuous world representation"
+          "rapid temporal prediction using linear diffusion networks"
         ],
         [
           14,
-          "fast inference diffusion transformers"
+          "linear diffusion-based video generation for world modeling"
         ],
         [
           15,
-          "linearized diffusion processes for dynamics"
+          "scalable world modeling with hybrid linear diffusion architectures"
         ],
         [
           16,
-          "generative world models with hybrid architectures"
+          "fast-forward video generation using linear diffusion"
         ],
         [
           17,
-          "efficient spatiotemporal generation"
+          "efficient latent world modeling with linear diffusion priors"
         ],
         [
           18,
-          "diffusion-based scene prediction"
+          "hybrid linear diffusion for high-speed video prediction"
         ],
         [
           19,
-          "scalable linear diffusion for video"
+          "real-time world simulation via linear diffusion transformers"
         ],
         [
           20,
-          "next-token prediction for world modeling"
+          "low-compute world modeling with linear diffusion dynamics"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "efficient minute-scale world modeling": 3,
-        "hybrid linear diffusion models for video prediction": 4,
+        "hybrid linear diffusion models for world modeling": 4,
         "llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diff\" computer science": 0
       },
-      "total_queries_issued": 2
+      "total_queries_issued": 1
     },
     "extracted_queries": [
-      "minute-scale video generation latent diffusion",
-      "SANA-WM hybrid linear diffusion transformer",
-      "efficient world model video prediction",
-      "video generation temporal coherence benchmark",
-      "linear diffusion model architecture scaling"
+      "hybrid linear diffusion world model",
+      "SANA-WM minute-scale video generation",
+      "efficient video diffusion temporal scaling",
+      "video generation latency inference benchmark",
+      "latent diffusion autoregressive hybrid architecture"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -121,36 +120,25 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2603.25716"
+        "2605.15178"
       ]
     },
     "per_query_hit_count": {
-      "SANA-WM hybrid linear diffusion transformer": 3,
-      "efficient world model video prediction": 3,
-      "linear diffusion model architecture scaling": 3,
+      "SANA-WM minute-scale video generation": 3,
+      "efficient video diffusion temporal scaling": 3,
+      "hybrid linear diffusion world model": 3,
+      "latent diffusion autoregressive hybrid architecture": 3,
       "llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diff\" computer science": 3,
-      "minute-scale video generation latent diffusion": 3,
-      "video generation temporal coherence benchmark": 3
+      "video generation latency inference benchmark": 1
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 2,
-      "rejections": [
-        {
-          "primary_pointer": "2104.09369",
-          "rationale": "The paper focuses on adversarial attacks against Graph Convolutional Networks (GCNs) for traffic prediction, which is a distinct domain and mechanism from the user's question regarding \"World Modeling\" with \"Hybrid Linear Diffusion\" (likely referring to video generation or physical simulation). While both involve diffusion models and graphs, the user's query targets the architecture and efficiency of generative world models, whereas the candidate paper addresses the robustness and security of di",
-          "title": "Adversarial Diffusion Attacks on Graph-based Traffic Prediction Models"
-        },
-        {
-          "primary_pointer": "2508.02516",
-          "rationale": "The paper focuses on video engagement prediction using Large Multimodal Models (LMMs) for recommendation systems, which is a distinct application domain from the user's question about \"minute-scale world modeling\" (a generative task for simulating physical dynamics). While both involve video and LLMs, the paper does not measure the same mechanism (world simulation vs. engagement scoring), variables, or empirical setting, and thus fails to satisfy any of the inclusion criteria (a-f).",
-          "title": "Engagement Prediction of Short Videos with Large Multimodal Models"
-        }
-      ]
+      "rejected_count": 0,
+      "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-11T19:34:26Z",
+    "started_at": "2026-07-11T18:50:32Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"sana-wm: efficient minute-scale world modeling with hybrid linear diff\" computer science",
       "raw": "llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diff\" computer science"
@@ -169,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-11T19:34:58Z",
+        "failed_at": "2026-07-11T18:51:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -188,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-11T19:34:58Z",
+        "failed_at": "2026-07-11T18:51:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -206,7 +194,188 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-11T19:34:58Z",
+        "failed_at": "2026-07-11T18:51:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Symmetries are ubiquitous in a wide range of nonlinear systems. Particularly in systems whose dynamics are determined by a Lagrangian or Hamiltonian function. For hybrid systems which possess a continuous-time dynamics determined by a Lagrangian function, with a cyclic variable, the degrees of freedom for the corresponding hybrid Lagrangian system can be reduced by means of a method known as \\textit{hybrid Routhian reduction}. In this paper we study sufficient conditions for the existence of periodic orbits in hybrid Routhian systems which also exhibit time-reversal symmetry. Likewise, we explore some stability aspects of such orbits through the characterization of the eigenvalues for the corresponding linearized Poincaré map. Finally, we apply the results to find periodic solutions in underactuated hybrid Routhian control systems.",
+          "claimed_authors": [
+            "Leonardo Colombo",
+            "Maria Emma Eyrea Irazu"
+          ],
+          "claimed_title": "Symmetries and periodic orbits in simple hybrid Routhian systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.08941"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Symmetries and periodic orbits in simple hybrid Routhian systems')",
+        "failed_at": "2026-07-11T18:51:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale generative models have achieved remarkable success in a number of domains. However, for sequential decision-making problems, such as robotics, action-labelled data is often scarce and therefore scaling-up foundation models for decision-making remains a challenge. A potential solution lies in leveraging widely-available unlabelled videos to train world models that simulate the consequences of actions. If the world model is accurate, it can be used to optimize decision-making in downstream tasks. Image-to-video diffusion models are already capable of generating highly realistic synthetic videos. However, these models are not action-conditioned, and the most powerful models are closed-source which means they cannot be finetuned. In this work, we propose to adapt pretrained video diffusion models to action-conditioned world models, without access to the parameters of the pretrained model. Our approach, AVID, trains an adapter on a small domain-specific dataset of action-labelled videos. AVID uses a learned mask to modify the intermediate outputs of the pretrained model and generate accurate action-conditioned videos. We evaluate AVID on video game and real-world robotics data, and show that it outperforms existing baselines for diffusion model adaptation.1 Our results demonstrate that if utilized correctly, pretrained video models have the potential to be powerful tools for embodied AI.",
+          "claimed_authors": [
+            "Marc Rigter",
+            "Tarun Gupta",
+            "Agrin Hilmkil",
+            "Chao Ma"
+          ],
+          "claimed_title": "AVID: Adapting Video Diffusion Models to World Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12822"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='AVID: Adapting Video Diffusion Models to World Models')",
+        "failed_at": "2026-07-11T18:51:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video world models have shown immense potential in simulating the physical world, yet existing memory mechanisms primarily treat environments as static canvases. When dynamic subjects hide out of sight and later re-emerge, current methods often struggle, leading to frozen, distorted, or vanishing subjects. To address this, we introduce Hybrid Memory, a novel paradigm requiring models to simultaneously act as precise archivists for static backgrounds and vigilant trackers for dynamic subjects, ensuring motion continuity during out-of-view intervals. To facilitate research in this direction, we construct HM-World, the first large-scale video dataset dedicated to hybrid memory. It features 59K high-fidelity clips with decoupled camera and subject trajectories, encompassing 17 diverse scenes, 49 distinct subjects, and meticulously designed exit-entry events to rigorously evaluate hybrid coherence. Furthermore, we propose HyDRA, a specialized memory architecture that compresses memory into tokens and utilizes a spatiotemporal relevance-driven retrieval mechanism. By selectively attending to relevant motion cues, HyDRA effectively preserves the identity and motion of hidden subjects. Extensive experiments on HM-World demonstrate that our method significantly outperforms state-of-the-art approaches in both dynamic subject consistency and overall generation quality. Code is publicly available at https://github.com/H-EmbodVis/HyDRA.",
+          "claimed_authors": [
+            "Kaijin Chen",
+            "Dingkang Liang",
+            "Xin Zhou",
+            "Yikang Ding",
+            "Xiaoqiang Liu",
+            "Pengfei Wan",
+            "Xiang Bai"
+          ],
+          "claimed_title": "Out of Sight but Not Out of Mind: Hybrid Memory for Dynamic Video World Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.25716"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Out of Sight but Not Out of Mind: Hybrid Memory for Dynamic Video World Models')",
+        "failed_at": "2026-07-11T18:51:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In contrast with traditional video, omnidirectional video enables spherical viewing direction with support for head-mounted displays, providing an interactive and immersive experience. Unfortunately, to the best of our knowledge, there are few visual quality assessment (VQA) methods, either subjective or objective, for omnidirectional video coding. This paper proposes both subjective and objective methods for assessing quality loss in encoding omnidirectional video. Specifically, we first present a new database, which includes the viewing direction data from several subjects watching omnidirectional video sequences. Then, from our database, we find a high consistency in viewing directions across different subjects. The viewing directions are normally distributed in the center of the front regions, but they sometimes fall into other regions, related to video content. Given this finding, we present a subjective VQA method for measuring difference mean opinion score (DMOS) of the whole and regional omnidirectional video, in terms of overall DMOS (O-DMOS) and vectorized DMOS (V-DMOS), respectively. Moreover, we propose two objective VQA methods for encoded omnidirectional video, in light of human perception characteristics of omnidirectional video. One method weighs the distortion of pixels with regard to their distances to the center of front regions, which considers human preference in a panorama. The other method predicts viewing directions according to video content, and then the predicted viewing directions are leveraged to allocate weights to the distortion of each pixel in our objective VQA method. Finally, our experimental results verify that both the subjective and objective methods proposed in this paper advance state-of-the-art VQA for omnidirectional video.",
+          "claimed_authors": [
+            "Mai Xu",
+            "Chen Li",
+            "Zulin Wang",
+            "Zhenzhong Chen",
+            "Zhenyu Guan"
+          ],
+          "claimed_title": "Assessing Visual Quality of Omnidirectional Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.06342"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Assessing Visual Quality of Omnidirectional Videos')",
+        "failed_at": "2026-07-11T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce TalkVerse, a large-scale, open corpus for single-person, audio-driven talking video generation designed to enable fair, reproducible comparison across methods. While current state-of-the-art systems rely on closed data or compute-heavy models, TalkVerse offers 2.3 million high-resolution (720p/1080p) audio-video synchronized clips totaling 6.3k hours. These are curated from over 60k hours of video via a transparent pipeline that includes scene-cut detection, aesthetic assessment, strict audio-visual synchronization checks, and comprehensive annotations including 2D skeletons and structured visual/audio-style captions. Leveraging TalkVerse, we present a reproducible 5B DiT baseline built on Wan2.2-5B. By utilizing a video VAE with a high downsampling ratio and a sliding window mechanism with motion-frame context, our model achieves minute-long generation with low drift. It delivers comparable lip-sync and visual quality to the 14B Wan-S2V model but with 10$\\times$ lower inference cost. To enhance storytelling in long videos, we integrate an MLLM director to rewrite prompts based on audio and visual cues. Furthermore, our model supports zero-shot video dubbing via controlled latent noise injection. We open-source the dataset, training recipes, and 5B checkpoints to lower barriers for research in audio-driven human video generation. Project Page: https://zhenzhiwang.github.io/talkverse/",
+          "claimed_authors": [
+            "Zhenzhi Wang",
+            "Jian Wang",
+            "Ke Ma",
+            "Dahua Lin",
+            "Bing Zhou"
+          ],
+          "claimed_title": "TalkVerse: Democratizing Minute-Long Audio-Driven Video Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.14938"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='TalkVerse: Democratizing Minute-Long Audio-Driven Video Generation')",
+        "failed_at": "2026-07-11T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion generative models have recently become a powerful technique for creating and modifying high-quality, coherent video content. This survey provides a comprehensive overview of the critical components of diffusion models for video generation, including their applications, architectural design, and temporal dynamics modeling. The paper begins by discussing the core principles and mathematical formulations, then explores various architectural choices and methods for maintaining temporal consistency. A taxonomy of applications is presented, categorizing models based on input modalities such as text prompts, images, videos, and audio signals. Advancements in text-to-video generation are discussed to illustrate the state-of-the-art capabilities and limitations of current approaches. Additionally, the survey summarizes recent developments in training and evaluation practices, including the use of diverse video and image datasets and the adoption of various evaluation metrics to assess model performance. The survey concludes with an examination of ongoing challenges, such as generating longer videos and managing computational costs, and offers insights into potential future directions for the field. By consolidating the latest research and developments, this survey aims to serve as a valuable resource for researchers and practitioners working with video diffusion models. Website: https://github.com/ndrwmlnk/Awesome-Video-Diffusion-Models",
+          "claimed_authors": [
+            "Andrew Melnik",
+            "Michal Ljubljanac",
+            "Cong Lu",
+            "Qi Yan",
+            "Weiming Ren",
+            "Helge Ritter"
+          ],
+          "claimed_title": "Video Diffusion Models: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.03150"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Video Diffusion Models: A Survey')",
+        "failed_at": "2026-07-11T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human processes video reasoning in a sequential spatio-temporal reasoning logic, we first identify the relevant frames (\"when\") and then analyse the spatial relationships (\"where\") between key objects, and finally leverage these relationships to draw inferences (\"what\"). However, can Video Large Language Models (Video-LLMs) also \"reason through a sequential spatio-temporal logic\" in videos? Existing Video-LLM benchmarks primarily focus on assessing object presence, neglecting relational reasoning. Consequently, it is difficult to measure whether a model truly comprehends object interactions (actions/events) in videos or merely relies on pre-trained \"memory\" of co-occurrences as biases in generating answers. In this work, we introduce a Video Spatio-Temporal Reasoning (V-STaR) benchmark to address these shortcomings. The key idea is to decompose video understanding into a Reverse Spatio-Temporal Reasoning (RSTR) task that simultaneously evaluates what objects are present, when events occur, and where they are located while capturing the underlying Chain-of-thought (CoT) logic. To support this evaluation, we construct a dataset to elicit the spatial-temporal reasoning process of Video-LLMs. It contains coarse-to-fine CoT questions generated by a semi-automated GPT-4-powered pipeline, embedding explicit reasoning chains to mimic human cognition. Experiments from 14 Video-LLMs on our V-STaR reveal significant gaps between current Video-LLMs and the needs for robust and consistent spatio-temporal reasoning.",
+          "claimed_authors": [
+            "Zixu Cheng",
+            "Jian Hu",
+            "Ziquan Liu",
+            "Chenyang Si",
+            "Wei Li",
+            "Shaogang Gong"
+          ],
+          "claimed_title": "V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.11495"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning')",
+        "failed_at": "2026-07-11T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we introduce PruneVid, a visual token pruning method designed to enhance the efficiency of multi-modal video understanding. Large Language Models (LLMs) have shown promising performance in video tasks due to their extended capabilities in comprehending visual modalities. However, the substantial redundancy in video data presents significant computational challenges for LLMs. To address this issue, we introduce a training-free method that 1) minimizes video redundancy by merging spatial-temporal tokens, and 2) leverages LLMs' reasoning capabilities to selectively prune visual features relevant to question tokens, enhancing model efficiency. We validate our method across multiple video benchmarks, which demonstrate that PruneVid can prune over 80% of tokens while maintaining competitive performance combined with different model networks. This highlights its superior effectiveness and efficiency compared to existing pruning methods. Code: https://github.com/Visual-AI/PruneVid.",
+          "claimed_authors": [
+            "Xiaohu Huang",
+            "Hao Zhou",
+            "Kai Han"
+          ],
+          "claimed_title": "PruneVid: Visual Token Pruning for Efficient Video Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.16117"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='PruneVid: Visual Token Pruning for Efficient Video Large Language Models')",
+        "failed_at": "2026-07-11T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video generation models have demonstrated great capabilities of producing impressive monocular videos, however, the generation of 3D stereoscopic video remains under-explored. We propose a pose-free and training-free approach for generating 3D stereoscopic videos using an off-the-shelf monocular video generation model. Our method warps a generated monocular video into camera views on stereoscopic baseline using estimated video depth, and employs a novel frame matrix video inpainting framework. The framework leverages the video generation model to inpaint frames observed from different timestamps and views. This effective approach generates consistent and semantically coherent stereoscopic videos without scene optimization or model fine-tuning. Moreover, we develop a disocclusion boundary re-injection scheme that further improves the quality of video inpainting by alleviating the negative effects propagated from disoccluded areas in the latent space. We validate the efficacy of our proposed method by conducting experiments on videos from various generative models, including Sora [4 ], Lumiere [2], WALT [8 ], and Zeroscope [ 42]. The experiments demonstrate that our method has a significant improvement over previous methods. The code will be released at \\url{https://daipengwa.github.io/SVG_ProjectPage}.",
+          "claimed_authors": [
+            "Peng Dai",
+            "Feitong Tan",
+            "Qiangeng Xu",
+            "David Futschik",
+            "Ruofei Du",
+            "Sean Fanello",
+            "Xiaojuan Qi",
+            "Yinda Zhang"
+          ],
+          "claimed_title": "SVG: 3D Stereoscopic Video Generation via Denoising Frame Matrix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.00367"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='SVG: 3D Stereoscopic Video Generation via Denoising Frame Matrix')",
+        "failed_at": "2026-07-11T18:51:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -241,7 +410,7 @@
           "primary_pointer": "2603.29727"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
-        "failed_at": "2026-07-11T19:34:58Z",
+        "failed_at": "2026-07-11T18:51:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -272,7 +441,7 @@
           "primary_pointer": "2507.19375"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
-        "failed_at": "2026-07-11T19:34:58Z",
+        "failed_at": "2026-07-11T18:51:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -305,246 +474,7 @@
           "primary_pointer": "2512.20263"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Symmetries are ubiquitous in a wide range of nonlinear systems. Particularly in systems whose dynamics are determined by a Lagrangian or Hamiltonian function. For hybrid systems which possess a continuous-time dynamics determined by a Lagrangian function, with a cyclic variable, the degrees of freedom for the corresponding hybrid Lagrangian system can be reduced by means of a method known as \\textit{hybrid Routhian reduction}. In this paper we study sufficient conditions for the existence of periodic orbits in hybrid Routhian systems which also exhibit time-reversal symmetry. Likewise, we explore some stability aspects of such orbits through the characterization of the eigenvalues for the corresponding linearized Poincaré map. Finally, we apply the results to find periodic solutions in underactuated hybrid Routhian control systems.",
-          "claimed_authors": [
-            "Leonardo Colombo",
-            "Maria Emma Eyrea Irazu"
-          ],
-          "claimed_title": "Symmetries and periodic orbits in simple hybrid Routhian systems",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2001.08941"
-        },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Symmetries and periodic orbits in simple hybrid Routhian systems')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Dynamics of the hybrid systems of aerial cable-ways is investigated. The eigenvalue problems are considered for such hybrid systems with different assumptions. An overview of different methods for eigenvalue problems is given. In the research, the method of the normal fundamental systems is applied, which turns out to be very effective for the considered problems. Changes of dynamical characteristics of the systems depending on the controlled parameter are studied.",
-          "claimed_authors": [
-            "Olena V. Mul",
-            "Delfim F. M. Torres",
-            "Volodymyr P. Kravchenko"
-          ],
-          "claimed_title": "Dynamics of Controlled Hybrid Systems of Aerial Cable-Ways",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2006,
-          "primary_pointer": "math/0607200"
-        },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Dynamics of Controlled Hybrid Systems of Aerial Cable-Ways')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Video world models can generate realistic futures from a single instruction, but they often fail to track the same physical points consistently across time. As a result, the generated videos appear plausible, yet lack the physical grounding required for reliable action execution, such as robot manipulation. We present GEM-4D, a geometry-grounded video world model that resolves this limitation by injecting dense 4D correspondence supervision distilled from a pretrained geometry foundation model into the video generative backbone during training. This supervision enables the model to jointly capture appearance and geometric structure while retaining a single-stream architecture with no additional inference cost. We further introduce an inverse dynamics module that converts correspondence-consistent video rollouts into executable robot trajectories, enabling direct deployment in both real-world and simulated manipulation. GEM-4D achieves state-of-the-art performance on both video prediction and geometric consistency across both simulation and realistic scenarios and improves real-world manipulation success from 61% to 81%. Additional results are available at https://gem-4d.github.io/.",
-          "claimed_authors": [
-            "Kaichen Zhou",
-            "Yuzhen Chen",
-            "Fangneng Zhan",
-            "Hang Hua",
-            "Grace Chen",
-            "Xinhai Chang",
-            "Ao Qu",
-            "Yilun Du",
-            "Zhuang Liu",
-            "Paul Pu Liang",
-            "Mengyu Wang"
-          ],
-          "claimed_title": "GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.22882"
-        },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "World models are essential for autonomous robotic planning. However, the substantial computational overhead of existing dense Transformerbased models significantly hinders real-time deployment. To address this efficiency-performance bottleneck, we introduce DDP-WM, a novel world model centered on the principle of Disentangled Dynamics Prediction (DDP). We hypothesize that latent state evolution in observed scenes is heterogeneous and can be decomposed into sparse primary dynamics driven by physical interactions and secondary context-driven background updates. DDP-WM realizes this decomposition through an architecture that integrates efficient historical processing with dynamic localization to isolate primary dynamics. By employing a crossattention mechanism for background updates, the framework optimizes resource allocation and provides a smooth optimization landscape for planners. Extensive experiments demonstrate that DDP-WM achieves significant efficiency and performance across diverse tasks, including navigation, precise tabletop manipulation, and complex deformable or multi-body interactions. Specifically, on the challenging Push-T task, DDP-WM achieves an approximately 9 times inference speedup and improves the MPC success rate from 90% to98% compared to state-of-the-art dense models. The results establish a promising path for developing efficient, high-fidelity world models. Codes is available at https://hcplab-sysu.github.io/DDP-WM/.",
-          "claimed_authors": [
-            "Shicheng Yin",
-            "Kaixuan Yin",
-            "Weixing Chen",
-            "Yang Liu",
-            "Guanbin Li",
-            "Liang Lin"
-          ],
-          "claimed_title": "DDP-WM: Disentangled Dynamics Prediction for Efficient World Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.01780"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='DDP-WM: Disentangled Dynamics Prediction for Efficient World Models')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "World models have become a central paradigm for learning predictive simulators that support generation, planning, and decision-making. Yet, despite rapid progress in industry-scale interactive video generation, the broader research community still lacks compact, reproducible, and easily extensible implementations for studying the design choices underlying modern world models. We introduce Nano World Models, a minimalist codebase for future video prediction centered around diffusion forcing. Nano World Models provides a unified interface for generative objectives, model scales, action-conditioning mechanisms, latent observation spaces, datasets, evaluation protocols, and long-horizon rollout procedures. This design enables controlled studies of world-modeling components that are often entangled across separate implementations. Through experiments across simple control environments, game simulation, and real-robot data, we examine how prediction parameterization, architecture scale, action injection, sampling budget, and domain complexity affect video prediction quality and autoregressive rollout behavior. By releasing code, configurations, evaluation scripts, and pretrained checkpoints, Nano World Models aims to provide a compact yet extensible experimental substrate for open, reproducible, and scientific world-model research.",
-          "claimed_authors": [
-            "Siqiao Huang",
-            "Partha Kaushik",
-            "Michael Chen",
-            "Hengkai Pan",
-            "Kaiwen Geng",
-            "Omar Chehab",
-            "Fernando Moreno-Pino",
-            "Max Simchowitz"
-          ],
-          "claimed_title": "Nano World Models: A Minimalist Implementation of Future Video Prediction",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.23993"
-        },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Nano World Models: A Minimalist Implementation of Future Video Prediction')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Human processes video reasoning in a sequential spatio-temporal reasoning logic, we first identify the relevant frames (\"when\") and then analyse the spatial relationships (\"where\") between key objects, and finally leverage these relationships to draw inferences (\"what\"). However, can Video Large Language Models (Video-LLMs) also \"reason through a sequential spatio-temporal logic\" in videos? Existing Video-LLM benchmarks primarily focus on assessing object presence, neglecting relational reasoning. Consequently, it is difficult to measure whether a model truly comprehends object interactions (actions/events) in videos or merely relies on pre-trained \"memory\" of co-occurrences as biases in generating answers. In this work, we introduce a Video Spatio-Temporal Reasoning (V-STaR) benchmark to address these shortcomings. The key idea is to decompose video understanding into a Reverse Spatio-Temporal Reasoning (RSTR) task that simultaneously evaluates what objects are present, when events occur, and where they are located while capturing the underlying Chain-of-thought (CoT) logic. To support this evaluation, we construct a dataset to elicit the spatial-temporal reasoning process of Video-LLMs. It contains coarse-to-fine CoT questions generated by a semi-automated GPT-4-powered pipeline, embedding explicit reasoning chains to mimic human cognition. Experiments from 14 Video-LLMs on our V-STaR reveal significant gaps between current Video-LLMs and the needs for robust and consistent spatio-temporal reasoning.",
-          "claimed_authors": [
-            "Zixu Cheng",
-            "Jian Hu",
-            "Ziquan Liu",
-            "Chenyang Si",
-            "Wei Li",
-            "Shaogang Gong"
-          ],
-          "claimed_title": "V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2503.11495"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Video generation models have demonstrated great capabilities of producing impressive monocular videos, however, the generation of 3D stereoscopic video remains under-explored. We propose a pose-free and training-free approach for generating 3D stereoscopic videos using an off-the-shelf monocular video generation model. Our method warps a generated monocular video into camera views on stereoscopic baseline using estimated video depth, and employs a novel frame matrix video inpainting framework. The framework leverages the video generation model to inpaint frames observed from different timestamps and views. This effective approach generates consistent and semantically coherent stereoscopic videos without scene optimization or model fine-tuning. Moreover, we develop a disocclusion boundary re-injection scheme that further improves the quality of video inpainting by alleviating the negative effects propagated from disoccluded areas in the latent space. We validate the efficacy of our proposed method by conducting experiments on videos from various generative models, including Sora [4 ], Lumiere [2], WALT [8 ], and Zeroscope [ 42]. The experiments demonstrate that our method has a significant improvement over previous methods. The code will be released at \\url{https://daipengwa.github.io/SVG_ProjectPage}.",
-          "claimed_authors": [
-            "Peng Dai",
-            "Feitong Tan",
-            "Qiangeng Xu",
-            "David Futschik",
-            "Ruofei Du",
-            "Sean Fanello",
-            "Xiaojuan Qi",
-            "Yinda Zhang"
-          ],
-          "claimed_title": "SVG: 3D Stereoscopic Video Generation via Denoising Frame Matrix",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2407.00367"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='SVG: 3D Stereoscopic Video Generation via Denoising Frame Matrix')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "For video recognition task, a global representation summarizing the whole contents of the video snippets plays an important role for the final performance. However, existing video architectures usually generate it by using a simple, global average pooling (GAP) method, which has limited ability to capture complex dynamics of videos. For image recognition task, there exist evidences showing that covariance pooling has stronger representation ability than GAP. Unfortunately, such plain covariance pooling used in image recognition is an orderless representative, which cannot model spatio-temporal structure inherent in videos. Therefore, this paper proposes a Temporal-attentive Covariance Pooling(TCP), inserted at the end of deep architectures, to produce powerful video representations. Specifically, our TCP first develops a temporal attention module to adaptively calibrate spatio-temporal features for the succeeding covariance pooling, approximatively producing attentive covariance representations. Then, a temporal covariance pooling performs temporal pooling of the attentive covariance representations to characterize both intra-frame correlations and inter-frame cross-correlations of the calibrated features. As such, the proposed TCP can capture complex temporal dynamics. Finally, a fast matrix power normalization is introduced to exploit geometry of covariance representations. Note that our TCP is model-agnostic and can be flexibly integrated into any video architectures, resulting in TCPNet for effective video recognition. The extensive experiments on six benchmarks (e.g., Kinetics, Something-Something V1 and Charades) using various video architectures show our TCPNet is clearly superior to its counterparts, while having strong generalization ability. The source code is publicly available.",
-          "claimed_authors": [
-            "Zilin Gao",
-            "Qilong Wang",
-            "Bingbing Zhang",
-            "Qinghua Hu",
-            "Peihua Li"
-          ],
-          "claimed_title": "Temporal-attentive Covariance Pooling Networks for Video Recognition",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2110.14381"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Temporal-attentive Covariance Pooling Networks for Video Recognition')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Applications with low data reuse and frequent irregular memory accesses, such as graph or sparse linear algebra workloads, fail to scale well due to memory bottlenecks and poor core utilization. While prior work with prefetching, decoupling, or pipelining can mitigate memory latency and improve core utilization, memory bottlenecks persist due to limited off-chip bandwidth. Approaches doing processing in-memory (PIM) with Hybrid Memory Cube (HMC) overcome bandwidth limitations but fail to achieve high core utilization due to poor task scheduling and synchronization overheads. Moreover, the high memory-per-core ratio available with HMC limits strong scaling.\n  We introduce Dalorex, a hardware-software co-design that achieves high parallelism and energy efficiency, demonstrating strong scaling with >16,000 cores when processing graph and sparse linear algebra workloads. Over the prior work in PIM, both using 256 cores, Dalorex improves performance and energy consumption by two orders of magnitude through (1) a tile-based distributed-memory architecture where each processing tile holds an equal amount of data, and all memory operations are local; (2) a task-based parallel programming model where tasks are executed by the processing unit that is co-located with the target data; (3) a network design optimized for irregular traffic, where all communication is one-way, and messages do not contain routing metadata; (4) novel traffic-aware task scheduling hardware that maintains high core utilization; and (5) a data placement strategy that improves work balance.\n  This work proposes architectural and software innovations to provide the greatest scalability to date for running graph algorithms while still being programmable for other domains.",
-          "claimed_authors": [
-            "Marcelo Orenes-Vera",
-            "Esin Tureci",
-            "David Wentzlaff",
-            "Margaret Martonosi"
-          ],
-          "claimed_title": "Dalorex: A Data-Local Program Execution and Architecture for Memory-bound Applications",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.13219"
-        },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Dalorex: A Data-Local Program Execution and Architecture for Memory-bound Applications')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The rapid scaling of large language models (LLMs) has unveiled critical limitations in current hardware architectures, including constraints in memory capacity, computational efficiency, and interconnection bandwidth. DeepSeek-V3, trained on 2,048 NVIDIA H800 GPUs, demonstrates how hardware-aware model co-design can effectively address these challenges, enabling cost-efficient training and inference at scale. This paper presents an in-depth analysis of the DeepSeek-V3/R1 model architecture and its AI infrastructure, highlighting key innovations such as Multi-head Latent Attention (MLA) for enhanced memory efficiency, Mixture of Experts (MoE) architectures for optimized computation-communication trade-offs, FP8 mixed-precision training to unlock the full potential of hardware capabilities, and a Multi-Plane Network Topology to minimize cluster-level network overhead. Building on the hardware bottlenecks encountered during DeepSeek-V3's development, we engage in a broader discussion with academic and industry peers on potential future hardware directions, including precise low-precision computation units, scale-up and scale-out convergence, and innovations in low-latency communication fabrics. These insights underscore the critical role of hardware and model co-design in meeting the escalating demands of AI workloads, offering a practical blueprint for innovation in next-generation AI systems.",
-          "claimed_authors": [
-            "Chenggang Zhao",
-            "Chengqi Deng",
-            "Chong Ruan",
-            "Damai Dai",
-            "Huazuo Gao",
-            "Jiashi Li",
-            "Liyue Zhang",
-            "Panpan Huang",
-            "Shangyan Zhou",
-            "Shirong Ma",
-            "Wenfeng Liang",
-            "Ying He",
-            "Yuqing Wang",
-            "Yuxuan Liu",
-            "Y. X. Wei"
-          ],
-          "claimed_title": "Insights into DeepSeek-V3: Scaling Challenges and Reflections on Hardware for AI Architectures",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2505.09343"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Insights into DeepSeek-V3: Scaling Challenges and Reflections on Hardware for AI Architectures')",
-        "failed_at": "2026-07-11T19:34:58Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Graph neural networks (GNN) represent an emerging line of deep learning models that operate on graph structures. It is becoming more and more popular due to its high accuracy achieved in many graph-related tasks. However, GNN is not as well understood in the system and architecture community as its counterparts such as multi-layer perceptrons and convolutional neural networks. This work tries to introduce the GNN to our community. In contrast to prior work that only presents characterizations of GCNs, our work covers a large portion of the varieties for GNN workloads based on a general GNN description framework. By constructing the models on top of two widely-used libraries, we characterize the GNN computation at inference stage concerning general-purpose and application-specific architectures and hope our work can foster more system and architecture research for GNNs.",
-          "claimed_authors": [
-            "Zhihui Zhang",
-            "Jingwen Leng",
-            "Lingxiao Ma",
-            "Youshan Miao",
-            "Chao Li",
-            "Minyi Guo"
-          ],
-          "claimed_title": "Architectural Implications of Graph Neural Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2009.00804"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SANA-WM: Efficient Minute-Scale World Modeling wit', candidate_title='Architectural Implications of Graph Neural Networks')",
-        "failed_at": "2026-07-11T19:34:58Z",
+        "failed_at": "2026-07-11T18:51:43Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -573,101 +503,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2605.15178",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.3194,
           "query_relevance_score": 0.5714,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T19:34:58Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Shicheng Yin",
-            "Kaixuan Yin",
-            "Weixing Chen",
-            "Yang Liu",
-            "Guanbin Li",
-            "Liang Lin"
-          ],
-          "title": "DDP-WM: Disentangled Dynamics Prediction for Efficient World Models",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2602.01780",
-        "summary": "World models are essential for autonomous robotic planning. However, the substantial computational overhead of existing dense Transformerbased models significantly hinders real-time deployment. To address this efficiency-performance bottleneck, we introduce DDP-WM, a novel world model centered on the principle of Disentangled Dynamics Prediction (DDP). We hypothesize that latent state evolution in observed scenes is heterogeneous and can be decomposed into sparse primary dynamics driven by physical interactions and secondary context-driven background updates. DDP-WM realizes this decomposition through an architecture that integrates efficient historical processing with dynamic localization to isolate primary dynamics. By employing a crossattention mechanism for background updates, the framework optimizes resource allocation and provides a smooth optimization landscape for planners. Extensive experiments demonstrate that DDP-WM achieves significant efficiency and performance across diverse tasks, including navigation, precise tabletop manipulation, and complex deformable or multi-body interactions. Specifically, on the challenging Push-T task, DDP-WM achieves an approximately 9 times inference speedup and improves the MPC success rate from 90% to98% compared to state-of-the-art dense models. The results establish a promising path for developing efficient, high-fidelity world models. Codes is available at https://hcplab-sysu.github.io/DDP-WM/.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2602.01780",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-11T19:35:02Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Lancelot Da Costa",
-            "Sanjeev Namjoshi",
-            "Mohammed Abbas Ansari",
-            "Bernhard Schölkopf"
-          ],
-          "title": "Natural Building Blocks for Structured World Models: Theory, Evidence, and Scaling",
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2511.02091",
-        "summary": "The field of world modeling is fragmented, with researchers developing bespoke architectures that rarely build upon each other. We propose a framework that specifies the natural building blocks for structured world models based on the fundamental stochastic processes that any world model must capture: discrete processes (logic, symbols) and continuous processes (physics, dynamics); the world model is then defined by the hierarchical composition of these building blocks. We examine Hidden Markov Models (HMMs) and switching linear dynamical systems (sLDS) as natural building blocks for discrete and continuous modeling--which become partially-observable Markov decision processes (POMDPs) and controlled sLDS when augmented with actions. This modular approach supports both passive modeling (generation, forecasting) and active control (planning, decision-making) within the same architecture. We avoid the combinatorial explosion of traditional structure learning by largely fixing the causal architecture and searching over only four depth parameters. We review practical expressiveness through multimodal generative modeling (passive) and planning from pixels (active), with performance competitive to neural approaches while maintaining interpretability. The core outstanding challenge is scalable joint structure-parameter learning; current methods finesse this by cleverly growing structure and parameters incrementally, but are limited in their scalability. If solved, these natural building blocks could provide foundational infrastructure for world modeling, analogous to how standardized layers enabled progress in deep learning.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2511.02091",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-11T19:35:03Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Andrew Melnik",
-            "Michal Ljubljanac",
-            "Cong Lu",
-            "Qi Yan",
-            "Weiming Ren",
-            "Helge Ritter"
-          ],
-          "title": "Video Diffusion Models: A Survey",
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2405.03150",
-        "summary": "Diffusion generative models have recently become a powerful technique for creating and modifying high-quality, coherent video content. This survey provides a comprehensive overview of the critical components of diffusion models for video generation, including their applications, architectural design, and temporal dynamics modeling. The paper begins by discussing the core principles and mathematical formulations, then explores various architectural choices and methods for maintaining temporal consistency. A taxonomy of applications is presented, categorizing models based on input modalities such as text prompts, images, videos, and audio signals. Advancements in text-to-video generation are discussed to illustrate the state-of-the-art capabilities and limitations of current approaches. Additionally, the survey summarizes recent developments in training and evaluation practices, including the use of diverse video and image datasets and the adoption of various evaluation metrics to assess model performance. The survey concludes with an examination of ongoing challenges, such as generating longer videos and managing computational costs, and offers insights into potential future directions for the field. By consolidating the latest research and developments, this survey aims to serve as a valuable resource for researchers and practitioners working with video diffusion models. Website: https://github.com/ndrwmlnk/Awesome-Video-Diffusion-Models",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2405.03150",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-11T19:35:07Z"
+          "verified_at": "2026-07-11T18:51:35Z"
         }
       },
       {
@@ -692,13 +534,93 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2603.25716",
           "http_status": 200,
-          "pdf_sample_score": 0.2927,
-          "query_relevance_score": 0.6,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T19:35:08Z"
+          "verified_at": "2026-07-11T18:51:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrii Zahorodnii"
+          ],
+          "title": "Improving World Models using Deep Supervision with Linear Probes",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.03861",
+        "summary": "Developing effective world models is crucial for creating artificial agents that can reason about and navigate complex environments. In this paper, we investigate a deep supervision technique for encouraging the development of a world model in a network trained end-to-end to predict the next observation. While deep supervision has been widely applied for task-specific learning, our focus is on improving the world models. Using an experimental environment based on the Flappy Bird game, where the agent receives only LIDAR measurements as observations, we explore the effect of adding a linear probe component to the network's loss function. This additional term encourages the network to encode a subset of the true underlying world features into its hidden state. Our experiments demonstrate that this supervision technique improves both training and test performance, enhances training stability, and results in more easily decodable world features -- even for those world features which were not included in the training. Furthermore, we observe a reduced distribution drift in networks trained with the linear probe, particularly during high-variability phases of the game (flying between successive pipe encounters). Including the world features loss component roughly corresponded to doubling the model size, suggesting that the linear probe technique is particularly beneficial in compute-limited settings or when aiming to achieve the best performance with smaller models. These findings contribute to our understanding of how to develop more robust and sophisticated world models in artificial agents, paving the way for further advancements in this field.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.03861",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T18:51:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zongyue Li",
+            "Xiao Han",
+            "Yusong Li",
+            "Niklas Strauss",
+            "Matthias Schubert"
+          ],
+          "title": "DAWM: Diffusion Action World Models for Offline Reinforcement Learning via Action-Inferred Transitions",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.19538",
+        "summary": "Diffusion-based world models have demonstrated strong capabilities in synthesizing realistic long-horizon trajectories for offline reinforcement learning (RL). However, many existing methods do not directly generate actions alongside states and rewards, limiting their compatibility with standard value-based offline RL algorithms that rely on one-step temporal difference (TD) learning. While prior work has explored joint modeling of states, rewards, and actions to address this issue, such formulations often lead to increased training complexity and reduced performance in practice. We propose \\textbf{DAWM}, a diffusion-based world model that generates future state-reward trajectories conditioned on the current state, action, and return-to-go, paired with an inverse dynamics model (IDM) for efficient action inference. This modular design produces complete synthetic transitions suitable for one-step TD-based offline RL, enabling effective and computationally efficient training. Empirically, we show that conservative offline RL algorithms such as TD3BC and IQL benefit significantly from training on these augmented trajectories, consistently outperforming prior diffusion-based baselines across multiple tasks in the D4RL benchmark.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.19538",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T18:51:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiayi Fu",
+            "Yuxia Wang"
+          ],
+          "title": "A Tutorial on Diffusion Theory: From Differential Equations to Diffusion Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.22586",
+        "summary": "Diffusion models have emerged as a dominant framework for generative modeling, but their mathematical foundations are often presented separately through diffusion probabilistic models, score-based modeling, stochastic differential equations, and numerical sampling methods. We write this tutorial to provide a unified and self-contained account of these viewpoints from the perspective of differential equations. Starting from a conditional Gaussian noising process, we derive ordinary differential equation (ODE) and stochastic differential equation (SDE) representations, pass to the corresponding marginal forward dynamics, and then obtain the reverse-time SDE and probability-flow ODE that make generation possible. We show that the central unknown quantity in reverse sampling is the marginal score, explain how score matching becomes the standard denoising objective under a noise-prediction parameterization, and discuss practical reverse-time sampling and guidance. We further place DDPM, DDIM, flow matching, and score-based SDEs in a common framework, and conclude with diffusion language models in continuous embedding space together with a brief discussion of discrete masked-token diffusion. The tutorial is intended as a bridge between the analytical foundations of diffusion processes and the modern generative algorithms built upon them.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.22586",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T18:51:58Z"
         }
       }
     ]

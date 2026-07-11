@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.19538",
+  "judged_at": "2026-07-11T18:52:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"sana-wm: efficient minute-scale world modeling with hybrid linear diff\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (diffusion-based world models) and domain (offline reinforcement learning) as the user's question, specifically addressing the generation of state-action trajectories which is central to the \"World Modeling\" aspect of the user's target paper. Although it proposes a different architecture (DAWM vs. SANA-WM) and focuses on action inference rather than minute-scale efficiency, it provides the necessary canonical pr",
+  "relevant": true
+}
