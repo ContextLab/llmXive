@@ -1,86 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "InferenceResultSchema"
-description: "Schema for a single statistical test result record"
-type: object
-properties:
-  result_id:
-    type: string
-    description: "Unique identifier for this result record"
-  dataset_id:
-    type: string
-    description: "Reference to the dataset used"
-  injection_id:
-    type: string
-    description: "Reference to the error injection config"
-  test_type:
-    type: string
-    enum:
-      - t-test
-      - anova
-      - chi-squared
-      - linear_regression
-  iteration:
-    type: integer
-    description: "Iteration number in the simulation loop"
-  null_hypothesis_true:
-    type: boolean
-    description: "Whether the Null Hypothesis was actually true for this run"
-  null_generation_method:
-    type: string
-    enum:
-      - permutation
-      - synthetic
-      - none
-    description: "Method used to establish the Null state (e.g., label shuffling)"
-  p_value:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-  rejected_null:
-    type: boolean
-    description: "True if p_value < 0.05"
-  effect_size_estimate:
-    type: number
-    description: "Estimated effect size (e.g., Cohen's d, beta coefficient)"
-  ci_lower:
-    type: number
-    description: "Lower bound of the 95% Confidence Interval"
-  ci_upper:
-    type: number
-    description: "Upper bound of the 95% Confidence Interval"
-  truth_source:
-    type: string
-    enum:
-      - synthetic_population
-      - fitted_model
-    description: "Source of the ground truth value (synthetic or fitted parametric model)"
-  truth_value:
-    type: number
-    description: "The ground truth value used for coverage/bias calculation"
-  ci_coverage:
-    type: boolean
-    description: "True if the CI contains the truth_value"
-  bias:
-    type: number
-    description: "Absolute difference between estimate and truth_value"
-  skipped_due_to_n:
-    type: boolean
-    description: "True if the iteration was skipped because N < 30 after listwise deletion"
+title: "Inference Result Schema"
+description: "Schema for the output of a single statistical test run."
+type: "object"
 required:
-  - result_id
-  - dataset_id
-  - injection_id
-  - test_type
-  - iteration
-  - null_hypothesis_true
-  - null_generation_method
-  - p_value
-  - rejected_null
-  - effect_size_estimate
-  - ci_lower
-  - ci_upper
-  - truth_source
-  - truth_value
-  - ci_coverage
-  - bias
-  - skipped_due_to_n
+  - "dataset_id"
+  - "config_id"
+  - "test_type"
+  - "p_value"
+  - "ci_lower"
+  - "ci_upper"
+  - "effect_size_estimate"
+  - "type_i_event"
+  - "ci_covered"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Reference to the dataset used."
+  config_id:
+    type: "string"
+    description: "Reference to the error configuration used."
+  test_type:
+    type: "string"
+    enum:
+      - "t-test"
+      - "anova"
+      - "chi-squared"
+      - "linear_regression"
+    description: "Type of statistical test performed."
+  p_value:
+    type: "number"
+    description: "P-value from the test."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  effect_size_estimate:
+    type: "number"
+    description: "Estimated effect size (e.g., Cohen's d, beta)."
+  type_i_event:
+    type: "boolean"
+    description: "True if null hypothesis was rejected (p < 0.05) when Null is True."
+  ci_covered:
+    type: "boolean"
+    description: "True if the CI contains the true parameter value."
+  iteration:
+    type: "integer"
+    description: "Simulation iteration number."
+additionalProperties: false

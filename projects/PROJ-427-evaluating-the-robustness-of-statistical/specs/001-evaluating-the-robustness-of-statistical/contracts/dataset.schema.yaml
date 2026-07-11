@@ -1,54 +1,49 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dataset Schema"
-description: "Schema for raw and processed datasets used in the robustness evaluation."
+description: "Schema for raw and synthetic datasets used in the robustness evaluation."
 type: "object"
+required:
+  - "id"
+  - "source_url"
+  - "type"
+  - "checksum"
+  - "parameters"
 properties:
-  dataset_id:
+  id:
     type: "string"
     description: "Unique identifier for the dataset."
   source_url:
     type: "string"
     format: "uri"
-    description: "Verified URL where the dataset was downloaded from."
-  variable_list:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        name:
-          type: "string"
-        type:
-          type: "string"
-          enum:
-            - "numerical"
-            - "categorical"
-      required:
-        - "name"
-        - "type"
-  original_checksum:
+    description: "Verified URL from which the dataset was downloaded."
+  type:
     type: "string"
-    description: "SHA256 checksum of the original raw file."
-  error_injection_params:
+    enum:
+      - "numerical"
+      - "categorical"
+      - "mixed"
+    description: "Primary data type of the dataset."
+  checksum:
+    type: "string"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the raw file."
+  parameters:
     type: "object"
+    description: "Ground truth parameters (for synthetic) or sample stats (for real)."
     properties:
-      error_type:
-        type: "string"
-        enum:
-          - "replacement"
-          - "misclassification"
-          - "mcar"
-      rate:
+      mean:
         type: "number"
-        minimum: 0
-        maximum: 1
-      seed:
+        description: "Population mean (synthetic) or sample mean (real)."
+      variance:
+        type: "number"
+        description: "Population variance (synthetic) or sample variance (real)."
+      effect_size:
+        type: "number"
+        description: "True effect size (synthetic only)."
+      sample_size:
         type: "integer"
+        description: "Number of observations."
     required:
-      - "error_type"
-      - "rate"
-      - "seed"
-required:
-  - "dataset_id"
-  - "source_url"
-  - "variable_list"
-  - "original_checksum"
+      - "sample_size"
+    additionalProperties: true
+additionalProperties: false

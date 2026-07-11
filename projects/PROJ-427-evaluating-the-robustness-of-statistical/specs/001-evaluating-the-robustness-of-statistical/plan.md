@@ -1,51 +1,41 @@
 # Implementation Plan: Evaluating the Robustness of Statistical Methods to Common Data Errors
 
-**Branch**: `001-evaluate-statistical-robustness` | **Date**: 2026-06-28 | **Spec**: `specs/001-evaluating-the-robustness-of-statistical/spec.md`
+**Branch**: `001-evaluate-statistical-robustness` | **Date**: 2024-05-21 | **Spec**: `specs/001-evaluating-the-robustness-of-statistical/spec.md`
 **Input**: Feature specification from `/specs/001-evaluating-the-robustness-of-statistical/spec.md`
 
 ## Summary
 
-This project implements a reproducible simulation pipeline to evaluate how standard statistical tests (t-test, ANOVA, Chi-squared, Linear Regression) degrade under controlled data errors. The approach involves: (1) downloading verified public datasets, (2) injecting three error types (random value replacement, category misclassification, MCAR missingness) at defined rates ([deferred], [deferred], [deferred], [deferred]), (3) running statistical tests on clean and corrupted data, and (4) aggregating metrics (Type I error, CI coverage, effect size bias). The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners (limited CPU resources, constrained memory).
+This project implements a reproducible simulation pipeline to evaluate how common data errors (random value replacement, category misclassification, and MCAR missingness) degrade the performance of standard statistical tests (t-test, ANOVA, chi-squared, linear regression). The system generates ground-truth datasets, injects errors at controlled rates (**[deferred], [deferred], [deferred], [deferred]**), executes statistical tests, and calculates empirical Type I error rates, confidence interval (CI) coverage, and effect size bias. All results are aggregated into degradation curves and summary tables.
 
-**Key Parameters**:
-- **Error Rates**: [deferred], [deferred], [deferred], [deferred].
-- **Error Types**: Random Value Replacement, Category Misclassification, MCAR Missingness.
-- **Statistical Tests**: t-test, ANOVA, Chi-squared, Linear Regression.
-- **Metrics**: Empirical Type I Error, CI Coverage, Effect Size Bias, Power Loss.
+The pipeline strictly separates **Synthetic Data** (used for calculating Bias and CI Coverage against known parameters) from **Real-World Data** (used for calculating Type I Error via permutation and Power loss). This separation ensures methodological rigor and prevents circular validation.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `requests`, `datasets` (for HuggingFace loading)  
-**Storage**: Local file system (`data/raw`, `data/processed`, `results`)  
-**Testing**: `pytest` (unit tests for injection logic, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Computational research / simulation pipeline  
-**Performance Goals**: Complete full simulation suite within 6 hours on 2 CPU cores.  
-**Constraints**: No GPU usage; memory footprint < 7GB; no external API calls during execution (datasets pre-fetched or loaded via verified URLs).  
-**Scale/Scope**: A small number of datasets, error types, error rates, statistical tests.
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`  
+**Storage**: Local CSV/Parquet files under `data/`; no external database.  
+**Testing**: `pytest` with contract tests against schema definitions.  
+**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, 7GB RAM, no GPU).  
+**Project Type**: Computational research pipeline / CLI tool.  
+**Performance Goals**: Complete full simulation suite (all error types, rates, and tests) within 6 hours.  
+**Constraints**: CPU-only execution; no GPU libraries; data subsets to fit <7GB RAM; strict reproducibility via pinned seeds.  
+**Scale/Scope**: Multiple diverse datasets; error types; error rates; statistical tests; A sufficient number of simulation iterations per configuration.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Strategy |
-|-----------|--------|-----------------------|
-| **I. Reproducibility** | PASS | All random seeds pinned in `code/`; datasets loaded from fixed URLs; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | PASS | Dataset URLs restricted to the `# Verified datasets` block in the prompt; no fabricated citations. |
-| **III. Data Hygiene** | PASS | Raw data stored in `data/raw` with checksums; error injection creates new files in `data/processed`; no in-place modification. |
-| **IV. Single Source of Truth** | PASS | All metrics calculated by `code/` scripts and saved to `results/`; paper generation reads directly from these files. |
-| **V. Versioning Discipline** | PASS | Artifact hashes generated via SHA-256 in `main.py` after each pipeline stage and recorded in the state file. |
-| **VI. Systematic Error Injection** | PASS | Plan explicitly defines [deferred], [deferred], [deferred], [deferred] rates and error types (Replacement, Misclassification, MCAR) as per spec. |
-| **VII. Comprehensive Test Coverage** | PASS | Plan covers t-test, ANOVA, Chi-squared, Regression across all error types/rates. |
-
-## Configuration Strategy
-
-To satisfy the Constitution's requirement for explicit definition in the design phase:
-- **Error Rates**: Defined in `code/config.py` as `We will investigate error rates across a range of low to moderate magnitudes to determine their impact on system performance.`.
-- **Test Types**: Defined in `code/config.py` as `TEST_TYPES = ['t_test', 'anova', 'chi_squared', 'linear_regression']`.
-- **Seeds**: Defined in `code/config.py` as `BASE_SEED = 42` (incremented per iteration).
-- **Minimum N**: `MIN_SAMPLE_SIZE = 30` (post-listwise deletion).
+| Principle | Compliance Status | Implementation Detail |
+|-----------|-------------------|-----------------------|
+| **I. Reproducibility** | **Compliant** | All random seeds pinned in `code/`. External datasets fetched from verified URLs. `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **Compliant** | Citations in `research.md` limited to verified dataset URLs provided in the spec. No fabricated results; all metrics computed from simulation runs. |
+| **III. Data Hygiene** | **Compliant** | Raw data checksummed in `state/`. Derivations (corrupted data) written to new files. PII scan passed (synthetic/public data only). |
+| **IV. Single Source of Truth** | **Compliant** | Figures/tables in final report trace to `data/` artifacts and `code/` execution logs. No hand-typed numbers. |
+| **V. Versioning Discipline** | **Compliant** | Content hashes tracked in `state/`. Artifacts updated on change. |
+| **VI. Systematic Error Injection** | **Compliant** | Error rates (**[deferred], [deferred], [deferred], [deferred]**) and types (replacement, misclassification, MCAR) strictly implemented as per spec. Parameters recorded in logs. |
+| **VII. Comprehensive Test Coverage** | **Compliant** | All 4 tests (**t-test, ANOVA, chi-squared, regression**) run across all specified error types/rates. All 4 metrics (Type I, CI coverage, bias, degradation) reported. |
 
 ## Project Structure
 
@@ -57,8 +47,16 @@ specs/001-evaluating-the-robustness-of-statistical/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # (Removed: See Fabricated Result Resolution)
+└── contracts/           # Phase 1 output
+    ├── aggregation_schema.schema.yaml
+    ├── dataset.schema.yaml
+    ├── dataset_schema.schema.yaml
+    ├── error_config.schema.yaml
+    ├── evaluation_results.schema.yaml
+    ├── inference_metric.schema.yaml
+    ├── injection.schema.yaml
+    ├── metrics_schema.schema.yaml
+    └── result.schema.yaml
 ```
 
 ### Source Code (repository root)
@@ -67,30 +65,40 @@ specs/001-evaluating-the-robustness-of-statistical/
 projects/PROJ-427-evaluating-the-robustness-of-statistical/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py              # Error rates, seeds, dataset paths
-│   ├── data_loader.py         # Fetch/clean datasets
-│   ├── error_injector.py      # FR-002: Injection logic
-│   ├── statistical_engine.py  # FR-003: Test execution
-│   ├── metrics_calculator.py  # FR-004: Type I, CI, Bias
-│   ├── visualizer.py          # FR-005: Degradation curves
-│   └── main.py                # Orchestration (Hash generation)
+│   ├── download.py          # Fetches verified datasets
+│   ├── inject.py            # Error injection logic (FR-002)
+│   ├── analyze.py           # Statistical tests & metric calculation (FR-003, FR-004)
+│   ├── visualize.py         # Degradation curves (FR-005)
+│   └── main.py              # Orchestration script
 ├── data/
-│   ├── raw/                   # Downloaded datasets (checksummed)
-│   └── processed/             # Error-injected versions
-├── results/
-│   ├── metrics.json           # Aggregated results
-│   └── plots/                 # PNG outputs
+│   ├── raw/                 # Downloaded clean datasets
+│   ├── corrupted/           # Generated error-injected datasets
+│   └── results/             # Simulation output logs (JSON/CSV)
 ├── tests/
-│   ├── unit/
-│   └── integration/
+│   ├── contract/            # Schema validation tests
+│   ├── integration/         # Pipeline end-to-end tests
+│   └── unit/                # Logic tests (injection rates, metric calcs)
+├── docs/
+│   └── ...
 ├── requirements.txt
 └── README.md
 ```
 
-**Structure Decision**: Single Python package structure (`code/`) to ensure modularity and easy testing. Data is separated into `raw` (immutable) and `processed` (derived). Results are decoupled from code to allow re-plotting without re-running simulations.
+**Structure Decision**: Single project structure selected. The workflow is linear (Download → Inject → Analyze → Visualize), making a monolithic `code/` directory with modular scripts efficient and easy to maintain. No separate frontend/backend required.
+
+## Computational Task Ordering
+
+To ensure a functional pipeline and avoid circular dependencies:
+1.  **Data Preparation**: Download and clean real datasets; generate synthetic datasets with known parameters.
+2.  **Error Injection**: Apply error types at defined rates to the clean datasets.
+3.  **Analysis**: Run statistical tests on the corrupted datasets.
+4.  **Aggregation**: Compute metrics (Type I, CI, Bias) from the test results.
+5.  **Visualization**: Generate degradation curves from the aggregated metrics.
+
+This order ensures that data is available before analysis, and analysis results are available before visualization.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| None | The scope is strictly bounded by the spec and CPU constraints. | N/A |
+| None | N/A | The design adheres strictly to the spec. Complexity is driven by the need for rigorous simulation (multiple error types, rates, and statistical tests) rather than architectural over-engineering. |

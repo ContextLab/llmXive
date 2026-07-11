@@ -1,70 +1,101 @@
 # Research: Evaluating the Robustness of Statistical Methods to Common Data Errors
 
-## Objective
+## Problem Statement
 
-To quantify the degradation of statistical inference (Type I error inflation, CI coverage loss, effect size bias) when standard tests are applied to datasets with controlled errors.
+Standard statistical inference (t-tests, ANOVA, regression) assumes data quality. Real-world data often contains errors: random value corruption, category misclassification, and missing values. This research quantifies the robustness of these methods by systematically injecting errors at controlled rates and measuring the degradation of inference metrics (Type I error, CI coverage, effect size bias).
 
 ## Dataset Strategy
 
-The project utilizes datasets from the `# Verified datasets` block. Since the spec requires diverse data (numerical/categorical) and the verified list contains a mix of formats, the strategy is:
+The project utilizes **verified datasets** from the UCI Machine Learning Repository (hosted on HuggingFace) to ensure reproducibility and format stability. As per the spec, we select 5-10 diverse datasets, ensuring at least 2 numerical and 2 categorical variables for valid testing of all statistical methods.
 
-| Dataset Source | URL | Type | Usage |
-|----------------|-----|------|-------|
-| UCI HAR (CSV) | ` | Numerical (Activity Recognition) | T-test, ANOVA on sensor features. |
-| UCI Shopper (Parquet) | ` | Mixed (Categorical/Numerical) | Chi-squared (categorical), Regression (numerical). |
-| UCI DROP (Parquet) | ` | Mixed (Reading Comprehension) | Regression, ANOVA on derived scores. |
-| Malawi Socio-Economic Survey (Parquet) | ` | Numerical/Socio-economic | Baseline for *injecting* MCAR errors (Standard survey data). |
-| UCI Wine Quality (Red) (CSV) | `https://huggingface.co/datasets/UCI/wine-quality/resolve/main/winequality-red.csv` | Numerical (Quality Ratings) | ANOVA (comparing pH/alcohol across quality levels). |
+| Dataset Name | Source URL (Verified) | Variable Types | Suitability for Tests |
+|:--- |:--- |:--- |:--- |
+| **UCI HAR** | ` | Numerical (Sensors) + Categorical (Activity) | T-test, ANOVA (Activity groups), Regression |
+| **UCI Bank Marketing** | `https://huggingface.co/datasets/UCI/bank-marketing/resolve/main/bank-full.csv` | Mixed (Numerical/Categorical) | Chi-squared, Regression |
+| **UCI Wine Quality** | `https://huggingface.co/datasets/UCI/wine-quality/resolve/main/winequality-red.csv` | Numerical | ANOVA (Quality groups), Regression |
+| **UCI Adult** | `https://huggingface.co/datasets/UCI/adult/resolve/main/adult.csv` | Mixed (Categorical/Numerical) | Chi-squared, Regression |
+| **Synthetic Null** | *Generated* | Numerical | Type I Error Validation (FR-007) |
+| **Synthetic Effect** | *Generated* | Numerical | CI Coverage & Bias Validation (FR-006) |
 
-**Note on Variable Fit**: The spec requires testing specific statistical assumptions (e.g., normality for t-test). The implementation will include a pre-processing step to verify variable types and sample sizes (N ≥ 30) before applying tests. If a dataset lacks a required variable type (e.g., no categorical column for Chi-squared), that specific test-dataset combination is skipped, and the reason is logged.
+**Note on Datasets**:
+- **UCI HAR**: Contains 'Activity' labels for grouping; suitable for ANOVA/T-test.
+- **UCI Bank Marketing**: Contains 'y' (purchase) and 'job' (categorical) for Chi-squared.
+- **UCI Wine Quality**: Contains 'quality' (1-10) for ANOVA.
+- **UCI Adult**: Contains 'income' (categorical) and 'age' (numerical) for Chi-squared/Regression.
+- **Synthetic Data**: Generated programmatically with known population parameters ($\mu_{true}$, $\delta_{true}$) to serve as the "Ground Truth" for measuring bias and CI coverage. This is necessary because real-world datasets do not have a known "true" population parameter to compare against for bias calculation.
+
+**Dataset Selection Rationale**:
+- **UCI HAR**: High-dimensional numerical data, suitable for testing t-tests and ANOVA on sensor features with natural groupings.
+- **UCI Bank Marketing**: Contains categorical purchase behavior, ideal for chi-squared tests.
+- **Synthetic Data**: Used exclusively for validating the *internal logic* of the pipeline (ensuring it correctly measures known truths). Real-data robustness is measured empirically.
 
 ## Methodology
 
-### 1. Ground Truth Generation (FR-006, FR-007)
-
-To ensure valid measurement of Type I error and Bias, we distinguish between two data generation modes:
-
-- **Null Generation (for Type I Error)**: Generate synthetic datasets where the Null Hypothesis is **TRUE** (e.g., $\mu_1 = \mu_2$ for t-test, all group means equal for ANOVA). Error injection is applied to these datasets to measure the rate of false rejections.
-- **Effect Generation (for Power/Bias)**: Generate synthetic datasets where the Alternative Hypothesis is **TRUE** (e.g., $\mu_1 \neq \mu_2$ with a known effect size $\delta$). Error injection is applied to measure the bias in the estimated effect size and the loss of power.
-
-**Real-World Data Handling**: For real-world datasets, the "Ground Truth" is approximated by the **Clean Sample Estimate**. Bias and Coverage for real-world data are calculated relative to the statistics derived from the clean version of the *same* dataset (treating the clean sample as the best available proxy), while synthetic data uses the known population parameters. This distinction is critical: Real-World results measure *relative degradation* (Clean vs. Corrupted), while Synthetic results measure *absolute accuracy* against truth.
+### 1. Data Preparation & Ground Truth Generation (FR-001, FR-006, FR-007)
+- **Real Data**: Download and clean verified datasets.
+ - **Cleaning**: For datasets with existing missing values (e.g., 'MCAR' named datasets), impute missing values (mean/mode) or drop rows *before* the experiment to establish a true 'clean' baseline.
+ - **Grouping**: T-tests and ANOVA are **only** executed on datasets with **existing natural categorical labels** (e.g., 'Activity' in HAR, 'Quality' in Wine). Datasets without natural groups are skipped for T-test/ANOVA to avoid artificial ground truth (no k-means clustering).
+ - **Cardinality Check**: Chi-squared tests are skipped if categorical variables have < 2 unique values.
+- **Synthetic Data**: Generate datasets where the population parameters are *known*.
+ - *Null Hypothesis Data*: Generate two groups with identical means ($\mu_1 = \mu_2$) to measure Type I error.
+ - *Effect Size Data*: Generate groups with a known difference $\delta$ to measure effect size bias and CI coverage.
+ - *Note*: Synthetic data is used **only** to validate the pipeline's ability to measure known truths. It is not used to claim generalizability to real-world distributions.
 
 ### 2. Error Injection (FR-002)
+Three error types are injected at rates: **[deferred], [deferred], [deferred], [deferred]**.
+- **Random Value Replacement**: For numerical columns, replace a value with a draw from the **empirical distribution** of the original column (bootstrapping). This preserves the distribution's shape (skew/kurtosis) while introducing noise, isolating the 'error' effect from 'distributional shift'.
+- **Category Misclassification**: For categorical columns, randomly swap the label with another valid category in the dataset.
+- **MCAR Missingness**: Randomly set values to `NaN` with probability $p$ (the error rate).
 
-- **Rates**: [deferred], [deferred], [deferred], [deferred].
-- **Mechanisms**:
- - *Random Value Replacement*: Replace $X_{ij}$ with $U(\min(X), \max(X))$. This introduces a uniform component, potentially violating normality assumptions. The study explicitly tests robustness to this specific distributional shift.
- - *Category Misclassification*: Swap category labels with probability $p$.
- - *MCAR Missingness*: Set $X_{ij} = \text{NaN}$ with probability $p$.
+### 3. Statistical Analysis (FR-003, FR-004)
+For each dataset (clean and corrupted) and each simulation iteration:
+- **T-Test**: Compare two groups (only if natural groups exist). Record p-value, 95% CI, Cohen's d.
+- **ANOVA**: Compare >2 groups (only if natural groups exist). Record F-statistic, p-value.
+- **Chi-Squared**: Test independence of categorical variables (only if cardinality >= 2). Record $\chi^2$, p-value.
+- **Linear Regression**: Predict continuous outcome. Record coefficients, 95% CI, $R^2$.
 
-### 3. Statistical Analysis (FR-003)
+**Metrics Calculation**:
+- **Empirical Type I Error Rate**: Proportion of tests where $p < 0.05$ given the null hypothesis is *true* (from **Synthetic Null** data or **Real Data** via label permutation).
+- **CI Coverage**: Proportion of 95% CIs that contain the *true* parameter (from **Synthetic Effect** data only). *Note: CI Coverage is NOT calculated for Real Data as the true parameter is unknown.*
+- **Effect Size Bias**: $|\hat{\delta} - \delta_{true}|$ (from **Synthetic Effect** data only). *Note: Bias is NOT calculated for Real Data.*
+- **Statistical Power**: For **MCAR** + Listwise Deletion, the primary metric is **Power Loss** (reduced effective N), not Type I Error Inflation (which is theoretically zero for MCAR).
 
-- **Tests**: `scipy.stats.ttest_ind`, `scipy.stats.f_oneway`, `scipy.stats.chi2_contingency`, `statsmodels.OLS`.
-- **Handling**: Listwise deletion for missing data (MCAR).
-
-### 4. Metric Calculation (FR-004, SC-001, SC-002, SC-003)
-
-- **Type I Error**: Proportion of rejections ($p < 0.05$) under true null (Synthetic Null Data).
-- **CI Coverage**: Proportion of 95% CIs containing the **Original Clean Truth** (Synthetic Population Parameter or Clean Sample Estimate).
-- **Bias**: $| \hat{\theta}_{corrupted} - \theta_{clean\_truth} |$. *Note: Bias is always measured against the original clean truth, never the corrupted parameter.*
-- **Power**: Proportion of rejections under true alternative.
-- **Effective Sample Size**: Mean N remaining after listwise deletion.
+### 4. Aggregation & Visualization (FR-005)
+- Aggregate results across simulation iterations (e.g., 1000 runs per configuration).
+- Generate degradation curves: X-axis = Error Rate, Y-axis = Metric (Type I Error, Coverage, Power).
+- Generate summary tables comparing test robustness.
 
 ## Statistical Rigor & Assumptions
 
-- **Power & Sample Size**:
- - **Minimum N**: Iterations where listwise deletion results in $N < 30$ are **skipped** and logged. This ensures Type I error is only measured where the test assumptions (approximate normality via CLT) are likely to hold.
- - **Power Loss**: We explicitly report "Effective N" and "Power Estimate" alongside Type I error. For MCAR, listwise deletion reduces power (fewer rejections) but should not inflate Type I error. Distinguishing these prevents the conflation of power loss with error inflation.
-- **Multiple Comparisons**: Not applicable for the primary metric aggregation (we are measuring the *rate* of error, not testing a hypothesis about the rate itself). However, if comparing degradation curves, Bonferroni correction will be applied.
-- **Causal Claims**: None. This is a simulation of data corruption. The "degradation" is a measured phenomenon, not a causal claim about real-world data collection.
-- **Distributional Assumptions**: The "Random Value Replacement" mechanism introduces non-normality. The study explicitly acknowledges that observed degradation may be due to the violation of the normality assumption caused by the error injection itself. Results are interpreted as "Robustness to Non-Normality induced by Data Error".
-- **Measurement Validity**: Standard parametric tests are used; their validity relies on assumptions (normality, homoscedasticity) which are checked on the *clean* synthetic data.
+### Multiple Comparisons
+While the simulation runs many tests, the primary focus is on the *rate* of Type I error under the null. We do not apply Bonferroni correction to the *simulation results* themselves, as we are estimating the error rate of the test, not making a single inference from one dataset. However, when reporting the final "robustness" of a method, we will clearly distinguish between the *nominal* $\alpha$ (0.05) and the *empirical* Type I error rate.
 
-## Compute Feasibility
+### Sample Size & Power
+- **Synthetic Data**: Sample sizes ($N$) will be chosen to ensure adequate power in the clean state (e.g., $N=100$ per group) to detect the intended effect size.
+- **Missing Data**: MCAR missingness reduces effective $N$. We will explicitly report the power loss (reduced sample size) as a confounding factor, distinguishing it from Type I error inflation.
 
-- **Hardware**: 2 CPU, 7GB RAM.
+### Causal Inference
+This study is **observational** regarding the relationship between data errors and statistical distortion. We are not claiming a causal mechanism for the error injection (which is artificial) but rather measuring the *associational* degradation of statistical properties. No randomization of "error" is needed as the error is algorithmically imposed.
+
+### Measurement Validity
+- **Instruments**: Standard statistical tests (`scipy.stats`, `statsmodels`) are used. These are well-validated.
+- **Collinearity**: In regression tests, we will ensure predictors are not definitionally related to the outcome to avoid trivial bias. If collinearity exists, it will be noted, and independent effects will not be claimed.
+
+### Computational Feasibility
+- **Hardware**: 2 CPU cores, 7GB RAM.
 - **Strategy**:
- - Datasets are small (typically < 100MB).
- - Simulations are parallelized across CPU cores using `multiprocessing` (limit to 2 workers).
- - Iterations capped to ensure < 6h runtime.
- - No GPU libraries (e.g., PyTorch) used; `scipy` and `statsmodels` are CPU-native.
+ - Use `numpy` vectorization for error injection.
+ - Process datasets in chunks if memory is tight (unlikely for 5-10 UCI datasets).
+ - Limit simulation iterations to a sufficient number per configuration to ensure stable error rate estimates.
+ - No GPU required.
+
+## Decision Log
+
+| Decision | Rationale |
+|:--- |:--- |
+| **Use Synthetic Data for Ground Truth** | Real datasets lack known population parameters ($\mu_{true}$, $\delta_{true}$). Synthetic data is required to calculate "Bias" and "CI Coverage" accurately (SC-002, SC-003). Synthetic data is used *only* for internal validation, not to claim generalizability. |
+| **No K-Means for Grouping** | K-means clustering creates artificial groups that guarantee statistical significance, invalidating the robustness test. T-tests/ANOVA are only run on datasets with natural labels. |
+| **Bootstrapped Replacement** | Replacing values from the empirical distribution preserves the original distribution's shape, isolating the 'error' effect from 'distributional shift'. |
+| **MCAR Metric: Power Loss** | MCAR + Listwise Deletion does not inflate Type I Error. The correct metric for MCAR degradation is Statistical Power (reduced N). |
+| **Error Rates: [deferred], [deferred], [deferred], [deferred]** | Covers low to high error scenarios, allowing detection of non-linear degradation thresholds. |
+| **Real Data: Type I Error via Permutation** | For real data, Type I Error is measured by permuting labels (breaking the true relationship) and testing for false rejections. |

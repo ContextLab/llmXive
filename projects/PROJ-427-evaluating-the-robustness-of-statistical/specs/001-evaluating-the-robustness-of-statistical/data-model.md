@@ -2,58 +2,63 @@
 
 ## Overview
 
-This document defines the data structures used for input configuration, intermediate error-injected datasets, and output metrics. All data is persisted in `data/` and `results/` directories.
+This document defines the data structures used throughout the simulation pipeline. The model supports the ingestion of raw datasets, the configuration of error injection, and the storage of simulation results.
 
-## Entities
+## Entity Relationship Diagram (Conceptual)
 
-### 1. Dataset Metadata
-Represents the source and characteristics of a raw dataset.
-- `id`: Unique identifier (e.g., `uci_har`).
-- `source_url`: Verified URL.
-- `type`: `numerical`, `categorical`, or `mixed`.
-- `checksum`: SHA-256 hash of the raw file.
-- `sample_size`: Number of rows.
+```mermaid
+erDiagram
+    DATASET ||--o{ ERROR_CONFIG : "is subject to"
+    ERROR_CONFIG ||--o{ INJECTION_RUN : "generates"
+    INJECTION_RUN ||--o{ ANALYSIS_RESULT : "produces"
+    ANALYSIS_RESULT ||--o{ METRIC : "contains"
+```
+
+## Core Entities
+
+### 1. Dataset
+Represents a source of data (clean or corrupted).
+- **id**: Unique identifier (e.g., `uci-har-001`).
+- **source_url**: Verified URL from which the dataset was downloaded.
+- **type**: `numerical`, `categorical`, `mixed`.
+- **checksum**: SHA-256 hash of the raw file.
+- **parameters**: Dictionary of ground-truth parameters (if synthetic) or sample stats (if real).
 
 ### 2. ErrorConfiguration
-Defines a specific error injection scenario.
-- `dataset_id`: Reference to Dataset Metadata.
-- `error_type`: `replacement`, `misclassification`, `mcar`.
-- `rate`: Float (0.01, 0.05, 0.10, 0.20).
-- `seed`: Integer for reproducibility.
-- `generated_path`: Path to the processed CSV/Parquet.
+Defines the parameters for a specific error injection run.
+- **error_type**: `replacement`, `misclassification`, `mcar`.
+- **rate**: Float (0.01, 0.05, 0.10, 0.20).
+- **seed**: Integer for reproducibility.
+- **target_columns**: List of column names to apply error to.
 
 ### 3. InferenceResult
-A single record of a statistical test execution.
-- `run_id`: Unique identifier for the simulation run.
-- `dataset_id`: Reference.
-- `error_config_id`: Reference.
-- `test_type`: `t_test`, `anova`, `chi_squared`, `regression`.
-- `metric_type`: `type_i_error`, `ci_coverage`, `effect_size_bias`.
-- `value`: Float (the calculated metric).
-- `true_parameter`: Float (the ground truth used for comparison).
-- `p_value`: Float.
-- `ci_lower`: Float.
-- `ci_upper`: Float.
-- `rejection`: Boolean (1 if $p < 0.05$).
-
-### 4. AggregatedMetrics
-Summary statistics for a specific condition (Test + Error Type + Rate).
-- `test_type`: String.
-- `error_type`: String.
-- `rate`: Float.
-- `mean_type_i_error`: Float.
-- `mean_ci_coverage`: Float.
-- `mean_bias`: Float.
-- `n_iterations`: Integer.
+A single record of a statistical test performed on a dataset.
+- **dataset_id**: Reference to the dataset used.
+- **config_id**: Reference to the error configuration used.
+- **test_type**: `t-test`, `anova`, `chi-squared`, `linear_regression`.
+- **p_value**: Float.
+- **ci_lower**: Float.
+- **ci_upper**: Float.
+- **effect_size_estimate**: Float (e.g., Cohen's d, beta coefficient).
+- **type_i_event**: Boolean (True if $p < 0.05$ and Null is True).
+- **ci_covered**: Boolean (True if CI contains true parameter).
 
 ## File Formats
 
-- **Raw Data**: CSV or Parquet (as per source).
-- **Processed Data**: CSV (to ensure compatibility with `scipy`/`statsmodels` and easy inspection).
-- **Results**: JSON (for easy aggregation and plotting).
+### Input: Raw Datasets
+- **Format**: CSV or Parquet.
+- **Structure**: Tabular data with headers. No nested structures.
 
-## Constraints
+### Output: Simulation Results (JSON)
+- **Format**: JSON Lines (`.jsonl`) or a single JSON array.
+- **Structure**: Array of `InferenceResult` objects.
 
-- **No PII**: All datasets are verified public; no personal data is committed.
-- **Immutability**: Raw files are never overwritten.
-- **Schema Validation**: All output JSONs must conform to the contracts defined in `contracts/`.
+### Output: Visualization Data (CSV)
+- **Format**: CSV.
+- **Structure**: Aggregated metrics (Error Rate vs. Type I Error Rate) for plotting.
+
+## Constraints & Validation
+- **Rate**: Must be in $[0.0, 1.0]$.
+- **Seed**: Must be a positive integer.
+- **Test Type**: Must be one of the four specified types.
+- **Data Integrity**: All derived files must reference the checksum of their source.

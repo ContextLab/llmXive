@@ -1,4 +1,4 @@
-resolved_at: '2026-07-10T09:13:50.195693+00:00'
+resolved_at: '2026-07-11T01:13:03.889047+00:00'
 datasets:
 - intent: MCAR
   status: verified
@@ -45,26 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/dataset/_b_New_genus_new_species_and_taxonomic_updates_of_lignicolous_freshwater_fungi_from_Xizang_China_b_/32956001
+  - url: https://figshare.com/articles/journal_contribution/Community_Midwifery_Programme_ATBU_Bauchi_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32962142
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://tandf.figshare.com/articles/journal_contribution/Post-fire_forest_recovery_in_the_Amazon_region_2001_2023_A_patch-level_analysis_of_spatiotemporal_patterns_and_compound_drivers/32956006
+  - url: https://figshare.com/articles/online_resource/School_of_Basic_Midwifery_ATBU_Bauchi_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Regi/32962139
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rdr.ucl.ac.uk/articles/media/UKRI_Policy_Fellowship_-_Dr_Keri_Wong_s_Audiovisual_Impact_Slideshow/32841329
+  - url: https://figshare.com/articles/journal_contribution/School_of_Nursing_ATBU_Bauchi_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration/32962124
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Functional_group_analyses_of_herpetofauna_in_South_Korea_using_a_large_dataset/21755345
+  - url: https://figshare.com/articles/book/College_of_Nursing_Sciences_Alor_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registrat/32962121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Near-Infrared_Polarity-Sensitive_Fluorescent_Probe_for_Distinguishing_Normal_and_Cancer_Cells_and_Imaging_Mitochondrial_Polarity_Changes_during_Drug-Induced_Liver_Injury/32962130
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -80,12 +77,20 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/233045
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7828031
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21233523
-    source: zenodo
+  - url: https://zenodo.org/records/21301806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21301806
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://arxiv.org/abs/2607.08579
@@ -97,14 +102,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21277101
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21277101
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21249069
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -123,27 +120,32 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/dataset/_b_New_genus_new_species_and_taxonomic_updates_of_lignicolous_freshwater_fungi_from_Xizang_China_b_/32956001
+  - url: https://figshare.com/articles/journal_contribution/Community_Midwifery_Programme_ATBU_Bauchi_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32962142
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://tandf.figshare.com/articles/journal_contribution/Post-fire_forest_recovery_in_the_Amazon_region_2001_2023_A_patch-level_analysis_of_spatiotemporal_patterns_and_compound_drivers/32956006
+  - url: https://figshare.com/articles/online_resource/School_of_Basic_Midwifery_ATBU_Bauchi_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Regi/32962139
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rdr.ucl.ac.uk/articles/media/UKRI_Policy_Fellowship_-_Dr_Keri_Wong_s_Audiovisual_Impact_Slideshow/32841329
+  - url: https://figshare.com/articles/journal_contribution/School_of_Nursing_ATBU_Bauchi_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration/32962124
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Functional_group_analyses_of_herpetofauna_in_South_Korea_using_a_large_dataset/21755345
+  - url: https://figshare.com/articles/book/College_of_Nursing_Sciences_Alor_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registrat/32962121
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Near-Infrared_Polarity-Sensitive_Fluorescent_Probe_for_Distinguishing_Normal_and_Cancer_Cells_and_Imaging_Mitochondrial_Polarity_Changes_during_Drug-Induced_Liver_Injury/32962130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/1255322
@@ -158,31 +160,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14242875
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10011805
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21292126
+  - url: https://zenodo.org/records/21302071
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21292126
+  - url: https://zenodo.org/records/21302071
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21292509
+  - url: https://zenodo.org/records/21197756
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21292509
+  - url: https://zenodo.org/records/21197756
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21292236
+  - url: https://zenodo.org/records/21291094
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -231,26 +225,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_b_New_genus_new_species_and_taxonomic_updates_of_lignicolous_freshwater_fungi_from_Xizang_China_b_/32956001
+  - url: https://figshare.com/articles/preprint/School_of_Post_Basic_Peri-operative_Nursing_ATBU_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_/32962151
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://tandf.figshare.com/articles/journal_contribution/Post-fire_forest_recovery_in_the_Amazon_region_2001_2023_A_patch-level_analysis_of_spatiotemporal_patterns_and_compound_drivers/32956006
+  - url: https://figshare.com/articles/journal_contribution/Community_Midwifery_Programme_ATBU_Bauchi_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32962142
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rdr.ucl.ac.uk/articles/media/UKRI_Policy_Fellowship_-_Dr_Keri_Wong_s_Audiovisual_Impact_Slideshow/32841329
+  - url: https://figshare.com/articles/online_resource/School_of_Basic_Midwifery_ATBU_Bauchi_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Regi/32962139
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Functional_group_analyses_of_herpetofauna_in_South_Korea_using_a_large_dataset/21755345
+  - url: https://figshare.com/articles/journal_contribution/School_of_Nursing_ATBU_Bauchi_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration/32962124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/College_of_Nursing_Sciences_Alor_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registrat/32962121
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -262,19 +253,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7681792
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7627577
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10685355
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21287069
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6592391
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21299081
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21299081
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -282,15 +277,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2602.18396
+  - url: https://zenodo.org/records/21287069
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Mushroom_Edibility_Classification/32946821/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Mushroom_Edibility_Classification/32946821
+  - url: https://zenodo.org/records/20352302
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

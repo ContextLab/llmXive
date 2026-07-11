@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Error Configuration Schema"
+description: "Schema defining the parameters for error injection."
+type: "object"
+required:
+  - "error_type"
+  - "rate"
+  - "seed"
+properties:
+  error_type:
+    type: "string"
+    enum:
+      - "replacement"
+      - "misclassification"
+      - "mcar"
+    description: "Type of error to inject."
+  rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of data to corrupt (e.g., 0.01, 0.05, 0.10, 0.20)."
+  seed:
+    type: "integer"
+    minimum: 0
+    description: "Random seed for reproducibility."
+  target_columns:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of column names to apply error to. If empty, applies to all applicable columns."
+additionalProperties: false
