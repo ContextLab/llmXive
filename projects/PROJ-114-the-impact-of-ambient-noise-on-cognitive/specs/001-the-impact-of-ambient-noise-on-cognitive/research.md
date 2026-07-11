@@ -1,82 +1,109 @@
 # Research: The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers
 
-## Research Question & Hypothesis (Reframed for Prototype Phase)
+## Executive Summary
 
-**Primary Question (Current Phase)**: Can the statistical pipeline correctly ingest, preprocess, and model non-linear relationships between ambient noise and cognitive flexibility when provided with appropriate data structures?
+This research plan outlines the methodology for testing the non-linear relationship between ambient noise and cognitive flexibility. The study uses a **Within-Subject Randomized Design** to control for confounds: participants complete the task-switching battery under multiple, randomized noise conditions (Low, Moderate, High) across different sessions. This design allows for within-subject comparison, controlling for time-invariant individual differences (e.g., baseline cognitive ability, motivation). The analysis uses linear mixed-effects modeling (LMM) for hypothesis testing. All methods are CPU-tractable and fit within GitHub Actions free-tier constraints.
 
-**Secondary Question (Future Phase)**: Does objectively measured ambient noise in home work environments affect cognitive flexibility in remote workers, and does this relationship follow a non-linear (inverted-U) pattern?
-
-**Hypothesis (Prototype)**: The pipeline will correctly identify a non-linear relationship **if** an inverted-U pattern is injected into the synthetic data (Debug Mode), and will correctly return a null result **if** noise is generated independently of performance (Standard Validation Mode).
-
-**Hypothesis (Scientific)**: Cognitive flexibility (measured by task-switching performance) will peak at moderate noise levels (~45-65 dB) and decline at both low (<45 dB) and high (>65 dB) levels, consistent with the "inverted-U" hypothesis (Arousal Theory). *Note: This hypothesis cannot be tested with the current dataset configuration.*
+**Critical Distinction**: Synthetic data is used to verify that the code runs and handles data correctly. It **cannot** validate the scientific hypothesis (the "coffee shop effect") because synthetic noise lacks the complex spectral properties of real environments. The scientific conclusion will be drawn **only** from the final real-world dataset collected via the within-subject randomized design.
 
 ## Dataset Strategy
 
-The analysis relies on the following verified dataset. No other datasets are used for behavioral outcomes.
+### Verified Datasets
 
-| Dataset Name | Description | Source URL | Usage in Plan |
-| :--- | :--- | :--- | :--- |
-| **MTurk Task Scores** | Aggregated task-switching performance scores and participant metadata. | [https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv](https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv) | Primary source for `TaskScore` entities. Contains reaction times, error counts, and participant IDs. |
-| **Synthetic Noise Logs** | *Note*: No verified public dataset links continuous ambient noise logs to specific MTurk participants. The `preprocess.py` module will generate synthetic noise logs aligned with the MTurk participant IDs for the purpose of **pipeline validation**. | N/A (Synthetic for pipeline validation) | Used to test `FR-001` (filtering), `FR-002` (aggregation), and `FR-003` (normalization) logic. **Crucially**, this data is **NOT** used to draw scientific conclusions about the "inverted-U" effect in this phase. |
+| Dataset Name | Description | Verified URL | Usage |
+|--------------|-------------|--------------|-------|
+| CFI (jsonl) | High-quality Cognitive Flexibility Index data (simulated task-switching metrics) | https://huggingface.co/datasets/jumplander/J6-CFI-HQ-20K/resolve/main/j6_cfi_hq_20k.jsonl | Primary source for task performance metrics (reaction times, error counts) **for pipeline validation**. |
 
-**Dataset-Variable Fit Verification**:
-- **Required Variables**: `participant_id`, `reaction_time`, `trial_type` (switch/repeat), `test_time` (baseline/final), `noise_level` (continuous), `noise_std` (variability).
-- **Fit Status**: 
-  - **Behavioral**: The MTurk dataset is verified to contain `participant_id` and `reaction_time`. **Schema Verification Step**: The pipeline will first inspect the CSV headers to confirm the presence of `trial_type` (switch/repeat) and `test_time` (baseline/final). If these columns are missing, the pipeline will halt with a `SchemaMismatchError` and report that the analysis cannot proceed.
-  - **Environmental**: The noise variables are simulated for the pipeline to ensure the *code* works, as the spec describes a "mobile app deployment" for noise logging which is not present in the static CSV. The plan explicitly handles this by generating synthetic noise data aligned with the verified MTurk IDs for the `data/processed/` stage.
+> **Note**: No verified dataset currently contains *both* real-time decibel logs and task-switching metrics for remote workers. The plan relies on:
+> 1.  **Pipeline Validation**: Synthetic acoustic logs merged with CFI data (from J6-CFI-HQ-20K) to test ingestion and model fitting logic.
+> 2.  **Hypothesis Testing**: Real data collected via the custom app (User Story 1) using a **within-subject randomized design** will be merged with real task logs.
+>
+> **Dataset Verification Step**: Before using the J6-CFI-HQ-20K dataset, the pipeline will programmatically verify that it contains the required columns (`trial_type`, `reaction_time_ms`, `error_flag`) AND the specific `switch`/`repeat` trial structure.
+> *   **If the structure matches**: Use for pipeline validation.
+> *   **If the structure does NOT match** (e.g., only aggregate scores): The pipeline will fail with a clear error. **Fallback**: Use synthetic data ONLY for ingestion logic validation. The hypothesis test will be deferred until real data is collected. Synthetic data will **not** be used to test the hypothesis.
 
-**Simulation Fidelity & Validation Modes**:
-To address the risk of circular validation or tautological results:
-1.  **Standard Validation Mode (Default)**: Synthetic noise is generated as **random independent noise** (uniform distribution). The pipeline is expected to return **non-significant** results for the quadratic term. This validates that the model does not hallucinate relationships.
-2.  **Debug Mode (Unit Test)**: Synthetic noise is generated with a **known injected inverted-U relationship**. The pipeline is expected to detect this relationship. This validates that the model *can* detect non-linearity if it exists.
-3.  **Scientific Inquiry Mode (Deferred)**: Requires a real dataset with both noise and behavior. This mode is currently **unavailable**.
+### Dataset-Variable Fit
+
+| Required Variable | Source | Fit Status | Notes |
+|-------------------|--------|------------|-------|
+| Decibel levels (dB) | Real Data (Future) / Synthetic (Dev) | **Real: Pending / Sim: Synthetic** | Real data requires custom logging app; synthetic data mimics distribution (Low/Moderate/High) for code testing only. |
+| Reaction times (ms) | CFI (jsonl) | **Verified** | Directly mapped from `J6-CFI-HQ-20K` (after schema check). |
+| Error counts | CFI (jsonl) | **Verified** | Directly mapped from `J6-CFI-HQ-20K` (after schema check). |
+| Participant ID | Synthetic | **Simulated** | Unique identifiers for mixed-effects model. |
+| Noise sensitivity | Synthetic | **Simulated** | Covariate for robustness check (US-3). |
+| Demographics | Synthetic | **Simulated** | Covariates (age, job type) for model control. |
+| Session ID | Synthetic | **Simulated** | Required for within-subject design (multiple sessions per participant). |
+
+> **Critical Gap**: No verified dataset contains *both* objective acoustic logs and task-switching metrics. The plan relies on synthetic acoustic data for development and assumes real-world data collection via a custom app (as per User Story 1) using a within-subject design. The analysis pipeline is designed to handle real data once collected.
 
 ## Statistical Methodology
 
-### 1. Preprocessing (FR-001 to FR-003)
-- **Filtering**: Exclude participants with <80% valid logging hours or <90% task completion.
-- **Normalization**: Log-transform reaction times. Remove outliers using the Median Absolute Deviation (MAD) method (threshold = 3.5 * MAD) per participant.
-- **Aggregation**: Bin noise into Low (≤44.9), Moderate (45.0–64.9), High (≥65.0). Calculate hourly standard deviation.
-- **Schema Check**: Before any analysis, the pipeline verifies that the input MTurk CSV contains `trial_type` and `test_time` columns. If missing, the run aborts.
+### Primary Analysis: Linear Mixed-Effects Model (LMM)
 
-### 2. Primary Analysis (FR-004, FR-005, FR-008)
-- **Model**: Linear Mixed-Effects Model (LMM) using `statsmodels`.
-  - **Outcome**: Normalized Reaction Time (RT).
-  - **Fixed Effects**: `Avg_Noise` (continuous), `Avg_Noise^2` (quadratic), `Noise_Std` (variability), `Trial_Type` (switch/repeat).
-  - **Random Effects**: Random intercept for `Participant_ID`.
-- **Hypothesis Test**: Likelihood-Ratio Test (LRT) comparing the Quadratic Model vs. a Linear Model (without the squared term).
-  - **Interpretation**: In **Standard Validation Mode**, a significant LRT indicates a bug (spurious correlation). In **Debug Mode**, a non-significant LRT indicates a bug (failure to detect injected effect). In **Scientific Mode**, a significant LRT supports the hypothesis.
-- **Post-Hoc**: Tukey HSD for pairwise comparisons between noise bins (Low vs. Mod, Mod vs. High, Low vs. High).
-- **Correction**: Bonferroni or FDR correction applied to all p-values from the post-hoc tests (FR-008).
+**Design**: Within-Subject Randomized Design. Each participant completes the task under Low, Moderate, and High noise conditions in randomized order across sessions.
 
-### 3. Robustness & Sensitivity (FR-006, FR-007)
-- **Sensitivity Sweep**: Re-run the primary model with thresholds shifted by ±5 dB (Low: {40, 45, 50}, High: {60, 65, 70}). Report the variation in significance rates.
-- **Baseline Control**: Replicate analysis using only `Final_Score` - `Baseline_Score` (delta RT) to isolate environmental effects.
-- **Convergence Check**: If model fails to converge, flag and report power limitation (Constitution VII).
+**Model Formula**:
+```
+CFI ~ noise_level + I(noise_level^2) + noise_variability + (1 | participant_id)
+```
+
+- **Dependent Variable**: Cognitive Flexibility Index (CFI). **Note**: CFI is computed only after a correlation check between z-scored RT difference and error counts. If correlation > 0.7, RT difference alone is used to avoid redundancy.
+- **Fixed Effects**:
+  - `noise_level`: Continuous decibel level (mean per session).
+  - `I(noise_level^2)`: Quadratic term to test for non-linearity (inverted-U).
+  - `noise_variability`: Standard deviation of noise within the session.
+- **Random Effects**: Random intercept for `participant_id` to account for repeated measures (within-subject design).
+
+**Hypothesis Tests**:
+1.  **Non-linearity**: Likelihood-ratio test (LRT) comparing the quadratic model vs. linear-only model.
+2.  **Post-hoc**: Tukey HSD adjusted p-values for pairwise comparisons between Low, Moderate, High noise categories.
+3.  **FWER Check (SC-004)**: Explicitly calculate the observed family-wise error rate from the Tukey results and report it against nominal alpha (0.05).
+
+### Predictor Collinearity & Structural Dependency
+- **Issue**: `noise_level` (mean) and `noise_variability` (SD) are often structurally correlated in time-series data (higher mean often implies higher variance).
+- **Mitigation**:
+  1.  Compute VIF. If VIF > 5, report warning.
+  2.  **Residualized Variability Approach**: If structural dependency is confirmed (variability is a function of mean), regress `noise_variability` against `noise_level` and use the residuals as the predictor in the model. This isolates the unique variance of variability not explained by the mean.
+  3.  **Alternative**: If residualization is not feasible, the model will be re-run with only `noise_level` and `I(noise_level^2)` to isolate the non-linear effect without the confounding variability term.
+  4.  The interpretation of the LRT for the quadratic term will explicitly note if this structural dependency was addressed and how it affects the inference.
+
+### Robustness & Sensitivity Analysis
+
+1.  **Threshold Sweeps**: Re-run model with noise categories defined as:
+    - Set A: Low <40, Moderate 40-50, High >50
+    - Set B (Baseline): Low <45, Moderate 45-65, High >65
+    - Set C: Low <50, Moderate 50-70, High >70
+2.  **Exclusion Checks**: Re-fit model excluding participants with extreme noise sensitivity (top [deferred] of self-reported scores).
+3.  **Collinearity Diagnostic**: Compute Variance Inflation Factor (VIF) for `noise_level` and `noise_variability`; if VIF > 5, report collinearity and interpret cautiously.
+
+### Power Analysis & Sample Size
+
+- **Target N**: 150 participants (justified by FR-008).
+- **Effect Size Assumption**: Literature suggests a small-to-medium effect size for environmental noise on cognition (Cohen's d in the small-to-medium range for linear effects). However, detecting a **quadratic** effect in a mixed-effects model typically requires larger sample sizes or more repeated measures.
+- **Calculation**: Based on a conservative linear effect size (d=0.3), 150 participants with 3 repeated measures each (Low, Mod, High) provides [deferred] power to detect a linear trend. Power to detect the quadratic term specifically is lower and may be underpowered.
+- **Fallback**: If the real data yields insufficient power to detect a quadratic term (e.g., wide confidence intervals), the analysis will be re-framed to focus on linear trends or descriptive statistics. A post-hoc power analysis will be conducted to quantify this limitation. The study will explicitly report the power limitations for the quadratic hypothesis.
 
 ## Decision Rationale
 
-**Why LMM?**
-Remote worker data is hierarchical (multiple trials per participant). LMMs correctly model within-subject correlation and handle unbalanced data (missing logs) better than repeated-measures ANOVA.
+| Decision | Rationale |
+|----------|-----------|
+| Use synthetic acoustic data (Dev only) | No verified dataset contains real-time decibel logs + task metrics; synthetic data enables pipeline validation (ingestion, schema, code logic) but **not** scientific hypothesis validation. |
+| Within-Subject Randomized Design | Controls for time-invariant confounds (motivation, baseline ability) by comparing the same participant across different noise conditions, strengthening causal inference compared to purely observational designs. |
+| LMM with quadratic term | Directly tests the non-linear "inverted-U" hypothesis (Constitution Principle VII). |
+| Residualized Variability | Addresses the structural dependency between mean and SD of noise, ensuring the quadratic term is not confounded by variability. |
+| Tukey HSD correction | Controls family-wise error rate for multiple pairwise comparisons (FR-006). |
+| CPU-only methods | Ensures feasibility on GitHub Actions free tier (no GPU, <7GB RAM). |
+| Threshold sweeps | Addresses US-3 robustness requirement; prevents data dredging claims. |
+| Associational Framing (if observational) | If real data collection fails to achieve randomization, findings will be framed as associational. However, the primary design is randomized within-subject. |
 
-**Why CPU-Only?**
-The sample size (N=150) and model complexity (LMM with 3-4 fixed effects) are well within the capabilities of standard CPU-optimized libraries (`statsmodels`, `lme4` equivalent in Python). No GPU is required or permitted.
+## Risks & Mitigations
 
-**Why Synthetic Noise for Pipeline?**
-The spec describes a "mobile app deployment" for noise logging. The verified dataset (MTurk CSV) contains only task scores. To ensure the *implementation pipeline* (filtering, aggregation, modeling) is testable and reproducible on the CI runner, the `preprocess.py` step will generate synthetic noise data. **This is strictly for code validation.** The plan explicitly acknowledges that this approach **cannot** validate the scientific "inverted-U" hypothesis.
-
-## Power & Limitations
-
-- **Sample Size**: N=150 is assumed sufficient for a medium effect size (f² ≈ 0.15) in an LMM. If convergence fails or power is low, this will be explicitly reported as a limitation (SC-005).
-- **Observational Nature**: The study is observational. Claims will be framed as "associational" (Constitution Assumption).
-- **Noise Measurement**: Relies on the assumption that the mobile app logs are calibrated. The sensitivity analysis (FR-006) mitigates calibration errors.
-- **Causal Validity Gap**: **Critical Limitation**: The current implementation uses synthetic noise data. Therefore, **no scientific conclusions** regarding the relationship between ambient noise and cognitive flexibility can be drawn from this run. The results are strictly for **pipeline validation**. The scientific hypothesis test is **deferred** pending the acquisition of a real dataset with linked noise and behavioral data.
-
-## Circularity Mitigation
-
-To ensure the analysis does not validate a spurious relationship:
-- The synthetic predictor (noise) is generated either as **statistically independent** of the outcome (Standard Mode) or with a **known injected effect** (Debug Mode).
-- The Likelihood-Ratio Test (LRT) is interpreted strictly as a **unit test**:
-  - **Standard Mode**: Expected result = Null. If significant, the pipeline has a bug (spurious correlation).
-  - **Debug Mode**: Expected result = Significant. If null, the pipeline has a bug (failure to detect effect).
-- This approach separates **testing the code** from **testing the hypothesis**, ensuring the LRT is not misinterpreted as an empirical finding on synthetic data.
+| Risk | Mitigation |
+|------|------------|
+| Model convergence failure | Fallback to simpler linear model; report diagnostic stats. |
+| Insufficient valid logs (<80%) | Exclude participant (US-1); re-calculate power. |
+| High collinearity (VIF > 5) | Apply Residualized Variability approach; interpret effects descriptively; do not claim independence. |
+| Synthetic data not representative | Validate synthetic distribution against literature; update generator parameters. **Note**: Synthetic data does not validate the scientific hypothesis. |
+| CFI Redundancy | Check correlation between RT and Error; use RT only if high correlation. |
+| Power limitations for quadratic term | Explicitly report confidence intervals; re-frame analysis if power is insufficient. |
+| Dataset structure mismatch | If J6-CFI-HQ-20K lacks required columns, pipeline fails with clear error; fallback to synthetic data for code validation only. |

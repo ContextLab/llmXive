@@ -1,43 +1,36 @@
 # Implementation Plan: The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers
 
 **Branch**: `001-ambient-noise-cognitive-flexibility` | **Date**: 2026-07-11 | **Spec**: `specs/001-ambient-noise-cognitive-flexibility/spec.md`
-**Input**: Feature specification from `/specs/001-ambient-noise-cognitive-flexibility/spec.md`
 
 ## Summary
 
-This feature implements a **computational pipeline prototype** to investigate the non-linear ("inverted-U") relationship between ambient noise levels and cognitive flexibility. 
-**Scope Clarification**: Due to the absence of a verified public dataset linking continuous ambient noise logs to specific task-switching performance metrics, this implementation focuses on **validating the statistical pipeline and data processing logic**. 
-The system ingests raw decibel logs (currently synthetic for pipeline validation) and task-switching performance data (from a verified MTurk dataset), filters participants, normalizes reaction times, and fits linear mixed-effects models (LMM). 
-The pipeline includes robustness checks via sensitivity analysis on noise thresholds. 
-**Crucially**, any statistical findings regarding the "inverted-U" hypothesis generated in this phase are designated as **validation artifacts** (testing code robustness) and **not** as empirical scientific conclusions. The scientific hypothesis test is deferred until a real, linked dataset is acquired.
+This project implements a computational pipeline to test the "coffee shop effect" hypothesis: that moderate ambient noise levels enhance cognitive flexibility in remote workers compared to low (<45dB) or high (>65dB) noise levels. The system ingests time-synchronized acoustic logs and task-switching performance data, computes a Cognitive Flexibility Index (CFI) with built-in validity checks, and fits a linear mixed-effects model with a quadratic noise term to detect non-linear relationships. The pipeline includes robustness checks (threshold sweeps, outlier exclusion), explicit calibration validation, and adheres to strict reproducibility and data hygiene standards. 
+
+**Critical Distinction**: Synthetic acoustic data is used **ONLY** for pipeline validation (ingestion, schema, code logic) to ensure the system handles data correctly. It is **NOT** used to validate the scientific hypothesis (the "coffee shop effect") because synthetic noise lacks the complex spectral properties of real environments. The scientific hypothesis test is reserved exclusively for the real-world dataset collected via the within-subject randomized design.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `scipy`, `pyyaml`, `snakemake`, `pytest`  
-**Storage**: Local CSV/Parquet files within `data/` directory (raw, intermediate, processed)  
-**Testing**: `pytest` with contract validation against YAML schemas in `contracts/` (specifically `contracts/analysis_dataset.schema.yaml` and `contracts/model_results.schema.yaml`).  
-**Target Platform**: Linux (GitHub Actions Runner)  
-**Project Type**: Computational Research Pipeline Prototype  
-**Performance Goals**: Complete analysis of N=150 participants within 6 hours on CPU-only runner. Memory usage < 6 GB.  
-**Constraints**: No GPU acceleration; no heavy deep learning; all statistical methods must be CPU-tractable; strict adherence to data hygiene (checksums, immutable raw data).  
-**Scale/Scope**: Single study (N=150), 3 noise categories, 1 primary LMM + sensitivity sweeps.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyyaml`, `jsonschema`, `pytest`  
+**Storage**: Local CSV/JSONL files (no external database). Relational constraints (foreign keys) are enforced via JSON Schema validation in `data_ingestion.py` against definitions in `contracts/`.  
+**Testing**: `pytest` (unit tests for data ingestion, schema validation, and model convergence; integration tests for full pipeline with synthetic data).  
+**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, 7GB RAM, no GPU)  
+**Project Type**: Data analysis pipeline (CLI)  
+**Performance Goals**: End-to-end analysis < 6 hours on CI; memory usage < 6GB during model fitting.  
+**Constraints**: No GPU; no heavy deep learning; synthetic data generation for testing; all statistical methods must be CPU-tractable.  
+**Scale/Scope**: Target N=150 participants; ~M log entries; ~k task trials.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Verification / Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | `code/` will pin all dependencies in `requirements.txt`. Random seeds (numpy, statsmodels) will be set globally. Workflow is deterministic. |
-| **II. Verified Accuracy** | PASS | All citations in `research.md` will be validated against the `# Verified datasets` block (MTurk CSV). No external URLs will be invented. |
-| **III. Data Hygiene** | PASS | Raw data in `data/raw/` will be checksummed. Transformations will produce new files in `data/processed/`. PII scan will be enforced. |
-| **IV. Single Source of Truth** | PASS | All statistics in `paper/` will be derived programmatically from `data/processed/` via `code/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | PASS | **Enforced via `Snakefile` rule `hash_artifacts`**: After every successful run of `preprocess`, `models`, and `sensitivity`, the `Snakefile` computes SHA-256 hashes of the output files in `data/` and updates `state/projects/PROJ-114-.../state.yaml` with the new `artifact_hashes` map. |
-| **VI. Environmental Context Fidelity** | PASS | Noise logs and task scores are treated as distinct artifacts. Aggregation logic ensures time-window independence from task execution. |
-| **VII. Non-Linear Hypothesis Testing** | PASS | The plan explicitly includes a quadratic term in the LMM and a likelihood-ratio test to compare linear vs. quadratic models. **Note**: In this prototype phase, this tests the *pipeline's ability* to detect non-linearity, not the existence of the effect in the real world. |
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. Reproducibility | **Pass** | `requirements.txt` pins versions; random seeds set in `code/`; synthetic data generator deterministic. |
+| II. Verified Accuracy | **Pass** | All dataset URLs cited from the "Verified datasets" block; no fabricated sources. |
+| III. Data Hygiene | **Pass** | Raw data preserved; derivations written to new files; checksums recorded; PII scan integrated. |
+| IV. Single Source of Truth | **Pass** | All statistics derived from `data/` rows via `code/`; no hand-typed numbers in paper. |
+| V. Versioning Discipline | **Pass** | **Workflow**: After each artifact change, `code/scripts/update_state.py` computes a SHA-256 hash of the artifact, updates the `state/projects/PROJ-114-.../artifact_hashes` map, and appends the new `updated_at` timestamp to `state/.../current_stage.yaml`. This ensures the SSoT loop is closed. |
+| VI. Independent Signal Verification | **Pass** | Acoustic logs (mic) and task performance (OSF battery) are physically independent streams. |
+| VII. Non-Linear Hypothesis Rigor | **Pass** | Model explicitly includes quadratic term; likelihood-ratio test for non-linearity; sensitivity analysis on thresholds. |
 
 ## Project Structure
 
@@ -50,38 +43,84 @@ specs/001-ambient-noise-cognitive-flexibility/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output (generated later)
 ```
+
+**Task Generation**: `tasks.md` will be auto-generated by parsing the "Phases" and "Steps" sections of this plan document. Each step will be converted into a discrete task with dependencies, ensuring the `Plan ↔ contracts` and `Plan ↔ data-model` links are preserved.
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/
-├── data/
-│   ├── raw/             # Immutable raw data (checksummed)
-│   ├── processed/       # Derived data (filtered, aggregated)
-│   └── results/         # Model outputs, figures
 ├── code/
+│   ├── requirements.txt
 │   ├── __init__.py
-│   ├── config.py        # Thresholds, paths, seeds
-│   ├── preprocess.py    # FR-001 to FR-003
-│   ├── models.py        # FR-004, FR-005, FR-008
-│   ├── robustness.py    # FR-006, FR-007
-│   └── main.py          # Helper script for local debugging (NOT primary entry)
+│   ├── data_ingestion.py       # Loads raw logs, validates gaps (1-min bins), checks calibration, computes CFI
+│   ├── model_fitting.py        # Fits LMM, performs LRT, post-hoc tests, calculates FWER
+│   ├── sensitivity_analysis.py # Threshold sweeps, robustness checks
+│   ├── main.py                 # Orchestration script
+│   └── scripts/
+│       └── update_state.py     # Updates state/ YAML with content hashes (Constitution Principle V)
+├── data/
+│   ├── raw/                    # Immutable raw logs (simulated for dev)
+│   ├── processed/              # Cleaned, aggregated data
+│   └── models/                 # Serialized model results
 ├── tests/
-│   ├── test_preprocess.py
-│   ├── test_models.py
-│   └── test_contracts.py
-├── Snakefile            # PRIMARY WORKFLOW ORCHESTRATION ENTRY POINT
-└── requirements.txt
+│   ├── unit/                   # Test CFI calculation, gap detection, calibration logic
+│   └── integration/            # Test full pipeline with synthetic data
+└── docs/
+    └── paper_draft.md          # Auto-generated from model results
 ```
 
-**Structure Decision**: Single project structure selected. The workflow is linear (Raw -> Process -> Model -> Report) and fits within a single Python package. **Snakemake (`Snakefile`) is the primary entry point** for both CI and local execution to enforce computational task ordering and reproducibility. `main.py` is a helper script used only for local debugging or as a specific Snakemake target, not the primary driver.
+**Structure Decision**: Single-project structure (Option 1) is chosen because the scope is a contained data analysis pipeline. No separate frontend/backend or mobile apps are implemented in this phase; data ingestion is simulated via synthetic generators for testing, and real data would be loaded via CSV/JSONL.
+
+## Implementation Phases
+
+### Phase 1: Data Ingestion & Calibration (FR-009, FR-007)
+1.  **Load Raw Data**: Parse JSONL/CSV files from `data/raw/`.
+2.  **Calibration Protocol Simulation (FR-009)**:
+    *   Simulate the device-specific calibration protocol using a reference tone.
+    *   Verify presence of `calibration_status` flag.
+    *   If `error_margin > 2dB` or flag missing, mark participant for exclusion.
+    *   Log exclusion reasons for audit.
+3.  **Gap Analysis (FR-007)**:
+    *   Bin noise logs into 1-minute intervals.
+    *   Count intervals with ≥1 entry.
+    *   Calculate `valid_logging_proportion` = (Count of valid bins) / (Total expected bins).
+    *   Exclude participants with `valid_logging_proportion` < 0.80.
+4.  **Schema Validation**: Validate all records against `contracts/dataset.schema.yaml`.
+
+### Phase 2: Metric Computation & Validation (FR-002, SC-001)
+1.  **Compute Switch Cost**: Calculate mean RT for switch vs. repeat trials per session.
+2.  **Compute Error Rate**: Count rule violations per session.
+3.  **CFI Validation**: Calculate correlation between z-scored RT difference and z-scored error count.
+    *   *If r > 0.7*: Flag as redundant. Use RT difference only as primary metric for this session.
+    *   *Else*: Compute CFI = z(RT_diff) + z(Error).
+4.  **Valid Data Proportion Report (SC-001)**:
+    *   Calculate (Participants passing all checks / Total recruited).
+    *   Log this proportion against the N=150 target.
+    *   Report if the target is met or if power is compromised.
+
+### Phase 3: Model Fitting & Post-hoc (FR-003, FR-004, FR-006, SC-004)
+1.  **Collinearity & Structural Dependency Check**:
+    *   Compute VIF for `noise_level` and `noise_variability`.
+    *   If VIF > 5 or structural dependency is detected (variability is a function of mean), apply 'Residualized Variability' approach: regress variability against mean noise and use residuals, or drop variability.
+2.  **Fit LMM**: Fit model with continuous noise, quadratic term, and (residualized) variability.
+3.  **LRT**: Perform Likelihood-Ratio Test (Quadratic vs. Linear).
+4.  **Post-hoc**: Run Tukey HSD for noise categories.
+5.  **FWER Measurement (SC-004)**:
+    *   Explicitly calculate the observed family-wise error rate from the Tukey results.
+    *   Report this measured rate against the nominal alpha level.
+
+### Phase 4: Sensitivity Analysis (FR-005, SC-003)
+1.  **Threshold Sweeps**: Re-run model with varying noise thresholds..
+2.  **Robustness Check**: Exclude high-sensitivity participants and re-fit.
+3.  **Stability Report**: Compare effect sizes and significance across sweeps.
+
+### Phase 5: Reporting
+1.  **Generate Paper Draft**: Auto-generate `docs/paper_draft.md` from model results.
+2.  **Final State Update**: Run `scripts/update_state.py` to hash artifacts and update `state/`.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Mixed-Effects Models** | Required to handle within-subject variance and random intercepts for participants (FR-004). | Fixed-effects ANOVA would ignore the hierarchical structure of repeated measures per participant, violating statistical assumptions. |
-| **Sensitivity Sweep** | Required to test robustness of thresholds (FR-006). | Single threshold analysis is fragile and fails to address calibration variance. |
-| **Snakemake Workflow** | Ensures reproducible, ordered execution and automatic re-runs on data changes (Constitution I). | Manual script execution is error-prone and fails the "reproducibility" gate. |
+*No violations detected. The single-project structure is sufficient for the data analysis scope.*

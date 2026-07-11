@@ -1,3 +1,3 @@
 """
-Test package for the ambient noise study.
+Test suite for the ambient noise research project.
 """

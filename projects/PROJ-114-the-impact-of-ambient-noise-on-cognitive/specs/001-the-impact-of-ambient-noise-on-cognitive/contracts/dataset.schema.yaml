@@ -1,0 +1,106 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ambient Noise Study Dataset Schema"
+description: "Schema for the raw and processed dataset files in the ambient noise study."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  age:
+    type: "integer"
+    minimum: 18
+    maximum: 80
+    description: "Age of the participant in years."
+  gender:
+    type: "string"
+    enum:
+      - "M"
+      - "F"
+      - "Other"
+    description: "Self-reported gender."
+  job_type:
+    type: "string"
+    enum:
+      - "Tech"
+      - "Admin"
+      - "Creative"
+      - "Other"
+    description: "Category of remote work."
+  noise_sensitivity:
+    type: "number"
+    minimum: 1.0
+    maximum: 10.0
+    description: "Self-reported noise sensitivity score (1-10)."
+  baseline_cfi:
+    type: "number"
+    description: "Baseline Cognitive Flexibility Index (z-scored)."
+  calibration_status:
+    type: "string"
+    enum:
+      - "pass"
+      - "fail"
+      - "missing"
+    description: "Result of the device calibration protocol (FR-009)."
+  valid_logging_proportion:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of 1-minute bins with >=1 entry (FR-007)."
+  noise_logs:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        log_id:
+          type: "string"
+        timestamp:
+          type: "string"
+          format: "date-time"
+        decibel_level:
+          type: "number"
+          minimum: 0.0
+        session_id:
+          type: "string"
+      required:
+        - log_id
+        - timestamp
+        - decibel_level
+        - session_id
+  task_sessions:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        session_id:
+          type: "string"
+        trial_type:
+          type: "string"
+          enum:
+            - "switch"
+            - "repeat"
+        reaction_time_ms:
+          type: "number"
+          minimum: 0.0
+        error_flag:
+          type: "boolean"
+        timestamp:
+          type: "string"
+          format: "date-time"
+      required:
+        - session_id
+        - trial_type
+        - reaction_time_ms
+        - error_flag
+        - timestamp
+required:
+  - participant_id
+  - age
+  - gender
+  - job_type
+  - noise_sensitivity
+  - baseline_cfi
+  - calibration_status
+  - valid_logging_proportion
+  - noise_logs
+  - task_sessions
+additionalProperties: false

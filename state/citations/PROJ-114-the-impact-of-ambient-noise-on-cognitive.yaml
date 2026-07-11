@@ -1,11 +1,22 @@
-- artifact_hash: 8742429e9f15a27bf9dbd009362926a661bbf7c89ed7b0e837eaac52d3ba7cd1
+- artifact_hash: 64b579b48e3be79ffbc2565ad816f76be133f7a8a5f84dbdf3ed4682e4dfa04c
   artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/research.md
   cite_id: c-001
   cited_authors: []
-  cited_title: https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv
-  fetched_title: final_turk_with_scores.csv
+  cited_title: null
+  fetched_title: j6_cfi_hq_20k.jsonl
   kind: url
-  value: https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv
+  value: https://huggingface.co/datasets/jumplander/J6-CFI-HQ-20K/resolve/main/j6_cfi_hq_20k.jsonl
   verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/mdcgp/mturk_scores/76502273e6b60b218492e2ea43e8ba9aaff3ce39/final_turk_with_scores.csv?%2Fdatasets%2Fmdcgp%2Fmturk_scores%2Fresolve%2Fmain%2Ffinal_turk_with_scores.csv=&etag=%22a455fafc08f8f66ec7c0d2452ccb9adfe4aad1a9%22
-  verified_at: '2026-07-11T07:47:10.737970Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a4d726390ce9cc602305055/fe400c15f9bdf3bb9d053e6786449ad28f7664fcaa04d591aa506ac6680e5e04?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27j6_cfi_hq_20k.jsonl%3B+filename%3D%22j6_cfi_hq_20k.jsonl%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783761397&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE0ZDcyNjM5MGNlOWNjNjAyMzA1MDU1L2ZlNDAwYzE1ZjliZGYzYmI5ZDA1M2U2Nzg2NDQ5YWQyOGY3NjY0ZmNhYTA0ZDU5MWFhNTA2YWM2NjgwZTVlMDRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ajZfY2ZpX2hxXzIway5qc29ubCUzQitmaWxlbmFtZSUzRCUyMmo2X2NmaV9ocV8yMGsuanNvbmwlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzc2MTM5N319fV19&Signature=MEUCIHD4IghB3u5vgTDt3M3javXqQaS3qyPxrXRTnetXeVR%7EAiEA8%7EBJ5eBWV9wxrc9dcs1DxR%7EaYLIViByrVRtBVKncpWs_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T08:16:37.311843Z'
+- artifact_hash: b89eda45520a0f310ada77affc1f4b65117d78d4685a0915c845cbf476df7023
+  artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/PROJ-114-the-impact-of-ambient-noise-on-cognitive.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-114-the-impact-of-ambient-noise-on-cognitive
+  verified_at: '2026-07-11T08:16:45.466688Z'

@@ -1,77 +1,100 @@
-resolved_at: '2026-07-11T07:36:55.937918+00:00'
+resolved_at: '2026-07-11T07:59:42.146870+00:00'
 datasets:
-- intent: MTurk
+- intent: CFI
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv
+  - url: https://huggingface.co/datasets/jumplander/J6-CFI-HQ-20K/resolve/main/j6_cfi_hq_20k.jsonl
     source: huggingface
-    format: csv
+    format: jsonl
     relevance: 1.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
+  - url: https://huggingface.co/datasets/cfilt/iitb-english-hindi/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv
+  - url: https://huggingface.co/datasets/jumplander/J6-CFI-HQ-20K/resolve/main/j6_cfi_hq_20k.jsonl
     source: huggingface
     status: verified
-    format: csv
-  - url: https://figshare.com/articles/conference_contribution/From_Availability_to_Impact_Evaluating_How_Digital_Dementia_Risk-Reduction_Education_Influences_Engagement_Interpretation_and_Behaviour_in_Unimpaired_Midlife_Adults/32963144
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/cfilt/RoundTripOCR-nepali/d30c22ddc706cf2e4b17abfc0d4079ff43c14c33/test.csv?%2Fdatasets%2Fcfilt%2FRoundTripOCR-nepali%2Fresolve%2Fmain%2Ftest.csv=&etag=%22e23d41cc4fb65a7f94882598dc80e601637a0ddf%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/cfilt/iitb-english-hindi/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/cfilt/iwn_wordlists/6dfbbdc8bf9da9500f8eaa2eeb13f150186941d0/assamese.json?%2Fdatasets%2Fcfilt%2Fiwn_wordlists%2Fresolve%2Fmain%2Fassamese.json=&etag=%220db9ed692bb1d15e0a1e1ee396c66dd6f499bc39%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/626288a302cd5952e013fcbe/3ab83d3c9d3a849d7c1971a87d596fe5362953be6b301540e3d3598fde86e7e2?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.json%3B+filename%3D%22test.json%22%3B&X-Xet-Cas-Uid=public&user_id=public&response-content-type=application%2Fjson&Expires=1783760327&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI2Mjg4YTMwMmNkNTk1MmUwMTNmY2JlLzNhYjgzZDNjOWQzYTg0OWQ3YzE5NzFhODdkNTk2ZmU1MzYyOTUzYmU2YjMwMTU0MGUzZDM1OThmZGU4NmU3ZTJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIydGVzdC5qc29uJTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzc2MDMyN319fV19&Signature=MEYCIQD8Dkq9jAGzeNBAGB-QjX9kk~KZeozggBlWOBNDSiEpuQIhAO4tG-bjwOWu7Yde-A44PQpkjhIOiVZKEt9kaibgNqgY&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Kaolin-phosphoric_acid-PBI_membrane_for_wide-temperature-range_proton_exchange_membrane_fuel_cells/32963180
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Supplemental_information/32963117
+  - url: https://tandf.figshare.com/articles/dataset/Effects_of_intraoperative_low-dose_remimazolam_maintenance_on_emergence_agitation_and_emergence_time_in_patients_undergoing_oral_surgery_protocol_for_a_randomized_controlled_trial/32963174
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset/29993815
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Exposure_to_poly-_and_perfluoroalkyl_substances_and_risk_of_hepatocellular_carcinoma_in_male_patients_with_cirrhosis_related_to_HCV_infection/32963171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Supplementary_material/29994226
+  - url: https://figshare.unimelb.edu.au/articles/conference_contribution/IFTR_Conference_2026_-_What_Theatre_Does_-_Conference_Presentation_-_For_a_Theatre_of_the_Everyday/32963156
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/_b_Deep_Sinus_Automated_Segmentation_and_Multi-Label_Classification_of_Paranasal_Sinus_CT_Scans_Using_an_End-to-End_Deep_Learning_Framework_b_/32955809
+  - url: https://figshare.com/articles/dataset/Comparison_of_the_Top_200_High-Ranking_Words_from_Two_Recruitment_Websites/32963048
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6609241
+  - url: https://zenodo.org/records/10061080
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4972373
+  - url: https://zenodo.org/records/3887540
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15040001
+  - url: https://zenodo.org/records/17219133
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2789239
+  - url: https://zenodo.org/records/7978488
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10461539
+  - url: https://zenodo.org/records/5653420
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/WTR/21151513/1
+  - url: https://zenodo.org/records/21303250
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/WTR/21151513
+  - url: https://zenodo.org/records/21303250
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/m2asr/
+  - url: https://zenodo.org/records/21302159
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/9qcpj/
+  - url: https://zenodo.org/records/21302159
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/pz3t7/
+  - url: https://zenodo.org/records/21279573
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -37,32 +37,13 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive.yaml` `updated_at` timestamp.
 
-### VI. Environmental Context Fidelity
+### VI. Independent Signal Verification
 
-The integrity of the predictor variable (ambient noise) depends on the strict
-separation of continuous audio logging from the independent behavioral
-measurement of cognitive flexibility. As established in the research question
-validation, the project investigates the relationship between environmental
-stimulus and cognitive mechanism, not the performance of the measurement tools.
-Therefore, raw audio logs and calibrated decibel data MUST be preserved as
-distinct artifacts from the reaction-time datasets. Any aggregation of noise
-levels must be traceable to specific time windows that do not mechanically
-overlap with the execution of cognitive tasks, ensuring the "predictor" and
-"predicted" variables remain independent as required by the project's
-non-circularity validation.
+The predictor variable (ambient noise) and the outcome variable (cognitive flexibility metrics) MUST be derived from physically independent data streams. Specifically, the acoustic decibel recordings must not share hardware sensors or processing pipelines with the behavioral task performance logs (reaction times and error rates). This principle is grounded in the project's validation check which confirmed that the predictor is derived from objective acoustic recordings of the physical environment while the predicted variable is derived from behavioral performance, ensuring no shared primary signal mechanically guarantees a relationship.
 
-### VII. Non-Linear Hypothesis Testing Protocol
+### VII. Non-Linear Hypothesis Rigor
 
-Given the project's specific validation of the "inverted-U" hypothesis (the
-"coffee shop effect"), the analysis pipeline MUST explicitly test for and
-report non-linear relationships rather than assuming linearity. The
-`code/` directory must contain specific statistical models (e.g., mixed-effects
-models with quadratic terms) capable of detecting the hypothesized peak in
-cognitive flexibility at moderate noise levels. If the data supports a null
-result (no relationship), the project must explicitly rule out the "inverted-U"
-shape before concluding a lack of effect, ensuring that both positive and null
-findings are scientifically valuable as per the project's triviality check
-verdict.
+Analysis pipelines MUST explicitly test for non-linear relationships (e.g., inverted-U curves) rather than assuming linear correlation, given the "coffee shop effect" hypothesis where moderate noise levels may aid flexibility. This requirement is grounded in the project's identification of the specific non-linear relationship as a debated and non-trivial hypothesis, where a null result implies robustness to acoustic variability and a positive result refines the "sweet spot" theory for home-office design.
 
 ## Reproducibility Requirements
 

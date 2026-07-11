@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Result Schema"
+description: "Schema for the output of the linear mixed-effects model fitting process."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  participant_id:
+    type: "string"
+    description: "Participant ID (if per-subject model); null for aggregate model."
+  noise_level_coef:
+    type: "number"
+    description: "Coefficient for the linear noise level term."
+  noise_level_sq_coef:
+    type: "number"
+    description: "Coefficient for the quadratic noise level term."
+  noise_var_coef:
+    type: "number"
+    description: "Coefficient for the noise variability term."
+  p_value_lrt:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value from the likelihood-ratio test (quadratic vs. linear)."
+  convergence_status:
+    type: "string"
+    enum:
+      - "success"
+      - "warning"
+      - "failure"
+    description: "Model convergence status."
+  vif_level:
+    type: "number"
+    minimum: 1.0
+    description: "Variance Inflation Factor for noise_level."
+  vif_var:
+    type: "number"
+    minimum: 1.0
+    description: "Variance Inflation Factor for noise_variability."
+  fwer_observed:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Observed family-wise error rate from post-hoc tests (SC-004)."
+  confidence_interval:
+    type: "object"
+    properties:
+      lower:
+        type: "number"
+      upper:
+        type: "number"
+    description: "95% confidence interval for the quadratic term."
+required:
+  - model_id
+  - noise_level_coef
+  - noise_level_sq_coef
+  - noise_var_coef
+  - p_value_lrt
+  - convergence_status
+  - vif_level
+  - vif_var
+  - fwer_observed
+additionalProperties: false

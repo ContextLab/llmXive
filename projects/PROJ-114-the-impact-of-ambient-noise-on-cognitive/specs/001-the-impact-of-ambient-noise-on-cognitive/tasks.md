@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/`)
-- [ ] T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `scipy`, `pyyaml`, `snakemake`, `pytest` dependencies in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T001 Create project structure per implementation plan
+- [ ] T002 Initialize Python 3.11 project with dependencies (pandas, numpy, scipy, statsmodels, scikit-learn, pyyaml, jsonschema, pytest)
+- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -55,134 +55,104 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Setup `Snakefile` workflow orchestration
- - [ ] T004.1 [P] Add `Snakefile` rule `preprocess`
- - [ ] T004.2 [P] Add `Snakefile` rule `models`
- - [ ] T004.3 [P] Add `Snakefile` rule `sensitivity`
- - [ ] T004.4 [P] Add `Snakefile` rule `hash_artifacts`
-- [ ] T005 [P] Create data directory structure: `data/raw/`, `data/processed/`, `data/results/`
-- [X] T006 [P] Implement `code/config.py` to manage noise thresholds (low, high), random seeds, and file paths
-- [~] T007 Create base data contracts in `contracts/` (e.g., `analysis_dataset.schema.yaml`, `model_results.schema.yaml`)
-- [~] T008 Configure global logging and error handling infrastructure in `code/__init__.py`
-- [~] T009 Implement `code/preprocess.py` skeleton <!-- FAILED: unspecified -->
- - [ ] T009.1 [P] [Skeleton] Implement function signature `filter_participants` (depends on T007 schema)
- - [ ] T009.2 [P] [Skeleton] Implement function signature `normalize_reaction_times` (depends on T007 schema)
- - [ ] T009.3 [P] [Skeleton] Implement function signature `aggregate_noise_logs` (depends on T007 schema)
-- [~] T010 Implement `code/models.py` skeleton
- - [ ] T010.1 [P] [Skeleton] Implement function signature `fit_linear_mixed_effects`
- - [ ] T010.2 [P] [Skeleton] Implement function signature `likelihood_ratio_test`
- - [ ] T010.3 [P] [Skeleton] Implement function signature `post_hoc_tukey_hsd`
- - [ ] T010.4 [P] [Skeleton] Implement function signature `apply_multiple_comparison_correction`
-- [~] T011 Implement `code/robustness.py` skeleton
- - [ ] T011.1 [P] [Skeleton] Implement function signature `replicate_final_score_only`
- - [ ] T011.2 [P] [Skeleton] Implement function signature `sweep_noise_thresholds`
- - [ ] T011.3 [P] [Skeleton] Implement function signature `exclude_extreme_sensitivity`
+- [ ] T019 [P] Implement power analysis justification: Generate `docs/power_analysis_report.md` containing calculated effect size, alpha, power, and N=150 justification (FR-008); verify report contains N=150 and specific statistical parameters. **Note: This task must be completed BEFORE any synthetic data generation or data collection logic.**
+- [ ] T043 [P] Validate calibration simulation logic: Define reference tone parameters in `code/config.py` and implement validation script in `code/scripts/validate_calibration.py` to ensure simulation fidelity matches real-world expectations (FR-009); generate `data/processed/calibration_validation_report.json`.
+- [ ] T004 [P] Define JSON Schema contracts in `contracts/dataset.schema.yaml` for Participant, NoiseLog, and TaskPerformance (Input entities only)
+- [~] T005 [P] Implement `code/scripts/update_state.py` to compute SHA-256 hashes of artifacts and update `state/projects/PROJ-114-.../current_stage.yaml`
+- [~] T006 [P] Setup logging infrastructure and environment configuration management in `code/config.py`
+- [ ] T007 Create base data classes/entities in `code/models.py` matching Key Entities in spec.md
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Data Collection Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest raw decibel logs and task-switching performance data, filter low-quality participants, normalize data, and aggregate noise into bins.
+**Goal**: Implement the data ingestion, calibration, and validation pipeline to generate a clean dataset from raw logs.
 
-**Independent Test**: Run the Snakemake workflow on a synthetic dataset mimicking the expected structure and verify that participants with <80% valid logging hours or <90% task completion rates are excluded and reaction time outliers are removed.
+**Independent Test**: A script can load synthetic JSONL logs, apply calibration checks, bin noise data, exclude invalid participants, and output a processed CSV without errors.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T012 [P] [US1] Contract test for `data/processed/analysis_dataset.parquet` schema in `tests/test_contracts.py::test_analysis_dataset_schema` using synthetic fixture `fixtures/synthetic_raw_data.csv`
-- [~] T013 [P] [US1] Unit test for participant filtering logic in `tests/test_preprocess.py::test_filter_participants_excludes_low_validity` using synthetic fixture `fixtures/low_validity_participants.csv`
-- [~] T014 [P] [US1] Unit test for MAD-based outlier removal and log-transformation in `tests/test_preprocess.py::test_normalize_reaction_times_removes_outliers` using synthetic fixture `fixtures/outlier_reaction_times.csv`
+- [ ] T010 [P] [US1] Unit test for calibration logic (error margin >2dB exclusion) in `tests/unit/test_data_ingestion.py`
+- [ ] T011 [P] [US1] Unit test for 1-minute bin gap analysis in `tests/unit/test_data_ingestion.py`
+- [ ] T012 [P] [US1] Integration test for full ingestion pipeline with synthetic data in `tests/integration/test_ingestion_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T015 [US1] Implement `code/preprocess.py` function `filter_participants` to exclude logs with <80% valid hours AND <90% task completion rates (FR-001)
-- [~] T016 [US1] Implement `code/preprocess.py` function `normalize_reaction_times` using log-transformation and MAD outlier removal where absolute deviation > 3.5 * MAD per participant (FR-003)
-- [ ] T017 [US1] Implement `code/preprocess.py` function `aggregate_noise_logs` to calculate average and hourly variability (std dev) for continuous decibel values (FR-002)
-- [ ] T017.1 [US1] Implement `code/preprocess.py` function `create_noise_bins` to generate a categorical 'noise_level' column (Low/Moderate/High) from continuous averages based on FR-002 thresholds, ensuring 'noise_sensitivity_score' is passed through to the output (FR-002, US-3)
-- [ ] T018 [US1] Add `Snakefile` rule `preprocess` to chain `filter_participants`, `normalize_reaction_times`, `aggregate_noise_logs`, and `create_noise_bins`, outputting to `data/processed/analysis_dataset.parquet`
-- [ ] T019 [US1] Add validation step in `Snakefile` to validate the output of T018 (`data/processed/analysis_dataset.parquet`) against the contract defined in T007 (`contracts/analysis_dataset.schema.yaml`)
-- [ ] T019.1 [US1] Implement metric calculation task to compute the proportion of retained participants, comparing it against the 'actual recruited sample size' sourced from the metadata file generated during data ingestion, and write the result to `data/results/retention_metrics.json` (SC-001)
+- [ ] T018 [US1] [P] Create `code/scripts/generate_synthetic_data.py` to produce deterministic synthetic logs and task metrics for pipeline validation (NOT for hypothesis testing); ensure data includes edge cases (0dB, gaps >20%).
+- [ ] T013 [US1] Implement `code/data_ingestion.py` to load raw JSONL/CSV from `data/raw/` and validate against `contracts/dataset.schema.yaml`
+- [ ] T014 [US1] Implement device-specific calibration protocol simulation in `code/data_ingestion.py` (FR-009): flag participants if `error_margin > 2dB` or `calibration_status` missing
+- [ ] T015 [US1] Implement gap analysis logic in `code/data_ingestion.py` (FR-007): bin noise logs into 1-minute intervals, calculate `valid_logging_proportion`, exclude participants with <80% valid hours [UNRESOLVED-CLAIM: c_2d334f2e — status=not_enough_info] OR **detect and flag any single continuous gap >20% of total session time [UNRESOLVED-CLAIM: c_6b03692e — status=not_enough_info] **; generate exclusion log.
+- [ ] T016 [US1] Implement outlier removal and edge case handling in `code/data_ingestion.py`: remove reaction times >3 SD from mean [UNRESOLVED-CLAIM: c_11c863ae — status=not_enough_info]; **handle 0dB as 'Low' noise [UNRESOLVED-CLAIM: c_630605c4 — status=not_enough_info]**; **flag participants with >90% silent sessions for model singularity check [UNRESOLVED-CLAIM: c_7645dfdc — status=not_enough_info]**; generate `data/processed/outlier_audit_log.json` containing counts and IDs of removed rows for audit.
+- [ ] T044 [US1] Implement Error Count Validation/Cleaning in `code/data_ingestion.py`: handle missing error counts, impute or flag as appropriate, and ensure clean error data before CFI calculation; generate `data/processed/cleaned_error_counts.csv`.
+- [ ] T017 [US1] [Depends on: T016, T044] Implement CFI calculation in `code/data_ingestion.py` (FR-002): compute z-scored RT difference and z-scored error count; apply logic: if r > 0.7 use RT diff only, else sum them; output `data/processed/cfi_metrics.csv` with columns [participant_id, cfi_score]; verify file exists.
+- [ ] T040 [US1] Implement Valid Data Proportion Report generation: Aggregate pass/fail rates against N=150 target (SC-001) and generate `data/processed/valid_data_proportion_report.json` containing proportion of valid participants and recruitment status.
+- [ ] T020 [US1] Create `docs/quickstart.md` with instructions to run synthetic data generation and ingestion pipeline; verify file contains a runnable command block for `python code/scripts/generate_synthetic_data.py` and expected output path.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Primary Statistical Analysis (Priority: P2)
+## Phase 4: User Story 2 - Statistical Analysis Engine (Priority: P2)
 
-**Goal**: Fit a linear mixed-effects model to test the non-linear relationship between noise levels and cognitive flexibility, including a quadratic term and post-hoc comparisons.
+**Goal**: Fit the linear mixed-effects model with quadratic terms and perform post-hoc analysis.
 
-**Independent Test**: Run the analysis on a pre-computed dataset where the relationship is known and verify that the model correctly identifies the non-linear term as significant (p < 0.05) or null as expected.
+**Independent Test**: A fixed dataset of simulated participants yields a model summary with fixed effects, p-values, and likelihood-ratio test results.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for `data/results/model_results.parquet` schema in `tests/test_contracts.py::test_model_results_schema` using synthetic fixture `fixtures/synthetic_model_input.csv`
-- [ ] T021 [P] [US2] Unit test for LMM convergence and quadratic term significance detection in `tests/test_models.py::test_lmm_convergence_and_significance` using synthetic fixture `fixtures/quadratic_signal_data.csv`
+- [ ] T021 [P] [US2] Unit test for VIF calculation and collinearity check in `tests/unit/test_model_fitting.py`
+- [ ] T022 [P] [US2] Unit test for Likelihood-Ratio Test logic in `tests/unit/test_model_fitting.py`
+- [ ] T023 [P] [US2] Integration test for full model fitting with synthetic data in `tests/integration/test_model_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/models.py` function `fit_linear_mixed_effects` with fixed effects (avg noise, noise^2, variability) and random intercepts for participants (FR-004)
-- [ ] T023 [US2] Implement `code/models.py` function `likelihood_ratio_test` to compare linear vs. quadratic models (FR-004)
-- [ ] T023.1 [US2] Implement metric extraction task to extract Cohen's f² effect size and a confidence interval for the quadratic term, and verify if the interval excludes zero to support the hypothesis (SC-002)
-- [ ] T024 [US2] Implement `code/models.py` function `post_hoc_tukey_hsd` to perform pairwise comparisons on the categorical 'noise_level' bin variable (Low/Moderate/High) produced by T017.1 (FR-005)
-- [ ] T025 [US2] Implement `code/models.py` function `apply_multiple_comparison_correction` to apply correction to the pairwise p-values from T024 (FR-008), consuming the LRT p-value from T023 for reporting but applying correction only to the set of pairwise comparisons
-- [ ] T026 [US2] Add `Snakefile` rule `models` to execute `fit_linear_mixed_effects`, `likelihood_ratio_test`, and `post_hoc_tukey_hsd`, saving results to `data/results/model_results.parquet`
-- [ ] T027 [US2] Implement convergence rate calculation in `Snakefile` to aggregate convergence results across primary and sensitivity sweeps, verify the rate meets the ≥95% threshold defined in SC-005, and log the result
+- [ ] T041 [US2] [P] Define JSON Schema contract for `ModelResult` in `contracts/dataset.schema.yaml` (Output entity); **must be completed before T030**.
+- [ ] T042 [US2] [P] Generate descriptive statistics table: Aggregate continuous logs into three discrete categories (Low: <45dB, Moderate: 45-65dB, High: >65dB) [UNRESOLVED-CLAIM: c_7ab46834 — status=not_enough_info] as per FR-001; calculate counts, means, and standard deviations for each category; output `data/processed/descriptive_noise_categories.csv` and summary report.
+- [ ] T024 [US2] Implement collinearity diagnostic in `code/model_fitting.py`: compute VIF for `noise_level` and `noise_variability`; if VIF > 5, apply residualized variability approach [UNRESOLVED-CLAIM: c_a53a076f — status=not_enough_info]
+- [ ] T025 [US2] Implement LMM fitting in `code/model_fitting.py` (FR-003): fixed effects (continuous noise, quadratic noise, residualized variability), random intercept (participant ID), dependent variable (CFI)
+- [ ] T026 [US2] Implement Likelihood-Ratio Test in `code/model_fitting.py` (FR-004): compare quadratic model vs. linear baseline [UNRESOLVED-CLAIM: c_d474805c — status=not_enough_info]
+- [ ] T027 [US2] Implement post-hoc Tukey HSD test in `code/model_fitting.py` (FR-006) for noise categories (Low, Moderate, High)
+- [ ] T028 [US2] Implement family-wise error rate (FWER) calculation in `code/model_fitting.py` (SC-004) and explicitly compare against nominal alpha; generate verification report
+- [ ] T029 [US2] Handle model convergence failures in `code/model_fitting.py`: fallback to simpler linear model or report diagnostic error
+- [ ] T030 [US2] [Depends on: T041] Serialize model results to `data/models/model_result.json` including coefficients, p-values, CIs, and convergence status; verify JSON contains keys [coefficients, p_values, ci_lower, ci_upper, convergence_status] and matches schema in `contracts/dataset.schema.yaml`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Robustness and Sensitivity Analysis (Priority: P3)
+## Phase 5: User Story 3 - Robustness & Sensitivity Reporting (Priority: P3)
 
-**Goal**: Perform robustness checks including replicating analysis on final scores only and conducting a sensitivity analysis on noise thresholds.
+**Goal**: Validate findings via threshold sweeps and sensitivity checks to ensure the "sweet spot" hypothesis is robust.
 
-**Independent Test**: Modify threshold values in the configuration and verify that the output reports how the headline rates (e.g., inconsistency or significance rates) change across the sweep.
+**Independent Test**: Running the sensitivity script with modified thresholds produces a stability report showing variation in effect sizes and significance.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Contract test for `data/results/sensitivity_results.parquet` schema in `tests/test_contracts.py::test_sensitivity_results_schema` using synthetic fixture `fixtures/synthetic_sensitivity_input.csv`
-- [ ] T029 [P] [US3] Unit test for threshold sweep logic (40, 45, 50dB and 60, 65, 70dB) in `tests/test_robustness.py::test_sweep_noise_thresholds_logic` using synthetic fixture `fixtures/threshold_sweep_data.csv`
+- [ ] T031 [P] [US3] Unit test for threshold sweep logic in `tests/unit/test_sensitivity_analysis.py`
+- [ ] T032 [P] [US3] Integration test for sensitivity analysis with synthetic data in `tests/integration/test_sensitivity_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/robustness.py` function `replicate_final_score_only` to run analysis using only final task-switching scores (controlling for baseline) (FR-007)
-- [ ] T031 [US3] Implement `code/robustness.py` function `sweep_noise_thresholds` to iterate over fixed sets of lower and upper decibel ranges including representative low values and a representative set of mid-range values. and report significance variation (FR-006)
-- [ ] T032 [US3] Implement `code/robustness.py` function `exclude_extreme_sensitivity` to re-run analysis excluding participants with extreme self-reported noise sensitivity, consuming the preprocessed dataset from T018 which contains the 'noise_sensitivity_score' column (US-3, not FR-006)
-- [ ] T033 [US3] Add `Snakefile` rule `sensitivity` to execute `replicate_final_score_only` and `sweep_noise_thresholds`, saving results to `data/results/sensitivity_results.parquet`
-- [ ] T034 [US3] Add `Snakefile` rule `hash_artifacts` to compute SHA-256 hashes of `data/processed/`, `data/results/` and update `state.yaml` (Constitution Principle V)
+- [ ] T033 [US3] Implement threshold sweep logic in `code/sensitivity_analysis.py` (FR-005): re-run model with varying thresholds.
+- [ ] T034 [US3] Implement robustness check in `code/sensitivity_analysis.py`: exclude high-sensitivity participants and re-fit model.
+- [ ] T035 [US3] Generate stability report in `code/sensitivity_analysis.py` (SC-003): compare effect sizes and significance across sweeps; report false-positive rate variation; **explicitly calculate and report the specific stability metric (e.g., coefficient variance) for the Moderate noise category effect size**.
+- [ ] T036 [US3] Aggregate results into `data/models/sensitivity_report.json`; verify JSON contains keys [threshold_sets, effect_sizes, significance_flags, false_positive_rates, moderate_category_stability].
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 6: Reporting & Finalization
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Generate final documentation and update project state
 
-- [ ] T035 [P] Documentation updates: Update `docs/quickstart.md` with synthetic data generation steps and add `docs/api/preprocess.md` with function signatures; verify `quickstart.md` contains a working `snakemake --dry-run` command
-- [ ] T036 Run `ruff check code/` and fix all reported errors; verify `ruff check code/` returns exit code 0
-- [ ] T037 Performance optimization: Refactor `code/models.py` to use batch processing if needed; run `Snakefile` on N=150 synthetic data and record execution time in `data/results/perf_metrics.json` ensuring it completes within 6 hours
-- [ ] T038 [P] Additional unit tests for edge cases: Add `tests/test_preprocess.py::test_filter_participants_handles_empty_input` and `tests/test_models.py::test_lmm_convergence_failure_handling`
-- [ ] T039 Run `Snakefile` dry-run and full execution on synthetic data to validate end-to-end pipeline
-- [ ] T040 [P] Run quickstart.md validation: Execute the commands in `docs/quickstart.md` on a fresh environment; verify all commands complete without error and produce the expected `data/processed/analysis_dataset.parquet` file
-
----
-
-## Phase 7: Data Acquisition & Validation (Critical for Real-World Execution)
-
-**Goal**: Establish a reliable, real-world data source and validation pipeline to replace synthetic data for final research execution, ensuring compliance with "Real data + real results only" rules.
-
-**Independent Test**: Successfully download a real dataset (or verified public subset) and run the full pipeline without synthetic data generation, producing a `data/raw/` directory with checksummed, real-world files.
-
-- [ ] T041 [P] [Data] Identify a real, publicly available dataset source (e.g., UCI, Kaggle) for ambient noise and task-switching metrics, then implement `code/data_fetch.py` to download it to `data/raw/`, handle network errors, and validate file integrity against source checksums.
-- [ ] T042 [Data] Implement `code/data_fetch.py` to download the real dataset (or a representative sample if the full set is too large) from the identified source, ensuring the script handles network errors and validates file integrity (checksums) against the source's provided hash.
-- [ ] T043 [Data] Create a validation task in `Snakefile` that runs on the downloaded real data to verify it matches the schema defined in T007 (`contracts/analysis_dataset.schema.yaml`) before allowing `preprocess` to run.
-- [ ] T044 [Data] Update `docs/research.md` to explicitly cite the source of the real data used, including the URL, access date, and any specific version or subset identifier.
-- [ ] T045 [Data] Add a task to generate a "data provenance report" in `data/results/data_provenance.json` that logs the source URL, file size, row count, and checksum of the real data used for the analysis.
-- [ ] T046 [Data] Update `specs/001-ambient-noise-cognitive-flexibility/spec.md` Assumptions section to formally document the deviation from the "mobile app/Prolific" source to the identified public dataset, ensuring Single Source of Truth compliance.
+- [ ] T037 Generate `docs/paper_draft.md` from model results and sensitivity reports; populate with model coefficients from `data/models/model_result.json` and sensitivity data from `data/models/sensitivity_report.json`; verify file contains sections [Methods, Results, Discussion] and cites specific p-values.
+- [ ] T038 [P] Run `code/scripts/update_state.py` to hash all artifacts and update `state/`.
+- [ ] T039 [P] Execute end-to-end pipeline validation on GitHub Actions runner (NFR-001: <6 hours, <6GB RAM [UNRESOLVED-CLAIM: c_5b710f06 — status=not_enough_info]).
 
 ---
 
@@ -192,17 +162,17 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+ - T019 (Power Analysis) and T043 (Calibration Validation) must run first in this phase.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Data Acquisition (Phase 7)**: Can run in parallel with Phase 2/3 but must complete before the final research execution; T043 must pass before T018 can run on real data.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`data/processed/analysis_dataset.parquet`)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 results (`data/results/model_results.parquet`)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data cleaning from US1
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on model results from US2
 
 ### Within Each User Story
 
@@ -220,7 +190,6 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- Data acquisition (Phase 7) can proceed in parallel with implementation of US1/US2/US3 using synthetic data
 
 ---
 
@@ -228,12 +197,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for `data/processed/analysis_dataset.parquet` schema in `tests/test_contracts.py::test_analysis_dataset_schema`"
-Task: "Unit test for participant filtering logic in `tests/test_preprocess.py::test_filter_participants_excludes_low_validity`"
+Task: "Unit test for calibration logic in tests/unit/test_data_ingestion.py"
+Task: "Unit test for 1-minute bin gap analysis in tests/unit/test_data_ingestion.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement `filter_participants` in `code/preprocess.py`"
-Task: "Implement `normalize_reaction_times` in `code/preprocess.py`"
+Task: "Create base data classes/entities in code/models.py"
+Task: "Implement `code/data_ingestion.py` to load raw JSONL/CSV"
 ```
 
 ---
@@ -265,7 +234,6 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
- - Developer D: Data Acquisition (Phase 7)
 3. Stories complete and integrate independently
 
 ---
@@ -279,4 +247,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Reminder**: Do not fabricate data. All analysis tasks must eventually consume real data from the source identified in T041. Synthetic data is for pipeline validation only.
+- **Real Data Constraint**: Synthetic data is ONLY for pipeline validation. Real data must be sourced from a valid URL or package for the final hypothesis test (US2).
+- **CPU Constraint**: All statistical methods must run on a standard multi-core CPU configuration with sufficient memory for typical workloads, without requiring GPU acceleration. No low-precision models or heavy deep learning.
