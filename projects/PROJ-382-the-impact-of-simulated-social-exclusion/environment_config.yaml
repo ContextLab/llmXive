@@ -1,0 +1,8 @@
+random_seed: 42
+hash_seed: "42"
+numpy_seed: 42
+description: "Configuration for reproducible research in social exclusion study."
+notes:
+  - "Set PYTHONHASHSEED for deterministic dictionary ordering."
+  - "All random seeds are set at pipeline initialization."
+  - "Change seeds to generate different random variations if needed."

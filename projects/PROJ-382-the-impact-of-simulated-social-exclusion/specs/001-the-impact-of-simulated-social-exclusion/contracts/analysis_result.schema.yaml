@@ -1,103 +1,85 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Result Schema"
-description: "Schema for storing regression and meta-analysis results."
+description: "Schema for the output of the Zero-Inflated Gamma or Logistic regression model, including Average Marginal Effects."
 type: "object"
 properties:
-  result_id:
+  dataset_id:
     type: "string"
-    description: "Unique identifier for the analysis result."
+    description: "Reference to the source dataset."
   pool_type:
     type: "string"
+    description: "Analysis pool: Causal or Associational."
     enum:
       - "Causal"
       - "Associational"
-    description: "The pool of data used for this analysis."
   model_type:
     type: "string"
+    description: "Model used for analysis."
     enum:
       - "ZIG"
       - "Hurdle"
       - "Logistic"
-    description: "The statistical model used."
-  zero_inflation_coefficient:
+  # Marginal Effects (Primary Meta-Analysis Metric)
+  expected_donation_included:
     type: "number"
-    description: "The regression coefficient for the zero-inflation component (log-odds of donating)."
-  gamma_coefficient:
+    description: "Expected donation amount for the Included condition (E[Y|X=0])."
+  expected_donation_excluded:
     type: "number"
-    description: "The regression coefficient for the gamma component (log-amount conditional on donating)."
-  std_error_zero:
+    description: "Expected donation amount for the Excluded condition (E[Y|X=1])."
+  ame_total_effect:
     type: "number"
-    description: "Standard error of the zero-inflation coefficient."
-  std_error_gamma:
+    description: "Average Marginal Effect: Difference in expected donation (Excluded - Included)."
+  ame_se:
     type: "number"
-    description: "Standard error of the gamma coefficient."
-  p_value_zero:
+    description: "Standard error of the AME."
+  ame_p:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "P-value for the zero-inflation component."
-  p_value_gamma:
+    description: "P-value for the AME."
+  ame_ci_lower:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "P-value for the gamma component."
-  ci_lower_zero:
+    description: "Lower bound of 95% CI for AME."
+  ame_ci_upper:
     type: "number"
-    description: "Lower bound of the 95% CI for zero-inflation."
-  ci_upper_zero:
+    description: "Upper bound of 95% CI for AME."
+  # Component Diagnostics (Internal Use)
+  zero_inflation_coeff:
     type: "number"
-    description: "Upper bound of the 95% CI for zero-inflation."
-  ci_lower_gamma:
+    description: "Log-odds coefficient for the zero-inflation component. Null if Logistic model."
+    nullable: true
+  zero_inflation_se:
     type: "number"
-    description: "Lower bound of the 95% CI for gamma component."
-  ci_upper_gamma:
+    description: "Standard error for zero-inflation coefficient."
+    nullable: true
+  positive_amount_coeff:
     type: "number"
-    description: "Upper bound of the 95% CI for gamma component."
-  n_samples:
-    type: "integer"
-    minimum: 0
-    description: "Total number of samples used."
-  n_zeros:
-    type: "integer"
-    minimum: 0
-    description: "Number of zero outcomes in the dataset."
-  sensitivity_sweep:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        link_function:
-          type: "string"
-          description: "Link function used (e.g., 'logit', 'probit')."
-        distribution:
-          type: "string"
-          description: "Distribution used (e.g., 'gamma', 'lognormal')."
-        zero_coefficient:
-          type: "number"
-        gamma_coefficient:
-          type: "number"
-      required:
-        - link_function
-        - distribution
-        - zero_coefficient
-        - gamma_coefficient
-    description: "Results from the sensitivity analysis sweep (link function/distribution)."
-  power_analysis:
-    type: "object"
-    properties:
-      mdes:
-        type: "number"
-        description: "Minimum Detectable Effect Size."
-      power:
-        type: "number"
-        description: "Estimated power of the meta-analysis."
-    description: "Meta-analytic power assessment results."
+    description: "Log-scale coefficient for the positive component. Null if Logistic model."
+    nullable: true
+  positive_amount_se:
+    type: "number"
+    description: "Standard error for positive amount coefficient."
+    nullable: true
+  # Robustness Metrics
+  e_value:
+    type: "number"
+    description: "E-value for the Associational Pool (robustness to unmeasured confounding). Null for Causal Pool."
+    nullable: true
+  is_bias_adjusted:
+    type: "boolean"
+    description: "True if Trim-and-Fill or similar correction was applied."
+  adjusted_ame:
+    type: "number"
+    description: "AME after small-sample bias correction."
+    nullable: true
 required:
-  - result_id
+  - dataset_id
   - pool_type
   - model_type
-  - zero_inflation_coefficient
-  - gamma_coefficient
-  - p_value_zero
-  - p_value_gamma
-  - n_samples
+  - expected_donation_included
+  - expected_donation_excluded
+  - ame_total_effect
+  - ame_se
+  - ame_p
+  - ame_ci_lower
+  - ame_ci_upper
+  - is_bias_adjusted
+additionalProperties: false

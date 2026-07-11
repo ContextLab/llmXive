@@ -1,65 +1,46 @@
 # Quickstart: The Impact of Simulated Social Exclusion on Subsequent Prosocial Behavior
 
 ## Prerequisites
-
-*   Python 3.11+
-*   `pip`
-*   Git
+-   Python 3.11+
+-   `pip`
+-   Access to the internet (for OSF/HuggingFace download)
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project root):
-    ```bash
-    cd projects/PROJ-382-the-impact-of-simulated-social-exclusion
-    ```
-
+1.  **Clone the repository** (or navigate to the project directory).
 2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-
 3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r projects/PROJ-382-the-impact-of-simulated-social-exclusion/code/requirements.txt
     ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the `main.py` script. It will attempt to ingest the verified datasets, validate schemas, and run the analysis.
-
-**Note**: As per the research findings in `research.md`, the current set of verified datasets does not contain the required social exclusion data. Running this script will likely result in a "Insufficient Data" halt, which is the expected and correct behavior.
+The pipeline is orchestrated via `main.py`. It handles ingestion, validation, analysis, and reporting.
 
 ```bash
-python code/main.py
+cd projects/PROJ-382-the-impact-of-simulated-social-exclusion/code/
+python main.py
 ```
 
-### Expected Output
+### Configuration
+The pipeline expects a configuration file `config.yaml` (generated or provided) containing the list of OSF URLs. If not provided, it defaults to the verified list and triggers the keyword search (FR-001.5).
 
-*   **Success**: If valid datasets are found, the script will output:
-    *   `data/processed/cleaned_data.csv`
-    *   `data/processed/analysis_results.json`
-    *   Console logs with effect sizes (both zero-inflation and gamma components) and confidence intervals.
-*   **Halt**: If <3 valid datasets are found (current state), the script will:
-    *   Log: `ERROR: Insufficient Data: <3 valid datasets found`.
-    *   Exit with code `1`.
+## Output Artifacts
 
-## Verification
-
-To verify the pipeline logic without needing real data, run the unit tests with synthetic data:
-
-```bash
-pytest tests/ -v
-```
-
-This will test:
-*   Schema validation (pass/fail logic).
-*   Zero-inflation handling (structural zeros preserved).
-*   Model fitting on synthetic ZIG data.
-*   Sensitivity analysis sweep (link function/distribution).
+Upon successful completion, the following files are generated in `data/processed/`:
+-   `standardized.csv`: Cleaned, unified dataset.
+-   `results.csv`: Individual dataset analysis results.
+-   `meta_analysis.json`: Pooled effect sizes and confidence intervals.
+-   `sensitivity_report.json`: Stability metrics across link/distribution sweeps.
+-   `power_report.txt`: Statistical power assessment.
 
 ## Troubleshooting
 
-*   **Missing Columns**: If a dataset is rejected, check `logs/ingestion.log` for the specific missing column.
-*   **Memory Error**: If running on a local machine with <8GB RAM, reduce the batch size in `ingestion.py` (though unlikely for this dataset size).
-*   **Model Convergence**: If ZIG fails to converge, the script falls back to Hurdle or logs a warning.
+-   **"Insufficient Data"**: If fewer than 3 valid datasets are found, the script exits with code 1. Check the logs for skipped datasets.
+-   **Model Convergence**: If ZIG fails, the script attempts Hurdle, then Logistic. Check `results.csv` for `model_type` fallbacks.
+-   **RAM Error**: The pipeline processes datasets sequentially. If memory errors occur, reduce the batch size in `config.yaml` (if applicable) or ensure no other heavy processes are running.

@@ -1,27 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Ingestion Schema"
-description: "Schema for validating downloaded datasets before ingestion."
+title: "Standardized Dataset Schema"
+description: "Schema for the standardized prosocial behavior dataset after ingestion and cleaning."
 type: "object"
 properties:
-  dataset_id:
-    type: "string"
-    description: "Unique identifier for the dataset."
-  source_url:
-    type: "string"
-    format: "uri"
-    description: "The verified URL of the dataset."
-  is_valid:
-    type: "boolean"
-    description: "Whether the dataset passed schema validation."
+  condition:
+    type: "integer"
+    description: "Experimental condition: 0=Included, 1=Excluded."
+    minimum: 0
+    maximum: 1
+  prosocial_amount:
+    type: "number"
+    description: "Monetary amount donated or allocated. Structural zeros (0) are preserved. NaN handled per imputation rules."
+    minimum: 0
   randomized:
     type: "boolean"
     description: "Flag indicating if the study used random assignment."
-  rejection_reason:
+  outcome_type:
     type: "string"
-    nullable: true
-    description: "Reason for rejection if is_valid is false."
+    description: "Type of outcome variable."
+    enum:
+      - "continuous"
+      - "binary"
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the source dataset."
 required:
-  - dataset_id
-  - source_url
-  - is_valid
+  - condition
+  - prosocial_amount
   - randomized
+  - outcome_type
+  - dataset_id
+additionalProperties: false

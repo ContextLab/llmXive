@@ -1,0 +1,15 @@
+? 'T001a [P] Create directory structure: `projects/PROJ-382-the-impact-of-simulated-social-exclusion/code/`,
+  `data/raw/`, `data/processed/`, `tests/`, `state/`'
+: 1
+? T001b [P] Create `projects/PROJ-382-the-impact-of-simulated-social-exclusion/code/requirements.txt`
+  with pinned dependencies (pandas, numpy, scipy, statsmodels, matplotlib, pyyaml,
+  requests, scikit-learn, memory_profiler, psutil)
+: 1
+? T002a [P] Create `.flake8` configuration file with explicit rules (e.g., `max-line-length=88`,
+  `exclude=venv,.git,build,dist`)
+: 1
+T002b [P] Create `pyproject.toml` configuration for `black` (e.g., `line-length=88`, `target-version=['py311']`): 1
+? T002c [P] Create a verification script or Makefile target to run `flake8` and `black
+  --check` to validate linting compliance
+: 1
+T003 [P] Implement base configuration loader (`code/config.py`) to read OSF URLs from YAML: 1

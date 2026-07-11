@@ -1,88 +1,100 @@
 # Research: The Impact of Simulated Social Exclusion on Subsequent Prosocial Behavior
 
-## Dataset Strategy
+## 1. Research Question & Hypotheses
 
-The project relies on aggregating open behavioral datasets containing social exclusion manipulations (e.g., Cyberball) and prosocial outcomes (monetary donation/allocation).
+**Primary Question**: Does experimentally induced social exclusion reduce subsequent willingness to engage in prosocial behavior (monetary donation) among adults?
 
-**Constraint**: Per the project constitution and input requirements, we must use **ONLY** the verified dataset URLs provided in the "# Verified datasets" block. We **cannot** invent URLs or assume the existence of specific OSF datasets if they are not in the verified list.
+**Hypotheses**:
+- **H1 (Causal)**: In randomized trials (Causal Pool), social exclusion leads to a statistically significant reduction in the **Total Expected Donation** (Average Marginal Effect < 0).
+- **H2 (Associational)**: In non-randomized studies (Associational Pool), a negative correlation exists between exclusion status and prosocial behavior, though causal direction is unverified (reported with E-values for robustness).
 
-### Verified Datasets Analysis
+## 2. Dataset Strategy
 
-Upon review of the provided "Verified datasets" block, the following observations are made regarding the specific needs of this study:
+**Constraint**: Only datasets from the "Verified datasets" block may be cited. The spec requires OSF datasets containing `condition`, `prosocial_amount`, and `randomized`.
 
-1.  **Requirement**: Datasets must contain `condition` (exclusion vs. inclusion), `prosocial_amount` (continuous or binary outcome), and `randomized` flag.
-2.  **Available Sources**:
-    *   `OSF (parquet)`: Contains log-likelihood and graph covariate data. These appear to be network/graph datasets, not behavioral exclusion/prosociality experiments.
-    *   `RCTs (jsonl)`: Contains TSAR (Task-oriented Sentence Rewriting) data and PubMed RCT metadata. These are NLP or medical trial metadata, not social exclusion behavioral data.
-    *   `IRI (jsonl)`: Contains IRI (Interpersonal Reactivity Index) QA data and the Iris dataset. The Iris dataset is a classic botanical dataset; the IRI data is QA, not behavioral experiment results.
-    *   `ZIG (jsonl)`: Contains image data ("zigwheels") and zip files. Irrelevant.
-    *   `NOT (json)`: Contains notebook error logs. Irrelevant.
-    *   `URLs (json)`: Contains URL lists. Irrelevant.
-    *   `AnalysisResult (parquet)`: Contains analysis results, but not the raw experimental data needed to *generate* those results.
+**Verified Sources Analysis**:
+The provided verified list contains:
+- OSF parquet/CSV files (e.g., `osf_loglikelihood`, `FC_graph_covariate_data`).
+- RCT datasets (e.g., `tsar2025_trial`, `rct-20k`).
+- General repositories (Iris, Reddit URLs, etc.).
 
-**Critical Finding**: The provided "Verified datasets" block **does not contain** any dataset that matches the specific requirements of this study (Social Exclusion + Prosocial Behavior). The available datasets are related to NLP, graph theory, medical metadata, or generic QA, but none contain the `condition`, `prosocial_amount`, or `randomized` columns required for FR-001.5.
+**Gap Identification**:
+The verified list **does not** contain a dataset explicitly labeled as "Social Exclusion" or "Cyberball" with `prosocial_amount` and `randomized` columns. The `osf_loglikelihood` and `FC_graph_covariate_data` appear to be related to graph/likelihood tasks, not prosociality. The `rct` datasets are generic RCT lists, not behavioral data.
 
-### Implication for Implementation
+**Action Plan & Pre-registered Search Protocol**:
+1.  **Primary Search**: The pipeline will first attempt to locate specific OSF datasets using the verified list.
+2.  **Fallback Strategy (Pre-registered)**: If the verified list yields no valid datasets, the system will execute a **pre-registered keyword search** on OSF.
+    -   **Search Strings**: `("social exclusion" OR "ostracism" OR "Cyberball") AND ("prosocial" OR "donation" OR "allocation" OR "dictator game")`
+    -   **Inclusion Criteria**: Must contain `condition`, `prosocial_amount`, `randomized` (or metadata allowing derivation).
+    -   **Bias Mitigation**: The search strings and inclusion criteria are fixed *before* execution to prevent cherry-picking.
+3.  **Halt Condition**: If the combined set (Verified + Pre-registered Search) yields fewer than 3 valid datasets, the pipeline **MUST** halt with "Insufficient Data: <3 valid datasets found". This is a valid scientific outcome, not a failure of the pipeline.
 
-Since the spec assumes "The Open Science Framework contains at least 3 public datasets..." (Assumption in spec), but the **verified** list provided to the plan contains none, the implementation pipeline **MUST** handle this gracefully:
+**Dataset Validation Criteria**:
+-   Must contain: `condition` (exclusion/inclusion), `prosocial_amount` (continuous or binary), `randomized` (boolean).
+-   Must be accessible via the verified URL or the OSF search mechanism triggered by the pipeline.
 
-1.  **Halt Condition**: As per FR-008 and US-1, if fewer than 3 valid datasets are found, the system MUST halt.
-2.  **Strategy**: The `ingestion.py` script will attempt to load the provided verified URLs. It will perform schema validation. Since none of the verified URLs contain the required columns, they will all be rejected.
-3.  **Outcome**: The pipeline will trigger the "Insufficient Data" error and exit with a non-zero status code, satisfying the spec's requirement to prevent analysis on invalid data.
+**Table: Dataset Inclusion Strategy**
 
-**Note**: If the user intended for the system to *fetch* real OSF datasets (e.g., by querying OSF API directly), this capability is **not** supported by the current "Verified datasets" constraint which forbids inventing URLs. The plan strictly adheres to the provided verified list. If the verified list is updated in the future to include actual OSF behavioral datasets (e.g., from `cjziems` or `SreekarB` that actually contain the right schema), the ingestion logic will proceed.
+| Dataset Source | Verification Status | Inclusion Criteria | Action if Missing |
+| :--- | :--- | :--- | :--- |
+| OSF (Verified List) | *Pending* | Must have `condition`, `prosocial_amount`, `randomized`. | Skip and log error. |
+| OSF (Pre-registered Search) | *Runtime* | Must match fixed search strings and schema. | If <3 found overall, HALT. |
 
-**Decision**: The plan proceeds with the ingestion logic designed to validate against the *schema*. The *result* of running this plan on the current verified list will be a graceful halt due to insufficient valid data, which is the correct behavior per FR-008.
+## 3. Statistical Methodology
 
-## Statistical Methodology
+### 3.1 Data Preprocessing
+-   **Imputation**: Median imputation for `prosocial_amount` if missingness < 5% per dataset. Row exclusion if ≥ 5%.
+-   **Structural Zeros**: Values of 0 are **NOT** imputed. They are preserved for the Zero-Inflated model.
+-   **Normalization**: `condition` mapped to binary (0=Included, 1=Excluded). **Deterministic Logging**: The exact mapping logic (e.g., 'ignored' -> 1) and raw values are recorded in `mapping_log.json`.
+-   **Temporal Separation**: The pipeline validates the presence of separate task identifiers or timestamps in raw data (if available) to support the assumption of behavioral outcome independence.
+-   **Filtering**: Exclude datasets where `condition == 1` (Excluded) has n < 5.
 
-### Model Selection
-*   **Primary Model**: Zero-Inflated Gamma (ZIG) or Hurdle Model.
-    *   *Rationale*: Prosocial donation data is typically right-skewed with a high frequency of zeros (non-donors). Standard OLS assumes normality; Gamma GLM cannot handle zeros. ZIG/Hurdle models the probability of zero (logistic component) and the positive amount (gamma component) separately.
-*   **Alternative Model**: Logistic Regression.
-    *   *Trigger*: If `prosocial_amount` is binary (0/1) rather than continuous.
+### 3.2 Model Selection
+-   **Primary Model**: Zero-Inflated Gamma (ZIG) or Hurdle Model.
+    -   *Component 1 (Zero-Inflation)*: Logistic regression predicting probability of zero donation.
+    -   *Component 2 (Positive)*: Gamma GLM predicting amount given donation > 0.
+-   **Alternative**: If `prosocial_amount` is purely binary (0/1), use Logistic Regression.
+-   **Pools**:
+    -   **Causal Pool**: `randomized == true`.
+    -   **Associational Pool**: `randomized == false` or `unknown`.
 
-### Pooling Strategy & Meta-Analysis
-The analysis will be split into two pools:
-1.  **Causal Pool**: Only datasets where the `randomized` flag is explicitly `true`.
-2.  **Associational Pool**: Datasets where `randomized` is `false` or `unknown`.
+### 3.3 Meta-Analysis & Effect Size Definition
+**Critical Correction**: To ensure cross-study comparability, the primary meta-analysis will **NOT** pool raw conditional coefficients (log-odds and log-scale) directly. Instead, it will pool the **Average Marginal Effect (AME)** of the exclusion condition on the **Total Expected Donation**.
 
-**Meta-Analysis Unit**: The ZIG/Hurdle model yields two distinct coefficients:
-1.  **Zero-Inflation Component**: Log-odds of the probability of donating (vs. not donating).
-2.  **Gamma Component**: Log-scale of the amount donated (conditional on donating).
+1.  **Total Expected Donation Calculation**: For each study, calculate:
+    $$ E[Y|X] = P(Y>0|X) \times E[Y|Y>0, X] $$
+    Where $P(Y>0|X)$ is derived from the Zero-Inflation component and $E[Y|Y>0, X]$ from the Positive component.
+2.  **Effect Size**: The difference in $E[Y|X]$ between Exclusion (X=1) and Inclusion (X=0) conditions. This is the **AME**.
+3.  **Aggregation**:
+    -   **Primary**: Random-Effects Meta-Analysis of the AME (Total Expected Donation difference) for Causal and Associational pools separately.
+    -   **Diagnostic**: Separate Random-Effects meta-analyses for the Zero-Inflation coefficient and Positive coefficient are performed *only* to diagnose which component drives the effect, but these are not pooled into a single "combined" estimate due to scale incompatibility.
 
-The meta-analysis will **pool these two effect sizes separately**. We will calculate a pooled log-odds ratio for the zero-inflation component and a pooled log-mean ratio for the Gamma component. This dual-component approach ensures construct validity, as ignoring one component would misestimate the total causal effect of exclusion on prosocial behavior.
+**Small-Sample Bias Correction**:
+-   The pipeline will perform a **Trim-and-Fill** analysis and calculate **Egger's regression** to detect and adjust for small-sample bias (the "winner's curse") in the meta-analytic estimate.
 
-*   **Method**: Random-Effects Meta-Analysis (DerSimonian-Laird or REML) for both components.
-*   **Metric**: Pooled effect size (coefficient $\beta$) and heterogeneity ($I^2$) for each component.
-*   **Requirement**: Minimum 3 datasets per pool to calculate $I^2$ and pooled effect.
+### 3.4 Sensitivity & Robustness
+-   **Distributional Sweep**: Re-run models with distributional assumptions (Gamma vs. Log-Normal) while keeping the primary link function (logit) fixed. Report stability of the AME (variance < 10%).
+-   **Unmeasured Confounding (E-Value)**: For the **Associational Pool**, calculate the E-value to quantify the minimum strength of association an unmeasured confounder would need to explain away the observed effect.
+-   **Randomization Check**: For the **Causal Pool**, if covariate data is available, perform balance tests (t-tests/chi-square) to verify randomization integrity.
+-   **Outlier Check**: Re-run excluding outliers (>3 SD) and report $\Delta\beta$.
+-   **Power Assessment**: Calculate power to detect Cohen's d = 0.3 given observed $I^2$ and study count.
 
-### Sensitivity Analysis (Revised)
-The previous plan proposed a "zero-inflation threshold" sweep, which is methodologically invalid for ZIG/Hurdle models as the zero state is a latent class, not a continuous threshold. The revised sensitivity analysis will:
-1.  **Link Function Sweep**: Re-run the zero-inflation component using **logit** vs. **probit** link functions.
-2.  **Distributional Assumption Sweep**: Re-run the positive component using **Gamma** vs. **Log-Normal** distributions.
-3.  **Stability Metric**: The variance of the effect size coefficient ($\beta$) across these sweeps must be < 10% for the result to be considered robust.
+## 4. Compute Feasibility
 
-### Meta-Analytic Power Assessment
-To address the risk of Type II error (false negative) in the meta-analysis:
-*   **Method**: Calculate the detectable effect size given the number of studies ($k$), their sample sizes, and observed heterogeneity ($I^2$).
-*   **Tool**: Use the `metafor` package (or equivalent in Python) to estimate power.
-*   **Reporting**: Report the minimum detectable effect size (MDES) for the pooled analysis. If the observed effect is smaller than the MDES, the study will be flagged as potentially underpowered.
+-   **Environment**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
+-   **Strategy**:
+    -   No GPU required.
+    -   `statsmodels` ZIG/Hurdle implementations are CPU-tractable for <100k rows.
+    -   Data subset to <7GB RAM (likely <100MB).
+    -   Runtime target: < 2 hours (well within 6h limit).
+-   **Libraries**: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `scikit-learn`. All available on CPU.
 
-## Statistical Rigor & Assumptions
+## 5. Risks & Mitigations
 
-*   **Multiple Comparisons**: Not applicable for the primary single hypothesis (exclusion effect), but sensitivity sweeps are descriptive.
-*   **Power**: The system will filter datasets with $n_{exclusion} < 5$ (FR-006) AND perform a formal meta-analytic power assessment (see above).
-*   **Causal Assumptions**:
-    *   *Randomization*: Assumed valid for the Causal Pool.
-    *   *Unconfoundedness*: Cannot be guaranteed for the Associational Pool; results will be framed as "associational".
-*   **Collinearity**: If covariates (e.g., empathy) are present, VIF will be checked. However, the primary analysis is univariate (Condition -> Amount) to maximize data compatibility across heterogeneous datasets.
-
-## Compute Feasibility
-
-*   **Environment**: GitHub Actions Free Tier (limited CPU, 7 GB RAM).
-*   **Strategy**:
-    *   No GPU required (ZIG/Hurdle via `statsmodels` or `scipy` on CPU).
-    *   Data size: Estimated < 100 MB total (CSV/Parquet).
-    *   Runtime: < 1 hour for ingestion and analysis.
-    *   Libraries: `pandas` (CPU), `statsmodels` (CPU), `scipy` (CPU), `metafor` (or equivalent). No heavy transformers or LLMs.
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **No Valid Datasets Found** | Project halts (FR-008). | Pre-registered search protocol defined. If <3 found, report "Insufficient Data" as a valid outcome. |
+| **ZIG Convergence Failure** | Model fails to fit. | Fallback to Hurdle model; then fallback to Logistic if binary; log convergence warnings. |
+| **High Heterogeneity ($I^2$)** | Meta-analysis unreliable. | Report $I^2$; perform sensitivity analysis; do not claim a single pooled effect if $I^2 > 75\%$ without explanation. |
+| **Dataset Missing `randomized`** | Ambiguous pool assignment. | Treat as `Associational` pool (conservative approach). |
+| **Small-Sample Bias** | Overestimation of effect size. | Apply Trim-and-Fill and Egger's regression correction. |
