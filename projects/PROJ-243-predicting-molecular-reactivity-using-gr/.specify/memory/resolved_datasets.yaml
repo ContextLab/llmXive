@@ -1,0 +1,539 @@
+resolved_at: '2026-07-11T20:23:41.387179+00:00'
+datasets:
+- intent: QM9
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/hadoan/enthalpy-QM9-1k/resolve/main/data/train-00000-of-00001-ffd5f7908688c934.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 19525
+      parsed: true
+  - url: https://huggingface.co/datasets/Hassanharb/gaps-qm9-1k/resolve/main/data/train-00000-of-00001-3e8a1863fa44a20f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 14255
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hadoan/enthalpy-QM9-1k/resolve/main/data/train-00000-of-00001-ffd5f7908688c934.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Hassanharb/gaps-qm9-1k/resolve/main/data/train-00000-of-00001-3e8a1863fa44a20f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/n0w0f/qm9-csv/resolve/main/qm9_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-qm9-file-translation/resolve/main/data.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10926772
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11583221
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16847162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20634091
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8274793
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302713
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302713
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17527149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21276211
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21276211
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SMILES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 6057
+      parsed: true
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&response-content-type=text%2Fplain&user_id=public&Expires=1783804863&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNDBtLnR4dCUzQitmaWxlbmFtZSUzRCUyMnNtaWxlczQwbS50eHQlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODA0ODYzfX19XX0_&Signature=MEUCIQDA0WLlkdMJlJtlaDB6Vw8xAlCKaaOLqLOMkPHMMTOEBQIgIrn0OQ30TN5O3hTUN3--3rEk44G8sfAYgtWVOSeraXg_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&response-content-type=text%2Fplain&user_id=public&Expires=1783804864&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNG0udHh0JTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGcGxhaW4mdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzgwNDg2NH19fV19&Signature=MEQCICvn6IbnMBCANkPZJ-A3rQWG3jILJ1sfLeeJpVTK1dtkAiAqYbonYsu3WnrKAGt7buFagbugxSFtbR32T1FdvA~b-Q__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18002214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tandfonline.com/doi/full/10.1080/03071841409421857
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/207971
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602326825
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.19140470182
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21312968
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312968
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312909
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312755
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312655
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RDKit
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8369849
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/32402
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21291217
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6248289
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6038882
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21291217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21291217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21287306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GNN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 165737
+      parsed: true
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2703306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijies.org/portfolio-item/B114213020226/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6798322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7198473
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21306034
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21306034
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21306010
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21306010
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jz4yx/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HOMO-LUMO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Alan123/homo-lumo-grpo/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Alan123/homo-lumo-grpo/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.rn867
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5845988
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17279276
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6793272
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pubs.rsc.org/tc/article/10/32/11775-11782/793279
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20617826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302713
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302713
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17527149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DFT-calculated
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7612373
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18243741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10488673
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15632447
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16938788
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/215538
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26190/unsworks/24189
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''unsworks.unsw.edu.au'',
+      port=443): Max retries exceeded with url: /handle/1959.4/100482 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''unsworks.unsw.edu.au'',
+      port=443) at 0x7efd77869e90>, ''Connection to unsworks.unsw.edu.au timed out.
+      (connect timeout=20.0)''))'
+  - url: https://publica.fraunhofer.de/entities/publication/0489db14-0c8a-4158-a51e-0c802af27ddb
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Diethyl_2-Amino-3-Cyano-4_i_H_i_-Chromen-4-yl_Phosphonate_and_Its_Halogenated_Derivatives_as_Effective_Drug_A_Theoretical_and_an_Experimental_Spectroscopic_Study/13117772/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Diethyl_2-Amino-3-Cyano-4_i_H_i_-Chromen-4-yl_Phosphonate_and_Its_Halogenated_Derivatives_as_Effective_Drug_A_Theoretical_and_an_Experimental_Spectroscopic_Study/13117772
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

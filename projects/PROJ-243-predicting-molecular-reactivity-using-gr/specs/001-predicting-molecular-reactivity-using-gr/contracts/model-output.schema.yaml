@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Prediction Output Schema"
+description: "Schema for the output of model inference on the test set."
+type: "object"
+properties:
+  predictions:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        graph_id:
+          type: "string"
+        actual_gap:
+          type: "number"
+        predicted_gap:
+          type: "number"
+        error:
+          type: "number"
+        model_name:
+          type: "string"
+          enum:
+            - "spectral_gnn"
+            - "heterophily_gnn"
+            - "random_forest"
+      required:
+        - graph_id
+        - actual_gap
+        - predicted_gap
+        - error
+        - model_name
+required:
+  - predictions

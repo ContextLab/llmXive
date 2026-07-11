@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Attribution Schema"
+description: "Schema for feature attribution maps and validation results."
+type: "object"
+properties:
+  molecule_id:
+    type: "string"
+    description: "Molecule ID for which attribution was computed."
+  node_importance:
+    type: "array"
+    items:
+      type: "number"
+    description: "Importance scores for each atom."
+  edge_importance:
+    type: "array"
+    items:
+      type: "number"
+    description: "Importance scores for each bond."
+  top_substructures:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        substructure_smiles:
+          type: "string"
+        importance_score:
+          type: "number"
+        matches_reference:
+          type: "boolean"
+          description: "Whether the substructure matches the curated reference set."
+    description: "Top 5 identified substructures."
+  alignment_score:
+    type: "number"
+    description: "Overall alignment score against the reference set (0.0 to 1.0)."
+  recall_at_k:
+    type: "number"
+    description: "Recall@k metric for substructure matching."
+required:
+  - molecule_id
+  - node_importance
+  - edge_importance
+  - top_substructures
+  - alignment_score
+  - recall_at_k

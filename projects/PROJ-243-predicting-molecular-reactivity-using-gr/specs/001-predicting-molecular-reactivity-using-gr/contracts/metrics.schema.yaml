@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for the final evaluation metrics and statistical test results."
+type: "object"
+properties:
+  metrics:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        model_name:
+          type: "string"
+        mse:
+          type: "number"
+        mae:
+          type: "number"
+        pearson_r:
+          type: "number"
+      required:
+        - model_name
+        - mse
+        - mae
+        - pearson_r
+  statistical_tests:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        comparison:
+          type: "string"
+          description: "e.g., 'spectral_gnn_vs_rf'"
+        test_type:
+          type: "string"
+          enum:
+            - "wilcoxon_signed_rank"
+            - "paired_t_test"
+        p_value:
+          type: "number"
+        is_significant:
+          type: "boolean"
+        alpha_adjusted:
+          type: "number"
+          description: "Bonferroni corrected alpha"
+        is_primary:
+          type: "boolean"
+          description: "True if this is the primary test (Wilcoxon)"
+      required:
+        - comparison
+        - test_type
+        - p_value
+        - is_significant
+        - alpha_adjusted
+        - is_primary
+  interpretability:
+    type: "object"
+    properties:
+      alignment_score:
+        type: "number"
+        description: "Alignment with curated reactive substructures"
+      top_features:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of top 5 identified features"
+      reference_source_type:
+        type: "string"
+        description: "Source of the reference set (e.g., 'Experimental', 'Independent Literature')"
+required:
+  - metrics
+  - statistical_tests
