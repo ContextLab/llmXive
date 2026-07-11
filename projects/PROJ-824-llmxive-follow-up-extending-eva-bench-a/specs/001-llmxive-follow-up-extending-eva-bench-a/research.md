@@ -1,109 +1,85 @@
-# Research: llmXive follow-up: extending EVA-Bench with Latency & Acoustic Perturbations
+# Research: llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents"
 
-## Research Question
+## 1. Research Question & Hypothesis
 
-How does the injection of asynchronous network latency (jitter and variable inter-turn delays) into voice agent simulations degrade specific EVA-Bench "Turn-Taking" and "Conversation Progression" metrics compared to static acoustic perturbations, and at what latency threshold does a non-linear failure mode emerge?
+**Primary Question**: At what point of injected network latency (200ms–2000ms) does the "Conversation Progression" metric in EVA-Bench exhibit a non-linear collapse (inflection point), and is this degradation profile distinct from the known acoustic noise degradation?
 
-## Dataset Strategy
+**Hypothesis**: There exists a specific latency threshold (hypothesized ~800ms) where the score drops precipitously. This threshold represents a distinct failure mode from acoustic noise, as temporal disruption affects turn-taking logic differently than signal quality.
 
-### Primary Dataset: EVA-Bench
-The study utilizes the EVA-Bench dataset, which contains multiple scenarios across multiple voice agent systems.
-* **Source**:
- * **Primary**: HuggingFace Dataset `eva-bench/eva-bench` (Verified ID: `eva-bench/eva-bench`).
- * **Fallback**: GitHub Release `v1.0.0` at `.
-* **Variables**:
- * **Input**: Original audio files (`.wav`/`.flac`), turn boundary timestamps, dialogue scripts.
- * **Predictors**: Injected Latency (continuous: 200ms–2000ms), Jitter (±50ms), Perturbation Type (Latency vs. Acoustic).
- * **Outcomes**: EVA-X "Turn-Taking" score, EVA-X "Conversation Progression" score.
- * **Covariates**: Scenario ID, System ID.
-* **Verification**: The plan assumes the dataset contains the necessary audio logs. If missing, FR-011 (synthetic generation via TTS) is triggered.
-* **Access Method**: Downloaded via `datasets.load_dataset("eva-bench/eva-bench")` to `data/raw/`.
+## 2. Dataset Strategy
 
-**Verified Datasets**:
-* *EVA-Bench*: `eva-bench/eva-bench` (HuggingFace). This specific ID has been verified to contain the required scenarios and audio logs.
+**Primary Dataset**: EVA-Bench (ServiceNow-AI/eva-bench)
+- **Source**: Verified HuggingFace Dataset.
+- **URL**: `
+- **Format**: JSONL containing audio file paths (or base64) and scenario metadata.
+- **Relevance**: Contains the specific "Turn-Taking" and "Conversation Progression" metrics required for the study.
+- **Variable Fit & Verification**:
+ 1. **Audio Availability**: We will first verify that the dataset contains actual audio files (not just transcripts). If the dataset only provides transcripts, the plan will fail fast with a clear error code or switch to a TTS fallback (if permitted by the spec) to generate synthetic audio for injection.
+ 2. **Turn Metadata**: The dataset must provide `turns` with `start_time` and `end_time` to ensure precise injection boundaries.
 
-### Data Pre-processing & Cleaning
-1. **Checksumming**: All raw files are checksummed (SHA-256) and recorded in `data/checksums.json`.
-2. **Turn Boundary Extraction**: Turn boundaries are extracted from metadata or inferred via VAD (Voice Activity Detection) if metadata is missing, ensuring gaps are inserted only at valid boundaries.
-3. **Chunking Strategy**: Files > 500MB are processed in 10-second chunks to manage RAM usage (Constitution Principle VII).
+**Baseline Data (Acoustic Noise)**:
+- **Source**: Re-run of the original EVA-Bench pipeline with acoustic perturbations.
+- **Strategy**: To satisfy FR-005 and ensure a valid within-subjects design, we will re-run the acoustic perturbation on the **exact same subset** of scenarios used for the latency sweep.
+- **Constraint**: If the original pipeline is LLM-heavy, we will use a **distilled surrogate model** or a **rule-based approximation** for the acoustic sweep to ensure CPU feasibility (FR-007). We will not rely on published curves alone.
 
-## Methodology
+## 3. Methodology
 
-### Phase 0.5: Metric Validation (FR-010)
-Before any analysis, the system validates the "Turn-Taking" metric definition.
-1. **Correlation Check**: Calculate Pearson correlation between the "Turn-Taking" score and the injected latency variable on the baseline data (0ms jitter).
-2. **Tautology Flag**: If correlation > 0.9, the metric is deemed tautological (dependent on raw timing).
-3. **Outcome Selection**:
- * If tautological: Primary outcome switches to "Conversation Progression". "Turn-Taking" is used only as a secondary descriptive metric.
- * If not tautological: Both metrics are analyzed.
- * *Pre-registration*: "Conversation Progression" is the primary outcome for all analyses to ensure non-tautological validity.
+### 3.1 Latency Injection (FR-001, SC-001)
+- **Tool**: `pydub` (preferred for simplicity) or `scipy.signal`.
+- **Process**:
+ 1. Load audio file.
+ 2. **Turn Boundary Validation**: Identify turn boundaries using the `turns` metadata from JSONL. **Strict Rule**: Inject silence **only** at the `end_time` of a user turn and `start_time` of the agent turn. If metadata is missing or ambiguous, the script will fail fast rather than guess (preventing misalignment).
+ 3. Insert silence segment of duration $D \in \{200, 400, \dots, 2000\}$ ms.
+ 4. Save as new file (e.g., `scenario_001_delay_800ms.wav`).
+- **Validation**: Verify file duration increases by exactly $D$ ms and original audio samples are unchanged.
+- **Metric Definition Verification**: We will verify that the "Turn-Taking" metric in EVA-Bench is not tautologically defined by silence thresholds (e.g., "penalty for silence > X ms"). If it is, we will prioritize 'Interruption Count' or 'Semantic Coherence' (FR-009).
 
-### Phase 1: Perturbation Generation
-1. **Latency Injection**:
- * `LatencyInjector` inserts silent gaps at turn boundaries.
- * **Levels**: 15 levels total. 12 uniformly spaced (200ms, 350ms,..., 2000ms) + 3 clustered around the hypothesized 800ms knee point (700ms, 800ms, 900ms) to ensure sufficient density for breakpoint detection.
- * Parameters: Mean delay, Jitter (±50ms).
- * **Constraint**: Gaps must not overlap with spoken segments (revert to nearest safe boundary ±50ms).
-2. **Acoustic Perturbation**:
- * `AcousticPerturber` adds white noise (SNR 15dB) and reverberation.
- * **Control**: Turn boundaries remain unchanged to isolate timing effects.
-3. **Synthetic Fallback (FR-011)**:
- * If EVA-Bench audio logs are missing, the system triggers `code/synthetic/tts_engine.py`.
- * **Strategy**: Use the dialogue script from the scenario metadata (exact text) and synthesize audio using `Coqui TTS` (CPU mode).
- * **Prompt**: "Generate a voice agent response with natural turn-taking pauses, matching the duration of the original scenario."
+### 3.2 Evaluation Pipeline (FR-002)
+- **Execution**: Invoke the EVA-Bench scoring function on the modified audio.
+- **Output**: JSON/CSV with `scenario_id`, `latency_ms`, `turn_taking_score`, `conversation_progression_score`.
+- **Constraint**: Must run on CPU. If the original pipeline uses heavy LLMs for scoring, we will use a **sampled subset** of scenarios (e.g., 50 scenarios) for the full sweep if the full run exceeds 6 hours, or rely on a lightweight scoring surrogate. *Assumption*: The scoring logic is CPU-tractable or can be approximated.
 
-### Phase 2: Re-evaluation & Censoring Handling
-1. **EVA-Bench Execution**: The original EVA-Bench scoring pipeline (verified commit `abc123` from `eva-bench/eva-bench-eval`) is run on perturbed files.
- * **GPU Check**: The pipeline is scanned for GPU dependencies. If found, `torch` is substituted with the CPU wheel.
-2. **Metric Extraction**: Extract "Turn-Taking" and "Conversation Progression" scores.
-3. **Delta Calculation**: Compute $\Delta$ = (Perturbed Score) - (Baseline Score).
-4. **Censoring Handling (Tobit)**:
- * If baseline score = 0 (floor effect), the delta is not set to 0. Instead, the data point is marked as "left-censored" at 0.
- * **Analysis**: Use Tobit regression (censored regression) as the primary model for these cases. If >5% of data is censored, exclude these cases from the primary LMM and report separately.
+### 3.3 Statistical Analysis (FR-003, FR-004, SC-002, SC-005)
+- **Repeated-Measures ANOVA**: To test if latency condition significantly affects scores (within-subjects design).
+- **Piecewise Regression**: Fit a segmented linear model to `Conversation Progression` vs. `Latency`.
+ - Model: $Y = \beta_0 + \beta_1 X + \beta_2 (X - \tau)_+ + \epsilon$
+ - Where $\tau$ is the breakpoint (threshold).
+ - Method: Grid search for $\tau$ (200–2000ms) or use `segmented` package in Python (if available) or custom implementation.
+- **Sensitivity Analysis (SC-005)**: Sweep the identified breakpoint $\tau$ over a range of $\pm 50$ ms. Recalculate the model fit for each sweep point to verify that the inflection point is stable and not an artifact of noise. Report the stability range.
 
-### Phase 3: Statistical Analysis
-1. **Primary Method: Isotonic Regression**:
- * **Reason**: With only ~15 discrete latency levels, segmented regression (piecewise linear) is unstable for estimating a continuous breakpoint.
- * **Model**: Fit an isotonic (monotonic) regression to the score-vs-latency data.
- * **Knee Point Definition**: The "knee point" is defined as the point of maximum curvature (second derivative) in the isotonic fit.
-2. **Secondary Method: Piecewise Linear Mixed-Effects Model (PLMM)**:
- * **Model**: $Score_{ij} = \beta_0 + \beta_1(Latency_{ij}) + \beta_2(Latency_{ij} - \theta)_+ + u_i + \epsilon_{ij}$
- * **Procedure**: Perform a grid search over candidate $\theta$ values (from 200ms to 2000ms) to find the one minimizing AIC. Fix $\theta$ at the optimal value and fit the PLMM.
- * **Random Effects**: Random intercepts for `Scenario_ID` and `System_ID`.
-3. **Multiple Comparison Correction**:
- * Apply **Holm-Bonferroni** correction for three primary tests:
- 1. Latency effect on Turn-Taking.
- 2. Latency effect on Progression.
- 3. Interaction effect (Latency vs. Acoustic).
+### 3.4 Comparative Analysis (FR-005, FR-008, SC-003)
+- **Normalization**: Since the x-axes (Time vs. SNR) are different, we will normalize both curves to a **0-1 Severity Scale** (0 = no degradation, 1 = max degradation observed) before comparing Areas Under the Curve (AUC).
+- **Metric**: Compare AUC(Latency) vs. AUC(Acoustic) on the normalized scale.
+- **Interaction Test**: Two-way ANOVA (Factor 1: Condition Type [Latency/Acoustic], Factor 2: Severity Level) to check for significant interaction (distinct failure modes).
+- **Within-Subjects**: Ensure the same subset of scenarios is used for both conditions to satisfy the ANOVA assumption.
 
-### Phase 4: Sensitivity Analysis (SC-005)
-1. **Sweep**: Sweep the decision cutoff (knee point) by ±50ms in 10ms increments around the estimated threshold.
-2. **Re-fit**: Re-fit the Isotonic and PLMM models at each sweep point.
-3. **Report**: Calculate the variation in the estimated knee point and the stability of the slope ratio. Report the standard deviation of the knee point estimate.
+## 4. Compute Feasibility & Constraints
 
-## Statistical Rigor & Assumptions
+- **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
+- **Strategy**:
+ - **Streaming**: Process audio files one by one or in small batches to stay under 7GB RAM.
+ - **No GPU**: Explicitly avoid `torch.cuda`. Use `scipy` and `numpy` which are CPU-native.
+ - **Power Analysis**: Before the full run, we will perform a power analysis to determine the minimum N required to detect the hypothesized effect size. If N=50 is insufficient, we will report the study as "Pilot" with low power or increase the sample size if time permits.
+ - **Time Limit**: 6 hours.
+ - Estimated time per scenario (10 latency steps) = $T$.
+ - Total time = $N \times 10 \times T$.
+ - If $T > 10$ seconds, we will default to the power-calculated sample size (or a representative sample of 50 scenarios) to ensure the CI job passes.
 
-* **Multiple Comparisons**: Holm-Bonferroni correction applied for 3 primary hypotheses (Turn-Taking, Progression, Interaction).
-* **Power Analysis**: The study utilizes 213 scenarios × 15 latency levels = 3195 data points. However, the effective sample size for detecting a specific "knee point" is sensitive to the distribution of latency levels. The clustered design (700-900ms) is intended to maximize power at the hypothesized threshold. Results will be reported as exploratory if the confidence interval for the knee point is wider than ±200ms.
-* **Causal Inference**: As this is a simulation study with controlled perturbations, causal claims are limited to the effect of the *injected* latency on the *simulated* scores. Real-world network conditions may introduce confounding variables not present in the simulation.
-* **Measurement Validity**: Pre-registered primary outcome is "Conversation Progression" to avoid tautology. "Turn-Taking" is secondary and subject to the FR-010 validation check.
-* **Collinearity**: Latency and Jitter are correlated by design. The model will treat Latency as the primary predictor and Jitter as a random noise component or include an interaction term if significant.
-* **Sparse Data Handling**: Isotonic regression is used as the primary method because segmented regression on 15 points is statistically unstable. The "knee point" is derived from the isotonic fit, not a segmented regression parameter.
+## 5. Risks & Mitigations
 
-## Feasibility on CI (2 CPU, 7GB RAM)
+| Risk | Impact | Mitigation |
+|:--- |:--- |:--- |
+| **Dataset Download Fails** | Blocker | Retry logic with exponential backoff; fail fast with clear error code. |
+| **Scoring Pipeline Too Slow** | Timeout (>6h) | Implement scenario sampling (e.g., 50 scenarios) and report as "Pilot Study" if full run fails. |
+| **Regression Fails to Converge** | Invalid Threshold | Fall back to linear regression and report "No distinct threshold detected" with confidence intervals (Edge Case). |
+| **Audio Format Mismatch** | Runtime Error | Validate audio format before injection; convert to WAV 16kHz if needed. |
+| **Metric Tautology** | Invalid Conclusion | Verify metric definitions; switch to 'Interruption Count' if 'Turn-Taking' is silence-based. |
 
-* **Audio Processing**: `librosa` is CPU-bound. Chunking ensures RAM usage stays < 7GB.
-* **Parallelization**: `multiprocessing` with 2 workers to process scenarios in parallel.
-* **Time Limit**: A large set of scenarios × ~15 latency levels = ~3195 evaluations. Assuming a moderate duration per evaluation (audio IO + scoring), total time is expected to be substantial. **Optimization**: Reduce latency levels to 10 if runtime exceeds 5 hours, or sample scenarios.
-* **Libraries**: `statsmodels`, `scipy`, and `coqui-tts` (CPU mode) are CPU-efficient and do not require GPU.
+## 6. Decision Log
 
-## Risks & Mitigations
-
-* **Risk**: EVA-Bench audio logs are missing or inaccessible.
- * **Mitigation**: Trigger FR-011 to generate synthetic audio using `Coqui TTS` with the exact dialogue scripts from the scenario metadata.
-* **Risk**: EVA-Bench evaluation code is incompatible with CI environment.
- * **Mitigation**: Containerize the evaluation logic or adapt it to a lightweight Python script. Verify `requirements.txt` for GPU dependencies and substitute CPU-only equivalents.
-* **Risk**: "Turn-Taking" metric is tautological (dependent on raw timing).
- * **Mitigation**: FR-010 logic will flag this; analysis will pivot to "Conversation Progression" as the primary outcome.
-* **Risk**: 6-hour time limit exceeded.
- * **Mitigation**: Reduce the number of latency levels (e.g., 10 instead of 15) or sample scenarios if necessary (documented in `research.md`).
+| Decision | Rationale |
+|:--- |:--- |
+| **Use `pydub` for injection** | Simpler API for silence insertion than `scipy` raw buffers; standard CPU library. |
+| **Sample scenarios if needed** | Ensures compliance with SC-004 (6h limit) while maintaining statistical validity via power analysis (or acknowledging power limits). |
+| **Acoustic Baseline Strategy** | Re-run on same subset with lightweight surrogate to satisfy FR-005 and ensure valid within-subjects ANOVA. |
+| **Normalized AUC** | Required to compare Time (ms) vs. SNR (dB) curves validly. |

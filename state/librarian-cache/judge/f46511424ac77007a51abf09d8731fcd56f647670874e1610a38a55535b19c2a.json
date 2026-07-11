@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.07367",
+  "judged_at": "2026-07-11T20:46:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"eva-bench: a new end-to-end framework for evaluating voice agents\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it proposes a benchmarking framework (FOCAL) specifically for multi-modal voice agents, directly measuring the same domain (voice agents) and mechanisms (end-to-end evaluation, error propagation, reasoning capabilities) as the user's question regarding the EVA-Bench framework. It serves as a canonical alternative-vocabulary study (criterion f) for evaluating voice agent performance, which is essential for a literature review on extending such evaluati",
+  "relevant": true
+}

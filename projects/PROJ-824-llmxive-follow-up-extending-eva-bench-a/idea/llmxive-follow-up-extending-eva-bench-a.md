@@ -5,90 +5,91 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents"
 
-**Field**: computer science
+**Field**: Computer Science
 
 ## Research question
 
-How does the injection of asynchronous network latency (jitter and variable inter-turn delays) into voice agent simulations degrade specific EVA-Bench "Turn-Taking" and "Conversation Progression" metrics compared to static acoustic perturbations, and at what latency threshold does a non-linear failure mode emerge?
+How does the introduction of asynchronous network latency (jitter and variable inter-turn delays) degrade the "Turn-Taking" and "Conversation Progression" metrics of voice agents compared to static acoustic perturbations, and does a distinct non-linear failure threshold emerge where temporal disruption outweighs acoustic noise?
 
 ## Motivation
 
-Current evaluations of voice agents prioritize acoustic robustness (accents, background noise) but largely ignore the temporal dynamics of real-world network latency, which is a primary driver of conversational breakdowns in enterprise settings. By quantifying the specific impact of latency on turn-taking metrics, this research addresses a critical gap in the EVA-Bench framework, potentially revealing failure modes that acoustic-only testing misses and guiding more robust system deployment strategies.
+Current voice agent benchmarks, including EVA-Bench, prioritize acoustic robustness (accents, background noise) but largely neglect the temporal dynamics of real-world network latency, which is a primary driver of conversational breakdowns in enterprise settings. Understanding the specific degradation curve of conversation flow under latency is critical for designing agents that maintain user trust when network conditions are suboptimal, a gap not addressed by existing acoustic-only evaluation suites.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar and arXiv using the following terms: "voice agent benchmark latency," "conversational AI turn-taking latency threshold," "EVA-Bench extension," and "network jitter impact on voice agent metrics." The search returned the foundational EVA-Bench paper and a general survey on AI agent evolution, but no specific studies isolating the quantitative impact of network jitter on the specific EVA-X "Turn-Taking" and "Conversation Progression" sub-metrics.
+We queried Semantic Scholar, arXiv, and OpenAlex using terms such as "voice agent benchmark latency," "conversational AI jitter evaluation," "turn-taking robustness network delay," and "full-duplex voice agent benchmarking." We specifically looked for studies that quantitatively measure the impact of network-induced temporal delays on dialogue flow metrics.
 
 ### What is known
-- [EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents](https://arxiv.org/abs/2605.13841) — Establishes the standard 213-scenario suite and the composite EVA-A (Accuracy) and EVA-X (Experience) metrics, noting gaps in robustness to accents and noise but not explicitly modeling network-induced temporal delays.
-- [AI Agents: Evolution, Architecture, and Real-World Applications](https://arxiv.org/abs/2503.12687) — Provides a broad overview of AI agent architectures and applications, confirming the industry shift toward voice interfaces but lacking specific empirical benchmarks for latency-induced conversational degradation.
+- [EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents (2026)](https://arxiv.org/abs/2605.13841) — Establishes a comprehensive framework for evaluating voice agents using acoustic perturbations and composite metrics for accuracy and experience, but focuses on static noise and accent robustness rather than dynamic network latency.
+- [$\tau$-Voice: Benchmarking Full-Duplex Voice Agents on Real-World Domains (2026)](https://arxiv.org/abs/2603.13686) — Addresses conversational dynamics and full-duplex capabilities, highlighting the need for better evaluation of simultaneous listening and speaking, though it does not explicitly isolate the effect of variable network jitter on turn-taking metrics.
+- [FOCAL: A Novel Benchmarking Technique for Multi-modal Agents (2026)](https://arxiv.org/abs/2601.07367) — Proposes a benchmarking technique for multi-modal agents including audio, but focuses on reasoning and tool-calling integration rather than the specific temporal degradation of voice interaction under network stress.
 
 ### What is NOT known
-No published work has empirically measured the sensitivity of EVA-Bench's "Turn-Taking" and "Conversation Progression" scores to systematic network latency injection. Specifically, the latency threshold (e.g., 800ms) at which a non-linear drop in conversation progression occurs remains unquantified within the context of the EVA-Bench enterprise scenarios.
+No published work has systematically quantified the non-linear relationship between variable inter-turn delays (jitter) and specific EVA-X sub-metrics like "Turn-Taking" and "Conversation Progression." Existing literature treats latency as a binary pass/fail condition or ignores it in favor of acoustic robustness, leaving the precise failure threshold (e.g., at what millisecond delay does conversation flow collapse?) undefined for enterprise-grade voice agents.
 
 ### Why this gap matters
-Enterprise voice agents operate over variable network conditions; without understanding the specific latency thresholds that break conversational flow, developers may deploy systems that appear robust to noise but fail catastrophically under network jitter. Filling this gap enables the creation of latency-aware robustness standards and more realistic evaluation pipelines for voice AI.
+This gap matters because enterprise voice agents operate in real-world network environments where jitter is inevitable; without knowing the specific tolerance limits for turn-taking, developers cannot optimize agent architectures for temporal robustness, leading to poor user experiences and abandoned tasks in production. Filling this gap provides a concrete design target for latency handling and a new dimension for benchmarking agent reliability.
 
 ### How this project addresses the gap
-This project extends the EVA-Bench pipeline by implementing a lightweight latency injector to systematically vary inter-turn delays across the 213 standard scenarios. By re-running the evaluation suite with these perturbations, we will generate the first empirical dataset linking specific network latency profiles to the degradation of EVA-X turn-taking metrics, directly quantifying the previously unknown failure thresholds.
+This project directly addresses the gap by implementing a controlled latency injection module within the EVA-Bench pipeline to simulate variable network delays, then measuring the resulting delta in EVA-X metrics. By systematically varying delay parameters (200ms–2000ms) and comparing the outcomes against acoustic-only baselines, we will empirically determine the non-linear failure thresholds for conversation progression that are currently missing from the literature.
 
 ## Expected results
 
-We expect to observe a non-linear degradation in EVA-X "Conversation Progression" scores, with a sharp performance drop occurring when inter-turn delays exceed 800ms. This result would confirm that latency introduces a distinct failure mode (turn boundary detection failure) not captured by the original acoustic-only perturbations, providing a concrete metric for latency robustness.
+We expect to observe a non-linear degradation in "Conversation Progression" scores, with a sharp decline occurring once inter-turn delays exceed a specific threshold (hypothesized around 800ms), indicating a distinct failure mode where agents fail to detect turn boundaries. This result would confirm that temporal disruption creates a vulnerability profile distinct from and potentially more severe than acoustic noise, necessitating new evaluation criteria for voice agents.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the EVA-Bench 213 scenario definitions and the pre-recorded audio logs for the 12 evaluated systems from the official repository (or the arXiv supplementary link if available) using `wget`.
-- **Latency Injection Module**: Implement a Python-based `LatencyInjector` class using `librosa` or `scipy` to parse audio segments and insert variable silent gaps (200ms–2000ms) and simulate packet-loss silence at random intervals within the inter-turn pauses.
-- **Simulation Execution**: Re-run the EVA-Bench evaluation pipeline (using the original scoring logic) on the modified audio streams, generating a new set of EVA-A and EVA-X scores for each latency condition.
-- **Baseline Comparison**: Compute the delta ($\Delta$) between the baseline scores (no latency) and the perturbed scores for each of the 12 systems across the 213 scenarios.
-- **Statistical Analysis**: Apply a repeated-measures ANOVA to test for significant differences in "Turn-Taking" and "Conversation Progression" scores across latency levels (200ms, 400ms, 800ms, 1200ms, 2000ms).
-- **Threshold Detection**: Fit a piecewise regression model to the score-vs-latency data to identify the specific "knee point" where the slope of degradation significantly increases (non-linear failure mode).
-- **Validation**: Compare the observed degradation patterns against the original acoustic-only perturbation results from the EVA-Bench paper to confirm that latency effects are distinct and not merely a function of reduced signal duration.
-- **Resource Management**: Ensure all audio processing is performed in chunks to stay within the 7GB RAM limit of the GitHub Actions runner, and parallelize scenario processing across the available 2 CPU cores.
+- **Data Acquisition**: Download the EVA-Bench dataset (213 enterprise scenarios) and the pre-recorded audio logs from the 12 evaluated systems directly from the source repository linked in the original EVA-Bench paper (arXiv:2605.13841).
+- **Latency Injection Module**: Develop a Python-based, CPU-only script using `pydub` or `scipy` to insert variable inter-turn delays (ranging from 200ms to 2000ms in 200ms increments) and random packet-loss silence gaps into the existing audio streams.
+- **Simulation Execution**: Re-run the EVA-Bench evaluation pipeline on the modified audio streams, ensuring the scoring logic remains identical to the original study to isolate the variable of latency.
+- **Metric Extraction**: Extract the specific EVA-X sub-metrics ("Turn-Taking" and "Conversation Progression") and EVA-A scores for each latency condition and compare them against the baseline (0ms delay) and the original acoustic perturbation results.
+- **Statistical Analysis**: Perform a repeated-measures ANOVA to determine if the differences in scores across latency conditions are statistically significant, followed by a piecewise regression analysis to identify the specific inflection point (threshold) where score degradation accelerates.
+- **Validation Independence**: Validate the findings by correlating the observed score drops with the injected delay parameters (independent variable), ensuring the evaluation metric (dependent variable) is not mathematically derived from the delay itself but is a result of the agent's behavioral response to the delay.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: EVA-Bench extension (latency), Voice agent robustness survey, AI agent architecture evolution.
-- Closest match: EVA-Bench extension (latency) (similarity sketch: The proposed idea is a direct follow-up to the original EVA-Bench paper, focusing specifically on the unaddressed variable of network latency rather than a duplicate of the original acoustic robustness study).
+- Reviewed existing ideas: EVA-Bench acoustic robustness extension, FOCAL multi-modal benchmarking, $\tau$-Voice full-duplex analysis.
+- Closest match: $\tau$-Voice (similarity sketch: both address full-duplex/dynamic evaluation, but $\tau$-Voice focuses on simultaneous listening/speaking domains without isolating network jitter effects).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T20:27:34Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T20:46:23Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents" computer science
-**Verified citation count**: 2
+**Verified citation count**: 4
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents" computer science | 0 |
-| 1 | voice agent evaluation frameworks | 5 |
-| 2 | conversational AI benchmarking | 0 |
-| 3 | multimodal voice assistant testing | 0 |
-| 4 | end-to-end speech interaction evaluation | 0 |
-| 5 | spoken dialogue system metrics | 0 |
-| 6 | voice AI performance assessment | 0 |
-| 7 | natural language voice agent benchmarks | 0 |
-| 8 | speech-based agent evaluation protocols | 0 |
-| 9 | automated voice assistant testing | 0 |
-| 10 | real-time voice interaction evaluation | 0 |
-| 11 | voice agent robustness testing | 0 |
-| 12 | conversational agent evaluation suites | 0 |
-| 13 | speech recognition and generation benchmarks | 0 |
-| 14 | voice-driven AI system assessment | 0 |
-| 15 | human-voice agent interaction evaluation | 0 |
-| 16 | voice AI safety and reliability testing | 0 |
-| 17 | end-to-end speech dialogue evaluation | 0 |
-| 18 | voice assistant latency and accuracy metrics | 0 |
-| 19 | multimodal conversational AI evaluation | 0 |
-| 20 | voice agent user experience assessment | 0 |
+| 1 | Voice agent evaluation benchmarks | 5 |
+| 2 | End-to-end voice assistant testing frameworks | 0 |
+| 3 | Conversational AI evaluation metrics | 0 |
+| 4 | Spoken dialogue system assessment | 0 |
+| 5 | Voice user interface benchmarking | 0 |
+| 6 | Multimodal voice agent performance evaluation | 0 |
+| 7 | Automated speech interaction testing | 0 |
+| 8 | Voice assistant robustness evaluation | 0 |
+| 9 | Natural language understanding for voice agents | 0 |
+| 10 | Speech recognition and synthesis evaluation pipelines | 0 |
+| 11 | Real-time voice agent latency testing | 0 |
+| 12 | Human-computer voice interaction assessment | 0 |
+| 13 | Voice agent safety and alignment benchmarks | 0 |
+| 14 | End-to-end spoken language system validation | 0 |
+| 15 | Voice AI task-oriented dialogue evaluation | 0 |
+| 16 | Large language model voice interface testing | 0 |
+| 17 | Conversational agent quality assurance frameworks | 0 |
+| 18 | Voice agent error analysis and metrics | 0 |
+| 19 | Multi-turn voice dialogue evaluation | 0 |
+| 20 | Synthetic voice agent testing environments | 0 |
 
 ### Verified citations
 
 1. **EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents** (2026). Tara Bogavelli, Gabrielle Gauthier Melançon, Katrina Stankiewicz, Oluwanifemi Bamgbose, Fanny Riols, et al.. arXiv. [2605.13841](https://arxiv.org/abs/2605.13841). PDF-sampled: No.
-2. **AI Agents: Evolution, Architecture, and Real-World Applications** (2025). Naveen Krishnan. arXiv. [2503.12687](https://arxiv.org/abs/2503.12687). PDF-sampled: No.
+2. **FOCAL: A Novel Benchmarking Technique for Multi-modal Agents** (2026). Anupam Purwar, Aditya Choudhary. arXiv. [2601.07367](https://arxiv.org/abs/2601.07367). PDF-sampled: No.
+3. **Latent linguistic embedding for cross-lingual text-to-speech and voice conversion** (2020). Hieu-Thi Luong, Junichi Yamagishi. arXiv. [2010.03717](https://arxiv.org/abs/2010.03717). PDF-sampled: No.
+4. **$τ$-Voice: Benchmarking Full-Duplex Voice Agents on Real-World Domains** (2026). Soham Ray, Keshav Dhandhania, Victor Barres, Karthik Narasimhan. arXiv. [2603.13686](https://arxiv.org/abs/2603.13686). PDF-sampled: No.

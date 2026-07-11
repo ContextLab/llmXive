@@ -1,0 +1,86 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EVA-Bench Dataset Schema"
+description: "Schema for validating the EVA-Bench dataset metadata and structure."
+type: object
+required:
+  - metadata
+  - scenarios
+properties:
+  metadata:
+    type: object
+    required:
+      - version
+      - source
+      - created_at
+      - checksum
+    properties:
+      version:
+        type: string
+        description: "Dataset version string (e.g., '1.0.0')"
+      source:
+        type: string
+        description: "Original source of the dataset (e.g., 'HuggingFace/eva-bench-v1')"
+      created_at:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of dataset creation"
+      checksum:
+        type: string
+        description: "SHA-256 checksum of the dataset archive"
+      license:
+        type: string
+        description: "License identifier (e.g., 'MIT', 'Apache-2.0')"
+      total_scenarios:
+        type: integer
+        minimum: 0
+        description: "Total number of scenarios in the dataset"
+  scenarios:
+    type: array
+    description: "List of scenario definitions"
+    items:
+      type: object
+      required:
+        - id
+        - name
+        - audio_file
+        - expected_turns
+        - metrics
+      properties:
+        id:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          description: "Unique scenario identifier"
+        name:
+          type: string
+          description: "Human-readable scenario name"
+        description:
+          type: string
+          description: "Optional detailed description"
+        audio_file:
+          type: string
+          pattern: "^[a-zA-Z0-9_.-]+$"
+          description: "Filename of the audio file relative to data/raw/"
+        audio_duration_sec:
+          type: number
+          minimum: 0
+          description: "Duration of the audio in seconds"
+        expected_turns:
+          type: integer
+          minimum: 1
+          description: "Expected number of conversation turns"
+        metrics:
+          type: array
+          description: "List of metrics to evaluate for this scenario"
+          items:
+            type: string
+            enum:
+              - "Conversation Progression"
+              - "Turn-Taking"
+              - "Content Relevance"
+              - "Latency Sensitivity"
+        tags:
+          type: array
+          items:
+            type: string
+          description: "Optional tags for categorization"
+additionalProperties: false

@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Latency Injection Configuration Schema"
+description: "Schema for validating latency injection parameters and results."
+type: object
+required:
+  - injection_config
+properties:
+  injection_config:
+    type: object
+    required:
+      - latency_steps
+      - tolerance_ms
+      - seed
+    properties:
+      latency_steps:
+        type: array
+        description: "List of latency values in milliseconds to inject"
+        items:
+          type: integer
+          minimum: 0
+        minItems: 1
+      tolerance_ms:
+        type: number
+        minimum: 0
+        default: 10
+        description: "Allowed tolerance in milliseconds for injected silence (±)"
+      seed:
+        type: integer
+        description: "Random seed for reproducibility"
+      output_dir:
+        type: string
+        description: "Directory path for injected audio files"
+      audio_format:
+        type: string
+        enum:
+          - "wav"
+          - "mp3"
+          - "flac"
+        default: "wav"
+        description: "Output audio format"
+  results:
+    type: object
+    description: "Optional results object for validation after injection"
+    properties:
+      scenario_id:
+        type: string
+      original_hash:
+        type: string
+        description: "SHA-256 hash of original audio content (excluding silence)"
+      injected_hash:
+        type: string
+        description: "SHA-256 hash of injected audio"
+      injected_duration_ms:
+        type: integer
+        minimum: 0
+        description: "Actual duration of injected silence in milliseconds"
+      expected_duration_ms:
+        type: integer
+        minimum: 0
+        description: "Expected duration of injected silence in milliseconds"
+      deviation_ms:
+        type: number
+        description: "Absolute deviation from expected duration"
+      passed_tolerance:
+        type: boolean
+        description: "Whether the deviation is within tolerance_ms"
+      timestamp:
+        type: string
+        format: date-time
+additionalProperties: false

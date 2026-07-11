@@ -37,26 +37,26 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a.yaml` `updated_at` timestamp.
 
-### VI. Temporal Perturbation Fidelity
+### VI. Temporal Robustness and Jitter Simulation
 
-All latency injection experiments MUST strictly adhere to the defined
-inter-turn delay intervals (200ms–2000ms) and silent gap insertion logic
-specified in the `LatencyInjector` class, as these parameters directly
-determine the detection of the hypothesized non-linear failure mode at the
-800ms threshold. The injection of jitter and variable delays MUST be
-deterministic per seed to ensure the `Delta` calculations between baseline
-and perturbed EVA-X scores accurately reflect network-induced degradation
-rather than implementation variance.
+Every latency injection experiment MUST explicitly vary inter-turn delays
+between 200ms and 2000ms in 200ms increments, as defined in the
+methodology sketch, using the `pydub` or `scipy` module to modify the
+original EVA-Bench audio streams. The evaluation MUST isolate the variable
+of temporal disruption (jitter) from acoustic perturbations, ensuring that
+the "Turn-Taking" and "Conversation Progression" metrics are measured
+against these specific delay parameters to identify the non-linear failure
+threshold (hypothesized around 800ms) where conversation flow degrades.
 
-### VII. Resource-Constrained Audio Processing
+### VII. Statistical Validation of Non-Linear Degradation
 
-Audio processing pipelines MUST operate in chunks to remain within the
-7GB RAM limit of the GitHub Actions runner, and all scenario processing
-MUST be parallelized across the available 2 CPU cores. This principle
-governs the specific implementation constraints of the simulation execution
-to ensure the 213 scenarios can be re-evaluated without runtime failure or
-resource exhaustion, directly addressing the "Resource Management"
-requirements of the methodology sketch.
+All reported degradation curves MUST be derived from a repeated-measures
+ANOVA followed by piecewise regression analysis to pinpoint the specific
+inflection point of score acceleration. The project MUST validate that the
+observed metric drops correlate with the injected delay parameters
+(independent variable) and are not mathematically derived from the delay
+itself, confirming the behavioral response of the agents to temporal
+disruption as distinct from acoustic noise.
 
 ## Reproducibility Requirements
 

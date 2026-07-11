@@ -1,123 +1,100 @@
 # Feature Specification: llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents"
 
-**Feature Branch**: `001-gene-regulation`  
+**Feature Branch**: `001-llmxive-latency-study`  
 **Created**: 2026-07-12  
 **Status**: Draft  
-**Input**: User description: "llmXive follow-up: extending 'EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents' - Research question: How does the injection of asynchronous network latency (jitter and variable inter-turn delays) into voice agent simulations degrade specific EVA-Bench 'Turn-Taking' and 'Conversation Progression' metrics compared to static acoustic perturbations, and at what latency threshold does a non-linear failure mode emerge?"
+**Input**: User description: "llmXive follow-up: extending 'EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents'"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Latency Injection Pipeline (Priority: P1)
+### User Story 1 - Latency Injection & Baseline Execution (Priority: P1)
 
-**Description**: As a researcher, I need a reliable mechanism to inject variable network latency (jitter and inter-turn delays ranging from ms to high magnitudes) into the EVA-Bench scenario audio streams so that I can simulate real-world network conditions without modifying the original agent models.
+As a researcher, I need to inject variable network latency (jitter and inter-turn delays) into the EVA-Bench audio streams and re-run the evaluation pipeline so that I can isolate the effect of temporal disruption from acoustic noise.
 
-**Why this priority**: This is the foundational data generation step. Without the ability to systematically perturb the audio inputs with controlled latency, the subsequent evaluation and statistical analysis cannot occur. It is the prerequisite for all other stories.
+**Why this priority**: This is the foundational capability. Without the ability to systematically alter the input data and re-execute the scoring logic, no comparative analysis can occur. It directly enables the core research question regarding the degradation of metrics.
 
-**Independent Test**: The system is tested by running the `LatencyInjector` on a single EVA-Bench scenario file with a fixed 500ms delay and verifying that the output audio file has a duration strictly greater than the input duration, while preserving the original audio content elsewhere.
+**Independent Test**: The system can be tested by taking a single EVA-Bench scenario, injecting a fixed delay, re-running the pipeline, and verifying that the output log contains a modified inter-turn gap consistent with the injected delay while the original acoustic content remains unchanged.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid EVA-Bench scenario audio file, **When** the injector is configured with a 800ms inter-turn delay, **Then** the output audio file must have a silent gap of appropriate duration inserted at the designated turn boundary.
-2. **Given** a set of scenario files, **When** the injector is run with a jitter parameter of ±50ms, **Then** the inserted gaps must vary randomly within the specified range across multiple runs, while the mean gap remains at the target value.
-3. **Given** an audio file exceeding 7GB in size (simulated via chunking), **When** the injector processes it, **Then** the The process must complete without exceeding a predetermined RAM threshold by processing in chunks..
+1. **Given** a valid EVA-Bench audio scenario file, **When** the latency injection module applies a 200ms delay, **Then** the resulting audio file must have an inter-turn silence gap of 200ms ± 10ms, and the original speech content must be bit-identical to the source.
+2. **Given** the modified audio file, **When** the EVA-Bench evaluation pipeline executes, **Then** the system must generate a score report containing the "Turn-Taking" and "Conversation Progression" metrics without throwing runtime errors due to audio format mismatches.
+3. **Given** a set of 10 scenarios, **When** the script iterates through them with a 1000ms delay, **Then** all 10 scenarios must complete execution within 360 seconds on a standard CPU runner, ensuring the process is CPU-tractable.
 
 ---
 
-### User Story 2 - EVA-Bench Re-evaluation (Priority: P2)
+### User Story 2 - Threshold Detection & Non-Linear Analysis (Priority: P2)
 
-**Description**: As a researcher, I need to re-run the original EVA-Bench scoring logic on the latency-perturbed audio streams to generate new EVA-A (Accuracy) and EVA-X (Experience) scores, specifically isolating the "Turn-Taking" and "Conversation Progression" sub-metrics.
+As a researcher, I need to execute the evaluation across a range of latency increments (200ms to 2000ms) and perform piecewise regression so that I can identify the specific non-linear failure threshold where conversation flow collapses.
 
-**Why this priority**: This step generates the dependent variable data. It validates that the injection pipeline successfully interacts with the evaluation framework and produces comparable metrics to the baseline.
+**Why this priority**: This addresses the specific hypothesis of the research question (the existence of a "tipping point"). It transforms raw data into the primary scientific insight (the threshold value).
 
-**Independent Test**: The system is tested by comparing the original baseline scores (0ms latency) against the scores generated from the same scenarios with 0ms latency injected; the delta must be zero within a floating-point tolerance., confirming the evaluator logic is unchanged and the pipeline is stable.
+**Independent Test**: The system can be tested by running the full sweep (200ms–2000ms) on a subset of 5 scenarios, extracting the "Conversation Progression" scores, and verifying that a piecewise regression model is fitted and an inflection point is reported in the summary statistics.
 
 **Acceptance Scenarios**:
 
-1. **Given** a set of latency-perturbed audio files, **When** the EVA-Bench evaluation pipeline is executed, **Then** the system must output a CSV containing the new EVA-X "Turn-Taking" and "Conversation Progression" scores for each scenario.
-2. **Given** a scenario where the injected latency causes a turn-taking failure, **When** the evaluation runs, **Then** the "Turn-Taking" score must reflect a degradation compared to the baseline (delta < 0).
-3. **Given** the full 213 scenarios, **When** processed in parallel across 2 CPU cores, **Then** the total execution time must remain within 6 hours to ensure adherence to the CI limit.
+1. **Given** the full set of latency conditions (200ms, 400ms, ..., 2000ms), **When** the analysis script runs, **Then** it must output a segmented linear model with a pre-specified breakpoint or a non-parametric trend model, reporting an inflection point (threshold) and a goodness-of-fit statistic (R²) for the "Conversation Progression" metric.
+2. **Given** the regression results, **When** the system compares any adjacent latency steps, **Then** it must flag if the score drop between these steps exceeds a relative decline ≥ 15%, indicating a potential non-linear collapse.
+3. **Given** the dataset, **When** the piecewise regression is computed, **Then** the entire analysis (including model fitting) must complete in ≤ 45 minutes on a CPU-only environment to ensure reproducibility within CI limits.
 
 ---
 
-### User Story 3 - Threshold Detection & Statistical Analysis (Priority: P3)
+### User Story 3 - Comparative Robustness Reporting (Priority: P3)
 
-**Description**: As a researcher, I need the system to perform a Linear Mixed-Effects Model (LMM) and segmented regression analysis on the score deltas to identify the specific latency "knee point" (threshold) where non-linear degradation occurs and to verify the statistical significance of the findings.
+As a researcher, I need to generate a comparative report that contrasts the degradation curves of "Turn-Taking" under latency versus the known degradation under acoustic noise (from the original EVA-Bench paper) so that I can validate if temporal disruption is a distinct failure mode.
 
-**Why this priority**: This is the core research output. It transforms raw data into the scientific answer regarding the latency threshold and failure modes.
+**Why this priority**: This provides the contextual validity of the findings, allowing the researcher to claim that the new vulnerability profile is distinct from existing knowledge, fulfilling the "gap analysis" requirement.
 
-**Independent Test**: The system is tested by feeding it a synthetic dataset with a known linear drop until 800ms and a sharp drop thereafter; the analysis module must correctly identify the break point at 800ms with a p-value < 0.05 for the non-linearity.
-
-**Acceptance Scenarios**:
-
-1. **Given** the delta scores across latency levels (continuous variable), **When** the LMM is run, **Then** the system must output a p-value indicating whether the effect of latency on scores is statistically significant.
-2. **Given** the score-vs-latency data, **When** the segmented regression model is fitted, **Then** the system must report the specific "knee point" latency value where the slope of degradation significantly increases.
-3. **Given** multiple hypothesis tests (one for Turn-Taking, one for Progression), **When** the analysis completes, **Then** the system must apply a multiple-comparison correction (e.g., Bonferroni) and report adjusted p-values.
-
----
-
-### User Story 4 - Static Acoustic Perturbation Arm (Priority: P4)
-
-**Description**: As a researcher, I need to apply static acoustic perturbations (e.g., white noise, reverberation) to a subset of the EVA-Bench scenarios to establish a control condition, allowing for a comparison between latency-induced degradation and acoustic-induced degradation.
-
-**Why this priority**: The research question explicitly asks for a comparison against "static acoustic perturbations". Without this arm, the study cannot distinguish whether degradation is unique to latency or a general artifact of signal perturbation.
-
-**Independent Test**: The system is tested by applying a fixed noise floor to a scenario and verifying that the EVA-X "Conversation Progression" score changes, while the "Turn-Taking" score (if perceptual) remains stable or changes differently than with latency injection.
+**Independent Test**: The system can be tested by generating a CSV or JSON report that includes columns for "Latency Condition," "Turn-Taking Score," and "Acoustic Baseline Score," verifying that the comparison logic correctly aligns the metrics.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid EVA-Bench scenario audio file, **When** the `AcousticPerturber` is run with a signal-to-noise ratio of 15dB, **Then** the output audio must contain the added noise without altering the timing of turn boundaries.
-2. **Given** the perturbed audio, **When** the EVA-Bench evaluation pipeline is executed, **Then** the system must output a CSV containing the EVA-X scores for the acoustic condition.
-3. **Given** both latency and acoustic results, **When** the analysis runs, **Then** the system must report a comparative metric (e.g., interaction effect) indicating if latency causes distinct degradation patterns.
+1. **Given** the results from the latency sweep and the reference acoustic baseline data, **When** the comparison module executes, **Then** it must output a normalized degradation curve (score vs. delay) and a separate curve for acoustic noise (score vs. SNR) for direct visual or statistical comparison.
+2. **Given** the two degradation curves, **When** the system calculates the area under the curve (AUC) for both, **Then** it must report the difference in AUC to quantify the relative severity of temporal vs. acoustic disruption.
+3. **Given** the final report, **When** a reviewer inspects the "Distinct Failure Mode" conclusion, **Then** the report must explicitly state whether the latency threshold is statistically distinct from the acoustic noise failure point based on the repeated-measures ANOVA results.
 
 ### Edge Cases
 
-- **Audio Length Limit**: If the injected latency causes the audio stream to exceed the EVA-Bench maximum duration, the system MUST truncate the audio to 5 minutes, log a warning, and record the score as `null` for that scenario.
-- **Floor Effect**: If the baseline EVA-Bench score is already 0, the system MUST skip the delta calculation for that specific metric and record the delta as 0, logging a "floor effect" warning.
-- **Parsing Error**: If the network jitter simulation results in a gap that overlaps with a spoken segment due to parsing errors, the system MUST revert to the nearest safe turn boundary (±50ms), log the correction, and proceed.
+- What happens if the EVA-Bench dataset download fails or the audio files are corrupted? (System must fail fast with a clear error code and not proceed to analysis).
+- How does the system handle scenarios where the agent's response time is naturally longer than the injected delay, potentially masking the jitter effect? (The analysis must flag these as "masked" and exclude them from the threshold calculation or apply a correction factor).
+- What if the piecewise regression fails to converge due to low variance in scores across latency steps? (The system must default to a linear regression and report a "No distinct threshold detected" status with a confidence interval).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST implement a `LatencyInjector` that inserts silent gaps of variable duration (200ms–2000ms) and jitter (±50ms) at turn boundaries in EVA-Bench audio files (See US-1).
-- **FR-002**: System MUST execute the original EVA-Bench evaluation pipeline on the perturbed audio files to generate new EVA-A and EVA-X scores without modifying the original scoring logic (See US-2).
-- **FR-003**: System MUST calculate the delta ($\Delta$) between baseline scores and perturbed scores for each of the **evaluated systems** across the 213 scenarios (See US-2).
-- **FR-004**: System MUST perform a **Linear Mixed-Effects Model (LMM)** to test for significant differences in "Turn-Taking" and "Conversation Progression" scores across the continuous latency variable (See US-3).
-- **FR-005**: System MUST fit a segmented regression model to the score-vs-latency data to identify the specific "knee point" where the slope of degradation significantly increases (See US-3).
-- **FR-006**: System MUST apply a multiple-comparison correction (e.g., Bonferroni or Holm-Bonferroni) when reporting p-values for the LMM results (See US-3).
-- **FR-007**: System MUST process audio files in chunks to ensure peak RAM usage remains within acceptable system limits during the injection and evaluation phases (See US-1).
-- **FR-008**: System MUST implement an `AcousticPerturber` that adds static noise or reverberation to audio files without altering turn boundaries (See US-4).
-- **FR-009**: System MUST generate a comparative report between the latency-induced degradation and the acoustic-induced degradation (See US-4).
-- **FR-010**: System MUST validate the EVA-X "Turn-Taking" metric definition; if the metric is computationally dependent on raw timing, the system MUST flag this tautology risk and adjust the analysis to isolate perceptual effects (See US-2).
-- **FR-011**: If the EVA-Bench audio logs are missing, the system MUST generate synthetic audio representations of multiple systems using a TTS engine with known characteristics to proceed with the experiment (See Assumptions).
+- **FR-001**: System MUST implement a latency injection module using `pydub` or `scipy` to insert variable inter-turn delays ranging from 200ms to 2000ms in 200ms increments into EVA-Bench audio streams. (See US-1)
+- **FR-002**: System MUST re-execute the original EVA-Bench scoring pipeline on the modified audio streams without altering the internal scoring logic or metric definitions. (See US-1)
+- **FR-003**: System MUST perform a repeated-measures ANOVA to determine statistical significance of score differences across the latency conditions. (See US-2)
+- **FR-004**: System MUST fit a segmented linear model with a pre-specified breakpoint or a non-parametric trend test to the "Conversation Progression" scores to identify the specific inflection point (threshold) where degradation accelerates. (See US-2)
+- **FR-005**: System MUST generate a comparative report contrasting the latency-induced degradation curve against the acoustic-noise degradation curve, where the acoustic baseline is constructed by re-running the original EVA-Bench pipeline on the same dataset with acoustic perturbations. (See US-3)
+- **FR-006**: System MUST run the evaluation pipeline without model quantization or hardware acceleration (GPU/CUDA). (See US-1)
+- **FR-007**: System MUST optimize the pipeline execution to ensure the full dataset analysis completes within 6 hours on a CPU-only runner. (See US-1, SC-004)
+- **FR-008**: System MUST perform a statistical comparison (interaction test or t-test) between the latency failure point and the acoustic noise failure point to validate distinctness. (See US-3)
+- **FR-009**: System MUST utilize behavioral metrics (e.g., task completion, semantic coherence) that are not mathematically derived from the injected delay to prevent tautological validation. (See US-2)
 
 ### Key Entities
 
-- **Scenario**: Represents a single entry from the EVA-Bench 213-scenario suite, containing the original audio file path and metadata.
-- **PerturbationProfile**: Defines the specific latency conditions (mean delay, jitter range) or acoustic conditions (SNR, reverberation time) applied to a set of scenarios.
-- **EvaluationResult**: Contains the computed EVA-A and EVA-X scores (specifically Turn-Taking and Conversation Progression) for a specific Scenario under a specific PerturbationProfile.
-- **ThresholdModel**: The output of the segmented regression, containing the identified knee point latency and the slopes of the degradation curves.
+- **LatencyCondition**: Represents a specific injected delay value (e.g., 200ms, 800ms) and its associated metadata (jitter profile, silence gap).
+- **EvaluationMetric**: Represents a specific EVA-X sub-metric (e.g., "Turn-Taking", "Conversation Progression") and its scored value for a given condition.
+- **DegradationCurve**: A derived entity representing the relationship between latency values and metric scores, including the fitted regression model parameters.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The latency injection mechanism MUST be validated by confirming that the output audio duration increases by the target delay value **within ±1 sample of the target delay** relative to the sampling rate, measured against the original file metadata (See US-1, FR-001).
-- **SC-002**: The statistical analysis MUST **report the p-value and apply the alpha=0.05 threshold** for the effect of latency on EVA-X "Conversation Progression" scores, measured against the null hypothesis of no effect (See US-3, FR-004, FR-006).
-- **SC-003**: The segmented regression model MUST **report the slope ratio and flag if it exceeds a predefined threshold**, measured against the fitted model parameters (See US-3, FR-005).
-- **SC-004**: The entire analysis pipeline (injection + evaluation + statistics) for the full 213 scenarios MUST complete within 6 hours on a 2-CPU, 7GB RAM runner, measured against the CI job timeout limit (See US-1, FR-007).
-- **SC-005**: The sensitivity analysis for the threshold detection MUST report the variation in the identified "knee point" when the decision cutoff is swept over a range of ±50ms, measured against the stability of the reported threshold (See US-3).
-- **SC-006**: The comparative analysis MUST report the interaction effect between perturbation type (latency vs. acoustic) and metric degradation, measured against the comparative report output (See US-4, FR-009).
+- **SC-001**: The latency injection process must successfully modify all target EVA-Bench scenarios with the specified delay increments without data corruption. (See FR-001, US-1)
+- **SC-002**: The segmented linear model or non-parametric test must identify a statistically significant inflection point (p < 0.05) for the "Conversation Progression" metric, or explicitly report "No threshold detected" with a confidence interval. (See FR-004, US-2)
+- **SC-003**: The comparative analysis must demonstrate a distinct degradation profile for latency compared to acoustic noise, quantified by a statistically significant or substantial difference in Area Under the Curve (AUC) or a statistically significant interaction effect in the ANOVA. (See FR-005, FR-008, US-3)
+- **SC-004**: The entire end-to-end analysis (injection, execution, and modeling) for the full dataset must complete within 6 hours on a CPU-only GitHub Actions runner with ≤ 7 GB RAM. (See FR-006, FR-007, US-1)
+- **SC-005**: The final report must include a sensitivity analysis of the identified threshold, sweeping the decision cutoff (the inflection point found in SC-002) over a range of ± 50ms to demonstrate stability. (See FR-004, US-2)
 
 ## Assumptions
 
-- The EVA-Bench repository (or arXiv supplementary link) contains downloadable audio logs for the evaluated systems and the scenario definitions, and these are accessible via `wget` without authentication. **If this assumption is false, FR-011 (synthetic audio generation) MUST be triggered.**
-- The original EVA-Bench evaluation code is compatible with the Python environment available on the GitHub Actions free-tier runner (Python 3.x, standard libraries, `scipy`, `numpy`, `librosa`).
-- The "Turn-Taking" and "Conversation Progression" sub-metrics are explicitly exposed in the EVA-Bench output format and can be parsed programmatically.
-- The dataset (a comprehensive set of scenarios across multiple systems) fits within the available disk limit when including temporary audio files with injected latency..
-- The "non-linear failure mode" is expected to manifest as a sharp drop in scores at a specific latency threshold (e.g., 800ms) rather than a gradual linear decline, based on the literature gap analysis.
-- The `librosa` or `scipy` libraries used for audio processing are CPU-efficient enough to process the audio chunks within the 6-hour time limit.
-- The multiple-comparison correction method (Bonferroni) is appropriate for the number of hypothesis tests being conducted (2 primary metrics).
-- The EVA-X "Turn-Taking" metric is either perceptual (independent of raw timing) or the analysis in FR-010 will successfully isolate the non-tautological component of the score.
+- The EVA-Bench dataset (a collection of scenarios) and pre-recorded audio logs are accessible via the public arXiv repository and can be downloaded within the disk capacity constraints of the CI runner.
+- The original EVA-Bench evaluation pipeline is compatible with the modified audio streams generated by `pydub`/`scipy` without requiring code changes to the scoring logic.
+- The "Conversation Progression" and "Turn-Taking" metrics are sufficiently sensitive to temporal delays to produce a measurable degradation curve within the 200ms–2000ms range.
+- The analysis relies on the assumption that the agent's behavior in the pre-recorded logs is deterministic enough that re-running the pipeline yields consistent scores for the same input audio.
+- The study is observational in nature regarding the agent's response; findings will be framed as associational between latency and score degradation, not causal, unless the original EVA-Bench framework includes randomization of turn-taking which is not specified in the idea.
+- The sample size provides sufficient statistical power for the repeated-measures ANOVA.; if power is low, the result will be reported as a "trend" rather than a definitive threshold.
+- The `pydub` and `scipy` libraries are available in the standard Python environment of the GitHub Actions runner and do not require heavy compilation steps that would exceed the 6-hour time limit.

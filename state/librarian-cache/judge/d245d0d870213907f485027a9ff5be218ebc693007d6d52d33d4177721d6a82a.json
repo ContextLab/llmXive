@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "2412.09645",
-  "judged_at": "2026-07-11T20:27:21Z",
+  "judged_at": "2026-07-11T20:46:13Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"eva-bench: a new end-to-end framework for evaluating voice agents\" computer science",
-  "rationale": "The paper focuses on evaluating **visual generative models** (images and videos), whereas the user's question specifically concerns **voice agents** (audio/speech). While both fall under the broad umbrella of generative AI evaluation, the domain (visual vs. auditory) and the specific mechanisms of evaluation differ significantly, failing the \"same domain\" or \"same mechanism\" criteria required for inclusion in a literature review for voice agent frameworks.",
+  "rationale": "The paper focuses on evaluating **visual generative models** (images/video), whereas the user's question specifically concerns **voice agents** (audio/speech); while both fall under the broad umbrella of generative AI evaluation, the distinct modalities and lack of shared mechanism or domain variables mean this paper does not satisfy the inclusion criteria for a literature review on voice agent evaluation frameworks.",
   "relevant": false
 }

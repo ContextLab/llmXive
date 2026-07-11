@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Latency Injection Configuration Schema"
+description: "Schema for defining latency injection parameters."
+type: "object"
+properties:
+  delay_range:
+    type: "array"
+    description: "List of delay values in milliseconds."
+    items:
+      type: "integer"
+    minItems: 1
+  step_size:
+    type: "integer"
+    description: "Increment step in milliseconds."
+  jitter_type:
+    type: "string"
+    enum: ["none", "uniform", "gaussian"]
+    description: "Type of jitter to apply."
+  jitter_params:
+    type: "object"
+    description: "Parameters for jitter distribution."
+    properties:
+      std_dev:
+        type: "number"
+        description: "Standard deviation for gaussian jitter."
+      max_deviation:
+        type: "number"
+        description: "Max deviation for uniform jitter."
+required:
+  - "delay_range"
+  - "step_size"
+additionalProperties: false

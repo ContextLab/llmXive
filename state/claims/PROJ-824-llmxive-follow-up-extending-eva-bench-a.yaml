@@ -1,0 +1,1074 @@
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 213 scenarios processed in latency sweep 200ms-2000ms within 6 hours
+    on CPU
+  claim_id: c_51842cfb
+  context: T017 [US1] Implement batch processing loop for the full dataset (213 scenarios)
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+    (FR-007, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:10:27Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full dataset processing CPU tractability under 6 hours
+  claim_id: c_f7894219
+  context: T017 [US1] Implement batch processing loop for the full dataset (213 scenarios)
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+    (FR-007, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify CPU tractability < 6 hours for full dataset processing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:10:27Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 10-scenario subset smoke test CPU tractability under 360 seconds
+  claim_id: c_824b4291
+  context: T016 [US1] Implement batch processing loop for a smoke test on a 10-scenario
+    subset with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 360s (US-1 Acceptance 3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify CPU tractability < 360s for smoke test on 10-scenario subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:10:27Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Flag score drops of 15 percent or more between adjacent latency steps
+  claim_id: c_8259af2b
+  context: "T023 [US2] Implement logic to flag score drops \u2265 15% between adjacent\
+    \ latency steps"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Flag score drops \u2265 15% between adjacent latency steps"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:10:46Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Sweep decision cutoff 50 milliseconds around identified threshold
+  claim_id: c_32696a86
+  context: "T025 [US2] Implement sensitivity analysis: sweep decision cutoff \xB1\
+    50ms around identified threshold and generate results/sensitivity_analysis.csv\
+    \ and results/sensitivity_plot.png (SC-005)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep decision cutoff \xB150ms around identified threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:11:02Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution verification within 6 hours on standard CPU
+  claim_id: c_ea4fb89d
+  context: T037 Benchmark full pipeline execution time on a standard CPU runner to
+    verify completion within 6 hours (SC-004, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify completion within 6 hours on a standard CPU runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:11:20Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 10-scenario subset latency sweep CPU tractability under 360 seconds
+  claim_id: c_4390c065
+  context: 'Phase 3: User Story 1 - Latency Injection & Baseline Execution (Priority:
+    P1) MVP implementation tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:11:50Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 213 scenario dataset latency sweep CPU tractability under 6 hours
+  claim_id: c_414e6060
+  context: 'Phase 3: User Story 1 - Latency Injection & Baseline Execution (Priority:
+    P1) MVP implementation tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:11:50Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full analysis completion time under 45 minutes on CPU
+  claim_id: c_ba12afea
+  context: 'Phase 4: User Story 2 - Threshold Detection & Non-Linear Analysis (Priority:
+    P2) implementation tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full analysis completes within 45 minutes on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:11:50Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time on standard CPU under 6 hours
+  claim_id: c_d9005839
+  context: 'Phase N: Polish & Cross-Cutting Concerns implementation tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark full pipeline execution time on a standard CPU runner to verify
+    completion within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:12:10Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Flag score drops greater than or equal to 15 percent between adjacent
+    latency steps
+  claim_id: c_07715c92
+  context: 'Phase 4: User Story 2 - Threshold Detection & Non-Linear Analysis (Priority:
+    P2) implementation tasks.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_score_drops_greater_than_or_equal_to_15_percent_between
+  kind: magnitude
+  raw_text: "Implement logic to flag score drops \u2265 15% between adjacent latency\
+    \ steps"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:12:35Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep decision cutoff plus or minus 50 milliseconds
+    around identified threshold
+  claim_id: c_dd0e646c
+  context: 'Phase 4: User Story 2 - Threshold Detection & Non-Linear Analysis (Priority:
+    P2) implementation tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis: sweep decision cutoff \xB150ms around\
+    \ identified threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:12:56Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Injected silence duration measured against plus or minus 10 milliseconds
+    tolerance threshold
+  claim_id: c_474d90d7
+  context: 'Phase 3: User Story 1 - Latency Injection & Baseline Execution (Priority:
+    P1) implementation tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement validation in latency_injector.py to measure the injected silence\
+    \ duration against the \xB110ms tolerance threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:13:10Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: EVA-Bench dataset contains 213 scenarios
+  claim_id: c_b7cd20c5
+  context: T017 [US1] Implement batch processing loop for the full dataset (213 scenarios)
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+    (FR-007, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:16:40Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Smoke test uses 10-scenario subset
+  claim_id: c_9b1fc461
+  context: T016 [US1] Implement batch processing loop for a smoke test on a 10-scenario
+    subset with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 360s (US-1 Acceptance 3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:16:40Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Score drop threshold is 15 percent
+  claim_id: c_c01e0513
+  context: "T023 [US2] Implement logic to flag score drops \u2265 15% between adjacent\
+    \ latency steps"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "flag score drops \u2265 15% between adjacent latency steps"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:16:40Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cutoff 50ms around threshold
+  claim_id: c_776f1dd0
+  context: "T025 [US2] Implement sensitivity analysis: sweep decision cutoff \xB1\
+    50ms around identified threshold and generate results/sensitivity_analysis.csv\
+    \ and results/sensitivity_plot.png (SC-005)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_cutoff_50ms_around_threshold
+  kind: entity_fact
+  raw_text: "sweep decision cutoff \xB150ms around identified threshold"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:16:42Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time on standard CPU is within 6 hours
+  claim_id: c_bf3f6ef4
+  context: T037 Benchmark full pipeline execution time on a standard CPU runner to
+    verify completion within 6 hours (SC-004, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark full pipeline execution time on a standard CPU runner to verify
+    completion within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:16:42Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Inter-turn gap modified consistent with injected delay
+  claim_id: c_8b7f6530
+  context: 'Independent Test: The system can be tested by taking a single EVA-Bench
+    scenario, injecting a fixed delay, re-running the pipeline, and verifying that
+    the output log contains a modified inter-turn gap consistent with the injected
+    delay while the original acoustic content remains unchanged.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inter-turn_gap_modified_consistent_with_injected_delay
+  kind: entity_fact
+  raw_text: verify that the output log contains a modified inter-turn gap consistent
+    with the injected delay
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:16:59Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Piecewise regression test uses 5 scenarios
+  claim_id: c_c349ce34
+  context: 'Independent Test: The system can be tested by running the full sweep on
+    a subset of 5 scenarios, extracting the Conversation Progression scores, and verifying
+    that a piecewise regression model is fitted and an inflection point is reported.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run the full sweep on a subset of 5 scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:17:15Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 213 scenarios in full dataset with 200ms-2000ms latency sweep
+  claim_id: c_64972860
+  context: Implementation for User Story 1, Task T017
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:18:25Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 10-scenario subset smoke test with 200ms-2000ms latency sweep under 360s
+  claim_id: c_72463ff0
+  context: Implementation for User Story 1, Task T016
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:18:25Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full analysis completion time under 45 minutes on CPU
+  claim_id: c_5ca477e3
+  context: Implementation for User Story 2, Task T026
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full analysis completes within 45 minutes on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:18:25Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time under 6 hours on standard CPU
+  claim_id: c_0960030a
+  context: 'Phase N: Polish & Cross-Cutting Concerns, Task T037'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark full pipeline execution time on a standard CPU runner to verify
+    completion within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:18:25Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Flag score drops of 15% or more between adjacent latency steps
+  claim_id: c_48ee644d
+  context: Implementation for User Story 2, Task T023
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to flag score drops \u2265 15% between adjacent latency\
+    \ steps"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:18:25Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep of 50ms around identified threshold
+  claim_id: c_8a97af5e
+  context: Implementation for User Story 2, Task T025
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweep_of_50ms_around_identified_thresho
+  kind: entity_fact
+  raw_text: "Implement sensitivity analysis: sweep decision cutoff \xB150ms around\
+    \ identified threshold"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:18:27Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full sweep test on a subset of 5 scenarios
+  claim_id: c_f6c10ae5
+  context: Independent Test description for User Story 2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by running the full sweep on a subset of 5 scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:18:42Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_cfcc2c64
+  context: 'Phase 1: Setup, Task T002'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:19:01Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 10-scenario subset latency sweep CPU tractability under 360 seconds
+  claim_id: c_8b57b23d
+  context: T016 [US1] Implement batch processing loop for a **smoke test** on a **10-scenario
+    subset** with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 360s (US-1 Acceptance 3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:19:49Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 213 scenarios full dataset latency sweep CPU tractability under 6 hours
+  claim_id: c_3a9cb5e4
+  context: T017 [US1] Implement batch processing loop for the **full dataset** (213
+    scenarios) with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 6 hours (FR-007, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:19:49Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 5 scenarios subset for full sweep independent test
+  claim_id: c_a4063758
+  context: 'Independent Test: The system can be tested by running the full sweep on
+    a subset of 5 scenarios, extracting the ''Conversation Progression'' scores, and
+    verifying that a piecewise regression model is fitted and an inflection point
+    is reported.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by running the full sweep on a subset of 5 scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:19:49Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Score drop flagging threshold of 15 percent between adjacent latency
+    steps
+  claim_id: c_8612783c
+  context: "T023 [US2] Implement logic to flag score drops \u2265 15% between adjacent\
+    \ latency steps"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to flag score drops \u2265 15% between adjacent latency\
+    \ steps"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:19:49Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep decision cutoff plus or minus 50 milliseconds
+    around identified threshold
+  claim_id: c_dcb920f7
+  context: "T025 [US2] Implement sensitivity analysis: sweep decision cutoff \xB1\
+    50ms around identified threshold and generate `results/sensitivity_analysis.csv`\
+    \ and `results/sensitivity_plot.png` (SC-005)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis: sweep decision cutoff \xB150ms around\
+    \ identified threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:19:49Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 2
+  canonical: Full analysis completion time under 45 minutes on CPU
+  claim_id: c_8eae7df4
+  context: T026 [US2] Ensure full analysis completes within 45 minutes on CPU (optimize
+    batch sizes if needed)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full analysis completes within 45 minutes on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:19:49Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time on standard CPU under 6 hours
+  claim_id: c_b405e7f3
+  context: T037 Benchmark full pipeline execution time on a standard CPU runner to
+    verify completion within 6 hours (SC-004, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark full pipeline execution time on a standard CPU runner to verify
+    completion within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:19:49Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 213 scenarios in EVA-Bench dataset
+  claim_id: c_f9520031
+  context: T017 [US1] Implement batch processing loop for the full dataset (213 scenarios)
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+    (FR-007, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:22:12Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 10-scenario subset for smoke test
+  claim_id: c_46aa4022
+  context: T016 [US1] Implement batch processing loop for a smoke test on a 10-scenario
+    subset with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 360s (US-1 Acceptance 3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:22:12Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 5 scenarios for independent test subset
+  claim_id: c_b1c5b4dc
+  context: 'Independent Test: The system can be tested by running the full sweep on
+    a subset of 5 scenarios, extracting the Conversation Progression scores, and verifying
+    that a piecewise regression model is fitted and an inflection point is reported.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by running the full sweep on a subset of 5 scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:22:12Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialization
+  claim_id: c_b35fc16d
+  context: T002 Initialize Python 3.11 project with requirements.txt (pydub, scipy,
+    pandas, statsmodels, matplotlib, seaborn, requests)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:22:26Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: CPU tractability under 6 hours for full dataset
+  claim_id: c_e78de35a
+  context: T017 [US1] Implement batch processing loop for the full dataset (213 scenarios)
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+    (FR-007, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify CPU tractability < 6 hours for full dataset processing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:22:26Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full analysis completion under 45 minutes on CPU
+  claim_id: c_155a8a8c
+  context: T026 [US2] Ensure full analysis completes within 45 minutes on CPU (optimize
+    batch sizes if needed)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full analysis completes within 45 minutes on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:22:26Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution under 6 hours on standard CPU
+  claim_id: c_fcb25b94
+  context: T037 Benchmark full pipeline execution time on a standard CPU runner to
+    verify completion within 6 hours (SC-004, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark full pipeline execution time on a standard CPU runner to verify
+    completion within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:22:27Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: CPU tractability under 360s for 10-scenario subset with latency sweep
+    200ms-2000ms
+  claim_id: c_77e07366
+  context: "Phase 3: User Story 1 - Latency Injection & Baseline Execution (Priority:\
+    \ P1) \U0001F3AF MVP"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:23:44Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: CPU tractability under 6 hours for 213 scenarios with latency sweep 200ms-2000ms
+  claim_id: c_e66d7347
+  context: "Phase 3: User Story 1 - Latency Injection & Baseline Execution (Priority:\
+    \ P1) \U0001F3AF MVP"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:23:44Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Flag score drops greater than or equal to 15% between adjacent latency
+    steps
+  claim_id: c_fcad3961
+  context: 'Phase 4: User Story 2 - Threshold Detection & Non-Linear Analysis (Priority:
+    P2)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_score_drops_greater_than_or_equal_to_15%25_between_adjace
+  kind: magnitude
+  raw_text: "Implement logic to flag score drops \u2265 15% between adjacent latency\
+    \ steps"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:23:46Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full analysis completes within 45 minutes on CPU
+  claim_id: c_c2a22d20
+  context: 'Phase 4: User Story 2 - Threshold Detection & Non-Linear Analysis (Priority:
+    P2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full analysis completes within 45 minutes on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:23:46Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time under 6 hours on standard CPU runner
+  claim_id: c_52dd47e4
+  context: 'Phase N: Polish & Cross-Cutting Concerns'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark full pipeline execution time on a standard CPU runner to verify
+    completion within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:23:46Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: full dataset contains 213 scenarios
+  claim_id: c_6f31d005
+  context: T017 [US1] Implement batch processing loop for the full dataset (213 scenarios)
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+    (FR-007, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:24:38Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: smoke test uses 10-scenario subset
+  claim_id: c_d669c61e
+  context: T016 [US1] Implement batch processing loop for a smoke test on a 10-scenario
+    subset with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 360s (US-1 Acceptance 3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:24:38Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 10-scenario subset latency sweep 200ms-2000ms CPU tractability under
+    360 seconds
+  claim_id: c_e5255e70
+  context: T016 [US1] Implement batch processing loop for a **smoke test** on a **10-scenario
+    subset** with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 360s (US-1 Acceptance 3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:25:14Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 213 scenarios full dataset latency sweep 200ms-2000ms CPU tractability
+    under 6 hours
+  claim_id: c_14154ac4
+  context: T017 [US1] Implement batch processing loop for the **full dataset** (213
+    scenarios) with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 6 hours (FR-007, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:25:14Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Flag score drops of 15% or more between adjacent latency steps
+  claim_id: c_b0d770ca
+  context: "T023 [US2] Implement logic to flag score drops \u2265 15% between adjacent\
+    \ latency steps"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to flag score drops \u2265 15% between adjacent latency\
+    \ steps"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:25:14Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 2
+  canonical: Full analysis completes within 45 minutes on CPU
+  claim_id: c_b2d660d3
+  context: T026 [US2] Ensure full analysis completes within 45 minutes on CPU (optimize
+    batch sizes if needed)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full analysis completes within 45 minutes on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:25:14Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time on standard CPU runner under 6 hours
+  claim_id: c_0ba59d10
+  context: T037 Benchmark full pipeline execution time on a standard CPU runner to
+    verify completion within 6 hours (SC-004, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark full pipeline execution time on a standard CPU runner to verify
+    completion within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:25:14Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: CPU tractability of 10-scenario latency sweep (200ms-2000ms) under 360
+    seconds
+  claim_id: c_80af57e5
+  context: Task T016 involves implementing a batch processing loop for a smoke test
+    on a 10-scenario subset with the full latency sweep (200ms-2000ms) and verifying
+    CPU tractability is less than 360 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:26:53Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: CPU tractability of full dataset (213 scenarios) latency sweep (200ms-2000ms)
+    under 6 hours
+  claim_id: c_dcd6a63c
+  context: Task T017 involves implementing a batch processing loop for the full dataset
+    consisting of 213 scenarios with the full latency sweep (200ms-2000ms) and verifying
+    CPU tractability is less than 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:26:53Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Flagging logic for score drops of 15% or more between adjacent latency
+    steps
+  claim_id: c_41691fb7
+  context: Task T023 requires implementing logic to flag score drops greater than
+    or equal to 15% between adjacent latency steps.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to flag score drops \u2265 15% between adjacent latency\
+    \ steps"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:26:53Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full analysis completion time under 45 minutes on CPU
+  claim_id: c_6f852d54
+  context: Task T026 mandates ensuring the full analysis completes within 45 minutes
+    on a CPU, with optimization of batch sizes if needed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full analysis completes within 45 minutes on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:26:53Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time on standard CPU under 6 hours
+  claim_id: c_268866df
+  context: Task T037 requires benchmarking the full pipeline execution time on a standard
+    CPU runner to verify completion within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark full pipeline execution time on a standard CPU runner to verify
+    completion within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:26:53Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 213 scenarios in full dataset
+  claim_id: c_7999bac9
+  context: T017 [US1] Implement batch processing loop for the **full dataset** (213
+    scenarios) with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 6 hours (FR-007, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for the full dataset (213 scenarios) with
+    the full latency sweep (200ms-2000ms)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:29:32Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 10-scenario subset for smoke test
+  claim_id: c_1926fa24
+  context: T016 [US1] Implement batch processing loop for a **smoke test** on a **10-scenario
+    subset** with the full latency sweep (200ms-2000ms) and verify CPU tractability
+    < 360s (US-1 Acceptance 3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop for a smoke test on a 10-scenario subset
+    with the full latency sweep (200ms-2000ms)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:29:46Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: 5 scenarios for independent test subset
+  claim_id: c_aa74c23a
+  context: 'Independent Test: The system can be tested by running the full sweep on
+    a subset of 5 scenarios, extracting the ''Conversation Progression'' scores, and
+    verifying that a piecewise regression model is fitted and an inflection point
+    is reported.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by running the full sweep on a subset of 5 scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T21:29:46Z'

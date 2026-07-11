@@ -1,30 +1,34 @@
-# Implementation Plan: llmXive follow-up: extending EVA-Bench with Latency & Acoustic Perturbations
+# Implementation Plan: llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents"
 
-**Branch**: `001-gene-regulation` | **Date**: 2026-07-12 | **Spec**: `specs/001-gene-regulation/spec.md`
-**Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
+**Branch**: `001-llmxive-latency-study` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-latency-study/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-latency-study/spec.md`
 
 ## Summary
 
-This feature extends the EVA-Bench framework to investigate the impact of asynchronous network latency (jitter, variable inter-turn delays) on voice agent performance metrics, specifically "Turn-Taking" and "Conversation Progression." The technical approach involves:
-1.  **Latency Injection**: Implementing a `LatencyInjector` to insert silent gaps at turn boundaries in EVA-Bench audio files.
-2.  **Acoustic Control**: Implementing an `AcousticPerturber` to add static noise/reverberation as a control condition.
-3.  **Metric Validation**: Validating the "Turn-Taking" metric for tautology (FR-010) and switching to a non-tautological proxy if necessary.
-4.  **Re-evaluation**: Re-running the original EVA-Bench scoring pipeline on perturbed files.
-5.  **Statistical Analysis**: Using Isotonic Regression as the primary method for threshold detection (due to sparse data) and Piecewise Linear Mixed-Effects Models (PLMM) as a secondary check, with a dedicated sensitivity analysis phase.
+This project extends the EVA-Bench framework to investigate the impact of **temporal disruption** (network latency/jitter) on voice agent performance. The technical approach involves:
+1.  **Data Ingestion**: Downloading the EVA-Bench dataset (audio + metadata). *Verification*: We will confirm the presence of audio files; if only transcripts exist, we will fail fast or use a TTS fallback (Research Constraint).
+2.  **Latency Injection**: Programmatically inserting silence gaps (200ms–2000ms in 200ms steps) **strictly at turn boundaries** defined in the JSONL metadata to avoid disrupting speech content (FR-001, SC-001).
+3.  **Re-evaluation**: Re-running the original EVA-Bench scoring pipeline (or a lightweight surrogate if LLM-based) on the modified audio to generate metric scores (FR-002).
+4.  **Statistical Analysis**: Performing repeated-measures ANOVA and piecewise regression to identify non-linear failure thresholds (FR-003, FR-004, SC-002).
+5.  **Sensitivity Analysis**: Sweeping the identified breakpoint ±50ms to verify stability (SC-005).
+6.  **Comparative Reporting**: Contrasting latency degradation curves against an acoustic-noise baseline re-run on the *same* scenario subset (FR-005, FR-008, SC-003).
+7.  **Behavioral Metrics**: Utilizing 'Task Completion Rate', 'Semantic Coherence', and 'Interruption Count' to ensure metrics are not tautologically derived from silence (FR-009).
 
-All processing is constrained to run on a GitHub Actions free-tier runner (limited CPU, 7GB RAM, 6h limit) via chunked audio processing and CPU-optimized libraries.
+All processing is constrained to CPU-only execution on GitHub Actions free-tier runners (2 CPU, 7GB RAM) to ensure reproducibility and feasibility (FR-006, FR-007, SC-004).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11
-**Primary Dependencies**: `librosa` (audio processing), `pandas` (data manipulation), `statsmodels` (LMM/Regression), `scipy` (signal processing), `numpy`, `pyyaml` (config/schema), `coqui-tts` (CPU fallback for synthetic audio).
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`); no external database.
+**Primary Dependencies**: `pydub` (audio manipulation), `scipy` (signal processing), `pandas` (data handling), `statsmodels` (ANOVA/Regression), `matplotlib`/`seaborn` (visualization), `requests` (dataset fetch).
+**Storage**: Local filesystem (`data/`, `results/`). No external DB.
 **Testing**: `pytest` (unit tests for injection logic, integration tests for pipeline).
-**Target Platform**: Linux (GitHub Actions runner).
-**Project Type**: Computational Research Pipeline / CLI.
-**Performance Goals**: Process 213 scenarios within 6 hours; peak RAM < 7GB via chunking.
-**Constraints**: No GPU; audio must be processed in chunks to avoid OOM; strict adherence to injection bounds ranging from milliseconds to seconds.
-**Scale/Scope**: Multiple scenarios × multiple latency levels (uniform and clustered) × 2 perturbation types (Latency vs. Acoustic).
+**Target Platform**: Linux (GitHub Actions Ubuntu runner).
+**Project Type**: Computational Research Pipeline.
+**Performance Goals**: Full dataset analysis (213 scenarios [Source: EVA-Bench Paper, Table 1] × 10 latency steps) < 6 hours.
+**Constraints**:
+-   **No GPU/CUDA**: All libraries must have CPU wheels; no `torch` GPU ops.
+-   **Memory**: Peak RAM usage < 7 GB (requires streaming audio processing or batched loading).
+-   **Data Integrity**: Raw audio must remain bit-identical except for injected silence (SC-001). *See Data Hygiene rules in `data-model.md` Section 4.*
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -32,82 +36,66 @@ All processing is constrained to run on a GitHub Actions free-tier runner (limit
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action/Verification |
+| Principle | Status | Implementation Detail |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds in `LatencyInjector`, and deterministic chunking logic. |
-| **II. Verified Accuracy** | **PASS** | All citations in `research.md` will be validated against primary sources (EVA-Bench paper, statsmodels docs) before merging. |
-| **III. Data Hygiene** | **PASS** | Raw data (EVA-Bench audio) will be checksummed. Perturbed files will be written as new artifacts with derivation logs. |
-| **IV. Single Source of Truth** | **PASS** | Final metrics will be extracted directly from `data/processed/results.csv` generated by `code/`, not hand-typed. |
-| **V. Versioning Discipline** | **PASS** | **Explicit Step Added**: Phase 1 and Phase 4 include a `hash-artifacts` script that computes SHA-256 for all outputs and updates `state/...yaml` automatically. |
-| **VI. Temporal Perturbation Fidelity** | **PASS** | `LatencyInjector` logic will strictly enforce a bounded latency range from milliseconds to seconds and deterministic jitter per seed as required. |
-| **VII. Resource-Constrained Audio Processing** | **PASS** | Implementation will use chunked I/O via `librosa.stream` in `code/injectors/latency.py` to stay within 7GB RAM. Parallelization limited to workers. |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. EVA-Bench dataset fetched from canonical HuggingFace URL every run. `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | EVA-Bench dataset URL verified in `research.md`. Citations to the original paper will be validated by the Reference-Validator Agent. **Blocking Gate**: The project cannot proceed to `research_complete` without a successful Reference-Validator run. |
+| **III. Data Hygiene** | **PASS** | Raw data downloaded to `data/raw/` with checksums. Modified audio written to `data/processed/` with new filenames. No in-place edits. |
+| **IV. Single Source of Truth** | **PASS** | All figures/statistics in `paper/` generated from `results/` CSVs derived from `code/`. No hand-typed numbers. |
+| **V. Versioning Discipline** | **PASS** | Artifacts under `data/` and `code/` will carry content hashes in `state/`. *Workflow*: A CI script `scripts/update-hashes.sh` will generate SHA-256 hashes for all `data/` and `code/` files and update `state/projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a.yaml` on every commit. |
+| **VI. Temporal Robustness** | **PASS** | Latency injection explicitly varies 200ms–2000ms in 200ms increments (FR-001, Const-VI). |
+| **VII. Statistical Validation** | **PASS** | Plan includes Repeated-Measures ANOVA and Piecewise Regression (FR-003, FR-004, Const-VII). |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-gene-regulation/
+specs/001-llmxive-latency-study/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output (schemas for validation)
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── injection.schema.yaml
+    └── results.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/
-├── data/
-│   ├── raw/                 # Original EVA-Bench audio (downloaded)
-│   ├── processed/           # Perturbed audio, CSV results
-│   └── checksums.json       # Integrity records
-├── code/
-│   ├── __init__.py
-│   ├── config.py            # Path config, random seeds
-│   ├── injectors/
-│   │   ├── __init__.py
-│   │   ├── latency.py       # LatencyInjector class (uses librosa.stream)
-│   │   └── acoustic.py      # AcousticPerturber class
-│   ├── synthetic/           # FR-011: Synthetic audio generation
-│   │   └── tts_engine.py    # Coqui TTS wrapper with scenario scripts
-│   ├── evaluation/
-│   │   ├── __init__.py
-│   │   └── runner.py        # EVA-Bench wrapper/runner (CPU-safe)
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── metric_check.py  # FR-010: Tautology validation
-│   │   ├── isotonic.py      # Primary threshold detection (Isotonic)
-│   │   └── lmm.py           # Secondary check (PLMM)
-│   └── main.py              # Orchestration script
-├── tests/
-│   ├── unit/
-│   │   ├── test_latency.py          # Covers FR-001, US-1
-│   │   ├── test_acoustic.py         # Covers FR-008, US-4
-│   │   └── test_metric_check.py     # Covers FR-010
-│   └── integration/
-│       └── test_pipeline.py         # Covers US-2, US-3
+projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/
 ├── requirements.txt
-└── README.md
+├── config.py            # Paths, seeds, constants (200ms-2000ms steps)
+├── data/
+│   ├── download.py      # Fetches EVA-Bench from HuggingFace
+│   ├── checksums.json   # Recorded hashes
+│   └── raw/             # Downloaded JSONL
+├── processing/
+│   ├── __init__.py
+│   ├── latency_injector.py # pydub/scipy logic for silence insertion
+│   └── pipeline_runner.py  # Wraps EVA-Bench scoring logic
+├── analysis/
+│   ├── __init__.py
+│   ├── stats_models.py     # ANOVA, Piecewise Regression
+│   └── comparison.py       # AUC, Acoustic vs. Latency
+├── visualization/
+│   └── plots.py
+└── tests/
+    ├── test_injection.py
+    └── test_pipeline.py
 ```
 
-**Structure Decision**: Single project structure with modular `code/` subdirectories for injectors, evaluation, and analysis. This minimizes overhead and ensures all dependencies are managed in a single `requirements.txt` for the CI runner.
+**Structure Decision**: Single project structure selected to minimize overhead. The `processing` module isolates the audio manipulation, `analysis` handles the statistical rigor, and `data` separates raw vs. processed artifacts to satisfy Data Hygiene (Const-III).
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Chunked Audio Processing** | Required by Constitution Principle VII (7GB RAM limit) for large audio files. | Loading entire audio files into memory would cause OOM errors on the CI runner. Implemented via `code/injectors/latency.py` using `librosa.stream`. |
-| **Isotonic Regression** | Required due to sparse data (Multiple discrete latency levels). Segmented regression is unstable on 10-15 points. | Standard segmented regression assumes continuous density; with a small number of points, the breakpoint estimate is highly volatile. Isotonic regression provides a robust, non-parametric monotonic fit. |
-| **PLMM (Secondary)** | Required to model random effects (Scenario/System) while testing the threshold. | Simple OLS ignores the hierarchical structure of the data, leading to inflated Type I errors. |
-| **Tobit Regression** | Required to handle floor effects (scores = 0) without biasing the delta calculation. | Setting delta=0 for floor effects artificially improves the score, masking true degradation. |
+| **None** | The scope is contained within a single research pipeline. | N/A |
 
-## Testing Strategy
-
-The test suite is explicitly mapped to Functional Requirements (FR) and User Stories (US):
-- `test_latency.py`: Validates FR-001 (Latency Injection) and US-1 (Latency Pipeline).
-- `test_acoustic.py`: Validates FR-008 (Acoustic Perturbation) and US-4 (Acoustic Control).
-- `test_metric_check.py`: Validates FR-010 (Metric Validation/Tautology Check).
-- `test_pipeline.py`: Validates FR-002, FR-003 (Re-evaluation) and US-2, US-3 (Analysis).
-- `test_synthetic.py`: Validates FR-011 (Synthetic Audio Fallback).
+### Schema Validation
+The pipeline will enforce the contracts defined in `contracts/` at runtime. The `data/download.py` and `processing/pipeline_runner.py` will validate input/output against `dataset.schema.yaml` and `results.schema.yaml` respectively.

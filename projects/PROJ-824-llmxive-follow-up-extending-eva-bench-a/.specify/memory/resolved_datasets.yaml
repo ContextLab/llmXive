@@ -1,2 +1,158 @@
-resolved_at: '2026-07-11T20:32:40.529057+00:00'
-datasets: []
+resolved_at: '2026-07-11T20:52:11.816249+00:00'
+datasets:
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Loss_of_neuronal_population_organization_links_pathology_to_behavior_in_a_model_of_Alzheimer_s_disease_b_/32961443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Raport_de_audit_independent_privind_conformitatea_si_performanta_institutionala/32964443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313838
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313838
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21223570
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21223570
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EVA-Bench
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ServiceNow-AI/eva-bench/resolve/main/data/eva_bench_csm_airline.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ServiceNow-AI/eva-bench/resolve/main/data/eva_bench_csm_airline.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/_b_Loss_of_neuronal_population_organization_links_pathology_to_behavior_in_a_model_of_Alzheimer_s_disease_b_/32961443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Raport_de_audit_independent_privind_conformitatea_si_performanta_institutionala/32964443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.31866/2410-1176.41.2019.188659
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPConnectionPool(host=''arts-series-knukim.pp.ua'',
+      port=80): Max retries exceeded with url: /article/view/188659 (Caused by NameResolutionError("HTTPConnection(host=''arts-series-knukim.pp.ua'',
+      port=80): Failed to resolve ''arts-series-knukim.pp.ua'' ([Errno -2] Name or
+      service not known)"))'
+  - url: https://doi.org/10.31866/2410-1176.40.2019.172684
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPConnectionPool(host=''arts-series-knukim.pp.ua'',
+      port=80): Max retries exceeded with url: /article/view/172684 (Caused by NameResolutionError("HTTPConnection(host=''arts-series-knukim.pp.ua'',
+      port=80): Failed to resolve ''arts-series-knukim.pp.ua'' ([Errno -2] Name or
+      service not known)"))'
+  - url: https://zenodo.org/records/1300687
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10127445
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7688873
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20575875
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20575875
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.13841
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10324039
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10324039
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

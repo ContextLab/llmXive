@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-11T20:27:34Z",
+  "fetched_at": "2026-07-11T20:46:23Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents\"",
       "target_n": 5
     },
-    "duration_seconds": 55.7,
-    "ended_at": "2026-07-11T20:27:34Z",
+    "duration_seconds": 52.842,
+    "ended_at": "2026-07-11T20:46:23Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "voice agent evaluation frameworks"
+          "Voice agent evaluation benchmarks"
         ],
         [
           2,
-          "conversational AI benchmarking"
+          "End-to-end voice assistant testing frameworks"
         ],
         [
           3,
-          "multimodal voice assistant testing"
+          "Conversational AI evaluation metrics"
         ],
         [
           4,
-          "end-to-end speech interaction evaluation"
+          "Spoken dialogue system assessment"
         ],
         [
           5,
-          "spoken dialogue system metrics"
+          "Voice user interface benchmarking"
         ],
         [
           6,
-          "voice AI performance assessment"
+          "Multimodal voice agent performance evaluation"
         ],
         [
           7,
-          "natural language voice agent benchmarks"
+          "Automated speech interaction testing"
         ],
         [
           8,
-          "speech-based agent evaluation protocols"
+          "Voice assistant robustness evaluation"
         ],
         [
           9,
-          "automated voice assistant testing"
+          "Natural language understanding for voice agents"
         ],
         [
           10,
-          "real-time voice interaction evaluation"
+          "Speech recognition and synthesis evaluation pipelines"
         ],
         [
           11,
-          "voice agent robustness testing"
+          "Real-time voice agent latency testing"
         ],
         [
           12,
-          "conversational agent evaluation suites"
+          "Human-computer voice interaction assessment"
         ],
         [
           13,
-          "speech recognition and generation benchmarks"
+          "Voice agent safety and alignment benchmarks"
         ],
         [
           14,
-          "voice-driven AI system assessment"
+          "End-to-end spoken language system validation"
         ],
         [
           15,
-          "human-voice agent interaction evaluation"
+          "Voice AI task-oriented dialogue evaluation"
         ],
         [
           16,
-          "voice AI safety and reliability testing"
+          "Large language model voice interface testing"
         ],
         [
           17,
-          "end-to-end speech dialogue evaluation"
+          "Conversational agent quality assurance frameworks"
         ],
         [
           18,
-          "voice assistant latency and accuracy metrics"
+          "Voice agent error analysis and metrics"
         ],
         [
           19,
-          "multimodal conversational AI evaluation"
+          "Multi-turn voice dialogue evaluation"
         ],
         [
           20,
-          "voice agent user experience assessment"
+          "Synthetic voice agent testing environments"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents\" computer science": 0,
-        "voice agent evaluation frameworks": 5
+        "Voice agent evaluation benchmarks": 5,
+        "llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents\" computer science": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "voice assistant evaluation benchmark multimodal",
-      "EVA-Bench voice agent framework speech recognition",
-      "spoken dialogue system turn-taking latency",
-      "voice agent natural language understanding task success",
-      "embodied AI voice interaction human evaluation metrics"
+      "voice agent evaluation framework multimodal dialogue",
+      "EVA-Bench benchmark voice assistant metrics",
+      "spoken language understanding dialogue system robustness",
+      "end-to-end voice agent performance latency accuracy",
+      "conversational AI evaluation data contamination leakage"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,46 +120,36 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2503.12687"
+        "2010.03717"
       ]
     },
     "per_query_hit_count": {
-      "EVA-Bench voice agent framework speech recognition": 3,
-      "embodied AI voice interaction human evaluation metrics": 3,
+      "EVA-Bench benchmark voice assistant metrics": 3,
+      "conversational AI evaluation data contamination leakage": 3,
+      "end-to-end voice agent performance latency accuracy": 2,
       "llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents\" computer science": 3,
-      "spoken dialogue system turn-taking latency": 3,
-      "voice agent natural language understanding task success": 3,
-      "voice assistant evaluation benchmark multimodal": 3
+      "spoken language understanding dialogue system robustness": 2,
+      "voice agent evaluation framework multimodal dialogue": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 4,
+      "rejected_count": 2,
       "rejections": [
         {
           "primary_pointer": "2412.09645",
-          "rationale": "The paper focuses on evaluating **visual generative models** (images and videos), whereas the user's question specifically concerns **voice agents** (audio/speech). While both fall under the broad umbrella of generative AI evaluation, the domain (visual vs. auditory) and the specific mechanisms of evaluation differ significantly, failing the \"same domain\" or \"same mechanism\" criteria required for inclusion in a literature review for voice agent frameworks.",
+          "rationale": "The paper focuses on evaluating **visual generative models** (images/video), whereas the user's question specifically concerns **voice agents** (audio/speech); while both fall under the broad umbrella of generative AI evaluation, the distinct modalities and lack of shared mechanism or domain variables mean this paper does not satisfy the inclusion criteria for a literature review on voice agent evaluation frameworks.",
           "title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models"
         },
         {
-          "primary_pointer": "2512.09543",
-          "rationale": "The paper focuses on energy efficiency and resource consumption of agentic frameworks using Small Language Models (SLMs), which is a distinct construct from the user's question regarding the \"EVA-Bench\" framework for evaluating voice agents. While both involve \"agentic frameworks,\" the specific domain (software engineering issue resolution vs. voice agent evaluation) and the primary variables (energy/token usage vs. voice interaction capabilities) do not satisfy the criteria for same-mechanism e",
-          "title": "SWEnergy: An Empirical Study on Energy Efficiency in Agentic Issue Resolution Frameworks with SLMs"
-        },
-        {
           "primary_pointer": "2404.15176",
-          "rationale": "The paper focuses on a specific clinical application for transgender voice transition and gender perception metrics, which is a distinct construct from the user's question about an \"End-to-end Framework for Evaluating Voice Agents\" (LLMXive/EVA-Bench). While both involve voice, the candidate paper does not address the evaluation of autonomous agents, LLM integration, or the specific benchmarking framework required by the user's research, failing to meet the criteria for same-mechanism evidence o",
+          "rationale": "The paper focuses on a clinical tool for transgender voice transition and gender perception metrics, which is an off-domain application compared to the user's question about an end-to-end evaluation framework for autonomous voice agents in computer science. While both involve \"voice,\" the paper does not address the mechanism, variables, or empirical setting of evaluating LLM-based voice agents, failing to meet any of the inclusion criteria (a-f).",
           "title": "Voice Passing : a Non-Binary Voice Gender Prediction System for evaluating Transgender voice transition"
-        },
-        {
-          "primary_pointer": "2010.03717",
-          "rationale": "The paper focuses on the technical methodology of cross-lingual text-to-speech and voice conversion using latent embeddings, which does not address the user's specific question regarding the *evaluation framework* (EVA-Bench) for voice agents. While both involve voice technology, the candidate paper lacks the necessary connection to the \"end-to-end evaluation\" mechanism, metrics, or benchmarking constructs central to the user's research question, failing to meet criteria (a) or (b) for inclusion",
-          "title": "Latent linguistic embedding for cross-lingual text-to-speech and voice conversion"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-11T20:26:38Z",
+    "started_at": "2026-07-11T20:45:30Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"eva-bench: a new end-to-end framework for evaluating voice agents\" computer science",
       "raw": "llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents\" computer science"
@@ -178,7 +168,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       },
       {
@@ -197,7 +187,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       },
       {
@@ -215,127 +205,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-11T20:27:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Despite huge gains in performance in natural language understanding via large language models in recent years, voice assistants still often fail to meet user expectations. In this study, we conducted a mixed-methods analysis of how voice assistant failures affect users' trust in their voice assistants. To illustrate how users have experienced these failures, we contribute a crowdsourced dataset of 199 voice assistant failures, categorized across 12 failure sources. Relying on interview and survey data, we find that certain failures, such as those due to overcapturing users' input, derail user trust more than others. We additionally examine how failures impact users' willingness to rely on voice assistants for future tasks. Users often stop using their voice assistants for specific tasks that result in failures for a short period of time before resuming similar usage. We demonstrate the importance of low stakes tasks, such as playing music, towards building trust after failures.",
-          "claimed_authors": [
-            "Amanda Baughan",
-            "Allison Mercurio",
-            "Ariel Liu",
-            "Xuezhi Wang",
-            "Jilin Chen",
-            "Xiao Ma"
-          ],
-          "claimed_title": "A Mixed-Methods Approach to Understanding User Trust after Voice Assistant Failures",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2303.00164"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='A Mixed-Methods Approach to Understanding User Trust after Voice Assistant Failures')",
-        "failed_at": "2026-07-11T20:27:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The rapid progress of Large Language Models (LLMs) has empowered omni models to act as voice assistants capable of understanding spoken dialogues. These models can process multimodal inputs beyond text, such as speech and visual data, enabling more context-aware interactions. However, current benchmarks fall short in comprehensively evaluating how well these models generate context-aware responses, particularly when it comes to implicitly understanding fine-grained speech characteristics, such as pitch, emotion, timbre, and volume or the environmental acoustic context such as background sounds. Additionally, they inadequately assess the ability of models to align paralinguistic cues with complementary visual signals to inform their responses. To address these gaps, we introduce MultiVox, the first omni voice assistant benchmark designed to evaluate the ability of voice assistants to integrate spoken and visual cues including paralinguistic speech features for truly multimodal understanding. Specifically, MultiVox includes 1000 human-annotated and recorded speech dialogues that encompass diverse paralinguistic features and a range of visual cues such as images and videos. Our evaluation on 10 state-of-the-art models reveals that, although humans excel at these tasks, current models consistently struggle to produce contextually grounded responses.",
-          "claimed_authors": [
-            "Ramaneswaran Selvakumar",
-            "Ashish Seth",
-            "Nishit Anand",
-            "Utkarsh Tyagi",
-            "Sonal Kumar",
-            "Sreyan Ghosh",
-            "Dinesh Manocha"
-          ],
-          "claimed_title": "MultiVox: A Benchmark for Evaluating Voice Assistants for Multimodal Interactions",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2507.10859"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='MultiVox: A Benchmark for Evaluating Voice Assistants for Multimodal Interactions')",
-        "failed_at": "2026-07-11T20:27:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Background: AI-driven prediction algorithms have the potential to enhance emergency medicine by enabling rapid and accurate decision-making regarding patient status and potential deterioration. However, the integration of multimodal data, including raw waveform signals, remains underexplored in clinical decision support. Methods: We present a dataset and benchmarking protocol designed to advance multimodal decision support in emergency care. Our models utilize demographics, biometrics, vital signs, laboratory values, and electrocardiogram (ECG) waveforms as inputs to predict both discharge diagnoses and patient deterioration. Results: The diagnostic model achieves area under the receiver operating curve (AUROC) scores above 0.8 for 609 out of 1,428 conditions, covering both cardiac (e.g., myocardial infarction) and non-cardiac (e.g., renal disease, diabetes) diagnoses. The deterioration model attains AUROC scores above 0.8 for 14 out of 15 targets, accurately predicting critical events such as cardiac arrest, mechanical ventilation, ICU admission, and mortality. Conclusions: Our study highlights the positive impact of incorporating raw waveform data into decision support models, improving predictive performance. By introducing a unique, publicly available dataset and baseline models, we provide a foundation for measurable progress in AI-driven decision support for emergency care.",
-          "claimed_authors": [
-            "Juan Miguel Lopez Alcaraz",
-            "Hjalmar Bouma",
-            "Nils Strodthoff"
-          ],
-          "claimed_title": "Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2407.17856"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care')",
-        "failed_at": "2026-07-11T20:27:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent research in speech processing exhibits a growing interest in unsupervised and self-supervised representation learning from unlabelled data to alleviate the need for large amounts of annotated data. We investigate several popular pre-training methods and apply them to Flemish Dutch. We compare off-the-shelf English pre-trained models to models trained on an increasing amount of Flemish data. We find that the most important factors for positive transfer to downstream speech recognition tasks include a substantial amount of data and a matching pre-training domain. Ideally, we also finetune on an annotated subset in the target language. All pre-trained models improve linear phone separability in Flemish, but not all methods improve Automatic Speech Recognition. We experience superior performance with wav2vec 2.0 and we obtain a 30% WER improvement by finetuning the multilingually pre-trained XLSR-53 model on Flemish Dutch, after integration into an HMM-DNN acoustic model.",
-          "claimed_authors": [
-            "Jakob Poncelet",
-            "Hugo Van hamme"
-          ],
-          "claimed_title": "Comparison of Self-Supervised Speech Pre-Training Methods on Flemish Dutch",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2109.14357"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Comparison of Self-Supervised Speech Pre-Training Methods on Flemish Dutch')",
-        "failed_at": "2026-07-11T20:27:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "With the development of automatic speech recognition (ASR) and text-to-speech synthesis (TTS) technique, it's intuitive to construct a voice conversion system by cascading an ASR and TTS system. In this paper, we present a ASR-TTS method for voice conversion, which used iFLYTEK ASR engine to transcribe the source speech into text and a Transformer TTS model with WaveNet vocoder to synthesize the converted speech from the decoded text. For the TTS model, we proposed to use a prosody code to describe the prosody information other than text and speaker information contained in speech. A prosody encoder is used to extract the prosody code. During conversion, the source prosody is transferred to converted speech by conditioning the Transformer TTS model with its code. Experiments were conducted to demonstrate the effectiveness of our proposed method. Our system also obtained the best naturalness and similarity in the mono-lingual task of Voice Conversion Challenge 2020.",
-          "claimed_authors": [
-            "Jing-Xuan Zhang",
-            "Li-Juan Liu",
-            "Yan-Nian Chen",
-            "Ya-Jun Hu",
-            "Yuan Jiang",
-            "Zhen-Hua Ling",
-            "Li-Rong Dai"
-          ],
-          "claimed_title": "Voice Conversion by Cascading Automatic Speech Recognition and Text-to-Speech Synthesis with Prosody Transfer",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2009.01475"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Voice Conversion by Cascading Automatic Speech Recognition and Text-to-Speech Synthesis with Prosody Transfer')",
-        "failed_at": "2026-07-11T20:27:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Establishing evaluation schemes for spoken dialogue systems is important, but it can also be challenging. While subjective evaluations are commonly used in user experiments, objective evaluations are necessary for research comparison and reproducibility. To address this issue, we propose a framework for indirectly but objectively evaluating systems based on users' behaviors. In this paper, to this end, we investigate the relationship between user behaviors and subjective evaluation scores in social dialogue tasks: attentive listening, job interview, and first-meeting conversation. The results reveal that in dialogue tasks where user utterances are primary, such as attentive listening and job interview, indicators like the number of utterances and words play a significant role in evaluation. Observing disfluency also can indicate the effectiveness of formal tasks, such as job interview. On the other hand, in dialogue tasks with high interactivity, such as first-meeting conversation, behaviors related to turn-taking, like average switch pause length, become more important. These findings suggest that selecting appropriate user behaviors can provide valuable insights for objective evaluation in each social dialogue task.",
-          "claimed_authors": [
-            "Koji Inoue",
-            "Divesh Lala",
-            "Keiko Ochi",
-            "Tatsuya Kawahara",
-            "Gabriel Skantze"
-          ],
-          "claimed_title": "An Analysis of User Behaviors for Objectively Evaluating Spoken Dialogue Systems",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2401.04867"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='An Analysis of User Behaviors for Objectively Evaluating Spoken Dialogue Systems')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       },
       {
@@ -362,27 +232,86 @@
           "primary_pointer": "2302.12944"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Dependency Dialogue Acts -- Annotation Scheme and Case Study')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Transition Relevance Places are defined as the end of an utterance where the interlocutor may take the floor without interrupting the current speaker --i.e., a place where the turn is terminal. Analyzing turn terminality is useful to study the dynamic of turn-taking in spontaneous conversations. This paper presents an automatic classification of spoken utterances as Terminal or Non-Terminal in multi-speaker settings. We compared audio, text, and fusions of both approaches on a French corpus of TV and Radio extracts annotated with turn-terminality information at each speaker change. Our models are based on pre-trained self-supervised representations. We report results for different fusion strategies and varying context sizes. This study also questions the problem of performance variability by analyzing the differences in results for multiple training runs with random initialization. The measured accuracy would allow the use of these models for large-scale analysis of turn-taking.",
+          "claimed_abstract": "Recent advancements in visual generative models have enabled high-quality image and video generation, opening diverse applications. However, evaluating these models often demands sampling hundreds or thousands of images or videos, making the process computationally expensive, especially for diffusion-based models with inherently slow sampling. Moreover, existing evaluation methods rely on rigid pipelines that overlook specific user needs and provide numerical results without clear explanations. In contrast, humans can quickly form impressions of a model's capabilities by observing only a few samples. To mimic this, we propose the Evaluation Agent framework, which employs human-like strategies for efficient, dynamic, multi-round evaluations using only a few samples per round, while offering detailed, user-tailored analyses. It offers four key advantages: 1) efficiency, 2) promptable evaluation tailored to diverse user needs, 3) explainability beyond single numerical scores, and 4) scalability across various models and tools. Experiments show that Evaluation Agent reduces evaluation time to 10% of traditional methods while delivering comparable results. The Evaluation Agent framework is fully open-sourced to advance research in visual generative models and their efficient evaluation.",
           "claimed_authors": [
-            "Rémi Uro",
-            "Marie Tahon",
-            "David Doukhan",
-            "Antoine Laurent",
-            "Albert Rilliard"
+            "Fan Zhang",
+            "Shulin Tian",
+            "Ziqi Huang",
+            "Yu Qiao",
+            "Ziwei Liu"
           ],
-          "claimed_title": "Detecting the terminality of speech-turn boundary for spoken interactions in French TV and Radio content",
+          "claimed_title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2406.10073"
+          "primary_pointer": "2412.09645"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Detecting the terminality of speech-turn boundary for spoken interactions in French TV and Radio content')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models')",
+        "failed_at": "2026-07-11T20:46:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes a personality-adaptive multimodal dialogue system developed for the Dialogue Robot Competition 2022. To realize a dialogue system that adapts the dialogue strategy to individual users, it is necessary to consider the user's nonverbal information and personality. In this competition, we built a prototype of a user-adaptive dialogue system that estimates user personality during dialogue. Pretrained DNN models are used to estimate user personalities annotated as Big Five scores. This model is embedded in a dialogue system to estimate user personality from face images during the dialogue. We proposed a method for dialogue management that changed the dialogue flow based on the estimated personality characteristics and confirmed that the system works in a real environment in the preliminary round of this competition. Furthermore, we implemented specific modules to enhance the multimodal dialogue experience of the user, including personality assessment, controlling facial expressions and movements of the android, and dialogue management to explain the attractiveness of sightseeing spots. The aim of dialogue based on personality assessment is to reduce the nervousness of users, and it acts as an ice breaker. The android's facial expressions and movements are necessary for a more natural android conversation. Since the task of this competition was to promote the appeal of sightseeing spots and to recommend an appropriate sightseeing spot, the dialogue process for how to explain the attractiveness of the spot is important. All results of the subjective evaluation by users were better than those of the baseline and other systems developed for this competition. The proposed dialogue system ranked first in both \"Impression Rating\" and \"Effectiveness of Android Recommendations\". According to the total evaluation in the competition, the proposed system was ranked first overall.",
+          "claimed_authors": [
+            "Tamotsu Miyama",
+            "Shogo Okada"
+          ],
+          "claimed_title": "Personality-adapted multimodal dialogue system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.09761"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Personality-adapted multimodal dialogue system')",
+        "failed_at": "2026-07-11T20:46:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite huge gains in performance in natural language understanding via large language models in recent years, voice assistants still often fail to meet user expectations. In this study, we conducted a mixed-methods analysis of how voice assistant failures affect users' trust in their voice assistants. To illustrate how users have experienced these failures, we contribute a crowdsourced dataset of 199 voice assistant failures, categorized across 12 failure sources. Relying on interview and survey data, we find that certain failures, such as those due to overcapturing users' input, derail user trust more than others. We additionally examine how failures impact users' willingness to rely on voice assistants for future tasks. Users often stop using their voice assistants for specific tasks that result in failures for a short period of time before resuming similar usage. We demonstrate the importance of low stakes tasks, such as playing music, towards building trust after failures.",
+          "claimed_authors": [
+            "Amanda Baughan",
+            "Allison Mercurio",
+            "Ariel Liu",
+            "Xuezhi Wang",
+            "Jilin Chen",
+            "Xiao Ma"
+          ],
+          "claimed_title": "A Mixed-Methods Approach to Understanding User Trust after Voice Assistant Failures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.00164"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='A Mixed-Methods Approach to Understanding User Trust after Voice Assistant Failures')",
+        "failed_at": "2026-07-11T20:46:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Building on the success of large language models (LLMs), recent advancements such as GPT-4o have enabled real-time speech interactions through LLM-based voice assistants, offering a significantly improved user experience compared to traditional text-based interactions. However, the absence of benchmarks designed to evaluate these speech interaction capabilities has hindered progress of LLM-based voice assistants development. Current evaluations focus primarily on automatic speech recognition (ASR) or general knowledge evaluation with clean speeches, neglecting the more intricate, real-world scenarios that involve diverse speaker characteristics, environmental and content factors. To address this, we introduce VoiceBench, the first benchmark designed to provide a multi-faceted evaluation of LLM-based voice assistants. VoiceBench also includes both real and synthetic spoken instructions that incorporate the above three key real-world variations. Extensive experiments reveal the limitations of current LLM-based voice assistant models and offer valuable insights for future research and development in this field.",
+          "claimed_authors": [
+            "Yiming Chen",
+            "Xianghu Yue",
+            "Chen Zhang",
+            "Xiaoxue Gao",
+            "Robby T. Tan",
+            "Haizhou Li"
+          ],
+          "claimed_title": "VoiceBench: Benchmarking LLM-Based Voice Assistants",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.17196"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='VoiceBench: Benchmarking LLM-Based Voice Assistants')",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       },
       {
@@ -400,97 +329,115 @@
           "primary_pointer": "2207.08179"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='End-to-End Spoken Language Understanding: Performance analyses of a voice command task in a low resource setting')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_abstract": "Spoken Language Understanding (SLU) typically comprises of an automatic speech recognition (ASR) followed by a natural language understanding (NLU) module. The two modules process signals in a blocking sequential fashion, i.e., the NLU often has to wait for the ASR to finish processing on an utterance basis, potentially leading to high latencies that render the spoken interaction less natural. In this paper, we propose recurrent neural network (RNN) based incremental processing towards the SLU task of intent detection. The proposed methodology offers lower latencies than a typical SLU system, without any significant reduction in system accuracy. We introduce and analyze different recurrent neural network architectures for incremental and online processing of the ASR transcripts and compare it to the existing offline systems. A lexical End-of-Sentence (EOS) detector is proposed for segmenting the stream of transcript into sentences for intent classification. Intent detection experiments are conducted on benchmark ATIS, Snips and Facebook's multilingual task oriented dialog datasets modified to emulate a continuous incremental stream of words with no utterance demarcation. We also analyze the prospects of early intent detection, before EOS, with our proposed system.",
           "claimed_authors": [
-            "Jessica López Espejel",
-            "Mahaman Sanoussi Yahaya Alassan",
-            "El Mehdi Chouham",
-            "Walid Dahhane",
-            "El Hassane Ettifouri"
+            "Prashanth Gurunath Shivakumar",
+            "Naveen Kumar",
+            "Panayiotis Georgiou",
+            "Shrikanth Narayanan"
           ],
-          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "claimed_title": "RNN based Incremental Online Spoken Language Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.10287"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='RNN based Incremental Online Spoken Language Understanding')",
+        "failed_at": "2026-07-11T20:46:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We experiment with a low-latency, end-to-end voice-to-voice communication model to optimize it for real-time conversational applications. By analyzing components essential to voice to voice (V-2-V) system viz. automatic speech recognition (ASR), text-to-speech (TTS), and dialog management, our work analyzes how to reduce processing time while maintaining high-quality interactions to identify the levers for optimizing V-2-V system. Our work identifies that TTS component which generates life-like voice, full of emotions including natural pauses and exclamations has highest impact on Real time factor (RTF). The experimented V-2-V architecture utilizes CSM1b has the capability to understand tone as well as context of conversation by ingesting both audio and text of prior exchanges to generate contextually accurate speech. We explored optimization of Residual Vector Quantization (RVQ) iterations by the TTS decoder which come at a cost of decrease in the quality of voice generated. Our experimental evaluations also demonstrate that for V-2-V implementations based on CSM most important optimizations can be brought by reducing the number of RVQ Iterations along with the codebooks used in Mimi.",
+          "claimed_authors": [
+            "Anupam Purwar",
+            "Aditya Choudhary"
+          ],
+          "claimed_title": "i-LAVA: Insights on Low Latency Voice-2-Voice Architecture for Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.20971"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='i-LAVA: Insights on Low Latency Voice-2-Voice Architecture for Agents')",
+        "failed_at": "2026-07-11T20:46:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Legged locomotion is arguably the most suited and versatile mode to deal with natural or unstructured terrains. Intensive research into dynamic walking and running controllers has recently yielded great advances, both in the optimal control and reinforcement learning (RL) literature. Hopping is a challenging dynamic task involving a flight phase and has the potential to increase the traversability of legged robots. Model based control for hopping typically relies on accurate detection of different jump phases, such as lift-off or touch down, and using different controllers for each phase. In this paper, we present a end-to-end RL based torque controller that learns to implicitly detect the relevant jump phases, removing the need to provide manual heuristics for state detection. We also extend a method for simulation to reality transfer of the learned controller to contact rich dynamic tasks, resulting in successful deployment on the robot after training without parameter tuning.",
+          "claimed_authors": [
+            "Raghav Soni",
+            "Daniel Harnack",
+            "Hannah Isermann",
+            "Sotaro Fushimi",
+            "Shivesh Kumar",
+            "Frank Kirchner"
+          ],
+          "claimed_title": "End-to-End Reinforcement Learning for Torque Based Variable Height Hopping",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2306.06371"
+          "primary_pointer": "2307.16676"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='End-to-End Reinforcement Learning for Torque Based Variable Height Hopping')",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
+          "claimed_abstract": "Conversational AI systems are becoming famous in day to day lives. In this paper, we are trying to address the following key question: To identify whether design, as well as development efforts for search oriented conversational AI are successful or not.It is tricky to define 'success' in the case of conversational AI and equally tricky part is to use appropriate metrics for the evaluation of conversational AI. We propose four different perspectives namely user experience, information retrieval, linguistic and artificial intelligence for the evaluation of conversational AI systems. Additionally, background details of conversational AI systems are provided including desirable characteristics of personal assistants, differences between chatbot and an AI based personal assistant. An importance of personalization and how it can be achieved is explained in detail. Current challenges in the development of an ideal conversational AI (personal assistant) are also highlighted along with guidelines for achieving personalized experience for users.",
           "claimed_authors": [
-            "Chidinma A. Nwafor",
-            "Ikechukwu E. Onyenwe"
+            "Mahipal Jadeja",
+            "Neelanshi Varia"
           ],
-          "claimed_title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
+          "claimed_title": "Perspectives for Evaluating Conversational AI",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2103.14757"
+          "claimed_year": 2017,
+          "primary_pointer": "1709.04734"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Perspectives for Evaluating Conversational AI')",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_abstract": "This paper focuses on AI tutors in foreign language learning, a field of application of AI tutors with great development, especially during the last years, when great advances in natural language understanding and processing in real time, have been achieved. These tutors attempt to address needs for improving language skills (speaking, or communicative competence, understanding). In this paper, a mixed-methos empirical study on the use of different kinds of state-of-the-art AI tutors for language learning is reported. This study involves a user experience evaluation of typical such tools, with special focus in their conversation functionality and an evaluation of their quality, based on chat transcripts. This study can help establish criteria for assessing the quality of such systems and inform the design of future tools, including concerns about data privacy and secure handling of learner information.",
           "claimed_authors": [
-            "Chaeyeon Lim"
+            "Nikolaos Avouris"
           ],
-          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16770"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
-        "failed_at": "2026-07-11T20:27:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The recent rapid advancement of LLM-based AI systems has accelerated our search and production of information. While the advantages brought by these systems seemingly improve the performance or efficiency of human activities, they do not necessarily enhance human capabilities. Recent research has started to examine the impact of generative AI on individuals' cognitive abilities, especially critical thinking. Based on definitions of critical thinking across psychology and education, this position paper proposes the distinction between demonstrated and performed critical thinking in the era of generative AI and discusses the implication of this distinction in research and development of AI systems that aim to augment human critical thinking.",
-          "claimed_authors": [
-            "Katelyn Xiaoying Mei",
-            "Nic Weber"
-          ],
-          "claimed_title": "Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking",
+          "claimed_title": "AI Conversational Tutors in Foreign Language Learning: A Mixed-Methods Evaluation Study",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2504.14689"
+          "primary_pointer": "2508.05156"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='AI Conversational Tutors in Foreign Language Learning: A Mixed-Methods Evaluation Study')",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "High stakes decision-making often requires a continuous interplay between evolving evidence and shifting hypotheses, a dynamic that is not well supported by current AI decision support systems. In this paper, we introduce a mixed-initiative framework for AI assisted decision making that is grounded in the data-frame theory of sensemaking and the evaluative AI paradigm. Our approach enables both humans and AI to collaboratively construct, validate, and adapt hypotheses. We demonstrate our framework with an AI-assisted skin cancer diagnosis prototype that leverages a concept bottleneck model to facilitate interpretable interactions and dynamic updates to diagnostic hypotheses.",
+          "claimed_abstract": "Deep reinforcement learning is revolutionizing the artificial intelligence field. Currently, it serves as a good starting point for constructing intelligent autonomous systems which offer a better knowledge of the visual world. It is possible to scale deep reinforcement learning with the use of deep learning and do amazing tasks such as use of pixels in playing video games. In this paper, key concepts of deep reinforcement learning including reward function, differences between reinforcement learning and supervised learning and models for implementation of reinforcement are discussed. Key challenges related to the implementation of reinforcement learning in conversational AI domain are identified as well as discussed in detail. Various conversational models which are based on deep reinforcement learning (as well as deep learning) are also discussed. In summary, this paper discusses key aspects of deep reinforcement learning which are crucial for designing an efficient conversational AI.",
           "claimed_authors": [
-            "Chengbo Zheng",
-            "Tim Miller",
-            "Alina Bialkowski",
-            "H Peter Soyer",
-            "Monika Janda"
+            "Mahipal Jadeja",
+            "Neelanshi Varia",
+            "Agam Shah"
           ],
-          "claimed_title": "Supporting Data-Frame Dynamics in AI-assisted Decision Making",
+          "claimed_title": "Deep Reinforcement Learning for Conversational AI",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.15894"
+          "claimed_year": 2017,
+          "primary_pointer": "1709.05067"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Supporting Data-Frame Dynamics in AI-assisted Decision Making')",
-        "failed_at": "2026-07-11T20:27:10Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EVA-Bench: A New End-to-end Framework for Evaluati', candidate_title='Deep Reinforcement Learning for Conversational AI')",
+        "failed_at": "2026-07-11T20:46:01Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -529,32 +476,87 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T20:27:10Z"
+          "verified_at": "2026-07-11T20:46:01Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Naveen Krishnan"
+            "Anupam Purwar",
+            "Aditya Choudhary"
           ],
-          "title": "AI Agents: Evolution, Architecture, and Real-World Applications",
+          "title": "FOCAL: A Novel Benchmarking Technique for Multi-modal Agents",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2026
         },
-        "primary_pointer": "2503.12687",
-        "summary": "This paper examines the evolution, architecture, and practical applications of AI agents from their early, rule-based incarnations to modern sophisticated systems that integrate large language models with dedicated modules for perception, planning, and tool use. Emphasizing both theoretical foundations and real-world deployments, the paper reviews key agent paradigms, discusses limitations of current evaluation benchmarks, and proposes a holistic evaluation framework that balances task effectiveness, efficiency, robustness, and safety. Applications across enterprise, personal assistance, and specialized domains are analyzed, with insights into future research directions for more resilient and adaptive AI agent systems.",
+        "primary_pointer": "2601.07367",
+        "summary": "With the recent advancements in reasoning capabilities, tool calling using MCP servers and Audio Language Models (ALMs), development and integration of multi-modal agents (with voice and text support) has come to the industry forefront. Cascading pipelines for voice agents still play a central role in the industry owing to their superior reasoning capabilities facilitated by LLMs. Although, cascading pipelines often present error propagation through the pipeline. We propose a framework, FOCAL to benchmark end-to-end reasoning, component-wise error propagation and error analysis for automated as well as human-assisted testing of multi-modal agents (voice to voice + text input). We also share two novel metrics viz. Reasoning and Semantic scores to evaluate efficacy of the agent in having meaningful conversations in voice mode.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2503.12687",
+          "final_url": "https://arxiv.org/abs/2601.07367",
           "http_status": 200,
-          "pdf_sample_score": 0.1092,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T20:46:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hieu-Thi Luong",
+            "Junichi Yamagishi"
+          ],
+          "title": "Latent linguistic embedding for cross-lingual text-to-speech and voice conversion",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2010.03717",
+        "summary": "As the recently proposed voice cloning system, NAUTILUS, is capable of cloning unseen voices using untranscribed speech, we investigate the feasibility of using it to develop a unified cross-lingual TTS/VC system. Cross-lingual speech generation is the scenario in which speech utterances are generated with the voices of target speakers in a language not spoken by them originally. This type of system is not simply cloning the voice of the target speaker, but essentially creating a new voice that can be considered better than the original under a specific framing. By using a well-trained English latent linguistic embedding to create a cross-lingual TTS and VC system for several German, Finnish, and Mandarin speakers included in the Voice Conversion Challenge 2020, we show that our method not only creates cross-lingual VC with high speaker similarity but also can be seamlessly used for cross-lingual TTS without having to perform any extra steps. However, the subjective evaluations of perceived naturalness seemed to vary between target speakers, which is one aspect for future improvement.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2010.03717",
+          "http_status": 200,
+          "pdf_sample_score": 0.2701,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T20:27:16Z"
+          "verified_at": "2026-07-11T20:46:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Soham Ray",
+            "Keshav Dhandhania",
+            "Victor Barres",
+            "Karthik Narasimhan"
+          ],
+          "title": "$τ$-Voice: Benchmarking Full-Duplex Voice Agents on Real-World Domains",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.13686",
+        "summary": "Full-duplex voice agents--systems that listen and speak simultaneously--are rapidly moving from research to production. However, existing evaluations address conversational dynamics and task completion in isolation. We introduce $τ$-voice, a benchmark for evaluating voice agents on grounded tasks with real-world complexity: agents must navigate complex multi-turn conversations, adhere to domain policies, and interact with the environment. The framework extends $τ^2$-bench into a novel voice agent benchmark combining verifiable completion of complex grounded tasks, full-duplex interaction, and realistic audio--enabling direct comparison between voice and text performance. A controllable and realistic voice user simulator provides diverse accents, realistic audio environments, and rich turn-taking dynamics; by decoupling simulation from wall-clock time, the user simulator can use the most capable LLM without real-time constraints. We evaluate task completion (pass@1) and voice interaction quality across 278 tasks: while GPT-5 (reasoning) achieves 85%, voice agents reach only 31--51% under clean conditions and 26--38% under realistic conditions with noise and diverse accents--retaining only 30--45% of text capability; qualitative analysis confirms 79--90% of failures stem from agent behavior, suggesting that observed failures primarily reflect agent behavior under our evaluation setup. $τ$-voice provides a reproducible testbed for measuring progress toward voice agents that are natural, conversational, and reliable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.13686",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T20:46:07Z"
         }
       }
     ]

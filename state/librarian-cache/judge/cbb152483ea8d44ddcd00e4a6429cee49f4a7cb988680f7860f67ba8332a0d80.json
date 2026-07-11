@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "2404.15176",
-  "judged_at": "2026-07-11T20:27:29Z",
+  "judged_at": "2026-07-11T20:46:15Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"eva-bench: a new end-to-end framework for evaluating voice agents\" computer science",
-  "rationale": "The paper focuses on a specific clinical application for transgender voice transition and gender perception metrics, which is a distinct construct from the user's question about an \"End-to-end Framework for Evaluating Voice Agents\" (LLMXive/EVA-Bench). While both involve voice, the candidate paper does not address the evaluation of autonomous agents, LLM integration, or the specific benchmarking framework required by the user's research, failing to meet the criteria for same-mechanism evidence o",
+  "rationale": "The paper focuses on a clinical tool for transgender voice transition and gender perception metrics, which is an off-domain application compared to the user's question about an end-to-end evaluation framework for autonomous voice agents in computer science. While both involve \"voice,\" the paper does not address the mechanism, variables, or empirical setting of evaluating LLM-based voice agents, failing to meet any of the inclusion criteria (a-f).",
   "relevant": false
 }

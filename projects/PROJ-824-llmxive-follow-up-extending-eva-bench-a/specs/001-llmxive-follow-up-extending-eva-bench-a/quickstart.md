@@ -1,89 +1,70 @@
-# Quickstart: llmXive follow-up: extending EVA-Bench
+# Quickstart: llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents"
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `ffmpeg` (system package, required by `librosa`)
-*   Access to the EVA-Bench dataset (or synthetic generation capability)
+-   Python 3.11+
+-   `ffmpeg` installed on the system (required by `pydub`).
+-   Access to HuggingFace (no token required for public datasets, but recommended for rate limits).
 
 ## Installation
 
-1.  **Clone and Setup Environment**:
+1.  **Clone the repository** (if not already done):
     ```bash
+    git clone <repo-url>
     cd projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a
+    ```
+
+2.  **Create a virtual environment**:
+    ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
     ```
 
-2.  **Verify Dependencies**:
+3.  **Install dependencies**:
     ```bash
-    python -c "import librosa; import statsmodels; print('Dependencies OK')"
-    ```
-
-## Data Preparation
-
-1.  **Download EVA-Bench**:
-    *   Place raw audio files in `data/raw/`.
-    *   Ensure `data/checksums.json` is updated with the checksums of the raw files.
-    *   *Note*: If raw files are missing, run `python code/main.py --mode synthetic` to generate synthetic audio.
-
-2.  **Verify Data Integrity**:
-    ```bash
-    python code/main.py --mode verify-data
+    pip install -r code/requirements.txt
     ```
 
 ## Running the Pipeline
 
-### 1. Generate Perturbations
-Run the latency and acoustic injection pipeline:
+### 1. Download Data
+Fetch the EVA-Bench dataset and verify checksums.
 ```bash
-python code/main.py --mode inject --config config/perturbation_config.yaml
+python code/data/download.py
 ```
-*   This will generate perturbed audio files in `data/processed/audio/`.
+*Output*: `data/raw/eva_bench_csm_airline.jsonl` and `data/checksums.json`.
+*Note*: This step will also verify the presence of audio files.
 
-### 2. Re-evaluate Scores
-Run the EVA-Bench evaluation on perturbed files:
+### 2. Validate Schemas
+Ensure data conforms to the contract definitions.
 ```bash
-python code/main.py --mode evaluate
-```
-*   Output: `data/processed/results.csv`.
-
-### 3. Statistical Analysis
-Run the LMM and segmented regression:
-```bash
-python code/main.py --mode analyze
-```
-*   Output: `data/processed/threshold_models.json` and plots in `data/processed/figures/`.
-
-### 4. Full Pipeline (CI Mode)
-To run the entire pipeline in one go (suitable for CI):
-```bash
-python code/main.py --mode full --seed 42
+python code/scripts/validate_schemas.py --input data/raw/ --schema contracts/dataset.schema.yaml
 ```
 
-## Configuration
-
-Edit `config/perturbation_config.yaml` to adjust:
-*   Latency range (200ms–2000ms).
-*   Jitter parameters.
-*   Acoustic SNR levels.
-*   Random seed.
-
-## Troubleshooting
-
-*   **OOM Error**: Ensure `code/injectors/latency.py` is using chunked processing. Check RAM usage.
-*   **EVA-Bench Error**: Verify that the original EVA-Bench code is compatible with the current Python environment.
-*   **Timeout**: If the pipeline exceeds 6 hours, reduce the number of latency levels in the config.
-
-## Testing
-
-Run unit tests:
+### 3. Run Latency Injection & Evaluation
+Execute the full sweep (starting from a low latency threshold up to 2000ms) on all scenarios.
 ```bash
-pytest tests/unit/
+python code/processing/pipeline_runner.py --mode full
+```
+*Note*: If the run exceeds 4 hours, it will automatically switch to `--mode sample` (50 scenarios) to respect CI limits.
+
+### 4. Analyze Results
+Perform statistical analysis and generate plots.
+```bash
+python code/analysis/stats_models.py
+python code/analysis/comparison.py
+```
+*Output*: `results/analysis_report.json`, `results/degradation_curves.png`.
+
+### 5. Generate Report
+Compile the final comparative report.
+```bash
+python code/visualization/plots.py --output results/final_report.pdf
 ```
 
-Run integration tests:
-```bash
-pytest tests/integration/
-```
+## Validation
+
+-   **Check Injection**: Verify `data/processed/` contains files with increased duration.
+-   **Check Stats**: Ensure `results/analysis_report.json` contains a `breakpoint_ms`, `p_value`, and `sensitivity_range`.
+-   **Check Time**: Confirm the entire run completed in < 6 hours (check `logs/timing.log`).
+-   **Check Schemas**: Ensure all output files pass the contract validation defined in `contracts/`.

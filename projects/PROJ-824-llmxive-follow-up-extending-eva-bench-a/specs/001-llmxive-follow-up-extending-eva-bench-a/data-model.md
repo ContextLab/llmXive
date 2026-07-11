@@ -1,71 +1,73 @@
-# Data Model: llmXive follow-up: extending EVA-Bench
+# Data Model: llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents"
 
-## Overview
+## 1. Overview
 
-This document defines the data structures, file formats, and schemas for the EVA-Bench extension project. The data model supports the generation of perturbed audio, the storage of evaluation results, and the statistical analysis of latency effects.
+This document defines the data structures for the latency injection study. The data flow is:
+`Raw EVA-Bench` -> `Injected Audio` -> `Evaluation Results` -> `Statistical Models`.
 
-## Key Entities
+## 2. Entities
 
-### 1. Scenario
-Represents a single entry from the EVA-Bench suite.
-*   **ID**: Unique identifier (e.g., `scenario_001`).
-*   **Original Audio Path**: Path to the raw audio file.
-*   **Turn Boundaries**: List of timestamps (in seconds) indicating turn transitions.
-*   **System ID**: Identifier for the voice agent system used.
+### 2.1 LatencyCondition
+Represents a specific experimental condition.
+-   `condition_id`: Unique string (e.g., `latency_800ms`).
+-   `delay_ms`: Integer (200, 400, ..., 2000).
+-   `jitter_profile`: String (e.g., "none", "uniform_50ms").
 
-### 2. PerturbationProfile
-Defines the conditions applied to a scenario.
-*   **Type**: `latency` or `acoustic`.
-*   **Parameters**:
-    *   For `latency`: `mean_delay` (ms), `jitter_range` (ms).
-    *   For `acoustic`: `snr_db` (dB), `reverberation_time` (s).
-*   **Seed**: Random seed used for reproducibility.
+### 2.2 Scenario
+Represents a single EVA-Bench test case.
+-   `scenario_id`: String (from EVA-Bench JSONL).
+-   `original_audio_path`: Path to raw audio.
+-   `processed_audio_path`: Path to injected audio.
+-   `metadata`: JSON object (topic, difficulty, etc.).
 
-### 3. EvaluationResult
-The output of the EVA-Bench scoring pipeline for a specific Scenario + PerturbationProfile.
-*   **Scenario ID**: FK to Scenario.
-*   **Perturbation Profile ID**: FK to PerturbationProfile.
-*   **EVA-A Score**: Accuracy score (float).
-*   **EVA-X Turn-Taking Score**: Turn-taking metric (float).
-*   **EVA-X Progression Score**: Conversation progression metric (float).
-*   **Delta Turn-Taking**: Difference from baseline.
-*   **Delta Progression**: Difference from baseline.
-*   **Status**: `success`, `timeout`, `floor_effect`, `truncated`.
+### 2.3 EvaluationMetric
+The score generated for a specific Scenario under a specific Condition.
+-   `scenario_id`: FK to Scenario.
+-   `condition_id`: FK to LatencyCondition.
+-   `metric_name`: String ("Turn-Taking", "Conversation Progression").
+-   `score`: Float (0.0 - 1.0).
+-   `timestamp`: ISO8601.
 
-### 4. ThresholdModel
-Output of the segmented regression analysis.
-*   **Metric**: `turn_taking` or `conversation_progression`.
-*   **Knee Point**: Latency value (ms) where the slope changes.
-*   **Slope 1**: Linear degradation rate before knee point.
-*   **Slope 2**: Linear degradation rate after knee point.
-*   **P-value**: Significance of the non-linearity.
+### 2.4 DegradationCurve
+A derived entity summarizing the relationship.
+-   `metric_name`: String.
+-   `condition_type`: String ("latency", "acoustic").
+-   `data_points`: List of `{delay, score}`.
+-   `model_params`: JSON (breakpoint, slopes).
+-   `auc`: Float.
 
-## File Formats
+## 3. File Formats
 
-### Raw Data
-*   **Format**: `.wav` or `.flac` (lossless).
-*   **Location**: `data/raw/`
-*   **Naming**: `{scenario_id}_{system_id}.wav`
+### 3.1 Input: EVA-Bench JSONL
+Standard JSONL format from the dataset source.
+```json
+{"id": "scenario_001", "audio": "path/to/audio.wav", "turns": [...], "ground_truth": "..."}
+```
 
-### Processed Data
-*   **Perturbed Audio**: `.wav` (same sample rate as original).
-    *   Naming: `{scenario_id}_{system_id}_{perturbation_type}_{params}.wav`
-*   **Results CSV**: `data/processed/results.csv`
-    *   Columns: `scenario_id`, `system_id`, `perturbation_type`, `delay_ms`, `jitter_ms`, `snr_db`, `eva_a`, `eva_x_turn`, `eva_x_prog`, `delta_turn`, `delta_prog`, `status`.
+### 3.2 Output: Results CSV
+Aggregated scores for analysis.
+```csv
+scenario_id,latency_ms,turn_taking_score,conversation_progression_score,timestamp
+scenario_001,200,0.95,0.92,2026-07-12T10:00:00Z
+scenario_001,400,0.94,0.91,2026-07-12T10:00:05Z
+...
+```
 
-### Analysis Outputs
-*   **Model Parameters**: `data/processed/threshold_models.json`
-*   **Plots**: `data/processed/figures/` (PDF/PNG)
+### 3.3 Output: Model Parameters JSON
+```json
+{
+  "metric": "Conversation Progression",
+  "breakpoint_ms": 850,
+  "slope_pre": -0.0001,
+  "slope_post": -0.005,
+  "r_squared": 0.89,
+  "p_value": 0.002
+}
+```
 
-## Data Flow
+## 4. Data Hygiene Rules
 
-1.  **Ingestion**: Raw EVA-Bench audio -> `data/raw/` (Checksummed).
-2.  **Perturbation**: Raw Audio + Profile -> Perturbed Audio (`data/processed/audio/`).
-3.  **Evaluation**: Perturbed Audio -> Scores (CSV).
-4.  **Analysis**: Scores CSV -> Threshold Models (JSON) + Plots.
-
-## Constraints
-
-*   **Max Audio Duration**: 5 minutes (truncation applied if exceeded).
-*   **RAM Limit**: Chunked processing for files > 500MB.
-*   **Reproducibility**: All random seeds stored in the PerturbationProfile.
+-   **Immutability**: Raw EVA-Bench files in `data/raw/` are never modified.
+-   **Derivation**: Processed audio files in `data/processed/` are named with a hash of the source + parameters.
+-   **Checksums**: All files in `data/` must have a corresponding entry in `checksums.json`.
+-   **PII**: No PII is stored. Scenario IDs are anonymized if necessary.

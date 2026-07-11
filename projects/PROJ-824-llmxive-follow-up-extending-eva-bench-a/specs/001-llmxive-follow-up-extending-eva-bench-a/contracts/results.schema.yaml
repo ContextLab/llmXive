@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results Schema"
+description: "Schema for the output of the evaluation pipeline."
+type: "object"
+properties:
+  scenario_id:
+    type: "string"
+    description: "ID of the scenario."
+  latency_ms:
+    type: "integer"
+    description: "Injected latency in milliseconds."
+  turn_taking_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Score for Turn-Taking metric."
+  conversation_progression_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Score for Conversation Progression metric."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Time of evaluation."
+required:
+  - "scenario_id"
+  - "latency_ms"
+  - "turn_taking_score"
+  - "conversation_progression_score"
+  - "timestamp"
+additionalProperties: false
