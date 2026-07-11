@@ -1,0 +1,149 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: |
+  Schema for the output of the trade-off analysis pipeline.
+  Contains the regression curve data, statistical significance corrections,
+  and the identified safe operating threshold.
+type: object
+required:
+  - metadata
+  - regression_curve
+  - threshold_analysis
+  - statistical_significance
+properties:
+  metadata:
+    type: object
+    description: Run metadata and configuration parameters.
+    required:
+      - timestamp
+      - workflow_count
+      - compression_levels
+      - model_type
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of the analysis run.
+      workflow_count:
+        type: integer
+        minimum: 1
+        description: Total number of workflows analyzed.
+      compression_levels:
+        type: array
+        items:
+          type: integer
+        description: List of compression levels (depths) tested.
+      model_type:
+        type: string
+        enum:
+          - logistic_regression
+          - linear_regression
+        description: Type of regression model used.
+      input_data_hash:
+        type: string
+        description: SHA-256 hash of the input processed data file for reproducibility.
+
+  regression_curve:
+    type: object
+    description: Data points for the trade-off curve.
+    required:
+      - points
+    properties:
+      points:
+        type: array
+        items:
+          type: object
+          required:
+            - context_reduction_pct
+            - error_rate
+            - token_count
+            - p_value
+          properties:
+            context_reduction_pct:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: Percentage of context reduced (0-100).
+            error_rate:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: Observed error rate at this reduction level.
+            token_count:
+              type: integer
+              minimum: 0
+              description: Average token count used at this level.
+            p_value:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: P-value for the error rate at this point.
+
+  threshold_analysis:
+    type: object
+    description: Results of the threshold detection logic.
+    required:
+      - safe_threshold_pct
+      - confidence_interval
+      - method
+    properties:
+      safe_threshold_pct:
+        type: number
+        minimum: 0
+        maximum: 100
+        description: |
+          The maximum context reduction percentage where the error rate
+          remains <= 1% (0.01). Rounded to 2 decimal places.
+      confidence_interval:
+        type: object
+        description: 95% Confidence Interval for the threshold.
+        required:
+          - lower_bound
+          - upper_bound
+          - method
+        properties:
+          lower_bound:
+            type: number
+            minimum: 0
+            maximum: 100
+          upper_bound:
+            type: number
+            minimum: 0
+            maximum: 100
+          method:
+            type: string
+            enum:
+              - bootstrap
+            description: Method used to calculate the CI.
+          resamples:
+            type: integer
+            minimum: 1
+            description: Number of bootstrap resamples used.
+      method:
+        type: string
+        description: Description of the threshold detection method.
+
+  statistical_significance:
+    type: object
+    description: Details on multiple comparison corrections applied.
+    required:
+      - correction_method
+      - adjusted_p_values
+    properties:
+      correction_method:
+        type: string
+        enum:
+          - bonferroni
+          - benjamini_hochberg
+        description: Method used for multiple comparison correction.
+      adjusted_p_values:
+        type: array
+        items:
+          type: number
+          minimum: 0
+          maximum: 1
+        description: Array of p-values after correction, aligned with regression_curve points.
+      alpha:
+        type: number
+        default: 0.05
+        description: Significance level used.

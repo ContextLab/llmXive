@@ -1,0 +1,15 @@
+artifacts:
+  data_processed: []
+  data_raw: []
+  data_results: []
+  figures: []
+completed_tasks: []
+created_at: '2024-01-01T00:00:00Z'
+metadata:
+  description: llmXive follow-up: extending Foundation Protocol
+  spec_reference: /specs/001-policy-compression-tradeoff/
+  version: 0.1.0
+phase: Foundational
+project_id: PROJ-866-llmxive-follow-up-extending-foundation-p
+status: initialized
+updated_at: '2024-01-01T00:00:00Z'

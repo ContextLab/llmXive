@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Workflow Schema"
+description: "Schema for a synthetic multi-agent workflow definition."
+type: "object"
+required:
+  - "id"
+  - "depth"
+  - "complexity"
+  - "nodes"
+  - "edges"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the workflow."
+  depth:
+    type: "integer"
+    minimum: 1
+    maximum: 20
+    description: "Delegation depth of the workflow."
+  complexity:
+    type: "integer"
+    minimum: 1
+    maximum: 10
+    description: "Number of policy constraints."
+  nodes:
+    type: "array"
+    description: "List of nodes in the workflow graph."
+    items:
+      type: "object"
+      required:
+        - "node_id"
+        - "type"
+        - "policy_constraints"
+      properties:
+        node_id:
+          type: "string"
+        type:
+          type: "string"
+          enum:
+            - "agent"
+            - "action"
+            - "policy"
+        policy_constraints:
+          type: "array"
+          items:
+            type: "string"
+  edges:
+    type: "array"
+    description: "List of directed edges connecting nodes."
+    items:
+      type: "object"
+      required:
+        - "source"
+        - "target"
+      properties:
+        source:
+          type: "string"
+        target:
+          type: "string"
+  metadata:
+    type: "object"
+    description: "Additional metadata."
+    properties:
+      seed:
+        type: "integer"
+      generated_at:
+        type: "string"
+        format: "date-time"

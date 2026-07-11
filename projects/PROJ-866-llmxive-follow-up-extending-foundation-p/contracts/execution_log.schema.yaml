@@ -1,0 +1,168 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Execution Log Schema
+description: >
+  Schema for recording the execution of workflows against policy engines.
+  Used to capture ground-truth logs (Oracle) and compressed context logs
+  for trade-off analysis.
+type: object
+required:
+  - log_id
+  - workflow_id
+  - engine_type
+  - execution_timestamp
+  - status
+  - steps
+  - metrics
+additionalProperties: false
+properties:
+  log_id:
+    type: string
+    description: Unique identifier for this execution log (UUID).
+    pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+  
+  workflow_id:
+    type: string
+    description: Reference to the generated workflow used in this execution.
+  
+  engine_type:
+    type: string
+    description: The type of engine used for execution.
+    enum:
+      - oracle
+      - full_context
+      - compressed_bfs
+      - compressed_dfs
+      - compressed_custom
+  
+  execution_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the execution started.
+  
+  status:
+    type: string
+    description: Overall status of the execution.
+    enum:
+      - completed
+      - partial
+      - failed
+      - edge_case
+  
+  is_valid:
+    type: boolean
+    description: >
+      Boolean flag indicating if the workflow is logically valid 
+      (i.e., not impossible to execute even with full context).
+      Set to false for invalid workflows to exclude from error calculations.
+  
+  edge_case_reason:
+    type: string
+    nullable: true
+    description: >
+      If status is 'edge_case', provides the reason (e.g., 'single_node_graph', 'depth_zero').
+      Used to filter or handle specific edge cases during analysis.
+  
+  context_reduction_pct:
+    type: string
+    nullable: true
+    description: >
+      Percentage of context reduced compared to full context.
+      For edge cases, this may be set to the string marker '[deferred]'.
+      For valid executions, this is a string representation of a float (0.00 to 100.00).
+  
+  steps:
+    type: array
+    description: Ordered list of execution steps.
+    minItems: 1
+    items:
+      type: object
+      required:
+        - step_id
+        - node_id
+        - action
+        - result
+        - timestamp
+      additionalProperties: false
+      properties:
+        step_id:
+          type: integer
+          description: Sequential step number (1-based).
+        node_id:
+          type: string
+          description: ID of the workflow node being executed.
+        action:
+          type: string
+          description: The action taken by the agent (e.g., 'process', 'validate', 'reject').
+        result:
+          type: string
+          enum:
+            - success
+            - failure
+            - policy_violation
+            - skipped
+            - timeout
+          description: Outcome of the action.
+        policy_violation_flag:
+          type: boolean
+          default: false
+          description: Explicit flag indicating if this step resulted in a policy violation.
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of the step completion.
+        error_message:
+          type: string
+          nullable: true
+          description: Detailed error message if result is 'failure' or 'policy_violation'.
+  
+  metrics:
+    type: object
+    required:
+      - total_steps
+      - successful_steps
+      - violation_count
+      - token_count
+      - execution_duration_ms
+    additionalProperties: false
+    properties:
+      total_steps:
+        type: integer
+        minimum: 0
+        description: Total number of steps attempted.
+      successful_steps:
+        type: integer
+        minimum: 0
+        description: Number of steps that completed with 'success'.
+      violation_count:
+        type: integer
+        minimum: 0
+        description: Number of steps that resulted in a policy violation.
+      token_count:
+        type: integer
+        minimum: 0
+        description: Total tokens used for context in this execution (if applicable).
+      execution_duration_ms:
+        type: integer
+        minimum: 0
+        description: Total wall-clock time for execution in milliseconds.
+      compression_depth:
+        type: integer
+        nullable: true
+        description: The depth parameter used for compression (null for full context/oracle).
+      nodes_truncated:
+        type: integer
+        minimum: 0
+        default: 0
+        description: Number of policy nodes excluded due to compression.
+  
+  metadata:
+    type: object
+    description: Additional metadata for traceability.
+    additionalProperties: true
+    properties:
+      config_hash:
+        type: string
+        description: Hash of the configuration used for this run.
+      seed:
+        type: integer
+        description: Random seed used for generation (if applicable).

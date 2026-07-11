@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Log Schema"
+description: "Schema for a single workflow execution log."
+type: "object"
+required:
+  - "workflow_id"
+  - "mode"
+  - "token_count"
+  - "actual_reduction_percent"
+  - "violations"
+  - "violation_count"
+properties:
+  workflow_id:
+    type: "string"
+    description: "Reference to the workflow ID."
+  mode:
+    type: "string"
+    enum:
+      - "full"
+      - "compressed"
+    description: "Execution mode."
+  compression_depth:
+    type: ["integer", "null"]
+    description: "Traversal depth for compressed mode."
+  token_count:
+    type: "integer"
+    minimum: 0
+    description: "Total tokens calculated via tiktoken."
+  actual_reduction_percent:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Actual token reduction percentage calculated as (Full - Compressed) / Full."
+  violations:
+    type: "array"
+    description: "List of policy violations."
+    items:
+      type: "object"
+      required:
+        - "node_id"
+        - "violation_type"
+        - "message"
+      properties:
+        node_id:
+          type: "string"
+        violation_type:
+          type: "string"
+        message:
+          type: "string"
+  violation_count:
+    type: "integer"
+    minimum: 0
+    description: "Total number of violations."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Execution timestamp."

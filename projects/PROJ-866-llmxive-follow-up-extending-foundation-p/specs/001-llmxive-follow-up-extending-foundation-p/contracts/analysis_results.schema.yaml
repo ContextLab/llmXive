@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final trade-off analysis results."
+type: "object"
+required:
+  - "compression_ratios"
+  - "error_rates"
+  - "regression_coefficients"
+  - "threshold"
+  - "confidence_interval"
+properties:
+  compression_ratios:
+    type: "array"
+    description: "List of context reduction percentages observed."
+    items:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  error_rates:
+    type: "array"
+    description: "List of corresponding policy-violation error rates."
+    items:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  regression_coefficients:
+    type: "object"
+    description: "Parameters of the fitted logistic regression model."
+    additionalProperties:
+      type: "number"
+  threshold:
+    type: "number"
+    description: "Context reduction percentage where error rate exceeds 1%."
+  confidence_interval:
+    type: "array"
+    description: "95% CI for the threshold [lower, upper]."
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+  multiple_comparison_correction:
+    type: "string"
+    description: "Method used for secondary checks (e.g., Bonferroni)."
+  sample_size:
+    type: "integer"
+    description: "Total number of workflows analyzed."
+  covariates:
+    type: "array"
+    description: "List of covariates controlled for (e.g., Depth, Complexity)."
+    items:
+      type: "string"
