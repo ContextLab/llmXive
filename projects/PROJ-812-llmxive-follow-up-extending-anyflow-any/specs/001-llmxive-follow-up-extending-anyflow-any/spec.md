@@ -1,100 +1,98 @@
 # Feature Specification: llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil"
 
-**Feature Branch**: `001-gene-regulation` (Note: Branch name inherited from mechanical step; semantic content refers to video flow stability)
-**Created**: 2026-07-11
-**Status**: Draft
+**Feature Branch**: `001-gene-regulation`  
+**Created**: 2026-07-11  
+**Status**: Draft  
 **Input**: User description: "llmXive follow-up: extending 'AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil'"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Automated Flow-Map Divergence Measurement (Priority: P1)
+### User Story 1 - Data Curation and Ground-Truth Annotation (Priority: P1)
 
-**As a** video model researcher, **I want** to automatically compute the "flow-map divergence" (L2 distance between predicted latent states and high-resolution Euler rollouts) for a batch of video clips, **so that** I can quantify the numerical instability of the AnyFlow model on specific input sequences without manual inspection.
+As a researcher, I need to curate a dataset of short video clips containing a verified mix of continuous motion and abrupt scene cuts, and manually annotate each with a temporal continuity score (0.0 to 1.0), so that I have a labeled ground truth to evaluate model stability against.
 
-**Why this priority**: This is the core scientific measurement. Without an automated, reproducible way to calculate the divergence metric, the study cannot proceed. It directly addresses the research question's dependent variable.
+**Why this priority**: Without a labeled dataset distinguishing "stable" (continuous) from "unstable" (discontinuous) segments, no metric can be validated. This is the foundational ground-truth layer required for all subsequent correlation analysis.
 
-**Independent Test**: A script can be run on a single video clip file. The system outputs a single floating-point number representing a divergence metric. This can be verified by manually computing the Euler rollout and the model prediction for the same clip and checking the distance.
+**Independent Test**: A script can be run to ingest raw video URLs, download a representative sample of video clips, and output a CSV file where every row contains a video ID and a manual score between 0.0 and 1.0, verified by a spot-check of a subset of the annotations.
 
 **Acceptance Scenarios**:
-
-1. **Given** a video clip file in the input directory, **When** the divergence calculator script is executed, **Then** the system outputs a precise L2 divergence value and logs the intermediate latent states.
-2. **Given** a video clip with a known "hard cut" (high discontinuity), **When** the calculation runs, **Then** the resulting divergence value is significantly higher (e.g., > 0.5) than that of a smooth continuous motion clip processed in the same run.
+1. **Given** a list of public video repository URLs (e.g., UCF101, Kinetics), **When** the curation script runs, **Then** A set of unique video clips of varying fixed durations is downloaded and stored locally..
+2. **Given** a downloaded video clip, **When** a human annotator reviews it, **Then** a numeric score between 0.0 (perfect continuity) and 1.0 (maximum discontinuity) is recorded in the ground-truth CSV.
+3. **Given** the ground-truth CSV, **When** the system validates the data, **Then** every entry has a valid video path and a score within the [0.0, 1.0] range.
 
 ---
 
-### User Story 2 - Statistical Feature Extraction & Correlation Analysis (Priority: P2)
+### User Story 2 - CPU-Tractable Latent Divergence Calculation (Priority: P2)
 
-**As a** data analyst, **I want** to extract statistical features (optical flow variance, frame-to-frame MSE) from the input clips and correlate them with the computed divergence values, **so that** I can identify which specific input properties predict model instability.
+As a researcher, I need to load a frozen AnyFlow model in a CPU-optimized format (ONNX Runtime) and compute a "flow-map divergence" metric for every video clip without using a GPU, so that I can generate a predictive feature vector for the entire dataset within the 6-hour CI budget.
 
-**Why this priority**: This transforms raw measurements into scientific insight. It answers the "which statistical properties correlate" part of the research question.
+**Why this priority**: This is the core experimental engine. If the metric cannot be computed on CPU within the time limit, the study cannot proceed. It transforms raw video into the quantitative variable needed for correlation.
 
-**Independent Test**: A dataset of clips with pre-computed divergence values can be fed into the analysis module. The module outputs a correlation matrix and a regression model. The results can be verified by running a standard Python `scipy` or `statsmodels` correlation on the same CSV data.
+**Independent Test**: A script processes the 500 video clips on a standard GitHub Actions free-tier runner (CPU, 7GB RAM) and outputs a CSV with divergence scores, completing within ≤ 6 hours and consuming <7GB peak RAM.
 
 **Acceptance Scenarios**:
-
-1. **Given** a CSV containing input statistical features and divergence labels, **When** the correlation analysis runs, **Then** the system outputs a Pearson correlation coefficient and p-value for each feature.
-2. **Given** a dataset where optical flow variance is artificially inflated, **When** the analysis runs, **Then** the system reports a strong positive correlation (r > 0.7) between optical flow variance and divergence.
+1. **Given** a video clip and the frozen AnyFlow model, **When** the inference script runs on a CPU-only environment, **Then** the script completes without CUDA/GPU errors and produces a latent trajectory divergence score.
+2. **Given** the full dataset of 500 clips, **When** the batch processing job runs, **Then** the total execution time is ≤ 6 hours and peak memory usage remains ≤ 7 GB.
+3. **Given** a clip with a known scene cut, **When** the metric is computed, **Then** the divergence score is numerically distinct from a clip with continuous motion (observable in the output distribution).
 
 ---
 
-### User Story 3 - Instability Threshold Validation & Sensitivity Sweep (Priority: P3)
+### User Story 3 - Correlation Analysis and Threshold Sensitivity (Priority: P3)
 
-**As a** dataset curator, **I want** to determine a specific divergence threshold that separates "stable" from "unstable" clips and verify its robustness via sensitivity analysis, **so that** I can reliably filter unsuitable datasets before training.
+As a researcher, I need to perform a Pearson and Spearman correlation analysis between the manual continuity scores and the computed divergence metrics, and run a sensitivity analysis on the classification threshold, so that I can quantify the relationship and validate the metric's robustness.
 
-**Why this priority**: This provides the practical "tool for dataset screening" mentioned in the motivation. The sensitivity analysis ensures the threshold isn't an arbitrary artifact.
+**Why this priority**: This delivers the final scientific result (the correlation coefficient) and addresses the methodological requirement for threshold justification, turning raw numbers into a publishable finding.
 
-**Independent Test**: The system can be run with three different threshold values. The output should show how precision and recall metrics shift, confirming the stability of the classification boundary.
+**Independent Test**: A statistical script reads the two CSVs (ground truth and divergence), outputs a Pearson $r$ and Spearman $\rho$ value with a p-value, and generates a sensitivity report showing how classification rates change across three specific thresholds.
 
 **Acceptance Scenarios**:
-
-1. **Given** a labeled dataset of "stable" and "unstable" clips, **When** the threshold validator runs, **Then** it outputs the optimal threshold, precision, and recall.
-2. **Given** the optimal threshold, **When** the sensitivity sweep is executed, **Then** the system reports the variation in false-positive and false-negative rates across a range of ±0.05 around the threshold.
+1. **Given** the ground-truth scores and divergence metrics, **When** the analysis script runs, **Then** it outputs a Pearson correlation coefficient ($r$), a Spearman rank correlation ($\rho$), and a p-value indicating statistical significance.
+2. **Given** a proposed divergence threshold (e.g., 0.05), **When** the sensitivity analysis runs, **Then** the system reports the false-positive and false-negative rates for thresholds {0.01, 0.05, 0.1}.
+3. **Given** the correlation result, **When** the report is generated, **Then** it explicitly states whether the relationship is framed as associational (due to observational nature) or causal.
 
 ### Edge Cases
 
-- **What happens when** a video clip contains a complete black frame or corrupted data? The system must handle the optical flow calculation failure gracefully and log the clip as "skipped" rather than crashing the pipeline.
-- **How does the system handle** a video clip where the Euler rollout (ground truth) fails to converge due to extreme discontinuity? The system must flag this as a "failed ground truth" and exclude the clip from the correlation analysis to avoid noise.
-- **What happens when** the input dataset has fewer than 10 clips? The system must warn that statistical significance is low and potentially skip the regression analysis, outputting only descriptive statistics.
+- What happens when a video clip contains no motion at all (static image)? The system must assign a divergence score and a continuity score that reflect a valid baseline condition.
+- How does the system handle a video clip where the AnyFlow model fails to extract latent representations (e.g., corrupted file)? The system must log the error, skip the clip, and flag it in the final report without crashing the batch job.
+- What if the manual annotation scores are bimodal (only 0.0 or 1.0) rather than continuous? The correlation analysis must still execute, but the sensitivity analysis may need to be interpreted as a binary classification check rather than a regression fit.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST compute the distance between the AnyFlow predicted latent state and the high-resolution Euler rollout state for every input video clip. (See US-1)
-- **FR-002**: System MUST extract at least three statistical features (optical flow magnitude variance, frame-to-frame MSE, temporal gradient sparsity) from raw pixel data. (See US-2)
-- **FR-003**: System MUST perform multiple linear regression and Pearson correlation analysis between the extracted features and the flow-map divergence. (See US-2)
-- **FR-004**: System MUST determine a divergence threshold that maximizes the F1-score for classifying clips as "stable" vs "unstable" using a held-out validation set ([deferred] of data) and execute a sensitivity sweep over a range of ±0.05. (See US-3)
-- **FR-005**: System MUST log CPU utilization and total execution time for every processed clip. (See US-1)
-- **FR-006**: System MUST handle missing or corrupted video files by logging an error and skipping the file without terminating the entire batch process. (See Edge Cases)
-- **FR-007**: System MUST support a manual annotation interface or import mechanism where two independent raters label clips as "stable" or "unstable" based on visible artifacts, requiring an inter-annotator agreement (Cohen's kappa) ≥ 0.8. (See US-3)
-- **FR-008**: System design MUST enforce a total execution time limit of 6 hours for 500 clips; if a single clip's 100-step Euler rollout exceeds 15 minutes, the system MUST fallback to a 20-step surrogate rollout, flag the clip as "fallback," and exclude it from the primary statistical analysis to preserve metric integrity. (See US-1)
+- **FR-001**: System MUST download and store a representative set of video clips (A fixed number of frames each) from public repositories (UCF101, Kinetics, DAVIS) ensuring a mix of continuous motion and scene cuts. (See US-1)
+- **FR-002**: System MUST provide a mechanism for manual annotation of each video clip with a temporal continuity score ranging from 0.0 to 1.0. (See US-1)
+- **FR-003**: System MUST load the frozen AnyFlow model in a CPU-optimized format (e.g., ONNX Runtime) and extract latent representations for all frames without requiring GPU acceleration. (See US-2)
+- **FR-004**: System MUST calculate the "flow-map divergence" for each clip by computing the L2 distance between the model's predicted intermediate state and a high-resolution Euler rollout (using N=1000 steps as the ground truth), averaged across the sequence. This metric is used to characterize the change in error across conditions (continuous vs. cut). (See US-2)
+- **FR-005**: System MUST perform a Pearson correlation analysis AND a Spearman rank correlation analysis between the manual continuity scores and the computed divergence metrics to test the hypothesis of a relationship (linear or monotonic). (See US-3)
+- **FR-006**: System MUST execute a sensitivity analysis sweeping the classification threshold over a set of representative values and report the resulting false-positive and false-negative rates. (See US-3)
+- **FR-007**: System MUST frame all findings regarding the relationship between divergence and continuity as associational, explicitly avoiding causal claims due to the observational nature of the study. (See US-3)
 
 ### Key Entities
 
-- **VideoClip**: Represents a single input unit (16 frames), containing raw pixel data, computed statistical features, and the resulting divergence metric.
-- **StatisticalFeature**: A vector of numerical properties (e.g., optical flow variance) derived from a VideoClip.
-- **DivergenceMetric**: A scalar value representing the L2 distance between model prediction and ground truth rollout.
-- **ThresholdModel**: A derived entity containing the optimal cutoff value and its associated sensitivity analysis results.
-- **HumanLabel**: A label assigned by a human rater indicating "stable" or "unstable" status based on visual artifacts.
+- **VideoClip**: A short video segment with a unique ID, source URL, and file path.
+- **ContinuityScore**: A manual ground-truth label (float 0.0–1.0) assigned to a VideoClip representing temporal stability.
+- **DivergenceMetric**: A computed float value representing the L2 distance between predicted and rolled-out latent states for a VideoClip.
+- **SensitivityReport**: A structured output listing threshold values and their corresponding classification error rates.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The system successfully computes and reports a non-NaN Pearson correlation coefficient and a confidence interval for the relationship between optical flow magnitude variance and flow-map divergence. (See US-2)
-- **SC-002**: The total execution time for processing a representative set of video clips is measured against the 6-hour GitHub Actions free-tier limit. (See FR-008)
-- **SC-003**: The sensitivity analysis reports a variation in false-positive rate of less than 10% across the tested threshold range (±0.05), measured against the human-annotated ground truth defined in FR-007. (See US-3)
-- **SC-004**: Peak memory usage during Euler rollout is measured against the RAM limit of the free-tier runner. (See FR-005)
-- **SC-005**: The precision and recall of the "stable/unstable" classifier are measured against the human-annotated subset of 50 clips defined in FR-007. (See US-3)
+- **SC-001**: The analysis script MUST output a Pearson $r$ value, a Spearman $\rho$ value, and a p-value; the result is recorded regardless of magnitude. (See US-3)
+- **SC-002**: The full pipeline (download, annotation, inference, analysis) MUST complete within 6 hours on a CPU-only runner with peak memory usage ≤ 7 GB. (See US-2)
+- **SC-003**: The sensitivity analysis MUST report distinct classification rates (false-positive/negative) for the three specific threshold values {low, 0.05, 0.1}. (See US-3)
+- **SC-004**: The system MUST record a distribution of scores and calculate/report the variance of the dataset to ensure sufficient spread for correlation analysis. (See US-1)
+- **SC-005**: The final report MUST explicitly state that the AnyFlow model was run in CPU-only mode without CUDA or quantization methods requiring GPU hardware. (See US-2)
 
 ## Assumptions
 
-- **Assumption about data availability**: The public repositories (Kinetics-400 subset, UCF101) contain a sufficient number of clips (≥500) with a balanced distribution of continuous motion and hard cuts.
-- **Assumption about model compatibility**: The frozen AnyFlow model can be successfully converted to ONNX format and run in CPU-only mode without requiring CUDA or specific GPU quantization libraries (e.g., bitsandbytes).
-- **Assumption about ground truth**: The high-resolution Euler rollout (100 steps) is the primary metric definition; clips exceeding the 15-minute timeout (FR-008) are excluded from the primary analysis to maintain the strict 100-step standard.
-- **Assumption about statistical validity**: The sample size of 500 clips (excluding fallbacks) provides sufficient statistical power to detect a moderate correlation (r ≈ 0.3) with 80% power at α=0.05.
-- **Assumption about threshold justification**: The threshold for "stable" vs "unstable" will be derived from the data's F1-score maximization on the held-out set, and the sensitivity sweep will use a fixed range of ±0.05 as a community-standard baseline for this metric scale.
+- The public video repositories (UCF, Kinetics, DAVIS) provide sufficient raw data to curate a representative set of distinct short clips containing both continuous motion and abrupt scene cuts.
+- The frozen AnyFlow model weights are available in a format compatible with ONNX Runtime conversion for CPU inference without requiring retraining or fine-tuning.
+- Manual annotation of a representative set of clips by a human (or small team) is feasible within the project timeline, assuming approximately two minutes per clip.
+- The "flow-map divergence" metric defined as the L2 distance between predicted and Euler-rolled states is computationally tractable on a limited number of CPU cores for 16-frame sequences.
+- The relationship between video content discontinuity and model trajectory stability may be linear or monotonic; therefore, both Pearson and Spearman correlations are used to capture potential non-linear patterns.
+- No GPU hardware is available or permitted for this analysis; all methods must strictly adhere to CPU-only execution constraints.
+- The "temporal continuity score" is a valid proxy for the ground truth of scene cuts and object appearances, assuming the annotator follows a consistent rubric.
+- It is assumed that the dataset will contain a sufficient number of clips with high discontinuity (score > 0.7) and high continuity (score < 0.3) to allow for meaningful variance analysis, though this is not guaranteed by the system itself.
+- The hypothesis that "distilled models fail more on cuts than on smooth motion" is tested by comparing the *change* in error across conditions, rather than assuming absolute error values are the primary metric of interest.

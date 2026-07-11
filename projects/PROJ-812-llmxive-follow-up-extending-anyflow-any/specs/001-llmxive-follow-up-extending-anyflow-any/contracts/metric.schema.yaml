@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Divergence Metric Schema"
+description: "Schema for computed flow-map divergence metrics (data/processed/divergence_metrics.csv)"
+type: "object"
+properties:
+  video_id:
+    type: "string"
+    description: "Unique identifier for the video clip"
+  divergence_score:
+    type: "number"
+    description: "L2 distance between predicted and Euler-rolled states"
+    minimum: 0.0
+  optical_flow_variance:
+    type: "number"
+    description: "Variance of optical flow magnitude (external proxy)"
+    minimum: 0.0
+  computation_time:
+    type: "number"
+    description: "Time taken to compute in milliseconds"
+  status:
+    type: "string"
+    description: "Status of computation"
+    enum: ["success", "failed"]
+  error_msg:
+    type: "string"
+    description: "Error message if status is failed"
+    nullable: true
+  model_hash:
+    type: "string"
+    description: "SHA-256 hash of the ONNX model used"
+  quantization_mode:
+    type: "string"
+    description: "Quantization mode used"
+    enum: ["float32", "float16"]
+required:
+  - video_id
+  - divergence_score
+  - optical_flow_variance
+  - computation_time
+  - status
+  - model_hash
+  - quantization_mode
+additionalProperties: false
+

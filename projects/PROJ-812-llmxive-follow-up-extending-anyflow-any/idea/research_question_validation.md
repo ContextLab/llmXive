@@ -1,26 +1,31 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+
 **Verdict**: pass
 
-The question asks about the relationship between specific statistical properties of video data (high-frequency discontinuities) and the theoretical stability limits of flow-map transitions. It seeks to identify the domain conditions under which the model's ODE assumptions break down, rather than asking whether a specific implementation can meet a performance benchmark.
+The question investigates the physical phenomenon of how flow-map stability degrades under specific data conditions (high-frequency temporal discontinuities vs. continuous motion). While it mentions a "lightweight metric," the core inquiry is about the relationship between video content structure and model trajectory stability, not merely whether a specific method can run on a specific hardware constraint.
 
 ### Circularity check
+
 **Verdict**: pass
 
-The predictor variables (optical flow magnitude, frame-to-frame MSE) are computed directly from the raw input video pixels. The outcome variable (flow-map divergence) is computed as the L2 distance between the model's predicted latent state and a high-resolution numerical rollout (Euler method). These are distinct computational paths: one measures input signal statistics, the other measures the numerical error of a specific integration approximation, so they are not mechanically guaranteed to correlate by construction.
+The predictor (flow-map divergence calculated from latent trajectories of a frozen model) and the predicted variable (manual temporal continuity score based on scene cuts) are derived from independent sources. The manual score is a ground-truth annotation of the video content, while the divergence metric is a computational property of the model's response to that content; they are not two summaries of the same mathematical object.
 
 ### Triviality check
+
 **Verdict**: pass
 
-A positive result (high correlation) would provide the first empirical mapping of video statistics to flow-matching failure modes, enabling practical dataset filtering. A null result (no correlation) would be equally informative, suggesting that flow-map instability is driven by latent-space dynamics invisible to pixel-level statistics, thereby challenging the premise of pixel-based stability metrics.
+A positive correlation (instability at cuts) would be a significant finding, establishing the theoretical boundary of flow-map distillation for discontinuous data. Conversely, a null result (stability remains high despite cuts) would be equally informative, suggesting the model's distillation process is robust to high-frequency breaks, which would challenge current assumptions about ODE trajectory requirements in video generation.
 
 ### Question-narrowing check
+
 **Verdict**: pass
 
-The question explicitly names a domain relationship: the correlation between "statistical properties of the input sequence" and "flow-map instability." It does not constrain the inquiry to whether a specific architecture fits within a budget, but rather investigates the fundamental conditions under which the underlying mathematical model fails.
+The question explicitly names a domain relationship: the degradation of stability under high-frequency discontinuities. The mention of a "CPU-tractable metric" is a constraint on the utility of the resulting tool, not a constraint on the scientific question itself (i.e., it asks "can we predict X," not "can method Y run on CPU within budget Z").
 
 ### Overall verdict
+
 **Verdict**: validated
 
-All four checks pass; the research question targets a genuine gap in understanding the failure modes of flow-matching video models without falling into circularity or implementation-narrowing traps. The proposed methodology (correlating input statistics with numerical divergence) is well-suited to answer the specific scientific question posed.
+All four checks pass. The research question targets a genuine gap in understanding how flow-map distillation handles temporal discontinuities, proposes a valid independent metric, and ensures that both positive and null results yield publishable insights. The project is ready to advance to initialization.

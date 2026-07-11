@@ -37,27 +37,29 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-812-llmxive-follow-up-extending-anyflow-any.yaml` `updated_at` timestamp.
 
-### VI. Temporal Discontinuity Quantification
+### VI. Latent Trajectory Fidelity
 
-The project's primary metric, "flow-map divergence," MUST be calculated as the
-L2 distance between the predicted intermediate latent state $z_r$ (derived via
-flow-map backward simulation) and the high-resolution Euler rollout reference
-state. This calculation is strictly required for all 500 curated video clips
-to empirically measure instability induced by high-frequency temporal
-discontinuities, as the methodology explicitly relies on correlating this
-divergence with input statistical properties like optical flow magnitude
-variance and inter-frame histogram differences.
+Given the project's focus on quantifying "flow-map divergence" as a proxy for
+ODE trajectory stability under discontinuities, every computed metric MUST
+be derived from the exact same frozen AnyFlow model weights used for the
+initial hypothesis. Any deviation in model quantization (e.g., ONNX Runtime
+settings) or latent extraction logic MUST be documented in `code/` and
+re-run to verify that the Pearson correlation ($r > 0.7$) remains stable
+within $\pm 0.05$ tolerance. This principle directly addresses the
+"Methodology sketch" requirement to ensure the CPU-optimized latent
+representations do not introduce artifacts that mimic or mask true
+temporal instability.
 
-### VII. CPU-Tractability and Resource Constraint
+### VII. Temporal Continuity Ground Truth
 
-All inference and divergence calculation steps MUST execute within the defined
-resource limits: the AnyFlow model MUST be loaded in ONNX format for CPU-only
-inference with quantization settings ensuring memory usage remains under 7 GB,
-and the entire pipeline (inference plus statistical analysis) MUST complete
-within the 6-hour GitHub Actions runner limit on 2 cores. This principle is
-derived from the methodology's explicit requirement to identify "CPU-tractable
-statistical features" and the constraint that the pipeline must run on standard
-compute resources without GPU acceleration.
+To validate the proposed "lightweight metric," the project MUST maintain a
+strict separation between the manual "temporal continuity score" annotations
+and the automated divergence calculations. The manual annotations (0.0 to
+1.0) MUST be recorded in a raw, immutable CSV under `data/` prior to any
+script execution. The correlation analysis MUST be performed strictly
+between this ground-truth annotation and the computed L2 distances, ensuring
+the "Expected results" (strong positive correlation) are not biased by
+pre-processing or circular logic in the scoring pipeline.
 
 ## Reproducibility Requirements
 

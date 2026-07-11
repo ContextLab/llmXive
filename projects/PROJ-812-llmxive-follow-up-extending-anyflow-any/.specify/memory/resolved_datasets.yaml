@@ -1,2 +1,188 @@
-resolved_at: '2026-07-11T11:16:15.195819+00:00'
-datasets: []
+resolved_at: '2026-07-11T11:48:48.875332+00:00'
+datasets:
+- intent: AnyFlow
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/_b_From_Stone_to_Command_An_Inquiry_into_the_Visual_System_and_Function_of_Achaemenid_Inscriptions_in_the_b_b_b_b_Representation_of_Power_and_b_/32963582
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/BoundaryMapper_source_code_for_genome-wide_repeat-enrichment_profiling_and_candidate_PAR_SDR_boundary_identification/32963567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/MacLeod_Xu-Ying_et_al_2026_Supplementary_Figure_S1/32075130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Best_Carpet_Companies_in_Dubai_for_Luxury_Homes_2026/32963579
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_From_Shelter_to_Habitat_A_Comparative_Analysis_of_the_Worldview_of_Underground_Structures_in_Iranian_Roman_and_Mesopotamian_b_/32963570
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.13724
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2303.16493
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-optimized
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/_b_From_Stone_to_Command_An_Inquiry_into_the_Visual_System_and_Function_of_Achaemenid_Inscriptions_in_the_b_b_b_b_Representation_of_Power_and_b_/32963582
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/BoundaryMapper_source_code_for_genome-wide_repeat-enrichment_profiling_and_candidate_PAR_SDR_boundary_identification/32963567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/MacLeod_Xu-Ying_et_al_2026_Supplementary_Figure_S1/32075130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Best_Carpet_Companies_in_Dubai_for_Luxury_Homes_2026/32963579
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_From_Shelter_to_Habitat_A_Comparative_Analysis_of_the_Worldview_of_Underground_Structures_in_Iranian_Roman_and_Mesopotamian_b_/32963570
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/803257
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1136109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1331998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308155
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308155
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21307430
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21307430
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21306965
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ONNX
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bakks/flan-t5-onnx/resolve/main/flan-t5-base/config.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1500
+      parsed: true
+  - url: https://huggingface.co/datasets/crozierm/DEAD-text-onnx/resolve/main/config.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 782
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bakks/flan-t5-onnx/resolve/main/flan-t5-base/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/crozierm/DEAD-text-onnx/resolve/main/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/magiccodingman/stella_en_400m_v5_onnx/87ecb42bd573adab2cfca9a50fbae26fa73ad6a9/FP32_1024D%2Ftokenizer.json?%2Fdatasets%2Fmagiccodingman%2Fstella_en_400m_v5_onnx%2Fresolve%2Fmain%2FFP32_1024D%2Ftokenizer.json=&etag=%228f778e7d950e055b18b53222c75d2c54c3732df5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_From_Stone_to_Command_An_Inquiry_into_the_Visual_System_and_Function_of_Achaemenid_Inscriptions_in_the_b_b_b_b_Representation_of_Power_and_b_/32963582
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/BoundaryMapper_source_code_for_genome-wide_repeat-enrichment_profiling_and_candidate_PAR_SDR_boundary_identification/32963567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/MacLeod_Xu-Ying_et_al_2026_Supplementary_Figure_S1/32075130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Best_Carpet_Companies_in_Dubai_for_Luxury_Homes_2026/32963579
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_From_Shelter_to_Habitat_A_Comparative_Analysis_of_the_Worldview_of_Underground_Structures_in_Iranian_Roman_and_Mesopotamian_b_/32963570
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15314214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3228411
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7543883
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5907059
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15741207
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304302
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304302
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297959
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

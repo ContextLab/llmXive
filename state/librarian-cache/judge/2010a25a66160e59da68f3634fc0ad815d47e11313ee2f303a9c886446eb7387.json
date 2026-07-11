@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.09380",
+  "judged_at": "2026-07-11T11:41:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anyflow: any-step video diffusion model with on-policy flow map distil\" computer science",
+  "rationale": "The candidate paper focuses on Video Question Answering (VideoQA) using prompt engineering and heuristics for video-language models, which is a distinct application domain and methodology from the user's question about extending \"AnyFlow,\" a specific on-policy flow map distillation technique for video diffusion generation. There is no overlap in the core mechanism (flow map distillation vs. heuristic prompting), the task (video generation vs. video QA), or the variables being studied, failing to",
+  "relevant": false
+}

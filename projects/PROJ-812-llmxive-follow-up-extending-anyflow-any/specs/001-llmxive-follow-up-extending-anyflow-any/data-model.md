@@ -1,72 +1,75 @@
 # Data Model: llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil"
 
-## 1. Conceptual Entities
+## 1. Overview
 
-### VideoClip
-Represents a single input unit (16 frames) processed by the pipeline.
-- **Attributes**: `clip_id` (UUID), `source_dataset` (str), `file_path` (str), `status` (str: `processed`, `skipped`, `timeout`), `error_message` (str, optional).
+This document defines the data schemas for the `001-gene-regulation` feature. The data model supports three stages: Curation, Metric Calculation, and Analysis. All data is stored in CSV or JSON formats for simplicity and reproducibility.
 
-### StatisticalFeature
-Derived numerical properties from a `VideoClip`.
-- **Attributes**: `clip_id` (FK), `optical_flow_variance` (float), `frame_to_frame_mse` (float), `temporal_gradient_sparsity` (float), `computed_at` (timestamp).
+## 2. Entities & Attributes
 
-### DivergenceMetric
-The core measurement of instability.
-- **Attributes**: `clip_id` (FK), `predicted_latent_hash` (str), `euler_state_hash` (str), `l2_distance` (float), `euler_steps` (int: 100), `computation_time_sec` (float), `is_primary_analysis` (bool).
+### 2.1 VideoClip
+Represents a single video segment used in the study.
+- `video_id` (str): Unique identifier (e.g., `ucf101_001`).
+- `source` (str): Source dataset (e.g., `UCF101`, `Kinetics`, `DAVIS`).
+- `file_path` (str): Relative path to the local video file.
+- `duration` (float): Duration in seconds.
+- `frame_count` (int): Number of frames (fixed at 16 for this study).
 
-### HumanLabel
-Manual annotation for threshold validation.
-- **Attributes**: `clip_id` (FK), `rater_id` (int), `label` (str: `stable`, `unstable`), `timestamp` (timestamp).
+### 2.2 ContinuityScore (Ground Truth)
+Manual annotation of temporal continuity.
+- `video_id` (str): Foreign key to `VideoClip`.
+- `score` (float): Temporal continuity score, range [0.0, 1.0].
+- `annotator_id` (str): ID of the human annotator (for traceability).
+- `timestamp` (str): ISO 8601 timestamp of annotation.
+- `is_double_annotated` (bool): True if this clip was part of the [deferred] reliability check.
 
-### ThresholdModel
-Derived model for classification.
-- **Attributes**: `threshold_value` (float), `precision` (float), `recall` (float), `f1_score` (float), `sweep_range` (str), `sensitivity_results` (json).
+### 2.3 DivergenceMetric (Computed)
+Computed flow-map divergence and external proxy.
+- `video_id` (str): Foreign key to `VideoClip`.
+- `divergence_score` (float): L2 distance between predicted and Euler-rolled states (Internal).
+- `optical_flow_variance` (float): Variance of optical flow magnitude (External Proxy).
+- `computation_time` (float): Time taken to compute (ms).
+- `status` (str): `success` or `failed`.
+- `error_msg` (str, optional): Error message if failed.
+- `model_hash` (str): SHA-256 hash of the ONNX model used.
+- `quantization_mode` (str): `float32` or `float16`.
 
-## 2. Physical Data Model (CSV/Parquet Schema)
+### 2.4 CorrelationResult
+Output of the statistical analysis.
+- `metric_type` (str): `pearson` or `spearman`.
+- `coefficient` (float): Correlation value ($r$ or $\rho$).
+- `p_value` (float): Statistical significance.
+- `sample_size` (int): Number of valid pairs.
+- `framing` (str): Explicit statement on causality ("associational").
+- `runtime_env` (str): "CPU-only (ONNX Runtime, no CUDA)".
 
-The system will output intermediate and final results in CSV/Parquet format for analysis.
+### 2.5 SensitivityReport
+Output of the threshold sensitivity analysis.
+- `threshold` (float): The threshold value (e.g., 0.01).
+- `true_positive_rate` (float): Recall.
+- `false_positive_rate` (float): 1 - Specificity.
+- `accuracy` (float): Overall accuracy.
+- `binarization_rule` (str): "Score < 0.4 = 0, Score > 0.6 = 1".
 
-### `data/processed/features.csv`
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| clip_id | string | Unique identifier |
-| source_dataset | string | Kinetics-400 or UCF101 |
-| optical_flow_variance | float | Variance of optical flow magnitude |
-| frame_to_frame_mse | float | Mean Squared Error between frames |
-| temporal_gradient_sparsity | float | Ratio of high-gradient pixels |
-| status | string | processed, skipped, timeout |
-| error_message | string | Optional error details |
-
-### `data/processed/divergence_metrics.csv`
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| clip_id | string | Unique identifier |
-| l2_distance | float | Flow-map divergence value |
-| euler_steps | int | 100 (primary) |
-| computation_time_sec | float | Time taken for calculation |
-| is_primary_analysis | boolean | True if computation succeeded within 15m |
-
-### `data/processed/annotations.csv`
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| clip_id | string | Unique identifier |
-| rater_id | int | Rater 1 or 2 |
-| label | string | stable or unstable |
-
-### `data/processed/threshold_results.json`
-| Key | Type | Description |
-| :--- | :--- | :--- |
-| optimal_threshold | float | Best F1 threshold |
-| precision | float | Precision at optimal threshold |
-| recall | float | Recall at optimal threshold |
-| f1_score | float | F1 at optimal threshold |
-| sensitivity_sweep | array | Array of {threshold, fpr, fnr} objects |
+### 2.6 ScoreDistribution
+Output of the distribution analysis (SC-004).
+- `mean_score` (float): Mean of manual scores.
+- `variance_score` (float): Variance of manual scores.
+- `min_score` (float): Minimum score.
+- `max_score` (float): Maximum score.
+- `sample_size` (int): Total number of annotated clips.
 
 ## 3. Data Flow
 
-1.  **Ingestion**: Raw video files from `data/raw/` are loaded into `VideoClip` entities.
-2.  **Feature Extraction**: `StatisticalFeature` records are created and saved to `features.csv`.
-3.  **Divergence Calculation**: `DivergenceMetric` records are created. Clips failing the 15-min timeout are marked `timeout`.
-4.  **Analysis**: `features.csv` and `divergence_metrics.csv` are joined (only `is_primary_analysis=True`). Ridge regression and correlation are performed.
-5.  **Annotation**: Human labels are ingested into `annotations.csv`.
-6.  **Thresholding**: `ThresholdModel` is computed and saved to `threshold_results.json`.
+1.  **Raw Input**: Video files from UCF101/Kinetics/DAVIS.
+2.  **Curation Output**: `data/raw/annotations.csv` (VideoClip + ContinuityScore).
+3.  **Processing Output**: `data/processed/divergence_metrics.csv` (VideoClip + DivergenceMetric).
+4.  **Analysis Output**: `data/processed/correlation_results.json`, `data/processed/sensitivity_report.json`, `data/processed/score_distribution.json`.
+
+## 4. Constraints
+
+- **Score Range**: `ContinuityScore.score` MUST be in [0.0, 1.0].
+- **Uniqueness**: `video_id` MUST be unique across all datasets.
+- **Immutability**: `data/raw/annotations.csv` MUST NOT be modified after initial creation.
+- **Missing Data**: If `status` is `failed` in `DivergenceMetric`, the clip is excluded from correlation analysis.
+- **Reliability**: If Krippendorff's Alpha < 0.6, the `data/raw/annotations.csv` is marked invalid.
+- **Dependencies**: `requirements.txt` MUST pin `ucimlrepo` and `datasets` versions to ensure canonical source access.

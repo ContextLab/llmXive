@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.03150",
+  "judged_at": "2026-07-11T11:41:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anyflow: any-step video diffusion model with on-policy flow map distil\" computer science",
+  "rationale": "This paper qualifies under category (d) as a foundational survey and category (f) as a canonical reference for the domain of video diffusion models, providing the essential architectural context, temporal dynamics, and state-of-the-art baseline that any follow-up research on \"AnyFlow\" or similar on-policy flow map distillation methods would need to cite.",
+  "relevant": true
+}

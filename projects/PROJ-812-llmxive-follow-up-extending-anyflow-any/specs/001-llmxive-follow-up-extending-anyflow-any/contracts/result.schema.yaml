@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result Schema"
+description: "Schema for statistical analysis results (data/processed/correlation_results.json)"
+type: "object"
+properties:
+  metric_type:
+    type: "string"
+    description: "Type of correlation metric"
+    enum: ["pearson", "spearman"]
+  coefficient:
+    type: "number"
+    description: "Correlation coefficient (r or rho)"
+  p_value:
+    type: "number"
+    description: "Statistical significance p-value"
+  sample_size:
+    type: "integer"
+    description: "Number of valid pairs used in calculation"
+  framing:
+    type: "string"
+    description: "Explicit statement on causality"
+    const: "associational"
+  runtime_env:
+    type: "string"
+    description: "Explicit statement on execution environment"
+    const: "CPU-only (ONNX Runtime, no CUDA)"
+required:
+  - metric_type
+  - coefficient
+  - p_value
+  - sample_size
+  - framing
+  - runtime_env
+additionalProperties: false
+

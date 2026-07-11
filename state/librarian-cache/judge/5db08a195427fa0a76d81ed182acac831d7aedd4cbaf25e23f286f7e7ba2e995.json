@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "2605.13724",
-  "judged_at": "2026-07-11T11:08:27Z",
+  "judged_at": "2026-07-11T11:41:46Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"anyflow: any-step video diffusion model with on-policy flow map distil\" computer science",
-  "rationale": "The candidate paper is the foundational methods paper for the specific framework (\"AnyFlow\") and mechanism (\"On-Policy Flow Map Distillation\") explicitly named in the user's research question, satisfying acceptance criterion (d). It establishes the empirical baseline and technical context required for any follow-up research or literature review on this specific topic.",
+  "rationale": "The candidate paper is the foundational methods paper for the specific framework (\"AnyFlow\") and mechanism (\"On-Policy Flow Map Distillation\") explicitly named in the user's research question, satisfying acceptance criterion (d) as the canonical reference for this new research direction.",
   "relevant": true
 }
