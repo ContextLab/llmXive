@@ -96,7 +96,7 @@
 - **SC-005**: The computational feasibility is measured by ensuring the total end-to-end pipeline (extraction, training, evaluation) completes within 6 hours on a 2 vCPU, 7GB RAM CPU-only runner (GitHub Actions ubuntu-latest equivalent) (See FR-001, US-1).
 - **SC-006**: The methodological validity is measured by ensuring no GPU-dependent libraries (e.g., CUDA, bitsandbytes) are imported or invoked during any stage of the analysis (See FR-001, US-1).
 - **SC-007**: The ground truth validity is measured by ensuring [deferred] of counterfactual labels are verified against an independent physics engine simulation (See FR-009).
-- **SC-008**: The vector arithmetic validity is measured by ensuring the vector injection method correctly predicts the physics engine outcome for at least 90% of the 50 validation clips (See FR-010).
+- **SC-008**: The vector arithmetic validity is measured by ensuring the vector injection method correctly predicts the physics engine outcome for at least 90% of the validation clips (See FR-010).
 
 ## Assumptions
 

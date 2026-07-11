@@ -2,43 +2,47 @@
 
 ## Prerequisites
 - Python 3.11+
-- 7GB+ RAM
-- Git
-- (Optional) `mujoco` or `pybullet` for physics simulation.
+- 7GB+ RAM available
+- Access to the verified HuggingFace dataset (network required for initial download)
 
 ## Setup
 
-### 1. Clone and Install
+### 1. Environment Setup
+Create a virtual environment and install dependencies:
 ```bash
-git clone <repository-url>
-cd projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor
-pip install -r requirements.txt
+python -m venv venv
+source venv/bin/activate
+pip install -r code/requirements.txt
 ```
+*Note: `requirements.txt` pins `torch` to a CPU-only version.*
 
-### 2. Verify Dataset Availability
-Run the data availability check:
+### 2. Data Preparation
+The pipeline expects the dataset to be available. Run the download script (or manually fetch the parquet):
 ```bash
-python code/data/check_data_availability.py
+python code/scripts/download_data.py
 ```
-*Note: If this script fails due to missing verified video sources, the project will automatically switch to a verified synthetic fallback (e.g., CLEVR). If no fallback is available, the project halts.*
+This will populate `data/raw/` with the necessary metadata and video references.
 
 ### 3. Run the Pipeline
-Execute the full pipeline (Download -> Extract -> Verify -> Train -> Analyze):
+Execute the main pipeline script which handles the dependency chain:
 ```bash
-python code/run_full_pipeline.py
+python code/main_pipeline.py
 ```
+This script will:
+1. Extract latents (with memory profiling).
+2. Inject counterfactuals (Descriptive).
+3. Run physics validation on a subset.
+4. Filter ambiguous/unverified data.
+5. Train models and compute statistics.
 
-### 4. Run Tests
-```bash
-pytest tests/
-```
-
-## Expected Outputs
-- `data/processed/model_results.csv`: Contains accuracy metrics for all models.
-- `data/processed/stats_report.json`: Contains p-values, sensitivity scores, and `verified_ratio`.
-- `data/logs/failed_scenarios.log`: List of ambiguous or skipped scenarios.
+### 4. Verify Results
+Check the output logs and results:
+- `data/logs/audit.log`: Full pipeline execution log.
+- `data/results/metrics.json`: Accuracy, p-values, and robustness scores.
+- `data/results/validation_summary.csv`: Physics validation results.
 
 ## Troubleshooting
-- **OOM Errors**: If memory usage exceeds 7GB, the script will automatically reduce batch size. If it fails, reduce the `MAX_CLIPS` config in `code/config.py`.
-- **Missing Dataset**: If the Orca video dataset is not found, the pipeline will attempt to use a verified synthetic fallback. If no fallback is available, the project halts.
-- **Physics Engine Errors**: Ensure `mujoco` or `pybullet` is installed and compatible with the CPU architecture.
+
+- **OOM Errors**: The script automatically reduces batch size. If it fails at batch=1, check `data/logs/audit.log` for specific memory usage patterns.
+- **Missing Videos**: If video IDs are found but files are missing, the script logs the ID and continues. Ensure the source dataset is complete.
+- **Physics Simulation Failures**: If `mujoco` fails to load, ensure the system has the required graphics libraries (headless mode is supported).

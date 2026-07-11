@@ -20,30 +20,30 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/`)
+- [ ] T001 Create project structure per implementation plan (`projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/`) <!-- ATOMIZE: requested -->
 - [ ] T002 Initialize Python 3.11 project with pinned `requirements.txt` (CPU-only torch, scikit-learn, datasets, mujoco/pybullet)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup global config module (`code/config.py`) with paths, seeds, and memory limits (memory guardrail)
-- [ ] T005 [P] Implement audit logging infrastructure (`code/utils/audit_logger.py`) to capture skipped files and ambiguous prompts (FR-008)
+- [ ] T004 Setup global config module (`code/config.py`) with paths, seeds, memory limits, and `OPTICAL_FLOW_THRESHOLD` parameter (default 0.5)
+- [X] T005 [P] Implement audit logging infrastructure (`code/utils/audit_logger.py`) to capture skipped files and ambiguous prompts (FR-008)
 - [ ] T006 Create base data models/entities (`code/data/models.py`) for `PhysicalScenario`, `LatentVector`, `CounterfactualEdit`
-- [ ] T007 Setup memory profiling utility (`code/utils/memory_guard.py`) to dynamically adjust batch sizes based on `psutil` usage
-- [ ] T008 Initialize `data/` directory structure (`raw/`, `processed/`, `validation/`) with checksum verification scripts
+- [~] T007 Setup memory profiling utility (`code/utils/memory_guard.py`) to dynamically adjust batch sizes based on `psutil` usage
+- [~] T008 Initialize `data/` directory structure (`raw/`, `processed/`, `validation/`) with checksum verification scripts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,13 +73,13 @@
 
 ### Tests for User Story 1
 
-- [ ] T009 [P] [US1] Unit test for data filtering logic in `tests/unit/test_data_filter.py`
+- [~] T009 [P] [US1] Unit test for data filtering logic in `tests/unit/test_data_filter.py`
 - [ ] T010 [P] [US1] Integration test for latent extraction on a single sample clip in `tests/integration/test_latent_extraction.py`
 
 ### Implementation for User Story 1
 
 - [ ] T011 [US1] Implement `code/data/download_orca.py` to fetch Orca dataset via HuggingFace `datasets` library (real URL only)
-- [ ] T012 [US1] Implement filtering logic in `code/data/download_orca.py` to exclude non-physical interaction clips using `optical_flow_magnitude` < `config.OPTICAL_FLOW_THRESHOLD` (from `code/config.py`) on `metadata` field
+- [ ] T012 [US1] Implement filtering logic in `code/data/download_orca.py` to exclude non-physical interaction clips using `optical_flow_magnitude` < `config.OPTICAL_FLOW_THRESHOLD` on `metadata` field (FR-001)
 - [ ] T013 [US1] Implement `code/data/extract_latents.py` to load frozen Orca model on CPU (float32, no quantization)
 - [ ] T014 [US1] Implement batch processing logic in `code/data/extract_latents.py` with dynamic batch size adjustment (FR-001, Edge Cases)
 - [ ] T015 [US1] Implement latent extraction loop to output `data/processed/latents.csv` with video IDs, prompts, and vector arrays
@@ -103,15 +103,18 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020a [US2] Implement `code/data/physics_verify.py` to generate **Original Manual Labels** for the N=450 subset. This task creates `data/validation/original_labels.csv` with columns `scenario_id`, `counterfactual_prompt`, `original_outcome` (manual annotation). This dataset serves as the ground truth for the main baseline model (FR-004). (FR-009, Plan Shift)
-- [ ] T020b [US2] Implement `code/data/physics_verify.py` to generate **Physics-Verified Labels** for the N=50 subset. This task simulates counterfactual conditions (e.g., `gravity=0.0`) using MuJoCo/PyBullet and outputs `data/validation/physics_ground_truth.csv` with columns `scenario_id`, `counterfactual_prompt`, `simulated_outcome`. This dataset is used for vector arithmetic validation and counterfactual analysis. (FR-009, FR-010)
-- [ ] T021 [US2] Implement `code/data/extract_latents.py` counterfactual injection logic: apply **vector arithmetic** for clear prompts, **ZeroVectorMask** for ambiguous prompts, to generate $z_{cf}$ for *each* clip. Output `data/processed/latents_cf.csv`. (FR-002)
-- [ ] T022 [US2] Implement validation logic in `code/data/extract_latents.py` to flag ambiguous prompts and record in `failed_scenarios.log`. **Output**: Add `ambiguous_flag` column to `data/processed/latents_cf.csv` (0=valid, 1=ambiguous). (Edge Cases, FR-003)
-- [ ] T022b [US2] **Filter Ambiguous Clips**: Implement logic in `code/data/extract_latents.py` to read `data/processed/latents_cf.csv`, exclude rows where `ambiguous_flag` == 1, and write the clean dataset to `data/processed/latents_cf_filtered.csv`. This is the single source of truth for training data, ensuring consistency with FR-003. (FR-003)
-- [ ] T026a [US2] Implement vector arithmetic validation in `code/data/extract_latents.py` to compare $z_{cf}$ predictions against physics engine results (T020b). **DO NOT halt the pipeline**. Log validation accuracy; if < 90%, log warning but continue to training tasks. Output `data/validation/vector_arithmetic_validation.csv`. (FR-010, SC-008, Edge Cases)
-- [ ] T023 [US2] Implement `code/models/train_readout.py` to train `DecisionTreeClassifier` on modified latents (N=450 subset, excluding ambiguous). **Depends on T020a, T022b, and T026a (completion only)**. Note: Training proceeds regardless of T026a validation score; T026a ensures the validation log exists. (FR-003)
-- [ ] T024 [US2] Implement `code/models/baseline_pixel.py` to train `DecisionTreeClassifier` on raw downsampled frames using **Original Manual Labels** from T020a (N=450). **Depends on T020a**. This establishes the pixel-based baseline for the full dataset, predicting original physical outcomes. (FR-004)
-- [ ] T025 [US2] Implement `code/analysis/stats.py` to perform paired t-test comparing Latent Model (T023) vs. Pixel Baseline (T024) and calculate p-value. (FR-005)
+- [ ] T020a [US2] **Extract Original Physical Outcomes (N=450)**: Implement `code/data/extract_original_labels.py` to parse the video metadata from the N=450 curated clips and extract the *original* physical outcomes (e.g., "object fell") as ground truth for Descriptive Analysis. **Output**: `data/processed/original_labels.csv` with columns `scenario_id`, `original_outcome`. This dataset serves as the ground truth for the N=450 Descriptive Baseline (FR-004, Plan Summary).
+- [ ] T020b [US2] **Generate Physics-Verified Labels (N=50)**: Implement `code/data/physics_verify.py` to generate **Physics-Verified Labels** for the N=50 subset using full MuJoCo/PyBullet simulation. This task outputs `data/validation/physics_ground_truth_subset.csv` with columns `scenario_id`, `counterfactual_prompt`, `simulated_outcome`. This dataset is used for vector arithmetic validation and Causal Mode training (FR-009, FR-010).
+- [ ] T021 [US2] Implement `code/data/inject_counterfactuals.py` to apply **vector arithmetic** for clear prompts, **ZeroVectorMask** for ambiguous prompts, to generate $z_{cf}$ for *each* clip. Output `data/processed/latents_cf_raw.csv`. (FR-002)
+- [ ] T022 [US2] Implement ambiguity detection in `code/data/inject_counterfactuals.py` to flag ambiguous prompts and record in `failed_scenarios.log`. **Output**: Add `ambiguous_flag` column to `data/processed/latents_cf_raw.csv` (0=valid, 1=ambiguous). (Edge Cases, FR-003)
+- [ ] T026a [US2] Implement vector arithmetic validation gate in `code/data/validate_gate.py`. **Input**: `data/processed/latents_cf_raw.csv` (Subset N=50), `data/validation/physics_ground_truth_subset.csv` (from T020b). **Action**: Compare $z_{cf}$ predictions against physics results. **Output**: Write `data/validation/gate_status.json` with `status: "passed"` (if accuracy >= 90%) or `status: "blocked"`. **Logic**: If `status` is "blocked", the pipeline MUST halt downstream *causal* training tasks (T023, T024 Causal Mode). (FR-010, SC-008, Edge Cases)
+- [ ] T022b [US2] **Filter Ambiguous Clips**: Implement logic in `code/data/filter_training_set.py` to read `data/processed/latents_cf_raw.csv`. **Action**: Exclude rows where `ambiguous_flag` == 1 for the **entire dataset** (N=450 + N=50). **Output**: `data/processed/filtered_training_set.csv`. **Note**: This filtering is independent of the N=50 gate status (T026a). The N=50 gate only controls whether the *causal* branch (T023/T024 Causal Mode) proceeds. (FR-003)
+- [ ] T023 [US2] Implement `code/models/train_readout.py` to train `DecisionTreeClassifier` on modified latents (N=50 subset if gate passed). **Depends on**: T022b, T026a (Gate Pass). **Mode**: Causal Mode (uses physics labels from T020b). (FR-003)
+- [ ] T024 [US2] Implement `code/models/baseline_pixel.py` to train `DecisionTreeClassifier` on raw downsampled frames. **Depends on**: T020a, T020b, T022b. **Action**:
+ - **Descriptive Mode**: Train on N=450 using `original_labels.csv` (from T020a) to establish correlation baseline against real video events.
+ - **Causal Mode**: Train on N=50 (if gate passed) using `physics_ground_truth_subset.csv` (from T020b) to compare against the causal model.
+ (FR-004)
+- [ ] T025 [US2] Implement `code/analysis/stats.py` to perform paired t-test comparing Latent Model (T023) vs. Pixel Baseline (T024 Causal Mode) and calculate p-value. (FR-005)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,12 +133,13 @@
 
 ### Implementation for User Story 3
 
+- [ ] T045 [US3] **Concept Localization: Physical Concepts**: Implement `code/data/localize_concepts.py` to probe latent vectors and identify vector dimensions corresponding to *physical concepts* (e.g., gravity, friction) required for counterfactual injection (T021). **Output**: `data/processed/physical_concept_mappings.json` containing the specific index map for physical tokens. (FR-002, T021 Prerequisite)
+- [ ] T046 [US3] **Concept Localization: Linguistic Scaffolding**: Implement `code/data/localize_concepts.py` (extended) to probe latent vectors and identify vector dimensions corresponding to *linguistic scaffolding* (conscious tokens). **Output**: `data/processed/linguistic_concept_mappings.json` containing the specific index map for linguistic tokens. (FR-007 Prerequisite)
 - [ ] T030 [US3] Implement `code/models/train_readout.py` Linear Probe (Logistic Regression) training option (FR-006)
-- [ ] T031 [US3] Implement logic to isolate "unconscious" latent vectors by **masking a subset of initial indices** (linguistic scaffolding) in `code/data/extract_latents.py`. Output `data/processed/latents_unconscious.csv`. (FR-007)
+- [ ] T031 [US3] Implement logic to isolate "unconscious" latent vectors by **masking indices defined in T046** (`data/processed/linguistic_concept_mappings.json`) in `code/data/extract_latents.py`. **Depends on**: T046. Output `data/processed/latents_unconscious.csv`. (FR-007)
 - [ ] T032 [US3] Implement ablation training loop comparing Full Latents vs. Unconscious Latents (FR-007)
 - [ ] T033 [US3] Update `code/analysis/stats.py` to calculate performance gap for Decision Tree vs. Linear Probe (FR-006)
 - [ ] T034 [US3] Update `code/analysis/stats.py` to calculate performance gap for Full vs. Unconscious latents (FR-007)
-- [ ] T035 [US3] Apply Bonferroni/Holm-Bonferroni correction to p-values for multiple comparisons (Methodological Rigor)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -162,8 +166,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -229,9 +233,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -246,5 +250,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI (limited vCPU, constrained RAM). No GPU, no 8-bit quantization, no large LLM fine-tuning.
-- **Methodological Note**: The main baseline (N=450) uses manual labels (T020a) while counterfactual validation (N=50) uses physics simulation (T020b) to balance feasibility with rigor.
-- **Validation Note**: T026a (Vector Validation) is a non-blocking check. Training (T023/T024) proceeds if T026a completes, regardless of its accuracy score. Data filtering is handled strictly by T022b.
+- **Methodological Note**: The N=450 set uses *original video labels* for descriptive analysis (T020a), while the N=50 set uses *physics-verified labels* for causal analysis (T020b). This distinction is critical for valid comparison.
+- **Validation Note**: T026a (Vector Validation) is a blocking gate for the *causal* branch only. The descriptive branch (N=450) proceeds independently regardless of the gate status, provided ambiguity filtering (T022b) is applied.

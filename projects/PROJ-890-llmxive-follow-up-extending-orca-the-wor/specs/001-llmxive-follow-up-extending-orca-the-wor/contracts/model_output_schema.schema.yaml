@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReadoutModelOutput"
+description: "Schema for the output of the trained readout models (Decision Tree, Linear Probe, Pixel Baseline)."
+type: "object"
+properties:
+  prediction_id:
+    type: "string"
+    description: "Unique identifier for the prediction record."
+  scenario_id:
+    type: "string"
+    description: "Reference to the PhysicalScenario."
+  model_type:
+    type: "string"
+    description: "Type of model used."
+    enum:
+      - "decision_tree"
+      - "linear_probe"
+      - "pixel_baseline"
+  input_source:
+    type: "string"
+    description: "Source of the input data."
+    enum:
+      - "latent"
+      - "pixel"
+  predicted_outcome:
+    type: "string"
+    description: "The model's predicted outcome."
+  confidence_score:
+    type: "number"
+    description: "Confidence score of the prediction (0.0 to 1.0)."
+  ground_truth:
+    type: "string"
+    description: "The actual outcome from physics simulation or logical expectation."
+  is_correct:
+    type: "boolean"
+    description: "Whether the prediction matches the ground truth."
+required:
+  - "prediction_id"
+  - "scenario_id"
+  - "model_type"
+  - "input_source"
+  - "predicted_outcome"
+  - "confidence_score"
+  - "ground_truth"
+  - "is_correct"
+additionalProperties: false

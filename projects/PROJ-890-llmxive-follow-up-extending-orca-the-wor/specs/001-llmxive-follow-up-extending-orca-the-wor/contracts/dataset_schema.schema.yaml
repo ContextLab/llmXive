@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OrcaCounterfactualDataset"
+description: "Schema for the curated dataset of physical interaction clips and their counterfactual metadata."
+type: "object"
+properties:
+  video_id:
+    type: "string"
+    description: "Unique identifier for the video clip from the source dataset."
+  interaction_type:
+    type: "string"
+    description: "Category of physical interaction (e.g., 'falling', 'collision')."
+  counterfactual_prompt:
+    type: "string"
+    description: "Manual annotation describing the counterfactual scenario (e.g., 'remove gravity')."
+  is_valid:
+    type: "boolean"
+    description: "Flag indicating if the clip passed corruption and filtering checks."
+  is_ambiguous:
+    type: "boolean"
+    description: "Flag indicating if the counterfactual prompt was semantically ambiguous."
+  latent_vector_path:
+    type: "string"
+    description: "Relative path to the stored latent vector file (.npy)."
+  physics_outcome:
+    type: "string"
+    description: "Simulated outcome from the physics engine (e.g., 'floats', 'falls')."
+    enum:
+      - "floats"
+      - "falls"
+      - "collides"
+      - "unknown"
+required:
+  - "video_id"
+  - "interaction_type"
+  - "counterfactual_prompt"
+  - "is_valid"
+  - "is_ambiguous"
+  - "latent_vector_path"
+additionalProperties: false

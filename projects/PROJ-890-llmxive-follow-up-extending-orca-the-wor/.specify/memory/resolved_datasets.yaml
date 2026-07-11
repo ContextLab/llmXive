@@ -1,4 +1,4 @@
-resolved_at: '2026-07-10T14:37:36.058703+00:00'
+resolved_at: '2026-07-11T03:33:23.172844+00:00'
 datasets:
 - intent: CPU-only
   status: verified
@@ -15,29 +15,26 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Process_optimization_and_nutritional_profiling_of_gluten-free_quinoa_rice_couscous_amino_acid_and_polyphenol_characterization_docx/32957399
+  - url: https://figshare.com/articles/dataset/Hezekiah_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962583
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Organization_and_Triggered_Release_of_Liposomes_with_DNA-Based_Synthetic_Condensates/32957396
+  - url: https://acs.figshare.com/articles/journal_contribution/Rhodium_III_-Catalyzed_3_2_Annulation_of_Diazo_Compounds_with_Enaminones_for_Constructing_Polysubstituted_NH-Pyrroles/32962589
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Rational_Assembly_of_Hydrophobic_Particles_on_Tubular_SiC_Membranes_for_Water-in-Diesel_W_D_Emulsions_Synchronized_Wettability_Reversal_and_Pore_Narrowing/32957390
+  - url: https://acs.figshare.com/articles/journal_contribution/_5_5_Cross-Annulation_Based_on_Site-Selective_Bonding-Formed_Dual_Intermediates_Synthesis_of_Fully_Substituted_1_7-Naphthyridine_Derivatives/32962586
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Ang_Rehiyon_0_Rehiyon_ng_Detektib/32957363
+  - url: https://acs.figshare.com/articles/journal_contribution/Pd_Norbornene-Catalyzed_Tandem_o_C_H_Alkylation_or_Acylation_ipso-Intramolecular_Direct_Arylation_of_Aryl_Bromides/32962580
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.rcsi.com/articles/journal_contribution/Combined_external_fixation_frames_and_autologous_bone_graft_reconstruction_in_thumb_proximal_phalanx_bone_loss_a_case_series/32837111
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Gradient_Energetic_Modification_Method_to_Optimize_the_Balance_between_Energy_and_Thermal_Stability_of_Tetrazole-Fused_Pyrazolopyrimidines/32962577
     source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
-      port=443): Max retries exceeded with url: /articles/journal_contribution/Combined_external_fixation_frames_and_autologous_bone_graft_reconstruction_in_thumb_proximal_phalanx_bone_loss_a_case_series/32837111
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
     status: wrong_format
@@ -50,31 +47,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21261524
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298690
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21266741
+  - url: https://zenodo.org/records/21298690
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21267245
+  - url: https://zenodo.org/records/20300649
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21296751
+  - url: https://zenodo.org/records/20300649
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21296751
+  - url: https://zenodo.org/records/21300217
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -82,23 +79,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/SMDNet_A_Self-Training-Aware_and_Multi-Modal-Adaptive_Deep_Learning_Network_for_Low-Data_A_sub_42_sub_Probe_Design_and_Optimization/32957414
+  - url: https://figshare.com/articles/dataset/Hezekiah_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962583
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/SMDNet_A_Self-Training-Aware_and_Multi-Modal-Adaptive_Deep_Learning_Network_for_Low-Data_A_sub_42_sub_Probe_Design_and_Optimization/32957411
+  - url: https://acs.figshare.com/articles/journal_contribution/Rhodium_III_-Catalyzed_3_2_Annulation_of_Diazo_Compounds_with_Enaminones_for_Constructing_Polysubstituted_NH-Pyrroles/32962589
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/SMDNet_A_Self-Training-Aware_and_Multi-Modal-Adaptive_Deep_Learning_Network_for_Low-Data_A_sub_42_sub_Probe_Design_and_Optimization/32957405
+  - url: https://acs.figshare.com/articles/journal_contribution/_5_5_Cross-Annulation_Based_on_Site-Selective_Bonding-Formed_Dual_Intermediates_Synthesis_of_Fully_Substituted_1_7-Naphthyridine_Derivatives/32962586
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/SMDNet_A_Self-Training-Aware_and_Multi-Modal-Adaptive_Deep_Learning_Network_for_Low-Data_A_sub_42_sub_Probe_Design_and_Optimization/32957402
+  - url: https://acs.figshare.com/articles/journal_contribution/Pd_Norbornene-Catalyzed_Tandem_o_C_H_Alkylation_or_Acylation_ipso-Intramolecular_Direct_Arylation_of_Aryl_Bromides/32962580
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Process_optimization_and_nutritional_profiling_of_gluten-free_quinoa_rice_couscous_amino_acid_and_polyphenol_characterization_docx/32957399
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Gradient_Energetic_Modification_Method_to_Optimize_the_Balance_between_Energy_and_Thermal_Stability_of_Tetrazole-Fused_Pyrazolopyrimidines/32962577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -110,11 +107,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16955346
+  - url: https://zenodo.org/records/18815817
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18815817
+  - url: https://zenodo.org/records/16955346
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,0 +1,11 @@
+? 'T001 Create project structure per implementation plan (`projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/`)
+  <!-- ATOMIZE: requested -->'
+: 1
+? T002 Initialize Python 3.11 project with pinned `requirements.txt` (CPU-only torch,
+  scikit-learn, datasets, mujoco/pybullet)
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+? T004 Setup global config module (`code/config.py`) with paths, seeds, memory limits,
+  and `OPTICAL_FLOW_THRESHOLD` parameter (default 0.5)
+: 1
+T006 Create base data models/entities (`code/data/models.py`) for `PhysicalScenario`, `LatentVector`, `CounterfactualEdit`: 1

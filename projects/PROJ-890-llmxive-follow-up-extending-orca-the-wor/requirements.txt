@@ -1,0 +1,30 @@
+# llmXive Project Dependencies
+# Python 3.11+ required
+# All packages pinned for reproducibility on CPU-only CI
+
+# Core ML & Data
+torch==2.2.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+scikit-learn==1.4.1.post1
+numpy==1.26.4
+pandas==2.2.1
+
+# HuggingFace Ecosystem
+datasets==2.17.1
+transformers==4.38.2
+huggingface-hub==0.21.4
+
+# Physics Simulation (CPU)
+mujoco==2.3.7
+dm_control==1.0.14
+pybullet==3.2.6
+
+# Utilities
+psutil==5.9.8
+ruff==0.3.0
+black==24.3.0
+pytest==8.1.1
+pytest-cov==4.1.0
+tqdm==4.66.2
+Pillow==10.2.0

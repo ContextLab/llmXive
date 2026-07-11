@@ -1,0 +1,151 @@
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Extract original physical outcomes from N=450 curated clips
+  claim_id: c_6dbcf63d
+  context: 'T020a [US2] **Extract Original Physical Outcomes (N=450)**: Implement
+    `code/data/extract_original_labels.py` to parse the video metadata from the N=450
+    curated clips and extract the *original* physical outcomes (e.g., "object fell")
+    as ground truth for Descriptive Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/extract_original_labels.py to parse the video metadata
+    from the N=450 curated clips
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T04:12:18Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Generate physics-verified labels for N=50 subset using MuJoCo/PyBullet
+  claim_id: c_e3a7ebd7
+  context: 'T020b [US2] **Generate Physics-Verified Labels (N=50)**: Implement `code/data/physics_verify.py`
+    to generate **Physics-Verified Labels** for the N=50 subset using full MuJoCo/PyBullet
+    simulation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/physics_verify.py to generate Physics-Verified Labels
+    for the N=50 subset using full MuJoCo/PyBullet simulation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T04:12:32Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Vector arithmetic validation gate passes if accuracy is 90% or higher
+  claim_id: c_8e942718
+  context: 'T026a [US2] **Action**: Compare $z_{cf}$ predictions against physics results.
+    **Output**: Write `data/validation/gate_status.json` with `status: "passed"` (if
+    accuracy >= 90%) or `status: "blocked"`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Write data/validation/gate_status.json with status: "passed" (if accuracy
+    >= 90%)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T04:12:32Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Execute end-to-end benchmark on GitHub Actions runner
+  claim_id: c_391a77ba
+  context: T038a [P] Execute end-to-end benchmark on GitHub Actions runner and record
+    execution time in `data/validation/benchmark_log.csv` (SC-005)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_end-to-end_benchmark_on_GitHub_Actions_runner
+  kind: entity_fact
+  raw_text: Execute end-to-end benchmark on GitHub Actions runner and record execution
+    time in data/validation/benchmark_log.csv
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T04:13:18Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Optimization strategies triggered if runtime exceeds 6 hours
+  claim_id: c_d67dabbc
+  context: 'T042 [P] **Performance Optimization**: Execute optimization strategies
+    (reduce batch size, lower frame resolution, or skip non-critical logging) **IF**
+    T038a runtime > 6 hours to meet the 6h target.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute optimization strategies IF T038a runtime > 6 hours to meet the
+    6h target
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T04:13:51Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: N=450 curated clips used for descriptive baseline with original physical
+    outcomes
+  claim_id: c_e85e664c
+  context: 'T020a [US2] **Extract Original Physical Outcomes (N=450)**: Implement
+    `code/data/extract_original_labels.py` to parse the video metadata from the N=450
+    curated clips and extract the *original* physical outcomes (e.g., "object fell")
+    as ground truth for Descriptive Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Extract Original Physical Outcomes (N=450): Implement code/data/extract_original_labels.py
+    to parse the video metadata from the N=450 curated clips and extract the original
+    physical outcomes'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T04:15:10Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: N=50 subset used for physics-verified labels via MuJoCo/PyBullet simulation
+  claim_id: c_3da0781b
+  context: 'T020b [US2] **Generate Physics-Verified Labels (N=50)**: Implement `code/data/physics_verify.py`
+    to generate **Physics-Verified Labels** for the N=50 subset using full MuJoCo/PyBullet
+    simulation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate Physics-Verified Labels (N=50): Implement code/data/physics_verify.py
+    to generate Physics-Verified Labels for the N=50 subset using full MuJoCo/PyBullet
+    simulation'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T04:15:10Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Vector arithmetic validation gate passes if accuracy is at least 90 percent
+  claim_id: c_76d617cf
+  context: 'T026a [US2] **Action**: Compare $z_{cf}$ predictions against physics results.
+    **Output**: Write `data/validation/gate_status.json` with `status: "passed"` (if
+    accuracy >= 90%) or `status: "blocked"`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Vector_arithmetic_validation_gate_passes_if_accuracy_is_at_l
+  kind: magnitude
+  raw_text: 'Output status: ''passed'' if accuracy >= 90%'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T04:15:54Z'
