@@ -1,0 +1,24 @@
+- artifact_hash: 485bf53b11318783149cc110dc5e328581837eed34f35190aa0a110dd6f68b6a
+  artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GWTC-3: Compact Binary Coalescences Observed by LIGO and Virgo During\
+    \ the Second Part of the Third Observing Run \u2014 Parameter estimation data\
+    \ release | Zenodo"
+  kind: url
+  value: https://zenodo.org/record/5546663`
+  verification_status: verified
+  verified_against_url: https://zenodo.org/records/5546663
+  verified_at: '2026-07-11T06:51:08.699438Z'
+- artifact_hash: 64b73a4d99d92f3abdaabad593c0bf08876c9693d311489b8f06ba1f29b37d15
+  artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1002345
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1002345
+  verified_at: '2026-07-11T07:28:32.770174Z'

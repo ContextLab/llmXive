@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001 [P] Create `src/` directory and `src/__init__.py`** — The provided information contains no evidence that a `src/` directory or a `src/__init__.py` file exists in the repository; no file listings or contents are shown. Without these artifacts, the task requirement is not satisfied.
+- **T002 [P] Create `tests/` directory and `tests/__init__.py`** — No evidence of a `tests/` directory or a `tests/__init__.py` file was provided; the required test package is missing, so the task is not satisfied.
+- **T003 [P] Create `data/` directory structure (`data/raw/`, `data/processed/`, `data/results/`)** — No evidence of a `data/` directory (or its subfolders `raw/`, `processed/`, `results/`) is provided; the implementer’s response contains only project specifications and no filesystem artifacts, so the required directory structure is missing.
+- **T006 [P] Create `code/.gitignore` and configure linting (ruff) and formatting (black) tools** — The claim provides no visible `code/.gitignore` file, nor any configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or `black` settings) that would set up ruff linting or black formatting. Without these artifacts, the task of creating the ignore file and configuring the tools is not satisfied. The implementer must add the `.gitignore` in the `code` directory and include the necessary configuration for ruff and black.

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Anisotropy Metric Schema"
+description: "Schema for the results of the spherical harmonic anisotropy analysis."
+type: object
+properties:
+  mode:
+    type: string
+    description: "The spherical harmonic mode."
+    enum:
+      - "dipole"
+      - "quadrupole"
+  amplitude:
+    type: number
+    description: "Observed amplitude of the mode."
+  p_value:
+    type: number
+    description: "Raw p-value from Monte Carlo simulation."
+    minimum: 0
+    maximum: 1
+  p_value_fdr:
+    type: number
+    description: "FDR-corrected p-value."
+    minimum: 0
+    maximum: 1
+  is_significant:
+    type: boolean
+    description: "True if p_value_fdr < 0.05."
+  n_simulations:
+    type: integer
+    description: "Number of Monte Carlo simulations performed."
+    minimum: 100
+required:
+  - mode
+  - amplitude
+  - p_value
+  - p_value_fdr
+  - is_significant
+  - n_simulations
+additionalProperties: false

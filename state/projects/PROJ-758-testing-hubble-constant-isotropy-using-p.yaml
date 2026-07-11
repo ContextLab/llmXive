@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-22T03:25:15.672654Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-758-testing-hubble-constant-isotropy-using-p
-last_run_id: c5412d61-0196-4995-b906-26f93e647871
+last_run_id: abc34895-4ef4-4765-9b02-80787048164d
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p
 title: Testing Hubble Constant Isotropy Using Pantheon Supernova Sample
-updated_at: '2026-07-06T01:24:37.652376Z'
+updated_at: '2026-07-11T07:29:35.997493Z'

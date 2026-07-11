@@ -1,0 +1,66 @@
+resolved_at: '2026-07-11T06:43:58.580468+00:00'
+datasets:
+- intent: HEALPix
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/SIM-EVAL-2026_Simulated_Evaluation_Dataset_and_Offline_Ranking_Scripts_for_BeatHive_Sound-Effect_Recommendation/32963051
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/COVID-19_Psychological_Stress_on_Indian_Citizen_s_Lifestyle_and_Travel/32962982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Local-to-Global_Model_for_Constructing_Cohomology_in_Mathematics_and_Scientific_Modeling/32963042
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Assessing_thermal_comfort_dynamics_through_the_urban_fragmentation_approach_a_case_study_of_the_hot_and_arid_metropolitan_of_Tabriz/32963052
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Full_Bibliography_from_Jack_Halpern_19_January_1925_31_January_2018/32963040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19337898
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7705479
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5706525
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1048406
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15368214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252009
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252009
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252006
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

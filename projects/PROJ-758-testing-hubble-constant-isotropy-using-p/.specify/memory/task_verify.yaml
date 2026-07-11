@@ -1,0 +1,4 @@
+T001 [P] Create `src/` directory and `src/__init__.py`: 1
+T002 [P] Create `tests/` directory and `tests/__init__.py`: 1
+T003 [P] Create `data/` directory structure (`data/raw/`, `data/processed/`, `data/results/`): 1
+T006 [P] Create `code/.gitignore` and configure linting (ruff) and formatting (black) tools: 1

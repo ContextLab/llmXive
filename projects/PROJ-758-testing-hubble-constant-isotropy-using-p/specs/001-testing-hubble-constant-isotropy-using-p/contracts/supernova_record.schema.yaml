@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Supernova Record Schema"
+description: "Schema for the cleaned and processed supernova records in the Pantheon+ analysis."
+type: object
+properties:
+  sn_id:
+    type: string
+    description: "Unique supernova identifier."
+  ra:
+    type: number
+    description: "Right Ascension in degrees."
+    minimum: 0
+    maximum: 360
+  dec:
+    type: number
+    description: "Declination in degrees."
+    minimum: -90
+    maximum: 90
+  z:
+    type: number
+    description: "Redshift."
+    minimum: 0
+  mu:
+    type: number
+    description: "Distance modulus."
+  mu_err:
+    type: number
+    description: "Uncertainty in distance modulus."
+    minimum: 0
+  flags:
+    type: string
+    description: "Quality flags."
+  healpix_index:
+    type: integer
+    description: "HEALPix pixel index (Nside=4, NESTED)."
+    minimum: 0
+    maximum: 191
+  z_cos:
+    type: number
+    description: "Redshift corrected for peculiar velocity."
+    minimum: 0
+required:
+  - sn_id
+  - ra
+  - dec
+  - z
+  - mu
+  - mu_err
+  - flags
+  - healpix_index
+  - z_cos
+additionalProperties: false

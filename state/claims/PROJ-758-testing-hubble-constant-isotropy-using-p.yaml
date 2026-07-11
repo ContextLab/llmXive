@@ -1,0 +1,950 @@
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Pantheon+ dataset Zenodo Record ID 10.5281/zenodo.1002345
+  claim_id: c_309f41bf
+  context: 'Implement script to fetch Pantheon+ dataset from Zenodo repository (Record
+    ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345)'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Pantheon+ dataset is hosted on Zenodo with Record ID 10.5281/zenodo.1002345
+    and DOI 10.5281/zenodo.1002345.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:13:27Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pecvel library version 1.2+ for CosmicFlows-3 correction
+  claim_id: c_ec95e9e7
+  context: Integrate pecvel library (v1.2+) function apply_cosmicflows3_correction
+    in src/analysis/h0_estimator.py to apply the static CosmicFlows-3 model to redshifts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pecvel library version 1.2 or higher is required to apply the CosmicFlows-3
+    correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:13:57Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: CosmicFlows-3 is a static model for peculiar velocity correction
+  claim_id: c_a5db943d
+  context: apply the static CosmicFlows-3 model to redshifts
+  evidence:
+    entailment_evidence: CosmicFlows-3 is a static model for peculiar velocity correc
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/CosmicFlows-3_is_a_static_model_for_peculiar_velocity_correc
+  kind: entity_fact
+  raw_text: The CosmicFlows-3 model is a static model used to correct redshifts for
+    peculiar velocities.
+  resolved_value: CosmicFlows-3 is a static model for peculiar velocity correction
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T07:13:58Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Local H0 estimation requires N >= 30 supernovae per pixel
+  claim_id: c_b40e9cb3
+  context: "Implement logic to fit local H\u2080 for each HEALPix pixel with N \u2265\
+    \ 30"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Local_H0_estimation_requires_N_%3E=_30_supernovae_per_pixel
+  kind: magnitude
+  raw_text: "The analysis requires at least 30 supernovae (N \u2265 30) to fit a local\
+    \ H\u2080 estimate for a HEALPix pixel."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:14:44Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulations generate >= 1000 realizations
+  claim_id: c_20aa5468
+  context: "Implement src/analysis/simulations.py to generate \u22651,000 Monte Carlo\
+    \ realizations with isotropic H\u2080"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "1000). In a crude way the con\uFB01gurations correspond to basis fun\
+        \ ctions."
+      source_id: hep-lat/0202016
+      url: https://arxiv.org/abs/hep-lat/0202016
+      value: '1000'
+    filled: true
+  kind: magnitude
+  raw_text: The Monte Carlo simulations generate at least 1,000 realizations.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T07:15:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulations use seed 42
+  claim_id: c_879af17d
+  context: "generate \u22651,000 Monte Carlo realizations with isotropic H\u2080 (seed=42)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monte Carlo simulations use a random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:15:18Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Monte Carlo Gaussian noise mean 0 sigma 0.02
+  claim_id: c_33092eab
+  context: Gaussian noise (mean=0, sigma=0.02) added to distance moduli
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monte Carlo simulations add Gaussian noise with a mean of 0 and a
+    standard deviation of 0.02 to distance moduli.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:15:28Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction q=0.05
+  claim_id: c_a17b75b5
+  context: Implement Benjamini-Hochberg FDR correction (q=0.05) for joint dipole/quadrupole
+    tests
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Benjamini-Hochberg FDR correction uses a false discovery rate threshold
+    (q) of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:15:49Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Hierarchical Bayesian mu prior Normal(73, 5)
+  claim_id: c_9449d495
+  context: 'Priors: mu ~ Normal(73, 5)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Hierarchical Bayesian estimation uses a Normal prior for the mean
+    (mu) with a mean of 73 and a standard deviation of 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:16:04Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Hierarchical Bayesian sigma prior InverseGamma(2, 1)
+  claim_id: c_94795021
+  context: sigma ~ InverseGamma(2, 1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Hierarchical Bayesian estimation uses an Inverse-Gamma prior for the
+    standard deviation (sigma) with shape 2 and scale 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:16:21Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Spherical harmonic analysis dipole l=1 quadrupole l=2
+  claim_id: c_a13ec310
+  context: "compute spherical harmonic coefficients (dipole \u2113=1, quadrupole \u2113\
+    =2)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The spherical harmonic analysis computes coefficients for the dipole\
+    \ (\u2113=1) and quadrupole (\u2113=2)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:16:40Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: HEALPix Nside=4 NESTED ordering
+  claim_id: c_60bdedde
+  context: assign HEALPix indices (Nside=4, NESTED) to supernovae
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEALPix spatial indexing uses Nside=4 in NESTED ordering.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:17:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Data ingestion redshift cut z < 0.15
+  claim_id: c_2faacefa
+  context: apply z < 0.15 cut, filter quality flags
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion applies a redshift cut of z < 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:17:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis redshift cuts 0.10 0.15 0.20
+  claim_id: c_440d4130
+  context: vary redshift cuts (z < 0.10, 0.15, 0.20) and record stability of metrics
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis varies redshift cuts at z < 0.10, 0.15, and 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:17:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_09739b7b
+  context: 'pinned dependencies: pandas==2.2.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required dependencies include pandas version 2.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:17:38Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_35709e65
+  context: 'pinned dependencies: numpy==1.26.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required dependencies include numpy version 1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:17:42Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: scipy version 1.12.0
+  claim_id: c_9366d6b1
+  context: 'pinned dependencies: scipy==1.12.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required dependencies include scipy version 1.12.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:17:47Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: astropy version 6.0.0
+  claim_id: c_7debd861
+  context: 'pinned dependencies: astropy==6.0.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required dependencies include astropy version 6.0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:17:51Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: healpy version 1.16.5
+  claim_id: c_8787deb4
+  context: 'pinned dependencies: healpy==1.16.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required dependencies include healpy version 1.16.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:17:55Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_100dd6fa
+  context: 'pinned dependencies: scikit-learn==1.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required dependencies include scikit-learn version 1.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:17:57Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0
+  claim_id: c_09242d1c
+  context: 'pinned dependencies: matplotlib==3.8.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required dependencies include matplotlib version 3.8.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:18:02Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pecvel version 1.2.0
+  claim_id: c_088d4a4b
+  context: 'pinned dependencies: pecvel==1.2.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required dependencies include pecvel version 1.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:18:04Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pymc version 5.9.0
+  claim_id: c_da99a1ce
+  context: 'pinned dependencies: pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required dependencies include pymc version 5.9.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:18:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_f69052bd
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0,
+    numpy==1.26.0, scipy==1.12.0, astropy==6.0.0, healpy==1.16.5, scikit-learn==1.4.0,
+    matplotlib==3.8.0, pecvel==1.2.0, pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:20:52Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_081b250a
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0,
+    numpy==1.26.0, scipy==1.12.0, astropy==6.0.0, healpy==1.16.5, scikit-learn==1.4.0,
+    matplotlib==3.8.0, pecvel==1.2.0, pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:20:58Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: scipy version 1.12.0
+  claim_id: c_dc00b63a
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0,
+    numpy==1.26.0, scipy==1.12.0, astropy==6.0.0, healpy==1.16.5, scikit-learn==1.4.0,
+    matplotlib==3.8.0, pecvel==1.2.0, pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.12.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:21:02Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: astropy version 6.0.0
+  claim_id: c_cd3d49cd
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0,
+    numpy==1.26.0, scipy==1.12.0, astropy==6.0.0, healpy==1.16.5, scikit-learn==1.4.0,
+    matplotlib==3.8.0, pecvel==1.2.0, pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: astropy==6.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:21:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: healpy version 1.16.5
+  claim_id: c_f703c58d
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0,
+    numpy==1.26.0, scipy==1.12.0, astropy==6.0.0, healpy==1.16.5, scikit-learn==1.4.0,
+    matplotlib==3.8.0, pecvel==1.2.0, pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: healpy==1.16.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:21:08Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_7b60100b
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0,
+    numpy==1.26.0, scipy==1.12.0, astropy==6.0.0, healpy==1.16.5, scikit-learn==1.4.0,
+    matplotlib==3.8.0, pecvel==1.2.0, pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:21:11Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0
+  claim_id: c_f33a1c9a
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0,
+    numpy==1.26.0, scipy==1.12.0, astropy==6.0.0, healpy==1.16.5, scikit-learn==1.4.0,
+    matplotlib==3.8.0, pecvel==1.2.0, pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:21:14Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pecvel version 1.2.0
+  claim_id: c_22b3c462
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0,
+    numpy==1.26.0, scipy==1.12.0, astropy==6.0.0, healpy==1.16.5, scikit-learn==1.4.0,
+    matplotlib==3.8.0, pecvel==1.2.0, pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pecvel==1.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:21:17Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pymc version 5.9.0
+  claim_id: c_bca372a2
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0,
+    numpy==1.26.0, scipy==1.12.0, astropy==6.0.0, healpy==1.16.5, scikit-learn==1.4.0,
+    matplotlib==3.8.0, pecvel==1.2.0, pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pymc==5.9.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:21:21Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Pantheon+ dataset Zenodo Record ID 10.5281/zenodo.1002345
+  claim_id: c_3aa0f2d4
+  context: 'Implement script to fetch Pantheon+ dataset from Zenodo repository (Record
+    ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345) and verify checksum against
+    data/raw/pantheon_plus.csv using T009'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345,
+    DOI: 10.5281/zenodo.1002345)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:21:24Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_1d73667e
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0 ,
+    numpy==1.26.0 , scipy==1.12.0 , astropy==6.0.0 , healpy==1.16.5 , scikit-learn==1.4.0
+    , matplotlib==3.8.0 , pecvel==1.2.0 , pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_889a742d
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0 ,
+    numpy==1.26.0 , scipy==1.12.0 , astropy==6.0.0 , healpy==1.16.5 , scikit-learn==1.4.0
+    , matplotlib==3.8.0 , pecvel==1.2.0 , pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: scipy version 1.12.0
+  claim_id: c_82d46c57
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0 ,
+    numpy==1.26.0 , scipy==1.12.0 , astropy==6.0.0 , healpy==1.16.5 , scikit-learn==1.4.0
+    , matplotlib==3.8.0 , pecvel==1.2.0 , pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.12.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: astropy version 6.0.0
+  claim_id: c_68786efb
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0 ,
+    numpy==1.26.0 , scipy==1.12.0 , astropy==6.0.0 , healpy==1.16.5 , scikit-learn==1.4.0
+    , matplotlib==3.8.0 , pecvel==1.2.0 , pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: astropy==6.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:05Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: healpy version 1.16.5
+  claim_id: c_6ff9105e
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0 ,
+    numpy==1.26.0 , scipy==1.12.0 , astropy==6.0.0 , healpy==1.16.5 , scikit-learn==1.4.0
+    , matplotlib==3.8.0 , pecvel==1.2.0 , pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: healpy==1.16.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:06Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_c130fc46
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0 ,
+    numpy==1.26.0 , scipy==1.12.0 , astropy==6.0.0 , healpy==1.16.5 , scikit-learn==1.4.0
+    , matplotlib==3.8.0 , pecvel==1.2.0 , pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:06Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0
+  claim_id: c_1e2d804d
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0 ,
+    numpy==1.26.0 , scipy==1.12.0 , astropy==6.0.0 , healpy==1.16.5 , scikit-learn==1.4.0
+    , matplotlib==3.8.0 , pecvel==1.2.0 , pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:06Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pecvel version 1.2.0
+  claim_id: c_3bf0425f
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0 ,
+    numpy==1.26.0 , scipy==1.12.0 , astropy==6.0.0 , healpy==1.16.5 , scikit-learn==1.4.0
+    , matplotlib==3.8.0 , pecvel==1.2.0 , pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pecvel==1.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:06Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: pymc version 5.9.0
+  claim_id: c_911b30f5
+  context: 'Create code/requirements.txt with pinned dependencies: pandas==2.2.0 ,
+    numpy==1.26.0 , scipy==1.12.0 , astropy==6.0.0 , healpy==1.16.5 , scikit-learn==1.4.0
+    , matplotlib==3.8.0 , pecvel==1.2.0 , pymc==5.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pymc==5.9.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:06Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Pantheon+ dataset Zenodo Record ID 10.5281/zenodo.1002345
+  claim_id: c_e37ecb29
+  context: 'Implement script to fetch Pantheon+ dataset from Zenodo repository (Record
+    ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345) and verify checksum against
+    data/raw/pantheon_plus.csv'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345,
+    DOI: 10.5281/zenodo.1002345)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:08Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: redshift cut z < 0.15
+  claim_id: c_7ba2da4e
+  context: Implement src/ingestion/loader.py to load raw CSV from T014, apply z <
+    0.15 cut, filter quality flags, and invoke the checksum utility
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply z < 0.15 cut
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:09Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: HEALPix Nside 4 NESTED assignment
+  claim_id: c_77adf6eb
+  context: Implement src/ingestion/spatial.py to assign HEALPix indices (Nside=4,
+    NESTED) to supernovae
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assign HEALPix indices (Nside=4, NESTED) to supernovae
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:22Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: HEALPix inverse projection tolerance 1e-6 degrees
+  claim_id: c_364162d8
+  context: 'Integration test for HEALPix mapping accuracy in tests/integration/test_spatial.py:
+    input specific RA/Dec coordinates (e.g., RA=10.0, Dec=45.0); expected valid pixel
+    indices; tolerance: inverse projection recovers original coords within 1e-6 deg'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'tolerance: inverse projection recovers original coords within 1e-6 deg'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:24:42Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: H0 recovery tolerance 1 km/s/Mpc
+  claim_id: c_5f1d7144
+  context: "Independent Test: Run regression on synthetic data with known H\u2080\
+    \ and verify recovery within \xB11 km/s/Mpc."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify recovery within \xB11 km/s/Mpc"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:25:03Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: CosmicFlows-3 model application
+  claim_id: c_aa0cfcbe
+  context: Integrate pecvel library (v1.2+) function apply_cosmicflows3_correction
+    in src/analysis/h0_estimator.py to apply the static CosmicFlows-3 model to redshifts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply the static CosmicFlows-3 model to redshifts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:25:34Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: local H0 fit minimum 30 supernovae per pixel
+  claim_id: c_6014f22c
+  context: "Implement logic to fit local H\u2080 for each HEALPix pixel with N \u2265\
+    \ 30 in src/analysis/h0_estimator.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "fit local H\u2080 for each HEALPix pixel with N \u2265 30"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:25:34Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: fallback estimation for pixels with fewer than 30 supernovae
+  claim_id: c_2721a151
+  context: Implement logic to identify pixels with N < 30 for fallback estimation
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_estimation_for_pixels_with_fewer_than_30_supernovae
+  kind: magnitude
+  raw_text: identify pixels with N < 30 for fallback estimation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:26:12Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: prior mu Normal distribution mean 73 standard deviation 5
+  claim_id: c_c1711b43
+  context: 'Implement Hierarchical Bayesian estimation for pixels with N < 30 using
+    PyMC/NumPyro with Normal-Inverse-Gamma priors: Likelihood ~ Normal(mu, sigma^),
+    Priors: mu ~ Normal(73, 5), sigma ~ InverseGamma(2, 1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mu ~ Normal(73, 5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:26:32Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: prior sigma InverseGamma distribution shape 2 scale 1
+  claim_id: c_131cf4a3
+  context: 'Implement Hierarchical Bayesian estimation for pixels with N < 30 using
+    PyMC/NumPyro with Normal-Inverse-Gamma priors: Likelihood ~ Normal(mu, sigma^),
+    Priors: mu ~ Normal(73, 5), sigma ~ InverseGamma(2, 1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sigma ~ InverseGamma(2, 1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:26:47Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: 1000 Monte Carlo realizations
+  claim_id: c_00b271c3
+  context: "Implement src/analysis/simulations.py to generate \u22651,000 Monte Carlo\
+    \ realizations with isotropic H\u2080 (seed=42) and Gaussian noise (mean=0, sigma=0.02)\
+    \ added to distance moduli"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "generate \u22651,000 Monte Carlo realizations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:26:48Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Gaussian noise mean 0 sigma 0.02
+  claim_id: c_1f478ea9
+  context: "Implement src/analysis/simulations.py to generate \u22651,000 Monte Carlo\
+    \ realizations with isotropic H\u2080 (seed=42) and Gaussian noise (mean=0, sigma=0.02)\
+    \ added to distance moduli"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gaussian noise (mean=0, sigma=0.02)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:27:08Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction q 0.05
+  claim_id: c_48336600
+  context: Implement Benjamini-Hochberg FDR correction (q=0.05) for joint dipole/quadrupole
+    tests in src/analysis/anisotropy.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benjamini-Hochberg FDR correction (q=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:28:32Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: redshift cuts 0.10 0.15 0.20 sensitivity analysis
+  claim_id: c_487cbbc0
+  context: Implement sensitivity analysis loop to vary redshift cuts (z < 0.10, 0.15,
+    0.20) and record stability of metrics
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: vary redshift cuts (z < 0.10, 0.15, 0.20)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:28:32Z'
+- artifact_path: projects/PROJ-758-testing-hubble-constant-isotropy-using-p/specs/001-testing-hubble-constant-isotropy-using-p/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulation runtime under 6 hours
+  claim_id: c_d2a64af4
+  context: Performance optimization for Monte Carlo simulations (vectorization, multiprocessing)
+    to ensure < 6h runtime
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure < 6h runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:28:32Z'

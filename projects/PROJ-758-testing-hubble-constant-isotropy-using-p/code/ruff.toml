@@ -1,0 +1,47 @@
+# Ruff configuration for llmXive Hubble Constant Isotropy project
+# Targeting Python 3.10+ based on dependencies (astropy 6.0, pymc 5.9)
+target-version = "py310"
+line-length = 88
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "ARG"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Per-rule configuration
+[lint.per-file-ignores]
+# Allow unused imports in __init__.py for namespace exposure
+"__init__.py" = ["F401"]
+# Allow prints in scripts (entry points)
+"setup_data_dirs.py" = ["T201"]
+
+[lint.isort]
+known-first-party = ["src", "code"]
+force-single-line = false

@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "H0 Estimate Schema"
+description: "Schema for derived Hubble constant estimates (global and local)."
+type: object
+properties:
+  region_id:
+    type: string
+    description: "Identifier for the region ('global' or HEALPix index)."
+  h0_value:
+    type: number
+    description: "Estimated Hubble constant in km/s/Mpc."
+  h0_err:
+    type: number
+    description: "Standard error of the estimate."
+    minimum: 0
+  n_sne:
+    type: integer
+    description: "Number of supernovae used in the estimate."
+    minimum: 1
+  method:
+    type: string
+    description: "Method used for estimation."
+    enum:
+      - "MLE"
+      - "Shrinkage"
+  shrinkage_factor:
+    type: number
+    description: "Shrinkage factor applied (1.0 for MLE)."
+    minimum: 0
+    maximum: 1
+required:
+  - region_id
+  - h0_value
+  - h0_err
+  - n_sne
+  - method
+  - shrinkage_factor
+additionalProperties: false
