@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T23:24:09.785642Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-909-llmxive-follow-up-extending-gamma-world
-last_run_id: c44ba932-a629-45b6-a0e5-b8b810aaa064
+last_run_id: a6a31a9d-63d9-4446-ae9b-17bc87a07c36
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-909-llmxive-follow-up-extending-gamma-world/specs/001-llmxive-follow-up-extending-gamma-world
 title: 'llmXive follow-up: extending "Gamma-World: Generative Multi-Agent World Modeling
   Beyond Two Players"'
-updated_at: '2026-07-04T15:38:36.041752Z'
+updated_at: '2026-07-11T09:06:13.116184Z'

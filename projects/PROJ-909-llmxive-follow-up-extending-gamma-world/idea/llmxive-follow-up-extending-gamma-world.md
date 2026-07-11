@@ -9,30 +9,33 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does replacing learned cross-agent attention hubs with deterministic, proximity-based routing protocols preserve inter-agent consistency in generative world models while enabling real-time, GPU-free inference?
+Under what structural conditions of agent interaction (e.g., task complexity, observability constraints) does non-local information flow become strictly necessary for the emergence of coordinated strategic behaviors in generative world models?
 
 ## Motivation
 
-Current multi-agent world models rely on learnable attention mechanisms to manage complex inter-agent dependencies, which imposes significant computational overhead and requires GPU acceleration. Determining whether geometric priors (agent proximity) can substitute for learned attention without degrading video fidelity would unlock real-time, edge-device capable multi-agent simulations for robotics and training environments.
+Current generative world models for multi-agent systems often employ global or learnable attention mechanisms to handle inter-agent dependencies, incurring significant computational costs unsuitable for edge deployment. Determining the precise boundary where local geometric priors fail and non-local communication becomes essential would allow for the design of resource-efficient architectures that only activate global attention when structurally required, enabling real-time simulation on constrained hardware.
 
 ## Related work
 
-- [A Survey of Multi-Agent Deep Reinforcement Learning with Communication (2022)](https://arxiv.org/abs/2203.08975) — Establishes that communication mechanisms are critical for coordinating multi-agent behaviors and broadening environmental awareness, though it focuses on reinforcement learning rather than generative video modeling.
-- [AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions (2025)](https://arxiv.org/abs/2510.13343) — Demonstrates the use of Transformer-based architectures for multi-agent coordination, highlighting the trade-offs between action-order modeling and computational complexity in shared environments.
+- [A Survey of Multi-Agent Deep Reinforcement Learning with Communication (2022)](https://arxiv.org/abs/2203.08975) — Establishes that explicit communication mechanisms are critical for broadening environmental awareness and supporting collaboration, though it focuses on RL rather than generative video modeling.
+- [AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions (2025)](https://arxiv.org/abs/2510.13343) — Demonstrates the efficacy of Transformer-based architectures for coordinating agents in shared environments, highlighting the trade-offs between action-order modeling and computational complexity.
+- [Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi (2024)](https://arxiv.org/abs/2412.06333) — Provides theoretical evidence that shared conventions and indirect communication are necessary to overcome partial observability in cooperative tasks, suggesting a link between information constraints and the need for global coordination.
 
 ## Expected results
 
-We expect the deterministic "Static-Topo" model to achieve sub-100ms inference latency on a standard CPU with a marginal (<5%) drop in video fidelity compared to the learned hub baseline. This would confirm that explicit geometric priors are sufficient for local multi-agent interactions in generative settings, proving that the performance gains of Gamma-World stem primarily from architectural sparsity rather than the learned capacity of the hub.
+We expect to observe that low-complexity, reactive behaviors (e.g., collision avoidance) remain stable under strict local geometric constraints, while high-complexity strategic behaviors (e.g., coordinated flanking in partially observable settings) degrade significantly without non-local information flow. This would yield a quantifiable threshold of task complexity or observability loss beyond which global attention is a necessary condition for strategic emergence.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the Minecraft and RealOmin-Open datasets (4-player scenarios) from their public repositories to serve as the training and test bed.
+- **Data Acquisition**: Download the Minecraft and RealOmin-Open datasets (4-player scenarios) from public repositories (e.g., HuggingFace Datasets) to serve as the training and test bed.
 - **Model Modification**: Implement a "Static-Topo" variant of the Gamma-World student model where the learnable Sparse Hub Attention layer is replaced by a fixed adjacency matrix derived from agent Euclidean distance (connecting only agents within a 5-meter radius).
-- **Training Protocol**: Train both the original Sparse Hub model and the Static-Topo variant using the same distillation pipeline on a single CPU core (simulating the 2-core GHA runner constraint) for a fixed number of epochs.
+- **Training Protocol**: Train both the original Sparse Hub model and the Static-Topo variant using the same distillation pipeline on a single CPU core (simulating the 2-core GHA runner constraint) for a fixed number of epochs (e.g., 50 epochs with early stopping).
+- **Task Complexity Manipulation**: Systematically vary the environmental complexity (e.g., number of agents, occlusion levels) and observability constraints across test episodes to create a gradient of structural conditions.
 - **Inference Benchmarking**: Measure inference latency (ms/frame) and peak memory usage (GB) for both models on the held-out test set using only CPU resources.
-- **Fidelity Evaluation**: Compute action-controllability scores and video fidelity metrics (e.g., FID, SSIM) on the generated sequences to quantify the drop in quality.
-- **Statistical Analysis**: Apply a paired t-test to compare the latency and fidelity metrics between the two models to determine if the performance difference is statistically significant.
-- **Validation Independence**: Ensure the evaluation metrics (latency, fidelity) are measured against independent ground-truth video frames and system logs, not derived from the model's own attention weights.
+- **Behavioral Fidelity Evaluation**: Compute video fidelity metrics (FID, SSIM) against ground-truth video frames to assess visual quality.
+- **Strategic Coordination Detection**: Quantify emergent strategic behaviors (e.g., simultaneous attacks, flanking) in the generated sequences using rule-based heuristics or a pre-trained action classifier trained on independent human gameplay data, comparing the frequency of these events between the two models across varying complexity levels.
+- **Statistical Analysis**: Apply a two-way ANOVA to compare the behavioral frequency metrics between the two models (Local vs. Global) across the manipulated complexity levels to identify the interaction effect where local models fail.
+- **Validation Independence**: Ensure the evaluation metrics (behavioral counts, fidelity) are measured against ground-truth video frames and independent action classifiers, not derived from the model's own internal attention weights or generated states.
 
 ## Duplicate-check
 
@@ -43,7 +46,7 @@ We expect the deterministic "Static-Topo" model to achieve sub-100ms inference l
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T15:38:22Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T09:02:14Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players" computer science
 **Verified citation count**: 4
@@ -52,27 +55,7 @@ We expect the deterministic "Static-Topo" model to achieve sub-100ms inference l
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players" computer science | 0 |
-| 1 | generative multi-agent world modeling | 5 |
-| 2 | multi-agent generative world models | 0 |
-| 3 | scalable multi-agent simulation with LLMs | 0 |
-| 4 | agent-based generative world construction | 0 |
-| 5 | large language model multi-agent environments | 0 |
-| 6 | emergent behavior in generative multi-agent systems | 0 |
-| 7 | LLM-driven multi-agent interaction modeling | 0 |
-| 8 | generative simulation for multi-agent games | 0 |
-| 9 | autonomous agent world modeling beyond dyads | 0 |
-| 10 | multi-player generative environment synthesis | 0 |
-| 11 | LLM-based social simulation for multiple agents | 0 |
-| 12 | generative agents in complex multi-agent worlds | 0 |
-| 13 | scalable world generation for autonomous agents | 0 |
-| 14 | multi-agent coordination in generative worlds | 0 |
-| 15 | language model agents in simulated environments | 0 |
-| 16 | generative world models for game theory | 0 |
-| 17 | multi-agent emergent dynamics in LLM simulations | 0 |
-| 18 | procedural generation of multi-agent scenarios | 0 |
-| 19 | LLM-powered multi-agent environment dynamics | 0 |
-| 20 | beyond two-player generative agent modeling | 0 |
+| 0 (initial) | llmXive follow-up: extending "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players" computer science | 4 |
 
 ### Verified citations
 
