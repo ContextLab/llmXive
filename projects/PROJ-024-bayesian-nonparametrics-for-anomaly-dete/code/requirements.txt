@@ -37,3 +37,6 @@ trufflehog==3.68.0
 requests==2.31.0
 tqdm==4.66.2
     execute: false
+_  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
+scikit-learn  # auto-added: imported by run-book but missing from venv

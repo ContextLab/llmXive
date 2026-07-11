@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-024-bayesian-nonparametrics-for-anomaly-dete",
+  "ok": false,
+  "reason": "79 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric \u2014 \u201c\u2026# No ground truth - use placeholder values             f1 = 0.0\u2026\u201d; 3 run-book script(s) missing (plan/impl path mismatch): python code/src/data/validate_config.py; python code/src/evaluation/report_generator.py; python code/src/services/monitor_resources.py; 2 command(s) failed: python code/src/data/download_datasets.py (rc=1); python code/src/services/anomaly_detector.py (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/src/data/validate_config.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/validate_config.py': [Errno 2] No such file or directory",
+    "python code/src/data/download_datasets.py -> rc=1\n    e/projects/data/raw/traffic.csv\n2026-07-11 02:40:09,228 - ERROR - Download failed: HTTP Error 404: Not Found\n2026-07-11 02:40:09,228 - INFO - Traffic: \u2717\n2026-07-11 02:40:09,228 - INFO - Downloading from https://archive.ics.uci.edu/static/public/363/synthetic_control_data.zip to /home/runner/work/llmXive/llmXive/projects/data/raw/synthetic_control_chart.csv\n2026-07-11 02:40:09,379 - ERROR - Download failed: HTTP Error 404: Not Found\n2026-07-11 02:40:09,379 - INFO - Synthetic Control Chart: \u2717\n2026-07-11 02:40:09,379 - INFO - Saved checksum ca",
+    "python code/src/services/anomaly_detector.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py\", line 10, in <module>\n    from src.models.dp_gmm import DPGMMModel, DPGMMConfig\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/__init__.py\", line 5, in <module>\n    from .dp_gmm import DPGMMConfig, DPGMMModel, ELBOHistory, ClusterAnomalyResult, main\n  File \"/home/runner/work/llmXive/llmXive/projec",
+    "python code/src/evaluation/report_generator.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/report_generator.py': [Errno 2] No such file or directory",
+    "python code/src/services/monitor_resources.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/monitor_resources.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-07-11T02:40:15Z"
+}

@@ -1,0 +1,7 @@
+status: none
+intent: download Numenta Anomaly Benchmark for univariate time series anomaly detection
+  python package dataset
+required_fields:
+- timestamp
+- value
+- anomaly_label

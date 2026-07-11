@@ -1,0 +1,53 @@
+2. **Given** the results of the sensitivity sweep, **When** generating the report, **Then** the system includes the baseline community-standard justification for the default threshold (citing Cohen, 1988) in the methodology section and lists the observed range (max - min) of false-positive rates across the sweep.
+3. **Given** the sensitivity results, **When** the system detects a threshold where error rates spike, **Then** it flags this instability in the final analysis report.
+
+---
+
+### User Story 4 - Resource Constraint Validation and CPU Feasibility (Priority: P3)
+
+The system MUST validate that the entire analysis pipeline (data loading, sliding window inference, baseline comparison, and statistical testing) completes within the GitHub Actions free-tier constraints: ≤2 CPU cores, ~7 GB RAM, and ≤6 hours total runtime.
+
+**Why this priority**: The project cannot reach `research_complete` if the analysis fails to run on the target hardware; this ensures the methodology is computationally feasible without GPU acceleration.
+
+**Independent Test**: Can be fully tested by executing the full pipeline on a standard GitHub Actions runner and verifying that peak memory usage stays <7 GB and total runtime is <6 hours.
+
+**Acceptance Scenarios**:
+
+1. **Given** the largest supported dataset (e.g., Electricity Load Diagrams), **When** running the full pipeline, **Then** peak RAM usage remains <7 GB throughout execution (measured as max(rss) observed during the entire pipeline execution via `psutil.Process().memory_info().rss`).
+2. **Given** the full pipeline execution, **When** measuring total runtime, **Then** the job completes in <6 hours without timing out.
+3. **Given** the inference engine, **When** running on the CPU-only runner, **Then** the system never attempts to load CUDA libraries or request GPU memory, and outputs a validation report confirming compliance or failing the run if limits are exceeded.
+
+---
+
+### Edge Cases
+
+- What happens when a dataset has <1,000 observations? → System MUST reject with a validation error stating the dataset size is insufficient for the sliding window analysis (minItems: 1000).
+- How does the system handle non-convergent ADVI runs? → If the ELBO fails to converge (delta > 0.01 for 10 iterations) within 500 iterations, the model for that specific window is excluded from the trajectory, and a warning is logged (logs string "WARNING: ADVI did not converge" to stderr); the analysis proceeds with available data.
+- What happens when the anomaly injection rate is too low for statistical power? → The system performs a sample size check; if the observed number of anomalies is <10 (based on the current run), it flags a warning and proceeds with descriptive statistics for all metrics, and switches to a non-parametric bootstrap resampling method for inferential testing (p-values, confidence intervals) to ensure the pipeline remains robust without requiring manual intervention. Descriptive statistics are supplementary to the mandatory bootstrap inferential testing.
+- How does the system handle datasets with missing timestamps? → The system assumes the data is sorted by time and generates synthetic integer timestamps (0, 1, 2...) for indexing if real timestamps are missing, as the analysis relies on relative order.
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST load univariate time series datasets with ≥1,000 observations, normalizing them to zero mean and unit variance before processing (See US-1)
+- **FR-002**: System MUST implement a stick-breaking DP-GMM using PyMC 4 with ADVI variational inference, tracking the posterior mean of the concentration parameter ($\alpha$) and component weights ($\pi$) at each sliding window step (See US-1). Note: The derivative of $\alpha$ is a proxy signal subject to validation against ground-truth and simulation studies.
+- **FR-003**: System MUST compute the first derivative (rate of change) of the posterior mean $\alpha$ and the variance of component weights for every time step $t$ (See US-1)
+- **FR-004**: System MUST fit fixed-component GMMs (k=3, 5, 10) and an ARIMA model on the same sliding windows to serve as baselines for reconstruction error comparison (See US-2)
+- **FR-005**: System MUST calculate "time-to-detection" (steps from injection to threshold crossing) for both DP-GMM dynamic signatures and baseline reconstruction errors (See US-2)
+- **FR-006**: System MUST perform a Wilcoxon signed-rank test on time-to-detection values across multiple datasets to assess statistical significance of earlier detection by DP-GMM, with a paired t-test as a secondary sensitivity check ONLY if normality assumptions are met (See US-2)
+- **FR-007**: System MUST implement a sensitivity analysis for the anomaly detection threshold, sweeping the cutoff over the set {0.01, 0.05, 0.1} (normalized reconstruction error MSE scaled to [0,1]) and reporting the variation in false-positive and false-negative rates (See US-3)
+- **FR-008**: System MUST validate memory usage (<7 GB) and total runtime (<6 hours) on a CPU-only environment by measuring peak RAM (via `psutil`) and total runtime (via `time`), excluding any GPU-dependent operations, and outputting a specific validation report or failing the run if limits are exceeded (See US-4)
+- **FR-009**: System MUST exclude models from evaluation if the ADVI ELBO fails to converge (delta > 0.01 for 10 consecutive iterations) within 500 iterations (See US-1, US-4)
+- **FR-010**: System MUST perform a Kolmogorov-Smirnov test to compare the distribution of "rate of change" metrics between anomaly and normal windows (See US-2)
+- **FR-011**: System MUST perform a sample size check; if the observed number of anomalies is <10, the system MUST switch to non-parametric bootstrap resampling for inferential testing (See US-1)
+- **FR-012**: System MUST execute the bootstrap switch for p-value estimation and confidence intervals when the observed anomaly count is <10, ensuring the output includes bootstrap-based p-values (See US-1)
+- **FR-013**: System MUST define "time-to-detection" against an independent ground-truth injection timestamp that is distinct from the model's own trajectory (See US-2)
+- **FR-014**: System MUST perform a two-sample KS test to compare the distribution of "rate of change" metrics between transient anomalies and gradual drift (negative control) (See US-1)
+- **FR-015**: System MUST perform a KS test to compare the distribution of baseline reconstruction error metrics (GMM/ARIMA) against the DP-GMM signature distribution (See US-2)
+- **FR-016**: System MUST implement a sensitivity analysis on window size and derivative calculation method (smoothing, lag) to validate the robustness of the "rate of change" signal (See US-3)
+- **FR-017**: System MUST perform a search for real-world datasets with known regime shifts (e.g., UCI, PhysioNet) using specific keywords; if no verified source is found, the system MUST output a "Validation Deferred" report citing the search query and result count, and mark the requirement as "Deferred by Design" (See US-1)
+- **FR-017b**: System MUST explicitly define the search procedure for real-world datasets and the "Deferred" state transition in the output report (See US-1)
+- **FR-018**: System MUST perform a robustness check by validating the $\dot{\alpha}$ signal against a subset of data using MCMC (NUTS) to ensure the signal is not an ADVI artifact (See US-1)
+- **FR-019**: System MUST split data into training/validation/test sets for threshold selection; the threshold must be selected on the validation set and applied to the held-out test set to avoid data-dredging bias (See US-3)
+- **FR-020**: System MUST perform a simulation study to verify the signal-to-noise ratio of the $\dot{\alpha}$ estimator under the null hypothesis (normal data) before relying on it as a primary metric (See US-1)

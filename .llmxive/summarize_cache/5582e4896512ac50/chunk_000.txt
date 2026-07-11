@@ -1,0 +1,57 @@
+# Feature Specification: Bayesian Nonparametrics for Anomaly Detection in Time Series
+
+**Feature Branch**: `001-bayesian-nonparametrics-for-anomaly-detection`  
+**Created**: 2026-07-08  
+**Status**: Draft  
+**Input**: User description: "Bayesian Nonparametrics for Anomaly Detection in Time Series"
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Core DPGMM Training and Dynamic Signature Extraction (Priority: P1)
+
+The system MUST implement a stick-breaking Dirichlet Process Gaussian Mixture Model (DP-GMM) using PyMC with ADVI variational inference to process univariate time series data in sliding windows, explicitly tracking the temporal evolution of the concentration parameter ($\alpha$) and component weights ($\pi$) to extract dynamic signatures.
+
+**Why this priority**: This is the core research contribution; without the ability to train the nonparametric model and extract the specific temporal derivatives of $\alpha$ and $\pi$, the hypothesis regarding "early-warning signatures" cannot be tested.
+
+**Independent Test**: Can be fully tested by loading a synthetic dataset with injected anomalies (including pre-anomaly dynamics), running the sliding window inference, and verifying that the output includes a time-series of posterior mean $\alpha$, its first derivative, and component weight variance for every window step.
+
+**Acceptance Scenarios**:
+
+1. **Given** a univariate time series with ≥1,000 observations and injected anomalies (including pre-anomaly dynamics), **When** the sliding window (length=30, stride=1) inference runs, **Then** the system outputs a trajectory of posterior $\alpha$ means and their first derivatives for every window step.
+2. **Given** the simulation study (FR-020) has confirmed a signal-to-noise ratio > 1 for the $\dot{\alpha}$ estimator under the null hypothesis, **When** processing an abrupt regime shift, **Then** the system records a distinct high-magnitude spike (amplitude > 3 standard deviations above baseline) in the rate of change of $\alpha$ that occurs within a 5-window tolerance of the injection timestamp. The ground truth is the independent injection timestamp, not a pre-defined waveform. If the simulation study fails to validate the signal-to-noise ratio, the system MUST flag the primary metric as invalid and halt the anomaly detection pipeline.
+3. **Given** the incremental update logic, **When** processing the next window, **Then** the posterior is updated without full retraining, ensuring the core DP-GMM training phase and baseline comparison runtime remains <4 hours on a 2-core CPU.
+4. **Given** a dataset with gradual, benign non-stationarity (negative control), **When** processing the data, **Then** the system does not produce a spike (amplitude ≤ 3 standard deviations above baseline) in the rate of change of $\alpha$, and a two-sample KS test (FR-014) confirms the distribution of signatures differs significantly from the anomaly group (p < 0.05). The validation objective is to confirm the distributions differ, without assuming a specific directional relationship (e.g. lower median) for the drift distribution.
+5. **Given** the observed anomaly count in the current run, **When** the count is <10 (sample size check), **Then** the system performs descriptive statistics for all metrics AND switches to non-parametric bootstrap resampling for inferential testing (p-values, confidence intervals) to ensure robustness. The system MUST output BOTH descriptive statistics AND bootstrap-based p-values in the final report. Descriptive statistics are supplementary to the mandatory bootstrap inferential testing.
+
+---
+
+### User Story 2 - Baseline Comparison and Time-to-Detection Analysis (Priority: P2)
+
+The system MUST compute standard anomaly scores (reconstruction error) from fixed-component GMMs (k=3, 5, 10) and ARIMA models on the same sliding windows, and calculate the "time-to-detection" (steps from injection to threshold crossing) for both the DP-GMM dynamic signatures and the baselines.
+
+**Why this priority**: Required to validate the "early-warning" claim; the research question explicitly asks if DP-GMM dynamics detect anomalies *before* the posterior converges, which requires a direct comparison against static baselines.
+
+**Independent Test**: Can be fully tested by running the baseline models and DP-GMM on the same data, computing time-to-detection for each, and verifying that the DP-GMM signature detects the anomaly significantly earlier (statistically significant difference) than the baselines.
+
+**Acceptance Scenarios**:
+
+1. **Given** a dataset with known anomaly onset timestamps (independent ground-truth), **When** running the baseline comparison, **Then** the system computes reconstruction errors (MSE) for fixed GMMs and ARIMA for every window.
+2. **Given** the dynamic signature trajectories and baseline scores, **When** calculating time-to-detection, **Then** the system records the number of steps from injection to the first threshold crossing for each method.
+3. **Given** the collected time-to-detection values, **When** performing the paired t-test across datasets, **Then** the system outputs a p-value indicating if the DP-GMM detection time is significantly shorter than the baselines. (Primary: Wilcoxon signed-rank test due to expected skewness of detection times; Secondary: paired t-test). The comparison isolates the nonparametric advantage by controlling for the sliding window stride and ensuring the thresholding logic is consistent across methods.
+4. **Given** the distribution of "rate of change" metrics for anomaly and normal windows, **When** performing the KS test, **Then** the system outputs the KS statistic and p-value to confirm distributional differences.
+5. **Given** the distribution of baseline reconstruction error metrics (GMM/ARIMA) and DP-GMM signature distributions, **When** performing the KS test, **Then** the system outputs the KS statistic and p-value to confirm whether the baseline reconstruction error distributions differ significantly from the DP-GMM signature distributions, as required by FR-015.
+6. **Given** the requirement to validate baseline metric distributions (FR-015), **When** executing the baseline comparison, **Then** the system explicitly performs a two-sample Kolmogorov-Smirnov (KS) test comparing the distribution of reconstruction errors (MSE) from the fixed-component GMMs and ARIMA models against the distribution of DP-GMM dynamic signatures ($\dot{\alpha}$ and $\pi$ variance), and logs the resulting KS statistic and p-value to the validation report. This scenario ensures the verification procedure for FR-015 is explicitly covered in the user story acceptance criteria.
+
+---
+
+### User Story 3 - Threshold Justification and Sensitivity Analysis (Priority: P3)
+
+The system MUST implement a sensitivity analysis for the anomaly detection threshold, sweeping the cutoff over a concrete set of absolute values (e.g., a range of low to moderate thresholds) and reporting how the false-positive and false-negative rates vary across these thresholds.
+
+**Why this priority**: The methodology panel requires that any decision cutoff introduced in the design carries a justification and a sensitivity analysis to ensure the results are not artifacts of a specific arbitrary threshold.
+
+**Independent Test**: Can be tested by running the detection logic with three distinct threshold values on a held-out test set and verifying that the output includes a table or plot showing the variation in error rates (FP/FN) across these values.
+
+**Acceptance Scenarios**:
+
+1. **Given** a detection threshold (default 95th percentile of score distribution), **When** running the sensitivity analysis, **Then** the system re-evaluates detection performance at absolute cutoff values of 0.01, 0.05, and 0.1 on normalized reconstruction error (MSE) scaled to [0,1].
