@@ -9,11 +9,11 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can a lightweight, state-based meta-critic module, trained on distilled stopping rules from agentic trajectories, achieve timely abstention performance comparable to full-context engineering methods while significantly reducing token consumption and latency in CPU-constrained environments?
+What is the fundamental information-theoretic lower bound on the state features required for an agentic system to reliably detect task impossibility, and does this bound necessitate access to semantic conversational context or can it be met by non-semantic trajectory statistics?
 
 ## Motivation
 
-Current methods for agentic abstention, such as CONVOLVE, improve decision-making by injecting large, distilled context blocks into the agent's prompt, which linearly increases inference costs and latency. This overhead makes such approaches impractical for edge deployments or high-throughput systems where computational resources are limited. A decoupled, lightweight decision module could provide the necessary stopping signals without burdening the primary agent's generation cycle, addressing a critical efficiency gap in agentic AI.
+Current agentic abstention mechanisms often rely on injecting large, distilled context blocks into the agent's prompt, which linearly increases inference costs and latency, rendering them impractical for edge deployments. A decoupled, lightweight decision module operating on low-level state features could provide necessary stopping signals without burdening the primary agent's generation cycle. This research addresses the critical gap in understanding whether complex semantic stopping rules can be effectively compressed into efficient, state-based heuristics or if deep semantic context is fundamentally required.
 
 ## Literature gap analysis
 
@@ -21,26 +21,26 @@ Current methods for agentic abstention, such as CONVOLVE, improve decision-makin
 We queried Semantic Scholar and arXiv using terms including "agentic abstention," "LLM stopping rules," "context engineering for efficiency," and "meta-critic agents." The search targeted recent work (2024–2026) on LLM decision boundaries and computational efficiency.
 
 ### What is known
-- [An Explainable Agentic AI Framework for Uncertainty-Aware and Abstention-Enabled Acute Ischemic Stroke Imaging Decisions](https://arxiv.org/abs/2601.01008) — This work demonstrates the feasibility of integrating explicit abstention mechanisms into agentic AI frameworks for high-stakes medical imaging, though it focuses on uncertainty quantification in a specific domain rather than general sequential task efficiency.
 - [Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality](https://arxiv.org/abs/2402.14679) — This study explores the consistency between LLM self-perception and actions, providing background on LLM self-monitoring capabilities, but does not address the engineering of external stopping rules or latency optimization.
+- [An Explainable Agentic AI Framework for Uncertainty-Aware and Abstention-Enabled Acute Ischemic Stroke Imaging Decisions](https://arxiv.org/abs/2601.01008) — This work demonstrates the feasibility of integrating explicit abstention mechanisms into agentic AI frameworks for high-stakes medical imaging, though it focuses on uncertainty quantification in a specific domain rather than general sequential task efficiency.
 
 ### What is NOT known
-There is currently no published work evaluating whether the complex context-engineering techniques used for agentic abstention can be effectively compressed into a separate, lightweight classifier (meta-critic) that operates independently of the generation loop. Specifically, the trade-off between the fidelity of "distilled stopping rules" and the computational overhead of full-context injection remains unquantified.
+There is currently no published work evaluating whether the complex context-engineering techniques used for agentic abstention can be effectively compressed into a separate, lightweight classifier (meta-critic) that operates independently of the generation loop. Specifically, the trade-off between the fidelity of "distilled stopping rules" and the computational overhead of full-context injection remains unquantified, and the information-theoretic limit of low-level state features for predicting optimal stopping is unknown.
 
 ### Why this gap matters
-As agentic systems move toward real-world, resource-constrained deployments, the computational cost of context management becomes a primary bottleneck. Filling this gap would enable the development of scalable, efficient agent architectures that can make complex stopping decisions without exhausting token budgets or latency constraints.
+As agentic systems move toward real-world, resource-constrained deployments, the computational cost of context management becomes a primary bottleneck. Filling this gap would enable the development of scalable, efficient agent architectures that can make complex stopping decisions without exhausting token budgets or latency constraints, potentially defining the theoretical limits of state-based agent control.
 
 ### How this project addresses the gap
-This project will directly measure the efficiency-accuracy trade-off by training a gradient-boosted tree meta-critic on existing abstention trajectories and comparing its performance against full-context baselines. The methodology isolates the cost of the stopping logic from the generation cost, providing the first empirical evidence on the viability of decoupled abstention modules.
+This project will directly measure the efficiency-accuracy trade-off by training a gradient-boosted tree meta-critic on existing abstention trajectories and comparing its performance against full-context baselines. The methodology isolates the cost of the stopping logic from the generation cost, providing the first empirical evidence on the viability of decoupled abstention modules and estimating the lower bound of information required for accurate stopping.
 
 ## Expected results
 
-We expect the meta-critic approach to maintain timely abstention recall within 5% of the full-context baseline while reducing average token consumption by 40–60% and lowering wall-clock latency. A null result (where the meta-critic fails to generalize) would indicate that agentic stopping relies on deep semantic context that cannot be compressed into state-based heuristics, which is also a significant finding for the field.
+We expect the meta-critic approach to maintain timely abstention recall within 5% of the full-context baseline while reducing average token consumption by 40–60% and lowering wall-clock latency. A null result (where the meta-critic fails to generalize) would indicate that agentic stopping relies on deep semantic context that cannot be compressed into state-based heuristics, establishing a lower bound on the information required for effective abstention.
 
 ## Methodology sketch
 
 - **Data Acquisition**: Download the 28,000-task benchmark dataset from the original "Agentic Abstention" study (specifically the "Environment-based Abstention" subset) and extract the 5,000-task subset containing interaction trajectories and CONVOLVE-generated stopping rules.
-- **Feature Engineering**: Parse interaction logs to extract state features including "search result count," "error message frequency," "cumulative token usage," "turn number," and "semantic similarity to initial query" at each step.
+- **Feature Engineering**: Parse interaction logs to extract low-level state features including "search result count," "error message frequency," "cumulative token usage," "turn number," and "semantic similarity to initial query" at each step, explicitly excluding full semantic context from the input vector.
 - **Model Training**: Train a lightweight gradient-boosted tree classifier (e.g., XGBoost or LightGBM) on the extracted features using the CONVOLVE stopping rules as binary labels (abstain vs. continue), ensuring the model is optimized for CPU inference.
 - **Experimental Setup**: Implement a simulation loop where a standard LLM agent interacts with the environment, but a separate "Meta-Critic" process evaluates the agent's state after every turn *before* the LLM generates the next action.
 - **Baseline Comparison**: Run three conditions: (1) No abstention, (2) Full CONVOLVE context injection, and (3) Meta-Critic intervention, all executed on a standard 2-core CPU instance.
@@ -57,7 +57,7 @@ We expect the meta-critic approach to maintain timely abstention recall within 5
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T10:09:23Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T05:50:06Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Agentic Abstention: Do Agents Know When to Stop Instead of Act?" computer science
 **Verified citation count**: 2
@@ -66,27 +66,7 @@ We expect the meta-critic approach to maintain timely abstention recall within 5
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Agentic Abstention: Do Agents Know When to Stop Instead of Act?" computer science | 0 |
-| 1 | agentic abstention in large language models | 5 |
-| 2 | when should AI agents stop acting | 0 |
-| 3 | LLM agent termination criteria | 0 |
-| 4 | optimal stopping for autonomous agents | 0 |
-| 5 | agent self-correction and early stopping | 0 |
-| 6 | confidence-based agent halting mechanisms | 0 |
-| 7 | preventing agent overthinking and loops | 0 |
-| 8 | LLM agent refusal strategies | 0 |
-| 9 | decision boundaries for AI agent actions | 0 |
-| 10 | uncertainty estimation in agentic workflows | 0 |
-| 11 | stopping rules for generative AI agents | 0 |
-| 12 | agent action suppression techniques | 0 |
-| 13 | metacognition in large language model agents | 0 |
-| 14 | adaptive termination for LLM-based systems | 0 |
-| 15 | agent behavior control and intervention | 0 |
-| 16 | cost-benefit analysis in agent decision making | 0 |
-| 17 | detecting agent hallucination via abstention | 0 |
-| 18 | recursive agent termination protocols | 0 |
-| 19 | human-aligned agent stopping behavior | 0 |
-| 20 | reinforcement learning for agent stopping policies | 0 |
+| 0 (initial) | llmXive follow-up: extending "Agentic Abstention: Do Agents Know When to Stop Instead of Act?" computer science | 2 |
 
 ### Verified citations
 
