@@ -5,15 +5,15 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode"
 
-**Field**: linguistics (Natural Language Processing / Reasoning)
+**Field**: Linguistics / Natural Language Processing
 
 ## Research question
 
-Does explicitly modeling the causal dependency between masked errors and their root causes via an "Error-Attribution Graph" reduce the number of refinement turns required for Mask Diffusion Models to solve long-chain logical reasoning tasks compared to uniform or history-based masking strategies?
+How do specific structural properties of logical dependencies (e.g., nesting depth, branching factor) mechanistically influence the trajectory of error propagation in multi-hop reasoning, and what distinct failure modes arise when these structural bottlenecks exceed the representational capacity of current error-correction strategies?
 
 ## Motivation
 
-Current Reflective Masking (RM) techniques rely on a "History Reference" mechanism that treats intermediate denoising states as a uniform context, potentially diluting the signal from the specific tokens that caused a logical contradiction. By introducing a lightweight, CPU-tractable graph that maps error propagation, this project aims to target the *source* of logical failures rather than their symptoms, theoretically accelerating convergence on complex, multi-hop reasoning problems without requiring architectural changes or GPU retraining.
+Current Reflective Masking (RM) strategies often treat intermediate denoising states as a uniform context, potentially obscuring the specific tokens that initiated logical contradictions. By explicitly modeling the causal dependency between masked errors and their root causes, this project investigates whether a graph-guided approach can accelerate convergence on complex reasoning tasks. This addresses a critical gap in making iterative reasoning models computationally efficient on resource-constrained hardware, specifically targeting the reduction of inference steps required to resolve multi-hop logical inconsistencies.
 
 ## Literature gap analysis
 
@@ -28,26 +28,26 @@ We queried the provided literature block (comprising results from Semantic Schol
 - [Self-Cognition in Large Language Models: An Exploratory Study (2024)](https://arxiv.org/abs/2407.01505) — Explores self-cognition concepts but lacks the technical specificity required for Mask Diffusion error attribution.
 
 ### What is NOT known
-There is currently no published work that applies explicit causal graph structures to guide the masking policy in Mask Diffusion Models. While the foundational work on Reflective Masking (Zhang et al.) exists, the specific hypothesis that an "Error-Attribution Graph" can outperform uniform or history-based referencing in reducing turn-count for multi-hop logical errors remains untested and unaddressed in the broader literature.
+There is currently no published work that applies explicit causal graph structures to guide the masking policy in Mask Diffusion Models. While foundational work on Reflective Masking exists, the specific hypothesis that an "Error-Attribution Graph" can outperform uniform or history-based referencing in reducing turn-count for multi-hop logical errors remains untested. Furthermore, no study has systematically correlated structural dependency metrics (like nesting depth) with the failure rates of specific error-correction strategies in this domain.
 
 ### Why this gap matters
-Filling this gap is critical for making iterative reasoning models computationally efficient on CPU-only hardware, which is a prerequisite for deploying complex logical reasoning agents in resource-constrained environments. If causal modeling significantly reduces the number of refinement turns, it could enable real-time, interactive logical problem solving without the high energy costs associated with GPU-accelerated retraining or massive parallel sampling.
+Filling this gap is critical for making iterative reasoning models computationally efficient on CPU-only hardware, which is a prerequisite for deploying complex logical reasoning agents in resource-constrained environments. If causal modeling significantly reduces the number of refinement turns, it could enable real-time, interactive logical problem solving without the high energy costs associated with GPU-accelerated retraining.
 
 ### How this project addresses the gap
-This project directly addresses the gap by implementing and evaluating a CPU-only "Error-Attribution Graph" module within the Reflective Masking framework. By constructing a directed acyclic graph of error propagation and prioritizing high-centrality nodes for masking, the methodology generates the first empirical evidence on whether explicit causal modeling improves convergence speed over existing uniform or history-based strategies.
+This project directly addresses the gap by implementing and evaluating a CPU-only "Error-Attribution Graph" module within the Reflective Masking framework. By constructing a directed acyclic graph of error propagation and prioritizing high-centrality nodes for masking, the methodology generates the first empirical evidence on whether explicit causal modeling improves convergence speed over existing uniform or history-based strategies, while also quantifying how structural complexity impacts these gains.
 
 ## Expected results
 
-We expect the Error-Attribution Graph variant to achieve a statistically significant reduction in the average number of refinement turns (target: ~30-50% reduction) required to solve multi-hop logical puzzles compared to the baseline Reflective Masking approach. This finding would be confirmed if the graph-guided policy consistently reaches the correct solution in fewer iterations on the filtered "long-chain" subset of the dataset, demonstrating that targeting error sources is more efficient than uniform refinement.
+We expect the Error-Attribution Graph variant to achieve a statistically significant reduction in the average number of refinement turns required to solve multi-hop logical puzzles compared to the baseline Reflective Masking approach, particularly for tasks with high branching factors. This finding would be confirmed if the graph-guided policy consistently reaches the correct solution in fewer iterations on the filtered "long-chain" subset of the dataset, demonstrating that targeting error sources is more efficient than uniform refinement.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the GSM8K logical deduction subset and a curated Sudoku dataset from their official public repositories (e.g., HuggingFace Datasets `gsm8k` and a standard Sudoku benchmark on GitHub), filtering specifically for instances requiring 5+ inference steps to solve.
-- **Baseline Implementation**: Implement the original Reflective Masking (RM) loop using a pre-trained Mask Diffusion Model (using the public weights provided in the original paper's repository) running on a single CPU core.
-- **Graph Construction Module**: Develop a lightweight Python module that parses the sequence of masked tokens from previous turns; for each incorrect token, trace its dependency back to the input context tokens that likely caused the contradiction, constructing a Directed Acyclic Graph (DAG) where edge weights represent estimated error propagation strength.
+- **Data Acquisition**: Download the GSM8K logical deduction subset and a curated Sudoku dataset from public repositories (HuggingFace Datasets `gsm8k` and standard Sudoku benchmarks), filtering specifically for instances requiring 5+ inference steps to solve to ensure sufficient complexity.
+- **Baseline Implementation**: Implement the original Reflective Masking (RM) loop using a pre-trained Mask Diffusion Model (using public weights) running on a single CPU core to establish a baseline for turn count and error patterns.
+- **Graph Construction Module**: Develop a lightweight Python module that parses the sequence of masked tokens from previous turns; for each incorrect token, trace its dependency back to input context tokens that likely caused the contradiction, constructing a Directed Acyclic Graph (DAG) where edge weights represent estimated error propagation strength based on attention scores or token co-occurrence in error states.
 - **Policy Modification**: Replace the baseline's uniform/random masking selection with a "centrality-weighted" policy that prioritizes masking tokens with the highest in-degree (most downstream errors caused) in the constructed DAG.
-- **Execution & Measurement**: Run 1,000 inference episodes for both the baseline RM and the Graph-augmented RM on the filtered dataset, recording the number of turns taken to reach a verified correct solution for each instance.
-- **Statistical Analysis**: Perform a paired Wilcoxon signed-rank test to compare the distribution of turn counts between the two methods, ensuring the validation target (solution correctness) is independent of the predictor (graph centrality) and derived from the ground-truth solution of the puzzle rather than the model's own internal confidence scores.
+- **Execution & Measurement**: Run 1,000 inference episodes for both the baseline RM and the Graph-augmented RM on the filtered dataset, recording the number of turns taken to reach a verified correct solution for each instance, alongside the calculated structural metrics (depth, branching factor).
+- **Statistical Analysis**: Perform a paired Wilcoxon signed-rank test to compare the distribution of turn counts between the two methods, and conduct a regression analysis to correlate structural properties with failure rates, ensuring the validation target (solution correctness against ground-truth puzzle answers) is independent of the predictor (graph centrality).
 
 ## Duplicate-check
 
@@ -58,7 +58,7 @@ We expect the Error-Attribution Graph variant to achieve a statistically signifi
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-05T10:37:43Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T16:57:33Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode" linguistics
 **Verified citation count**: 5
@@ -67,27 +67,7 @@ We expect the Error-Attribution Graph variant to achieve a statistically signifi
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode" linguistics | 0 |
-| 1 | reflective masking in large language models | 5 |
-| 2 | multi-turn reasoning in generative models | 0 |
-| 3 | mask diffusion language models | 0 |
-| 4 | iterative self-correction in LLMs | 0 |
-| 5 | reasoning elicitation via masking | 0 |
-| 6 | chain-of-thought in diffusion language models | 0 |
-| 7 | multi-step inference in masked generation | 0 |
-| 8 | reflective prompting for language models | 0 |
-| 9 | iterative refinement in generative AI | 0 |
-| 10 | latent reasoning in diffusion transformers | 0 |
-| 11 | self-reflective generation strategies | 0 |
-| 12 | multi-turn dialogue reasoning | 0 |
-| 13 | masked language modeling for reasoning tasks | 0 |
-| 14 | diffusion-based text generation with reflection | 0 |
-| 15 | error correction in generative language models | 0 |
-| 16 | recursive reasoning in AI text generation | 0 |
-| 17 | cognitive processes in masked diffusion | 0 |
-| 18 | multi-hop reasoning in language models | 0 |
-| 19 | generative reasoning through iterative masking | 0 |
-| 20 | natural language inference via diffusion | 0 |
+| 0 (initial) | llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode" linguistics | 5 |
 
 ### Verified citations
 
