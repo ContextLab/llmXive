@@ -37,7 +37,7 @@ def test_missing_baseline_flag_in_audit_notes():
         publication_year=2023
     )
 
-    # Reconstruct statistical values
+    # Reconstruct statistical values (this will likely return None or partials for missing baseline)
     reconstructed = reconstruct_single_summary(summary)
 
     # Validate the record
