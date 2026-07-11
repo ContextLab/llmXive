@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-978-llmxive-follow-up-extending-transitlm-a
-last_run_id: b7324d3c-ee9c-4e8c-ab99-e13f00a131a1
+last_run_id: dd83fb68-f176-4459-bf15-dddda037bb1f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "TransitLM: A Large-Scale Dataset and Benchmark
   for Map-Free Transit Ro"'
-updated_at: '2026-07-04T15:37:28.358542Z'
+updated_at: '2026-07-11T08:49:25.585374Z'

@@ -9,16 +9,16 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does the "implicit spatial grounding" observed in large autoregressive models for transit route generation stem from deep semantic reasoning or from local topological statistics that can be captured by a lightweight, non-autoregressive retrieval-augmented system restricted to a fixed station vocabulary?
+What is the critical path length and topological complexity in urban transit networks where local adjacency statistics become insufficient for predicting valid global routes, and does this threshold correlate with specific structural features of the network (e.g., hub density, line interconnectivity)?
 
 ## Motivation
 
-The original TransitLM work demonstrates that massive LLMs can replace traditional graph-based routing engines, but it relies on computationally expensive autoregressive generation unsuitable for edge deployment. This project investigates whether the core capability is a result of genuine world-model understanding or merely statistical pattern matching on local station transitions, potentially enabling efficient, real-time map-free routing on low-resource hardware.
+The original TransitLM work demonstrates that massive LLMs can replace traditional graph-based routing engines, but it remains unclear whether this success stems from genuine topological reasoning or the memorization of local transition patterns. This project addresses a critical gap: determining the precise "cognitive horizon" where local adjacency statistics fail and global context becomes mandatory. Understanding this threshold is essential for designing resource-efficient navigation systems that can operate on edge devices without the computational overhead of full autoregressive LLMs.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar and arXiv using terms such as "transit route generation LLM," "map-free navigation retrieval augmented," "statistical vs semantic grounding in routing," and "lightweight LLM for spatial tasks." The search returned multiple papers on general LLM capabilities, planning, and grounding in unrelated domains (e.g., image quality, personality), but no primary literature specifically addressing the decomposition of "implicit spatial grounding" in transit networks into local statistical vs. global semantic components, nor any work proposing a CPU-tractable, non-autoregressive alternative to the original TransitLM benchmark.
+We queried Semantic Scholar and arXiv using terms such as "map-free transit route planning with large language models," "LLM-based transit itinerary generation without maps," "large-scale dataset for map-free transit routing," and "geospatial reasoning in large language models for transit." The search returned multiple papers on general LLM capabilities, planning, and grounding in unrelated domains (e.g., image quality, personality, deception), but no primary literature specifically addressing the decomposition of "implicit spatial grounding" in transit networks into local statistical vs. global semantic components, nor any work proposing a CPU-tractable, non-autoregressive alternative to the original TransitLM benchmark.
 
 ### What is known
 - [Learning to Plan with Natural Language (2023)](https://arxiv.org/abs/2304.10464) — Establishes that LLMs require explicit planning strategies to handle complex tasks, suggesting that without such scaffolding, models may rely on superficial patterns rather than true structural understanding.
@@ -35,7 +35,7 @@ This project directly addresses the gap by training a lightweight, encoder-only 
 
 ## Expected results
 
-We anticipate that the lightweight model will achieve >90% route validity on short-to-medium range trips (under 15 stops), where local station transitions dominate, but will fail on long-haul routes requiring global topology. This outcome would confirm that the "implicit spatial grounding" in TransitLM is largely a statistical phenomenon of local connectivity rather than deep semantic world knowledge.
+We anticipate that the lightweight model will achieve >90% route validity on short-to-medium range trips (under 15 stops), where local station transitions dominate, but will fail on long-haul routes requiring global topology. This outcome would confirm that the "implicit spatial grounding" in TransitLM is largely a statistical phenomenon of local connectivity rather than deep semantic world knowledge, identifying the specific route length where the transition to global reasoning occurs.
 
 ## Methodology sketch
 
@@ -45,7 +45,7 @@ We anticipate that the lightweight model will achieve >90% route validity on sho
 - **Training Procedure**: Train the model on a CPU-only environment (GitHub Actions runner) to predict the next station in a sequence, using a fixed lookup strategy for generation rather than autoregressive sampling.
 - **Evaluation Metrics**: Compute route connectivity (percentage of valid transitions between consecutive stations) and station validity (percentage of generated stations existing in the ground truth network) for both the lightweight model and the original LLM baseline.
 - **Stratified Analysis**: Split the test set into short-haul (<15 stops), medium-haul (15-30 stops), and long-haul (>30 stops) categories to assess performance degradation as route complexity increases.
-- **Statistical Testing**: Apply a chi-squared test to compare the proportion of valid routes generated by the lightweight model versus the original LLM across the three route-length categories.
+- **Statistical Testing**: Apply a chi-squared test to compare the proportion of valid routes generated by the lightweight model versus the original LLM across the three route-length categories to identify the inflection point of failure.
 - **Baseline Comparison**: Benchmark the lightweight model against a simple "next-hop" heuristic (always pick the most frequent neighbor) to establish a lower bound for statistical pattern matching.
 - **Resource Profiling**: Measure inference latency and memory usage on a simulated 2-core CPU environment to verify feasibility for edge deployment.
 - **Visualization**: Generate heatmaps of route validity across the city networks to identify regions where the lightweight model fails due to lack of global context.
@@ -59,7 +59,7 @@ We anticipate that the lightweight model will achieve >90% route validity on sho
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T15:37:00Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T08:49:02Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Ro" linguistics
 **Verified citation count**: 6
@@ -68,27 +68,7 @@ We anticipate that the lightweight model will achieve >90% route validity on sho
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Ro" linguistics | 0 |
-| 1 | map-free transit route planning with large language models | 5 |
-| 2 | natural language processing for public transportation navigation | 0 |
-| 3 | LLM-based transit itinerary generation without maps | 0 |
-| 4 | spoken language understanding for transit directions | 0 |
-| 5 | large-scale dataset for map-free transit routing | 0 |
-| 6 | multimodal transit planning using language models | 0 |
-| 7 | zero-shot transit route recommendation via LLMs | 0 |
-| 8 | semantic parsing for public transport queries | 0 |
-| 9 | language model benchmarks for navigation tasks | 0 |
-| 10 | conversational AI for transit wayfinding | 0 |
-| 11 | geospatial reasoning in large language models for transit | 0 |
-| 12 | text-to-route generation for public transportation | 0 |
-| 13 | LLM evaluation for map-independent navigation | 0 |
-| 14 | contextual understanding of transit instructions | 0 |
-| 15 | dataset construction for transit language understanding | 0 |
-| 16 | reasoning over transit networks using natural language | 0 |
-| 17 | generative AI for public transport route optimization | 0 |
-| 18 | linguistic analysis of transit navigation instructions | 0 |
-| 19 | large language models for urban mobility planning | 0 |
-| 20 | benchmarking LLMs on transit route prediction tasks | 0 |
+| 0 (initial) | llmXive follow-up: extending "TransitLM: A Large-Scale Dataset and Benchmark for Map-Free Transit Ro" linguistics | 6 |
 
 ### Verified citations
 
