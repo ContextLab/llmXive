@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-11T01:38:36.205599Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1037-why-can-t-i-open-my-drawer-mitigating-ob
-last_run_id: null
+last_run_id: ada791d8-76df-4ab8-8e00-0808bdf2e31f
 last_run_status: null
 points_paper: {}
 points_research: {}
