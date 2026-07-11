@@ -1,0 +1,5 @@
+'|code exit indicate success':
+  quote: OK 0
+  source_id: Exit status
+  url: https://en.wikipedia.org/wiki/Exit_status
+  value: '0'

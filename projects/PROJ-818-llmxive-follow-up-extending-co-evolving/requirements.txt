@@ -1,0 +1,7 @@
+sympy>=1.12
+networkx>=3.2
+numpy>=1.26
+scipy>=1.12
+pytest>=8.0
+ruff>=0.4.0
+black>=24.0.0

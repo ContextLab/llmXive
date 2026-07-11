@@ -1,0 +1,150 @@
+- artifact_path: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/quickstart.md
+  attempts: 1
+  canonical: Exit code 0 indicates success
+  claim_id: c_293bf819
+  context: Ensure the generated data meets validity constraints before training. Exit
+    code 0 indicates success.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: OK 0
+      source_id: Exit status
+      url: https://en.wikipedia.org/wiki/Exit_status
+      value: '0'
+    filled: true
+  kind: numeric
+  raw_text: Exit code 0 indicates success.
+  resolved_value: '0'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T15:49:39Z'
+- artifact_path: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/quickstart.md
+  attempts: 1
+  canonical: Exit code 1 indicates data validity less than 99 percent
+  claim_id: c_47c98163
+  context: Exit code 0 indicates success. Exit code 1 indicates data validity < 99%.
+  evidence:
+    entailment_evidence: Exit code 1 indicates data validity less than 99 percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Exit_code_1_indicates_data_validity_less_than_99_percent
+  kind: magnitude
+  raw_text: Exit code 1 indicates data validity < 99%.
+  resolved_value: Exit code 1 indicates data validity less than 99 percent
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T15:49:41Z'
+- artifact_path: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/quickstart.md
+  attempts: 1
+  canonical: Final statistical report located at data/results/forgetting_analysis.json
+  claim_id: c_3278613c
+  context: View Results. The final statistical report is located at data/results/forgetting_analysis.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_statistical_report_located_at_data/results/forgetting
+  kind: entity_fact
+  raw_text: The final statistical report is located at data/results/forgetting_analysis.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:50:02Z'
+- artifact_path: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/quickstart.md
+  attempts: 1
+  canonical: ANOVA results F statistic is 4.52
+  claim_id: c_b31c55ab
+  context: 'The final statistical report is located at data/results/forgetting_analysis.json.
+    { ''anova_results'': { ''F_statistic'': 4.52, ... } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The anova_results F_statistic is 4.52.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:50:57Z'
+- artifact_path: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/quickstart.md
+  attempts: 1
+  canonical: ANOVA results p value is 0.003
+  claim_id: c_545e3364
+  context: '{ ''anova_results'': { ''F_statistic'': 4.52, ''p_value'': 0.003, ...
+    } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The anova_results p_value is 0.003.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:51:26Z'
+- artifact_path: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/quickstart.md
+  attempts: 1
+  canonical: Coevolving mean retention is 0.85
+  claim_id: c_cb8acb14
+  context: '{ ''retention_comparison'': { ''coevolving_mean'': 0.85, ... } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The coevolving_mean retention is 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:51:47Z'
+- artifact_path: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/quickstart.md
+  attempts: 1
+  canonical: Mixed mean retention is 0.72
+  claim_id: c_75f4a979
+  context: '{ ''retention_comparison'': { ''coevolving_mean'': 0.85, ''mixed_mean'':
+    0.72, ... } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mixed_mean retention is 0.72.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:52:06Z'
+- artifact_path: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/quickstart.md
+  attempts: 1
+  canonical: Retention difference is 0.13
+  claim_id: c_cac2f74b
+  context: '{ ''retention_comparison'': { ''difference'': 0.13, ... } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retention difference is 0.13.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:52:23Z'
+- artifact_path: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/quickstart.md
+  attempts: 1
+  canonical: Retention comparison p value is 0.01
+  claim_id: c_548d3474
+  context: '{ ''retention_comparison'': { ''p_value'': 0.01 } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retention comparison p_value is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T15:52:36Z'

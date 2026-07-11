@@ -1,0 +1,14 @@
+? T005 [P] Implement checksum utility in `src/utils/checksums.py` to generate SHA-256
+  hashes for data artifacts and manage `data/checksums.json`
+: 1
+? T006 [P] Create base abstract agent class in `src/agents/base_agent.py` defining
+  the interface for rule-set management and evaluation
+: 1
+T007 [P] Implement CLI skeleton in `src/cli.py` (entry point only, no logic) to establish command structure: 1
+? T008 [P] Implement schema validators in `tests/contract/` based on existing contracts
+  (`contracts/`) to validate `dataset`, `agent_state`, and `result` JSON structures
+: 1
+T009 [P] [US1] Contract test for generated proof validity in `tests/contract/test_dataset_schema.py`: 1
+? 'T010 [P] [US1] Unit test for grid solvability and rule isolation in `tests/unit/test_logic_generation.py`
+  <!-- FAILED: unspecified -->'
+: 1

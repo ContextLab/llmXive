@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-coevolving"
+version = "0.1.0"
+description = "Co-Evolving Policy Distillation Research Pipeline"
+requires-python = ">=3.11"
+dependencies = [
+    "sympy>=1.12",
+    "networkx>=3.1",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "pytest>=7.3.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pre-commit>=3.3.0",
+    "statsmodels>=0.14.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest-cov>=4.1.0",
+    "mypy>=1.4.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["src*", "tests*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+src = ["code/src", "code/tests"]
+
+[tool.ruff.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: unit tests",
+    "integration: integration tests",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+strict_optional = true
+exclude = ["build/", "dist/", ".venv/"]
