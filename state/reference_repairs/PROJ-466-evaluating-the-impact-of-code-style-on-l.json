@@ -82,5 +82,29 @@
         "intent": "openai human eval HumanEval datasets.load_dataset \"openai/human eval\" Verified: Dataset exists on HuggingFace Hub; accessible via datasets library."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-11T08:25:52.643118+00:00",
+    "project": "PROJ-466-evaluating-the-impact-of-code-style-on-l",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/mteb/human-eval",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl",
+        "intent": "mteb human eval HumanEval datasets.load_dataset \"mteb/human eval\" prompt , test task_id Verified Mirror of OpenAI dataset"
+      }
+    ]
+  },
+  {
+    "repaired_at": "2026-07-11T08:29:36.208211+00:00",
+    "project": "PROJ-466-evaluating-the-impact-of-code-style-on-l",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/openai/human-eval",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl",
+        "intent": "openai human eval HumanEval datasets.load_dataset \"openai/human eval\" Verified : Contains task_id , prompt test entry_point . The field unit tests required for FR 004."
+      }
+    ]
   }
 ]
