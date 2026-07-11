@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingInstance"
+description: "Schema for a data point linking diversity profiles to proxy outcomes."
+type: "object"
+properties:
+  profile_id:
+    type: "string"
+    description: "Link to the DiversityProfile."
+  domain:
+    type: "string"
+    description: "Domain of the data."
+    enum:
+      - "book_corpus"
+      - "beir"
+  proxy_quality_score:
+    type: ["number", "null"]
+    description: "Proxy for quality (e.g., relevance score, text length)."
+  proxy_stability_score:
+    type: ["number", "null"]
+    description: "Proxy for stability (e.g., inverse variance)."
+  optimal_epsilon_0:
+    type: ["number", "null"]
+    description: "Ground truth optimal KL budget (null as data is missing)."
+    minimum: 0.0
+    maximum: 1.0
+  collapse_label:
+    type: ["boolean", "null"]
+    description: "Ground truth collapse label (null as data is missing)."
+  final_loss_variance:
+    type: ["number", "null"]
+    description: "Ground truth final loss variance (null as data is missing)."
+required:
+  - profile_id
+  - domain
+  - proxy_quality_score
+  - proxy_stability_score
+  - optimal_epsilon_0
+  - collapse_label
+  - final_loss_variance
+additionalProperties: false

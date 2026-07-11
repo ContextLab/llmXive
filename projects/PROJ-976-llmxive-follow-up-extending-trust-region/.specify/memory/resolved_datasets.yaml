@@ -1,0 +1,383 @@
+resolved_at: '2026-07-11T13:04:19.479960+00:00'
+datasets:
+- intent: CPU-based
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/journal_contribution/Tirzepatide_compared_with_semaglutide_in_obesity_disease_a_subpopulation_analysis_applying_Japan_Society_for_the_Study_of_Obesity_criteria_in_the_global_SURMOUNT-5_trial/32963667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Evaluation_of_long-term_healthcare_utilization_and_costs_associated_with_COVID-19_among_adults_and_children_in_the_US/32963673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/report/Abrirle_Paso_a_la_Paz_Un_recorrido_por_la_implementaci_n_del_Acuerdo_Final_en_la_subregi_n_PDET_Sur_de_Tolima/32508921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/report/Abrirle_Paso_a_la_Paz_Un_recorrido_por_la_implementaci_n_del_Acuerdo_Final_en_la_subregi_n_PDET_Choc_/32508906
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/report/Abrirle_Paso_a_la_Paz_Un_recorrido_por_la_implementaci_n_del_Acuerdo_Final_en_la_subregi_n_PDET_Urab_Antioque_o/32508933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14811831
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12759131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12770771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/33247
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308353
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308353
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300913
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298137
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://curate.nd.edu/articles/thesis/Objective-Driven_Optimization_and_Context-Aware_Synthetic_Data_Generation_for_Imbalanced_Learning/32869646
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Tirzepatide_compared_with_semaglutide_in_obesity_disease_a_subpopulation_analysis_applying_Japan_Society_for_the_Study_of_Obesity_criteria_in_the_global_SURMOUNT-5_trial/32963667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Evaluation_of_long-term_healthcare_utilization_and_costs_associated_with_COVID-19_among_adults_and_children_in_the_US/32963673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/report/Abrirle_Paso_a_la_Paz_Un_recorrido_por_la_implementaci_n_del_Acuerdo_Final_en_la_subregi_n_PDET_Sur_de_Tolima/32508921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/report/Abrirle_Paso_a_la_Paz_Un_recorrido_por_la_implementaci_n_del_Acuerdo_Final_en_la_subregi_n_PDET_Choc_/32508906
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14174346
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/369485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/IMPLEMENTASI_DAN_EVALUASI_MODEL_FORECASTING_PENJUALAN_PADA_RETAIL_MODERN_MENGGUNAKAN_DATASET_WALMART_SALES_FORECASTING/32963552/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/IMPLEMENTASI_DAN_EVALUASI_MODEL_FORECASTING_PENJUALAN_PADA_RETAIL_MODERN_MENGGUNAKAN_DATASET_WALMART_SALES_FORECASTING/32963552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: F1-score
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 98811
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 82904
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94356
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://curate.nd.edu/articles/thesis/Objective-Driven_Optimization_and_Context-Aware_Synthetic_Data_Generation_for_Imbalanced_Learning/32869646
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Tirzepatide_compared_with_semaglutide_in_obesity_disease_a_subpopulation_analysis_applying_Japan_Society_for_the_Study_of_Obesity_criteria_in_the_global_SURMOUNT-5_trial/32963667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Evaluation_of_long-term_healthcare_utilization_and_costs_associated_with_COVID-19_among_adults_and_children_in_the_US/32963673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/report/Abrirle_Paso_a_la_Paz_Un_recorrido_por_la_implementaci_n_del_Acuerdo_Final_en_la_subregi_n_PDET_Sur_de_Tolima/32508921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/report/Abrirle_Paso_a_la_Paz_Un_recorrido_por_la_implementaci_n_del_Acuerdo_Final_en_la_subregi_n_PDET_Choc_/32508906
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1753520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stp.ust.edu.ua/article/view/325888
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18063014
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/ijai.v14.i5.pp3915-3925
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/6936930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21309123
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21309123
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/945784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308490
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308490
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TRB
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ahycl/Tr-beir-formatted/resolve/main/NanoArguAna/qrels/test.tsv
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3372
+      parsed: true
+  - url: "https://huggingface.co/datasets/AlicanKiraz0/seneca-trbench/resolve/main/MCQ-Tu\u0308\
+      rkc\u0327e Benchmark.json"
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 37874
+      parsed: true
+  - url: https://huggingface.co/datasets/umutertugrul/tr-books-tokenized/resolve/main/data/train-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/MorVentura/TRBLLmaker/264197c1d45d2aa4c8dc4e992e89e432a6e889c4/test.json?%2Fdatasets%2FMorVentura%2FTRBLLmaker%2Fresolve%2Fmain%2Ftest.json=&etag=%2251fc6bb802e1348929d7e8c7037d1b882dc10f9c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ahycl/Tr-beir-formatted/resolve/main/NanoArguAna/qrels/test.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/alibayram/tr-books/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: "https://huggingface.co/datasets/AlicanKiraz0/seneca-trbench/resolve/main/MCQ-Tu\u0308\
+      rkc\u0327e Benchmark.json"
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/umutertugrul/tr-books-tokenized/resolve/main/data/train-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Mn-Driven_Energy_Level_Tuning_Suppresses_CO_Electron_Donation_and_Weakens_CO_Adsorption_for_Sabatier-Optimal_Reactivity/32963703
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/thesis/Objective-Driven_Optimization_and_Context-Aware_Synthetic_Data_Generation_for_Imbalanced_Learning/32869646
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Tirzepatide_compared_with_semaglutide_in_obesity_disease_a_subpopulation_analysis_applying_Japan_Society_for_the_Study_of_Obesity_criteria_in_the_global_SURMOUNT-5_trial/32963667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Evaluation_of_long-term_healthcare_utilization_and_costs_associated_with_COVID-19_among_adults_and_children_in_the_US/32963673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/report/Abrirle_Paso_a_la_Paz_Un_recorrido_por_la_implementaci_n_del_Acuerdo_Final_en_la_subregi_n_PDET_Sur_de_Tolima/32508921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7653243
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7540070
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6636406
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5905704
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7698787
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.19233
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06478
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21222256
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21222256
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/61330854-dd96-411b-86a1-e8a6c0d37822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T23:52:36.636744Z'
-current_stage: flesh_out_complete
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-976-llmxive-follow-up-extending-trust-region
-last_run_id: f9139be6-0eab-4e74-a3bc-9c1a17e1c3d3
+last_run_id: 3ed83e88-7f1a-4c6d-8fe8-7dd25c22155a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-976-llmxive-follow-up-extending-trust-region/specs/001-llmxive-follow-up-extending-trust-region
 title: 'llmXive follow-up: extending "Trust-Region Behavior Blending for On-Policy
   Distillation"'
-updated_at: '2026-07-05T00:58:24.071913Z'
+updated_at: '2026-07-11T13:31:41.289664Z'

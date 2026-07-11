@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DiversityProfile"
+description: "Schema for the computed diversity feature vector of a teacher output."
+type: "object"
+properties:
+  profile_id:
+    type: "string"
+    description: "Unique identifier for the sample."
+  distinct_4_ratio:
+    type: "number"
+    description: "Ratio of distinct 4-grams to total 4-grams."
+    minimum: 0.0
+    maximum: 1.0
+  ngram_entropy:
+    type: "number"
+    description: "Average entropy of n-grams (n=1 to 4)."
+    minimum: 0.0
+  syntactic_variation_score:
+    type: ["number", "null"]
+    description: "Variance of parse tree depth. Null if parsing failed."
+  text_length:
+    type: "integer"
+    description: "Number of tokens in the response."
+    minimum: 0
+  parse_failed:
+    type: "boolean"
+    description: "True if syntactic parsing failed."
+required:
+  - profile_id
+  - distinct_4_ratio
+  - ngram_entropy
+  - syntactic_variation_score
+  - text_length
+  - parse_failed
+additionalProperties: false

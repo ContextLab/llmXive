@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the final correlation analysis results and baseline comparisons."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of analysis used."
+    enum:
+      - "Correlation"
+      - "Baseline"
+  task:
+    type: "string"
+    description: "Task type."
+    enum:
+      - "correlation_analysis"
+  source_domain:
+    type: "string"
+    description: "Domain used for source analysis."
+  target_domain:
+    type: "string"
+    description: "Domain used for target analysis."
+  metrics:
+    type: "object"
+    description: "Evaluation metrics on the target domain."
+    properties:
+      pearson_correlation:
+        type: "number"
+        description: "Correlation between diversity metrics and proxy quality."
+      baseline_delta:
+        type: "number"
+        description: "Improvement over fixed-default baseline (delta in correlation or ranking)."
+      generalization_gap:
+        type: "number"
+        description: "Performance drop from source to target (Source Correlation - Target Correlation)."
+      permutation_p_value:
+        type: "number"
+        description: "P-value from permutation test."
+    required:
+      - pearson_correlation
+      - baseline_delta
+      - generalization_gap
+      - permutation_p_value
+  baseline_metrics:
+    type: "object"
+    description: "Metrics for the fixed-default baseline."
+    properties:
+      correlation:
+        type: "number"
+        description: "Correlation of baseline (e.g., mean) with proxy."
+    required:
+      - correlation
+required:
+  - model_type
+  - task
+  - source_domain
+  - target_domain
+  - metrics
+  - baseline_metrics
+additionalProperties: false
