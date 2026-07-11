@@ -142,5 +142,17 @@
         "intent": "openai human eval HumanEval datasets.load_dataset \"openai/human eval\" prompt task description , canonical_solution for test generation unit tests entry_point"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-11T09:46:54.486113+00:00",
+    "project": "PROJ-466-evaluating-the-impact-of-code-style-on-l",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/openai/human-eval",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl",
+        "intent": "openai human eval HumanEval Benchmark Verified Primary dataset for code tasks FR 001 ."
+      }
+    ]
   }
 ]
