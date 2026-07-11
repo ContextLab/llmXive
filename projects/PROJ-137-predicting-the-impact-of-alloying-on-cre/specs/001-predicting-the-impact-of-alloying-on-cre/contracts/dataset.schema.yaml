@@ -1,47 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AlloyCreepDataset"
-description: "Schema for the processed alloy creep dataset containing composition and thermodynamic features."
+description: "Schema for the processed alloy creep dataset (CSV/Parquet)"
 type: "object"
 properties:
   alloy_id:
     type: "string"
-    description: "Unique identifier for the alloy sample."
+    description: "Unique identifier for the alloy sample"
   composition_str:
     type: "string"
-    description: "Raw composition string (e.g., 'Ni-10Cr-5Al')."
+    description: "Normalized composition string (e.g., 'Al-5.0Cr-10.0Ni')"
   temperature:
     type: "number"
-    description: "Test temperature in Kelvin."
-    minimum: 0
+    description: "Temperature in Kelvin"
   stress:
     type: "number"
-    description: "Applied stress in MPa."
-    minimum: 0
+    description: "Stress in MPa"
   rupture_time:
     type: "number"
-    description: "Time to rupture in hours."
-    minimum: 0
+    description: "Time to rupture in hours"
   mixing_enthalpy:
     type: "number"
-    description: "Mixing enthalpy in kJ/mol."
-    nullable: true
+    description: "Mixing enthalpy in kJ/mol (can be null for composition-only model)"
   radius_mismatch:
     type: "number"
-    description: "Atomic radius mismatch in percent."
-    nullable: true
-  avg_atomic_radius:
+    description: "Atomic radius mismatch (can be null for composition-only model)"
+  elemental_fractions:
+    type: "object"
+    description: "Dictionary of element -> atomic fraction"
+    additionalProperties:
+      type: "number"
+  synthetic_interaction_signal:
     type: "number"
-    description: "Average atomic radius in pm."
     nullable: true
-  thermo_available:
-    type: "boolean"
-    description: "Flag indicating if thermodynamic data was successfully retrieved."
+    description: "Injected signal for synthetic data validation (null for real data)"
 required:
   - alloy_id
   - composition_str
   - temperature
   - stress
   - rupture_time
-  - thermo_available
-additionalProperties: true
-description: "Any additional properties (e.g., elemental fractions) are allowed."
+  - elemental_fractions
+additionalProperties: false

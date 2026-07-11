@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T09:32:51.166968Z'
-current_stage: specified
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-137-predicting-the-impact-of-alloying-on-cre
-last_run_id: f2825d43-85e6-4b9c-b074-419775d74e0f
+last_run_id: 0a97205e-4be1-4ef9-b044-9b64b0174d2d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-137-predicting-the-impact-of-alloying-on-cre/specs/001-predicting-the-impact-of-alloying-on-cre
 title: Predicting the Impact of Alloying on Creep Resistance via Public Data
-updated_at: '2026-07-09T05:50:18.328770Z'
+updated_at: '2026-07-11T03:19:34.985893Z'

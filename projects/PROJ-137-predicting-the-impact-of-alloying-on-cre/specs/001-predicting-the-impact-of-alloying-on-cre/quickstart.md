@@ -1,14 +1,14 @@
-# Quickstart: Predicting the Impact of Alloying on Creep Resistance via Public Data
+# Quickstart: Predicting the Impact of Alloying on Creep Resistance
 
-## Prerequisites
+## 1. Prerequisites
 
 *   Python 3.11+
-*   A Materials Project API Key (optional; synthetic data will be used if unavailable).
-*   Git
+*   `pip` and `venv`
+*   (Optional) Materials Project API Key (for real data path)
 
-## Installation
+## 2. Installation
 
-1.  **Clone the repository** (or navigate to the project root).
+1.  **Clone the repository** and navigate to the project directory.
 2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
@@ -16,56 +16,71 @@
     ```
 3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins `pymatgen`, `scikit-learn`, `shap`, `pandas`, `numpy`, `requests`, and `jsonschema`.*
+    *Note: `requirements.txt` pins all versions to ensure reproducibility.*
 
-## Running the Pipeline
+## 3. Configuration
 
-The pipeline is designed to run end-to-end. It will automatically attempt to fetch data from NIMS/Materials Project. If these fail or the data schema is invalid, it will generate a synthetic dataset.
+1.  **Edit `config/settings.yaml`**:
+    *   Set `random_seed` (e.g., 42).
+    *   (Optional) Set `materials_project_api_key` if using real data.
+2.  **Verify `config/synthetic_params.yaml`**:
+    *   Contains physics parameters (A, B, C, n) for synthetic data generation.
 
-### Option 1: Full Pipeline (Recommended)
+## 4. Running the Pipeline
+
+### 4.1 Full Pipeline (Synthetic Data Path)
+This is the default execution path. It generates synthetic data, trains models, and produces reports.
+
 ```bash
-cd code
-python main.py
-```
-This script performs:
-1.  **Data Download**: Attempts to fetch NIMS data and Materials Project thermodynamics.
-2.  **Preprocessing**: Parses compositions to Atomic%, calculates descriptors.
-3.  **Strict Intersection**: Drops rows missing thermo data from ALL models.
-4.  **Training**: Runs Nested CV for Thermodynamic, Linear, and Polynomial models.
-5.  **Evaluation**: Computes statistical tests and generates SHAP plots.
-6.  **Output**: Saves `results/` containing `metrics.csv`, `shap_summary.png`, and `report.txt`.
-
-### Option 2: Synthetic Mode (For Testing/CI)
-To force synthetic data generation (useful if API keys are missing or for CI validation):
-```bash
-cd code
-python main.py --synthetic
+python src/main.py --mode synthetic
 ```
 
-### Option 3: Individual Steps
-*   **Download & Preprocess**:
+### 4.2 Full Pipeline (Real Data Path)
+Requires a valid NIMS URL and Materials Project API key.
+
+```bash
+python src/main.py --mode real
+```
+
+### 4.3 Specific Tasks
+*   **Data Generation Only**:
     ```bash
-    python data/download.py && python data/preprocess.py
+    python src/data/generate.py --output data/processed/synthetic_data.csv
     ```
-*   **Train & Evaluate**:
+*   **Model Training & Evaluation**:
     ```bash
-    python models/train.py && python models/evaluate.py
+    python src/models/train.py --input data/processed/synthetic_data.csv
+    ```
+*   **SHAP Analysis**:
+    ```bash
+    python src/models/interpret.py --model-path models/gbr_thermo.pkl
     ```
 
-## Expected Outputs
+## 5. Expected Outputs
 
-After a successful run, the following files will be generated in the `data/` and `results/` directories:
+*   `data/processed/processed_dataset.csv`: Cleaned, merged dataset.
+*   `models/`: Trained model artifacts (`.pkl`).
+*   `docs/reports/`:
+    *   `comparison_report.md`: R², RMSE, and statistical test results.
+    *   `shap_summary.png`: Feature importance plot.
+    *   `physics_check.log`: Validation of synthetic data physics.
 
-*   `data/processed/alloy_features.csv`: The cleaned, feature-engineered dataset.
-*   `results/metrics.csv`: R² and RMSE for all three models, plus statistical test results.
-*   `results/shap_summary.png`: Feature importance plot.
-*   `results/report.txt`: Human-readable summary of findings.
+## 6. Testing
 
-## Troubleshooting
+Run the test suite to verify data integrity and pipeline logic:
 
-*   **Materials Project API Error**: If you see "Rate Limit Exceeded", the script will automatically retry with exponential backoff. If it fails after 3 retries, the entry is dropped from **ALL models** to ensure strict intersection.
-*   **Missing Dependencies**: Ensure you activated the virtual environment. Run `pip install -r code/requirements.txt` again.
-*   **No Data**: If the NIMS URL is unreachable and `--synthetic` is not used, the script will generate a synthetic dataset automatically as per FR-008.
-*   **Schema Validation Error**: If synthetic data fails validation against `dataset.schema.yaml`, the pipeline will abort and report the specific validation error.
+```bash
+pytest tests/ -v
+```
+
+*   `tests/contract/`: Validates CSVs against YAML schemas.
+*   `tests/integration/`: Runs the full pipeline end-to-end.
+*   `tests/unit/`: Tests parsing and thermodynamic calculations.
+
+## 7. Troubleshooting
+
+*   **API Rate Limits**: If using real data, the system automatically retries with exponential backoff. If it fails, it logs the error and excludes the entry.
+*   **Memory Errors**: The pipeline is optimized for <7GB RAM. If issues persist, reduce the synthetic dataset size in `config/synthetic_params.yaml`.
+*   **Physics Check Failure**: If the synthetic data does not achieve R² > 0.8, check `config/synthetic_params.yaml` for incorrect physics parameters.

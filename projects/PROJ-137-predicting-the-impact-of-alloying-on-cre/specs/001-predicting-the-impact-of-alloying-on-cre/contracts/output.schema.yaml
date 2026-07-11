@@ -1,52 +1,76 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Performance and SHAP Results"
-description: "Schema for the final output metrics and feature importance."
+title: "ModelPerformanceReport"
+description: "Schema for the model performance comparison report"
 type: "object"
 properties:
-  model_comparison:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        model_type:
-          type: "string"
-          enum:
-            - "Thermodynamic"
-            - "Composition-Only"
-            - "Polynomial-Baseline"
-        fold:
-          type: "integer"
-        r2_score:
-          type: "number"
-        rmse:
-          type: "number"
-        hyperparams:
-          type: "object"
-      required:
-        - model_type
-        - fold
-        - r2_score
-        - rmse
+  thermodynamic_model:
+    type: "object"
+    properties:
+      model_type:
+        type: "string"
+        const: "thermodynamic"
+      r2_mean:
+        type: "number"
+      rmse_mean:
+        type: "number"
+      r2_std:
+        type: "number"
+      rmse_std:
+        type: "number"
+    required:
+      - model_type
+      - r2_mean
+      - rmse_mean
+  composition_only_model:
+    type: "object"
+    properties:
+      model_type:
+        type: "string"
+        const: "composition_only"
+      r2_mean:
+        type: "number"
+      rmse_mean:
+        type: "number"
+      r2_std:
+        type: "number"
+      rmse_std:
+        type: "number"
+    required:
+      - model_type
+      - r2_mean
+      - rmse_mean
   statistical_test:
     type: "object"
     properties:
-      test_name:
+      method:
         type: "string"
-        const: "CorrectedResampledTTest"
+        description: "e.g., 'Permutation Test', 'Bootstrap 95% CI'"
+      ci_lower:
+        type: "number"
+      ci_upper:
+        type: "number"
       p_value:
         type: "number"
-      significant:
-        type: "boolean"
-      iterations:
-        type: "integer"
-        description: "Number of permutation iterations (e.g., 10000)."
+        nullable: true
+      sensitivity_analysis:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            cutoff:
+              type: "number"
+            is_significant:
+              type: "boolean"
+          required:
+            - cutoff
+            - is_significant
     required:
-      - test_name
-      - p_value
-      - significant
-      - iterations
-  feature_importance:
+      - method
+      - ci_lower
+      - ci_upper
+  shap_top_features:
     type: "array"
+    description: "Top 5 features by mean absolute SHAP value"
     items:
       type: "object"
       properties:
@@ -54,16 +78,39 @@ properties:
           type: "string"
         mean_abs_shap:
           type: "number"
-        shap_sign:
+        direction:
           type: "string"
-          enum:
-            - "Positive"
-            - "Negative"
+          description: "e.g., 'positive correlation', '+value'"
       required:
         - feature_name
         - mean_abs_shap
-        - shap_sign
+        - direction
+  physics_consistency_check:
+    type: "object"
+    properties:
+      passed:
+        type: "boolean"
+      r2_synthetic:
+        type: "number"
+      threshold:
+        type: "number"
+        const: 0.8
+      signal_detected:
+        type: "boolean"
+        description: "True if Thermodynamic model significantly outperforms Composition-Only"
+      mdes:
+        type: "number"
+        description: "Minimum Detectable Effect Size for the given N"
+    required:
+      - passed
+      - r2_synthetic
+      - threshold
+      - signal_detected
+      - mdes
 required:
-  - model_comparison
+  - thermodynamic_model
+  - composition_only_model
   - statistical_test
-  - feature_importance
+  - shap_top_features
+  - physics_consistency_check
+additionalProperties: false

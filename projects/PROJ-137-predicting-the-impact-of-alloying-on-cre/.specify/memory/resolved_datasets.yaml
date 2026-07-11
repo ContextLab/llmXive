@@ -1,4 +1,4 @@
-resolved_at: '2026-07-09T05:28:34.504406+00:00'
+resolved_at: '2026-07-11T03:08:27.193920+00:00'
 datasets:
 - intent: NIMS
   status: verified
@@ -29,7 +29,7 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/678ca1fd70768ae96e381259/3e2a71feb1fd6b13655316875917ae4a2dae711e94152c21a3a599f4998b46ab?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.jsonl%3B+filename%3D%22train.jsonl%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783578394&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc4Y2ExZmQ3MDc2OGFlOTZlMzgxMjU5LzNlMmE3MWZlYjFmZDZiMTM2NTUzMTY4NzU5MTdhZTRhMmRhZTcxMWU5NDE1MmMyMWEzYTU5OWY0OTk4YjQ2YWJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4uanNvbmwlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi5qc29ubCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNTc4Mzk0fX19XX0_&Signature=MEUCIFi5mQHXoB6KwBWWHzqOPYsrwrB8oATv5lSX7awo6sA8AiEA3TPs9IbRdDpN2FAvDeNUXMCn8THink2zG28~NdIQV98_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/678ca1fd70768ae96e381259/3e2a71feb1fd6b13655316875917ae4a2dae711e94152c21a3a599f4998b46ab?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.jsonl%3B+filename%3D%22train.jsonl%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783742630&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc4Y2ExZmQ3MDc2OGFlOTZlMzgxMjU5LzNlMmE3MWZlYjFmZDZiMTM2NTUzMTY4NzU5MTdhZTRhMmRhZTcxMWU5NDE1MmMyMWEzYTU5OWY0OTk4YjQ2YWJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4uanNvbmwlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi5qc29ubCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzQyNjMwfX19XX0_&Signature=MEQCIFz82xLHSS7Bb5VVY77mGOJnv9tx1cs9xn9Do1NQQi8MAiBBpP8ZDYGcYqn1gkgfP8qYuSKCuUsF2mVClPsNCwUIOg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -41,23 +41,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Analisis_Komparatif_Algoritma_Decision_Tree_dan_Random_Forest_dalam_Prediksi_Kesesuaian_Lahan_Pertanian_Berbasis_Machine_Learning_/32944688
+  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Why_pharmacogenomic_biomarkers_for_chemotherapy-induced_peripheral_neuropathy_fail_a_systematic_review_of_genetic_associations_replication_and_clinical_translation_zip/32944793
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962505
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Suppressing_Portevin-Le_Chatelier_effect_and_enhancing_mechanical_properties_in_nanoparticles-modified_high-Mg_aluminum_crossover_alloy/32944744
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Hybrid_quantum-inspired_robot_localization_in_indoor_environments/32944783
+  - url: https://figshare.com/articles/dataset/Dominican_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962493
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Leveraging_existing_high-throughput_HIV_platforms_for_molecular_i_Mycobacterium_tuberculosis_i_testing_in_Busia_Kenya_Cost_and_operational_insights/32944780
+  - url: https://figshare.com/articles/journal_contribution/Komparasi_Support_Vector_Machine_dan_Gradient_Boosting_untuk_Prediksi_Penyakit_Kardiovaskular/32962472
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -85,6 +85,10 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/NIMS_polymer_database_PoLyInfo_III_modularizing_ShEx_schemas_for_descriptors_and_properties_in_PoLyInfoRDF/30104840
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://tandf.figshare.com/articles/dataset/Seamless_integration_of_legacy_robotic_systems_into_a_self-driving_laboratory_via_NIMO_a_case_study_on_liquid_handler_automation/30196478/1
     source: datacite
     status: wrong_format
@@ -97,8 +101,396 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/NIMS_polymer_database_PoLyInfo_III_modularizing_ShEx_schemas_for_descriptors_and_properties_in_PoLyInfoRDF/30104840
+- intent: EXCLUDED
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/vvtq/train_100_pose_excluded/resolve/main/data/train-00000-of-00001-d6a261ea28c68383.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kewu93/three_styles_prompted_all_512x512_excluded_training/resolve/main/data/train-00000-of-00001-179b0354efc85583.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/DopeorNope/excluded_valid/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vvtq/train_100_pose_excluded/resolve/main/data/train-00000-of-00001-d6a261ea28c68383.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kewu93/three_styles_prompted_all_512x512_excluded_training/resolve/main/data/train-00000-of-00001-179b0354efc85583.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DopeorNope/excluded_valid/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/abehandlerorg/excluded-docs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/abehandlerorg/cptllama_excluded/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dominican_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Komparasi_Support_Vector_Machine_dan_Gradient_Boosting_untuk_Prediksi_Penyakit_Kardiovaskular/32962472
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16899028
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18803220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.biodiversitylibrary.org/part/381693
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.biodiversitylibrary.org/part/411191
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.biodiversitylibrary.org/part/411255
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://ualberta.scholaris.ca/handle/123456789/2265
     source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304100
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304100
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304059
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304059
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BOTH
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MichaelJH/Ryu-AI_both-translated_untokenized.datadict/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lhallee/cds_both_balanced_512/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tyzhu/both_raw/resolve/main/data/test-00000-of-00001-d0a8815bccf33c92.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 34752
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MichaelJH/Ryu-AI_both-translated_untokenized.datadict/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lhallee/cds_both_balanced_512/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/tyzhu/both_raw/resolve/main/data/test-00000-of-00001-d0a8815bccf33c92.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ImperialIndians23/nlp_cw_data_unprocessed_augmented_both/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Milanmg/changed_both/resolve/main/changed_both.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dominican_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Komparasi_Support_Vector_Machine_dan_Gradient_Boosting_untuk_Prediksi_Penyakit_Kardiovaskular/32962472
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13640045
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13640060
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13640037
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13640103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13640041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_84093
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ualberta.scholaris.ca/handle/123456789/105254
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ualberta.scholaris.ca/handle/123456789/105012
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ualberta.scholaris.ca/handle/123456789/14873
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ualberta.scholaris.ca/handle/123456789/14864
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VII
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tmnam20/vi_instruct/resolve/main/data/bactrian-x/train.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ttrung1402/UIT-ViIC/resolve/main/data/annotations.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ThucPD/UIT-ViIC/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 53363
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/tmnam20/vi_instruct/resolve/main/data/bactrian-x/train.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ttrung1402/UIT-ViIC/resolve/main/data/annotations.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/CATI-AI/vi-instruct/resolve/main/data/train_sft-00000-of-00001-6ba442c270483301.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ThucPD/UIT-ViIC/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dominican_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Komparasi_Support_Vector_Machine_dan_Gradient_Boosting_untuk_Prediksi_Penyakit_Kardiovaskular/32962472
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.e-palli.com/home/index.php/ajmri/article/view/1299
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1300447
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6511281
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2646503
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2646529
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21227596
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304068
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297734
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297734
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21296582
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  - url: https://huggingface.co/datasets/Type-1-Civilisation/Liber-Primus-Not-Decoded/resolve/main/liber_primus_undecoded_pseudolatin_lower.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 38904
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Type-1-Civilisation/Liber-Primus-Not-Decoded/resolve/main/liber_primus_undecoded_pseudolatin_lower.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Anchor_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dominican_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5105584
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15779328
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: CPU-only
@@ -116,39 +508,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Emergence_of_ST1076_as_a_dominant_high-risk_clone_carrying_blaKPC_2_in_carbapenem-resistant_Pseudomonas_aeruginosa_from_Deqing_Zhejiang_China_a_5-year_genomic_epidemiology_study_xlsx/32944832
+  - url: https://figshare.com/articles/dataset/Anchor_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962499
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_2_Emergence_of_ST1076_as_a_dominant_high-risk_clone_carrying_blaKPC_2_in_carbapenem-resistant_Pseudomonas_aeruginosa_from_Deqing_Zhejiang_China_a_5-year_genomic_epidemiology_study_tif/32944826
+  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Emergence_of_ST1076_as_a_dominant_high-risk_clone_carrying_blaKPC_2_in_carbapenem-resistant_Pseudomonas_aeruginosa_from_Deqing_Zhejiang_China_a_5-year_genomic_epidemiology_study_tif/32944829
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962505
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Emergence_of_ST1076_as_a_dominant_high-risk_clone_carrying_blaKPC_2_in_carbapenem-resistant_Pseudomonas_aeruginosa_from_Deqing_Zhejiang_China_a_5-year_genomic_epidemiology_study_docx/32944811
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Physical_activity_mental-health_symptoms_sleep_quality_and_health-related_quality_of_life_among_physical_education_teacher_education_students_a_cross-sectional_study_docx/32944808
+  - url: https://figshare.com/articles/dataset/Dominican_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962493
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://beei.org/index.php/EEI/article/view/1972
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+  - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -156,23 +540,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21272372
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20759590
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298690
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21272372
+  - url: https://zenodo.org/records/21298690
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21271670
+  - url: https://zenodo.org/records/20300649
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21271670
+  - url: https://zenodo.org/records/20300649
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21271474
+  - url: https://zenodo.org/records/21300217
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -196,23 +588,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://frontiersin.figshare.com/articles/figure/Image_3_The_associations_of_the_triglyceride_glucose_index_and_estimated_glucose_disposal_rate_with_incident_cardiometabolic_multimorbidity_vary_across_obesity_phenotypes_a_longitudinal_cohort_study_jpeg/32944859
+  - url: https://figshare.com/articles/dataset/Kola_Daisi_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962523
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_5_The_associations_of_the_triglyceride_glucose_index_and_estimated_glucose_disposal_rate_with_incident_cardiometabolic_multimorbidity_vary_across_obesity_phenotypes_a_longitudinal_cohort_study_jpeg/32944844
+  - url: https://figshare.com/articles/dataset/Anchor_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962499
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_4_The_associations_of_the_triglyceride_glucose_index_and_estimated_glucose_disposal_rate_with_incident_cardiometabolic_multimorbidity_vary_across_obesity_phenotypes_a_longitudinal_cohort_study_jpeg/32944853
+  - url: https://acs.figshare.com/articles/journal_contribution/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Metabolic_reprogramming_networks_in_the_gastric_cancer_tumor_microenvironment_an_integrated_axis_of_nutrient_competition_metabolic_crosstalk_and_immunosuppression_docx/32944850
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962505
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Smartphone-measured_tremor_and_tacrolimus_trough_levels_in_kidney_transplant_recipients_an_exploratory_prospective_study_pdf/32944835
+  - url: https://acs.figshare.com/articles/dataset/Molecular_Dipole_Optimized_Hybrid_Metal_Halide_for_Piezoelectric_Ultrasound_Monitoring_of_Aquatic_Organisms/32962502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -232,30 +624,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: http://www.techno-press.org/content/?page=article&journal=sss&volume=29&num=1&ordernum=21
+  - url: https://zenodo.org/records/18102223
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21272790
+  - url: https://ieee-dataport.org/documents/steel-manufacturing-resource-service-sequence-dataset-and-dependency-rule-set
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21272790
+  - url: https://publica.fraunhofer.de/entities/publication/48918e00-1cb5-4605-96de-668c5aaf8927
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.17615/n5xc-d836
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
-      port=443): Max retries exceeded with url: /concern/articles/ms35ts36g (Caused
-      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
-      at 0x7f1f2df8ee90>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
-  - url: https://springernature.figshare.com/collections/One_year_quality_of_life_outcomes_in_critically_ill_children_a_multicenter_prospective_cohort_study/8583832
+  - url: https://depositonce.tu-berlin.de/handle/11303/27370
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/collections/One_year_quality_of_life_outcomes_in_critically_ill_children_a_multicenter_prospective_cohort_study/8583832/1
+  - url: https://zenodo.org/records/21302199
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302199
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
