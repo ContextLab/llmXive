@@ -41,9 +41,9 @@
 - [ ] T006 [US1] Setup logging infrastructure for experiment.log with participant IDs, condition assignments, seeds (code/logs/experiment.py) - FR-012 infrastructure layer - DEPENDS ON T004
 - [ ] T007 Create base models/entities matching data-model.md (code/data/models.py)
 - [ ] T008 Setup SQLite database schema for Participant, Session, Problem, Submission, Metric entities (code/data/db_schema.py)
-- [ ] T009 [P] Verify HumanEval dataset URL and download script with commit hash/API snapshot capture (code/data/download_humaneval.py)
-- [ ] T010 [P] Verify Codeforces dataset URL and download script with commit hash/API snapshot capture (code/data/download_codeforces.py)
-- [ ] T011a [P] Research and document alternative Java code generation model if JaCoText unavailable (code/research/java_model_alternatives.md) - deliverable: list of multiple alternatives with CPU-tractability assessment, verified sources
+- [X] T009 [P] Verify HumanEval dataset URL and download script with commit hash/API snapshot capture (code/data/download_humaneval.py)
+- [~] T010 [P] Verify Codeforces dataset URL and download script with commit hash/API snapshot capture (code/data/download_codeforces.py)
+- [~] T011a [P] Research and document alternative Java code generation model if JaCoText unavailable (code/research/java_model_alternatives.md) - deliverable: list of multiple alternatives with CPU-tractability assessment, verified sources
 - [ ] T011b [P] Verify JaCoText model size ≤1GB and CPU-tractability if used; document verification process (code/models/jacotext_cpu.py) - deliverable: model size verification, CPU inference test, performance metrics
 - [ ] T011c [P] Run Reference-Validator Agent on JaCoText citation per Constitution II; record verification status in research.md (code/research/reference_validation.md) - deliverable: verified/mismatch/unreachable status with citation details
 - [ ] T012 Verify StarCoder model size ≤1GB and CPU-tractable; implement CPU-only inference wrapper (code/models/starcoder_cpu.py)

@@ -1,3 +1,10 @@
-T001b Create `data/raw/.gitkeep`, `data/processed/.gitkeep`, and `data/interim/.gitkeep`: 1
-T001c Create `tests/unit/.gitkeep` and `tests/contract/.gitkeep`: 1
-T003 [P] Configure linting (flake8) and formatting (black) tools in `code/`: 1
+T001c Create `tests/unit/.gitkeep` and `tests/contract/.gitkeep`: 2
+T003 [P] Configure linting (flake8) and formatting (black) tools in `code/`: 2
+? 'T005 [P] Create schema definitions in `specs/001-physical-activity-mood-variability/contracts/`:
+  `daily_aggregates.schema.yaml` and `model_results.schema.yaml`'
+: 1
+T006 [P] Create base test utilities in `tests/conftest.py` for schema validation and fixture data: 1
+? T007 Implement `code/ingest.py` to download StudentLife dataset from OSF DOI `/...`
+  (specific DOI string from config), verify cryptographic checksum, and convert to
+  `data/raw/bronze.parquet`
+: 1

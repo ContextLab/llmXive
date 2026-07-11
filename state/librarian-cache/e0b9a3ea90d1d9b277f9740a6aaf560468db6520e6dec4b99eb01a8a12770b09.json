@@ -1,0 +1,647 @@
+{
+  "fetched_at": "2026-07-11T01:28:15Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agentic Spatial Reasoning\"",
+      "target_n": 5
+    },
+    "duration_seconds": 66.98,
+    "ended_at": "2026-07-11T01:28:15Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "agentic spatial reasoning frameworks"
+        ],
+        [
+          2,
+          "robotic action interface design for LLMs"
+        ],
+        [
+          3,
+          "spatial reasoning in embodied AI agents"
+        ],
+        [
+          4,
+          "LLM-driven robotic manipulation interfaces"
+        ],
+        [
+          5,
+          "action space optimization for agentic systems"
+        ],
+        [
+          6,
+          "embodied language models for spatial tasks"
+        ],
+        [
+          7,
+          "hierarchical action planning for spatial reasoning"
+        ],
+        [
+          8,
+          "multimodal grounding for robotic action generation"
+        ],
+        [
+          9,
+          "LLM-based control policies for spatial navigation"
+        ],
+        [
+          10,
+          "semantic action interfaces for autonomous agents"
+        ],
+        [
+          11,
+          "spatial understanding in large language models"
+        ],
+        [
+          12,
+          "task-oriented spatial reasoning with AI agents"
+        ],
+        [
+          13,
+          "adaptive action representations for embodied intelligence"
+        ],
+        [
+          14,
+          "integrating vision-language models with robotic control"
+        ],
+        [
+          15,
+          "natural language to action translation in robotics"
+        ],
+        [
+          16,
+          "cognitive architectures for agentic spatial problem solving"
+        ],
+        [
+          17,
+          "zero-shot spatial reasoning in embodied agents"
+        ],
+        [
+          18,
+          "action primitive learning for LLM-based robots"
+        ],
+        [
+          19,
+          "spatially-aware prompt engineering for robotics"
+        ],
+        [
+          20,
+          "human-robot interaction interfaces for spatial tasks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "agentic spatial reasoning frameworks": 4,
+        "llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agentic Spatial Reasoning\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "embodied agent navigation interface action space",
+      "SpatialClaw benchmark agentic reasoning manipulation",
+      "visuomotor policy robot control action embedding",
+      "embodied AI benchmark spatial understanding evaluation",
+      "action interface design grounded language reasoning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2311.12871"
+      ]
+    },
+    "per_query_hit_count": {
+      "SpatialClaw benchmark agentic reasoning manipulation": 3,
+      "action interface design grounded language reasoning": 1,
+      "embodied AI benchmark spatial understanding evaluation": 3,
+      "embodied agent navigation interface action space": 3,
+      "llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agentic Spatial Reasoning\" computer science": 3,
+      "visuomotor policy robot control action embedding": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T01:27:08Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"spatialclaw: rethinking action interface for agentic spatial reasoning\" computer science",
+      "raw": "llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agentic Spatial Reasoning\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-11T01:27:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-11T01:27:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-11T01:27:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reaction RuleML is a general, practical, compact and user-friendly XML-serialized language for the family of reaction rules. In this white paper we give a review of the history of event / action /state processing and reaction rule approaches and systems in different domains, define basic concepts and give a classification of the event, action, state processing and reasoning space as well as a discussion of relevant / related work",
+          "claimed_authors": [
+            "Adrian Paschke"
+          ],
+          "claimed_title": "The Reaction RuleML Classification of the Event / Action / State Processing and Reasoning Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cs/0611047"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='The Reaction RuleML Classification of the Event / Action / State Processing and Reasoning Space')",
+        "failed_at": "2026-07-11T01:27:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In various applications of land vehicle navigation and automatic guidance systems, Global Navigation Satellite System/Inertial Measurement Unit (GNSS/IMU) positioning performance crucially depends on the attitude determination accuracy affected by gyro and accelerometer bias instabilities. Traditional bias estimation approaches based on the Kalman filter suffer from implementation complexity and require non-intuitive tuning procedures. In this paper we propose, as an alternative, a simple observer that estimates inertial sensor biases exclusively in terms of quantities with obvious geometrical meaning. By this, any multidimensional vector-matrix operations are avoided and observer tuning is substantially simplified. The observer has been successfully tested in a farming vehicle navigation system.",
+          "claimed_authors": [
+            "Vasiliy M. Tereshkov"
+          ],
+          "claimed_title": "A Simple Observer for Gyro and Accelerometer Biases in Land Navigation Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.06618"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='A Simple Observer for Gyro and Accelerometer Biases in Land Navigation Systems')",
+        "failed_at": "2026-07-11T01:27:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-11T01:27:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we explore using self-supervised correspondence for improving the generalization performance and sample efficiency of visuomotor policy learning. Prior work has primarily used approaches such as autoencoding, pose-based losses, and end-to-end policy optimization in order to train the visual portion of visuomotor policies. We instead propose an approach using self-supervised dense visual correspondence training, and show this enables visuomotor policy learning with surprisingly high generalization performance with modest amounts of data: using imitation learning, we demonstrate extensive hardware validation on challenging manipulation tasks with as few as 50 demonstrations. Our learned policies can generalize across classes of objects, react to deformable object configurations, and manipulate textureless symmetrical objects in a variety of backgrounds, all with closed-loop, real-time vision-based policies. Simulated imitation learning experiments suggest that correspondence training offers sample complexity and generalization benefits compared to autoencoding and end-to-end training.",
+          "claimed_authors": [
+            "Peter Florence",
+            "Lucas Manuelli",
+            "Russ Tedrake"
+          ],
+          "claimed_title": "Self-Supervised Correspondence in Visuomotor Policy Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.06933"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Self-Supervised Correspondence in Visuomotor Policy Learning')",
+        "failed_at": "2026-07-11T01:27:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we investigate the adaptive control problem for robot manipulators with both the uncertain kinematics and dynamics. We propose two adaptive control schemes to realize the objective of task-space trajectory tracking irrespective of the uncertain kinematics and dynamics. The proposed controllers have the desirable separation property, and we also show that the first adaptive controller with appropriate modifications can yield improved performance, without the expense of conservative gain choice. The performance of the proposed controllers is shown by numerical simulations.",
+          "claimed_authors": [
+            "Hanlei Wang"
+          ],
+          "claimed_title": "Adaptive Control of Robot Manipulators With Uncertain Kinematics and Dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1403.5204"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Adaptive Control of Robot Manipulators With Uncertain Kinematics and Dynamics')",
+        "failed_at": "2026-07-11T01:27:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces Diffusion Policy, a new way of generating robot behavior by representing a robot's visuomotor policy as a conditional denoising diffusion process. We benchmark Diffusion Policy across 12 different tasks from 4 different robot manipulation benchmarks and find that it consistently outperforms existing state-of-the-art robot learning methods with an average improvement of 46.9%. Diffusion Policy learns the gradient of the action-distribution score function and iteratively optimizes with respect to this gradient field during inference via a series of stochastic Langevin dynamics steps. We find that the diffusion formulation yields powerful advantages when used for robot policies, including gracefully handling multimodal action distributions, being suitable for high-dimensional action spaces, and exhibiting impressive training stability. To fully unlock the potential of diffusion models for visuomotor policy learning on physical robots, this paper presents a set of key technical contributions including the incorporation of receding horizon control, visual conditioning, and the time-series diffusion transformer. We hope this work will help motivate a new generation of policy learning techniques that are able to leverage the powerful generative modeling capabilities of diffusion models. Code, data, and training details is publicly available diffusion-policy.cs.columbia.edu",
+          "claimed_authors": [
+            "Cheng Chi",
+            "Zhenjia Xu",
+            "Siyuan Feng",
+            "Eric Cousineau",
+            "Yilun Du",
+            "Benjamin Burchfiel",
+            "Russ Tedrake",
+            "Shuran Song"
+          ],
+          "claimed_title": "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.04137"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Diffusion Policy: Visuomotor Policy Learning via Action Diffusion')",
+        "failed_at": "2026-07-11T01:27:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied Artificial Intelligence (Embodied AI) is crucial for achieving Artificial General Intelligence (AGI) and serves as a foundation for various applications (e.g., intelligent mechatronics systems, smart manufacturing) that bridge cyberspace and the physical world. Recently, the emergence of Multi-modal Large Models (MLMs) and World Models (WMs) have attracted significant attention due to their remarkable perception, interaction, and reasoning capabilities, making them a promising architecture for embodied agents. In this survey, we give a comprehensive exploration of the latest advancements in Embodied AI. Our analysis firstly navigates through the forefront of representative works of embodied robots and simulators, to fully understand the research focuses and their limitations. Then, we analyze four main research targets: 1) embodied perception, 2) embodied interaction, 3) embodied agent, and 4) sim-to-real adaptation, covering state-of-the-art methods, essential paradigms, and comprehensive datasets. Additionally, we explore the complexities of MLMs in virtual and real embodied agents, highlighting their significance in facilitating interactions in digital and physical environments. Finally, we summarize the challenges and limitations of embodied AI and discuss potential future directions. We hope this survey will serve as a foundational reference for the research community. The associated project can be found at https://github.com/HCPLab-SYSU/Embodied_AI_Paper_List.",
+          "claimed_authors": [
+            "Yang Liu",
+            "Weixing Chen",
+            "Yongjie Bai",
+            "Xiaodan Liang",
+            "Guanbin Li",
+            "Wen Gao",
+            "Liang Lin"
+          ],
+          "claimed_title": "Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.06886"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI')",
+        "failed_at": "2026-07-11T01:27:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied AI development significantly lags behind large foundation models due to three critical challenges: (1) lack of systematic understanding of core capabilities needed for Embodied AI, making research lack clear objectives; (2) absence of unified and standardized evaluation systems, rendering cross-benchmark evaluation infeasible; and (3) underdeveloped automated and scalable acquisition methods for embodied data, creating critical bottlenecks for model scaling. To address these obstacles, we present Embodied Arena, a comprehensive, unified, and evolving evaluation platform for Embodied AI. Our platform establishes a systematic embodied capability taxonomy spanning three levels (perception, reasoning, task execution), seven core capabilities, and 25 fine-grained dimensions, enabling unified evaluation with systematic research objectives. We introduce a standardized evaluation system built upon unified infrastructure supporting flexible integration of 22 diverse benchmarks across three domains (2D/3D Embodied Q&A, Navigation, Task Planning) and 30+ advanced models from 20+ worldwide institutes. Additionally, we develop a novel LLM-driven automated generation pipeline ensuring scalable embodied evaluation data with continuous evolution for diversity and comprehensiveness. Embodied Arena publishes three real-time leaderboards (Embodied Q&A, Navigation, Task Planning) with dual perspectives (benchmark view and capability view), providing comprehensive overviews of advanced model capabilities. Especially, we present nine findings summarized from the evaluation results on the leaderboards of Embodied Arena. This helps to establish clear research veins and pinpoint critical research problems, thereby driving forward progress in the field of Embodied AI.",
+          "claimed_authors": [
+            "Fei Ni",
+            "Min Zhang",
+            "Pengyi Li",
+            "Yifu Yuan",
+            "Lingfeng Zhang",
+            "Yuecheng Liu",
+            "Peilong Han",
+            "Longxin Kou",
+            "Shaojin Ma",
+            "Jinbin Qiao",
+            "David Gamaliel Arcos Bravo",
+            "Yuening Wang",
+            "Xiao Hu",
+            "Zhanguang Zhang",
+            "Xianze Yao",
+            "Yutong Li",
+            "Zhao Zhang",
+            "Ying Wen",
+            "Ying-Cong Chen",
+            "Xiaodan Liang",
+            "Liang Lin",
+            "Bin He",
+            "Haitham Bou-Ammar",
+            "He Wang",
+            "Huazhe Xu",
+            "Jiankang Deng",
+            "Shan Luo",
+            "Shuqiang Jiang",
+            "Wei Pan",
+            "Yang Gao",
+            "Stefanos Zafeiriou",
+            "Jan Peters",
+            "Yuzheng Zhuang",
+            "Yingxue Zhang",
+            "Yan Zheng",
+            "Hongyao Tang",
+            "Jianye Hao"
+          ],
+          "claimed_title": "Embodied Arena: A Comprehensive, Unified, and Evolving Evaluation Platform for Embodied AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.15273"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Embodied Arena: A Comprehensive, Unified, and Evolving Evaluation Platform for Embodied AI')",
+        "failed_at": "2026-07-11T01:27:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied scene understanding requires not only comprehending visual-spatial information that has been observed but also determining where to explore next in the 3D physical world. Existing 3D Vision-Language (3D-VL) models primarily focus on grounding objects in static observations from 3D reconstruction, such as meshes and point clouds, but lack the ability to actively perceive and explore their environment. To address this limitation, we introduce \\underline{\\textbf{M}}ove \\underline{\\textbf{t}}o \\underline{\\textbf{U}}nderstand (\\textbf{\\model}), a unified framework that integrates active perception with \\underline{\\textbf{3D}} vision-language learning, enabling embodied agents to effectively explore and understand their environment. This is achieved by three key innovations: 1) Online query-based representation learning, enabling direct spatial memory construction from RGB-D frames, eliminating the need for explicit 3D reconstruction. 2) A unified objective for grounding and exploring, which represents unexplored locations as frontier queries and jointly optimizes object grounding and frontier selection. 3) End-to-end trajectory learning that combines \\textbf{V}ision-\\textbf{L}anguage-\\textbf{E}xploration pre-training over a million diverse trajectories collected from both simulated and real-world RGB-D sequences. Extensive evaluations across various embodied navigation and question-answering benchmarks show that MTU3D outperforms state-of-the-art reinforcement learning and modular navigation approaches by 14\\%, 23\\%, 9\\%, and 2\\% in success rate on HM3D-OVON, GOAT-Bench, SG3D, and A-EQA, respectively. \\model's versatility enables navigation using diverse input modalities, including categories, language descriptions, and reference images. These findings highlight the importance of bridging visual grounding and exploration for embodied intelligence.",
+          "claimed_authors": [
+            "Ziyu Zhu",
+            "Xilin Wang",
+            "Yixuan Li",
+            "Zhuofan Zhang",
+            "Xiaojian Ma",
+            "Yixin Chen",
+            "Baoxiong Jia",
+            "Wei Liang",
+            "Qian Yu",
+            "Zhidong Deng",
+            "Siyuan Huang",
+            "Qing Li"
+          ],
+          "claimed_title": "Move to Understand a 3D Scene: Bridging Visual Grounding and Exploration for Efficient and Versatile Embodied Navigation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.04047"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='Move to Understand a 3D Scene: Bridging Visual Grounding and Exploration for Efficient and Versatile Embodied Navigation')",
+        "failed_at": "2026-07-11T01:27:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Reasoning Language Models (LRLMs or LRMs) demonstrate remarkable capabilities in complex reasoning tasks, but suffer from significant computational inefficiencies due to overthinking phenomena. Existing efficient reasoning methods face the challenge of balancing reasoning quality with inference cost reduction. We propose \\textbf{Adaptive Reasoning Suppression (ARS)}, a novel training-free approach that dynamically suppresses redundant reasoning steps while preserving accuracy through adaptive certainty monitoring. ARS introduces a multi-checkpoint certainty estimation mechanism with progressive suppression thresholds, achieving superior efficiency compared to static suppression methods. Our extensive evaluation across mathematical reasoning benchmarks using multiple model architectures demonstrates that ARS achieves up to 53%, 46.1%, and 57.9% in token, latency and energy reduction, while maintaining or improving accuracy.",
+          "claimed_authors": [
+            "Dongqi Zheng"
+          ],
+          "claimed_title": "ARS: Adaptive Reasoning Suppression for Efficient Large Reasoning Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.00071"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SpatialClaw: Rethinking Action Interface for Agent', candidate_title='ARS: Adaptive Reasoning Suppression for Efficient Large Reasoning Language Models')",
+        "failed_at": "2026-07-11T01:27:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiangyong Huang",
+            "Silong Yong",
+            "Xiaojian Ma",
+            "Xiongkun Linghu",
+            "Puhao Li",
+            "Yan Wang",
+            "Qing Li",
+            "Song-Chun Zhu",
+            "Baoxiong Jia",
+            "Siyuan Huang"
+          ],
+          "title": "An Embodied Generalist Agent in 3D World",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2311.12871",
+        "summary": "Leveraging massive knowledge from large language models (LLMs), recent machine learning models show notable successes in general-purpose task solving in diverse domains such as computer vision and robotics. However, several significant challenges remain: (i) most of these models rely on 2D images yet exhibit a limited capacity for 3D input; (ii) these models rarely explore the tasks inherently defined in 3D world, e.g., 3D grounding, embodied reasoning and acting. We argue these limitations significantly hinder current models from performing real-world tasks and approaching general intelligence. To this end, we introduce LEO, an embodied multi-modal generalist agent that excels in perceiving, grounding, reasoning, planning, and acting in the 3D world. LEO is trained with a unified task interface, model architecture, and objective in two stages: (i) 3D vision-language (VL) alignment and (ii) 3D vision-language-action (VLA) instruction tuning. We collect large-scale datasets comprising diverse object-level and scene-level tasks, which require considerable understanding of and interaction with the 3D world. Moreover, we meticulously design an LLM-assisted pipeline to produce high-quality 3D VL data. Through extensive experiments, we demonstrate LEO's remarkable proficiency across a wide spectrum of tasks, including 3D captioning, question answering, embodied reasoning, navigation and manipulation. Our ablative studies and scaling analyses further provide valuable insights for developing future embodied generalist agents. Code and data are available on project page.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2311.12871",
+          "http_status": 200,
+          "pdf_sample_score": 0.2998,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T01:27:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tianxin Wei",
+            "Ting-Wei Li",
+            "Zhining Liu",
+            "Xuying Ning",
+            "Ze Yang",
+            "Jiaru Zou",
+            "Zhichen Zeng",
+            "Ruizhong Qiu",
+            "Xiao Lin",
+            "Dongqi Fu",
+            "Zihao Li",
+            "Mengting Ai",
+            "Duo Zhou",
+            "Wenxuan Bao",
+            "Yunzhe Li",
+            "Gaotang Li",
+            "Cheng Qian",
+            "Yu Wang",
+            "Xiangru Tang",
+            "Yin Xiao",
+            "Liri Fang",
+            "Hui Liu",
+            "Xianfeng Tang",
+            "Yuji Zhang",
+            "Chi Wang",
+            "Jiaxuan You",
+            "Heng Ji",
+            "Hanghang Tong",
+            "Jingrui He"
+          ],
+          "title": "Agentic Reasoning for Large Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.12538",
+        "summary": "Reasoning is a fundamental cognitive process underlying inference, problem-solving, and decision-making. While large language models (LLMs) demonstrate strong reasoning capabilities in closed-world settings, they struggle in open-ended and dynamic environments. Agentic reasoning marks a paradigm shift by reframing LLMs as autonomous agents that plan, act, and learn through continual interaction. In this survey, we organize agentic reasoning along three complementary dimensions. First, we characterize environmental dynamics through three layers: foundational agentic reasoning, which establishes core single-agent capabilities including planning, tool use, and search in stable environments; self-evolving agentic reasoning, which studies how agents refine these capabilities through feedback, memory, and adaptation; and collective multi-agent reasoning, which extends intelligence to collaborative settings involving coordination, knowledge sharing, and shared goals. Across these layers, we distinguish in-context reasoning, which scales test-time interaction through structured orchestration, from post-training reasoning, which optimizes behaviors via reinforcement learning and supervised fine-tuning. We further review representative agentic reasoning frameworks across real-world applications and benchmarks, including science, robotics, healthcare, autonomous research, and mathematics. This survey synthesizes agentic reasoning methods into a unified roadmap bridging thought and action, and outlines open challenges and future directions, including personalization, long-horizon interaction, world modeling, scalable multi-agent training, and governance for real-world deployment.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.12538",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T01:27:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Seokju Cho",
+            "Ryo Hachiuma",
+            "Abhishek Badki",
+            "Hang Su",
+            "Byung-Kwan Lee",
+            "Chan Hee Song",
+            "Sifei Liu",
+            "Subhashree Radhakrishnan",
+            "Seungryong Kim",
+            "Yu-Chiang Frank Wang",
+            "Min-Hung Chen"
+          ],
+          "title": "SpatialClaw: Rethinking Action Interface for Agentic Spatial Reasoning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.13673",
+        "summary": "Spatial reasoning, the ability to determine where objects are, how they relate, and how they move in 3D, remains a fundamental challenge for vision-language models (VLMs). Tool-augmented agents attempt to address this by augmenting VLMs with specialist perception modules, yet their effectiveness is bounded by the action interface through which those tools are invoked. In this work, we study how the design of this interface shapes the agent's capacity for open-ended spatial reasoning. Existing spatial agents either employ single-pass code execution, which commits to a full analysis strategy before any intermediate result is observed, or rely on a structured tool-call interface that often offers less flexibility for freely composing operations or tailoring the analysis to each task. Both designs offer limited flexibility for open-ended, complex 3D/4D spatial reasoning. We therefore propose SpatialClaw, a training-free framework for spatial reasoning that adopts code as the action interface. SpatialClaw maintains a stateful Python kernel pre-loaded with input frames and a suite of perception and geometry primitives, letting a VLM-backed agent write one executable cell per step conditioned on all prior outputs, enabling the agent to flexibly compose and manipulate perception results and adapt its analysis to both intermediate text and visual observations and the demands of each problem. Evaluated across 20 spatial reasoning benchmarks spanning a broad range of static and dynamic 3D/4D spatial reasoning tasks, SpatialClaw achieves 59.9% average accuracy, outperforming the recent spatial agent by +11.2 points, with consistent gains across six VLM backbones from two model families without any benchmark- or model-specific adaptation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.13673",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5833,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T01:27:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Souradip Poddar",
+            "Chia-Tung Ho",
+            "Ziming Wei",
+            "Weidong Cao",
+            "Haoxing Ren",
+            "David Z. Pan"
+          ],
+          "title": "HeaRT: A Hierarchical Circuit Reasoning Tree-Based Agentic Framework for AMS Design Optimization",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.19669",
+        "summary": "Conventional AI-driven AMS design automation algorithms remain constrained by their reliance on high-quality datasets to capture underlying circuit behavior, coupled with poor transferability across architectures, and a lack of adaptive mechanisms. This work proposes HeaRT, a hierarchical circuit reasoning-based agentic framework for automation loops and a step toward adaptive, human-style design optimization. HeaRT consistently improves F1(subcircuits) by >= 13.5% and F1(loops) by >= 37.8% over few-shot prompting baselines across multiple LLM backbones on our 40-circuit AMS benchmark of flattened SPICE netlists, even as circuit complexity increases. Our experiments further show that HeaRT achieves >= 3x faster convergence in incremental design adaptation tasks under specification shifts across diverse optimization approaches, supporting both topology reconfiguration and sizing.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.19669",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T01:27:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiaru Zou",
+            "Ling Yang",
+            "Yunzhe Qi",
+            "Sirui Chen",
+            "Mengting Ai",
+            "Ke Shen",
+            "Jingrui He",
+            "Mengdi Wang"
+          ],
+          "title": "AutoTool: Dynamic Tool Selection and Integration for Agentic Reasoning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.13278",
+        "summary": "Agentic reinforcement learning has advanced large language models (LLMs) to reason through long chain-of-thought trajectories while interleaving external tool use. Existing approaches assume a fixed inventory of tools, which limits the adaptability of LLM agents to new or evolving toolsets. We present AutoTool, a training framework that equips LLM agents with dynamic tool-selection capabilities throughout their reasoning trajectories. AutoTool employs a dual-phase optimization pipeline: (i) SFT and RL-based trajectory stabilization for coherent reasoning, and (ii) KL-regularized Plackett-Luce Ranking to refine consistent multi-step tool selection. We further build a 200k dataset with explicit tool-selection rationales across 1,000+ tools and 100+ tasks spanning mathematics, science, code generation, and multimodal reasoning. Across ten diverse benchmarks, we train two base models, Qwen3-8B and Qwen2.5-VL-7B, with AutoTool. With fewer parameters, AutoTool consistently outperforms advanced LLM agents and tool-integration methods, yielding average gains of 6.4% in math & science reasoning, 4.5% in search-based QA, 7.7% in code generation, and 6.9% in multimodal understanding. In addition, AutoTool exhibits stronger generalization by dynamically leveraging unseen tools from evolving toolsets during inference.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.13278",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T01:27:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaoxing Lian",
+            "Aidong Yang",
+            "Jun Zhu",
+            "Peng Wang",
+            "Yue Zhang"
+          ],
+          "title": "Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.13782",
+        "summary": "Large language models (LLMs) and vision language models (VLMs), such as DeepSeek R1,OpenAI o3, and Gemini 2.5 Pro, have demonstrated remarkable reasoning capabilities across logical inference, problem solving, and decision making. However, spatial reasoning:a fundamental component of human cognition that includes mental rotation, navigation, and spatial relationship comprehension remains a significant challenge for current advanced VLMs. We hypothesize that imagination, the internal simulation of spatial states, is the dominant reasoning mechanism within a spatial world model. To test this hypothesis and systematically probe current VLM spatial reasoning mechanisms, we introduce SpatiaLite, a fully synthetic benchmark that jointly measures spatial reasoning accuracy and reasoning efficiency. Comprehensive experiments reveal three key findings. First, advanced VLMs predominantly rely on linguistic representations for reasoning and imagination, resulting in significant deficiencies on visual centric tasks that demand perceptual spatial relations and 3D geometry transformations such as mental rotation or projection prediction. Second, advanced VLMs exhibit severe inefficiency in their current spatial reasoning mechanisms, with token usage growing rapidly as transformation complexity increases. Third, we propose an Imagery Driven Framework (IDF) for data synthesis and training, which can implicitly construct an internal world model that is critical for spatial reasoning in VLMs. Building on SpatiaLite, this work delineates the spatial reasoning limits and patterns of advanced VLMs, identifies key shortcomings, and informs future advances",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.13782",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T01:27:50Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"spatialclaw: rethinking action interface for agentic spatial reasoning\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

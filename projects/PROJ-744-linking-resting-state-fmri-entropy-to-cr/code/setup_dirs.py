@@ -7,10 +7,10 @@ def create_directory(path: str) -> bool:
     Create a directory at the specified path if it does not exist.
     
     Args:
-        path: Relative or absolute path to the directory to create.
+        path: Relative or absolute path to the directory.
         
     Returns:
-        True if the directory was created or already exists, False otherwise.
+        True if directory was created or already exists, False otherwise.
     """
     try:
         dir_path = Path(path)
@@ -22,25 +22,15 @@ def create_directory(path: str) -> bool:
 
 def main():
     """
-    Main entry point to create required project directories.
-    This function specifically handles T001d: creating data/logs.
+    Main entry point to create the 'code/' directory.
     """
-    # Define the directory for T001d
-    log_dir = "data/logs"
-    
-    print(f"Creating directory: {log_dir}")
-    if create_directory(log_dir):
-        print(f"Successfully created or verified existence of: {log_dir}")
-        
-        # Verify creation by listing contents (should be empty initially)
-        if os.path.exists(log_dir):
-            print(f"Contents of {log_dir}: {os.listdir(log_dir)}")
-        else:
-            print(f"Warning: Directory {log_dir} was not found after creation attempt.", file=sys.stderr)
-            sys.exit(1)
+    target_dir = "code"
+    if create_directory(target_dir):
+        print(f"Successfully created directory: {target_dir}")
+        return 0
     else:
-        print(f"Failed to create directory: {log_dir}", file=sys.stderr)
-        sys.exit(1)
+        print(f"Failed to create directory: {target_dir}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

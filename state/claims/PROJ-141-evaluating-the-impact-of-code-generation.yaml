@@ -133,3 +133,151 @@
   source_type: external
   status: verified
   updated_at: '2026-06-28T22:53:44Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  attempts: 1
+  canonical: CodeGen-2B-Multi size is 1.6 GB in FP16
+  claim_id: c_040b1347
+  context: 'Candidate 1: CodeGen-2B-Multi (Salesforce) - Size: ~1.6 GB (FP16) or ~800
+    MB (INT8 quantized).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CodeGen-2B-Multi model has a size of ~1.6 GB in FP16 format.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:07:05Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  attempts: 1
+  canonical: CodeGen-2B-Multi size is 800 MB in INT8
+  claim_id: c_625c9c26
+  context: 'Candidate 1: CodeGen-2B-Multi (Salesforce) - Size: ~1.6 GB (FP16) or ~800
+    MB (INT8 quantized).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CodeGen-2B-Multi model has a size of ~800 MB when quantized to INT8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:07:32Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  attempts: 1
+  canonical: CodeGen-2B-Multi inference speed is 1 to 3 tokens per second on 2 vCPU
+  claim_id: c_7420a728
+  context: 'Inference Speed: ~1-3 tokens/sec on CPU (2 vCPU). For a 50-token completion,
+    this is ~15-50 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Code generation inference speed for CodeGen-2B-Multi is approximately
+    1-3 tokens per second on a 2 vCPU system.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:08:03Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  attempts: 1
+  canonical: CodeGen-2B-Multi 50-token completion time is 15 to 50 seconds on 2 vCPU
+  claim_id: c_953aea8e
+  context: 'Inference Speed: ~1-3 tokens/sec on CPU (2 vCPU). For a 50-token completion,
+    this is ~15-50 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A 50-token completion with CodeGen-2B-Multi takes approximately 15 to
+    50 seconds on a 2 vCPU system.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:08:51Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  attempts: 1
+  canonical: StarCoderBase-1B size is 2.0 GB in FP16
+  claim_id: c_b2c3397b
+  context: 'Candidate 2: StarCoderBase-1B (BigCode) - Size: ~2.0 GB (FP16).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The StarCoderBase-1B model has a size of ~2.0 GB in FP16 format.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:09:15Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  attempts: 1
+  canonical: StarCoderBase-1B trained on The Stack dataset including Java
+  claim_id: c_0e3ddb6a
+  context: 'Java Support: Trained on ''The Stack'' which includes Java.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/StarCoderBase-1B_trained_on_The_Stack_dataset_including_Java
+  kind: entity_fact
+  raw_text: StarCoderBase-1B was trained on The Stack dataset which includes Java.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:09:34Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  attempts: 1
+  canonical: PolyCoder-2.7B size is 5.4 GB
+  claim_id: c_656b4c29
+  context: 'Candidate 3: PolyCoder-2.7B (CMU) - Size: ~5.4 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PolyCoder-2.7B model has a size of ~5.4 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:11:08Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  attempts: 1
+  canonical: TinyCode models have fewer than 100 million parameters
+  claim_id: c_5e9f33b8
+  context: 'Candidate 4: TinyCode (Small Custom Models) - Source: Various community
+    repos (often < 100M params).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TinyCode_models_have_fewer_than_100_million_parameters
+  kind: magnitude
+  raw_text: TinyCode models often have fewer than 100 million parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:11:51Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  attempts: 1
+  canonical: TinyCode models size is less than 500 MB
+  claim_id: c_4df6d49a
+  context: 'Tractability Assessment: Size: < 500 MB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TinyCode_models_size_is_less_than_500_MB
+  kind: magnitude
+  raw_text: TinyCode models generally have a size of less than 500 MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:12:55Z'

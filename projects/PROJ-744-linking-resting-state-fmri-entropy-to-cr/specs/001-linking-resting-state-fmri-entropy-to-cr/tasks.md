@@ -43,12 +43,12 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create directory: `code/`
-- [ ] T001b Create directory: `data/raw`
-- [ ] T001c Create directory: `data/processed`
-- [ ] T001d Create directory: `data/logs`
-- [ ] T001e Create directory: `tests/`
-- [ ] T001f Create directory: `docs/`
+- [X] T001a Create directory: `code/`
+- [X] T001b Create directory: `data/raw`
+- [X] T001c Create directory: `data/processed`
+- [X] T001d Create directory: `data/logs`
+- [X] T001e Create directory: `tests/`
+- [X] T001f Create directory: `docs/`
 - [~] T002a Initialize `requirements.txt` file in repository root with empty content or header comment.
 - [~] T002b Pin dependencies in `requirements.txt` with exact versions: `numpy==1.26.4`, `scipy==1.13.1`, `pandas==2.2.2`, `statsmodels==0.14.2`, `nibabel==5.2.1`, `scikit-learn==1.5.0`, `tqdm==4.66.4`, `requests==2.32.3`, `pytest==8.2.2`, `psutil==6.0.0`.
 
@@ -102,15 +102,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement vectorized `compute_sample_entropy` function in `code/entropy.py` (CPU-optimized, no GPU dependencies, default precision)
-- [ ] T014 [P] [US1] Implement `compute_multiscale_entropy` in `code/entropy.py` to calculate entropy across multiple scales (1-20) and aggregate the result as the **Area Under the Curve (AUC) of the entropy-vs-scale profile** per FR-009
-- [ ] T015 [US1] Implement parcel-level processing loop in `code/entropy.py` to iterate over HCP 360-parcel atlas using **scrubbed time series from T007/valid_subjects.csv**, handling NaNs per FR-001.
+- [~] T013 [P] [US1] Implement vectorized `compute_sample_entropy` function in `code/entropy.py` (CPU-optimized, no GPU dependencies, default precision)
+- [~] T014 [P] [US1] Implement `compute_multiscale_entropy` in `code/entropy.py` to calculate entropy across multiple scales (1-20) and aggregate the result as the **Area Under the Curve (AUC) of the entropy-vs-scale profile** per FR-009
+- [~] T015 [US1] Implement parcel-level processing loop in `code/entropy.py` to iterate over HCP 360-parcel atlas using **scrubbed time series from T007/valid_subjects.csv**, handling NaNs per FR-001.
  - **Input**: HCP Atlas definition file (external input).
  - **Output**: Per-parcel entropy values.
-- [ ] T015b [US1] Implement logic in `code/entropy.py` to **flag subjects for manual review if >10% of parcels are invalid** (NaN) and log to `data/logs/invalid_parcels.log` per Edge Cases. This task consumes the parcel counts logged in T007.
-- [ ] T016 [P] [US1] Implement `aggregate_networks` function in `code/aggregation.py` to map parcels to DMN, FPN, CON, and other networks using HCP atlas definitions
-- [ ] T017 [US1] Implement main entropy orchestration in `code/entropy.py` to process all valid subjects, handle chunking for memory constraints (<7GB RAM), and output `data/processed/entropy_metrics.csv`
-- [ ] T017b [US1] Implement instrumentation in `code/entropy.py` to **log peak RAM usage using `psutil`** for the full entropy computation run to `data/logs/ram_usage.log` per SC-003
+- [~] T015b [US1] Implement logic in `code/entropy.py` to **flag subjects for manual review if >10% of parcels are invalid** (NaN) and log to `data/logs/invalid_parcels.log` per Edge Cases. This task consumes the parcel counts logged in T007.
+- [~] T016 [P] [US1] Implement `aggregate_networks` function in `code/aggregation.py` to map parcels to DMN, FPN, CON, and other networks using HCP atlas definitions
+- [~] T017 [US1] Implement main entropy orchestration in `code/entropy.py` to process all valid subjects, handle chunking for memory constraints (<7GB RAM), and output `data/processed/entropy_metrics.csv`
+- [~] T017b [US1] Implement instrumentation in `code/entropy.py` to **log peak RAM usage using `psutil`** for the full entropy computation run to `data/logs/ram_usage.log` per SC-003
 
 **Surrogate Validation Sub-Phase (Required for Scientific Soundness per Plan.md Complexity Tracking)**
 *Note: These tasks are part of US1 and must be completed for the entropy metric to be considered valid. They depend on raw data and entropy logic (T013-T017), not on US2/US3 results.*

@@ -1,53 +1,33 @@
-"""
-Script to initialize the tests/ directory structure for the project.
-This script creates the tests/ directory and a placeholder conftest.py
-to ensure the directory exists and is ready for test files.
-"""
 import os
 import sys
 from pathlib import Path
 
-# Ensure the script is run from the project root
 def main():
-    root = Path.cwd()
-    tests_dir = root / "tests"
+    """
+    Create the 'tests/' directory at the project root.
+    This script is idempotent; it will not fail if the directory exists.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    tests_dir = project_root / "tests"
 
-    if tests_dir.exists():
-        print(f"Directory {tests_dir} already exists.")
-    else:
+    try:
         tests_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {tests_dir}")
-
-    # Create a placeholder conftest.py if it doesn't exist
-    conftest = tests_dir / "conftest.py"
-    if not conftest.exists():
-        conftest.write_text(
-            "# Shared fixtures and configuration for pytest\n"
-            "# Add shared fixtures here as the project grows.\n"
-            "\n"
-            "import pytest\n"
-            "from pathlib import Path\n"
-            "\n"
-            "@pytest.fixture(scope=\"session\")\n"
-            "def project_root() -> Path:\n"
-            "    \"\"\"Return the path to the project root.\"\"\"\n"
-            "    return Path(__file__).parent.parent\n"
-            "\n"
-            "@pytest.fixture(scope=\"session\")\n"
-            "def data_dir(project_root: Path) -> Path:\n"
-            "    \"\"\"Return the path to the data directory.\"\"\"\n"
-            "    return project_root / \"data\"\n"
-            "\n"
-            "@pytest.fixture(scope=\"session\")\n"
-            "def code_dir(project_root: Path) -> Path:\n"
-            "    \"\"\"Return the path to the code directory.\"\"\"\n"
-            "    return project_root / \"code\"\n"
-        )
-        print(f"Created placeholder file: {conftest}")
-    else:
-        print(f"File {conftest} already exists.")
-
-    print("Tests directory setup complete.")
+        print(f"Directory created/verified: {tests_dir}")
+        
+        # Create a placeholder __init__.py to ensure it is treated as a package
+        init_file = tests_dir / "__init__.py"
+        if not init_file.exists():
+            init_file.write_text("# Test package for llmXive project\n")
+            print(f"Created placeholder: {init_file}")
+        
+        return True
+    except PermissionError:
+        print(f"Error: Permission denied creating directory {tests_dir}", file=sys.stderr)
+        return False
+    except Exception as e:
+        print(f"Error creating directory {tests_dir}: {e}", file=sys.stderr)
+        return False
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)

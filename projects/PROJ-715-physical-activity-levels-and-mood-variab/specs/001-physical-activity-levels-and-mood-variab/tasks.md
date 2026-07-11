@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a Create `code/__init__.py`
-- [ ] T001b Create `data/raw/.gitkeep`, `data/processed/.gitkeep`, and `data/interim/.gitkeep`
+- [X] T001b Create `data/raw/.gitkeep`, `data/processed/.gitkeep`, and `data/interim/.gitkeep`
 - [ ] T001c Create `tests/unit/.gitkeep` and `tests/contract/.gitkeep`
 
 ## Phase 2: Foundational (Blocking Prerequisites)
@@ -56,9 +56,9 @@
 - [X] T002 Initialize Python project with dependencies (`pandas`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `numpy`) in `code/requirements.txt`
 - [ ] T003 [P] Configure linting (flake8) and formatting (black) tools in `code/`
 - [X] T004 [P] Create configuration module `code/config.py` defining paths, random seeds (a fixed value), constants (including `MISSINGNESS_THRESHOLD`), and the specific OSF DOI string for the dataset
-- [~] T005 [P] Create schema definitions in `specs/001-physical-activity-mood-variability/contracts/`: `daily_aggregates.schema.yaml` and `model_results.schema.yaml`
-- [~] T006 [P] Create base test utilities in `tests/conftest.py` for schema validation and fixture data
-- [~] T007 Implement `code/ingest.py` to download StudentLife dataset from OSF DOI `/...` (specific DOI string from config), verify cryptographic checksum, and convert to `data/raw/bronze.parquet`
+- [ ] T005 [P] Create schema definitions in `specs/001-physical-activity-mood-variability/contracts/`: `daily_aggregates.schema.yaml` and `model_results.schema.yaml`
+- [ ] T006 [P] Create base test utilities in `tests/conftest.py` for schema validation and fixture data
+- [ ] T007 Implement `code/ingest.py` to download StudentLife dataset from OSF DOI `/...` (specific DOI string from config), verify cryptographic checksum, and convert to `data/raw/bronze.parquet`
 - [~] T008 Implement error handling for missing/corrupted files in `code/ingest.py` to fail gracefully with clear error messages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -100,18 +100,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Contract test for `model_results.json` schema in `tests/contract/test_model_results.py`
-- [ ] T018 [P] [US2] Unit test for model convergence and coefficient extraction in `tests/unit/test_analysis_modeling.py`
+- [~] T017 [P] [US2] Contract test for `model_results.json` schema in `tests/contract/test_model_results.py`
+- [~] T018 [P] [US2] Unit test for model convergence and coefficient extraction in `tests/unit/test_analysis_modeling.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement `code/analysis.py` to fit LMM with `log(mood_std + 0.01)` (read directly from the pre-transformed column in `daily_aggregates.csv`) as outcome and `total_steps` as predictor (random intercepts for participant)
-- [ ] T020 [US2] Implement `code/analysis.py` to fit LMM with `mean_mood` as outcome and `total_steps` as predictor, ensuring the results are included in the final report with equal prominence to the variability model (no 'secondary' classification)
-- [ ] T021 [US2] Implement `code/analysis.py` to include covariates (sleep duration, day-of-week, baseline_affect) from `daily_aggregates.csv` in both models
-- [ ] T022 [US2] Implement `code/analysis.py` to extract fixed-effect coefficients, standard errors, p-values, and 95% CIs for `total_steps` and covariates
-- [ ] T023 [US2] Implement `code/analysis.py` to perform model diagnostics (Shapiro-Wilk, Breusch-Pagan) and generate residual plots (specifically 'residuals vs. fitted')
-- [ ] T024 [US2] Implement `code/analysis.py` to ensure all results are explicitly labeled as "associational" in internal data structures
-- [ ] T025 [US2] Save model results to `data/processed/model_results.json` and validate against `model_results.schema.yaml`
+- [~] T019 [US2] Implement `code/analysis.py` to fit LMM with `log(mood_std + 0.01)` (read directly from the pre-transformed column in `daily_aggregates.csv`) as outcome and `total_steps` as predictor (random intercepts for participant)
+- [~] T020 [US2] Implement `code/analysis.py` to fit LMM with `mean_mood` as outcome and `total_steps` as predictor, ensuring the results are included in the final report with equal prominence to the variability model (no 'secondary' classification)
+- [~] T021 [US2] Implement `code/analysis.py` to include covariates (sleep duration, day-of-week, baseline_affect) from `daily_aggregates.csv` in both models
+- [~] T022 [US2] Implement `code/analysis.py` to extract fixed-effect coefficients, standard errors, p-values, and 95% CIs for `total_steps` and covariates
+- [~] T023 [US2] Implement `code/analysis.py` to perform model diagnostics (Shapiro-Wilk, Breusch-Pagan) and generate residual plots (specifically 'residuals vs. fitted')
+- [~] T024 [US2] Implement `code/analysis.py` to ensure all results are explicitly labeled as "associational" in internal data structures
+- [~] T025 [US2] Save model results to `data/processed/model_results.json` and validate against `model_results.schema.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,7 +125,7 @@
 
 ### Tests for User Story 3
 
-- [ ] T026 [P] [US3] Unit test for LOPO loop logic and coefficient aggregation in `tests/unit/test_analysis_validation.py`
+- [~] T026 [P] [US3] Unit test for LOPO loop logic and coefficient aggregation in `tests/unit/test_analysis_validation.py`
 - [ ] T027 [P] [US3] Unit test for sensitivity analysis logic (weekdays filter, metric swap) in `tests/unit/test_analysis_sensitivity.py`
 
 ### Implementation for User Story 3

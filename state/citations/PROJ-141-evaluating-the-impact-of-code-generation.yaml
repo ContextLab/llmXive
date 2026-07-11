@@ -99,3 +99,38 @@
   verification_status: verified
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-06-27T10:16:23.817436Z'
+- artifact_hash: 6295b395ab4dc31a01bf8cc9ae7f22cd1d0803679463be52152f4e1def6c6d64
+  artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Salesforce/codegen-2B-multi \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/Salesforce/codegen-2B-multi
+  verification_status: verified
+  verified_against_url: https://huggingface.co/Salesforce/codegen-2B-multi
+  verified_at: '2026-07-11T01:05:54.829232Z'
+- artifact_hash: 6295b395ab4dc31a01bf8cc9ae7f22cd1d0803679463be52152f4e1def6c6d64
+  artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - bigcode-project/bigcode-evaluation-harness: A framework\
+    \ for the evaluation of autoregressive code generation language models. \xB7 GitHub"
+  kind: url
+  value: https://github.com/bigcode-project/bigcode-evaluation-harness
+  verification_status: verified
+  verified_against_url: https://github.com/bigcode-project/bigcode-evaluation-harness
+  verified_at: '2026-07-11T01:05:54.829232Z'
+- artifact_hash: 6295b395ab4dc31a01bf8cc9ae7f22cd1d0803679463be52152f4e1def6c6d64
+  artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/code/research/java_model_alternatives.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2202.13169] A Systematic Evaluation of Large Language Models of
+    Code'
+  kind: url
+  value: https://arxiv.org/abs/2202.13169
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2202.13169
+  verified_at: '2026-07-11T01:05:54.829232Z'

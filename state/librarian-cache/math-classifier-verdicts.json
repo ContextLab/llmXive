@@ -1035,6 +1035,10 @@
     "classified_at": "2026-07-10T04:32:28Z",
     "verdict": false
   },
+  "PROJ-941-llmxive-follow-up-extending-spatialclaw::1.6.0": {
+    "classified_at": "2026-07-11T01:27:38Z",
+    "verdict": false
+  },
   "PROJ-945-llmxive-follow-up-extending-enterprisecl::1.6.0": {
     "classified_at": "2026-07-06T16:45:02Z",
     "verdict": false
