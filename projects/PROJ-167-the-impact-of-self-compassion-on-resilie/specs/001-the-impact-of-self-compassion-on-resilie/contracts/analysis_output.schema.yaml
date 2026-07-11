@@ -50,7 +50,10 @@ properties:
     description: "True if dataset metadata confirms experimental randomization"
   bootstrap_convergence_status:
     type: "string"
-    description: "Status of bootstrap convergence: 'converged', 'fallback_parametric', 'timeout'"
+ description: "Status of bootstrap convergence: 'converged' (stopped early), 'timeout' (reached [deferred] without convergence)"
+    enum:
+      - "converged"
+      - "timeout"
 required:
   - outcome
   - interaction_coef

@@ -1,144 +1,66 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AnalysisResult"
-description: "Schema for the JSON file containing regression and robustness results for each outcome."
+description: "Schema for the output of the ANCOVA analysis for a single outcome variable."
 type: object
-required:
-  - outcomes
 properties:
-  outcomes:
-    type: array
-    items:
-      type: object
-      required:
-        - outcome
-        - model_summary
-        - heteroskedasticity_flag
-        - bootstrap_ci
-        - simple_slope_plot
-        - ci_overlap_status
-        - caveat_text
-      properties:
-        outcome:
-          type: string
-          description: "Name of the dependent variable (e.g., anxiety, rumination, self_efficacy)."
-        model_summary:
-          type: object
-          description: "Regression statistics for the primary moderated ANCOVA."
-          required:
-            - intercept
-            - baseline_coef
-            - age_coef
-            - gender_coef
-            - scs_coef
-            - feedback_coef
-            - interaction_coef
-          properties:
-            intercept:
-              type: object
-              required: [estimate, std_error, p_value, ci_lower, ci_upper, eta_sq]
-              properties:
-                estimate:
-                  type: number
-                std_error:
-                  type: number
-                p_value:
-                  type: number
-                ci_lower:
-                  type: number
-                ci_upper:
-                  type: number
-                eta_sq:
-                  type: number
-                  description: "Partial η² for the intercept (included for completeness)."
-            baseline_coef:
-              type: object
-              required: [estimate, std_error, p_value, ci_lower, ci_upper, eta_sq]
-              properties:
-                estimate: {type: number}
-                std_error: {type: number}
-                p_value: {type: number}
-                ci_lower: {type: number}
-                ci_upper: {type: number}
-                eta_sq: {type: number}
-            age_coef:
-              type: object
-              required: [estimate, std_error, p_value, ci_lower, ci_upper, eta_sq]
-              properties:
-                estimate: {type: number}
-                std_error: {type: number}
-                p_value: {type: number}
-                ci_lower: {type: number}
-                ci_upper: {type: number}
-                eta_sq: {type: number}
-            gender_coef:
-              type: object
-              required: [estimate, std_error, p_value, ci_lower, ci_upper, eta_sq]
-              properties:
-                estimate: {type: number}
-                std_error: {type: number}
-                p_value: {type: number}
-                ci_lower: {type: number}
-                ci_upper: {type: number}
-                eta_sq: {type: number}
-            scs_coef:
-              type: object
-              required: [estimate, std_error, p_value, ci_lower, ci_upper, eta_sq]
-              properties:
-                estimate: {type: number}
-                std_error: {type: number}
-                p_value: {type: number}
-                ci_lower: {type: number}
-                ci_upper: {type: number}
-                eta_sq: {type: number}
-            feedback_coef:
-              type: object
-              required: [estimate, std_error, p_value, ci_lower, ci_upper, eta_sq]
-              properties:
-                estimate: {type: number}
-                std_error: {type: number}
-                p_value: {type: number}
-                ci_lower: {type: number}
-                ci_upper: {type: number}
-                eta_sq: {type: number}
-            interaction_coef:
-              type: object
-              required: [estimate, std_error, p_value, ci_lower, ci_upper, eta_sq, robust_se]
-              properties:
-                estimate:
-                  type: number
-                std_error:
-                  type: number
-                robust_se:
-                  type: number
-                  description: "HC3 heteroskedasticity‑consistent standard error."
-                p_value:
-                  type: number
-                ci_lower:
-                  type: number
-                ci_upper:
-                  type: number
-                eta_sq:
-                  type: number
-                  description: "Partial η² for the interaction term."
-        heteroskedasticity_flag:
-          type: boolean
-          description: "True if Breusch‑Pagan test p < 0.10."
-        bootstrap_ci:
-          type: object
-          description: "Bias‑corrected bootstrap confidence interval for the interaction coefficient."
-          required: [lower, upper]
-          properties:
-            lower:
-              type: number
-            upper:
-              type: number
-        simple_slope_plot:
-          type: string
-          description: "Relative path to the PNG file visualizing simple slopes for this outcome."
-          pattern: "^outputs/figures/.*\\.png$"
-        ci_overlap_status:
-          type: boolean
-          description: "True if the parametric CI and bootstrap CI do NOT overlap."
-        caveat_text:
-          type: string
-          description: "Generated caveat text if CI overlap status is true."
+  outcome_variable:
+    type: string
+    description: "Name of the dependent variable (anxiety, rumination, self_efficacy)"
+  interaction_coeff:
+    type: number
+    description: "Coefficient for the interaction term (SCS_z * Feedback)"
+  interaction_se:
+    type: number
+    description: "Robust (HC3) standard error for the interaction term"
+  interaction_p:
+    type: number
+    description: "Raw p-value for the interaction term"
+  interaction_p_adj:
+    type: number
+    description: "Holm-Bonferroni adjusted p-value"
+  interaction_ci_lower:
+    type: number
+    description: "95% Confidence Interval lower bound"
+  interaction_ci_upper:
+    type: number
+    description: "95% Confidence Interval upper bound"
+  partial_eta_squared:
+    type: number
+    description: "Partial eta-squared effect size"
+  vif_scs:
+    type: number
+    description: "Variance Inflation Factor for SCS"
+  vif_feedback:
+    type: number
+    description: "Variance Inflation Factor for Feedback"
+  heteroskedastic_flag:
+    type: boolean
+    description: "True if Breusch-Pagan test p < 0.10"
+  bootstrap_ci_lower:
+    type: number
+    description: "95% Bootstrap CI lower bound"
+  bootstrap_ci_upper:
+    type: number
+    description: "95% Bootstrap CI upper bound"
+  homogeneity_flag:
+    type: boolean
+    description: "True if homogeneity of slopes assumption violated"
+  bootstrap_converged:
+    type: boolean
+    description: "True if bootstrap CI width stabilized"
+required:
+  - outcome_variable
+  - interaction_coeff
+  - interaction_se
+  - interaction_p
+  - interaction_p_adj
+  - interaction_ci_lower
+  - interaction_ci_upper
+  - partial_eta_squared
+  - vif_scs
+  - vif_feedback
+  - heteroskedastic_flag
+  - bootstrap_ci_lower
+  - bootstrap_ci_upper
+  - homogeneity_flag
+  - bootstrap_converged

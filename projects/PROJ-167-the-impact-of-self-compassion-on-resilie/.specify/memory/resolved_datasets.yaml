@@ -1,4 +1,4 @@
-resolved_at: '2026-07-09T02:51:54.977585+00:00'
+resolved_at: '2026-07-11T14:06:10.116987+00:00'
 datasets:
 - intent: SCS
   status: verified
@@ -45,31 +45,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/Call_07076040542_Federal_University_of_Medicine_and_Medical_Sciences_Abeokuta_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943515
+  - url: https://figshare.com/articles/preprint/Held_Open_Identity_Without_Recursion_in_Hegel_and_Heidegger/30979120
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943510
+  - url: https://figshare.com/articles/preprint/The_Hermeneutic_Loop_Gustav_pet_and_the_Structural_Mediation_of_Sense/30625124
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943507
+  - url: https://figshare.com/articles/preprint/_b_The_Phenomenology_of_Play_Eugen_Fink_and_the_Metamorphic_Continuity_of_the_World_b_/30625148
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/workflow/OER_editor_review_template/32943482
+  - url: https://figshare.com/articles/journal_contribution/Prediksi_Produksi_Padi_di_Pulau_Sumatera_Menggunakan_Random_Forest_dan_Decision_Tree_Analisis_Dampak_Perubahan_Iklim/32963771
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_07076040542_Federal_University_of_Allied_Health_Sciences_Enugu_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943506
+  - url: https://figshare.com/articles/preprint/The_Placeholder_Structure_Identity_Without_Reference/30850775
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8406734
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8410803
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8406734
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -77,32 +77,117 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://www.mdpi.com/2227-9032/10/10/1861
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
   - url: https://zenodo.org/records/4750888
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10019046
+  - url: https://iris.uniupo.it//handle/11579/104068
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155477
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18939642
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18939642
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304310
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  - url: https://huggingface.co/datasets/Type-1-Civilisation/Liber-Primus-Not-Decoded/resolve/main/liber_primus_undecoded_pseudolatin_lower.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 38904
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Type-1-Civilisation/Liber-Primus-Not-Decoded/resolve/main/liber_primus_undecoded_pseudolatin_lower.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/microsoft/NOTSOFAR/resolve/main/benchmark-datasets/dev_set/240130.1_dev/MTG/MTG_30860/devices.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Bicyclo_1_1_1_pentane_as_a_Phenyl_Isosteric_Replacement/32963896
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Held_Open_Identity_Without_Recursion_in_Hegel_and_Heidegger/30979120
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Hermeneutic_Loop_Gustav_pet_and_the_Structural_Mediation_of_Sense/30625124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_The_Phenomenology_of_Play_Eugen_Fink_and_the_Metamorphic_Continuity_of_the_World_b_/30625148
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Prediksi_Produksi_Padi_di_Pulau_Sumatera_Menggunakan_Random_Forest_dan_Decision_Tree_Analisis_Dampak_Perubahan_Iklim/32963771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/vf5dt/
-    source: datacite
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/sqdcr/
-    source: datacite
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/axnws/
-    source: datacite
+  - url: https://zenodo.org/records/5105584
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/zde42/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/w57zj/
-    source: datacite
+  - url: https://zenodo.org/records/16039952
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: OSF
@@ -142,23 +227,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/Call_07076040542_Federal_University_of_Medicine_and_Medical_Sciences_Abeokuta_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943515
+  - url: https://acs.figshare.com/articles/journal_contribution/Subdiffusion_in_Dendrimer_Melts/32963899
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943510
+  - url: https://acs.figshare.com/articles/journal_contribution/Bicyclo_1_1_1_pentane_as_a_Phenyl_Isosteric_Replacement/32963896
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943507
+  - url: https://figshare.com/articles/preprint/Held_Open_Identity_Without_Recursion_in_Hegel_and_Heidegger/30979120
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/workflow/OER_editor_review_template/32943482
+  - url: https://figshare.com/articles/preprint/The_Hermeneutic_Loop_Gustav_pet_and_the_Structural_Mediation_of_Sense/30625124
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_07076040542_Federal_University_of_Allied_Health_Sciences_Enugu_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943506
+  - url: https://figshare.com/articles/preprint/_b_The_Phenomenology_of_Play_Eugen_Fink_and_the_Metamorphic_Continuity_of_the_World_b_/30625148
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -178,136 +263,51 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7032367
+  - url: https://zenodo.org/records/21239703
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/fyd7c/
+  - url: https://osf.io/a7w9p/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/eagyd/
+  - url: https://osf.io/brhjg/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/9dhzw/
+  - url: https://osf.io/jkfuz/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/yej6a/
+  - url: https://osf.io/v8pzg/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/uxdtv/
+  - url: https://osf.io/8huzx/
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: NOT
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
-    source: huggingface
-    format: json
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 39475
-      parsed: true
-  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 10859
-      parsed: true
-  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/figure/Call_07076040542_Federal_University_of_Medicine_and_Medical_Sciences_Abeokuta_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943515
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943510
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943507
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/workflow/OER_editor_review_template/32943482
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_07076040542_Federal_University_of_Allied_Health_Sciences_Enugu_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943506
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15525595
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16413212
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16413231
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8298365
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3824448
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: ANCOVA
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Call_07076040542_Federal_University_of_Education_Pankshin_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943533
+  - url: https://acs.figshare.com/articles/journal_contribution/Photocontrolled_Hydrogen_Bonding_in_Main-Chain_Azobenzene_Polymers/32963902
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_07076040542_Federal_University_of_Medicine_and_Medical_Sciences_Abeokuta_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943515
+  - url: https://figshare.com/articles/preprint/Ex-centric_Life_Helmuth_Plessner_and_the_Phenomenology_of_Positional_Being/30625103
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943510
+  - url: https://acs.figshare.com/articles/journal_contribution/Subdiffusion_in_Dendrimer_Melts/32963899
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943507
+  - url: https://acs.figshare.com/articles/journal_contribution/Bicyclo_1_1_1_pentane_as_a_Phenyl_Isosteric_Replacement/32963896
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/workflow/OER_editor_review_template/32943482
+  - url: https://figshare.com/articles/preprint/Held_Open_Identity_Without_Recursion_in_Hegel_and_Heidegger/30979120
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -315,11 +315,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10549231
+  - url: https://zenodo.org/records/8190644
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8190644
+  - url: https://zenodo.org/records/10549231
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -331,23 +331,69 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/g4c2e/
+  - url: https://zenodo.org/records/21306295
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/7eksn/
+  - url: https://zenodo.org/records/21306295
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/5hm98/
+  - url: https://doi.org/10.17615/3t77-5a31
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/3n204c75n (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f46e5b32b10>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9p8cz8x0j
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/xg6d4/
+  - url: https://figshare.com/articles/dataset/Processed_Dataset_and_Analysis_Code_for_/32954375
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21266022
+- intent: AnalysisResult
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cicero-im/analysis_results/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/cicero-im/analysis_results/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Direct_Correlation_between_Size_Photon_Statistics_and_Blinking_Mechanisms_in_Single_Cesium_Lead_Iodide_Perovskite_Nanocrystals/32963908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photocontrolled_Hydrogen_Bonding_in_Main-Chain_Azobenzene_Polymers/32963902
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Ex-centric_Life_Helmuth_Plessner_and_the_Phenomenology_of_Positional_Being/30625103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Subdiffusion_in_Dendrimer_Melts/32963899
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Bicyclo_1_1_1_pentane_as_a_Phenyl_Isosteric_Replacement/32963896
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19422572
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11919062
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -370,27 +416,27 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?user_id=public&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&Expires=1783569093&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdncHQ0X3NpbmdsZV9tdWx0aV9hdXRvaWZfc2hhcmVncHRfcmFnX21peC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZ3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNTY5MDkzfX19XX0_&Signature=MEUCIFBgjD1sH22q8VszQyLLI3JYnbqxNXPkDTq0DLmTGERhAiEAwCtf6Rz7uNc7aBKJO1LxE5dsJQ2Yqh16KG5PCRcf5-s_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&user_id=public&Expires=1783782348&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdncHQ0X3NpbmdsZV9tdWx0aV9hdXRvaWZfc2hhcmVncHRfcmFnX21peC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZ3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzgyMzQ4fX19XX0_&Signature=MEUCIBZKB1O9jZJYxnbVGDBcA6HaWTXPGmhElmKoMafJEdASAiEAzhxCMfgz4M31~PyRqUBqPGzApHIBA7qzlrYInPAPDQQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_07076040542_Federal_University_of_Education_Pankshin_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943533
+  - url: https://acs.figshare.com/articles/journal_contribution/Iridium-Catalyzed_Decarboxylative_Annulation_of_2_o_Carboranylbenzoic_Acids_with_Internal_Alkynes/32963911
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_07076040542_Federal_University_of_Medicine_and_Medical_Sciences_Abeokuta_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943515
+  - url: https://acs.figshare.com/articles/journal_contribution/Direct_Correlation_between_Size_Photon_Statistics_and_Blinking_Mechanisms_in_Single_Cesium_Lead_Iodide_Perovskite_Nanocrystals/32963908
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943510
+  - url: https://acs.figshare.com/articles/journal_contribution/Photocontrolled_Hydrogen_Bonding_in_Main-Chain_Azobenzene_Polymers/32963902
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Persistent_Homology_as_a_Detection_Axis_Complementary_to_Intensity-Based_Methods_for_Comparative_MALDI_Mass_Spectrometry_Imaging/32943507
+  - url: https://figshare.com/articles/preprint/Ex-centric_Life_Helmuth_Plessner_and_the_Phenomenology_of_Positional_Being/30625103
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/workflow/OER_editor_review_template/32943482
+  - url: https://acs.figshare.com/articles/journal_contribution/Subdiffusion_in_Dendrimer_Melts/32963899
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -402,11 +448,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14837515
+  - url: https://zenodo.org/records/20191456
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20191456
+  - url: https://zenodo.org/records/14837515
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -414,23 +460,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.zora.uzh.ch/handle/20.500.14742/248258
+  - url: https://figshare.com/articles/dataset/Daily_COVID-19_Data_Socio-Economic_and_Governance_Indices_and_Statistical_Analysis_Results_for_54_African_Countries_14_February_12_June_2020_/32961629/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19218060
+  - url: https://figshare.com/articles/dataset/Daily_COVID-19_Data_Socio-Economic_and_Governance_Indices_and_Statistical_Analysis_Results_for_54_African_Countries_14_February_12_June_2020_/32961629
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21240757
+  - url: https://zenodo.org/records/21300098
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21240757
+  - url: https://zenodo.org/records/21300098
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.21237732
+  - url: https://zenodo.org/records/21294080
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
+    status: wrong_format
+    reason: unrecognized/non-dataset content

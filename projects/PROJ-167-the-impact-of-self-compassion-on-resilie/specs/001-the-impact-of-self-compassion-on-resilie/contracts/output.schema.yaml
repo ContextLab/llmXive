@@ -1,128 +1,113 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Output Schema"
-description: "Schema for the JSON output of the analysis pipeline."
 type: "object"
 properties:
-  metadata:
+  data_summary:
     type: "object"
     properties:
-      n_total:
+      initial_n:
         type: "integer"
-        description: "Total participants after cleaning/imputation."
-      seed:
+        description: "Initial number of participants"
+      final_n:
         type: "integer"
-        description: "Random seed used."
-      randomization_confirmed:
+        description: "Number of participants after listwise deletion"
+      exclusions:
+        type: "integer"
+        description: "Number of excluded participants"
+      power_warning:
         type: "boolean"
-        description: "Whether experimental randomization was confirmed in metadata."
-      missing_data_method:
-        type: "string"
-        description: "Method used for missing data (e.g., 'listwise', 'multiple_imputation')."
-      convergence_status:
-        type: "string"
-        description: "Status of bootstrap convergence (e.g., 'converged', 'fallback_parametric', 'timeout')."
-      final_resample_count:
-        type: "integer"
-        description: "Number of resamples performed before convergence or abort."
+        description: "True if final_n < 92"
   models:
-    type: "array"
-    description: "Results for each outcome model."
-    items:
-      type: "object"
-      properties:
-        outcome:
-          type: "string"
-          description: "Name of the outcome variable (e.g., stai_post)."
-        interaction_term:
-          type: "string"
-          description: "Name of the interaction term (e.g., C(feedback)[T.2]:SCS_z)."
-        coefficient:
-          type: "number"
-          description: "Interaction coefficient."
-        p_value_raw:
-          type: "number"
-          description: "Unadjusted p-value."
-        p_value_adjusted:
-          type: "number"
-          description: "Holm-Bonferroni adjusted p-value."
-        ci_lower:
-          type: "number"
-          description: "Lower bound of 95% CI."
-        ci_upper:
-          type: "number"
-          description: "Upper bound of 95% CI."
-        ci_bootstrap_lower:
-          type: "number"
-          description: "Lower bound of bootstrap 95% CI."
-        ci_bootstrap_upper:
-          type: "number"
-          description: "Upper bound of bootstrap 95% CI."
-        ci_overlap_status:
-          type: "boolean"
-          description: "True if parametric and bootstrap CIs do not overlap."
-        caveat_text:
-          type: "string"
-          description: "Generated caveat text if CIs do not overlap."
-        partial_eta_squared:
-          type: "number"
-          description: "Partial eta-squared for the interaction."
-        robust_se:
-          type: "number"
-          description: "HC3 robust standard error."
-        vif_interaction:
-          type: "number"
-          description: "VIF for the interaction term."
-      required:
-        - outcome
-        - interaction_term
-        - coefficient
-        - p_value_raw
-        - p_value_adjusted
-        - ci_lower
-        - ci_upper
-        - robust_se
-        - vif_interaction
+    type: "object"
+    description: "Results for each outcome model"
+    properties:
+      anxiety:
+        $ref: "#/$defs/model_result"
+      rumination:
+        $ref: "#/$defs/model_result"
+      self_efficacy:
+        $ref: "#/$defs/model_result"
   robustness:
     type: "object"
     properties:
-      kindness_moderator:
+      self_kindness_subscale:
         type: "object"
-        description: "Results using Self-Kindness as moderator."
-        properties:
-          interaction_coefficient:
-            type: "number"
-          p_value:
-            type: "number"
+        description: "Results using Self-Kindness as moderator"
+      vif_values:
+        type: "object"
+        description: "Variance Inflation Factors for predictors"
       sensitivity_analysis:
         type: "object"
-        description: "Results across alpha thresholds."
-        properties:
-          alpha_001:
-            type: "integer"
-            description: "Number of significant findings at alpha=0.01."
-          alpha_005:
-            type: "integer"
-            description: "Number of significant findings at alpha=0.05."
-          alpha_010:
-            type: "integer"
-            description: "Number of significant findings at alpha=0.10."
-  diagnostics:
+        description: "Significant counts at alpha 0.01, 0.05, 0.10"
+  artifacts:
     type: "object"
     properties:
-      breusch_pagan_p_value:
-        type: "number"
-        description: "P-value for heteroskedasticity test."
-      collinearity_flag:
-        type: "boolean"
-        description: "True if any VIF > 5."
-      heteroskedasticity_flag:
-        type: "boolean"
-        description: "True if Breusch-Pagan p < 0.10."
-      mcar_test_p_value:
-        type: "number"
-        description: "P-value for Little's MCAR test."
+      plots:
+        type: "array"
+        items:
+          type: "string"
+          description: "File paths to generated PNG plots"
+      report_html:
+        type: "string"
+        description: "Path to the generated HTML report"
+  metadata:
+    type: "object"
+    properties:
+      randomization_status:
+        type: "string"
+        enum:
+          - "confirmed"
+          - "unknown"
+          - "not_confirmed"
+        description: "Status of experimental randomization verification"
+      causal_claim:
+        type: "string"
+        enum:
+          - "causal"
+          - "associational"
+        description: "Whether findings are framed as causal or associational"
+  $defs:
+    model_result:
+      type: "object"
+      properties:
+        interaction_coefficient:
+          type: "number"
+          description: "Coefficient for Feedback x SCS interaction"
+        interaction_se:
+          type: "number"
+          description: "Standard error of the interaction"
+        interaction_pvalue:
+          type: "number"
+          description: "Raw p-value"
+        interaction_pvalue_adjusted:
+          type: "number"
+          description: "Holm-Bonferroni adjusted p-value"
+        interaction_ci_lower:
+          type: "number"
+          description: "Lower bound of 95% CI"
+        interaction_ci_upper:
+          type: "number"
+          description: "Upper bound of 95% CI"
+        interaction_partial_eta2:
+          type: "number"
+          description: "Partial eta-squared for interaction"
+        bootstrap_ci_lower:
+          type: "number"
+          description: "Bootstrap 95% CI lower bound"
+        bootstrap_ci_upper:
+          type: "number"
+          description: "Bootstrap 95% CI upper bound"
+        heteroskedasticity_flag:
+          type: "boolean"
+          description: "True if Breusch-Pagan p < 0.10"
+      required:
+        - interaction_coefficient
+        - interaction_pvalue
+        - interaction_pvalue_adjusted
 required:
-  - metadata
+  - data_summary
   - models
   - robustness
-  - diagnostics
+  - artifacts
+  - metadata
+description: "Schema for the structured output of the analysis pipeline, including model results, robustness checks, and metadata."

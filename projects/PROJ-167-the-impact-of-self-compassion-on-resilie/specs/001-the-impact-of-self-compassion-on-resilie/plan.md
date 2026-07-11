@@ -1,70 +1,34 @@
 # Implementation Plan: The Impact of Self‑Compassion on Resilience to Negative Feedback
 
 **Branch**: `001-self-compassion-feedback` | **Date**: 2026-06-28 | **Spec**: `specs/001-self-compassion-feedback/spec.md`
-**Input**: Feature specification from `/specs/001-self-compassion-feedback/spec.md`
 
 ## Summary
 
-This feature implements a rigorous statistical pipeline to test whether self-compassion (SCS) buffers the adverse psychological impact of negative feedback on anxiety, rumination, and self-efficacy. The approach involves downloading a verified OSF dataset, performing strict data validation (column presence, sample size power check), cleaning (listwise deletion), and fitting ANCOVA models with interaction terms. The pipeline includes robustness checks (VIF, bootstrap, alternative moderators), generates simple-slope visualizations, and produces a comprehensive HTML report.
-
-**Critical Data Contingency**: The hypothesis requires an experimental dataset with feedback manipulation and pre/post outcomes. The OSF ID `3k9r2` is the *only* identified source. The pipeline is designed as a **Conditional Validation Pipeline**: if this specific source is unavailable or lacks required columns, the system **MUST** abort immediately with a specific error code. No alternative datasets are used, as they lack the necessary experimental design, preventing the execution of a "zombie" experiment.
+This project implements a statistically rigorous analysis to test whether self-compassion (SCS) moderates the adverse psychological impact of negative feedback on anxiety, rumination, and self-efficacy. The approach involves downloading a verified OSF dataset, performing data cleaning and validation, fitting three ANCOVA models (one per outcome) with interaction terms, applying Holm-Bonferroni correction for multiple comparisons, generating simple-slope visualizations, and producing a comprehensive HTML report. All methods are constrained to run on CPU-only CI (GitHub Actions free tier) using `statsmodels` and `pandas`. The analysis strictly computes all statistics from the raw data; no simulated or hard-coded results are permitted.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `jinja2`.
-**Storage**: Local filesystem (`data/` for raw/cleaned CSVs, `output/` for plots and HTML).
-**Testing**: `pytest` (unit tests for data validation, integration tests for pipeline execution).
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).
-**Project Type**: Computational research pipeline (CLI-based).
-**Performance Goals**: Complete full analysis (download, clean, model, plot, report) within 45 minutes on free-tier CPU.
-**Constraints**: 
-- NO GPU usage.
-- NO large model training.
-- Memory footprint < 4 GB during peak execution.
-- Strict adherence to FR-001 (column check) and FR-017 (randomization check).
-- All stochastic operations seeded with a fixed value to ensure reproducibility.
-
-### Data Availability Protocol (Hard Gate)
-The pipeline enforces a strict "Data First" protocol:
-1.  **Fetch**: Attempt to download `https://osf.io/3k9r2/`.
-2.  **Verify**: Check for HTTP 200 and presence of required columns (`stai_post`, `rrs_post`, `gse_post`, `scf_total`, `feedback_cond`).
-3.  **Abort on Failure**: If the file is missing, inaccessible, or columns are absent, the pipeline **MUST** exit with code 1 and the exact error message: `[DATA_UNAVAILABLE: Required columns missing from dataset. Expected: [list of missing columns]]` or `[DATA_UNAVAILABLE: Dataset source unreachable or missing. The pipeline cannot proceed.]`.
-4.  **No Substitution**: The pipeline does **NOT** attempt to fetch alternative datasets (e.g., SCS-only datasets) as they cannot test the feedback moderation hypothesis. This aligns with Constitution Principle II (Verified Accuracy) by ensuring no results are generated from unverified or unsuitable data sources.
-
-### Randomization Verification Mechanism
-To satisfy FR-017, the `data_loader.py` script performs the following:
-1.  Fetches `README.md` and `metadata.json` from the OSF repository alongside the CSV.
-2.  Parses these files for keywords: "randomized", "experimental", "random assignment", "between-subjects".
-3.  **Logic**:
-    - If keyword found: Set `randomization_confirmed = True`.
-    - If files missing or keywords absent: Set `randomization_confirmed = False`.
-4.  **Reporting**: The final report explicitly states "Findings are **Associational**" if `randomization_confirmed` is False, and "Findings are **Causal**" only if True.
-
-### Bootstrap Convergence Criteria & Time Budget
-To ensure computational feasibility on CPU:
-1.  **Primary Run**: 5,000 resamples (seed=42).
-2.  **Convergence Metric**: Coefficient of Variation (CV) of the standard error across the last multiple resamples.
-    - **Pass**: CV < 0.05.
-    - **Retry**: If CV >= 0.05, retry with 2,000 resamples.
-3.  **Fallback**: If CV >= 0.05 after 2,000 resamples, log a warning `[BOOTSTRAP_CONVERGENCE_WARNING: Using parametric CIs due to instability]` and proceed with parametric CIs.
-4.  **Hard Timeout**: The modeling phase has a fixed time limit. If exceeded, the pipeline aborts with `[TIMEOUT: Modeling phase exceeded 30 mins]`.
-
-> **Dataset Fit Note**: The "Verified datasets" block provided in the prompt **does not** contain a verified URL for OSF ID `3k9r2`. The plan explicitly acknowledges this gap. The pipeline relies *exclusively* on this OSF source. If the source is missing, the project halts. This is a deliberate design choice to prevent invalid analysis on unsuitable data.
+**Language/Version**: Python 3.10+  
+**Primary Dependencies**: `pandas`, `numpy`, `statsmodels`, `seaborn`, `matplotlib`, `requests`, `jinja2`, `pyyaml`, `scipy`  
+**Storage**: Local filesystem (CSV/Parquet input, PNG/HTML output)  
+**Testing**: `pytest` (contract tests for schema validation)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM)  
+**Project Type**: Data Analysis Pipeline / Statistical Study  
+**Performance Goals**: Complete analysis and report generation within 6 hours on CPU-only hardware.  
+**Constraints**: No GPU; no heavy model training; strict adherence to OSF dataset schema; robust error handling for missing data/columns.  
+**Scale/Scope**: Single dataset (~10k rows max), 3 primary models, 3 robustness checks.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*Gates determined based on `projects/PROJ-167-the-impact-of-self-compassion-on-resilie/.specify/memory/constitution.md`*
 
-| Principle | Status | Action/Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates `requirements.txt` with pinned versions, seed=42, and deterministic OSF fetch with checksum. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` will only reference the OSF source (if accessible) or standard psychometric literature. No fabricated URLs. Pipeline aborts if data is unverified. |
-| **III. Data Hygiene** | **PASS** | FR-016 mandates SHA-256 checksum of raw data. Raw data preserved; cleaned data written to new file. |
-| **IV. Single Source of Truth** | **PASS** | Report will dynamically pull stats from the `AnalysisResult` object, not hardcoded values. |
-| **V. Versioning Discipline** | **PASS** | Plan includes state file update logic for artifact hashes. |
-| **VI. Validated Instruments** | **PASS** | Spec confirms use of SCS, STAI, RRS, GSES (all validated). Plan will verify column names match these instruments. |
-| **VII. Participant Well‑Being** | **WARN** | The dataset is historical; the pipeline cannot verify pre-screening or debriefing for every record. The report **MUST** explicitly flag this as a limitation ("Participant Well-Being protocols could not be verified for this historical dataset") rather than claiming full compliance. |
+1.  **I. Reproducibility**: **PASS**. Plan mandates `random_seed=42` for all stochastic operations (bootstrap, shuffling) and requires fetching data from a fixed OSF URL. `requirements.txt` will pin versions.
+2.  **II. Verified Accuracy**: **PASS**. The plan explicitly includes a step to run the **Reference-Validator Agent** against the OSF URL (`https://osf.io/3k9r2/`) and instrument citations (SCS, STAI, etc.) before analysis begins. This ensures all citations are verified against primary sources as required by the constitution's gate.
+3.  **III. Data Hygiene**: **PASS**. Plan includes FR-016: SHA-256 checksum of the raw dataset immediately after download, stored in `state/projects/...yaml`. No in-place modification of raw data; derivations go to new files.
+4.  **IV. Single Source of Truth**: **PASS**. All statistics in the report are computed by the code from the `data/` directory. No hand-typed numbers.
+5.  **V. Versioning Discipline**: **PASS**. Artifacts (data, report, plots) will be hashed. The `state` file tracks `updated_at`.
+6.  **VI. Validated Instruments**: **PASS**. The plan explicitly relies on SCS (Neff), STAI (Spielberger), RRS (Nolen-Hoeksema), and GSES (Schwarzer), all established scales.
+7.  **VII. Participant Well‑Being**: **PASS**. The plan adds a specific step to create `code/protocol.md` documenting ethical procedures (pre-screening, debriefing, resource access). The data cleaning phase will verify a 'debriefing_complete' flag or metadata note. If missing, a 'Protocol Verification Warning' is added to the report.
 
 ## Project Structure
 
@@ -76,54 +40,59 @@ specs/001-self-compassion-feedback/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Existing design artifacts (referenced, not generated here)
+├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   └── analysis_output.schema.yaml
-└── tasks.md             # (Generated in next stage if needed)
+│   └── analysis_result.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-167-the-impact-of-self-compassion-on-resilie/
+├── data/
+│   ├── raw/
+│   │   └── feedback_self_compassion.csv (downloaded)
+│   └── processed/
+│       └── clean_data.csv
 ├── code/
 │   ├── __init__.py
-│   ├── config.py              # Paths, seeds, thresholds
-│   ├── data_loader.py         # OSF fetch, checksum, validation, randomization check
-│   ├── preprocessing.py       # Cleaning, z-scoring, encoding
-│   ├── models.py              # ANCOVA, VIF, Bootstrap, Robust SEs
-│   ├── visualization.py       # Simple slopes
-│   ├── robustness.py          # Sensitivity, alternative moderator
-│   ├── report_generator.py    # HTML generation
-│   └── main.py                # Orchestration
-├── data/
-│   ├── raw/                   # Downloaded CSV (checksummed)
-│   └── processed/             # Cleaned CSV
-├── output/
-│   ├── plots/                 # PNGs
-│   └── report.html
+│   ├── download.py          # Downloads dataset, computes SHA-256
+│   ├── clean.py             # Listwise deletion, encoding, z-scoring
+│   ├── models.py            # ANCOVA fitting, VIF, Bootstrap, Johnson-Neyman
+│   ├── viz.py               # Simple slope plots
+│   ├── report.py            # HTML generation (Jinja2)
+│   └── main.py              # Orchestrator
 ├── tests/
-│   ├── test_data_loader.py
-│   └── test_models.py
-├── requirements.txt
-└── state/
-    └── projects/PROJ-167-...yaml
+│   ├── test_contracts.py    # Validates CSV/JSON against dataset.schema.yaml, analysis_result.schema.yaml, output.schema.yaml
+│   └── test_pipeline.py     # End-to-end smoke test
+├── state/
+│   └── projects/PROJ-167-the-impact-of-self-compassion-on-resilie.yaml
+└── reports/
+    └── report.html
 ```
 
-**Structure Decision**: Single project structure with modular scripts in `code/`. This minimizes overhead for CPU-only execution and simplifies dependency management on GitHub Actions.
+**Structure Decision**: Single project structure. The analysis is linear (Download -> Clean -> Model -> Viz -> Report). No complex microservices or frontend/backend split is needed for a statistical study.
 
-## Complexity Tracking
+## Compute Feasibility & Methodological Rigor
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Bootstrap (5000 resamples)** | Required by FR-008 for robust CI estimation of interaction terms in small samples. | Parametric CIs alone are insufficient for non-normal residuals; bootstrap is the standard for robust inference here. Fallback to parametric only if convergence fails. |
-| **HC3 Robust SEs** | Required by FR-009 to handle heteroskedasticity (Breusch-Pagan check). | Standard OLS SEs would be biased if heteroskedasticity is present, violating FR-006. |
-| **Holm-Bonferroni** | Required by FR-011 for multiple comparisons (3 outcomes + 1 robustness). | Bonferroni is too conservative; Holm-Bonferroni maintains power while controlling FWER. |
-| **Hard Data Gate** | Required to prevent "zombie" experiments on missing/unsuitable data. | Running on proxy datasets would invalidate the hypothesis (feedback manipulation). |
+- **Dataset Fit**: The plan explicitly checks for required columns (`stai_post`, `rrs_post`, `gse_post`, `scf_total`, `feedback_cond`) per FR-001. If missing, the pipeline aborts with a specific error, preventing "fatal dataset mismatch" flaws.
+- **Statistical Rigor**:
+    - **Multiple Comparisons**: Holm-Bonferroni correction applied across the 3 primary outcomes (FR-011) and 3 robustness outcomes (FR-011b).
+    - **Power & MDES**: Power analysis target (N≥92) is checked. If N<92, the pipeline **calculates the Minimum Detectable Effect Size (MDES)** for the observed N and reports this specific value. The report will frame findings as "exploratory" if power < 0.80 for the target f²=0.02.
+    - **Causal Claims**: The plan checks for randomization metadata (FR-017). If absent, claims are restricted to "associational."
+    - **Collinearity**: VIF computed; >5 triggers a flag (FR-013).
+    - **Robustness**: HC3 standard errors (FR-009) and Bootstrap (FR-008) included.
+    - **Homogeneity of Slopes**: **Prerequisite Gate**. If the interaction between Covariate and Feedback is significant (p < 0.10), the primary ANCOVA interaction is flagged as biased. The pipeline **automatically runs a Johnson-Neyman technique** to identify the specific range of the moderator where the effect is significant, and these results take precedence for the main conclusion.
+    - **Simple Slopes Direction**: The plan explicitly computes the simple slopes of the *feedback condition* at low, mean, and high SCS to confirm the *direction* of the buffering effect (flatter slope for high SCS), not just the interaction significance.
+    - **Bootstrap Strategy**: Explicitly uses **Case Resampling** (stratified by feedback condition) to preserve experimental design structure.
+- **CPU Feasibility**:
+    - **No GPU**: All operations use `statsmodels` (CPU-native) and `pandas`.
+    - **Memory**: Data is processed in chunks or fully loaded (assuming <100k rows, well within 7GB RAM).
+    - **Runtime**: Bootstrap (5k resamples) and 3 models are computationally light on 2 cores; estimated runtime < 30 mins.
 
-## Scientific Validity Gate
+## Testing Strategy
 
-The pipeline explicitly acknowledges that the research question (moderation of *feedback* impact) is **untestable** without the specific experimental dataset.
-- **If OSF 3k9r2 is available**: Proceed with full analysis.
-- **If OSF 3k9r2 is missing**: Abort with `[DATA_UNAVAILABLE]`. This is a valid scientific outcome indicating the hypothesis cannot be tested with current resources.
-- **No Alternative Path**: The plan does not reframe the question to match available data (e.g., correlational only) because the specific hypothesis requires the experimental manipulation.
+- **Contract Tests**: `tests/test_contracts.py` will validate the raw CSV against `contracts/dataset.schema.yaml` and the analysis output against `contracts/analysis_result.schema.yaml` and `contracts/output.schema.yaml`.
+- **Pipeline Tests**: `tests/test_pipeline.py` ensures the end-to-end flow (Download -> Clean -> Model -> Report) completes without error and produces non-empty artifacts.
+- **No Hard-Coded Results**: All tests verify that values in the output are derived from the `data/` directory via the specified statistical methods. No simulated or placeholder numbers are allowed.
