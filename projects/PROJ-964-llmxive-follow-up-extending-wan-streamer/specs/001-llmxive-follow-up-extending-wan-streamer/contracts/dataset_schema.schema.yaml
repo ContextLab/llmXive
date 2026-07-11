@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Processed Dataset Schema"
+description: "Schema for the preprocessed dataset used in training the GRU estimator. Contains latent deltas and turn-taking labels."
+type: object
+properties:
+  frame_id:
+    type: integer
+    description: "Unique identifier for the frame."
+  timestamp:
+    type: number
+    description: "Timestamp in seconds."
+  semantic_feature:
+    type: number
+    description: "Aggregated semantic score."
+  prosodic_feature:
+    type: number
+    description: "Aggregated prosodic score."
+  latent_delta_magnitude:
+    type: number
+    description: "Euclidean distance between current and previous latent vector."
+  turn_label:
+    type: integer
+    description: "0: Normal, 1: Interruption, 2: Pause."
+    enum: [0, 1, 2]
+  is_training:
+    type: boolean
+    description: "Flag for train/val/test split."
+required:
+  - frame_id
+  - timestamp
+  - semantic_feature
+  - prosodic_feature
+  - latent_delta_magnitude
+  - turn_label
+  - is_training
+additionalProperties: false

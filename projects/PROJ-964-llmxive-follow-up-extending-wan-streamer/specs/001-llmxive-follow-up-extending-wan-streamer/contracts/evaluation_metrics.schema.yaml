@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Evaluation Metrics Schema"
+description: "Schema for the output of the hybrid inference simulation. Contains latency and quality metrics."
+type: object
+properties:
+  segment_id:
+    type: integer
+    description: "Video segment ID."
+  baseline_latency_ms:
+    type: number
+    description: "Latency of full flow-matching baseline."
+  hybrid_latency_ms:
+    type: number
+    description: "Latency of hybrid pipeline."
+  baseline_fid:
+    type: number
+    description: "FID of baseline generation."
+  hybrid_fid:
+    type: number
+    description: "FID of hybrid generation."
+  proxy_mos:
+    type: number
+    description: "Proxy Mean Opinion Score."
+    minimum: 0.0
+    maximum: 5.0
+required:
+  - segment_id
+  - baseline_latency_ms
+  - hybrid_latency_ms
+  - baseline_fid
+  - hybrid_fid
+  - proxy_mos
+additionalProperties: false

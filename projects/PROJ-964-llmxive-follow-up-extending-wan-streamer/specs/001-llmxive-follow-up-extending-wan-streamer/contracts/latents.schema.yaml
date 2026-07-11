@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "extracted_latents"
+description: "Schema for the extracted time-series latent vectors and turn-taking labels."
+type: "object"
+properties:
+  timestamp:
+    type: "integer"
+    description: "Unix timestamp of the frame."
+  segment_id:
+    type: "string"
+    description: "Identifier for the conversation segment."
+  semantic_feature:
+    type: "number"
+    description: "Semantic embedding vector (flattened or PCA reduced)."
+  prosodic_feature:
+    type: "number"
+    description: "Prosodic features (energy, pitch, duration)."
+  latent_delta_magnitude:
+    type: "number"
+    description: "Magnitude of the latent vector displacement."
+    minimum: 0
+  turn_label:
+    type: "string"
+    description: "Label: interruption, pause, or normal."
+    enum:
+      - "interruption"
+      - "pause"
+      - "normal"
+  is_high_priority:
+    type: "boolean"
+    description: "Derived: True if interruption or high delta."
+required:
+  - timestamp
+  - segment_id
+  - semantic_feature
+  - prosodic_feature
+  - latent_delta_magnitude
+  - turn_label
+  - is_high_priority
+additionalProperties: false

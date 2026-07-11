@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "estimator_predictions"
+description: "Schema for the output of the lightweight GRU estimator."
+type: "object"
+properties:
+  timestamp:
+    type: "integer"
+    description: "Frame timestamp."
+  segment_id:
+    type: "string"
+    description: "Segment identifier."
+  predicted_delta:
+    type: "number"
+    description: "Predicted magnitude of the next latent delta."
+    minimum: 0
+  uncertainty_score:
+    type: "number"
+    description: "Confidence score (0.0 to 1.0)."
+    minimum: 0
+    maximum: 1
+  action:
+    type: "string"
+    description: "Action taken: skip or solve."
+    enum:
+      - "skip"
+      - "solve"
+  actual_delta:
+    type: "number"
+    description: "Ground truth delta (for validation)."
+    minimum: 0
+required:
+  - timestamp
+  - segment_id
+  - predicted_delta
+  - uncertainty_score
+  - action
+  - actual_delta
+additionalProperties: false

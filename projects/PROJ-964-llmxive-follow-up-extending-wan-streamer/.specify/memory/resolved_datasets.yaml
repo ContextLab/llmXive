@@ -1,0 +1,507 @@
+resolved_at: '2026-07-11T19:20:40.619137+00:00'
+datasets:
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/journal_contribution/Molecular_networking-guided_discovery_of_cytotoxic_metabolites_in_i_Humiria_balsamifera_i_insights_into_Bergenin_selectivity_and_safety/32964368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/educational_resource/Global_Music_History_Pedagogy_-_Gabriel_Chapter_Slides/32964362
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cilt_3_Ar_iv_2011_ncesinden_2026_ya_Gelecek_Nesiller_in_Turkey/32964332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polyelectrolyte_Complex_Gelation_of_Nafion_as_a_Polymer_Binder_for_Carbon_Composites_and_Its_Implications_for_Electric_Double-Layer_Capacitor_Electrodes/32964353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Burkhard_Heim_s_Unified_Field_Theory_Summaries_of_the_MBB_Lectures_1976_Metron_Calculations/32902040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15115020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.01764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Molecular_networking-guided_discovery_of_cytotoxic_metabolites_in_i_Humiria_balsamifera_i_insights_into_Bergenin_selectivity_and_safety/32964368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/educational_resource/Global_Music_History_Pedagogy_-_Gabriel_Chapter_Slides/32964362
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cilt_3_Ar_iv_2011_ncesinden_2026_ya_Gelecek_Nesiller_in_Turkey/32964332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polyelectrolyte_Complex_Gelation_of_Nafion_as_a_Polymer_Binder_for_Carbon_Composites_and_Its_Implications_for_Electric_Double-Layer_Capacitor_Electrodes/32964353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Burkhard_Heim_s_Unified_Field_Theory_Summaries_of_the_MBB_Lectures_1976_Metron_Calculations/32902040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21223570
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21223570
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312208
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GRU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ProCreations/grug-think/resolve/main/data/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggan/grumpifycat/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggan/few-shot-grumpy-cat/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ProCreations/grug-think/resolve/main/data/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/huggan/grumpifycat/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/huggan/few-shot-grumpy-cat/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Molecular_networking-guided_discovery_of_cytotoxic_metabolites_in_i_Humiria_balsamifera_i_insights_into_Bergenin_selectivity_and_safety/32964368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/educational_resource/Global_Music_History_Pedagogy_-_Gabriel_Chapter_Slides/32964362
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cilt_3_Ar_iv_2011_ncesinden_2026_ya_Gelecek_Nesiller_in_Turkey/32964332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polyelectrolyte_Complex_Gelation_of_Nafion_as_a_Polymer_Binder_for_Carbon_Composites_and_Its_Implications_for_Electric_Double-Layer_Capacitor_Electrodes/32964353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Burkhard_Heim_s_Unified_Field_Theory_Summaries_of_the_MBB_Lectures_1976_Metron_Calculations/32902040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000330103
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/17641869
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7882234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/9414489/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20215110
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Investigation_and_enhancement_of_the_process_of_electrochemical_discharge_machining_a_study/30656808
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Investigation_and_enhancement_of_the_process_of_electrochemical_discharge_machining_a_study/30656808/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304850
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304850
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304864
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mserras/alpaca-es-hackaton-backup/resolve/main/data/train-00000-of-00002-361bf44604a417c2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mserras/alpaca-es-autoclean/resolve/main/data/train-00000-of-00001-bc33606a4db4e29f.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/mserras/alpaca-es-hackaton-backup/resolve/main/data/train-00000-of-00002-361bf44604a417c2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Molecular_networking-guided_discovery_of_cytotoxic_metabolites_in_i_Humiria_balsamifera_i_insights_into_Bergenin_selectivity_and_safety/32964368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/educational_resource/Global_Music_History_Pedagogy_-_Gabriel_Chapter_Slides/32964362
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cilt_3_Ar_iv_2011_ncesinden_2026_ya_Gelecek_Nesiller_in_Turkey/32964332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polyelectrolyte_Complex_Gelation_of_Nafion_as_a_Polymer_Binder_for_Carbon_Composites_and_Its_Implications_for_Electric_Double-Layer_Capacitor_Electrodes/32964353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Burkhard_Heim_s_Unified_Field_Theory_Summaries_of_the_MBB_Lectures_1976_Metron_Calculations/32902040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3407328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3413785
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14616644
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19518645
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7641223
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308927
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308927
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 108629
+      parsed: true
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/664ded1c6204fa5a3ddf65ae/d67e5979604be35f659a6ef9cbb0ef48a82be18804a751a15e42f95fa30c4aae?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Uncensored_and_unlimited.json%3B+filename%3D%22Uncensored_and_unlimited.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&Expires=1783801184&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY0ZGVkMWM2MjA0ZmE1YTNkZGY2NWFlL2Q2N2U1OTc5NjA0YmUzNWY2NTlhNmVmOWNiYjBlZjQ4YTgyYmUxODgwNGE3NTFhMTVlNDJmOTVmYTMwYzRhYWVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3VW5jZW5zb3JlZF9hbmRfdW5saW1pdGVkLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJVbmNlbnNvcmVkX2FuZF91bmxpbWl0ZWQuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM4MDExODR9fX1dfQ__&Signature=MEUCIC8M96DmihttZG8cvSyAWLfPSc-OhADxwV1xi1M4BDbCAiEA4t2zbxOmtVVBWxHUJ4Ht8qG4QtPb~whvmN~6Zk-GDos_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Molecular_networking-guided_discovery_of_cytotoxic_metabolites_in_i_Humiria_balsamifera_i_insights_into_Bergenin_selectivity_and_safety/32964368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/educational_resource/Global_Music_History_Pedagogy_-_Gabriel_Chapter_Slides/32964362
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cilt_3_Ar_iv_2011_ncesinden_2026_ya_Gelecek_Nesiller_in_Turkey/32964332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polyelectrolyte_Complex_Gelation_of_Nafion_as_a_Polymer_Binder_for_Carbon_Composites_and_Its_Implications_for_Electric_Double-Layer_Capacitor_Electrodes/32964353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Burkhard_Heim_s_Unified_Field_Theory_Summaries_of_the_MBB_Lectures_1976_Metron_Calculations/32902040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336107
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3380311
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FID
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/carnival13/hotpot_FiD/resolve/main/data/train-00000-of-00004-fe37021775bb0e94.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/carnival13/nq_fid/resolve/main/data/validation-00000-of-00004-8c706ef95565d5c4.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/carnival13/hpqa-fid-input/resolve/main/data/train-00000-of-00003-ddfc85ff79e0d2a7.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/62c1b5988b647bdc24f75b8f/da05fd87d2eca50814f01ad7c86530845eb86de3f7667cabafc2e9ed0734f2d1?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.json%3B+filename%3D%22train.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1783801207&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJjMWI1OTg4YjY0N2JkYzI0Zjc1YjhmL2RhMDVmZDg3ZDJlY2E1MDgxNGYwMWFkN2M4NjUzMDg0NWViODZkZTNmNzY2N2NhYmFmYzJlOWVkMDczNGYyZDFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4uanNvbiUzQitmaWxlbmFtZSUzRCUyMnRyYWluLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODAxMjA3fX19XX0_&Signature=MEYCIQDoPzgwNtMRvDl05BHVQPzrBDM-y4S2E8DEQk3~V7-QLAIhAMsFKZxa0lwpApy-wNqKYkDN9eMlPMWVk4rinLdTULTA&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/62c1e590e181094cdae08bf8/467f21629368b995bde7f99a8e82a24b58aeeb1bc6c66cad7b7d1910715f28ed?response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783801208&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJjMWU1OTBlMTgxMDk0Y2RhZTA4YmY4LzQ2N2YyMTYyOTM2OGI5OTViZGU3Zjk5YThlODJhMjRiNThhZWViMWJjNmM2NmNhZDdiN2QxOTEwNzE1ZjI4ZWRcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODAxMjA4fX19XX0_&Signature=MEUCIQDZ-ZJ6tKeyAL9PhcvvWHBMwD21M5CdH4h12W2eOAFpmQIgVJDVVdACH5SVteJFDnywWiKOleDOsCBVt-oAPORwJMo_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/carnival13/hotpot_FiD/resolve/main/data/train-00000-of-00004-fe37021775bb0e94.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/carnival13/nq_fid/resolve/main/data/validation-00000-of-00004-8c706ef95565d5c4.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/carnival13/hpqa-fid-input/resolve/main/data/train-00000-of-00003-ddfc85ff79e0d2a7.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Molecular_networking-guided_discovery_of_cytotoxic_metabolites_in_i_Humiria_balsamifera_i_insights_into_Bergenin_selectivity_and_safety/32964368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/educational_resource/Global_Music_History_Pedagogy_-_Gabriel_Chapter_Slides/32964362
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cilt_3_Ar_iv_2011_ncesinden_2026_ya_Gelecek_Nesiller_in_Turkey/32964332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Polyelectrolyte_Complex_Gelation_of_Nafion_as_a_Polymer_Binder_for_Carbon_Composites_and_Its_Implications_for_Electric_Double-Layer_Capacitor_Electrodes/32964353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Burkhard_Heim_s_Unified_Field_Theory_Summaries_of_the_MBB_Lectures_1976_Metron_Calculations/32902040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5379685
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5548234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14726679
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17814011
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2549574
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/168720
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.972115
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.971523
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.971522
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.967408
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

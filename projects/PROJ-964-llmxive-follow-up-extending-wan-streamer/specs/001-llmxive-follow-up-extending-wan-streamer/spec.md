@@ -25,7 +25,7 @@ The research system MUST extract time-series data of text, audio, and video late
 
 ### User Story 2 - Lightweight Estimator Training (Priority: P2)
 
-The research system MUST train a lightweight Recurrent Neural Network (GRU) or shallow Transformer on the extracted dataset to predict the magnitude of the next audio-visual latent vector delta based on causal history of semantic and prosodic signals, ensuring the training completes within the 6-hour CPU runtime limit.
+The research system MUST train a lightweight Recurrent Neural Network (GRU) or shallow Transformer on the extracted dataset to predict the magnitude of the next audio-visual latent vector delta based on causal history of semantic and prosodic signals, ensuring the training completes within the predefined CPU runtime limit.
 
 **Why this priority**: This implements the core hypothesis that a lightweight model can predict "low-information" latent states, enabling the potential for solver skipping.
 
@@ -49,10 +49,10 @@ The research system MUST simulate a hybrid inference pipeline where the trained 
 
 **Acceptance Scenarios**:
 
-1. **Given** the trained estimator and a test set of 50 video segments, **When** the hybrid inference pipeline runs, **Then** the average inference latency per frame is at least 20% lower than the full flow-matching baseline.
+1. **Given** the trained estimator and a test set of video segments, **When** the hybrid inference pipeline runs, **Then** the average inference latency per frame is at least 20% lower than the full flow-matching baseline.
 2. **Given** the hybrid output, **When** the Fréchet Inception Distance (FID) is computed against the ground truth, **Then** the FID score indicates a degradation of no more than 5% compared to the baseline generation, defined mathematically as: `(FID_hybrid - FID_baseline) / FID_baseline <= 0.05`.
 3. **Given** the latency and quality metrics, **When** a Two One-Sided Tests (TOST) equivalence test is performed with an equivalence margin (Δ) of 0.05, **Then** the result confirms equivalence for quality metrics (p < 0.05 for both one-sided tests) and a statistically significant reduction in latency (p < 0.05).
-4. **Given** a subset of 50 video segments with human-annotated quality ratings, **When** the proxy MOS is computed, **Then** the correlation (Pearson r) between the proxy MOS and human ratings is ≥ 0.8, validating the proxy metric for this specific regime.
+4. **Given** a a subset of video segments with human-annotated quality ratings, **When** the proxy MOS is computed, **Then** the correlation (Pearson r) between the proxy MOS and human ratings is ≥ 0.8, validating the proxy metric for this specific regime.
 
 ---
 
@@ -67,7 +67,7 @@ The research system MUST simulate a hybrid inference pipeline where the trained 
 ### Functional Requirements
 
 - **FR-001**: System MUST extract time-series latent vectors and turn-taking labels from Wan-Streamer v0.1 logs, ensuring the dataset contains variables for semantic content, prosodic signals, and latent delta magnitude (See US-1).
-- **FR-002**: System MUST train a lightweight GRU or shallow Transformer model on CPU-only hardware to predict latent delta magnitude AND an uncertainty score, with a maximum memory footprint of 7 GB (See US-2).
+- **FR-002**: System MUST train a lightweight GRU or shallow Transformer model on CPU-only hardware to predict latent delta magnitude AND an uncertainty score, with a maximum memory footprint within a reasonable range (See US-2).
 - **FR-003**: System MUST implement a hybrid inference engine that conditionally skips flow-matching steps based on the estimator's prediction of "low-priority" frames (See US-3).
 - **FR-004**: System MUST compute Fréchet Inception Distance (FID) and a proxy Mean Opinion Score (MOS) using a separate, pre-trained video quality assessment model to evaluate hybrid output quality (See US-3).
 - **FR-005**: System MUST perform a statistical significance test using stratified bootstrap with propensity-score matching (or equivalent bias-correction method) to validate latency reduction, and a Two One-Sided Tests (TOST) equivalence test with margin Δ=0.05 for quality metrics (See US-3).
