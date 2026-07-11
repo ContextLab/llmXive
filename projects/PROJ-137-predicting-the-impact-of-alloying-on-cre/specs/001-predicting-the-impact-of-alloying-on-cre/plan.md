@@ -158,7 +158,7 @@ If the NIMS source becomes verified and reachable:
 ### 3.1 Feature Engineering
 1.  **Composition Parsing**: Convert raw strings (e.g., "Ni-10Cr-5Al") to normalized atomic fractions.
     *   Sort elements alphabetically.
-    *   Round stoichiometry to 2 decimals.
+    *   Round stoichiometry to an appropriate level of precision.
     *   Convert weight% to atomic% if necessary.
 2.  **Thermodynamic Descriptors**:
     *   **Mixing Enthalpy ($\Delta H_{mix}$)**: Calculated using `pymatgen` thermodynamics.
@@ -197,7 +197,7 @@ If the NIMS source becomes verified and reachable:
 
 ## 5. Compute Feasibility
 
-*   **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
+*   **Hardware**: GitHub Actions Free Tier (multi-core CPU, multi-GB RAM).
 *   **Strategy**:
     *   No GPU/CUDA usage.
     *   Data subset to fit RAM (max N < 1000).

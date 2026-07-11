@@ -1,0 +1,4 @@
+# Extends the configuration in pyproject.toml if needed, 
+# or serves as a standalone config file.
+# Keeping this for explicit ruff discovery in some IDEs.
+extend = "pyproject.toml"

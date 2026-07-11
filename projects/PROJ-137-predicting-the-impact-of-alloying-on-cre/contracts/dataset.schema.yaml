@@ -1,0 +1,165 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AlloyCreepDataset
+description: |
+  Schema for the processed alloy creep resistance dataset.
+  Validates the output of the data preprocessing pipeline (T019).
+  Aligns with the data model defined in docs/data-model.md.
+type: object
+properties:
+  $schema:
+    type: string
+    description: JSON Schema URI
+  columns:
+    type: array
+    description: Ordered list of column names in the CSV
+    items:
+      type: string
+    contains:
+      - "alloy_id"
+      - "composition_str"
+      - "temperature"
+      - "stress"
+      - "rupture_time"
+      - "mixing_enthalpy"
+      - "radius_mismatch"
+  field_definitions:
+    type: object
+    description: Detailed schema for each column
+    properties:
+      alloy_id:
+        type: object
+        description: Unique identifier for the alloy sample
+        properties:
+          type:
+            type: string
+            const: string
+          format:
+            type: string
+            const: uuid
+          nullable:
+            type: boolean
+            const: false
+          unique:
+            type: boolean
+            const: true
+      composition_str:
+        type: object
+        description: |
+          String representation of the alloy composition.
+          Format: "Element1:frac1,Element2:frac2,..."
+          Sorted alphabetically by element symbol.
+          FRACTIONS are atomic percentages (0.0 to 1.0), rounded to 4 decimal places.
+        properties:
+          type:
+            type: string
+            const: string
+          pattern:
+            type: string
+            const: "^[A-Z][a-z]*:[0-9.]+(,[A-Z][a-z]*:[0-9.]+)*$"
+          nullable:
+            type: boolean
+            const: false
+      temperature:
+        type: object
+        description: |
+          Test temperature in Kelvin.
+          Derived from input data (Celsius conversion if necessary).
+        properties:
+          type:
+            type: string
+            const: number
+          minimum:
+            type: number
+            const: 0
+          unit:
+            type: string
+            const: "K"
+          nullable:
+            type: boolean
+            const: false
+      stress:
+        type: object
+        description: |
+          Applied stress in MPa.
+          Derived from input data (unit conversion if necessary).
+        properties:
+          type:
+            type: string
+            const: number
+          minimum:
+            type: number
+            const: 0
+          unit:
+            type: string
+            const: "MPa"
+          nullable:
+            type: boolean
+            const: false
+      rupture_time:
+        type: object
+        description: |
+          Time to rupture in hours.
+          Derived from input data (unit conversion if necessary).
+        properties:
+          type:
+            type: string
+            const: number
+          minimum:
+            type: number
+            const: 0
+          unit:
+            type: string
+            const: "hours"
+          nullable:
+            type: boolean
+            const: false
+      mixing_enthalpy:
+        type: object
+        description: |
+          Calculated mixing enthalpy (Delta H_mix) in kJ/mol.
+          Computed using thermodynamic descriptors from Materials Project.
+          Negative values indicate exothermic mixing.
+        properties:
+          type:
+            type: string
+            const: number
+          unit:
+            type: string
+            const: "kJ/mol"
+          nullable:
+            type: boolean
+            const: true
+            description: "Null if thermodynamic data could not be resolved"
+      radius_mismatch:
+        type: object
+        description: |
+          Atomic radius mismatch parameter (delta) in percent.
+          Computed using thermodynamic descriptors from Materials Project.
+          Measures deviation in atomic radii from the weighted average.
+        properties:
+          type:
+            type: string
+            const: number
+          minimum:
+            type: number
+            const: 0
+          unit:
+            type: string
+            const: "%"
+          nullable:
+            type: boolean
+            const: true
+            description: "Null if thermodynamic data could not be resolved"
+    required:
+      - alloy_id
+      - composition_str
+      - temperature
+      - stress
+      - rupture_time
+      - mixing_enthalpy
+      - radius_mismatch
+required:
+  - $schema
+  - columns
+  - field_definitions
+additionalProperties: false

@@ -1,0 +1,267 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Evaluation Report Schema
+description: >
+  Schema for validating the JSON output of the model evaluation pipeline
+  (src/models/evaluate.py and src/models/main_eval.py).
+  This schema ensures the report contains all required metrics, statistical test results,
+  and metadata for the comparison between Thermodynamic and Composition-Only models.
+type: object
+required:
+  - metadata
+  - dataset_info
+  - model_comparison
+  - statistical_significance
+  - feature_importance
+properties:
+  metadata:
+    type: object
+    description: Metadata about the report generation.
+    required:
+      - generated_at
+      - pipeline_version
+      - random_seed
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of report generation.
+      pipeline_version:
+        type: string
+        description: Version of the pipeline script used.
+      random_seed:
+        type: integer
+        description: Random seed used for reproducibility.
+      config_path:
+        type: string
+        description: Relative path to the configuration file used.
+
+  dataset_info:
+    type: object
+    description: Information about the dataset used for training and evaluation.
+    required:
+      - source
+      - total_rows
+      - train_rows
+      - test_rows
+      - feature_count
+      - feature_names
+    properties:
+      source:
+        type: string
+        description: Source of the data (e.g., "NIMS", "Synthetic", "Mixed").
+      total_rows:
+        type: integer
+        minimum: 1
+        description: Total number of rows in the input dataset.
+      train_rows:
+        type: integer
+        minimum: 1
+        description: Number of rows used for training (outer loop training sets).
+      test_rows:
+        type: integer
+        minimum: 1
+        description: Number of rows used for testing (outer loop test sets).
+      feature_count:
+        type: integer
+        minimum: 1
+        description: Total number of features used in the models.
+      feature_names:
+        type: array
+        items:
+          type: string
+        description: List of feature names in the order they were passed to the model.
+      excluded_rows:
+        type: integer
+        minimum: 0
+        description: Number of rows excluded due to missing data (if applicable).
+
+  model_comparison:
+    type: object
+    description: Performance comparison between the two models.
+    required:
+      - thermodynamic_model
+      - composition_only_model
+      - delta_r2
+      - delta_rmse
+    properties:
+      thermodynamic_model:
+        type: object
+        description: Metrics for the model using thermodynamic descriptors.
+        required:
+          - r2_mean
+          - r2_std
+          - rmse_mean
+          - rmse_std
+          - model_type
+        properties:
+          r2_mean:
+            type: number
+            description: Mean R² score from nested cross-validation.
+          r2_std:
+            type: number
+            description: Standard deviation of R² scores.
+          rmse_mean:
+            type: number
+            description: Mean RMSE score from nested cross-validation.
+          rmse_std:
+            type: number
+            description: Standard deviation of RMSE scores.
+          model_type:
+            type: string
+            const: "GradientBoostingRegressor"
+          hyperparameters:
+            type: object
+            description: Best hyperparameters found during inner grid search.
+
+      composition_only_model:
+        type: object
+        description: Metrics for the model using composition only.
+        required:
+          - r2_mean
+          - r2_std
+          - rmse_mean
+          - rmse_std
+          - model_type
+        properties:
+          r2_mean:
+            type: number
+            description: Mean R² score from nested cross-validation.
+          r2_std:
+            type: number
+            description: Standard deviation of R² scores.
+          rmse_mean:
+            type: number
+            description: Mean RMSE score from nested cross-validation.
+          rmse_std:
+            type: number
+            description: Standard deviation of RMSE scores.
+          model_type:
+            type: string
+            const: "GradientBoostingRegressor"
+          hyperparameters:
+            type: object
+            description: Best hyperparameters found during inner grid search.
+
+      delta_r2:
+        type: object
+        description: Difference in performance (Thermodynamic - Composition).
+        required:
+          - mean
+          - std
+        properties:
+          mean:
+            type: number
+            description: Mean difference in R².
+          std:
+            type: number
+            description: Standard deviation of the difference.
+
+      delta_rmse:
+        type: object
+        description: Difference in performance (Thermodynamic - Composition).
+        required:
+          - mean
+          - std
+        properties:
+          mean:
+            type: number
+            description: Mean difference in RMSE.
+          std:
+            type: number
+            description: Standard deviation of the difference.
+
+  statistical_significance:
+    type: object
+    description: Results of the statistical significance tests.
+    required:
+      - test_type
+      - p_value
+      - confidence_interval
+      - is_significant
+      - sensitivity_analysis
+    properties:
+      test_type:
+        type: string
+        description: The type of test performed (e.g., "Permutation", "Bootstrap").
+        enum:
+          - "Permutation"
+          - "Bootstrap"
+      sample_size_category:
+        type: string
+        description: Sample size category that determined the test choice.
+        enum:
+          - "N < 20"
+          - "20 <= N < 100"
+          - "N >= 100"
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: The p-value from the statistical test.
+      confidence_interval:
+        type: object
+        description: 95% Confidence Interval for the performance difference.
+        required:
+          - lower
+          - upper
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+      is_significant:
+        type: boolean
+        description: Whether the result is statistically significant (p < 0.05).
+      sensitivity_analysis:
+        type: array
+        description: Sensitivity analysis results for different cutoffs.
+        items:
+          type: object
+          required:
+            - cutoff
+            - p_value
+          properties:
+            cutoff:
+              type: number
+              description: The p-value cutoff used.
+            p_value:
+              type: number
+              description: The resulting p-value at this cutoff (or stability metric).
+
+  feature_importance:
+    type: object
+    description: Feature importance analysis results (SHAP).
+    required:
+      - top_features
+      - global_importance_method
+    properties:
+      global_importance_method:
+        type: string
+        description: Method used for importance calculation.
+        const: "SHAP (TreeExplainer)"
+      top_features:
+        type: array
+        description: List of top 5 most important features.
+        items:
+          type: object
+          required:
+            - feature_name
+            - mean_abs_shap
+            - direction
+          properties:
+            feature_name:
+              type: string
+            mean_abs_shap:
+              type: number
+              description: Mean absolute SHAP value.
+            direction:
+              type: string
+              description: Direction of influence.
+              enum:
+                - "positive"
+                - "negative"
+                - "mixed"
+            shap_std:
+              type: number
+              description: Standard deviation of SHAP values.
+additionalProperties: false

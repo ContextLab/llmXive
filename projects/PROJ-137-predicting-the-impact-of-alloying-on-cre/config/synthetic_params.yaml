@@ -1,0 +1,11 @@
+arrhenius:
+  activation_energy: 250000 # J/mol
+  pre_exponential: 1e10
+power_law:
+  stress_exponent: 5.0
+statistical_targets:
+  ks_distance_threshold: 0.05
+  mean_sd_mismatch_threshold: 0.10
+temperature_bins: 5
+min_samples_per_bin: 10
+random_seed: 42

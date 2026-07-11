@@ -1,0 +1,14 @@
+T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `docs/`, `config/`): 1
+? 'T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`,
+  `docs/`, `config/`) <!-- ATOMIZE: requested -->'
+: 1
+? T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn,
+  pymatgen, shap, numpy, pyyaml, requests, tqdm, scipy, pytest)
+: 2
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2
+T004 [P] Create `config/settings.yaml` with random seeds, paths, and API key placeholders: 2
+T005 [P] Create `config/synthetic_params.yaml` with Arrhenius/Power-law parameters and statistical targets: 2
+? T006a [P] Create `docs/data-model.md` defining `AlloySample`, `ThermodynamicDescriptor`,
+  `ModelPerformance` entities with detailed schema descriptions, explicitly referencing
+  `contracts/dataset.schema.yaml` for alignment
+: 2

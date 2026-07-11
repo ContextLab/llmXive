@@ -1,0 +1,12 @@
+random_seed: 42
+paths:
+  data: "data/processed"
+  models: "data/models"
+  outputs: "data/outputs"
+  reports: "docs/reports"
+api_keys:
+  materials_project: "YOUR_MP_API_KEY_HERE"
+  nims: "YOUR_NIMS_API_KEY_HERE"
+cv_splits: 5
+cv_repeats: 3
+target: "log_rupture_time"
