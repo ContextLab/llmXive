@@ -1,0 +1,2 @@
+# This file ensures the `data/derived/prompts` directory exists in version control.
+# Generated prompt files (Baseline, Experimental, Control) will be placed here.

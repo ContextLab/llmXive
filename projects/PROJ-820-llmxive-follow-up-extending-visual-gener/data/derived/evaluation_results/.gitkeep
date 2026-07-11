@@ -1,0 +1,3 @@
+# This directory stores evaluation results for generated images.
+# Files will be named {scene_id}.json containing violation flags and confidence distributions.
+# Created by T001e setup task.

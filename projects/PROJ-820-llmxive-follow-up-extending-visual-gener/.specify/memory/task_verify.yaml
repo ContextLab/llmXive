@@ -1,0 +1,6 @@
+T001g [Setup] Create `code/simulation` directory.: 1
+T001h [Setup] Create `code/generation` directory.: 1
+T001i [Setup] Create `code/evaluation` directory.: 1
+T001j [Setup] Create `code/analysis` directory.: 1
+T001k [Setup] Create `code/utils` directory.: 1
+T001l [Setup] Create `tests/contract` directory.: 1

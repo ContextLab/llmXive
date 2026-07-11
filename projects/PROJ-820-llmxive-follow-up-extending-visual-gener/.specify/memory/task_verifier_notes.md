@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001g [Setup] Create `code/simulation` directory.** — No evidence of a `code/simulation` directory is provided; the response contains only specification text and no file listings or directory structure confirming that the required folder was created. The implementer must add the actual directory (and optionally a placeholder file) to satisfy the task.
+- **T001h [Setup] Create `code/generation` directory.** — No evidence was provided showing that a `code/generation` directory exists in the repository; the claim cannot be verified from the available artifacts. The required directory is missing or its presence cannot be confirmed.
+- **T001i [Setup] Create `code/evaluation` directory.** — No evidence was provided that a `code/evaluation` directory exists in the repository; the artifact list is empty and there is no file or folder shown confirming its creation. The required directory is missing.
+- **T001j [Setup] Create `code/analysis` directory.** — No evidence of a `code/analysis` directory was provided; the implementer’s claim is unsubstantiated and the required folder is missing.
+- **T001k [Setup] Create `code/utils` directory.** — No evidence of a `code/utils` directory being present was provided; the submission contains only specification text and no filesystem artifacts confirming the directory’s creation. The required artifact is missing.
+- **T001l [Setup] Create `tests/contract` directory.** — No evidence of a `tests/contract` directory being present was provided; the response contains only specification text and no file‑system listing or code showing that the directory was created. The required artifact is missing.

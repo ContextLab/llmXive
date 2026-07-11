@@ -1,0 +1,205 @@
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/quickstart.md
+  attempts: 1
+  canonical: Project fetches scene descriptions from COCO-Captions dataset
+  claim_id: c_4d62e564
+  context: 'The project fetches real scene descriptions from the COCO-Captions dataset.
+    Run the following to generate `data/raw/scene_descriptions.csv`:'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_fetches_scene_descriptions_from_COCO-Captions_datase
+  kind: entity_fact
+  raw_text: The project fetches real scene descriptions from the COCO-Captions dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:46:33Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Curated set of 100 scene descriptions for N=100 scope
+  claim_id: c_38e00a3f
+  context: T011 [US1] Create data/raw/scene_descriptions.csv with a curated set of
+    100 scene descriptions (N=100 scope). Fetch from a real, physics-inferable source...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/raw/scene_descriptions.csv with a curated set of 100 scene
+    descriptions (N=100 scope).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:52:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Contradiction rate threshold of 5% triggers soft fail flag
+  claim_id: c_2f3dfec3
+  context: '...calculate contradiction rate percentage, and verify it is < 5% (SC-004);
+    if rate > 5%, flag the study...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rate > 5%, flag the study (soft fail) but continue to allow downstream
+    analysis to halt the pipeline if required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:52:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Generation of 5 candidate images per prompt for seed control fallback
+  claim_id: c_438640cc
+  context: 'T022 [US2] [Depends on T022a] Implement fallback mechanism: If architecture
+    permits only approximate seed control, generate N=5 candidate images per prompt
+    using the same seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=5 candidate images per prompt using the same seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:53:31Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Object confidence threshold of 0.7 for violation default
+  claim_id: c_6355135d
+  context: 'T027 [US3] Implement violation logic: Count floating objects/interpenetration;
+    default to violation if object confidence < 0.7 (Edge Case).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default to violation if object confidence < 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:53:31Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: effect size 0.2, alpha 0.05, target power
+    0.8'
+  claim_id: c_ac60b5b4
+  context: 'T029 [US3] ... Implement code/analysis/statistics.py Power Analysis: Perform
+    power analysis (effect_size=0.2, alpha=0.05, power_target=0.8)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis with effect_size=0.2, alpha=0.05, power_target=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:54:18Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Verification of calculated power greater than or equal to 0.8
+  claim_id: c_eb669cf6
+  context: "T029a [US3] ... Verify that the calculated power (\u22650.8) is achieved.\
+    \ If power < 0.8, halt the pipeline..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verification_of_calculated_power_greater_than_or_equal_to_0.
+  kind: magnitude
+  raw_text: "Verify that the calculated power (\u22650.8) is achieved."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:55:17Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Switch to Fisher's Exact Test if cell counts below 5
+  claim_id: c_b2c49f04
+  context: T029b [US3] ... check expected cell counts. If cell counts < 5, switch
+    to Fisher's Exact Test...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If cell counts < 5, switch to Fisher's Exact Test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:55:17Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Contradiction rate exceeding 5% raises StudyInvalidError
+  claim_id: c_e63d04c9
+  context: T029d [US3] ... Re-calculate the contradiction rate from logs. If rate
+    > 5%, raise a StudyInvalidError to halt the pipeline...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rate > 5%, raise a StudyInvalidError to halt the pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:55:17Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Use two-proportion z-test when cell counts are 5 or greater
+  claim_id: c_247d5862
+  context: T029b [US3] ... If cell counts < 5, switch to Fisher's Exact Test; otherwise,
+    use two-proportion z-test.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_two-proportion_z-test_when_cell_counts_are_5_or_greater
+  kind: magnitude
+  raw_text: Use two-proportion z-test if cell counts are not less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:56:25Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: 'Violation detection thresholds: IoU less than 0.5 or Y-offset greater
+    than 5px'
+  claim_id: c_fd98f993
+  context: T026 [US3] ... compare against physics_constraints/{scene_id}.json (relative
+    to 512x512 output, IoU < 0.5 or Y-offset > 5px).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Violation_detection_thresholds:_IoU_less_than_0.5_or_Y-offse
+  kind: magnitude
+  raw_text: Ensure IoU < 0.5 or Y-offset > 5px for violation detection.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:56:55Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Scope reduction from 500 to 100 due to compute constraints
+  claim_id: c_d80f5652
+  context: T035 [P] Create scope_justification.md artifact explaining the deviation
+    from N=500 to N=100 due to compute constraints...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Document the deviation from N=500 to N=100 due to compute constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T01:57:24Z'

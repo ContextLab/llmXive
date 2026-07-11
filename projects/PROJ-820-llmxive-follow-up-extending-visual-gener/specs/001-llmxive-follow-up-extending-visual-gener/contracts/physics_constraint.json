@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PhysicsConstraint",
+  "type": "object",
+  "properties": {
+    "scene_id": {
+      "type": "integer",
+      "description": "Unique identifier for the scene"
+    },
+    "bounding_boxes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "object_id": { "type": "string" },
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "width": { "type": "number" },
+          "height": { "type": "number" }
+        },
+        "required": ["object_id", "x", "y", "width", "height"]
+      }
+    },
+    "collision_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "object_a": { "type": "string" },
+          "object_b": { "type": "string" },
+          "relation": { "type": "string", "enum": ["above", "below", "left_of", "right_of", "on_top_of"] }
+        },
+        "required": ["object_a", "object_b", "relation"]
+      }
+    },
+    "contradiction_detected": {
+      "type": "boolean",
+      "description": "True if logical contradictions were found"
+    },
+    "contradiction_details": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["scene_id", "bounding_boxes", "collision_rules", "contradiction_detected"]
+}

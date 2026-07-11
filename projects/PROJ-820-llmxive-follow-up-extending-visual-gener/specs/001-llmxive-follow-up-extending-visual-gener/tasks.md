@@ -20,46 +20,46 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [Setup] Create `data/raw` directory.
-- [ ] T001b [Setup] Create `data/derived/physics_constraints` directory.
-- [ ] T001c [Setup] Create `data/derived/prompts` directory.
-- [ ] T001d [Setup] Create `data/derived/generated_images` directory.
-- [ ] T001e [Setup] Create `data/derived/evaluation_results` directory.
-- [ ] T001f [Setup] Create `data/processed` directory.
+- [X] T001a [Setup] Create `data/raw` directory.
+- [X] T001b [Setup] Create `data/derived/physics_constraints` directory.
+- [X] T001c [Setup] Create `data/derived/prompts` directory.
+- [X] T001d [Setup] Create `data/derived/generated_images` directory.
+- [X] T001e [Setup] Create `data/derived/evaluation_results` directory.
+- [X] T001f [Setup] Create `data/processed` directory.
 - [ ] T001g [Setup] Create `code/simulation` directory.
 - [ ] T001h [Setup] Create `code/generation` directory.
 - [ ] T001i [Setup] Create `code/evaluation` directory.
 - [ ] T001j [Setup] Create `code/analysis` directory.
 - [ ] T001k [Setup] Create `code/utils` directory.
 - [ ] T001l [Setup] Create `tests/contract` directory.
-- [ ] T001m [Setup] Create `tests/integration` directory.
-- [ ] T001n [Setup] Create `tests/unit` directory.
-- [ ] T001o [Setup] Create `specs/001-llmxive-followup` directory.
-- [ ] T001p [Setup] Create `specs/001-llmxive-followup/contracts` directory.
-- [ ] T001q [Setup] Create `state/projects` directory.
+- [~] T001m [Setup] Create `tests/integration` directory.
+- [~] T001n [Setup] Create `tests/unit` directory.
+- [~] T001o [Setup] Create `specs/001-llmxive-followup` directory.
+- [~] T001p [Setup] Create `specs/001-llmxive-followup/contracts` directory.
+- [~] T001q [Setup] Create `state/projects` directory.
 
 ---
 
@@ -69,16 +69,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pymunk, diffusers, torch-cpu, ultralytics, scikit-learn, pandas, numpy, pyyaml)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [MUST run after T001a-T001q] Create `code/utils/update_state.py` to calculate SHA-256 hashes of artifacts and update `state/...yaml`
-- [ ] T005a [P] Create `code/simulation/__init__.py`
-- [ ] T005b [P] Create `code/generation/__init__.py`
-- [ ] T005c [P] Create `code/evaluation/__init__.py`
-- [ ] T005d [P] Create `code/analysis/__init__.py`
-- [ ] T006 Create `tests/contract/test_schemas.py` to validate JSON against `specs/001-llmxive-followup/contracts/`
-- [ ] T007 Setup environment configuration management for random seeds and model paths
-- [ ] T008 Implement `code/main.py` orchestration skeleton with phase flags (sim, gen, eval, analyze)
+- [~] T002 Initialize Python 3.11 project with `requirements.txt` (pymunk, diffusers, torch-cpu, ultralytics, scikit-learn, pandas, numpy, pyyaml)
+- [~] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [~] T004 [MUST run after T001a-T001q] Create `code/utils/update_state.py` to calculate SHA-256 hashes of artifacts and update `state/...yaml`
+- [~] T005a [P] Create `code/simulation/__init__.py`
+- [~] T005b [P] Create `code/generation/__init__.py`
+- [~] T005c [P] Create `code/evaluation/__init__.py`
+- [~] T005d [P] Create `code/analysis/__init__.py`
+- [~] T006 Create `tests/contract/test_schemas.py` to validate JSON against `specs/001-llmxive-followup/contracts/`
+- [~] T007 Setup environment configuration management for random seeds and model paths
+- [~] T008 Implement `code/main.py` orchestration skeleton with phase flags (sim, gen, eval, analyze)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -94,18 +94,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [Depends on Phase 2 Completion] [US1] Contract test for `PhysicsConstraint` JSON schema in `tests/contract/test_schemas.py`
-- [ ] T010 [Depends on Phase 2 Completion] [US1] Unit test for `pymunk` simulation logic in `tests/unit/test_physics_logic.py` (verify no contradictions)
+- [~] T009 [Depends on Phase 2 Completion] [US1] Contract test for `PhysicsConstraint` JSON schema in `tests/contract/test_schemas.py`
+- [~] T010 [Depends on Phase 2 Completion] [US1] Unit test for `pymunk` simulation logic in `tests/unit/test_physics_logic.py` (verify no contradictions)
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Create `data/raw/scene_descriptions.csv` with a curated set of 100 scene descriptions (N=100 scope). Fetch from a real, physics-inferable source (e.g., `datasets.load_dataset('coco-captions', split='train', trust_remote_code=True)` filtered for object interaction scenes). If fetch fails, execute a deterministic script using a fixed seed and predefined interaction templates (e.g., "A on B", "A next to B") to generate valid scenes, ensuring no hallucinated external datasets.
-- [ ] T012 [US1] [Depends on T011] Implement `code/simulation/physics_engine.py`: Load scene, run `pymunk` simulation, detect logical contradictions (cycles, impossible overlaps, A above B AND B above A), output `data/derived/physics_constraints/{scene_id}.json`. Log any contradictions to `data/derived/physics_constraints/contradiction_log.json`.
-- [ ] T013 [US1] [Depends on T011] Implement `code/generation/prompt_engine.py`: Read scene description + physics JSON, generate natural language descriptor, output `data/derived/prompts/{scene_id}_{group}.txt` (Baseline, Experimental).
-- [ ] T013b [US1] [Depends on T011] Implement `code/generation/prompt_engine.py` (Control): Read scene description, generate length-matched random noise descriptor, output `data/derived/prompts/{scene_id}_control.txt`.
-- [ ] T014 [US1] Add validation logic in `physics_engine.py` to exclude contradictory scenes and log them as "Invalid Physics Rules" (FR-006).
-- [ ] T015 [US1] Add error handling for missing scene descriptions or simulation failures.
-- [ ] T016 [US1] [Depends on T012] Implement logic to aggregate contradiction logs from `data/derived/physics_constraints/contradiction_log.json`, calculate contradiction rate percentage, and verify it is < 5% (SC-004); if rate > 5%, flag the study (soft fail) but continue to allow downstream analysis to halt the pipeline if required.
+- [~] T011 [US1] Create `data/raw/scene_descriptions.csv` with a curated set of 100 scene descriptions (N=100 scope). Fetch from a real, physics-inferable source (e.g., `datasets.load_dataset('coco-captions', split='train', trust_remote_code=True)` filtered for object interaction scenes). If fetch fails, execute a deterministic script using a fixed seed and predefined interaction templates (e.g., "A on B", "A next to B") to generate valid scenes, ensuring no hallucinated external datasets.
+- [~] T012 [US1] [Depends on T011] Implement `code/simulation/physics_engine.py`: Load scene, run `pymunk` simulation, detect logical contradictions (cycles, impossible overlaps, A above B AND B above A), output `data/derived/physics_constraints/{scene_id}.json`. Log any contradictions to `data/derived/physics_constraints/contradiction_log.json`.
+- [~] T013 [US1] [Depends on T011] Implement `code/generation/prompt_engine.py`: Read scene description + physics JSON, generate natural language descriptor, output `data/derived/prompts/{scene_id}_{group}.txt` (Baseline, Experimental).
+- [~] T013b [US1] [Depends on T011] Implement `code/generation/prompt_engine.py` (Control): Read scene description, generate length-matched random noise descriptor, output `data/derived/prompts/{scene_id}_control.txt`.
+- [~] T014 [US1] Add validation logic in `physics_engine.py` to exclude contradictory scenes and log them as "Invalid Physics Rules" (FR-006).
+- [~] T015 [US1] Add error handling for missing scene descriptions or simulation failures.
+- [~] T016 [US1] [Depends on T012] Implement logic to aggregate contradiction logs from `data/derived/physics_constraints/contradiction_log.json`, calculate contradiction rate percentage, and verify it is < 5% (SC-004); if rate > 5%, flag the study (soft fail) but continue to allow downstream analysis to halt the pipeline if required.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -119,18 +119,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Integration test for generation pipeline in `tests/integration/test_pipeline.py` (small subset run)
+- [~] T017 [P] [US2] Integration test for generation pipeline in `tests/integration/test_pipeline.py` (small subset run)
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] [Depends on T013, T013b] Implement `code/generation/diffusion_runner.py`: Load CPU-optimized model ('latent-consistency/lcm-lora-sdv1-5'), set random seeds, generate images from Baseline, Experimental, and Control prompt files. Ensure T013 and T013b are complete before execution.
-- [ ] T019 [US2] Implement seed locking mechanism ensuring Baseline and Experimental groups use identical seeds for the same scene ID (FR-007).
-- [ ] T019b [US2] Implement seed locking for Control group (distinct from Baseline/Exp but consistent within Control).
-- [ ] T020 [US2] Implement retry logic (max attempts) for generation failures and log "Generation Failure" if exceeded (FR-006, Edge Case).
-- [ ] T021 [US2] Save generated images to `data/derived/generated_images/{group}/{scene_id}.png`. Ensure all three groups (Baseline, Experimental, Control) are fully generated before marking task complete.
-- [ ] T022 [US2] [Depends on T022a] Implement fallback mechanism: If architecture permits only approximate seed control, generate N=5 candidate images per prompt using the same seed.
-- [ ] T022a [US2] [Depends on T012] Implement `code/generation/reference_geometry.py`: Render a "reference geometry" image by projecting the `pymunk` JSON bounding boxes onto a virtual 512x512 canvas matching the generation resolution.
-- [ ] T022b [US2] [Depends on T022] Implement selection logic: Calculate SSIM between each of the N=5 candidates and the reference geometry (from T022a), select the candidate with the highest SSIM score, and save only that single image as the final output.
+- [~] T018 [US2] [Depends on T013, T013b] Implement `code/generation/diffusion_runner.py`: Load CPU-optimized model ('latent-consistency/lcm-lora-sdv1-5'), set random seeds, generate images from Baseline, Experimental, and Control prompt files. Ensure T013 and T013b are complete before execution.
+- [~] T019 [US2] Implement seed locking mechanism ensuring Baseline and Experimental groups use identical seeds for the same scene ID (FR-007).
+- [~] T019b [US2] Implement seed locking for Control group (distinct from Baseline/Exp but consistent within Control).
+- [~] T020 [US2] Implement retry logic (max attempts) for generation failures and log "Generation Failure" if exceeded (FR-006, Edge Case).
+- [~] T021 [US2] Save generated images to `data/derived/generated_images/{group}/{scene_id}.png`. Ensure all three groups (Baseline, Experimental, Control) are fully generated before marking task complete.
+- [~] T022 [US2] [Depends on T022a] Implement fallback mechanism: If architecture permits only approximate seed control, generate N=5 candidate images per prompt using the same seed. <!-- FAILED: unspecified -->
+- [~] T022a [US2] [Depends on T012] Implement `code/generation/reference_geometry.py`: Render a "reference geometry" image by projecting the `pymunk` JSON bounding boxes onto a virtual 512x512 canvas matching the generation resolution.
+- [~] T022b [US2] [Depends on T022] Implement selection logic: Calculate SSIM between each of the N=5 candidates and the reference geometry (from T022a), select the candidate with the highest SSIM score, and save only that single image as the final output.
 - [ ] T023 [US2] Monitor memory usage and enforce a time limit per batch.
 
 The research question, method, and references remain unchanged as per the planning document requirements.
@@ -156,7 +156,7 @@ The research question, method, and references remain unchanged as per the planni
 - [ ] T027 [US3] Implement violation logic: Count floating objects/interpenetration; default to violation if object confidence < 0.7 (Edge Case).
 - [ ] T028 [US3] Save evaluation results to `data/derived/evaluation_results/{scene_id}.json` with violation flags and confidence distributions (FR-010).
 - [ ] T029 [US3] [Independent of T016] Implement `code/analysis/statistics.py` Power Analysis: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8) and output `power_analysis_report.json`.
-- [ ] T029a [US3] [Depends on T029] Implement Power Verification: Verify that the calculated power (≥0.8) is achieved. If power < 0.8, halt the pipeline and flag `power_analysis_report.json` as failed.
+- [ ] T029a [US3] [Depends on T029] Implement Power Verification: Verify that the calculated power (≥0.8) is achieved. [UNRESOLVED-CLAIM: c_eb669cf6 — status=not_enough_info] If power < 0.8, halt the pipeline and flag `power_analysis_report.json` as failed.
 - [ ] T029b [US3] Implement Statistical Test Switching Logic: Read the `power_analysis_report.json` and check expected cell counts. If cell counts < 5, switch to Fisher's Exact Test; otherwise, use two-proportion z-test.
 - [ ] T029c [US3] [Depends on T016] Implement Exclusion Logic: Read contradiction logs (from T016) and generation failure logs (from T020), identify the corresponding scene IDs, and exclude them from the final statistical denominator.
 - [ ] T029d [US3] [Depends on T016] Implement Contradiction Rate Check: Re-calculate the contradiction rate from logs. If rate > 5%, raise a `StudyInvalidError` to halt the pipeline (Hard Fail).
@@ -193,8 +193,8 @@ The research question, method, and references remain unchanged as per the planni
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -260,9 +260,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

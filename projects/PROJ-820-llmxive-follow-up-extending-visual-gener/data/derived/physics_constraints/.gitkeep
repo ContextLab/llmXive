@@ -1,0 +1,2 @@
+# This file ensures the `data/derived/physics_constraints` directory exists in version control.
+# Physics constraint JSONs and contradiction logs will be placed here.
