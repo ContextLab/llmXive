@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SOC_Cluster Schema
+description: Schema for aggregated System Organ Class statistics
+type: object
+properties:
+  soc_code:
+    type: string
+    description: System Organ Class code
+    minLength: 1
+  soc_name:
+    type: string
+    description: System Organ Class name
+    minLength: 1
+  covid_count:
+    type: integer
+    description: Count of COVID-19 reports
+    minimum: 0
+  non_covid_count:
+    type: integer
+    description: Count of non-COVID reports
+    minimum: 0
+  ror:
+    type: number
+    description: Reporting Odds Ratio
+    nullable: true
+  ror_lower_ci:
+    type: number
+    description: ROR 95% CI lower bound
+    nullable: true
+  ror_upper_ci:
+    type: number
+    description: ROR 95% CI upper bound
+    nullable: true
+  prr:
+    type: number
+    description: Proportional Reporting Ratio
+    nullable: true
+  prr_lower_ci:
+    type: number
+    description: PRR 95% CI lower bound
+    nullable: true
+  ic:
+    type: number
+    description: Information Component
+    nullable: true
+  ic_lower_ci:
+    type: number
+    description: IC 95% CI lower bound
+    nullable: true
+  p_value:
+    type: number
+    description: Raw p-value
+    minimum: 0.0
+    maximum: 1.0
+  p_adj:
+    type: number
+    description: BH-adjusted p-value
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - soc_code
+  - soc_name
+  - covid_count
+  - non_covid_count
+  - p_value
+  - p_adj
+additionalProperties: false
