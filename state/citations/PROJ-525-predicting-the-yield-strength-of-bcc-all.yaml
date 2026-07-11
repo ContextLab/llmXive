@@ -1,4 +1,4 @@
-- artifact_hash: 22e8a2d551ebc5f4eed738d9323d85a85079b3a15422f555a776b6409bc74233
+- artifact_hash: d937ba69f4414d6c8b78376b8c4af764e00afa41dba90a85440149a780fce74d
   artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/spec.md
   cite_id: c-001
   cited_authors: []
@@ -9,8 +9,8 @@
   value: https://doi.org/10.1038/s41597-020-00768-9
   verification_status: verified
   verified_against_url: https://www.nature.com/articles/s41597-020-00768-9
-  verified_at: '2026-07-08T22:12:52.424245Z'
-- artifact_hash: 22e8a2d551ebc5f4eed738d9323d85a85079b3a15422f555a776b6409bc74233
+  verified_at: '2026-07-11T16:59:24.720286Z'
+- artifact_hash: d937ba69f4414d6c8b78376b8c4af764e00afa41dba90a85440149a780fce74d
   artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/spec.md
   cite_id: c-002
   cited_authors: []
@@ -21,4 +21,40 @@
   value: 10.1038/s41597-020-00768-9
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
-  verified_at: '2026-07-08T22:12:52.424245Z'
+  verified_at: '2026-07-11T16:59:24.720286Z'
+- artifact_hash: 886e14ab0791dc22e725499eb6715458c76c2ecf5fe1b5e1aa7e7c83b3170f9f
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Expanded dataset of mechanical properties and observed phases of
+    multi-principal element alloys
+  kind: doi
+  value: 10.1038/s41597-020-00768-9
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
+  verified_at: '2026-07-11T17:11:18.676851Z'
+- artifact_hash: 878b17b527cc2a8234dc4b1272a7d474e832b2b83f31c9d296207d9c968a873b
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Expanded dataset of mechanical properties and observed phases of
+    multi-principal element alloys | Scientific Data
+  kind: url
+  value: https://doi.org/10.1038/s41597-020-00768-9`
+  verification_status: verified
+  verified_against_url: https://www.nature.com/articles/s41597-020-00768-9
+  verified_at: '2026-07-11T17:11:35.628651Z'
+- artifact_hash: 878b17b527cc2a8234dc4b1272a7d474e832b2b83f31c9d296207d9c968a873b
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Expanded dataset of mechanical properties and observed phases of
+    multi-principal element alloys
+  kind: doi
+  value: 10.1038/s41597-020-00768-9
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
+  verified_at: '2026-07-11T17:11:35.628651Z'

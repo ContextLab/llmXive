@@ -1,27 +1,25 @@
 # Implementation Plan: Predicting Yield Strength of BCC Alloys
 
-**Branch**: `001-bcc-yield-strength` | **Date**: 2024-05-21 | **Spec**: `specs/001-bcc-yield-strength/spec.md`
+**Branch**: `001-bcc-yield-strength` | **Date**: 2024-05-21 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-bcc-yield-strength/spec.md`
 
 ## Summary
 
-This feature implements a machine learning pipeline to predict the yield strength of Body-Centered Cubic (BCC) alloys. The approach involves ingesting public materials datasets (MPEA Database and Materials Project), filtering strictly for BCC phase alloys with valid yield strength values, engineering compositional descriptors (atomic radius mismatch, VEC, mixing entropy/enthalpy, electronegativity difference), applying Isometric Log-Ratio (ILR) transformations to handle compositional closure, and training/evaluating regression models (Random Forest, Gradient Boosting, Ridge) on a CPU-constrained environment. The validation strategy uses **Repeated 5-Fold Cross-Validation (10 repeats)** for all dataset sizes N >= 80 to ensure statistical robustness and eliminate the high variance associated with LOOCV.
+This project implements a machine learning pipeline to predict the yield strength of Body-Centered Cubic (BCC) alloys using public data. The approach involves downloading the MPEA database (via manual ingestion due to lack of verified URL), filtering for BCC-phase alloys, engineering compositional descriptors (atomic radius mismatch, VEC, mixing entropy/enthalpy) and/or Isometric Log-Ratio (ILR) transformations, and training regression models (Random Forest, Gradient Boosting, Ridge) with rigorous Repeated Cross-Validation and statistical testing. The pipeline is constrained to run on CPU-only GitHub Actions free-tier runners.
+
+**Critical Constraint**: Due to the lack of a verified programmatic URL for the MPEA dataset, the pipeline requires manual data ingestion. This is a known reproducibility compromise documented in the Constitution Check.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `periodictable`, `pyyaml`, `pytest`, `pyrolite` (for ILR)  
-**Storage**: CSV/Parquet files in `data/` (raw and processed); JSON logs in `logs/`; SHA256 checksums in `state/`  
-**Testing**: `pytest` (unit tests for feature engineering, integration tests for pipeline)  
-**Target Platform**: GitHub Actions Free-tier (Linux, 2 CPU, ~7 GB RAM, no GPU)  
-**Project Type**: Data Science / Research Pipeline  
-**Performance Goals**: Full pipeline execution ≤ 6 hours; Memory usage < 6 GB at peak  
-**Constraints**: 
-- No GPU; No external API calls during CI (periodic table data must be local/static).
-- **Pipeline HALTS with a Data Scarcity Warning** if the filtered dataset contains fewer than 80 BCC entries.
-- **Validation Strategy**: Repeated 5-Fold CV (10 repeats) for all N >= 80. (Methodology Deviation from spec's LOOCV threshold).
-- **Stratification**: Based on binned compositional ranges (ILR features), NOT yield strength.
-**Scale/Scope**: Single dataset ingestion, feature engineering, and model comparison for BCC alloys.
+**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `periodictable`, `pyyaml`, `requests`, `joblib`, `scipy` (for statistical tests)  
+**Storage**: Local CSV/Parquet files under `data/` (raw and processed)  
+**Testing**: `pytest` (unit tests for feature engineering, integration tests for pipeline stages)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, No GPU)  
+**Project Type**: Data Science / Machine Learning Pipeline  
+**Performance Goals**: Full pipeline runtime ≤ 6 hours; Memory usage ≤ 7 GB; Dataset subset to fit RAM.  
+**Constraints**: No GPU acceleration; No large-LLM inference; Data must be filtered for BCC phase only; Minimum sample size (N ≥ 80) required for training; Feature sets must be mutually exclusive (ILR OR scalar descriptors).  
+**Scale/Scope**: Single dataset processing (MPEA); Model training on ≤ 500 rows (estimated after filtering); Feature engineering for a small set of elements.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -29,15 +27,15 @@ This feature implements a machine learning pipeline to predict the yield strengt
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action / Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds, and deterministic data download scripts. |
-| **II. Verified Accuracy** | **PENDING** | **Action**: The primary data source (MPEA DOI) has no verified URL in the block. The pipeline will attempt runtime resolution. If the DOI cannot be resolved to a valid file containing BCC+YieldStrength data, the pipeline halts. The status remains PENDING until this runtime check succeeds. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming raw data, logging rejected entries, and preserving raw files unchanged. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats in the final report will be generated programmatically from `data/` and `code/`. |
-| **V. Versioning Discipline** | **PASS** | Plan includes explicit SHA256 checksumming of all artifacts and updates to `state/projects/.../artifact_hashes.yaml` and `updated_at` timestamp after every run. |
-| **VI. Compositional Feature Integrity** | **PASS** | Plan explicitly requires consistent periodic table references and documented formulas for δ, VEC, etc. Includes VIF check to prevent redundancy. |
-| **VII. Crystal-Structure Specificity** | **PASS** | Plan includes a strict filtering step for BCC phase before any modeling. |
+| Principle | Compliance Strategy | Status |
+|-----------|---------------------|--------|
+| **I. Reproducibility** | All random seeds pinned in `code/`; dependencies pinned in `requirements.txt`; data fetched from canonical DOI (if available) or verified URL; checksums recorded. | **Pass** |
+| **II. Verified Accuracy** | Citations in `research.md` restricted to verified URLs in the input block. **NOTE**: MPEA has NO verified URL. Manual ingestion is required. This is a **Partial Pass**; the pipeline cannot be fully automated without manual intervention. | **Partial Pass** |
+| **III. Data Hygiene** | Raw data preserved in `data/raw/`; derived data in `data/processed/`; checksums calculated for all files; no in-place modifications. | **Pass** |
+| **IV. Single Source of Truth** | All statistics in reports trace to specific `code/` scripts and `data/` files; no hand-typed numbers in `paper/`. | **Pass** |
+| **V. Versioning Discipline** | Artifact hashes tracked in state file; `updated_at` timestamps managed by Advancement-Evaluator. | **Pass** |
+| **VI. Compositional Feature Integrity** | Feature calculation formulas (δ, VEC, etc.) documented in `data-model.md`; periodic table reference pinned (e.g., `periodictable` lib); derivation notes in code. | **Pass** |
+| **VII. Crystal-Structure Specificity** | Filtering logic explicitly checks `crystal_structure` == "BCC" (or equivalent) before any downstream processing; mixed-phase entries excluded. | **Pass** |
 
 ## Project Structure
 
@@ -50,7 +48,9 @@ specs/001-bcc-yield-strength/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (not created here)
+│   ├── dataset.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Subsequent deliverable (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
@@ -58,68 +58,99 @@ specs/001-bcc-yield-strength/
 ```text
 projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/
 ├── data/
-│   ├── raw/             # Downloaded raw datasets (parquet/csv)
-│   ├── processed/       # Filtered and engineered features
-│   └── logs/            # Rejection logs, checksums
+│   ├── raw/                 # Downloaded raw files (e.g., MPEA)
+│   └── processed/           # Filtered, normalized, engineered data
 ├── code/
 │   ├── __init__.py
-│   ├── config.py        # Paths, seeds, constants
-│   ├── ingestion.py     # Download and filter (FR-001, FR-002)
-│   ├── features.py      # Descriptor calculation + ILR + VIF (FR-003, FR-003.1)
-│   ├── modeling.py      # Train, CV, metrics, importance (FR-005, FR-006)
-│   └── main.py          # Pipeline orchestrator
+│   ├── 01_download.py       # Data ingestion and filtering (RAW ONLY)
+│   ├── 02_engineer.py       # Feature engineering (descriptors & ILR)
+│   ├── 03_train.py          # Model training and validation (CV only)
+│   ├── 04_evaluate.py       # Permutation importance, CI, and stability analysis
+│   ├── utils/
+│   │   ├── periodic_table.py # Element property lookup
+│   │   └── metrics.py        # Custom metrics and stats
+│   └── main.py              # Pipeline orchestrator
 ├── tests/
-│   ├── test_ingestion.py
-│   ├── test_features.py
-│   └── test_modeling.py
+│   ├── unit/
+│   │   ├── test_engineering.py
+│   │   └── test_filters.py
+│   └── integration/
+│       └── test_pipeline.py
 ├── requirements.txt
 └── README.md
 ```
 
-**Structure Decision**: Single project structure selected. The pipeline is linear (Ingestion -> Features -> Modeling) and fits within a single repository scope. No separate backend/frontend is required.
+**Structure Decision**: Single project structure selected to minimize overhead. Data flows linearly from `data/raw` to `data/processed` via scripts in `code/`. Tests are split by unit (logic) and integration (pipeline).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **ILR Transformation** | Compositional data (sums to 1) violates standard regression assumptions (multicollinearity). | Simple normalization is insufficient; ILR is required for statistical validity per FR-003.1. |
-| **Repeated 5-Fold CV** | LOOCV is unstable for small N regression; Stratified 80/20 on target is biased. | Repeated 5-Fold provides a robust, low-variance estimate for all N >= 80. |
-| **Strict BCC Filtering** | Research question is specific to BCC alloys; mixed phases introduce noise. | Including non-BCC would invalidate the hypothesis (VII). |
-| **Electronegativity Diff** | Required by FR-003 to capture chemical bonding effects. | Omitting it would leave a gap in the compositional descriptor set. |
-| **VIF Check** | Prevents redundancy between ILR coordinates and scalar descriptors. | Including both without check risks data leakage and inflated importance. |
+| **Dual Feature Sets (ILR vs Descriptors)** | Scientific hypothesis requires comparing traditional descriptors against compositional closure-robust ILR transforms. **Clarification**: This is a **Meta-Analysis of Two Separate Runs** (one run with descriptors, one with ILR), not simultaneous training, to respect FR-003.2 mutual exclusivity. | Using only one set would limit the scientific contribution and fail to address the "compositional closure" problem explicitly mentioned in the spec. |
+| **Repeated 5-Fold CV + Bootstrapping** | Small dataset size (N ≥ 80) requires robust variance estimation to avoid overfitting and ensure statistical significance. **Clarification**: No 80/20 holdout for primary analysis to preserve power; split only used as diagnostic if N > 200. | Simple train/test split would yield high variance estimates and unreliable confidence intervals for R². |
+| **Strict BCC Filtering** | Crystal structure is a fundamental physical property affecting yield strength; mixing phases introduces noise. | Including non-BCC phases would invalidate the specific research question and violate Principle VII. |
+| **Circular Validation Check** | Prevents tautological learning if yield strength is derived from CALPHAD using the same parameters as predictors. | Ignoring this would result in a mathematically trivial model rather than a physical prediction. |
 
-## Versioning & Hashing
+## Implementation Phases
 
-To satisfy Constitution Principle V:
-1.  **Artifact Hashing**: Every file generated in `data/processed/` and `code/` will be checksummed using SHA256.
-2.  **State Update**: The `state/projects/PROJ-525-predicting-the-yield-strength-of-bcc-all.yaml` file will be updated with the `updated_at` timestamp and the `artifact_hashes` map after each successful pipeline run.
-3.  **Traceability**: The `logs/` directory will contain a `run_manifest.json` linking the input dataset hash to the output model metrics hash.
+### Phase 0: Data Ingestion & Filtering (FR-001, FR-002, US-1, US-4)
+1. **Input**: `data/raw/mpea_raw.csv` (Manual download required).
+2. **Logic**:
+   - Verify file integrity (checksum if available).
+   - Filter for `crystal_structure` containing "BCC" (case-insensitive).
+   - Exclude entries with missing `yield_strength` or non-numeric values.
+   - Normalize `elemental_composition` to sum to 1.0.
+   - **Crucial**: Reject any pre-filtered files; only raw data is accepted.
+3. **Output**: `data/processed/bcc_filtered.csv`.
+4. **Check**: If N < 80, **HALT** with "Data Scarcity Warning".
 
-## Phases
+### Phase 1: Feature Engineering (FR-003, FR-003.1, FR-003.2, US-2)
+1. **Input**: `data/processed/bcc_filtered.csv`.
+2. **Logic**:
+   - Calculate scalar descriptors: δ, VEC, Mixing Entropy, Mixing Enthalpy.
+   - **Circular Check**: Verify `yield_strength_source`. If CALPHAD-derived, flag or exclude.
+   - Calculate ILR-transformed features (if selected).
+   - **Exclusivity**: Run two separate pipelines: one with descriptors, one with ILR. Do not combine.
+3. **Output**: `data/processed/features_descriptors.csv` and `data/processed/features_ilr.csv`.
 
-### Phase 0: Data Ingestion & Verification (FR-001, FR-002)
-1.  **MPEA Database**: Attempt to resolve DOI `10.1038/s41597-020-00768-9` to a file. If successful, download and parse.
-2.  **Materials Project**: Attempt to fetch BCC yield strength data from Materials Project (if a verified API endpoint or dataset is available; otherwise, log "Source Unavailable" and continue with MPEA only, but flag if MPEA N < 80).
-3.  **Filtering**: Keep only `crystal_structure == "BCC"` and `yield_strength` is not null.
-4.  **Normalization**: Atomic fractions normalized to sum to 1.0.
-5.  **Validation**: Check N >= 80. If N < 80, **HALT** with "Data Scarcity Warning".
-6.  **Column Verification**: Verify the presence of `crystal_structure` and `yield_strength` columns. If missing, **HALT** with "Data Source Unreachable".
+### Phase 2: Model Training & Validation (FR-005, US-3)
+1. **Input**: Feature CSVs.
+2. **Logic**:
+   - **Primary Validation**: Repeated k-Fold CV (10 repetitions) on the **entire** dataset.
+   - **Bootstrapping**: Resample dataset (with replacement) multiple times.; run full CV on each resample; record mean CV score.
+   - **Models**: Train RF, GB, Ridge for each feature set.
+   - **Holdout**: Only if N > 200, perform 80/20 split as a diagnostic; otherwise, rely on CV.
+3. **Output**: `data/processed/model_results.json` (with CV scores, CIs).
 
-### Phase 1: Feature Engineering (FR-003, FR-003.1)
-1.  **Descriptor Calculation**: Compute `delta_radius`, `vec`, `mixing_entropy`, `mixing_enthalpy`, `electronegativity_diff`.
-    *   *Note*: `mixing_enthalpy` uses binary interaction parameters from the MPEA paper supplementary data.
-2.  **ILR Transformation**: Apply Isometric Log-Ratio transformation to the raw composition vector.
-3.  **VIF Check**: Calculate Variance Inflation Factor (VIF) for scalar descriptors. Include scalar descriptors in the final feature set **ONLY IF** VIF < 5. This prevents redundancy between ILR coordinates and derived scalars.
-4.  **Circular Check**: Verify that the target variable is experimentally measured and not derived from CALPHAD methods using the same interaction parameters. If not, flag "Circular Validation Risk".
+### Phase 3: Evaluation & Reporting (FR-006, SC-001, SC-002, SC-003, US-3)
+1. **Input**: Model results.
+2. **Logic**:
+   - **Model Comparison**: Friedman test + Nemenyi post-hoc (Bonferroni corrected) on CV scores.
+   - **Feature Stability**: Calculate Spearman rank correlation of importance across CV repetitions. Flag if < 0.8.
+   - **Uncertainty Check**: Compare MAE against MPEA metadata uncertainty (default threshold).
+   - **Power Disclaimer**: Report results as "Estimation of Bounds" with caution on Type II error.
+3. **Output**: `data/processed/performance_report.csv`, `data/processed/feature_importance.png`.
 
-### Phase 2: Modeling & Validation (FR-004, FR-005, FR-006)
-1.  **Split**: Stratified 80/20 split based on **binned compositional ranges** (derived from ILR features) to prevent data leakage.
-2.  **Cross-Validation**: **Repeated 5-Fold CV (10 repeats)** for all N >= 80. (Note: This deviates from the spec's "LOOCV for N < 100" text to ensure statistical robustness; see Research.md for rationale).
-3.  **Models**: Train Random Forest, Gradient Boosting, Ridge Regression.
-4.  **Metrics**: Report R², MAE, RMSE. Generate % CI for R² via bootstrap.
-5.  **Importance**: Permutation importance for top-ranked features.
+## Risk Management
 
-### Phase 3: Reporting & Versioning
-1.  **Output**: Generate `metrics.json` and `feature_importance.json`.
-2.  **Hashing**: Compute SHA256 for all output artifacts.
-3.  **State Update**: Update `state/` file with new hashes and timestamp.
+| Risk | Mitigation |
+|------|------------|
+| **No Verified URL** | Manual ingestion with checksum verification; documented as reproducibility compromise. |
+| **Small N (<80)** | Pipeline halts with warning; no training attempted. |
+| **Circular Validation** | Explicit check for CALPHAD-derived yield strengths; exclusion or flagging. |
+| **Overfitting** | Repeated CV + Bootstrapping; no holdout for small N to preserve power. |
+| **Feature Collinearity** | Mutual exclusivity of ILR and Descriptors; ILR used to address closure. |
+
+## Compute Feasibility
+
+- **CPU Only**: `scikit-learn` models (RF, GB, Ridge) are CPU-tractable.
+- **Memory**: Dataset subset to ~7 GB RAM; processing of <500 rows is trivial.
+- **Runtime**: Repeated CV (10 reps) + 1000 Bootstrap resamples on <500 rows is estimated < 2 hours on 2-core CPU.
+- **No GPU**: No CUDA dependencies; standard `torch` (CPU) or pure `numpy`/`sklearn`.
+
+## Success Criteria Mapping
+
+- **SC-001**: Measured via CV R² distribution against null baseline (mean prediction).
+- **SC-002**: MAE compared against a pressure threshold in report.
+- **SC-003**: Spearman correlation of feature importance calculated and reported.
+- **SC-004**: Runtime tracked and logged; must be < 6 hours.

@@ -1,26 +1,26 @@
-resolved_at: '2026-07-10T01:27:19.222233+00:00'
+resolved_at: '2026-07-11T17:04:51.349410+00:00'
 datasets:
 - intent: 10.1038/s41597-020-00768-9
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element-Distributed_Residual_Modeling_of_Cryogenic_Probe-Induced_Thermal_Fields_in_Biological_Tissue_b_/32904503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+  - url: https://figshare.com/articles/journal_contribution/_b_Analysis_of_the_Knowledge_Structure_Thematic_Evolution_and_Emerging_and_Future_Research_Directions_in_User_Interface_Design_for_Explainable_Artificial_Intelligence_XAI_in_Decision-Making_Dashboards_A_Scientometric_Study_b_/32964188
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+  - url: https://figshare.com/articles/book/Europe_s_First_Trillion-Dollar_Startup_/32782464
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+  - url: https://figshare.com/articles/software/_b_Double_Blinded_Artifact_of_ASSA_for_ISSTA_2026_Submission_b_/30082021
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GKTLF/30127018
+  - url: https://figshare.com/articles/dataset/Data_from_Barriers_or_Bridges_The_Role_of_Streams_in_Shaping_the_Genetic_Structure_of_the_Australian_Land_Snail_i_Sauroconcha_grayi_i_Gastropoda_Camaenidae_/32054703
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -69,23 +69,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element-Distributed_Residual_Modeling_of_Cryogenic_Probe-Induced_Thermal_Fields_in_Biological_Tissue_b_/32904503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+  - url: https://figshare.com/articles/journal_contribution/_b_Analysis_of_the_Knowledge_Structure_Thematic_Evolution_and_Emerging_and_Future_Research_Directions_in_User_Interface_Design_for_Explainable_Artificial_Intelligence_XAI_in_Decision-Making_Dashboards_A_Scientometric_Study_b_/32964188
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+  - url: https://figshare.com/articles/book/Europe_s_First_Trillion-Dollar_Startup_/32782464
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+  - url: https://figshare.com/articles/software/_b_Double_Blinded_Artifact_of_ASSA_for_ISSTA_2026_Submission_b_/30082021
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GKTLF/30127018
+  - url: https://figshare.com/articles/dataset/Data_from_Barriers_or_Bridges_The_Role_of_Streams_in_Shaping_the_Genetic_Structure_of_the_Australian_Land_Snail_i_Sauroconcha_grayi_i_Gastropoda_Camaenidae_/32054703
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -109,23 +109,87 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.gbif.org/dataset/897b0878-5f6b-43d1-954f-2918a2302546
+  - url: https://unige.iris.cineca.it/handle/11567/945743
     source: datacite
     status: wrong_format
-    reason: HTTP 403
+    reason: unrecognized/non-dataset content
   - url: https://iris.luiss.it//handle/11385/204144
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280530
+  - url: https://zenodo.org/records/21296623
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280530
+  - url: https://zenodo.org/records/21296623
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/945743
+  - url: https://zenodo.org/records/21295855
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MPEA
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Particle_Agency_and_the_effects_of_consciousness/32964206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Temperature_and_humidity_independently_influence_thermoregulatory_responses_during_Finnish_sauna_bathing/32964212
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element-Distributed_Residual_Modeling_of_Cryogenic_Probe-Induced_Thermal_Fields_in_Biological_Tissue_b_/32904503
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Analysis_of_the_Knowledge_Structure_Thematic_Evolution_and_Emerging_and_Future_Research_Directions_in_User_Interface_Design_for_Explainable_Artificial_Intelligence_XAI_in_Decision-Making_Dashboards_A_Scientometric_Study_b_/32964188
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Europe_s_First_Trillion-Dollar_Startup_/32782464
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8374539
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15716150
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19800471
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10715993
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10853493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21043822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21043822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Dislocation-twin-precipitate_synergy_imparts_2_3_GPa_yield_strength_and_18_2_ductility_in_MPEA_at_77_K/31550238
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Dislocation-twin-precipitate_synergy_imparts_2_3_GPa_yield_strength_and_18_2_ductility_in_MPEA_at_77_K/31550238/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/multidimensional-exercise-training-hemodynamic-and-physical-function-responses
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -170,23 +234,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+  - url: https://figshare.com/articles/preprint/Particle_Agency_and_the_effects_of_consciousness/32964206
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+  - url: https://tandf.figshare.com/articles/dataset/Temperature_and_humidity_independently_influence_thermoregulatory_responses_during_Finnish_sauna_bathing/32964212
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element-Distributed_Residual_Modeling_of_Cryogenic_Probe-Induced_Thermal_Fields_in_Biological_Tissue_b_/32904503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+  - url: https://figshare.com/articles/journal_contribution/_b_Analysis_of_the_Knowledge_Structure_Thematic_Evolution_and_Emerging_and_Future_Research_Directions_in_User_Interface_Design_for_Explainable_Artificial_Intelligence_XAI_in_Decision-Making_Dashboards_A_Scientometric_Study_b_/32964188
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GKTLF/30127018
+  - url: https://figshare.com/articles/book/Europe_s_First_Trillion-Dollar_Startup_/32782464
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -210,23 +274,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20777435
+  - url: https://zenodo.org/records/21311345
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21254385
+  - url: https://zenodo.org/records/21311345
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20787307
+  - url: https://zenodo.org/records/20988950
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/bb609aeb-ccf5-44f8-80ce-0493c1954369
+  - url: https://zenodo.org/records/20988950
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20825890
+  - url: https://zenodo.org/records/21311022
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -275,23 +339,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/journal_contribution/School_of_Psychiatric_Nursing_Eket_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952917
+  - url: https://figshare.com/articles/preprint/Particle_Agency_and_the_effects_of_consciousness/32964206
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+  - url: https://tandf.figshare.com/articles/dataset/Temperature_and_humidity_independently_influence_thermoregulatory_responses_during_Finnish_sauna_bathing/32964212
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element-Distributed_Residual_Modeling_of_Cryogenic_Probe-Induced_Thermal_Fields_in_Biological_Tissue_b_/32904503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+  - url: https://figshare.com/articles/journal_contribution/_b_Analysis_of_the_Knowledge_Structure_Thematic_Evolution_and_Emerging_and_Future_Research_Directions_in_User_Interface_Design_for_Explainable_Artificial_Intelligence_XAI_in_Decision-Making_Dashboards_A_Scientometric_Study_b_/32964188
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+  - url: https://figshare.com/articles/book/Europe_s_First_Trillion-Dollar_Startup_/32782464
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -299,11 +363,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15581959
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+  - url: https://zenodo.org/records/15581959
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -315,47 +379,47 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/6hkj7-4kb59
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.941668
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/6hkj7-4kb59
+  - url: https://repository.library.noaa.gov/view/noaa/73823
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/c2622-q7q11
+  - url: https://zenodo.org/records/18653718
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/c2622-q7q11
+  - url: https://zenodo.org/records/18653718
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.3929/ethz-c-000800480
+  - url: https://researchdata.durham.ac.uk/files/n583xt96p
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 500'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: BCC-phase
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Tidal_Mixing_on_the_Antarctic_Continental_Slope_Enhances_Ocean_Heat_Transport_With_Implications_for_Sea_Ice/32952812
+  - url: https://tandf.figshare.com/articles/journal_contribution/Oxazole-4_5-dicarboxylate_derivatives_as_multifunctional_targets_against_oral_cancer_and_i_Streptococcus_mutans_i_oral_pathogens/32964218
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/School_of_Psychiatric_Nursing_Eket_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952917
+  - url: https://figshare.com/articles/preprint/Particle_Agency_and_the_effects_of_consciousness/32964206
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+  - url: https://tandf.figshare.com/articles/dataset/Temperature_and_humidity_independently_influence_thermoregulatory_responses_during_Finnish_sauna_bathing/32964212
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element-Distributed_Residual_Modeling_of_Cryogenic_Probe-Induced_Thermal_Fields_in_Biological_Tissue_b_/32904503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+  - url: https://figshare.com/articles/journal_contribution/_b_Analysis_of_the_Knowledge_Structure_Thematic_Evolution_and_Emerging_and_Future_Research_Directions_in_User_Interface_Design_for_Explainable_Artificial_Intelligence_XAI_in_Decision-Making_Dashboards_A_Scientometric_Study_b_/32964188
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -375,7 +439,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8420816
+  - url: https://zenodo.org/records/8422723
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -396,6 +460,93 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17650482
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ILR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/punwaiw/il-reasoning-responses/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/punwaiw/il-reasoning-responses/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ILRDF/ithuan_formosan_train/resolve/main/Amis_Xiuguluan/train-00000-of-00006.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ILRDF/klokah_asr_train_clean/resolve/main/Amis_Coastal/train-00000-of-00002.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ILRDF/klokah_tts_train_clean/resolve/main/Amis_Coastal/train-00000-of-00003.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://tandf.figshare.com/articles/journal_contribution/Oxazole-4_5-dicarboxylate_derivatives_as_multifunctional_targets_against_oral_cancer_and_i_Streptococcus_mutans_i_oral_pathogens/32964218
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Particle_Agency_and_the_effects_of_consciousness/32964206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Temperature_and_humidity_independently_influence_thermoregulatory_responses_during_Finnish_sauna_bathing/32964212
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element-Distributed_Residual_Modeling_of_Cryogenic_Probe-Induced_Thermal_Fields_in_Biological_Tissue_b_/32904503
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Analysis_of_the_Knowledge_Structure_Thematic_Evolution_and_Emerging_and_Future_Research_Directions_in_User_Interface_Design_for_Explainable_Artificial_Intelligence_XAI_in_Decision-Making_Dashboards_A_Scientometric_Study_b_/32964188
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20088142
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15611780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20101862
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/546423
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20534961
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ualberta.scholaris.ca/handle/123456789/105015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21281646
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21281646
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21275427
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2509.26306
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -444,31 +595,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/book/College_of_Nursing_Sciences_Ihiala_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952923
+  - url: https://tandf.figshare.com/articles/journal_contribution/Oxazole-4_5-dicarboxylate_derivatives_as_multifunctional_targets_against_oral_cancer_and_i_Streptococcus_mutans_i_oral_pathogens/32964218
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Tidal_Mixing_on_the_Antarctic_Continental_Slope_Enhances_Ocean_Heat_Transport_With_Implications_for_Sea_Ice/32952812
+  - url: https://figshare.com/articles/preprint/Particle_Agency_and_the_effects_of_consciousness/32964206
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/School_of_Psychiatric_Nursing_Eket_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952917
+  - url: https://tandf.figshare.com/articles/dataset/Temperature_and_humidity_independently_influence_thermoregulatory_responses_during_Finnish_sauna_bathing/32964212
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element-Distributed_Residual_Modeling_of_Cryogenic_Probe-Induced_Thermal_Fields_in_Biological_Tissue_b_/32904503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+  - url: https://figshare.com/articles/journal_contribution/_b_Analysis_of_the_Knowledge_Structure_Thematic_Evolution_and_Emerging_and_Future_Research_Directions_in_User_Interface_Design_for_Explainable_Artificial_Intelligence_XAI_in_Decision-Making_Dashboards_A_Scientometric_Study_b_/32964188
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8299749
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -480,27 +631,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15795891
+  - url: https://zenodo.org/records/14174346
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.gbif.org/occurrence/download/0031051-260623161305970
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/21286930
+  - url: https://fair.unifg.it//handle/11369/369485
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21286930
+  - url: https://figshare.com/articles/journal_contribution/_b_Penerapan_Model_Hybrid_ARIMA-LSTM_dengan_Penambahan_Variabel_Nilai_Tukar_USD_IDR_dalam_Prediksi_Harga_Emas_b_/32963963/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.26192/q4w3y
+  - url: https://figshare.com/articles/journal_contribution/_b_Penerapan_Model_Hybrid_ARIMA-LSTM_dengan_Penambahan_Variabel_Nilai_Tukar_USD_IDR_dalam_Prediksi_Harga_Emas_b_/32963963
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 405'
-  - url: https://zenodo.org/records/21285424
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Prediksi_Produksi_Padi_di_Pulau_Sumatera_Menggunakan_Random_Forest_dan_Decision_Tree_Analisis_Dampak_Perubahan_Iklim/32963771
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Prediksi_Produksi_Padi_di_Pulau_Sumatera_Menggunakan_Random_Forest_dan_Decision_Tree_Analisis_Dampak_Perubahan_Iklim/32963771/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -530,27 +681,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&Expires=1783650340&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM2NTAzNDB9fX1dfQ__&Signature=MEUCIBq73x-KJ5sG1uoWKx9qHPwVN4t~JNVI14Fa6BVsT~CmAiEAnqVvtDQzT7AZsbcpVbcCHUi8pEcv2A77ZYg1JHxOdqg_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&user_id=public&X-Xet-Cas-Uid=public&Expires=1783793024&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3OTMwMjR9fX1dfQ__&Signature=MEUCIHPVXdA9jtNFL8vvBRhR4txHkZ7afhik2kM1-S7WSMsJAiEA0cNiEx0t4GCIkNcjk3CBGa6U7uo-Cc5DaDEWrRYT3nY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Artworks_as_Antidotes_Artistic_quality_as_a_method_to_mitigate_risks_of_mental_health_inside_and_outside_the_academy/32952833
+  - url: https://acs.figshare.com/articles/journal_contribution/Aurated_Blue-Phosphorescent_Platinum_II_Acetylide_Complexes_via_Gold_Carbon_Bond_Formation/32964224
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/College_of_Nursing_Sciences_Ihiala_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952923
+  - url: https://tandf.figshare.com/articles/journal_contribution/Oxazole-4_5-dicarboxylate_derivatives_as_multifunctional_targets_against_oral_cancer_and_i_Streptococcus_mutans_i_oral_pathogens/32964218
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Tidal_Mixing_on_the_Antarctic_Continental_Slope_Enhances_Ocean_Heat_Transport_With_Implications_for_Sea_Ice/32952812
+  - url: https://figshare.com/articles/preprint/Particle_Agency_and_the_effects_of_consciousness/32964206
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/School_of_Psychiatric_Nursing_Eket_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952917
+  - url: https://tandf.figshare.com/articles/dataset/Temperature_and_humidity_independently_influence_thermoregulatory_responses_during_Finnish_sauna_bathing/32964212
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element-Distributed_Residual_Modeling_of_Cryogenic_Probe-Induced_Thermal_Fields_in_Biological_Tissue_b_/32904503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -570,211 +721,116 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10966066
+  - url: https://zenodo.org/records/10965999
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Novel_fuel_consumption_models_integrating_vehicular_speed_acceleration_and_jerk/27965543
+  - url: https://fair.unifg.it//handle/11369/382362
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Novel_fuel_consumption_models_integrating_vehicular_speed_acceleration_and_jerk/27965543/1
+  - url: https://zenodo.org/records/21310846
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Enhancing_MPC-Based_MCA_Through_Deep_Learning_for_Adaptive_Tuning/32952689
+  - url: https://zenodo.org/records/21310846
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21285424
+  - url: https://figshare.com/articles/journal_contribution/_b_Penerapan_Model_Hybrid_ARIMA-LSTM_dengan_Penambahan_Variabel_Nilai_Tukar_USD_IDR_dalam_Prediksi_Harga_Emas_b_/32963963
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21285424
+  - url: https://figshare.com/articles/journal_contribution/_b_Penerapan_Model_Hybrid_ARIMA-LSTM_dengan_Penambahan_Variabel_Nilai_Tukar_USD_IDR_dalam_Prediksi_Harga_Emas_b_/32963963/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: ELSE
+- intent: AND
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/orieg/elsevier-oa-cc-by/resolve/main/dataset_infos.json
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
     source: huggingface
-    format: json
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 2959
-      parsed: true
-  - url: https://huggingface.co/datasets/Rahmaa/ElsevieR_ClEaN/resolve/main/FN_ElsevieR_test.csv
-    source: huggingface
-    format: csv
+    format: parquet
     relevance: 0.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/ayah-kamal/elsevier-annotated-min/resolve/main/test.json
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
     source: huggingface
-    format: json
+    format: gzip
     relevance: 0.0
     sample_check:
-      downloaded_bytes: 63089
+      downloaded_bytes: 108629
       parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/orieg/elsevier-oa-cc-by/resolve/main/dataset_infos.json
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
     source: huggingface
-    status: verified
-    format: json
-  - url: https://huggingface.co/datasets/Rahmaa/ElsevieR_ClEaN/resolve/main/FN_ElsevieR_test.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/ayah-kamal/elsevier-annotated-min/resolve/main/test.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://figshare.com/articles/journal_contribution/School_of_Nursing_Iyi-Enu_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration_Bef/32952920
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Artworks_as_Antidotes_Artistic_quality_as_a_method_to_mitigate_risks_of_mental_health_inside_and_outside_the_academy/32952833
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/College_of_Nursing_Sciences_Ihiala_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952923
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Tidal_Mixing_on_the_Antarctic_Continental_Slope_Enhances_Ocean_Heat_Transport_With_Implications_for_Sea_Ice/32952812
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/School_of_Psychiatric_Nursing_Eket_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952917
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5564689
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16647392
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16222755
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16316358
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16016255
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21270320
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21270320
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21286633
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21286633
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21286521
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: MPa
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/mpalaval/scraped_xsum1/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
+    format: jsonl
     relevance: 0.0
     sample_check:
-      downloaded_bytes: 138546
+      downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6548f1dec7fda391046cd39d/0b089afcd3a017847ce857803a6557293a41a572d1e222a3cb8f3398fdb97bd0?user_id=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27T_ENRT_7.7K_records.json%3B+filename%3D%22T_ENRT_7.7K_records.json%22%3B&X-Xet-Cas-Uid=public&Expires=1783650400&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0OGYxZGVjN2ZkYTM5MTA0NmNkMzlkLzBiMDg5YWZjZDNhMDE3ODQ3Y2U4NTc4MDNhNjU1NzI5M2E0MWE1NzJkMWUyMjJhM2NiOGYzMzk4ZmRiOTdiZDBcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdUX0VOUlRfNy43S19yZWNvcmRzLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJUX0VOUlRfNy43S19yZWNvcmRzLmpzb24lMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzY1MDQwMH19fV19&Signature=MEQCIGfl9pvq0Mw85wsrSkvvgMB~2Ui~3LcWlypqzJ1Qd8B8AiAfE43cT863hOyUP-CJ~XFpBiFhYwHsbYCQ8wEjAtqyeg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/api/resolve-cache/datasets/mpachauri/DatasetTrimmed/e1b3a97d5fbad47b6cb37d36027146b30bad3b4a/T_ENRT_1.5k_trimmed.json?%2Fdatasets%2Fmpachauri%2FDatasetTrimmed%2Fresolve%2Fmain%2FT_ENRT_1.5k_trimmed.json=&etag=%22f2061161a9550b054807ccb37d060fe73871479a%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/api/resolve-cache/datasets/mpachauri/TrainingDatasetNew/22b93fe5f61062c1cf4d027a789a45e4c1bf25f2/T_ENRT_7.7k%20_records.json?%2Fdatasets%2Fmpachauri%2FTrainingDatasetNew%2Fresolve%2Fmain%2FT_ENRT_7.7k+_records.json=&etag=%225a49b1b9b60697aecaa4984eb4499e9b4098a375%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/mpalaval/scraped_xsum1/resolve/main/data/test-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/journal_contribution/School_of_Nursing_Iyi-Enu_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration_Bef/32952920
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/664ded1c6204fa5a3ddf65ae/d67e5979604be35f659a6ef9cbb0ef48a82be18804a751a15e42f95fa30c4aae?response-content-type=application%2Fjson&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Uncensored_and_unlimited.json%3B+filename%3D%22Uncensored_and_unlimited.json%22%3B&X-Xet-Cas-Uid=public&Expires=1783793062&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY0ZGVkMWM2MjA0ZmE1YTNkZGY2NWFlL2Q2N2U1OTc5NjA0YmUzNWY2NTlhNmVmOWNiYjBlZjQ4YTgyYmUxODgwNGE3NTFhMTVlNDJmOTVmYTMwYzRhYWVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdVbmNlbnNvcmVkX2FuZF91bmxpbWl0ZWQuanNvbiUzQitmaWxlbmFtZSUzRCUyMlVuY2Vuc29yZWRfYW5kX3VubGltaXRlZC5qc29uJTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3OTMwNjJ9fX1dfQ__&Signature=MEQCIEJhEnCnKUcPSoSlNFemE1G91SEYKFN9DujfxKsZESnpAiBPTy3kgqbSdlAMJWiB-pPJY-DmnNLi4msBRiBSIFaTEA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multifunctional_Polydopamine_Nanoparticles_to_Alleviate_Oxidative_Stress_and_Inhibit_Ferroptosis_for_Cisplatin-Induced_Acute_Kidney_Injury_Therapy/32964227
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Artworks_as_Antidotes_Artistic_quality_as_a_method_to_mitigate_risks_of_mental_health_inside_and_outside_the_academy/32952833
+  - url: https://acs.figshare.com/articles/journal_contribution/Aurated_Blue-Phosphorescent_Platinum_II_Acetylide_Complexes_via_Gold_Carbon_Bond_Formation/32964224
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/College_of_Nursing_Sciences_Ihiala_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952923
+  - url: https://tandf.figshare.com/articles/journal_contribution/Oxazole-4_5-dicarboxylate_derivatives_as_multifunctional_targets_against_oral_cancer_and_i_Streptococcus_mutans_i_oral_pathogens/32964218
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Tidal_Mixing_on_the_Antarctic_Continental_Slope_Enhances_Ocean_Heat_Transport_With_Implications_for_Sea_Ice/32952812
+  - url: https://figshare.com/articles/preprint/Particle_Agency_and_the_effects_of_consciousness/32964206
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/School_of_Psychiatric_Nursing_Eket_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952917
+  - url: https://tandf.figshare.com/articles/dataset/Temperature_and_humidity_independently_influence_thermoregulatory_responses_during_Finnish_sauna_bathing/32964212
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6816066
+  - url: https://link.springer.com/article/10.1007/BF01977446
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6651788
+  - url: https://zenodo.org/records/7714657
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2595162
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14733778
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8300554
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.26192/q31wv
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 405'
-  - url: https://doi.org/10.26192/q5wwz
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 405'
-  - url: https://zenodo.org/records/21236303
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21236303
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://parc.ipp.pt/index.php/PRPAEH/article/view/7402
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+- intent: CALPHAD
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: YIELD
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: STRENGTH
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: ELSE
+  status: unresolved
+  candidates: []
+  candidates_tried: []

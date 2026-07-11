@@ -1,96 +1,97 @@
 # Research: Predicting Yield Strength of BCC Alloys
 
-## 1. Dataset Strategy
+## Summary of Research Findings
 
-The project requires a dataset containing:
-1. Elemental composition (atomic fractions).
-2. Yield strength (MPa).
-3. Crystal structure (must be BCC).
+This research phase investigates the feasibility of predicting yield strength in BCC alloys using the MPEA database and derived compositional descriptors. The primary challenge is the availability of a verified, machine-readable dataset containing BCC-specific yield strength values.
 
-### Verified Sources Analysis
+## Dataset Strategy
 
-Based on the **# Verified datasets** block provided in the specification:
+### Verified Datasets Analysis
 
-| Dataset Name | Verified URL | Suitability for BCC Yield Strength |
-| :--- | :--- | :--- |
-| **MPEA Database** | *NO verified source found* | **Critical Gap**: The spec cites DOI `10.1038/s41597-020-00768-9`. The verified block states "NO verified source found". **Action**: The implementation MUST NOT invent a URL. The plan will attempt to resolve the DOI at runtime. If the DOI does not resolve to a file containing the specific BCC+YieldStrength subset, the pipeline will halt with a "Data Source Unreachable" error. |
-| **Materials Project** | *NO verified source found* | **Critical Gap**: No verified URL exists for a direct Materials Project BCC yield strength dataset. The plan will attempt to fetch via API if available, but will fall back to MPEA only. If MPEA N < 80, the pipeline halts. |
-| **BCC (parquet)** | `https://huggingface.co/datasets/bccnf/MeLiDC-shuffled-completo/...` | **Mismatch**: The URL `MeLiDC-shuffled-completo` suggests a text/language dataset (MeLiDC), not materials. **Decision**: These are **NOT** suitable for materials science. |
-| **MPa (parquet)** | `https://huggingface.co/datasets/mpalaval/scraped_xsum1/...` | **Mismatch**: `scraped_xsum1` implies text summarization data (XSum), not materials yield strength. **Decision**: These are **NOT** suitable for materials science. |
+The project specification relies on the **MPEA database** (DOI: 10.1038/s41597-020-00768-9) as the primary source.
 
-### Subset Verification & Fallback
+| Dataset Name | Source / DOI | Verified URL Status | Availability for Pipeline |
+| :--- | :--- | :--- | :--- |
+| **MPEA** | 10.1038/s41597-020-00768-9 | **NO verified source found** | **Critical Block**: The input block explicitly states "NO verified source found" for the MPEA DOI. The plan cannot programmatically download this dataset via a verified URL. |
+| **BCC (parquet)** | bccnf/MeLiDC-shuffled-completo | Verified URL exists | **Mismatch**: This dataset appears to be unrelated (MeLiDC/NLP) based on the dataset name and typical content of "MeLiDC" (likely NLP/Text). It does not contain alloy yield strength data. |
+| **BCC (parquet)** | bccnf/NER-portugues-shuffled | Verified URL exists | **Mismatch**: NLP dataset (Portuguese Named Entity Recognition). Irrelevant to materials science. |
+| **BCC (parquet)** | Francesco/bccd-ouzjz | Verified URL exists | **Mismatch**: Unrelated dataset (likely "BCCD" medical imaging or similar). No evidence of alloy data. |
+| **MPEA** | (No URL) | **NO verified source found** | **Critical Block**: No programmatic loader available. |
 
-1.  **Primary Strategy**: The implementation will attempt to load the MPEA dataset using the DOI `10.1038/s41597-020-00768-9`. The code will explicitly query for entries where `crystal_structure == "BCC"` and `yield_strength` is not null.
-2.  **Verification Step**: If the dataset is loaded, the code will verify that the subset contains at least 80 entries. If not, the pipeline **HALTS** with a "Data Scarcity Warning".
-3.  **Fallback Strategy**: If the MPEA dataset is unavailable (DOI resolution fails) or lacks the required subset, the project **cannot proceed** with the research question as specified. The pipeline will halt with a "Data Source Unreachable" error. No fallback to unverified sources is permitted.
-4.  **Assumption**: The spec assumes the MPEA database contains ≥80 BCC alloys. This assumption is **unverified** given the lack of a verified URL. The research phase explicitly states this limitation and the hard halt condition.
+**Decision**: No alternative verified dataset exists. The pipeline must proceed with **Manual Data Ingestion**.
 
-*Note: Do NOT use the "BCC" or "MPa" HuggingFace URLs listed in the verified block as they appear to be text datasets mislabeled in the verification list.*
+### Dataset Fit & Mismatch Analysis
 
-## 2. Feature Engineering Methodology
+**Fatal Mismatch Identified**:
+The specification requires a dataset containing **BCC-phase alloys** with **yield strength values** and **elemental compositions**.
+- The **MPEA** database (DOI: 10.1038/s41597-020-00768-9) is the intended source, but **no verified URL** exists in the provided block.
+- The available verified URLs for "BCC" (e.g., `bccnf/MeLiDC`, `Francesco/bccd`) are **not** materials science datasets. They are NLP or image datasets.
+- **Conclusion**: The pipeline **cannot** proceed with automated data ingestion as specified because the required dataset is not available via a verified, machine-readable URL in the provided list.
 
-### Descriptors (FR-003)
-Based on materials science literature for High-Entropy Alloys (HEAs) and Medium-Entropy Alloys (MEAs):
-1.  **Atomic Radius Mismatch ($\delta$)**:
-    $$ \delta = \sqrt{\sum_{i=1}^{n} c_i (1 - \frac{r_i}{\bar{r}})^2} \times 100 $$
-    Where $c_i$ is atomic fraction, $r_i$ is atomic radius, $\bar{r} = \sum c_i r_i$.
-2.  **Valence Electron Concentration (VEC)**:
-    $$ VEC = \sum_{i=1}^{n} c_i VEC_i $$
-3.  **Mixing Entropy ($\Delta S_{mix}$)**:
-    $$ \Delta S_{mix} = -R \sum_{i=1}^{n} c_i \ln(c_i) $$
-4.  **Mixing Enthalpy ($\Delta H_{mix}$)**:
-    $$ \Delta H_{mix} = \sum_{i=1}^{n} \sum_{j=1}^{n} \Omega_{ij} c_i c_j $$
-    Where $\Omega_{ij} = 4 \Delta H_{mix}^{AB}$ (binary interaction enthalpy).
-    *   **Source of Interaction Parameters**: The binary interaction parameters ($\Omega_{ij}$) will be sourced from the supplementary data of the MPEA paper (DOI: 10.1038/s41597-020-00768-9) or the standard Miedema model table if the paper data is unavailable. This ensures consistency with the dataset's origin and avoids data source mismatch.
-5.  **Electronegativity Difference ($\Delta \chi$)**:
-    Calculated similarly to $\delta$ using electronegativity values.
+**Decision & Rationale**:
+1.  **Blocker**: The plan cannot implement `FR-001` (Download and parse MPEA) without a verified source.
+2.  **Mitigation Strategy**: The implementation must assume the raw data will be **manually provided** by the user (e.g., uploaded to `data/raw/`) or fetched via a DOI resolver that is not in the verified list (which violates the "Verified Accuracy" principle if not manually verified).
+3.  **Plan Adjustment**: The `01_download.py` script will be modified to:
+    - Check for a local file `data/raw/mpea_raw.csv` (or similar).
+    - If missing, raise a `DataUnavailableError` with instructions to manually download the dataset from the DOI (10.1038/s41597-020-00768-9) and place it in the directory.
+    - **Do NOT** attempt to download from the unrelated "BCC" parquet URLs provided in the verified list, as they are domain mismatches.
+    - **Strict Enforcement**: The script will reject any pre-filtered files; only the raw file is accepted. All filtering (BCC check, missing value removal) must happen inside the script to prevent selection bias.
 
-### Log-Ratio Transformation (FR-003.1)
-Compositional data lies on a simplex ($\sum c_i = 1$), causing perfect multicollinearity.
-*   **Method**: Isometric Log-Ratio (ILR) transformation.
-*   **Implementation**: Use `pyrolite` to transform the raw composition vector $x$ into ILR coordinates $z = V^T \ln(x)$.
-*   **Feature Hierarchy**: The model will primarily use ILR coordinates. The scalar descriptors ($\delta$, VEC, etc.) will be included as additional predictors **ONLY IF** Variance Inflation Factor (VIF) < 5. This prevents redundancy, as scalars are deterministic functions of the composition already captured by ILR.
-*   **Circular Validation Risk**: The plan will verify that the target variable (yield strength) is **experimentally measured** and not derived from CALPHAD calculations using the same interaction parameters ($\Omega_{ij}$) used for predictors. If the dataset contains only CALPHAD-derived yield strength, the pipeline will flag this as a "Circular Validation Risk".
+### Variable Fit Confirmation
 
-## 3. Modeling Strategy
+Assuming the MPEA dataset is manually provided:
+- **Required Variables**: `yield_strength` (MPa), `crystal_structure` (String), `elemental_composition` (Dict/Columns).
+- **MPEA Content**: The MPEA database (Multi-Principal Element Alloys) typically contains these fields.
+- **Risk**: If the provided file lacks `crystal_structure` or has it as a free-text field, the `BCC` filter (US-1) may fail. The cleaning script must handle fuzzy matching for "BCC", "Body-Centered Cubic", etc.
+- **Circular Validation Risk**: Check if `yield_strength` is derived from CALPHAD using the same parameters as the predictor. If so, flag or exclude.
 
-### Algorithms (FR-005)
-1.  **Random Forest Regressor**: Handles non-linearities and interactions well.
-2.  **Gradient Boosting Regressor**: High accuracy for tabular data.
-3.  **Ridge Regression**: Baseline linear model; regularized to handle potential collinearity.
+## Statistical Methodology
 
-### Validation Strategy (FR-004, FR-006)
-*   **Split**: Stratified 80/20 split based on **binned compositional ranges** (derived from ILR features), NOT yield strength. This avoids binning the continuous target variable and potential selection bias.
-*   **Cross-Validation**: **Repeated 5-Fold Cross-Validation (10 repeats)** for all dataset sizes $N \ge 80$.
-    *   *Methodology Deviation Note*: The spec (FR-005) originally mandated "LOOCV for N < 100, 5-fold CV for N >= 100". However, LOOCV is statistically unstable for regression tasks with small N, producing high variance in performance estimates. Repeated 5-Fold CV provides a more robust, lower-variance estimate of generalization error for all valid dataset sizes (N >= 80). This deviation is documented to prioritize scientific validity over the literal spec text, which will be flagged for amendment.
-*   **Confidence Intervals**: 100-iteration Bootstrap resampling on the test set to generate 95% CI for $R^2$.
-*   **Feature Importance**: Permutation importance (scikit-learn `permutation_importance`) to identify robust descriptors.
+### Model Selection
+- **Algorithms**: Random Forest, Gradient Boosting, Ridge Regression.
+- **Justification**: These models handle non-linear relationships (RF, GB) and linear baselines (Ridge) well. They are CPU-tractable and available in `scikit-learn`.
 
-## 4. Statistical Rigor & Constraints
+### Validation Strategy
+- **Cross-Validation**: Repeated 5-Fold CV (10 repetitions) on the **entire** dataset.
+- **Reasoning**: Small dataset size (N ≥ 80) requires robust variance estimation. Repeated CV reduces the variance of the performance estimate. **No 80/20 holdout** for primary analysis to preserve statistical power.
+- **Metrics**: R², MAE, RMSE.
+- **Confidence Intervals**: **Bootstrap the Dataset**: Resample the entire dataset (with replacement) multiple times. For each resample, run the full Repeated 5-Fold CV and record the mean CV score. Use the distribution of these scores for the 95% CI. This captures both sampling and CV variance.
 
-*   **Multiple Comparisons**: When comparing 3 models, apply Bonferroni correction to p-values if hypothesis testing is performed on $R^2$ differences.
-*   **Power Analysis**: The plan explicitly checks $N \ge 80$. If $N < 80$, the pipeline halts. This is a hard constraint to ensure statistical power.
-*   **Causal Claims**: The study is **observational**. Claims will be framed as "associational" or "predictive," not causal.
-*   **Collinearity**: ILR transformation addresses compositional collinearity. VIF will be checked for scalar descriptors.
+### Model Comparison Strategy
+- **Issue**: Comparing 3 models (RF, GB, Ridge).
+- **Method**: Pre-registered test: **Friedman test** on CV scores followed by **Nemenyi post-hoc test** with **Bonferroni correction** to control family-wise error rate.
+- **Interpretation**: If the test is not significant, claim "No statistical difference in performance". If significant, identify the best model with caution regarding Type II error.
 
-## 5. Compute Feasibility
+### Power Analysis & Disclaimer
+- **Requirement**: Minimum N ≥ 80 (US-4).
+- **Justification**: Based on power analysis for regression with A set of predictors, α=0.05, power=0.8.
+- **Handling**: If N < 80, the pipeline halts with a warning (US-4).
+- **Disclaimer**: With small N, the primary goal is **Estimation of Performance Bounds**, not **Hypothesis Testing of Model Superiority**. Results will be interpreted with caution regarding Type II error (false negatives).
 
-*   **Hardware**: GitHub Actions Free Tier (multiple CPU cores, ~7 GB RAM).
-*   **Memory Management**:
-    *   Data loading: Stream or chunk if necessary (unlikely for <1000 rows).
-    *   Models: `scikit-learn` models are CPU-efficient. No GPU required.
-    *   ILR: Computationally light for $<1000$ samples.
-*   **Runtime**: Estimated < 1 hour for full pipeline (Ingestion + Features + Modeling + Bootstrapping) on 2 CPUs.
+### Causal Inference & Assumptions
+- **Nature**: Observational study.
+- **Claim**: "Composition explains variance in yield strength."
+- **Caveat**: No causal claims (e.g., "Increasing X causes Y") will be made. Results are associational.
+- **Collinearity**: Compositional data sums to a constant (closure problem).
+  - **Solution**: Use **either** scalar descriptors (δ, VEC, etc.) **OR** ILR-transformed features, but **not both** (FR-003.2). ILR is preferred for addressing multicollinearity mathematically.
+  - **Scientific Framing**: Comparing ILR vs Descriptors is a **Methodological Comparison of Feature Representations**, not a test of physical mechanisms.
 
-## 6. Decision Log
+## Data Quality & Scarcity Handling
 
-| Decision | Rationale |
-| :--- | :--- |
-| **Use ILR Transformation** | Required by FR-003.1 to handle compositional closure and multicollinearity. |
-| **Halt if $N < 80$** | Spec requirement (Edge Cases) to ensure statistical validity. |
-| **No External API for Periodic Table** | CI constraints; use a local static dictionary or `periodictable` library (if available in wheel). |
-| **Repeated 5-Fold CV** | Statistically superior to LOOCV for small N regression; provides consistent methodology for all N >= 80. |
-| **Dataset Handling** | The MPEA DOI is the primary source. If no verified URL exists or the subset is missing, the code must handle the failure gracefully with a hard halt. |
-| **Stratification by Composition** | FR-004 explicitly requires stratification by "binned compositional ranges", not target variable. |
-| **VIF Check for Scalars** | Prevents redundancy between ILR coordinates and scalar descriptors. |
-| **Circular Validation Check** | Ensures target variable is independent of predictor parameters. |
+- **Duplicates**: If multiple yield strength values exist for the same composition, average them and record SD (US-4).
+- **Missing Values**: Exclude entries with missing yield strength or invalid compositions (US-1).
+- **Domain Errors**: Catch log(0) in feature engineering; assign 0.0 or NaN with logging (US-4).
+- **Element Mismatch**: Halt on unknown elements; log error (US-2).
+- **Circular Validation**: Check `yield_strength_source` in metadata. If CALPHAD-derived, flag or exclude.
+
+## Decision Log
+
+| Decision | Rationale | Impact |
+|----------|-----------|--------|
+| **Manual Data Ingestion** | No verified URL for MPEA; verified "BCC" URLs are irrelevant. | Pipeline requires manual step for data download. |
+| **ILR vs Descriptors** | FR-003.2 mandates mutual exclusivity. | Implementation will have a config flag to select one set. Comparison is a meta-analysis of two runs. |
+| **CPU-Only Constraint** | GitHub Actions free tier limits. | No deep learning; `scikit-learn` only. |
+| **Repeated CV (No Holdout)** | Small N requires robust error estimation; holdout reduces power. | Primary validation is CV only. |
+| **Bootstrap the Dataset** | Bootstrapping CV scores underestimates variance. | Resample data, then run CV, to capture full variance. |
+| **Friedman/Nemenyi Test** | Pre-registered test for model comparison with correction. | Controls Type I error. |
+| **Circular Validation Check** | Prevents tautological learning. | Excludes CALPHAD-derived yield strengths. |

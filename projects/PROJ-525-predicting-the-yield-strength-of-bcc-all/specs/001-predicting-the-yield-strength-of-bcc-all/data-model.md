@@ -1,50 +1,62 @@
 # Data Model: Predicting Yield Strength of BCC Alloys
 
-## 1. Entity Definitions
+## Entity Definitions
 
-### AlloyRecord
+### 1. AlloyRecord
 Represents a single alloy entry from the raw dataset.
-*   `system_id`: string (Unique identifier, e.g., "MPEA-001")
-*   `elemental_composition`: dict (Key: Element symbol, Value: Atomic fraction)
-*   `yield_strength`: float (MPa)
-*   `crystal_structure`: string (e.g., "BCC", "FCC", "HCP")
-*   `source`: string (e.g., "MPEA_DB")
-*   `notes`: string (Optional metadata)
+- **Attributes**:
+  - `system_id`: String (Unique identifier, e.g., "MPEA-001")
+  - `elemental_composition`: Dictionary (Key: Element Symbol, Value: Atomic Fraction)
+  - `yield_strength`: Float (MPa)
+  - `crystal_structure`: String (e.g., "BCC", "FCC", "HCP", "Mixed")
+  - `source_reference`: String (DOI or citation)
+  - `yield_strength_source`: String (e.g., "Experimental", "CALPHAD", "Calculated") - **Critical for Circular Validation**
+  - `is_bcc`: Boolean (Derived: True if `crystal_structure` matches BCC patterns)
+  - `is_valid`: Boolean (True if yield_strength is numeric and > 0)
 
-### CompositionalDescriptor
-Derived features for a single alloy.
-*   `system_id`: string (FK to AlloyRecord)
-*   `delta_radius`: float (Atomic radius mismatch %)
-*   `vec`: float (Valence Electron Concentration)
-*   `mixing_entropy`: float (J/mol-K)
-*   `mixing_enthalpy`: float (kJ/mol)
-*   `electronegativity_diff`: float (Electronegativity difference)
-*   `ilr_features`: list[float] (Transformed compositional features)
-*   `raw_composition`: dict (Preserved for traceability)
-*   `feature_source`: string (e.g., "MPEA_Supp_Data" for enthalpy parameters)
-*   `vif_score`: float (Optional; Variance Inflation Factor for scalar descriptors)
+### 2. CompositionalDescriptor
+Represents derived features for a single alloy.
+- **Attributes**:
+  - `alloy_id`: String (FK to AlloyRecord)
+  - `delta_radius`: Float (Atomic radius mismatch, δ)
+  - `vec`: Float (Valence Electron Concentration)
+  - `mixing_entropy`: Float (Configurational entropy)
+  - `mixing_enthalpy`: Float (Enthalpy of mixing)
+  - `electronegativity_diff`: Float (Standard deviation of electronegativity)
+  - `ilr_features`: List[Float] (ILR-transformed coordinates, length = num_elements - 1)
+  - `feature_set_type`: String ("scalar_descriptors" OR "ilr_transformed")
 
-### ModelPerformance
-Evaluation results for a specific model.
-*   `model_type`: string ("RandomForest", "GradientBoosting", "Ridge")
-*   `r_squared`: float
-*   `mae`: float (MPa)
-*   `rmse`: float (MPa)
-*   `confidence_interval`: tuple[float, float] (95% CI for R²)
-*   `feature_importance`: list[tuple] (Feature name, importance score)
-*   `validation_method`: string ("Repeated5FoldCV")
+### 3. ModelPerformance
+Represents the evaluation results of a trained model.
+- **Attributes**:
+  - `model_type`: String ("RandomForest", "GradientBoosting", "Ridge")
+  - `feature_set_used`: String ("scalar_descriptors" OR "ilr_transformed")
+  - `r_squared`: Float
+  - `r_squared_ci_lower`: Float (95% CI lower bound)
+  - `r_squared_ci_upper`: Float (95% CI upper bound)
+  - `mae`: Float (Mean Absolute Error)
+  - `rmse`: Float (Root Mean Squared Error)
+  - `feature_importance`: Dict (Feature name -> Importance score)
+  - `cv_repetitions`: Integer (Default 10)
+  - `n_samples`: Integer (Dataset size used)
+  - `feature_stability_spearman`: Float (Median Spearman correlation of importance across CV reps)
+  - `mae_vs_uncertainty`: Boolean (True if MAE <= 50 MPa, False otherwise)
+  - `statistical_significance`: String (Result of Friedman/Nemenyi test)
 
-## 2. Data Flow
+## Data Flow
 
-1.  **Raw Input**: Parquet/CSV with mixed structures.
-2.  **Filtering**: Keep only `crystal_structure == "BCC"` and `yield_strength` is not null.
-3.  **Normalization**: Atomic fractions normalized to sum to 1.0.
-4.  **Feature Engineering**: Calculate descriptors and apply ILR.
-5.  **VIF Check**: Calculate VIF for scalar descriptors; exclude if > 5.
-6.  **Modeling**: Train models, generate metrics.
+1. **Raw Input**: `data/raw/mpea_raw.csv` (or similar).
+2. **Filtering**: `01_download.py` -> `data/processed/bcc_filtered.csv` (only BCC, valid yield, raw only).
+3. **Normalization**: `01_download.py` -> Compositions normalized to sum=1.0.
+4. **Feature Engineering**: `02_engineer.py` -> `data/processed/features_[type].csv` (Descriptive OR ILR).
+5. **Modeling**: `03_train.py` -> `data/processed/model_results.json`.
+6. **Evaluation**: `04_evaluate.py` -> `data/processed/performance_report.csv`.
 
-## 3. File Formats
+## Constraints & Rules
 
-*   **Input**: Parquet (preferred) or CSV.
-*   **Intermediate**: JSON logs for rejected entries.
-*   **Output**: Parquet (processed data), JSON (model metrics).
+- **Composition Sum**: All `elemental_composition` rows MUST sum to 1.0 (±1e-6).
+- **BCC Filter**: Only entries where `crystal_structure` contains "BCC" (case-insensitive) are processed.
+- **Feature Exclusivity**: A single model run MUST use either `delta_radius`, `vec`, etc., OR `ilr_features`, never both.
+- **Missing Data**: Any row with missing `yield_strength` or missing elemental data is excluded and logged.
+- **Duplicate Handling**: Duplicate compositions (same elements, same fractions) are averaged for yield strength; SD is recorded.
+- **Circular Validation**: Rows with `yield_strength_source` == "CALPHAD" (if using mixing enthalpy) are flagged or excluded.

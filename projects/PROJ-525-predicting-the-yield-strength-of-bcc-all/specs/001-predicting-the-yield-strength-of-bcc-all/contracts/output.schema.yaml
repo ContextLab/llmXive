@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Output Schema"
+description: "Schema for the final model performance metrics and confidence intervals."
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: "Unique identifier for the experiment run"
+  feature_set_type:
+    type: string
+    description: "Type of features used (descriptors or ilr)"
+    enum:
+      - "scalar_descriptors"
+      - "ilr_transformed"
+  models:
+    type: array
+    items:
+      type: object
+      properties:
+        model_type:
+          type: string
+          description: "Name of the model (RF, GB, Ridge)"
+        r_squared:
+          type: number
+          description: "Coefficient of determination"
+        r_squared_ci_lower:
+          type: number
+          description: "95% CI lower bound for R²"
+        r_squared_ci_upper:
+          type: number
+          description: "95% CI upper bound for R²"
+        mae:
+          type: number
+          description: "Mean Absolute Error"
+        rmse:
+          type: number
+          description: "Root Mean Squared Error"
+        cv_repetitions:
+          type: integer
+          description: "Number of CV repetitions"
+        n_samples:
+          type: integer
+          description: "Number of samples in the dataset"
+        feature_importance:
+          type: object
+          description: "Top 5 features and their importance scores"
+          additionalProperties:
+            type: number
+        feature_stability_spearman:
+          type: number
+          description: "Median Spearman correlation of feature importance across CV reps"
+        mae_vs_uncertainty:
+          type: boolean
+          description: "True if MAE <= 50 MPa (experimental uncertainty)"
+        statistical_significance:
+          type: string
+          description: "Result of Friedman/Nemenyi test"
+      required:
+        - model_type
+        - r_squared
+        - r_squared_ci_lower
+        - r_squared_ci_upper
+        - mae
+        - rmse
+        - cv_repetitions
+        - n_samples
+        - feature_stability_spearman
+        - mae_vs_uncertainty
+        - statistical_significance
+required:
+  - experiment_id
+  - feature_set_type
+  - models
+additionalProperties: false

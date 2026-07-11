@@ -1,58 +1,68 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "BCC Alloy Dataset Schema"
-description: "Schema for the filtered and engineered BCC alloy dataset."
-type: "object"
+title: "Filtered BCC Alloy Dataset Schema"
+description: "Schema for the cleaned, BCC-filtered, and normalized alloy dataset."
+type: object
 properties:
-  system_id:
-    type: "string"
-    description: "Unique identifier for the alloy."
-  elemental_composition:
-    type: "object"
-    description: "Atomic fractions of elements."
-    additionalProperties:
-      type: "number"
-      minimum: 0
-      maximum: 1
-  yield_strength:
-    type: "number"
-    description: "Yield strength in MPa."
-    minimum: 0
-  crystal_structure:
-    type: "string"
-    enum:
-      - "BCC"
-    description: "Must be BCC."
-  delta_radius:
-    type: "number"
-    description: "Atomic radius mismatch percentage."
-  vec:
-    type: "number"
-    description: "Valence Electron Concentration."
-  mixing_entropy:
-    type: "number"
-    description: "Mixing entropy in J/mol-K."
-  mixing_enthalpy:
-    type: "number"
-    description: "Mixing enthalpy in kJ/mol."
-  electronegativity_diff:
-    type: "number"
-    description: "Electronegativity difference."
-  ilr_features:
-    type: "array"
-    description: "Isometric Log-Ratio transformed features."
+  metadata:
+    type: object
+    properties:
+      source_doi:
+        type: string
+        description: "DOI of the source dataset (e.g., 10.1038/s41597-020-00768-9)"
+      filter_applied:
+        type: string
+        description: "Filter criteria (e.g., 'BCC phase only, yield_strength > 0')"
+      normalization_method:
+        type: string
+        description: "Method used to normalize compositions (e.g., 'sum_to_1.0')"
+      n_samples:
+        type: integer
+        description: "Number of valid entries after filtering"
+    required:
+      - source_doi
+      - filter_applied
+      - n_samples
+  records:
+    type: array
     items:
-      type: "number"
-  feature_source:
-    type: "string"
-    description: "Source of interaction parameters for enthalpy."
+      type: object
+      properties:
+        system_id:
+          type: string
+          description: "Unique identifier for the alloy"
+        elemental_composition:
+          type: object
+          description: "Map of element symbol to atomic fraction"
+          additionalProperties:
+            type: number
+            minimum: 0
+            maximum: 1
+        yield_strength:
+          type: number
+          description: "Yield strength in MPa"
+          minimum: 0
+        crystal_structure:
+          type: string
+          description: "Crystal structure (must be 'BCC')"
+          enum:
+            - "BCC"
+            - "Body-Centered Cubic"
+        is_bcc:
+          type: boolean
+          description: "Explicit flag for BCC phase"
+          const: true
+        sum_check:
+          type: number
+          description: "Sum of elemental compositions (must be 1.0)"
+          const: 1.0
+      required:
+        - system_id
+        - elemental_composition
+        - yield_strength
+        - crystal_structure
+        - is_bcc
+        - sum_check
 required:
-  - system_id
-  - elemental_composition
-  - yield_strength
-  - crystal_structure
-  - delta_radius
-  - vec
-  - mixing_entropy
-  - mixing_enthalpy
-  - ilr_features
+  - metadata
+  - records
 additionalProperties: false
