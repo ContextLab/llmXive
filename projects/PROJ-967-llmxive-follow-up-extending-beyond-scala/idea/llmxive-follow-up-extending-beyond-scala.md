@@ -9,11 +9,11 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-How does the dimensional fidelity of a student reward model degrade when the teacher's rubric dimensions are structurally entangled versus explicitly disentangled, and can this degradation be predicted using only the statistical properties (e.g., entropy, inter-dimensional covariance) of the teacher's output score distribution?
+How does the structural entanglement of a teacher model's multi-dimensional reward distribution influence the information loss during distillation to a scalar student model, and can this loss be predicted by comparing the teacher's output covariance against human-annotated dimension scores rather than the teacher's own scores?
 
 ## Motivation
 
-Current reward models for text-to-image generation often collapse multi-dimensional quality criteria into a single scalar, potentially obscuring trade-offs between conflicting objectives like aesthetics and physical plausibility. This study addresses the gap in understanding whether the efficiency gains from "internalizing reasoning" into a compact student model come at the cost of losing the ability to distinguish between these specific quality dimensions, a failure mode that could hinder multi-objective optimization.
+Current reward models for text-to-image generation often collapse multi-dimensional quality criteria into a single scalar, potentially obscuring trade-offs between conflicting objectives like aesthetics and physical plausibility. This study addresses the gap in understanding whether the efficiency gains from "internalizing reasoning" come at the cost of losing the ability to distinguish between specific quality dimensions, a failure mode that could hinder multi-objective optimization in generative AI.
 
 ## Related work
 
@@ -24,28 +24,28 @@ Current reward models for text-to-image generation often collapse multi-dimensio
 
 ## Expected results
 
-We expect to find a strong negative correlation between high inter-dimensional covariance in the teacher's score distribution and the student model's ability to accurately penalize specific dimension errors. This would be confirmed by a lightweight regression model (using only teacher distributional statistics) successfully predicting the student's "dimensional fidelity drop" on held-out data, demonstrating that the teacher's statistical footprint contains sufficient signal to identify when the student's internalized reasoning has collapsed distinct quality signals.
+We expect to find that high inter-dimensional covariance in the teacher's score distribution correlates with a significant degradation in the student model's ability to recover specific dimension scores, provided the ground truth is measured via independent human annotations. This will be confirmed if a regression model, using only the teacher's statistical footprint (entropy, covariance) as features, successfully predicts the error magnitude on held-out human-annotated data, demonstrating that the teacher's distributional shape encodes the risk of scalar collapse.
 
 ## Methodology sketch
 
 - **Data Acquisition**: Download the existing Z-Reward evaluation dataset (prompts, generated images, human annotations) and the saved inference outputs (logits and score distributions) for the 27B teacher and 9B student models from the original repository or public archive.
-- **Entanglement Identification**: Calculate the covariance matrix of the teacher's predicted score distributions across the four rubric dimensions (Alignment, Realism, Aesthetics, Plausibility) to classify samples as "entangled" (high covariance/trade-off) or "disentangled" (low covariance).
-- **Fidelity Measurement**: Compute the "dimensional fidelity" for the student model by calculating the correlation between the student's scalar output and the specific human-annotated dimension score that contributed most to the error in the teacher's reasoning trace for each sample.
-- **Feature Engineering**: Derive statistical features from the teacher's output distributions for each sample, including entropy, skewness, kurtosis, and inter-dimensional covariance.
-- **Predictive Modeling**: Train a CPU-based Random Forest regressor using the derived statistical features as inputs to predict the student's dimensional fidelity drop (the target variable).
+- **Entanglement Quantification**: Calculate the covariance matrix of the teacher's predicted score distributions across the four rubric dimensions (Alignment, Realism, Aesthetics, Plausibility) to derive an "entanglement score" for each sample.
+- **Ground-Truth Fidelity Calculation**: Compute the "dimensional fidelity loss" for the student model by calculating the Mean Absolute Error (MAE) between the student's scalar output and the *human-annotated* score for the dimension most relevant to the sample's primary quality attribute.
+- **Feature Engineering**: Derive statistical descriptors from the teacher's output distributions for each sample, including entropy, skewness, kurtosis, and the dominant eigenvalue of the inter-dimensional covariance matrix.
+- **Predictive Modeling**: Train a CPU-based Random Forest regressor using the derived statistical features as inputs to predict the "dimensional fidelity loss" (target variable derived from human annotations).
 - **Validation**: Evaluate the regressor using 5-fold cross-validation on the dataset, reporting the R² score and Mean Absolute Error to assess how well distributional statistics predict the student's failure modes.
-- **Independence Check**: Ensure the target variable (student fidelity drop) is calculated against human annotations, which are independent of the teacher's distributional statistics used as predictors, avoiding circular validation.
+- **Independence Check**: Ensure the target variable (fidelity loss) is calculated against human annotations, which are measured independently of the teacher's distributional statistics used as predictors, thereby avoiding circular validation where the teacher's output predicts itself.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions, The Art of Efficient Reasoning, ARS: Adaptive Reasoning Suppression, Aligning Language Models Using Follow-up Likelihood.
-- Closest match: Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions (similarity sketch: foundational work on the same framework, but this idea specifically investigates the *degradation* of dimensional fidelity in the student model via statistical analysis of the teacher's output, a distinct follow-up question).
+- Closest match: Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions (similarity sketch: foundational work on the same framework, but this idea specifically investigates the *degradation* of dimensional fidelity in the student model via statistical analysis of the teacher's output against human ground truth, a distinct follow-up question).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-05T04:34:19Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T15:08:04Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "Beyond Scalar Rewards by Internalizing Reasoning into Score Distributi" computer science
 **Verified citation count**: 5
@@ -54,27 +54,7 @@ We expect to find a strong negative correlation between high inter-dimensional c
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Beyond Scalar Rewards by Internalizing Reasoning into Score Distributi" computer science | 0 |
-| 1 | internalizing reasoning in language model reward signals | 4 |
-| 2 | reasoning-aware reward distributions for LLMs | 0 |
-| 3 | moving beyond scalar rewards in reinforcement learning for language models | 0 |
-| 4 | probabilistic reward modeling for chain-of-thought reasoning | 0 |
-| 5 | latent reasoning scores in large language models | 0 |
-| 6 | non-scalar reward functions for generative AI | 0 |
-| 7 | distributional reinforcement learning for language model alignment | 0 |
-| 8 | reasoning trace integration into reward signals | 0 |
-| 9 | structured reward shaping for complex reasoning tasks | 0 |
-| 10 | uncertainty-aware reward distributions for LLMs | 0 |
-| 11 | multi-dimensional reward metrics for language model reasoning | 0 |
-| 12 | reasoning-guided policy optimization with distributional rewards | 0 |
-| 13 | internalizing cognitive processes into reward functions | 0 |
-| 14 | vector-valued rewards for language model reasoning | 0 |
-| 15 | reward function design for reasoning-intensive LLM tasks | 0 |
-| 16 | probabilistic internal states in language model reward learning | 0 |
-| 17 | reasoning quality estimation via reward distribution analysis | 0 |
-| 18 | extending scalar reward paradigms in LLM training | 0 |
-| 19 | reward signal granularity for language model reasoning | 0 |
-| 20 | cognitive-aware reward modeling for generative language models | 0 |
+| 0 (initial) | llmXive follow-up: extending "Beyond Scalar Rewards by Internalizing Reasoning into Score Distributi" computer science | 5 |
 
 ### Verified citations
 
