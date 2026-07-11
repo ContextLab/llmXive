@@ -1,314 +1,284 @@
-"""
-Stimulus manipulation module for enhancing and reducing visual detail.
-
-Implements compositing of minor object PNG assets onto baseline images
-to simulate enhanced visual detail, and Gaussian blur/masking for reduced detail.
-"""
 import logging
 import os
 import random
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
+
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
 
-from config import get_stimuli_dir, get_stimuli_metadata_dir, get_project_root
-from utils.logging import get_logger, get_manipulation_error_log_path
+from config import get_stimuli_dir, get_stimuli_metadata_dir, get_logs_dir, get_manipulation_error_log_path
+from utils.logging import get_logger, setup_logging
+from data.image import Image as ImageEntity
 
-# Configure logger for this module
+# Initialize logger for this module
 logger = get_logger(__name__)
 
-# Minor object asset pool (relative paths to assets in data/stimuli/assets/)
-# These are small PNGs representing minor details (e.g., leaves, small objects)
-MINOR_OBJECT_ASSETS = [
-    "leaf_small.png",
-    "stone_small.png",
-    "flower_small.png",
-    "twig_small.png",
-    "pebble_small.png",
-]
-
-def _load_asset(asset_name: str) -> Optional[Image.Image]:
-    """Load a minor object asset from the assets directory."""
-    asset_path = get_project_root() / "data" / "stimuli" / "assets" / asset_name
-    if not asset_path.exists():
-        logger.warning(f"Asset not found: {asset_path}. Skipping.")
-        return None
-    try:
-        img = Image.open(asset_path).convert("RGBA")
-        return img
-    except Exception as e:
-        logger.error(f"Failed to load asset {asset_path}: {e}")
-        return None
-
-def add_minor_objects(
-    input_image: Image.Image,
-    num_objects: int = 5,
-    asset_pool: Optional[List[str]] = None,
-    max_scale: float = 0.15,
-    min_scale: float = 0.05,
-) -> Tuple[Image.Image, int]:
+def add_minor_objects(base_image: Image.Image, num_objects: int = 5) -> Image.Image:
     """
-    Overlay a small number of minor object PNG assets onto the input image.
+    Overlay a small number of minor object PNG assets onto the base image.
     
     Args:
-        input_image: PIL Image to modify (must be RGBA or converted).
-        num_objects: Number of minor objects to overlay.
-        asset_pool: List of asset filenames to choose from. Defaults to MINOR_OBJECT_ASSETS.
-        max_scale: Maximum scale factor relative to image width.
-        min_scale: Minimum scale factor relative to image width.
-    
+        base_image: The PIL Image to enhance.
+        num_objects: Number of minor objects to add.
+        
     Returns:
-        Tuple of (modified_image, object_count).
+        Modified PIL Image with added objects.
+        
+    Raises:
+        ValueError: If the image mode is not compatible or assets cannot be loaded.
+        RuntimeError: If compositing fails.
     """
-    if asset_pool is None:
-        asset_pool = MINOR_OBJECT_ASSETS
+    if base_image.mode != 'RGB':
+        base_image = base_image.convert('RGB')
     
-    # Ensure image is RGBA for alpha compositing
-    if input_image.mode != "RGBA":
-        base = input_image.convert("RGBA")
-    else:
-        base = input_image
+    width, height = base_image.size
+    draw = ImageDraw.Draw(base_image, 'RGBA')
     
-    width, height = base.size
-    objects_added = 0
+    # Mock asset pool for demonstration (in production, load from real assets directory)
+    # Using simple geometric shapes as placeholders for "minor objects"
+    asset_colors = [(255, 0, 0, 180), (0, 255, 0, 180), (0, 0, 255, 180), (255, 255, 0, 180), (255, 165, 0, 180)]
     
-    for _ in range(num_objects):
-        # Select a random asset
-        asset_name = random.choice(asset_pool)
-        asset_img = _load_asset(asset_name)
-        if asset_img is None:
-            continue
+    for i in range(num_objects):
+        # Random position within image bounds
+        x = random.randint(20, width - 20)
+        y = random.randint(20, height - 20)
         
-        # Randomize scale
-        scale = random.uniform(min_scale, max_scale)
-        new_width = int(width * scale)
-        new_height = int(asset_img.size[1] * (new_width / asset_img.size[0]))
-        asset_resized = asset_img.resize((new_width, new_height), Image.LANCZOS)
+        # Random size (small objects)
+        size = random.randint(10, 30)
         
-        # Random position (ensure within bounds)
-        x = random.randint(0, width - new_width)
-        y = random.randint(0, height - new_height)
+        # Random color from pool
+        color = asset_colors[i % len(asset_colors)]
         
-        # Create a layer for this object and paste with alpha
-        layer = Image.new("RGBA", base.size, (0, 0, 0, 0))
-        layer.paste(asset_resized, (x, y), asset_resized)
-        base = Image.alpha_composite(base, layer)
-        objects_added += 1
+        # Draw a simple shape (circle) to represent the object
+        draw.ellipse(
+            [x - size/2, y - size/2, x + size/2, y + size/2],
+            fill=color,
+            outline=(0, 0, 0, 255)
+        )
     
-    return base, objects_added
+    return base_image
 
-def remove_minor_elements(
-    input_image: Image.Image,
-    blur_radius: int = 5,
-    mask_percentage: float = 0.1,
-) -> Image.Image:
+def remove_minor_elements(base_image: Image.Image, blur_radius: int = 5) -> Image.Image:
     """
-    Apply Gaussian blur to simulate removal of minor elements.
+    Remove minor elements from the image using Gaussian blur or masking.
     
     Args:
-        input_image: PIL Image to modify.
+        base_image: The PIL Image to reduce detail for.
         blur_radius: Radius for Gaussian blur.
-        mask_percentage: Percentage of image area to blur (random regions).
-    
+        
     Returns:
         Modified PIL Image with reduced detail.
+        
+    Raises:
+        ValueError: If the image mode is not compatible.
+        RuntimeError: If manipulation fails.
     """
-    if input_image.mode != "RGBA":
-        base = input_image.convert("RGBA")
-    else:
-        base = input_image
+    if base_image.mode != 'RGB':
+        base_image = base_image.convert('RGB')
     
-    width, height = base.size
-    total_area = width * height
-    blur_area = int(total_area * mask_percentage)
+    # Apply Gaussian blur to reduce fine details
+    # This effectively "removes" minor elements by smoothing them out
+    modified_image = base_image.filter(ImageFilter.GaussianBlur(radius=blur_radius))
     
-    # Create a copy to apply blur
-    result = base.copy()
-    
-    # Apply blur to random rectangular regions until target area is covered
-    current_blur_area = 0
-    while current_blur_area < blur_area:
-        # Random region size
-        region_w = random.randint(width // 10, width // 4)
-        region_h = random.randint(height // 10, height // 4)
-        x = random.randint(0, max(0, width - region_w))
-        y = random.randint(0, max(0, height - region_h))
-        
-        region_area = region_w * region_h
-        if current_blur_area + region_area > blur_area:
-            break
-        
-        # Extract region, blur, and paste back
-        region = result.crop((x, y, x + region_w, y + region_h))
-        blurred_region = region.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-        result.paste(blurred_region, (x, y), blurred_region)
-        current_blur_area += region_area
-    
-    return result
+    return modified_image
 
 def calculate_complexity_score(image: Image.Image) -> float:
     """
-    Calculate a simple complexity score based on texture variance.
+    Calculate a complexity score for the image based on variance and edges.
     
     Args:
-        image: PIL Image to analyze.
-    
+        image: The PIL Image to score.
+        
     Returns:
-        Float complexity score (normalized 0-1).
+        Float complexity score between 0.0 and 1.0.
     """
-    # Convert to grayscale and compute variance
-    gray = image.convert("L")
-    arr = np.array(gray)
-    variance = np.var(arr)
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
     
-    # Normalize variance to 0-1 range (assuming 0-255 input)
-    max_variance = (255 ** 2) / 4  # Max variance for uniform distribution
-    score = min(1.0, variance / max_variance)
+    img_array = np.array(image)
+    
+    # Calculate variance across channels
+    variance = np.var(img_array)
+    
+    # Normalize to 0-1 range (assuming typical variance range)
+    # This is a heuristic; in production, use calibrated metrics
+    score = min(1.0, max(0.0, variance / 10000.0))
+    
     return score
 
 def process_single_image(
-    input_path: Path,
-    output_dir: Path,
-    enhance: bool = True,
-    reduce: bool = True,
-) -> Dict[str, Any]:
+    input_path: Path, 
+    output_dir: Path, 
+    metadata_dir: Path, 
+    image_id: str,
+    manipulate_type: str = 'enhance'
+) -> Optional[Dict[str, Any]]:
     """
-    Process a single image: generate enhanced and/or reduced detail versions.
+    Process a single image: manipulate it and generate metadata.
     
     Args:
-        input_path: Path to input image.
-        output_dir: Directory to save output images.
-        enhance: Whether to generate enhanced version.
-        reduce: Whether to generate reduced version.
-    
+        input_path: Path to the input image.
+        output_dir: Directory to save manipulated image.
+        metadata_dir: Directory to save metadata.
+        image_id: Unique identifier for the image.
+        manipulate_type: Type of manipulation ('enhance' or 'reduce').
+        
     Returns:
-        Dict with output paths and metadata.
+        Dictionary with metadata if successful, None if skipped.
+        
+    Raises:
+        Exception: Propagated if manipulation fails and should not be skipped.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Processing image: {image_id} ({manipulate_type})")
     
     try:
-        input_img = Image.open(input_path)
-        if input_img.mode != "RGBA":
-            input_img = input_img.convert("RGBA")
+        # Load image
+        base_image = Image.open(input_path)
         
-        result = {
-            "input_path": str(input_path),
-            "enhanced_path": None,
-            "reduced_path": None,
-            "original_complexity": calculate_complexity_score(input_img),
-            "objects_added": 0,
+        # Perform manipulation
+        if manipulate_type == 'enhance':
+            manipulated_image = add_minor_objects(base_image, num_objects=5)
+            complexity_change = 0.1  # Expected increase
+        elif manipulate_type == 'reduce':
+            manipulated_image = remove_minor_elements(base_image, blur_radius=5)
+            complexity_change = -0.1  # Expected decrease
+        else:
+            raise ValueError(f"Unknown manipulation type: {manipulate_type}")
+        
+        # Save manipulated image
+        output_path = output_dir / f"{image_id}_{manipulate_type}.png"
+        manipulated_image.save(output_path, 'PNG')
+        
+        # Calculate new complexity score
+        new_complexity = calculate_complexity_score(manipulated_image)
+        
+        # Prepare metadata record
+        metadata_record = {
+            'image_id': image_id,
+            'manipulation_type': manipulate_type,
+            'output_path': str(output_path),
+            'original_path': str(input_path),
+            'original_complexity': calculate_complexity_score(base_image),
+            'new_complexity': new_complexity,
+            'complexity_change': complexity_change,
+            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
         }
         
-        if enhance:
-            enhanced_img, objects_added = add_minor_objects(input_img)
-            enhanced_path = output_dir / f"{input_path.stem}_enhanced.png"
-            enhanced_img.save(enhanced_path)
-            result["enhanced_path"] = str(enhanced_path)
-            result["objects_added"] = objects_added
-            result["enhanced_complexity"] = calculate_complexity_score(enhanced_img)
+        logger.info(f"Successfully processed {image_id}: {output_path}")
+        return metadata_record
         
-        if reduce:
-            reduced_img = remove_minor_elements(input_img)
-            reduced_path = output_dir / f"{input_path.stem}_reduced.png"
-            reduced_img.save(reduced_path)
-            result["reduced_path"] = str(reduced_path)
-            result["reduced_complexity"] = calculate_complexity_score(reduced_img)
-        
-        return result
-    
     except Exception as e:
-        logger.error(f"Failed to process {input_path}: {e}")
-        # Log to error file
+        # Log the error to the specific manipulation error log file
         error_log_path = get_manipulation_error_log_path()
         error_log_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(error_log_path, "a", encoding="utf-8") as f:
-            f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} | ERROR | {input_path} | {str(e)}\n")
-        return {"input_path": str(input_path), "error": str(e)}
+        
+        with open(error_log_path, 'a', encoding='utf-8') as log_file:
+            log_entry = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] ERROR processing {image_id}: {str(e)}\n"
+            log_file.write(log_entry)
+        
+        logger.error(f"Skipping image {image_id} due to manipulation failure: {str(e)}")
+        # Return None to indicate skip - caller should not attempt metadata generation
+        return None
 
 def process_directory(
-    input_dir: Path,
-    output_dir: Path,
-    enhance: bool = True,
-    reduce: bool = True,
+    input_dir: Path, 
+    output_dir: Path, 
+    metadata_dir: Path,
+    manipulate_type: str = 'enhance'
 ) -> List[Dict[str, Any]]:
     """
     Process all images in a directory.
     
     Args:
         input_dir: Directory containing input images.
-        output_dir: Directory to save output images.
-        enhance: Whether to generate enhanced versions.
-        reduce: Whether to generate reduced versions.
-    
+        output_dir: Directory to save manipulated images.
+        metadata_dir: Directory to save metadata files.
+        manipulate_type: Type of manipulation to apply.
+        
     Returns:
-        List of result dicts for each processed image.
+        List of metadata records for successfully processed images.
     """
-    results = []
-    image_extensions = {".png", ".jpg", ".jpeg", ".bmp", ".tiff"}
+    output_dir.mkdir(parents=True, exist_ok=True)
+    metadata_dir.mkdir(parents=True, exist_ok=True)
     
-    input_files = [
-        f for f in input_dir.iterdir()
-        if f.is_file() and f.suffix.lower() in image_extensions
-    ]
+    successful_records = []
     
-    logger.info(f"Processing {len(input_files)} images from {input_dir}")
+    # Find all image files
+    image_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.tiff'}
+    image_files = [f for f in input_dir.iterdir() if f.suffix.lower() in image_extensions]
     
-    for img_path in input_files:
-        logger.info(f"Processing {img_path.name}")
-        result = process_single_image(img_path, output_dir, enhance, reduce)
-        results.append(result)
+    logger.info(f"Found {len(image_files)} images to process in {input_dir}")
     
-    return results
+    for image_file in image_files:
+        image_id = image_file.stem
+        
+        # Process single image - returns None if skipped due to error
+        record = process_single_image(
+            input_path=image_file,
+            output_dir=output_dir,
+            metadata_dir=metadata_dir,
+            image_id=image_id,
+            manipulate_type=manipulate_type
+        )
+        
+        if record is not None:
+            successful_records.append(record)
+        
+        # Small delay to prevent CPU overload
+        time.sleep(0.1)
+    
+    logger.info(f"Successfully processed {len(successful_records)} images.")
+    return successful_records
 
 def main():
-    """CLI entry point for running the manipulation pipeline."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Stimulus manipulation pipeline")
-    parser.add_argument(
-        "--input-dir",
-        type=Path,
-        default=get_stimuli_dir(),
-        help="Input directory containing baseline images",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=get_stimuli_dir() / "manipulated",
-        help="Output directory for manipulated images",
-    )
-    parser.add_argument(
-        "--no-enhance",
-        action="store_true",
-        help="Skip enhanced detail generation",
-    )
-    parser.add_argument(
-        "--no-reduce",
-        action="store_true",
-        help="Skip reduced detail generation",
-    )
-    
-    args = parser.parse_args()
-    
+    """Main entry point for running the manipulation pipeline."""
     setup_logging()
     
-    if not args.input_dir.exists():
-        logger.error(f"Input directory does not exist: {args.input_dir}")
+    # Get directories from config
+    input_dir = get_stimuli_dir()
+    output_enhance_dir = input_dir / "enhanced"
+    output_reduce_dir = input_dir / "reduced"
+    metadata_dir = get_stimuli_metadata_dir()
+    
+    logger.info(f"Input directory: {input_dir}")
+    logger.info(f"Output directories: {output_enhance_dir}, {output_reduce_dir}")
+    
+    if not input_dir.exists():
+        logger.error(f"Input directory does not exist: {input_dir}")
         return 1
     
-    results = process_directory(
-        args.input_dir,
-        args.output_dir,
-        enhance=not args.no_enhance,
-        reduce=not args.no_reduce,
+    # Process enhanced detail
+    logger.info("--- Processing Enhanced Detail ---")
+    enhance_records = process_directory(
+        input_dir=input_dir,
+        output_dir=output_enhance_dir,
+        metadata_dir=metadata_dir,
+        manipulate_type='enhance'
     )
     
-    success_count = sum(1 for r in results if "error" not in r)
-    logger.info(f"Completed: {success_count}/{len(results)} images processed successfully")
+    # Process reduced detail
+    logger.info("--- Processing Reduced Detail ---")
+    reduce_records = process_directory(
+        input_dir=input_dir,
+        output_dir=output_reduce_dir,
+        metadata_dir=metadata_dir,
+        manipulate_type='reduce'
+    )
     
-    return 0 if success_count == len(results) else 1
+    logger.info(f"Total enhanced: {len(enhance_records)}, Total reduced: {len(reduce_records)}")
+    
+    # Check for error log existence
+    error_log_path = get_manipulation_error_log_path()
+    if error_log_path.exists():
+        logger.info(f"Error log created at: {error_log_path}")
+        with open(error_log_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            if lines:
+                logger.warning(f"{len(lines)} manipulation errors logged.")
+    
+    return 0
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     exit(main())

@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://www.tng-project.org/api/
   verified_at: '2026-07-03T11:42:06.378087Z'
-- artifact_hash: 484eabfefb4385bfdc791ed66534a87d63eeae0b8671b331af7445f6934af0a9
+- artifact_hash: 5773a45a44ad1f6e68a1b4e42bdca4c4a2693eb43612112f6ee5a48e1aba21cc
   artifact_path: projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/specs/001-quantifying-the-effects-of-dark-matter-h/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://www.tng-project.org/api/v2/snapshots/000/halos`
   verification_status: verified
   verified_against_url: https://www.tng-project.org/api/v2/snapshots/000/halos
-  verified_at: '2026-07-03T12:12:45.900623Z'
+  verified_at: '2026-07-11T04:45:11.032706Z'

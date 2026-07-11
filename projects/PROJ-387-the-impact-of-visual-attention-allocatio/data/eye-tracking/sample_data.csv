@@ -1,0 +1,11 @@
+participant_id,fixation_duration,saccade_amplitude,gaze_distribution,recall_accuracy,valence_label,track_loss,calibrated
+P001,120.5,2.3,0.85,0.9,Positive,False,True
+P002,115.2,2.1,0.82,0.85,Positive,False,True
+P003,130.1,2.5,0.88,0.92,Neutral,False,True
+P004,125.8,2.4,0.84,0.88,Negative,False,True
+P005,118.9,2.2,0.81,0.82,Positive,False,True
+P006,122.3,2.35,0.86,0.9,Neutral,False,True
+P007,128.7,2.45,0.87,0.91,Negative,False,True
+P008,119.5,2.15,0.83,0.86,Positive,False,True
+P009,126.4,2.42,0.85,0.89,Neutral,False,True
+P010,121.0,2.28,0.84,0.87,Negative,False,True

@@ -1,31 +1,37 @@
-# Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation
+# PROJ-107: Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation
 
-## Project Overview
-This project analyzes the correlation between dark matter halo shapes (triaxiality, axial ratios) and galaxy formation properties using data from the TNG-100 simulation.
+## Hardware Constraints & Deviations
+**Important**: This project is designed to run on machines with limited resources (specifically **7GB RAM** and CPU-only execution).
 
-## Hardware Constraints & Feasibility Note
-**Important**: Due to hardware constraints (7GB RAM), this pipeline implements **chunked processing and sampling**. This is a documented deviation from the "every FoF halo" requirement specified in FR-001, as per SC-005 feasibility constraints.
+Due to these hardware constraints, the pipeline implements **chunked processing** and **sampling**. This is a documented deviation from the original requirement FR-001 ("process every FoF halo") to satisfy Success Criterion SC-005 (Feasibility).
 
-- The pipeline processes data in configurable chunks to stay within memory limits.
-- Statistical analysis may use representative sampling for large-scale correlations.
-- All output artifacts include metadata flags indicating the use of sampling/chunking.
+- **Chunked I/O**: Data is read and processed in small chunks to prevent memory overflow.
+- **Sampling**: If a snapshot exceeds memory limits even with chunking, a representative sample is processed.
+- **No GPU**: All computations are performed on CPU.
 
-## Setup
-1. Ensure Python 3.11 is installed.
+## Project Structure
+- `code/`: Source code for the pipeline
+- `data/`: Raw and processed data artifacts
+- `tests/`: Unit and integration tests
+- `specs/`: Feature specifications and design documents
+
+## Installation
+1. Ensure Python 3.11+ is installed.
 2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
-3. Run the pipeline:
- ```bash
- python code/main.py
- ```
+
+## Usage
+Run the main pipeline:
+```bash
+python code/main.py
+```
+
+Run tests:
+```bash
+pytest code/tests/
+```
 
 ## Output
-Processed data will be written to `data/processed/`:
-- `halo_shapes.csv`: Axial ratios and triaxiality metrics.
-- `statistical_results.csv`: Correlation and regression results.
-- `sensitivity_report.csv`: Robustness analysis.
-
-## License
-Research project for automated science pipeline validation.
+The primary output for User Story 1 is `data/processed/halo_shapes.csv`, containing axial ratios, triaxiality, and other shape metrics for valid haloes.

@@ -113,7 +113,7 @@ A researcher performs pairwise statistical comparisons of model performance acro
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Out-of-sample R² is measured against the 5-fold cross-validation held-out host molecule identities to assess predictive performance on unseen hosts (See US-2)
-- **SC-002**: Feature stability ranking is measured against the coefficient of variation (CV) of importance scores across 10 bootstrap resamples to identify robust determinants of halide selectivity (See US-3)
+- **SC-002**: Feature stability ranking is measured against the coefficient of variation (CV) of importance scores across multiple bootstrap resamples. to identify robust determinants of halide selectivity (See US-3)
 - **SC-003**: Model training runtime is measured against the documented compute budget (hours on 2 vCPU, 7 GB RAM, GitHub Actions ubuntu-latest runner) defined in Assumptions (See US-2)
 - **SC-004**: Dataset completeness is measured against the required variables (host SMILES, halide identity, binding constant, solvent) to verify dataset-variable fit (See US-1)
 - **SC-005**: Performance differences between halide ions MUST be reported with 95% Confidence Intervals (sufficient bootstrap resamples); if the CI includes zero, the difference is reported as "not distinguishable" (See US-4)

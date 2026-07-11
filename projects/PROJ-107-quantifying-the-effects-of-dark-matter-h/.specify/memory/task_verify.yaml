@@ -1,10 +1,11 @@
-T001 Create project structure per implementation plan (`code/`, `data/`, `outputs/`): 1
+T001 Create project structure per implementation plan (`code/`, `data/`, `outputs/`): 2
 ? 'T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scipy,
   scikit-learn, h5py, requests, pyyaml, pytest). **Note**: Document in `README.md`
   that due to hardware constraints (7GB RAM), the pipeline implements chunked processing
   and sampling, which is a documented deviation from the "every FoF halo" requirement
   in FR-001, as per SC-005 feasibility constraints.'
-: 1
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
-T005 [P] Implement chunked data I/O utilities (`code/utils/io.py`) to handle <7GB RAM constraints: 1
-T006 [P] Create base logging infrastructure for pipeline tracking: 1
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
+T005 [P] Implement chunked data I/O utilities (`code/utils/io.py`) to handle <7GB RAM constraints: 2
+T006 [P] Create base logging infrastructure for pipeline tracking: 2
+T007 Setup `data/metadata.yaml` schema for checksums and version tracking: 1

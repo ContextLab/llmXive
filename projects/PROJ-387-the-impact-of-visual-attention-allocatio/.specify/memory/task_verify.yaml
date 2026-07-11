@@ -1,27 +1,19 @@
-? 'T012 [P] [US1] Create `load_data.py` in `code/ingestion/` to load CSV/EDF files
-  without GPU (FR-001). **Deliverable**: Script loads data, returns DataFrame. **Exit**:
-  0 on success, 1 on file not found.'
-: 2
-? 'T013 [US1] Implement `validate_data.py` in `code/ingestion/` to check for fixation
-  duration, saccade amplitude, **gaze distribution**, **recall accuracy**, valence
-  label (FR-002). **Deliverable**: Validates column existence, logs missing columns.'
-: 2
 ? "T014 [US1] Add data quality checks for \u22645% track loss and calibrated eye-tracker\
   \ status in `code/ingestion/validate_data.py` (Constitution VI). **Deliverable**:\
   \ Writes `data/eye-tracking/quality_report.md`. **Action**: **HALT** (exit 1) if\
   \ track loss > 5% or uncalibrated."
-: 1
+: 2
 ? 'T015 [US1] Implement valence annotation validation for standardized rating scale
   and storage in `data/valence/` in `code/ingestion/validate_data.py` (Constitution
   VII). **Constraint**: Use human-rated metadata only; if unavailable, halt with `DATA_BLOCKER`
   per `plan.md`. **Deliverable**: Writes `valence_categories_count` to `data/eye-tracking/quality_report.md`.'
-: 1
+: 2
 ? 'T016 [US1] Add logic to halt processing and log error if dataset is incompatible
   (missing variables). **Deliverable**: Exit code 1, log `DATA_BLOCKER: Missing required
   variables`.'
-: 1
+: 2
 ? 'T017 [US1] Add logging for data ingestion success rate and quality metrics (SC-001).
   **Deliverable**: If count of available public datasets == 0, log `DATA_BLOCKER:
   No verified datasets found` and exit 1. Do NOT calculate percentage. If count >
   0, log `Ingestion Success Rate: X%`.'
-: 1
+: 2

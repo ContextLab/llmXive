@@ -88,13 +88,13 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement enhanced detail compositing in `code/stimuli/manipulator.py`: Use PIL/Pillow to overlay a small number of minor object PNG assets onto baseline images. <!-- FAILED: unspecified -->
+- [X] T015 [P] [US1] Implement enhanced detail compositing in `code/stimuli/manipulator.py`: Use PIL/Pillow to overlay a small number of minor object PNG assets onto baseline images. <!-- FAILED: unspecified -->
 - [X] T016 [P] [US1] Implement reduced detail manipulation in `code/stimuli/manipulator.py`: Use Gaussian blur (radius=5) or masking to remove minor elements from baseline images.
 - [X] T017 [US1] Implement stimulus metadata generation (YAML) per Constitution VII in `code/stimuli/metadata.py`.
 - [ ] T018 [US1] Implement 'skip and log' logic for manipulation failures in `code/stimuli/manipulator.py`: If manipulation fails for an image, skip the image entirely (do not attempt metadata generation) and log the error to `data/logs/manipulation_errors.log` as required by Edge Cases.
-- [~] T019 [US1] Add error handling for missing metadata and failed fetches in `code/data/loader.py`: If a real dataset fetch (if implemented) fails or metadata is missing, skip the image and log the error.
-- [~] T020 [US1] Add CLI entry point for running the manipulation pipeline in `code/cli.py`
-- [~] T021 [P] [US1] Implement Real Dataset Fetcher (Optional) in `code/data/loader.py`: If a verified Visual Genome URL is provided in config, fetch real images. Handle 'missing metadata' edge case by skipping and logging.
+- [ ] T019 [US1] Add error handling for missing metadata and failed fetches in `code/data/loader.py`: If a real dataset fetch (if implemented) fails or metadata is missing, skip the image and log the error.
+- [X] T020 [US1] Add CLI entry point for running the manipulation pipeline in `code/cli.py`
+- [ ] T021 [P] [US1] Implement Real Dataset Fetcher (Optional) in `code/data/loader.py`: If a verified Visual Genome URL is provided in config, fetch real images. Handle 'missing metadata' edge case by skipping and logging.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

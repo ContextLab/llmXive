@@ -75,8 +75,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Create `load_data.py` in `code/ingestion/` to load CSV/EDF files without GPU (FR-001). **Deliverable**: Script loads data, returns DataFrame. **Exit**: 0 on success, 1 on file not found.
-- [ ] T013 [US1] Implement `validate_data.py` in `code/ingestion/` to check for fixation duration, saccade amplitude, **gaze distribution**, **recall accuracy**, valence label (FR-002). **Deliverable**: Validates column existence, logs missing columns.
+- [X] T012 [P] [US1] Create `load_data.py` in `code/ingestion/` to load CSV/EDF files without GPU (FR-001). **Deliverable**: Script loads data, returns DataFrame. **Exit**: 0 on success, 1 on file not found.
+- [X] T013 [US1] Implement `validate_data.py` in `code/ingestion/` to check for fixation duration, saccade amplitude, **gaze distribution**, **recall accuracy**, valence label (FR-002). **Deliverable**: Validates column existence, logs missing columns.
 - [ ] T014 [US1] Add data quality checks for ≤5% track loss and calibrated eye-tracker status in `code/ingestion/validate_data.py` (Constitution VI). **Deliverable**: Writes `data/eye-tracking/quality_report.md`. **Action**: **HALT** (exit 1) if track loss > 5% or uncalibrated.
 - [ ] T015 [US1] Implement valence annotation validation for standardized rating scale and storage in `data/valence/` in `code/ingestion/validate_data.py` (Constitution VII). **Constraint**: Use human-rated metadata only; if unavailable, halt with `DATA_BLOCKER` per `plan.md`. **Deliverable**: Writes `valence_categories_count` to `data/eye-tracking/quality_report.md`.
 - [ ] T016 [US1] Add logic to halt processing and log error if dataset is incompatible (missing variables). **Deliverable**: Exit code 1, log `DATA_BLOCKER: Missing required variables`.
@@ -152,10 +152,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T045 [P] Documentation updates in `docs/` including data acquisition limitations.
-- [ ] T046 Code cleanup and refactoring for memory efficiency.
-- [ ] T047 Performance optimization to ensure total pipeline <6h runtime (FR-008).
-- [ ] T048 [P] Additional unit tests for edge cases (missing data, sensitivity analysis stability) in `tests/unit/`.
+- [~] T045 [P] Documentation updates in `docs/` including data acquisition limitations.
+- [~] T046 Code cleanup and refactoring for memory efficiency.
+- [~] T047 Performance optimization to ensure total pipeline <6h runtime (FR-008).
+- [~] T048 [P] Additional unit tests for edge cases (missing data, sensitivity analysis stability) in `tests/unit/`. <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+  in "<unicode string>", line 2, column 13:
+        contents: |
+                ^) -->
 - [ ] T049 Run `quickstart.md` validation and verify data gap documentation.
 
 ---

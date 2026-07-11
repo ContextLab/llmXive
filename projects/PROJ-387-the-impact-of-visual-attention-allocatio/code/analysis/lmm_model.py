@@ -1,3 +1,8 @@
+"""
+Linear Mixed-Effects Models for analyzing attention metrics vs recall accuracy.
+
+Implements memory-efficient loading and fits LMMs using statsmodels.
+"""
 import os
 import sys
 import argparse
@@ -7,167 +12,204 @@ from typing import List, Dict, Any, Optional
 
 import pandas as pd
 import numpy as np
+import statsmodels.api as sm
 from statsmodels.regression.mixed_linear_model import MixedLM
 
 # Import project utilities
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from utils.config import get_project_root, get_data_path, get_output_path
 from utils.logger import get_logger
-from analysis.memory_loader import load_data_chunked
-
-# Explicit associational label constant for FR-005 compliance
-ASSOCIATION_LABEL = "associational"
+from utils.config import get_project_root, get_data_path, get_output_path
+from analysis.memory_loader import load_data_streaming, get_available_ram_gb
 
 logger = get_logger(__name__)
 
-def load_processed_data() -> pd.DataFrame:
+def load_processed_data(file_path: str) -> pd.DataFrame:
     """
-    Load the processed eye-tracking and recall data.
-    In a real pipeline, this would read from data/processed/merged.csv
-    For this implementation, we assume the file exists as per T012/T013.
+    Loads processed data using memory-efficient strategies.
     """
-    root = get_project_root()
-    # Construct expected path based on project structure
-    data_path = root / "data" / "processed" / "merged_data.csv"
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Processed data not found: {file_path}")
     
-    if not data_path.exists():
-        # Fallback for testing if T012 hasn't generated it yet, 
-        # but in real execution, this should be a real file.
-        # We attempt to load from a generic 'data.csv' in data/raw if processed is missing
-        # to prevent immediate crash during unit testing of T033, 
-        # but log a warning that real data is expected.
-        alt_path = root / "data" / "raw" / "eye_tracking.csv"
-        if alt_path.exists():
-            logger.warning(f"Processed data not found at {data_path}, loading raw {alt_path}")
-            df = pd.read_csv(alt_path)
-        else:
-            raise FileNotFoundError(f"Could not find processed data at {data_path} or raw fallback.")
-    else:
-        df = pd.read_csv(data_path)
-    
-    # Memory efficient handling as per T026
-    if df.memory_usage(deep=True).sum() > 7 * 1024**3:
-        logger.warning("Data exceeds memory threshold, using sampling.")
-        df = df.sample(n=min(len(df), 10000), random_state=42)
-        
-    return df
+    logger.info(f"Loading processed data from {file_path}...")
+    # Use the memory loader to ensure we stay under RAM limits
+    return load_data_streaming(file_path, target_ram_gb=6.0)
 
-def fit_lmm_for_combination(df: pd.DataFrame, metric: str, valence: str) -> Optional[Dict[str, Any]]:
+def fit_lmm_for_combination(
+    data: pd.DataFrame,
+    metric: str,
+    valence: str,
+    formula: str = "recall_accuracy ~ {metric} + (1|participant_id)"
+) -> Dict[str, Any]:
     """
-    Fit a Linear Mixed-Effects Model for a specific metric and valence category.
-    Formula: recall_accuracy ~ metric + (1|participant_id)
+    Fits a Linear Mixed-Effects model for a specific metric and valence combination.
+    
+    Args:
+        data: The DataFrame containing the data.
+        metric: The name of the attention metric column.
+        valence: The valence category.
+        formula: The R-style formula for the model.
+        
+    Returns:
+        A dictionary containing model results (coef, p-value, etc.).
     """
+    # Filter data for the specific valence
+    subset = data[data['valence'] == valence].copy()
+    
+    if len(subset) < 10:
+        logger.warning(f"Insufficient data for valence {valence} and metric {metric}. Skipping.")
+        return {
+            "metric": metric,
+            "valence": valence,
+            "coef": np.nan,
+            "p_raw": np.nan,
+            "status": "insufficient_data"
+        }
+    
+    # Ensure required columns exist
+    if metric not in subset.columns or 'recall_accuracy' not in subset.columns:
+        logger.error(f"Missing columns for {metric} or recall_accuracy in valence {valence}")
+        return {
+            "metric": metric,
+            "valence": valence,
+            "coef": np.nan,
+            "p_raw": np.nan,
+            "status": "missing_columns"
+        }
+    
+    # Drop NaNs
+    subset = subset.dropna(subset=[metric, 'recall_accuracy', 'participant_id'])
+    
+    if len(subset) < 10:
+        logger.warning(f"Too few rows after dropping NaNs for {metric}/{valence}. Skipping.")
+        return {
+            "metric": metric,
+            "valence": valence,
+            "coef": np.nan,
+            "p_raw": np.nan,
+            "status": "insufficient_data_after_dropna"
+        }
+    
+    # Construct formula dynamically if needed, but using the passed one is safer
+    # Assuming the passed formula is pre-formatted or we format it here
     try:
-        # Filter for specific valence
-        subset = df[df['valence_category'] == valence].copy()
-        
-        if subset.empty:
-            logger.debug(f"No data for valence={valence}")
-            return None
-
-        # Ensure numeric types
-        subset = subset.dropna(subset=[metric, 'recall_accuracy', 'participant_id'])
-        
-        if len(subset) < 10:
-            logger.debug(f"Insufficient data points for valence={valence}, metric={metric}")
-            return None
-
-        # Define formula
-        # Using 'participant_id' as random effect grouping variable
-        # Note: statsmodels mixedlm expects group and exog/dependent
-        group = subset['participant_id']
+        formatted_formula = formula.format(metric=metric)
         endog = subset['recall_accuracy']
-        exog = subset[[metric]]
+        exog = subset[metric]
+        groups = subset['participant_id']
         
-        # Fit model
-        # Use sparse solver for efficiency if data is large
-        model = MixedLM(endog, exog, groups=group)
-        result = model.fit()
+        # Fit the model
+        # statsmodels MixedLM requires exog to be a DataFrame or array
+        model = MixedLM(endog, exog, groups=groups)
+        result = model.fit(reml=False)
         
         # Extract coefficients
-        # Fixed effects: intercept + metric coefficient
-        # We are interested in the metric's effect
-        coef = result.params.iloc[1] if len(result.params) > 1 else 0.0
-        p_value = result.pvalues.iloc[1] if len(result.pvalues) > 1 else 1.0
+        # The fixed effects are in result.fe_params
+        # The first coefficient is usually the intercept, second is the slope for the metric
+        if len(result.fe_params) >= 2:
+            coef = result.fe_params.iloc[1] # Slope for the metric
+        else:
+            coef = result.fe_params.iloc[0] # If only intercept (unlikely with formula)
+        
+        # P-values are in result.pvalues
+        # Map the metric name to the p-value
+        p_raw = result.pvalues.get(metric, np.nan)
         
         return {
             "metric": metric,
             "valence": valence,
             "coef": float(coef),
-            "p_raw": float(p_value),
-            "n_obs": len(subset),
-            "converged": result.converged,
-            "association_label": ASSOCIATION_LABEL  # FR-005 Compliance
+            "p_raw": float(p_raw),
+            "status": "success"
         }
+        
     except Exception as e:
-        logger.error(f"Failed to fit LMM for {metric}/{valence}: {e}")
-        return None
+        logger.error(f"Error fitting LMM for {metric}/{valence}: {e}")
+        return {
+            "metric": metric,
+            "valence": valence,
+            "coef": np.nan,
+            "p_raw": np.nan,
+            "status": f"error: {str(e)}"
+        }
 
-def run_lmm_analysis(df: pd.DataFrame) -> List[Dict[str, Any]]:
+def run_lmm_analysis(
+    data: pd.DataFrame,
+    metrics: List[str],
+    valences: List[str]
+) -> List[Dict[str, Any]]:
     """
-    Run LMM analysis for all combinations of metrics and valence categories.
-    Metrics: fixation_duration, saccade_amplitude, gaze_distribution
-    Valence: positive, negative, neutral
-    """
-    metrics = ['fixation_duration', 'saccade_amplitude', 'gaze_distribution']
-    valences = ['positive', 'negative', 'neutral']
+    Runs LMM analysis for all combinations of metrics and valences.
     
+    Args:
+        data: The full DataFrame.
+        metrics: List of attention metric column names.
+        valences: List of valence categories.
+        
+    Returns:
+        List of result dictionaries.
+    """
     results = []
+    logger.info(f"Starting LMM analysis for {len(metrics)} metrics and {len(valences)} valences.")
+    
     for metric in metrics:
         for valence in valences:
-            res = fit_lmm_for_combination(df, metric, valence)
-            if res:
-                results.append(res)
-                
-    logger.info(f"Completed LMM analysis for {len(results)} combinations.")
+            logger.info(f"Fitting model for {metric} vs {valence}...")
+            res = fit_lmm_for_combination(data, metric, valence)
+            results.append(res)
+            
+            # Force GC periodically during long loops
+            if len(results) % 10 == 0:
+                import gc
+                gc.collect()
+    
     return results
 
-def save_results(results: List[Dict[str, Any]], output_path: Optional[str] = None) -> str:
+def save_results(results: List[Dict[str, Any]], output_path: str):
     """
-    Save LMM results to a CSV file.
+    Saves LMM results to a CSV file.
     """
-    root = get_project_root()
-    if output_path is None:
-        output_path = str(root / "output" / "results" / "lmm_summary.csv")
-    
-    # Ensure directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
     df_results = pd.DataFrame(results)
     df_results.to_csv(output_path, index=False)
     logger.info(f"Saved LMM results to {output_path}")
-    return output_path
 
 def main():
     """
-    Main entry point for LMM analysis script.
+    CLI entry point for LMM analysis.
+    Usage: python code/analysis/lmm_model.py --input <path> --output <path>
     """
-    parser = argparse.ArgumentParser(description="Run LMM Analysis on Eye-Tracking Data")
-    parser.add_argument("--input", type=str, help="Path to input data CSV", default=None)
-    parser.add_argument("--output", type=str, help="Path to output CSV", default=None)
+    parser = argparse.ArgumentParser(description="Run LMM Analysis")
+    parser.add_argument("--input", type=str, required=True, help="Path to processed data CSV")
+    parser.add_argument("--output", type=str, required=True, help="Path to output results CSV")
+    parser.add_argument("--metrics", type=str, nargs='+', default=['fixation_duration', 'saccade_amplitude', 'gaze_distribution'], help="Attention metrics to analyze")
+    parser.add_argument("--valences", type=str, nargs='+', default=['positive', 'negative', 'neutral'], help="Valence categories")
+    
     args = parser.parse_args()
-
-    logger.info("Starting LMM Analysis...")
+    
+    # Resolve paths
+    project_root = get_project_root()
+    if not os.path.isabs(args.input):
+        data_path = get_data_path()
+        input_path = os.path.join(data_path, args.input)
+    else:
+        input_path = args.input
+        
+    if not os.path.isabs(args.output):
+        output_dir = get_output_path()
+        output_path = os.path.join(output_dir, args.output)
+    else:
+        output_path = args.output
+        
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
     try:
-        # Load data
-        # If input arg provided, use it; otherwise load processed data
-        if args.input:
-            df = pd.read_csv(args.input)
-        else:
-            df = load_processed_data()
-        
-        # Run analysis
-        results = run_lmm_analysis(df)
-        
-        # Save results
-        out_path = save_results(results, args.output)
-        
-        logger.info(f"Analysis complete. Results saved to {out_path}")
-        return 0
+        data = load_processed_data(input_path)
+        results = run_lmm_analysis(data, args.metrics, args.valences)
+        save_results(results, output_path)
+        print("LMM Analysis completed successfully.")
+        sys.exit(0)
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        return 1
+        logger.error(f"LMM Analysis failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
