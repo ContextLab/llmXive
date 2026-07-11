@@ -1,0 +1,11 @@
+beir
+sentence-transformers
+datasketch
+scikit-learn
+scipy
+pandas
+numpy
+pytest
+nltk
+pyyaml
+resource-monitor

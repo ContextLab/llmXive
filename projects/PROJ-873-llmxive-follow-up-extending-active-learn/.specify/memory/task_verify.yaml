@@ -1,0 +1,7 @@
+T008 Setup environment validation script to verify CPU-only constraints and absence of CUDA dependencies: 1
+T010 [P] [US1] Unit test for synthetic redundancy injection logic in `tests/unit/test_data_loader.py`: 1
+T011 [P] [US1] Unit test for "wasted" call classification proxy (cosine > 0.95) in `tests/unit/test_metrics.py`: 1
+? "T012 [US1] Implement synthetic redundancy injection in `code/data_loader.py` (synonym\
+  \ replacement via NLTK WordNet, sentence shuffling) to create multiple clusters\
+  \ of 3\u20135 near-duplicates per dataset, serving FR-002"
+: 1

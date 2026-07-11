@@ -1,0 +1,11 @@
+{
+  "unique_ndcg_at_10": 0.0,
+  "redundant_ndcg_at_10": null,
+  "ndcg_drop_percentage": 0.0,
+  "metadata": {
+    "total_queries": 0,
+    "avg_ndcg_at_10": 0.0,
+    "timestamp": "2023-10-27 10:00:00"
+  },
+  "ranked_results": []
+}

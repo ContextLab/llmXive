@@ -1,0 +1,29 @@
+{
+  "task_id": "T017",
+  "dataset_real": "trec-covid",
+  "real_near_duplicates": {
+    "count": 50,
+    "similarity_stats": {
+      "mean": 0.9865,
+      "min": 0.9801,
+      "max": 0.9998
+    },
+    "text_length_diff_stats": {
+      "mean": 45.2,
+      "min": 2,
+      "max": 1205
+    }
+  },
+  "synthetic_near_duplicates": {
+    "count": 100,
+    "similarity_mean": 0.9423,
+    "similarity_min": 0.8912,
+    "similarity_max": 0.9856,
+    "note": ""
+  },
+  "validation_summary": {
+    "real_sim_range": "0.9801 - 0.9998",
+    "synthetic_sim_range": "0.8912 - 0.9856",
+    "conclusion": "Real-world near-duplicates in trec-covid exhibit very high cosine similarity (>0.98). Synthetic injection via sentence shuffling produces high similarity but may differ in distribution. The pipeline can generalize if the synthetic threshold (0.95) covers the real-world distribution."
+  }
+}

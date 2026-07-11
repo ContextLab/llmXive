@@ -1,0 +1,26 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+    "T20", # flake8-print
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "C901", # too complex (handled by separate complexity check if needed)
+]
+
+[lint.isort]
+force-single-line = false
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[format]
+line-length = 88
+indent-width = 4
+quote-style = "double"

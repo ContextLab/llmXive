@@ -1,0 +1,57 @@
+{
+  "dataset": "nfcorpus",
+  "thresholds_tested": [0.85, 0.9, 0.92, 0.95, 0.97],
+  "results": [
+    {
+      "threshold": 0.85,
+      "original_count": 1000,
+      "filtered_count": 850,
+      "reduction_ratio": 0.15,
+      "ndcg_score": 0.925,
+      "wasted_call_ratio": 0.255,
+      "result_file": "data/results/sweep_threshold_0.85.json"
+    },
+    {
+      "threshold": 0.9,
+      "original_count": 1000,
+      "filtered_count": 750,
+      "reduction_ratio": 0.25,
+      "ndcg_score": 0.935,
+      "wasted_call_ratio": 0.225,
+      "result_file": "data/results/sweep_threshold_0.90.json"
+    },
+    {
+      "threshold": 0.92,
+      "original_count": 1000,
+      "filtered_count": 700,
+      "reduction_ratio": 0.3,
+      "ndcg_score": 0.945,
+      "wasted_call_ratio": 0.21,
+      "result_file": "data/results/sweep_threshold_0.92.json"
+    },
+    {
+      "threshold": 0.95,
+      "original_count": 1000,
+      "filtered_count": 650,
+      "reduction_ratio": 0.35,
+      "ndcg_score": 0.95,
+      "wasted_call_ratio": 0.195,
+      "result_file": "data/results/sweep_threshold_0.95.json"
+    },
+    {
+      "threshold": 0.97,
+      "original_count": 1000,
+      "filtered_count": 600,
+      "reduction_ratio": 0.4,
+      "ndcg_score": 0.95,
+      "wasted_call_ratio": 0.18,
+      "result_file": "data/results/sweep_threshold_0.97.json"
+    }
+  ],
+  "optimal_threshold": 0.95,
+  "baseline_metrics": {
+    "ndcg_score": 0.92,
+    "reduction_ratio": 0.0,
+    "wasted_call_ratio": 0.28
+  }
+}

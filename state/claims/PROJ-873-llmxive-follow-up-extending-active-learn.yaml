@@ -1,0 +1,22 @@
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: Uses all-MiniLM-L6-v2 to flag redundant pairs with similarity greater
+    than 0.95
+  claim_id: c_0acbe1ed
+  context: 'Features: Cosine Similarity Proxy'
+  evidence:
+    candidates:
+    - - ''
+      - 6.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Uses_all-MiniLM-L6-v2_to_flag_redundant_pairs_with_similarit
+  kind: magnitude
+  raw_text: Uses `all-MiniLM-L6-v2` to flag redundant pairs (>0.95 similarity).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-11T07:15:37Z'
