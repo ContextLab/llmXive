@@ -1,0 +1,66 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Sensory Deprivation Dream Dataset Schema
+description: >
+  Schema for the processed dataset containing dream recall and bizarreness
+  scores under varying sensory deprivation conditions.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Origin of the data (e.g., 'synthetic', 'real_study_123')"
+      generated_at:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of generation"
+      protocol_version:
+        type: string
+        description: "Version of data/protocols/protocol.yaml used"
+      thresholds_applied:
+        type: array
+        items:
+          type: string
+        description: "List of threshold labels applied (strict, moderate, partial)"
+    required:
+      - source
+      - generated_at
+      - protocol_version
+      - thresholds_applied
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        participant_id:
+          type: integer
+          description: "Unique identifier for the participant"
+        condition:
+          type: string
+          enum:
+            - "strict (complete isolation)"
+            - "moderate (partial sensory reduction)"
+            - "partial (minimal sensory reduction)"
+          description: "Sensory deprivation intensity label as defined in protocol.yaml"
+        recall:
+          type: integer
+          enum: [0, 1]
+          description: "Binary dream recall indicator (1=recalled, 0=not recalled)"
+        bizarreness:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: "Dream bizarreness score on a 1-7 Likert scale"
+        session_id:
+          type: integer
+          description: "Session identifier for repeated measures"
+      required:
+        - participant_id
+        - condition
+        - recall
+        - bizarreness
+        - session_id
+required:
+  - metadata
+  - data

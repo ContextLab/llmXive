@@ -1,0 +1,15 @@
+T009 [P] [US1] Contract test for synthetic data schema in `tests/contract/test_synthetic_schema.py`: 2
+? 'T009 [P] [US1] Contract test for synthetic data schema in `tests/contract/test_synthetic_schema.py`
+  <!-- FAILED: unspecified -->'
+: 1
+T010 [P] [US1] Unit test for data ingestion logic with missing metadata in `tests/unit/test_ingest.py`: 1
+? 'T010 [P] [US1] Unit test for data ingestion logic with missing metadata in `tests/unit/test_ingest.py`
+  <!-- SKIPPED: non-mapping output -->'
+: 1
+? "T011 [P] [US1] Implement `code/generate_data.py` to create synthetic datasets based\
+  \ on `data/protocols/protocol.yaml` (N=200, 3 scenarios: d=0.5, d=0.0, d=-0.2 [UNRESOLVED-CLAIM:\
+  \ c_7543fa71 \u2014 status=not_enough_info])"
+: 1
+? T013 [US1] Implement logic to save generated synthetic data to `data/synthetic/`
+  with clear "Simulation-based" flags in metadata
+: 1

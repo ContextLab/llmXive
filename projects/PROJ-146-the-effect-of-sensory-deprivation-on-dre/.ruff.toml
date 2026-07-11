@@ -1,0 +1,6 @@
+# Extend the main pyproject.toml or provide overrides if needed.
+# Currently, all configuration is in pyproject.toml.
+# This file serves as a placeholder to ensure ruff picks up the project root correctly
+# if the user runs `ruff check .` without specifying the config file explicitly.
+
+extend = "code/pyproject.toml"

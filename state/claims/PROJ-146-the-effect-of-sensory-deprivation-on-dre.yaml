@@ -1,0 +1,485 @@
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: effect sizes of moderate positive, null, and moderate negative for simulation
+    scenarios
+  claim_id: c_1221c842
+  context: 'Also define: N=200, effect_sizes=[moderate positive, null, moderate negative],
+    ICC=0.3.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Effect_sizes_of_moderate_positive,_null,_and_moderate_negati
+  kind: entity_fact
+  raw_text: effect_sizes=[moderate positive, null, moderate negative]
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:28:03Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: effect sizes of 0.5, 0.0, and -0.2 for synthetic data scenarios
+  claim_id: c_fa243a0d
+  context: 'Implement code/generate_data.py to create synthetic datasets based on
+    data/protocols/protocol.yaml (N=200, 3 scenarios: d=0.5, d=0.0, d=-0.2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: d=0.5, d=0.0, d=-0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:30:02Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: dream recall variable is binary coded as 0 or 1
+  claim_id: c_452067ff
+  context: Add validation to ensure recall is binary (0/1) and bizarreness is integer
+    1-7 in the final dataframe
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: recall is binary (0/1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:30:34Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: dream bizarreness variable is an integer ranging from 1 to 7
+  claim_id: c_ef381197
+  context: Add validation to ensure recall is binary (0/1) and bizarreness is integer
+    1-7 in the final dataframe
+  evidence:
+    entailment_evidence: Dream bizarreness variable is an integer ranging from 1 to
+      7
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dream_bizarreness_variable_is_an_integer_ranging_from_1_to_7
+  kind: entity_fact
+  raw_text: bizarreness is integer 1-7
+  resolved_value: dream bizarreness variable is an integer ranging from 1 to 7
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T12:30:37Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling starts at 1000 with a maximum cap of 5000 and stops
+    if 95% CI width variance is less than 1%
+  claim_id: c_f222f7b6
+  context: 'Implement run_bootstrap in code/sensitivity.py with a dynamic resample
+    loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard
+    cap of 5,000 resamples is reached.'
+  evidence:
+    entailment_evidence: Bootstrap resampling starts at 1000 with a maximum cap of
+      50
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_starts_at_1000_with_a_maximum_cap_of_50
+  kind: magnitude
+  raw_text: start at 1,000 resamples, increase until 95% CI width variance < 1% OR
+    a hard cap of 5,000 resamples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-11T12:31:24Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: full pipeline end-to-end test completes within 6 hours on GitHub Actions
+    free-tier runner
+  claim_id: c_74a66e1a
+  context: Run full pipeline end-to-end test to verify completion within 6 hours on
+    GitHub Actions free-tier runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: completion within 6 hours on GitHub Actions free-tier runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:31:39Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: dream recall variable is binary with values 0 or 1
+  claim_id: c_37d399ec
+  context: Add validation to ensure recall is binary (0/1) and bizarreness is integer
+    1-7 in the final dataframe
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: recall is binary (0/1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:41:19Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: dream bizarreness variable is integer ranging from 1 to 7
+  claim_id: c_4e279d8e
+  context: Add validation to ensure recall is binary (0/1) and bizarreness is integer
+    1-7 in the final dataframe
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bizarreness is integer 1-7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:41:39Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling starts at 1000 iterations
+  claim_id: c_8b8ada67
+  context: 'Implement run_bootstrap in code/sensitivity.py with a dynamic resample
+    loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard
+    cap of 5,000 resamples is reached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: start at 1,000 resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:42:20Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling hard cap at 5000 iterations
+  claim_id: c_4f52107d
+  context: 'Implement run_bootstrap in code/sensitivity.py with a dynamic resample
+    loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard
+    cap of 5,000 resamples is reached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hard cap of 5,000 resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:42:39Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: bootstrap confidence interval width variance less than 1 percent
+  claim_id: c_043555a4
+  context: 'Implement run_bootstrap in code/sensitivity.py with a dynamic resample
+    loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard
+    cap of 5,000 resamples is reached.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_confidence_interval_width_variance_less_than_1_per
+  kind: magnitude
+  raw_text: 95% CI width variance < 1%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:43:00Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: sample size threshold of less than 10 triggers warning or fallback
+  claim_id: c_c7c3f973
+  context: Add logic to detect sample size < 10 and issue a warning or fallback to
+    fixed-effects model
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_threshold_of_less_than_10_triggers_warning_or_fa
+  kind: magnitude
+  raw_text: sample size < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:43:40Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: full pipeline execution completes within 6 hours
+  claim_id: c_47ff46b7
+  context: Run full pipeline end-to-end test to verify completion within 6 hours on
+    GitHub Actions free-tier runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: completion within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:43:56Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: N=200 in simulation protocol
+  claim_id: c_586f54b9
+  context: 'Also define: N=200, effect_sizes=[moderate positive, null, moderate negative],
+    ICC=0.3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The protocol defines N=200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:52:31Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: ICC=0.3 in simulation protocol
+  claim_id: c_32a65215
+  context: 'Also define: N=200, effect_sizes=[moderate positive, null, moderate negative],
+    ICC=0.3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The protocol defines ICC=0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:52:54Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Synthetic data effect sizes d=0.5, d=0.0, d=-0.2
+  claim_id: c_76a33127
+  context: 'Implement code/generate_data.py to create synthetic datasets based on
+    data/protocols/protocol.yaml (N=200, 3 scenarios: d=0.5, d=0.0, d=-0.2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data generation uses effect sizes d=0.5, d=0.0, and d=-0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:53:14Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling starts at 1000
+  claim_id: c_25adb6ff
+  context: 'Implement run_bootstrap in code/sensitivity.py with a dynamic resample
+    loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard
+    cap of 5,000 resamples is reached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling starts at 1,000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:53:44Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling cap at 5000
+  claim_id: c_06e048b3
+  context: 'Implement run_bootstrap in code/sensitivity.py with a dynamic resample
+    loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard
+    cap of 5,000 resamples is reached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling has a hard cap of 5,000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:54:08Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Bootstrap stops if 95% CI width variance < 1%
+  claim_id: c_7c5c1ab0
+  context: 'Implement run_bootstrap in code/sensitivity.py with a dynamic resample
+    loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard
+    cap of 5,000 resamples is reached.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_stops_if_95%25_CI_width_variance_%3C_1%25
+  kind: magnitude
+  raw_text: The bootstrap validation stops if the 95% CI width variance is less than
+    1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:54:38Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time under 6 hours on GitHub Actions free-tier
+  claim_id: c_857bcb46
+  context: Run full pipeline end-to-end test to verify completion within 6 hours on
+    GitHub Actions free-tier runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours on a GitHub Actions free-tier
+    runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:55:00Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Recall variable is binary 0/1
+  claim_id: c_41aa9cab
+  context: Add validation to ensure recall is binary (0/1) and bizarreness is integer
+    1-7 in the final dataframe
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The recall variable is binary (0/1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:55:25Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Bizarreness variable is integer 1-7
+  claim_id: c_aac2d102
+  context: Add validation to ensure recall is binary (0/1) and bizarreness is integer
+    1-7 in the final dataframe
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bizarreness_variable_is_integer_1-7
+  kind: entity_fact
+  raw_text: The bizarreness variable is an integer from 1 to 7.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:55:45Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: 'Three effect sizes: moderate positive, null, moderate negative'
+  claim_id: c_caa22019
+  context: 'Also define: N=200, effect_sizes=[moderate positive, null, moderate negative],
+    ICC=0.3.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Three_effect_sizes:_moderate_positive,_null,_moderate_negati
+  kind: entity_fact
+  raw_text: effect_sizes=[moderate positive, null, moderate negative]
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:14:00Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Three synthetic scenarios with effect sizes d=0.5, d=0.0, and d=-0.2
+  claim_id: c_7543fa71
+  context: 'Implement code/generate_data.py to create synthetic datasets based on
+    data/protocols/protocol.yaml (N=200, 3 scenarios: d=0.5, d=0.0, d=-0.2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: d=0.5, d=0.0, d=-0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:14:00Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Dream bizarreness scores are integers ranging from 1 to 7
+  claim_id: c_7e58008d
+  context: Add validation to ensure recall is binary (0/1) and bizarreness is integer
+    1-7 in the final dataframe
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bizarreness is integer 1-7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:14:00Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Dream recall is a binary variable with values 0 or 1
+  claim_id: c_e12c99a2
+  context: Add validation to ensure recall is binary (0/1) and bizarreness is integer
+    1-7 in the final dataframe
+  evidence:
+    entailment_evidence: Dream recall is a binary variable with values 0 or 1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dream_recall_is_a_binary_variable_with_values_0_or_1
+  kind: entity_fact
+  raw_text: recall is binary (0/1)
+  resolved_value: Dream recall is a binary variable with values 0 or 1
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T13:14:02Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling starts at 1000, targets 95% CI width variance below
+    1%, with a maximum of 5000 resamples
+  claim_id: c_8fc7da0a
+  context: 'Implement run_bootstrap in code/sensitivity.py with a dynamic resample
+    loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard
+    cap of 5,000 resamples is reached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: start at 1,000, increase until the 95% CI width variance < 1% OR a hard
+    cap of 5,000 resamples is reached
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:14:16Z'
+- artifact_path: projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/specs/001-the-effect-of-sensory-deprivation-on-dre/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution completes within 6 hours on GitHub Actions free-tier
+    runner
+  claim_id: c_7a938303
+  context: Run full pipeline end-to-end test to verify completion within 6 hours on
+    GitHub Actions free-tier runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: complete within 6 hours on GitHub Actions free-tier runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T13:14:40Z'

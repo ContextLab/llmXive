@@ -1,0 +1,97 @@
+%YAML 1.1
+---
+# Dataset Schema for Sensory Deprivation Dream Study
+# This schema defines the expected structure of the processed dataset
+# used for analysis (recall and bizarreness).
+#
+# Source: T006 Implementation
+# Version: 1.0.0
+
+name: "sensory_deprivation_dream_dataset"
+description: "Processed dataset containing dream recall and bizarreness scores 
+              categorized by sensory deprivation intensity thresholds."
+
+format:
+  type: csv
+  delimiter: ","
+  encoding: utf-8
+  header: true
+
+columns:
+  - name: participant_id
+    type: integer
+    description: "Unique identifier for the participant."
+    constraints:
+      - not_null
+      - unique
+      - min_value: 1
+  
+  - name: condition
+    type: string
+    description: "Sensory deprivation intensity label derived from thresholds."
+    allowed_values:
+      - "strict (complete isolation)"
+      - "moderate (partial sensory reduction)"
+      - "partial (minimal sensory reduction)"
+    constraints:
+      - not_null
+      - valid_enum
+  
+  - name: recall
+    type: integer
+    description: "Binary indicator of dream recall (1 = recalled, 0 = not recalled)."
+    constraints:
+      - not_null
+      - valid_binary: [0, 1]
+  
+  - name: bizarreness
+    type: integer
+    description: "Dream bizarreness score on a scale of 1 to 7."
+    constraints:
+      - not_null
+      - min_value: 1
+      - max_value: 7
+  
+  - name: session_id
+    type: string
+    description: "Identifier for the specific dream recording session."
+    constraints:
+      - not_null
+  
+  - name: timestamp
+    type: datetime
+    description: "ISO 8601 timestamp of data generation or ingestion."
+    format: "YYYY-MM-DDTHH:MM:SS"
+    constraints:
+      - not_null
+
+metadata:
+  required:
+    - source_type: string
+      description: "Either 'synthetic' or 'real'."
+    - protocol_version: string
+      description: "Version of the protocol.yaml used for generation."
+    - generated_at: datetime
+      description: "Timestamp of dataset creation."
+    - simulation_params: object
+      description: "Parameters used if synthetic (e.g., effect_size, seed)."
+
+validation_rules:
+  - rule: "recall must be 0 or 1"
+    column: recall
+    type: binary
+  - rule: "bizarreness must be between 1 and 7"
+    column: bizarreness
+    type: range
+    min: 1
+    max: 7
+  - rule: "condition must match protocol labels"
+    column: condition
+    type: enum
+    values:
+      - "strict (complete isolation)"
+      - "moderate (partial sensory reduction)"
+      - "partial (minimal sensory reduction)"
+
+expected_rows: 200
+expected_columns: 6

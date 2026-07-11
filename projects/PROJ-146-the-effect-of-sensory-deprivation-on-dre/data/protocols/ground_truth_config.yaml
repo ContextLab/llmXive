@@ -1,0 +1,33 @@
+# Ground Truth Configuration for Synthetic Data
+# This file defines the known fixed effects used to generate the synthetic dataset
+# for the purpose of validating the Ordinal Approximation (Task T023).
+#
+# These values MUST match the parameters used in generate_data.py when
+# the synthetic dataset was created.
+
+seed: 42
+n_participants: 200
+n_trials_per_participant: 4
+
+# Fixed Effects for Bizarreness (Ordinal 1-7)
+# Formula: bizarreness ~ condition
+# Reference category: 'strict'
+ground_truth_coefs:
+  Intercept: 3.0
+  condition[T.moderate]: 1.0
+  condition[T.partial]: 0.0
+
+# Fixed Effects for Recall (Binary)
+# Formula: recall ~ condition
+# Reference category: 'strict'
+recall_ground_truth_coefs:
+  Intercept: -0.5
+  condition[T.moderate]: 0.5
+  condition[T.partial]: 0.0
+
+# Random Intercept Variance (for simulation generation, not used in fixed-effects validation)
+random_intercept_std: 0.8
+
+# Noise parameters
+bizarreness_noise_std: 1.2
+recall_noise_logit: 1.0

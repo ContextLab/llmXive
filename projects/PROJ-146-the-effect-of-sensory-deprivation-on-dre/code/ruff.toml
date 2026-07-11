@@ -1,0 +1,25 @@
+# Ruff configuration for PROJ-146
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[lint.isort]
+known-first-party = ["setup_structure", "generate_data", "ingest", "models", "sensitivity", "report", "logging_config"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
