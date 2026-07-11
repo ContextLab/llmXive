@@ -1,0 +1,587 @@
+resolved_at: '2026-07-11T14:20:22.535061+00:00'
+datasets:
+- intent: EvalVerse
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.23271
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.48448/317a-ag79
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://arxiv.org/abs/2404.00943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MMVP/MMVP_VLM/resolve/main/Questions.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9932
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Llama-Nemotron-VLM-Dataset-v1/resolve/main/captioning_1.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-VLM-Dataset-v2/resolve/main/activity_net_1/activity_net_1.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/MMVP/MMVP_VLM/resolve/main/Questions.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nvidia/Llama-Nemotron-VLM-Dataset-v1/resolve/main/captioning_1.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-VLM-Dataset-v2/resolve/main/activity_net_1/activity_net_1.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11262689
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14332541
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10048289
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14510331
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19830370
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieee-dataport.org/documents/bench-c-testbed
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21287350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21287350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308578
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308578
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VideoClip
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cg1177/qvhighlight_internvideo2_videoclip_1b_w2s/resolve/main/qvhighlight_internvideo2_videoclip_1b_w2s.tar.gz
+    source: huggingface
+    format: tar
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/cg1177/qvhighlight_internvideo2_videoclip_6b_w2s/resolve/main/qvhighlight_internvideo2_videoclip_6b_w2s.tar.gz
+    source: huggingface
+    format: tar
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/cg1177/charade_sta_internvideo2_videoclip_1b_w1s/resolve/main/charade_sta_internvideo2_videoclip_1b_w1s.tar.gz
+    source: huggingface
+    format: tar
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/cg1177/qvhighlight_internvideo2_videoclip_1b_w2s/resolve/main/qvhighlight_internvideo2_videoclip_1b_w2s.tar.gz
+    source: huggingface
+    status: verified
+    format: tar
+  - url: https://huggingface.co/datasets/cg1177/qvhighlight_internvideo2_videoclip_6b_w2s/resolve/main/qvhighlight_internvideo2_videoclip_6b_w2s.tar.gz
+    source: huggingface
+    status: verified
+    format: tar
+  - url: https://huggingface.co/datasets/cg1177/charade_sta_internvideo2_videoclip_1b_w1s/resolve/main/charade_sta_internvideo2_videoclip_1b_w1s.tar.gz
+    source: huggingface
+    status: verified
+    format: tar
+  - url: https://huggingface.co/datasets/cg1177/charade_sta_internvideo2_videoclip_6b_w1s/resolve/main/charade_sta_internvideo2_videoclip_6b_w1s.tar.gz
+    source: huggingface
+    status: verified
+    format: tar
+  - url: https://huggingface.co/datasets/Trelis/video_clip_descriptions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ojs.austral.edu.ar/index.php/australcomunicacion/article/view/393
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4683375
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bdj.pensoft.net/article/5848/element/5/1886687/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16314179
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nuevaepoca.revistalatinacs.org/index.php/revista/article/view/807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20766443
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20766443
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/3xb4n9n6t4/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/3xb4n9n6t4
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://miami.uni-muenster.de/Record/56b5de5f-3b4c-402d-8b30-420a1867b3b6
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-tractability
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16785112
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02209
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18636822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18636822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.26423
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.13871
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: XGBoost
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 93098
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/XGBooster/github-issues/resolve/main/issues-datasets-with-comments.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20667903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8400945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15009821
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15309798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310674
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21309140
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21309140
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302199
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302199
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HOG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/acozma/imagenet-1k-rand_hog/resolve/main/data/train-00000-of-00118-7bb5474c961d656c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Hoga2/Shinchan/resolve/main/train.parquet
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Capsekai/hogans-heroes/resolve/main/Burkhalter-Klink-Shultz-HH-1971.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Hoga2/Shinchan/resolve/main/train.parquet
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/acozma/imagenet-1k-rand_hog/resolve/main/data/train-00000-of-00118-7bb5474c961d656c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Capsekai/hogans-heroes/resolve/main/Burkhalter-Klink-Shultz-HH-1971.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://acs.figshare.com/articles/journal_contribution/Non-Monotonic_Interfacial_Layering_at_Water_C_sub_n_sub_mim_TFSA_Interfaces_Associated_with_Entropy_Enthalpy_Compensation/32963953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coexisting_Mixed-Ligated_Coordination_Architectures_as_Hosts_for_Supramolecular_Matchmaking_with_Customized_Guests/32963950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Connectivity_in_Hybrid_Organic_Inorganic_Antimony_Halides_through_Reactant_Concentration_Effects/32963947
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Determination_of_the_Absolute_Configuration_and_Phytotoxicity_of_Mevalocidin_Enantiomers/32963944
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Wireless_Microneedle_Patch_with_Integrated_Electrochemical_Sensor_for_In_Situ_Detection_of_Melanoma_Biomarker_Tyrosinase_in_ISF/32963941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://reference-global.com/article/10.21307/ijssis-2017-618
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3329/ijarit.v10i2.51589
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.banglajol.info'',
+      port=443): Max retries exceeded with url: /index.php/IJARIT/article/view/51589
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''www.banglajol.info'',
+      port=443) at 0x7f961f838f90>, ''Connection to www.banglajol.info timed out.
+      (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/10421202
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://reference-global.com/article/10.21307/ijssis-2017-232
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20143485
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.24406/publica-6929
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''publica.fraunhofer.de'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://arxiv.org/abs/2607.08379
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Menadione_2-methyl-1_4-naphthoquinone_induces_oxidative_stress_to_regulate_growth_and_ochratoxin_A_biosynthesis_in_i_Aspergillus_westerdijkiae_i_fc-1/32948666
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Menadione_2-methyl-1_4-naphthoquinone_induces_oxidative_stress_to_regulate_growth_and_ochratoxin_A_biosynthesis_in_i_Aspergillus_westerdijkiae_i_fc-1/32948666/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.24406/publica-7957
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''publica.fraunhofer.de'',
+      port=443): Read timed out. (read timeout=20.0)'

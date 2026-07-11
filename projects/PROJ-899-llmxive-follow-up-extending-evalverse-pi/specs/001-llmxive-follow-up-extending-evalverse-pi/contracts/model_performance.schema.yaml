@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformance"
+description: "Schema for model evaluation metrics for a specific dimension trained against human expert ground truth."
+type: "object"
+required:
+  - dimension
+  - model_type
+  - pearson_correlation
+  - ci_lower_95
+  - ci_upper_95
+  - baseline_mean_predictor_r
+  - baseline_shuffled_features_r
+  - exceeds_baselines_p_value
+  - classification
+properties:
+  dimension:
+    type: "string"
+    description: "Name of the cinematic dimension (e.g., 'camera_smoothness')."
+  model_type:
+    type: "string"
+    enum:
+      - "Ridge"
+      - "Lasso"
+      - "XGBoost"
+    description: "Type of model used."
+  pearson_correlation:
+    type: "number"
+    description: "Pearson correlation coefficient between model predictions and human expert scores."
+  spearman_correlation:
+    type: "number"
+    description: "Spearman correlation coefficient between model predictions and human expert scores."
+  ci_lower_95:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval for Pearson correlation."
+  ci_upper_95:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval for Pearson correlation."
+  baseline_mean_predictor_r:
+    type: "number"
+    description: "Pearson correlation of the mean predictor baseline (should be near zero)."
+  baseline_shuffled_features_r:
+    type: "number"
+    description: "Pearson correlation of the shuffled-features baseline (should be near zero)."
+  exceeds_baselines_p_value:
+    type: "number"
+    description: "Permutation test p-value for whether the model's correlation significantly exceeds both baselines. Must be < 0.05 for 'feature-sufficient' classification."
+  classification:
+    type: "string"
+    enum:
+      - "feature-sufficient"
+      - "VLM-required"
+      - "ambiguous"
+      - "insufficient"
+    description: "Classification based on correlation thresholds (ci_lower_95 > 0.85 for feature-sufficient, < 0.70 for VLM-required) and baseline comparison (exceeds_baselines_p_value < 0.05)."
+  threshold_sweep:
+    type: "object"
+    description: "Results of the sensitivity analysis across thresholds {0.80, 0.85, 0.90}."
+    additionalProperties:
+      type: "string"
+      enum:
+        - "feature-sufficient"
+        - "VLM-required"
+        - "ambiguous"
+        - "insufficient"

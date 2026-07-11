@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureVector"
+description: "Schema for a single video clip's extracted low-level features."
+type: "object"
+required:
+  - clip_id
+  - visual_features
+  - extraction_time
+  - memory_peak
+  - status
+properties:
+  clip_id:
+    type: "string"
+    description: "Unique identifier for the video clip."
+  visual_features:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of visual feature values (optical flow magnitude, variance, HOG density, histogram stats)."
+  audio_features:
+    type: ["array", "null"]
+    items:
+      type: "number"
+    description: "List of audio feature values (spectral centroid, zero-crossing rate) or null if no audio."
+  extraction_time:
+    type: "number"
+    description: "Time taken to extract features in seconds."
+  memory_peak:
+    type: "number"
+    description: "Peak memory usage during extraction in MB, populated by profiles.py module."
+  status:
+    type: "string"
+    enum:
+      - "valid"
+      - "low-quality"
+      - "missing_audio"
+    description: "Status of the feature extraction."
