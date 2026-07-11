@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Policy Result Aggregation Schema"
+description: "Schema for aggregated metrics per policy replication"
+type: "object"
+properties:
+  policy_name:
+    type: "string"
+    enum:
+      - fcfs
+      - greedy
+      - topological
+    description: "Name of the scheduling policy"
+  replication_id:
+    type: "integer"
+    minimum: 1
+    description: "Replication number (1-30)"
+  total_requests:
+    type: "integer"
+    minimum: 0
+    description: "Total number of requests processed"
+  avg_cold_start_latency:
+    type: "number"
+    minimum: 0.0
+    description: "Average cold-start latency in simulated time units"
+  cache_hit_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of cache hits to total requests"
+  total_evictions:
+    type: "integer"
+    minimum: 0
+    description: "Total number of cache evictions"
+  max_memory_usage:
+    type: "number"
+    description: "Peak memory usage in GB"
+required:
+  - policy_name
+  - replication_id
+  - total_requests
+  - avg_cold_start_latency
+  - cache_hit_rate
+  - total_evictions
+  - max_memory_usage
+additionalProperties: false

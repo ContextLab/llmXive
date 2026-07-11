@@ -1,0 +1,8 @@
+? 'T001 Create project structure per implementation plan by running `mkdir -p code/data
+  code/simulation code/analysis tests code/utils data/raw data/processed data/logs
+  docs` <!-- FAILED: unspecified -->'
+: 1
+? 'T002 Initialize Python 3.11 project with dependencies: `simpy`, `numpy`, `scipy`,
+  `networkx`, `pandas`, `pytest`, `hypothesis` in `requirements.txt`'
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1

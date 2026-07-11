@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Parameter Overlap Matrix Entry Schema"
+description: "Schema for rows in the pairwise parameter overlap matrix"
+type: "object"
+properties:
+  source_adapter_id:
+    type: "string"
+    description: "ID of the source adapter"
+  target_adapter_id:
+    type: "string"
+    description: "ID of the target adapter"
+  overlap_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized overlap score: (cosine_sim + 1) / 2"
+  cosine_similarity:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Raw cosine similarity between weight vectors"
+required:
+  - source_adapter_id
+  - target_adapter_id
+  - overlap_score
+  - cosine_similarity
+additionalProperties: false

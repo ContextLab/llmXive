@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Event Log Schema"
+description: "Schema for individual events in the simulation log"
+type: "object"
+properties:
+  event_id:
+    type: "integer"
+    description: "Unique sequential event ID"
+  timestamp:
+    type: "number"
+    description: "Simulated time of the event"
+  event_type:
+    type: "string"
+    enum:
+      - REQUEST_ARRIVAL
+      - CACHE_HIT
+      - CACHE_MISS
+      - LOAD_START
+      - LOAD_END
+      - EVICTION
+      - MEMORY_ERROR
+    description: "Type of simulation event"
+  adapter_id:
+    type: "string"
+    nullable: true
+    description: "ID of the adapter involved (null for system events)"
+  latency:
+    type: "number"
+    nullable: true
+    description: "Latency in simulated time units (null if not applicable)"
+  memory_usage:
+    type: "number"
+    description: "Current memory usage in GB"
+required:
+  - event_id
+  - timestamp
+  - event_type
+  - memory_usage
+additionalProperties: false
