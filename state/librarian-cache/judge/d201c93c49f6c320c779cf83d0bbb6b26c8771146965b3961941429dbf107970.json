@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.10284",
+  "judged_at": "2026-07-11T13:11:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"edit-compass & editreward-compass: a unified benchmark for image editi\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides a canonical benchmark and empirical baseline for the specific sub-domain of image editing (motion-centric edits) that the user's question implies a need to extend or evaluate. While the user's query references a specific prior work (\"Edit-Compass\"), this paper addresses the same underlying mechanism (image editing benchmarks) and variables (editing quality, fidelity metrics) within the same computer science domain, making it essential rela",
+  "relevant": true
+}

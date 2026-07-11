@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-814-llmxive-follow-up-extending-edit-compass",
+  "stage": "clarified",
+  "last_error": "research.md reference is unreachable: 'https://huggingface.co/datasets/edit-compass' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "last_seen": "2026-07-11T13:21:18.234502+00:00",
+  "count": 1
+}

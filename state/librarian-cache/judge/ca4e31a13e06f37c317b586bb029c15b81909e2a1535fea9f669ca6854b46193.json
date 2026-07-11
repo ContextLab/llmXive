@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.01915",
+  "judged_at": "2026-07-11T13:11:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"edit-compass & editreward-compass: a unified benchmark for image editi\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same domain (instruction-based image editing using LLMs/MLLMs) and measures the same core mechanism (controllability and flexibility of image editing via language models), satisfying criteria (a) and (b) as a canonical study on the specific technical approach the user is investigating.",
+  "relevant": true
+}

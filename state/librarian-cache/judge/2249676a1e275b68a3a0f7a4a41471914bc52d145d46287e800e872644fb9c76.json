@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.14555",
+  "judged_at": "2026-07-11T13:11:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"edit-compass & editreward-compass: a unified benchmark for image editi\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of image editing with diffusion models, which is the specific technical context of the user's question regarding \"Edit-Compass\" and \"EditReward-Compass.\" While it does not mention the specific benchmark names, it provides the essential literature review framework and categorization of the underlying mechanisms (multimodal-guided editing, T2I diffusion) that any follow-up work on these benchm",
+  "relevant": true
+}

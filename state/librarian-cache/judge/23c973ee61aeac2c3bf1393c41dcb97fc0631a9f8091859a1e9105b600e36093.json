@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.20287",
+  "judged_at": "2026-07-11T13:11:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"edit-compass & editreward-compass: a unified benchmark for image editi\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides a unified benchmark and evaluation framework for image editing, specifically focusing on the causal mechanisms (counterfactual generation) and metrics that are central to the user's interest in \"Edit-Compass\" and \"EditReward-Compass.\" It establishes the empirical baseline and comparative context necessary for a literature review on benchmarking image editing systems.",
+  "relevant": true
+}

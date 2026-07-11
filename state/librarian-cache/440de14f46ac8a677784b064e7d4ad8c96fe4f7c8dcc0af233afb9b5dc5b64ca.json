@@ -1,0 +1,726 @@
+{
+  "fetched_at": "2026-07-11T13:11:32Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editi\"",
+      "target_n": 5
+    },
+    "duration_seconds": 54.812,
+    "ended_at": "2026-07-11T13:11:32Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "image editing benchmark datasets"
+        ],
+        [
+          2,
+          "unified evaluation framework for image generation"
+        ],
+        [
+          3,
+          "text-guided image editing metrics"
+        ],
+        [
+          4,
+          "image reward modeling for editing tasks"
+        ],
+        [
+          5,
+          "automated assessment of image manipulation"
+        ],
+        [
+          6,
+          "multimodal instruction following for images"
+        ],
+        [
+          7,
+          "generative image editing evaluation protocols"
+        ],
+        [
+          8,
+          "visual instruction tuning benchmarks"
+        ],
+        [
+          9,
+          "image editing quality assessment methods"
+        ],
+        [
+          10,
+          "text-to-image editing consistency metrics"
+        ],
+        [
+          11,
+          "fine-grained image manipulation evaluation"
+        ],
+        [
+          12,
+          "diffusion model editing benchmarks"
+        ],
+        [
+          13,
+          "image editing instruction datasets"
+        ],
+        [
+          14,
+          "reward modeling for visual generation"
+        ],
+        [
+          15,
+          "automated image editing validation"
+        ],
+        [
+          16,
+          "cross-modal image editing evaluation"
+        ],
+        [
+          17,
+          "semantic image editing benchmarks"
+        ],
+        [
+          18,
+          "generative AI image modification metrics"
+        ],
+        [
+          19,
+          "text-conditioned image synthesis evaluation"
+        ],
+        [
+          20,
+          "image editing task standardization"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "image editing benchmark datasets": 5,
+        "llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editi\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "image manipulation benchmark consistency",
+      "diffusion model prompt editing fidelity",
+      "generative image editing homogeneity evaluation",
+      "edit instruction adherence visual quality metrics",
+      "multimodal alignment editing dataset contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2601.01915"
+      ]
+    },
+    "per_query_hit_count": {
+      "diffusion model prompt editing fidelity": 3,
+      "edit instruction adherence visual quality metrics": 3,
+      "generative image editing homogeneity evaluation": 3,
+      "image manipulation benchmark consistency": 3,
+      "llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editi\" computer science": 3,
+      "multimodal alignment editing dataset contamination": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T13:10:37Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"edit-compass & editreward-compass: a unified benchmark for image editi\" computer science",
+      "raw": "llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Benchmark for Image Editi\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Manipulation and re-use of images in scientific publications is a concerning problem that currently lacks a scalable solution. Current tools for detecting image duplication are mostly manual or semi-automated, despite the availability of an overwhelming target dataset for a learning-based approach. This paper addresses the problem of determining if, given two images, one is a manipulated version of the other by means of copy, rotation, translation, scale, perspective transform, histogram adjustment, or partial erasing. We propose a data-driven solution based on a 3-branch Siamese Convolutional Neural Network. The ConvNet model is trained to map images into a 128-dimensional space, where the Euclidean distance between duplicate images is smaller than or equal to 1, and the distance between unique images is greater than 1. Our results suggest that such an approach has the potential to improve surveillance of the published and in-peer-review literature for image manipulation.",
+          "claimed_authors": [
+            "M. Cicconet",
+            "H. Elliott",
+            "D. L. Richmond",
+            "D. Wainstock",
+            "M. Walsh"
+          ],
+          "claimed_title": "Image Forensics: Detecting duplication of scientific images with manipulation-invariant image similarity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.06515"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Image Forensics: Detecting duplication of scientific images with manipulation-invariant image similarity')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning a good image prior is a long-term goal for image restoration and manipulation. While existing methods like deep image prior (DIP) capture low-level image statistics, there are still gaps toward an image prior that captures rich image semantics including color, spatial coherence, textures, and high-level concepts. This work presents an effective way to exploit the image prior captured by a generative adversarial network (GAN) trained on large-scale natural images. As shown in Fig.1, the deep generative prior (DGP) provides compelling results to restore missing semantics, e.g., color, patch, resolution, of various degraded images. It also enables diverse image manipulation including random jittering, image morphing, and category transfer. Such highly flexible restoration and manipulation are made possible through relaxing the assumption of existing GAN-inversion methods, which tend to fix the generator. Notably, we allow the generator to be fine-tuned on-the-fly in a progressive manner regularized by feature distance obtained by the discriminator in GAN. We show that these easy-to-implement and practical changes help preserve the reconstruction to remain in the manifold of nature image, and thus lead to more precise and faithful reconstruction for real images. Code is available at https://github.com/XingangPan/deep-generative-prior.",
+          "claimed_authors": [
+            "Xingang Pan",
+            "Xiaohang Zhan",
+            "Bo Dai",
+            "Dahua Lin",
+            "Chen Change Loy",
+            "Ping Luo"
+          ],
+          "claimed_title": "Exploiting Deep Generative Prior for Versatile Image Restoration and Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.13659"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Exploiting Deep Generative Prior for Versatile Image Restoration and Manipulation')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent deep learning models outperform standard lossy image compression codecs. However, applying these models on a patch-by-patch basis requires that each image patch be encoded and decoded independently. The influence from adjacent patches is therefore lost, leading to block artefacts at low bitrates. We propose the Binary Inpainting Network (BINet), an autoencoder framework which incorporates binary inpainting to reinstate interdependencies between adjacent patches, for improved patch-based compression of still images. When decoding a patch, BINet additionally uses the binarised encodings from surrounding patches to guide its reconstruction. In contrast to sequential inpainting methods where patches are decoded based on previons reconstructions, BINet operates directly on the binary codes of surrounding patches without access to the original or reconstructed image data. Encoding and decoding can therefore be performed in parallel. We demonstrate that BINet improves the compression quality of a competitive deep image codec across a range of compression levels.",
+          "claimed_authors": [
+            "André Nortje",
+            "Willie Brink",
+            "Herman A. Engelbrecht",
+            "Herman Kamper"
+          ],
+          "claimed_title": "BINet: a binary inpainting network for deep patch-based image compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.05189"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='BINet: a binary inpainting network for deep patch-based image compression')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion models have recently surpassed GANs in image synthesis and editing, offering superior image quality and diversity. However, achieving precise control over attributes in generated images remains a challenge. Concept Sliders introduced a method for fine-grained image control and editing by learning concepts (attributes/objects). However, this approach adds parameters and increases inference time due to the loading and unloading of Low-Rank Adapters (LoRAs) used for learning concepts. These adapters are model-specific and require retraining for different architectures, such as Stable Diffusion (SD) v1.5 and SD-XL. In this paper, we propose a straightforward textual inversion method to learn concepts through text embeddings, which are generalizable across models that share the same text encoder, including different versions of the SD model. We refer to our method as Prompt Sliders. Besides learning new concepts, we also show that Prompt Sliders can be used to erase undesirable concepts such as artistic styles or mature content. Our method is 30% faster than using LoRAs because it eliminates the need to load and unload adapters and introduces no additional parameters aside from the target concept text embedding. Each concept embedding only requires 3KB of storage compared to the 8922KB or more required for each LoRA adapter, making our approach more computationally efficient. Project Page: https://deepaksridhar.github.io/promptsliders.github.io/",
+          "claimed_authors": [
+            "Deepak Sridhar",
+            "Nuno Vasconcelos"
+          ],
+          "claimed_title": "Prompt Sliders for Fine-Grained Control, Editing and Erasing of Concepts in Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.16535"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Prompt Sliders for Fine-Grained Control, Editing and Erasing of Concepts in Diffusion Models')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, text-to-image diffusion models become a new paradigm in image processing fields, including content generation, image restoration and image-to-image translation. Given a target prompt, Denoising Diffusion Probabilistic Models (DDPM) are able to generate realistic yet eligible images. With this appealing property, the image translation task has the potential to be free from target image samples for supervision. By using a target text prompt for domain adaption, the diffusion model is able to implement zero-shot image-to-image translation advantageously. However, the sampling and inversion processes of DDPM are stochastic, and thus the inversion process often fail to reconstruct the input content. Specifically, the displacement effect will gradually accumulated during the diffusion and inversion processes, which led to the reconstructed results deviating from the source domain. To make reconstruction explicit, we propose a prompt redescription strategy to realize a mirror effect between the source and reconstructed image in the diffusion model (MirrorDiffusion). More specifically, a prompt redescription mechanism is investigated to align the text prompts with latent code at each time step of the Denoising Diffusion Implicit Models (DDIM) inversion to pursue a structure-preserving reconstruction. With the revised DDIM inversion, MirrorDiffusion is able to realize accurate zero-shot image translation by editing optimized text prompts and latent code. Extensive experiments demonstrate that MirrorDiffusion achieves superior performance over the state-of-the-art methods on zero-shot image translation benchmarks by clear margins and practical model stability.",
+          "claimed_authors": [
+            "Yupei Lin",
+            "Xiaoyu Xian",
+            "Yukai Shi",
+            "Liang Lin"
+          ],
+          "claimed_title": "MirrorDiffusion: Stabilizing Diffusion Process in Zero-shot Image Translation by Prompts Redescription and Beyond",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.03221"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='MirrorDiffusion: Stabilizing Diffusion Process in Zero-shot Image Translation by Prompts Redescription and Beyond')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-to-image (T2I) research has grown explosively in the past year, owing to the large-scale pre-trained diffusion models and many emerging personalization and editing approaches. Yet, one pain point persists: the text prompt engineering, and searching high-quality text prompts for customized results is more art than science. Moreover, as commonly argued: \"an image is worth a thousand words\" - the attempt to describe a desired image with texts often ends up being ambiguous and cannot comprehensively cover delicate visual details, hence necessitating more additional controls from the visual domain. In this paper, we take a bold step forward: taking \"Text\" out of a pre-trained T2I diffusion model, to reduce the burdensome prompt engineering efforts for users. Our proposed framework, Prompt-Free Diffusion, relies on only visual inputs to generate new images: it takes a reference image as \"context\", an optional image structural conditioning, and an initial noise, with absolutely no text prompt. The core architecture behind the scene is Semantic Context Encoder (SeeCoder), substituting the commonly used CLIP-based or LLM-based text encoder. The reusability of SeeCoder also makes it a convenient drop-in component: one can also pre-train a SeeCoder in one T2I model and reuse it for another. Through extensive experiments, Prompt-Free Diffusion is experimentally found to (i) outperform prior exemplar-based image synthesis approaches; (ii) perform on par with state-of-the-art T2I models using prompts following the best practice; and (iii) be naturally extensible to other downstream applications such as anime figure generation and virtual try-on, with promising quality. Our code and models are open-sourced at https://github.com/SHI-Labs/Prompt-Free-Diffusion.",
+          "claimed_authors": [
+            "Xingqian Xu",
+            "Jiayi Guo",
+            "Zhangyang Wang",
+            "Gao Huang",
+            "Irfan Essa",
+            "Humphrey Shi"
+          ],
+          "claimed_title": "Prompt-Free Diffusion: Taking \"Text\" out of Text-to-Image Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.16223"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Prompt-Free Diffusion: Taking \"Text\" out of Text-to-Image Diffusion Models')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image editing aims to edit the given synthetic or real image to meet the specific requirements from users. It is widely studied in recent years as a promising and challenging field of Artificial Intelligence Generative Content (AIGC). Recent significant advancement in this field is based on the development of text-to-image (T2I) diffusion models, which generate images according to text prompts. These models demonstrate remarkable generative capabilities and have become widely used tools for image editing. T2I-based image editing methods significantly enhance editing performance and offer a user-friendly interface for modifying content guided by multimodal inputs. In this survey, we provide a comprehensive review of multimodal-guided image editing techniques that leverage T2I diffusion models. First, we define the scope of image editing from a holistic perspective and detail various control signals and editing scenarios. We then propose a unified framework to formalize the editing process, categorizing it into two primary algorithm families. This framework offers a design space for users to achieve specific goals. Subsequently, we present an in-depth analysis of each component within this framework, examining the characteristics and applicable scenarios of different combinations. Given that training-based methods learn to directly map the source image to target one under user guidance, we discuss them separately, and introduce injection schemes of source image in different scenarios. Additionally, we review the application of 2D techniques to video editing, highlighting solutions for inter-frame inconsistency. Finally, we discuss open challenges in the field and suggest potential future research directions. We keep tracing related works at https://github.com/xinchengshuai/Awesome-Image-Editing.",
+          "claimed_authors": [
+            "Xincheng Shuai",
+            "Henghui Ding",
+            "Xingjun Ma",
+            "Rongcheng Tu",
+            "Yu-Gang Jiang",
+            "Dacheng Tao"
+          ],
+          "claimed_title": "A Survey of Multimodal-Guided Image Editing with Text-to-Image Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.14555"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='A Survey of Multimodal-Guided Image Editing with Text-to-Image Diffusion Models')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Thanks to the powerful language comprehension capabilities of Large Language Models (LLMs), existing instruction-based image editing methods have introduced Multimodal Large Language Models (MLLMs) to promote information exchange between instructions and images, ensuring the controllability and flexibility of image editing. However, these frameworks often build a multi-instruction dataset to train the model to handle multiple editing tasks, which is not only time-consuming and labor-intensive but also fails to achieve satisfactory results. In this paper, we present TalkPhoto, a versatile training-free image editing framework that facilitates precise image manipulation through conversational interaction. We instruct the open-source LLM with a specially designed prompt template to analyze user needs after receiving instructions and hierarchically invoke existing advanced editing methods, all without additional training. Moreover, we implement a plug-and-play and efficient invocation of image editing methods, allowing complex and unseen editing tasks to be integrated into the current framework, achieving stable and high-quality editing results. Extensive experiments demonstrate that our method not only provides more accurate invocation with fewer token consumption but also achieves higher editing quality across various image editing tasks.",
+          "claimed_authors": [
+            "Yujie Hu",
+            "Zecheng Tang",
+            "Xu Jiang",
+            "Weiqi Li",
+            "Jian Zhang"
+          ],
+          "claimed_title": "TalkPhoto: A Versatile Training-Free Conversational Assistant for Intelligent Image Editing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.01915"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='TalkPhoto: A Versatile Training-Free Conversational Assistant for Intelligent Image Editing')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Determining whether two sets of images belong to the same or different distributions or domains is a crucial task in modern medical image analysis and deep learning; for example, to evaluate the output quality of image generative models. Currently, metrics used for this task either rely on the (potentially biased) choice of some downstream task, such as segmentation, or adopt task-independent perceptual metrics (e.g., Fréchet Inception Distance/FID) from natural imaging, which we show insufficiently capture anatomical features. To this end, we introduce a new perceptual metric tailored for medical images, FRD (Fréchet Radiomic Distance), which utilizes standardized, clinically meaningful, and interpretable image features. We show that FRD is superior to other image distribution metrics for a range of medical imaging applications, including out-of-domain (OOD) detection, the evaluation of image-to-image translation (by correlating more with downstream task performance as well as anatomical consistency and realism), and the evaluation of unconditional image generation. Moreover, FRD offers additional benefits such as stability and computational efficiency at low sample sizes, sensitivity to image corruptions and adversarial attacks, feature interpretability, and correlation with radiologist-perceived image quality. Additionally, we address key gaps in the literature by presenting an extensive framework for the multifaceted evaluation of image similarity metrics in medical imaging -- including the first large-scale comparative study of generative models for medical image translation -- and release an accessible codebase to facilitate future research. Our results are supported by thorough experiments spanning a variety of datasets, modalities, and downstream tasks, highlighting the broad potential of FRD for medical image analysis.",
+          "claimed_authors": [
+            "Nicholas Konz",
+            "Richard Osuala",
+            "Preeti Verma",
+            "Yuwen Chen",
+            "Hanxue Gu",
+            "Haoyu Dong",
+            "Yaqian Chen",
+            "Andrew Marshall",
+            "Lidia Garrucho",
+            "Kaisar Kushibar",
+            "Daniel M. Lang",
+            "Gene S. Kim",
+            "Lars J. Grimm",
+            "John M. Lewin",
+            "James S. Duncan",
+            "Julia A. Schnabel",
+            "Oliver Diaz",
+            "Karim Lekadir",
+            "Maciej A. Mazurowski"
+          ],
+          "claimed_title": "Fréchet Radiomic Distance (FRD): A Versatile Metric for Comparing Medical Imaging Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.01496"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Fréchet Radiomic Distance (FRD): A Versatile Metric for Comparing Medical Imaging Datasets')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
+          "claimed_authors": [
+            "Zhiyang Xu",
+            "Chao Feng",
+            "Rulin Shao",
+            "Trevor Ashby",
+            "Ying Shen",
+            "Di Jin",
+            "Yu Cheng",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11690"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce $\\texttt{Complex-Edit}$, a comprehensive benchmark designed to systematically evaluate instruction-based image editing models across instructions of varying complexity. To develop this benchmark, we harness GPT-4o to automatically collect a diverse set of editing instructions at scale. Our approach follows a well-structured ``Chain-of-Edit'' pipeline: we first generate individual atomic editing tasks independently and then integrate them to form cohesive, complex instructions. Additionally, we introduce a suite of metrics to assess various aspects of editing performance, along with a VLM-based auto-evaluation pipeline that supports large-scale assessments. Our benchmark yields several notable insights: 1) Open-source models significantly underperform relative to proprietary, closed-source models, with the performance gap widening as instruction complexity increases; 2) Increased instructional complexity primarily impairs the models' ability to retain key elements from the input images and to preserve the overall aesthetic quality; 3) Decomposing a complex instruction into a sequence of atomic steps, executed in a step-by-step manner, substantially degrades performance across multiple metrics; 4) A straightforward Best-of-N selection strategy improves results for both direct editing and the step-by-step sequential approach; and 5) We observe a ``curse of synthetic data'': when synthetic data is involved in model training, the edited images from such models tend to appear increasingly synthetic as the complexity of the editing instructions rises -- a phenomenon that intriguingly also manifests in the latest GPT-4o outputs.",
+          "claimed_authors": [
+            "Siwei Yang",
+            "Mude Hui",
+            "Bingchen Zhao",
+            "Yuyin Zhou",
+            "Nataniel Ruiz",
+            "Cihang Xie"
+          ],
+          "claimed_title": "$\\texttt{Complex-Edit}$: CoT-Like Instruction Generation for Complexity-Controllable Image Editing Benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13143"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='$\\\\texttt{Complex-Edit}$: CoT-Like Instruction Generation for Complexity-Controllable Image Editing Benchmark')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-based video editing has witnessed rapid progress, yet current methods often struggle with precise visual control, as natural language is inherently limited in describing complex visual nuances. Although reference-guided editing offers a robust solution, its potential is currently bottlenecked by the scarcity of high-quality paired training data. To bridge this gap, we introduce a scalable data generation pipeline that transforms existing video editing pairs into high-fidelity training quadruplets, leveraging image generative models to create synthesized reference scaffolds. Using this pipeline, we construct RefVIE, a large-scale dataset tailored for instruction-reference-following tasks, and establish RefVIE-Bench for comprehensive evaluation. Furthermore, we propose a unified editing architecture, Kiwi-Edit, that synergizes learnable queries and latent visual features for reference semantic guidance. Our model achieves significant gains in instruction following and reference fidelity via a progressive multi-stage training curriculum. Extensive experiments demonstrate that our data and architecture establish a new state-of-the-art in controllable video editing. All datasets, models, and code is released at https://github.com/showlab/Kiwi-Edit.",
+          "claimed_authors": [
+            "Yiqi Lin",
+            "Guoqiang Liang",
+            "Ziyun Zeng",
+            "Zechen Bai",
+            "Yanzhe Chen",
+            "Mike Zheng Shou"
+          ],
+          "claimed_title": "Kiwi-Edit: Versatile Video Editing via Instruction and Reference Guidance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.02175"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Kiwi-Edit: Versatile Video Editing via Instruction and Reference Guidance')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "If the orientations of galaxies are correlated with large-scale structure, then anisotropic selection effects such as preferential selection of face-on disc galaxies can contaminate large scale structure observables. Here we consider the effect on the galaxy bispectrum, which has attracted interest as a way to break the degeneracy between galaxy bias and the amplitude of matter fluctuations sigma_8. We consider two models of intrinsic galaxy alignments: one where the probability distribution for the galaxy's orientation contains a term linear in the local tidal field, appropriate for elliptical galaxies; and one with a term quadratic in the local tidal field, which may be applicable to disc galaxies. We compute the correction to the redshift-space bispectrum in the quasilinear regime, and then focus on its effects on parameter constraints from the transverse bispectrum, i.e. using triangles in the plane of the sky. We show that in the linear alignment model, intrinsic alignments result in an error in the galaxy bias parameters, but do not affect the inferred value of sigma_8. In contrast, the quadratic alignment model results in a systematic error in both the bias parameters and sigma_8. However, the quadratic alignment effect has a unique configuration dependence that should enable it to be removed in upcoming surveys.",
+          "claimed_authors": [
+            "Elisabeth Krause",
+            "Christopher Hirata"
+          ],
+          "claimed_title": "Tidal alignments as a contaminant of the galaxy bispectrum",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.3611"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Tidal alignments as a contaminant of the galaxy bispectrum')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) can handle a wide variety of general tasks with simple prompts, without the need for task-specific training. Multimodal Large Language Models (MLLMs), built upon LLMs, have demonstrated impressive potential in tackling complex tasks involving visual, auditory, and textual data. However, critical issues related to truthfulness, safety, o1-like reasoning, and alignment with human preference remain insufficiently addressed. This gap has spurred the emergence of various alignment algorithms, each targeting different application scenarios and optimization goals. Recent studies have shown that alignment algorithms are a powerful approach to resolving the aforementioned challenges. In this paper, we aim to provide a comprehensive and systematic review of alignment algorithms for MLLMs. Specifically, we explore four key aspects: (1) the application scenarios covered by alignment algorithms, including general image understanding, multi-image, video, and audio, and extended multimodal applications; (2) the core factors in constructing alignment datasets, including data sources, model responses, and preference annotations; (3) the benchmarks used to evaluate alignment algorithms; and (4) a discussion of potential future directions for the development of alignment algorithms. This work seeks to help researchers organize current advancements in the field and inspire better alignment methods. The project page of this paper is available at https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models/tree/Alignment.",
+          "claimed_authors": [
+            "Tao Yu",
+            "Yi-Fan Zhang",
+            "Chaoyou Fu",
+            "Junkang Wu",
+            "Jinda Lu",
+            "Kun Wang",
+            "Xingyu Lu",
+            "Yunhang Shen",
+            "Guibin Zhang",
+            "Dingjie Song",
+            "Yibo Yan",
+            "Tianlong Xu",
+            "Qingsong Wen",
+            "Zhang Zhang",
+            "Yan Huang",
+            "Liang Wang",
+            "Tieniu Tan"
+          ],
+          "claimed_title": "Aligning Multimodal LLM with Human Preference: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.14504"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Edit-Compass & EditReward-Compass: A Unified Bench', candidate_title='Aligning Multimodal LLM with Human Preference: A Survey')",
+        "failed_at": "2026-07-11T13:11:09Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yixin Wan",
+            "Lei Ke",
+            "Wenhao Yu",
+            "Kai-Wei Chang",
+            "Dong Yu"
+          ],
+          "title": "MotionEdit: Benchmarking and Learning Motion-Centric Image Editing",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.10284",
+        "summary": "We introduce MotionEdit, a novel dataset for motion-centric image editing-the task of modifying subject actions and interactions while preserving identity, structure, and physical plausibility. Unlike existing image editing datasets that focus on static appearance changes or contain only sparse, low-quality motion edits, MotionEdit provides high-fidelity image pairs depicting realistic motion transformations extracted and verified from continuous videos. This new task is not only scientifically challenging but also practically significant, powering downstream applications such as frame-controlled video synthesis and animation.\n  To evaluate model performance on the novel task, we introduce MotionEdit-Bench, a benchmark that challenges models on motion-centric edits and measures model performance with generative, discriminative, and preference-based metrics. Benchmark results reveal that motion editing remains highly challenging for existing state-of-the-art diffusion-based editing models. To address this gap, we propose MotionNFT (Motion-guided Negative-aware Fine Tuning), a post-training framework that computes motion alignment rewards based on how well the motion flow between input and model-edited images matches the ground-truth motion, guiding models toward accurate motion transformations. Extensive experiments on FLUX.1 Kontext and Qwen-Image-Edit show that MotionNFT consistently improves editing quality and motion fidelity of both base models on the motion editing task without sacrificing general editing ability, demonstrating its effectiveness. Our code is at https://github.com/elainew728/motion-edit/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.10284",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T13:11:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yujie Hu",
+            "Zecheng Tang",
+            "Xu Jiang",
+            "Weiqi Li",
+            "Jian Zhang"
+          ],
+          "title": "TalkPhoto: A Versatile Training-Free Conversational Assistant for Intelligent Image Editing",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.01915",
+        "summary": "Thanks to the powerful language comprehension capabilities of Large Language Models (LLMs), existing instruction-based image editing methods have introduced Multimodal Large Language Models (MLLMs) to promote information exchange between instructions and images, ensuring the controllability and flexibility of image editing. However, these frameworks often build a multi-instruction dataset to train the model to handle multiple editing tasks, which is not only time-consuming and labor-intensive but also fails to achieve satisfactory results. In this paper, we present TalkPhoto, a versatile training-free image editing framework that facilitates precise image manipulation through conversational interaction. We instruct the open-source LLM with a specially designed prompt template to analyze user needs after receiving instructions and hierarchically invoke existing advanced editing methods, all without additional training. Moreover, we implement a plug-and-play and efficient invocation of image editing methods, allowing complex and unseen editing tasks to be integrated into the current framework, achieving stable and high-quality editing results. Extensive experiments demonstrate that our method not only provides more accurate invocation with fewer token consumption but also achieves higher editing quality across various image editing tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.01915",
+          "http_status": 200,
+          "pdf_sample_score": 0.2657,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T13:11:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xincheng Shuai",
+            "Henghui Ding",
+            "Xingjun Ma",
+            "Rongcheng Tu",
+            "Yu-Gang Jiang",
+            "Dacheng Tao"
+          ],
+          "title": "A Survey of Multimodal-Guided Image Editing with Text-to-Image Diffusion Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.14555",
+        "summary": "Image editing aims to edit the given synthetic or real image to meet the specific requirements from users. It is widely studied in recent years as a promising and challenging field of Artificial Intelligence Generative Content (AIGC). Recent significant advancement in this field is based on the development of text-to-image (T2I) diffusion models, which generate images according to text prompts. These models demonstrate remarkable generative capabilities and have become widely used tools for image editing. T2I-based image editing methods significantly enhance editing performance and offer a user-friendly interface for modifying content guided by multimodal inputs. In this survey, we provide a comprehensive review of multimodal-guided image editing techniques that leverage T2I diffusion models. First, we define the scope of image editing from a holistic perspective and detail various control signals and editing scenarios. We then propose a unified framework to formalize the editing process, categorizing it into two primary algorithm families. This framework offers a design space for users to achieve specific goals. Subsequently, we present an in-depth analysis of each component within this framework, examining the characteristics and applicable scenarios of different combinations. Given that training-based methods learn to directly map the source image to target one under user guidance, we discuss them separately, and introduce injection schemes of source image in different scenarios. Additionally, we review the application of 2D techniques to video editing, highlighting solutions for inter-frame inconsistency. Finally, we discuss open challenges in the field and suggest potential future research directions. We keep tracing related works at https://github.com/xinchengshuai/Awesome-Image-Editing.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.14555",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T13:11:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kaihang Pan",
+            "Weile Chen",
+            "Haiyi Qiu",
+            "Qifan Yu",
+            "Wendong Bu",
+            "Zehan Wang",
+            "Yun Zhu",
+            "Juncheng Li",
+            "Siliang Tang"
+          ],
+          "title": "WiseEdit: Benchmarking Cognition- and Creativity-Informed Image Editing",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.00387",
+        "summary": "Recent image editing models boast next-level intelligent capabilities, facilitating cognition- and creativity-informed image editing. Yet, existing benchmarks provide too narrow a scope for evaluation, failing to holistically assess these advanced abilities. To address this, we introduce WiseEdit, a knowledge-intensive benchmark for comprehensive evaluation of cognition- and creativity-informed image editing, featuring deep task depth and broad knowledge breadth. Drawing an analogy to human cognitive creation, WiseEdit decomposes image editing into three cascaded steps, i.e., Awareness, Interpretation, and Imagination, each corresponding to a task that poses a challenge for models to complete at the specific step. It also encompasses complex tasks, where none of the three steps can be finished easily. Furthermore, WiseEdit incorporates three fundamental types of knowledge: Declarative, Procedural, and Metacognitive knowledge. Ultimately, WiseEdit comprises 1,220 test cases, objectively revealing the limitations of SoTA image editing models in knowledge-based cognitive reasoning and creative composition capabilities. The benchmark, evaluation code, and the generated images of each model will be made publicly available soon. Project Page: https://qnancy.github.io/wiseedit_project_page/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.00387",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T13:11:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Thomas Melistas",
+            "Nikos Spyrou",
+            "Nefeli Gkouti",
+            "Pedro Sanchez",
+            "Athanasios Vlontzos",
+            "Yannis Panagakis",
+            "Giorgos Papanastasiou",
+            "Sotirios A. Tsaftaris"
+          ],
+          "title": "Benchmarking Counterfactual Image Generation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.20287",
+        "summary": "Generative AI has revolutionised visual content editing, empowering users to effortlessly modify images and videos. However, not all edits are equal. To perform realistic edits in domains such as natural image or medical imaging, modifications must respect causal relationships inherent to the data generation process. Such image editing falls into the counterfactual image generation regime. Evaluating counterfactual image generation is substantially complex: not only it lacks observable ground truths, but also requires adherence to causal constraints. Although several counterfactual image generation methods and evaluation metrics exist, a comprehensive comparison within a unified setting is lacking. We present a comparison framework to thoroughly benchmark counterfactual image generation methods. We integrate all models that have been used for the task at hand and expand them to novel datasets and causal graphs, demonstrating the superiority of Hierarchical VAEs across most datasets and metrics. Our framework is implemented in a user-friendly Python package that can be extended to incorporate additional SCMs, causal methods, generative models, and datasets for the community to build on. Code: https://github.com/gulnazaki/counterfactual-benchmark.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.20287",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T13:11:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"edit-compass & editreward-compass: a unified benchmark for image editi\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

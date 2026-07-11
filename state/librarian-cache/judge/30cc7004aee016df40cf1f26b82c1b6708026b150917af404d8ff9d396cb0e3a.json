@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.00387",
+  "judged_at": "2026-07-11T13:11:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"edit-compass & editreward-compass: a unified benchmark for image editi\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides a canonical benchmark for the same domain (image editing) and mechanism (evaluating model capabilities) as the user's question, serving as essential prior work for any follow-up study on image editing benchmarks. Although it introduces a new benchmark (\"WiseEdit\") rather than extending the specific \"Edit-Compass\" suite mentioned, it is a foundational reference for the field of image editing evaluation that a literature review would require",
+  "relevant": true
+}
