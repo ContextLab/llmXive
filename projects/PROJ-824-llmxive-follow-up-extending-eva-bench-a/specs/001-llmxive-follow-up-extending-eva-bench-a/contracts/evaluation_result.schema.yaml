@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult"
+description: "Stores the output of the EVA-Bench evaluation for a perturbed scenario."
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for the result."
+  scenario_id:
+    type: "string"
+    description: "Reference to the scenario."
+  system_id:
+    type: "string"
+    description: "Reference to the voice agent system."
+  perturbation_profile_id:
+    type: "string"
+    description: "Reference to the perturbation profile used."
+  eva_a_score:
+    type: "number"
+    description: "EVA-A (Accuracy) score."
+  eva_x_turn_taking_score:
+    type: "number"
+    description: "EVA-X Turn-Taking score."
+  eva_x_progression_score:
+    type: "number"
+    description: "EVA-X Conversation Progression score."
+  delta_turn_taking:
+    type: "number"
+    description: "Difference from baseline Turn-Taking score."
+  delta_progression:
+    type: "number"
+    description: "Difference from baseline Progression score."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "floor_effect"
+      - "truncated"
+      - "error"
+    description: "Status of the evaluation."
+  error_message:
+    type: "string"
+    description: "Error message if status is not success."
+    default: ""
+required:
+  - "result_id"
+  - "scenario_id"
+  - "system_id"
+  - "perturbation_profile_id"
+  - "status"
+additionalProperties: false

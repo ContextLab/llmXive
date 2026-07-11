@@ -1,0 +1,11 @@
+- artifact_hash: bad307c38471f640f4a3de7801451a640c94ea0047667140667ef8a639466730
+  artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/eva-bench/eva-bench/releases/download/v1.0.0/data.zip`
+  verification_status: mismatch
+  verified_against_url: https://github.com/eva-bench/eva-bench/releases/download/v1.0.0/data.zip
+  verified_at: '2026-07-11T20:42:43.757079Z'

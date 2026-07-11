@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T20:58:19.275951Z'
-current_stage: brainstormed
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-824-llmxive-follow-up-extending-eva-bench-a
-last_run_id: null
+last_run_id: 2623a4fc-25b0-4b32-986a-42fb07b08464
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a
 title: 'llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating
   Voice Agents"'
-updated_at: '2026-07-01T20:58:19.275951Z'
+updated_at: '2026-07-11T21:21:58.003583Z'

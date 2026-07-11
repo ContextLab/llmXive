@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ThresholdModel"
+description: "Output of the segmented regression analysis identifying the latency knee point."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model."
+  metric:
+    type: "string"
+    enum:
+      - "turn_taking"
+      - "conversation_progression"
+    description: "The metric being analyzed."
+  knee_point_ms:
+    type: "number"
+    description: "The identified latency threshold (knee point) in milliseconds."
+  slope_before:
+    type: "number"
+    description: "Slope of degradation before the knee point."
+  slope_after:
+    type: "number"
+    description: "Slope of degradation after the knee point."
+  p_value:
+    type: "number"
+    description: "P-value for the significance of the non-linearity."
+  adjusted_p_value:
+    type: "number"
+    description: "P-value after multiple-comparison correction (Bonferroni)."
+  r_squared:
+    type: "number"
+    description: "R-squared value of the segmented regression model."
+required:
+  - "model_id"
+  - "metric"
+  - "knee_point_ms"
+  - "slope_before"
+  - "slope_after"
+  - "p_value"
+  - "adjusted_p_value"
+additionalProperties: false

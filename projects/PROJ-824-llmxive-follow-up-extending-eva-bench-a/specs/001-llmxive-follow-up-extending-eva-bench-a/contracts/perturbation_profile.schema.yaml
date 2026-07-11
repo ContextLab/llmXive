@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PerturbationProfile"
+description: "Defines the parameters for audio perturbation (latency or acoustic)."
+type: "object"
+properties:
+  profile_id:
+    type: "string"
+    description: "Unique identifier for the perturbation profile."
+  type:
+    type: "string"
+    enum:
+      - "latency"
+      - "acoustic"
+    description: "Type of perturbation to apply."
+  parameters:
+    type: "object"
+    description: "Parameters specific to the perturbation type."
+    properties:
+      mean_delay_ms:
+        type: "number"
+        minimum: 200
+        maximum: 2000
+        description: "Mean inter-turn delay in milliseconds (for latency type)."
+      jitter_range_ms:
+        type: "number"
+        minimum: 0
+        description: "Jitter range in milliseconds (± value)."
+      snr_db:
+        type: "number"
+        description: "Signal-to-Noise Ratio in dB (for acoustic type)."
+      reverberation_time_s:
+        type: "number"
+        minimum: 0
+        description: "Reverberation time in seconds (for acoustic type)."
+    required: []
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+required:
+  - "profile_id"
+  - "type"
+  - "seed"
+additionalProperties: false

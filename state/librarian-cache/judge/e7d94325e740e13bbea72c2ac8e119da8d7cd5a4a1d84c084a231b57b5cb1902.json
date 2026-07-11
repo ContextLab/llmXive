@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.13841",
+  "judged_at": "2026-07-11T20:27:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"eva-bench: a new end-to-end framework for evaluating voice agents\" computer science",
+  "rationale": "This paper is the foundational methodology and canonical reference (category d) for the specific framework \"EVA-Bench\" mentioned in the user's question, serving as the essential prior work that any follow-up study must cite to establish the baseline being extended.",
+  "relevant": true
+}
