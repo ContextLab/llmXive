@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ClipFeatureSchema"
-description: "Schema for the extracted statistical features of a video clip."
+description: "Schema for the extracted statistical features of a video clip. Note: Ground truth annotations rely on raw pixel data or independent metrics, NOT optical flow or model-derived features."
 type: "object"
 properties:
   clip_id:
@@ -9,15 +9,6 @@ properties:
   source_dataset:
     type: "string"
     description: "Name of the source dataset (e.g., 'kinetics400')."
-  optical_flow_variance:
-    type: "number"
-    description: "Variance of the optical flow magnitude across the clip."
-  frame_to_frame_mse:
-    type: "number"
-    description: "Mean Squared Error between consecutive frames."
-  temporal_gradient_sparsity:
-    type: "number"
-    description: "Ratio of pixels with high temporal gradients."
   status:
     type: "string"
     enum: ["processed", "skipped", "timeout"]
@@ -28,8 +19,5 @@ properties:
 required:
   - clip_id
   - source_dataset
-  - optical_flow_variance
-  - frame_to_frame_mse
-  - temporal_gradient_sparsity
   - status
 additionalProperties: false

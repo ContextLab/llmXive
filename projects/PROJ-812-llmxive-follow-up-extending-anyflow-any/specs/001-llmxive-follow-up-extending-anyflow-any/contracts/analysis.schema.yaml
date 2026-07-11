@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final statistical analysis output (data/processed/analysis_results.json)"
+type: "object"
+properties:
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient"
+  pearson_p:
+    type: "number"
+    description: "P-value for Pearson correlation"
+  spearman_rho:
+    type: "number"
+    description: "Spearman rank correlation coefficient"
+  spearman_p:
+    type: "number"
+    description: "P-value for Spearman correlation"
+  n_samples:
+    type: "integer"
+    description: "Number of samples used in the analysis"
+  thresholds:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+          description: "The divergence threshold value"
+        fp_rate:
+          type: "number"
+          description: "False positive rate at this threshold"
+        fn_rate:
+          type: "number"
+          description: "False negative rate at this threshold"
+      required:
+        - threshold
+        - fp_rate
+        - fn_rate
+  conclusion:
+    type: "string"
+    description: "Text summary of the findings, explicitly stating associational nature"
+required:
+  - pearson_r
+  - pearson_p
+  - spearman_rho
+  - spearman_p
+  - n_samples
+  - thresholds
+  - conclusion
+additionalProperties: false

@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for correlation and sensitivity analysis outputs."
+type: "object"
+properties:
+  correlation_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        metric_type:
+          type: "string"
+          enum:
+            - "Pearson"
+            - "Spearman"
+          description: "Type of correlation metric."
+        coefficient:
+          type: "number"
+          description: "Correlation coefficient (r or rho)."
+        p_value:
+          type: "number"
+          description: "P-value for the correlation."
+        sample_size:
+          type: "integer"
+          description: "Number of samples used."
+        relationship_type:
+          type: "string"
+          const: "Associational"
+          description: "Explicit framing of the relationship."
+      required:
+        - metric_type
+        - coefficient
+        - p_value
+        - sample_size
+        - relationship_type
+  sensitivity_report:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+          description: "Classification threshold (0.01, 0.05, 0.1)."
+        false_positive_rate:
+          type: "number"
+          description: "Rate of false positives."
+        false_negative_rate:
+          type: "number"
+          description: "Rate of false negatives."
+        accuracy:
+          type: "number"
+          description: "Overall accuracy at this threshold."
+      required:
+        - threshold
+        - false_positive_rate
+        - false_negative_rate
+        - accuracy
+  variance_report:
+    type: "object"
+    properties:
+      variance:
+        type: "number"
+        description: "Variance of the continuity scores."
+      status:
+        type: "string"
+        enum:
+          - "PASS"
+          - "FAIL"
+        description: "Status based on variance >= 0.05."
+    required:
+      - variance
+      - status
+required:
+  - correlation_results
+  - sensitivity_report
+  - variance_report
+additionalProperties: false

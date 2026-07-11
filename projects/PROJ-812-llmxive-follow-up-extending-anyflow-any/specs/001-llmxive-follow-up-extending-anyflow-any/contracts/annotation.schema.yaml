@@ -1,41 +1,26 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Annotation Schema"
-description: "Schema for manual temporal continuity annotations (data/raw/annotations.csv)"
+description: "Schema for the manual continuity scores (data/processed/annotations.csv)"
 type: "object"
 properties:
   video_id:
     type: "string"
     description: "Unique identifier for the video clip"
-    pattern: "^[a-zA-Z0-9_]+$"
-  source:
-    type: "string"
-    description: "Source dataset name"
-    enum: ["UCF101", "Kinetics", "DAVIS"]
-  file_path:
-    type: "string"
-    description: "Relative path to the video file"
   score:
     type: "number"
-    description: "Temporal continuity score between 0.0 and 1.0"
     minimum: 0.0
     maximum: 1.0
+    description: "Manual continuity score (0.0=continuous, 1.0=discontinuous)"
   annotator_id:
     type: "string"
-    description: "ID of the human annotator"
+    description: "ID of the annotator or 'system' for simulated"
   timestamp:
     type: "string"
     format: "date-time"
-    description: "ISO 8601 timestamp of annotation"
-  is_double_annotated:
-    type: "boolean"
-    description: "True if this clip was part of the reliability check"
+    description: "ISO 8601 timestamp of the annotation"
 required:
   - video_id
-  - source
-  - file_path
   - score
   - annotator_id
   - timestamp
-  - is_double_annotated
 additionalProperties: false
-

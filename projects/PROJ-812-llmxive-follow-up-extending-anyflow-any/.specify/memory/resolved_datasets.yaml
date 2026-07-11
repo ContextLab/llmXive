@@ -1,26 +1,26 @@
-resolved_at: '2026-07-11T11:48:48.875332+00:00'
+resolved_at: '2026-07-11T20:22:21.349460+00:00'
 datasets:
 - intent: AnyFlow
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/_b_From_Stone_to_Command_An_Inquiry_into_the_Visual_System_and_Function_of_Achaemenid_Inscriptions_in_the_b_b_b_b_Representation_of_Power_and_b_/32963582
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/BoundaryMapper_source_code_for_genome-wide_repeat-enrichment_profiling_and_candidate_PAR_SDR_boundary_identification/32963567
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MacLeod_Xu-Ying_et_al_2026_Supplementary_Figure_S1/32075130
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Best_Carpet_Companies_in_Dubai_for_Luxury_Homes_2026/32963579
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_From_Shelter_to_Habitat_A_Comparative_Analysis_of_the_Worldview_of_Underground_Structures_in_Iranian_Roman_and_Mesopotamian_b_/32963570
+  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -36,23 +36,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/_b_From_Stone_to_Command_An_Inquiry_into_the_Visual_System_and_Function_of_Achaemenid_Inscriptions_in_the_b_b_b_b_Representation_of_Power_and_b_/32963582
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/BoundaryMapper_source_code_for_genome-wide_repeat-enrichment_profiling_and_candidate_PAR_SDR_boundary_identification/32963567
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MacLeod_Xu-Ying_et_al_2026_Supplementary_Figure_S1/32075130
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Best_Carpet_Companies_in_Dubai_for_Luxury_Homes_2026/32963579
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_From_Shelter_to_Habitat_A_Comparative_Analysis_of_the_Worldview_of_Underground_Structures_in_Iranian_Roman_and_Mesopotamian_b_/32963570
+  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -72,10 +72,18 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21308155
     source: datacite
     status: wrong_format
@@ -85,14 +93,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21307430
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21307430
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21306965
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -126,23 +126,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_From_Stone_to_Command_An_Inquiry_into_the_Visual_System_and_Function_of_Achaemenid_Inscriptions_in_the_b_b_b_b_Representation_of_Power_and_b_/32963582
+  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/BoundaryMapper_source_code_for_genome-wide_repeat-enrichment_profiling_and_candidate_PAR_SDR_boundary_identification/32963567
+  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MacLeod_Xu-Ying_et_al_2026_Supplementary_Figure_S1/32075130
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Best_Carpet_Companies_in_Dubai_for_Luxury_Homes_2026/32963579
+  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_From_Shelter_to_Habitat_A_Comparative_Analysis_of_the_Worldview_of_Underground_Structures_in_Iranian_Roman_and_Mesopotamian_b_/32963570
+  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -154,11 +154,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7543883
+  - url: https://zenodo.org/records/5907059
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5907059
+  - url: https://zenodo.org/records/7543883
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

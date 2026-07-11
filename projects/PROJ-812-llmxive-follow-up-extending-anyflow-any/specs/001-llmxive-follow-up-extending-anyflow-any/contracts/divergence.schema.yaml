@@ -13,9 +13,12 @@ properties:
   euler_steps:
     type: "integer"
     description: "Number of steps used in the Euler rollout (500 or 200)"
-  computation_time:
+  model_version:
+    type: "string"
+    description: "SHA-256 hash of the ONNX model used"
+  inference_time_ms:
     type: "number"
-    description: "Time taken to compute in milliseconds"
+    description: "Time taken for inference in milliseconds"
   status:
     type: "string"
     description: "Status of computation"
@@ -24,9 +27,6 @@ properties:
     type: "string"
     description: "Error message if status is failed"
     nullable: true
-  model_hash:
-    type: "string"
-    description: "SHA-256 hash of the ONNX model used"
   quantization_mode:
     type: "string"
     description: "Quantization mode used"
@@ -35,8 +35,8 @@ required:
   - video_id
   - divergence_score
   - euler_steps
-  - computation_time
+  - model_version
+  - inference_time_ms
   - status
-  - model_hash
   - quantization_mode
 additionalProperties: false

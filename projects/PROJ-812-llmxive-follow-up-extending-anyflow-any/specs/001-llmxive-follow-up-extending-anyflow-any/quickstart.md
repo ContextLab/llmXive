@@ -3,79 +3,68 @@
 ## Prerequisites
 
 - Python 3.11+
-- Access to UCF101, Kinetics, or DAVIS datasets (via `ucimlrepo`, HuggingFace `datasets`, or manual download).
-- **AnyFlow Model Weights**: You must provide the frozen AnyFlow model in ONNX format locally. (No verified public URL exists).
-- Sufficient RAM available (for CI/Local run).
+- 7GB+ RAM
+- Internet access (for dataset download)
+- Manual annotation capability (or pre-prepared CSV)
 
 ## Installation
 
-1.  **Clone and Setup Environment**:
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
     ```bash
-    cd projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/code
     python -m venv venv
-    source venv/bin/activate
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins `ucimlrepo` and `datasets` for correct dataset loading.*
+    *Note: `requirements.txt` will pin CPU-only versions of `torch` and `onnxruntime`.*
 
-2.  **Prepare Data**:
-    - Ensure video clips are downloaded to `data/raw/videos/`.
-    - Ensure the AnyFlow ONNX model is placed in `models/anyflow_cpu.onnx`.
+## Data Preparation
 
-## Execution Steps
-
-### Step 1: Data Curation (Manual Annotation)
-Run the annotation script to generate the ground truth CSV.
+### Step 1: Download Videos
+Run the download script to fetch and stratify videos:
 ```bash
-python data_curation/download_clips.py --source ucf101 --count 200 --output data/raw/videos/
-python data_curation/annotate.py --input data/raw/videos/ --output data/raw/annotations.csv
+python code/data_download.py --download --stratify --output-dir data/raw/videos
 ```
-*Note: This step requires human interaction. Review each clip and assign a score 0.0–1.0. A subset of clips will be double-annotated for reliability (Krippendorff's Alpha).*
+*This will fetch a representative set of clips ([deferred] cuts) from UCF101, Kinetics, DAVIS.*
 
-### Step 2: Metric Calculation
-Run the divergence computation pipeline.
+### Step 2: Manual Annotation
+**Important**: You must manually annotate the videos.
+1.  Open the downloaded videos in `data/raw/videos/`.
+2.  Assign a score to each clip based on temporal continuity.
+3.  Save the scores in `data/raw/continuity_scores.csv` with columns: `video_id`, `score`.
+
+*Alternatively, use the provided `data/raw/continuity_scores_sample.csv` for testing, or run the annotation interface script:*
 ```bash
-python metric_calculation/compute_divergence.py \
-    --model models/anyflow_cpu.onnx \
-    --videos data/raw/videos/ \
-    --annotations data/raw/annotations.csv \
-    --output data/processed/divergence_metrics.csv
-```
-*This step will take several hours on CPU. It processes short-frame clips, computes optical flow variance, and runs the mandatory Quantization Sensitivity Test.*
-
-### Step 3: Statistical Analysis
-Run the correlation and sensitivity analysis.
-```bash
-python analysis/distribution.py \
-    --annotations data/raw/annotations.csv \
-    --output data/processed/score_distribution.json
-
-python analysis/correlation.py \
-    --annotations data/raw/annotations.csv \
-    --metrics data/processed/divergence_metrics.csv \
-    --output data/processed/correlation_results.json
-
-python analysis/sensitivity.py \
-    --metrics data/processed/divergence_metrics.csv \
-    --thresholds 0.01,0.05,0.1 \
-    --output data/processed/sensitivity_report.json
-
-python analysis/report.py \
-    --correlation data/processed/correlation_results.json \
-    --sensitivity data/processed/sensitivity_report.json \
-    --distribution data/processed/score_distribution.json \
-    --output data/processed/final_report.json
+python code/annotation_interface.py --input-dir data/raw/videos --output-file data/raw/continuity_scores.csv
 ```
 
-## Expected Outputs
+## Execution
 
-- `data/processed/final_report.json`: Contains Pearson $r$, Spearman $\rho$, p-values, sensitivity rates, score distribution, and explicit **Runtime Environment** statement ("CPU-only").
-- Console output: Summary of the associational relationship.
+### Run the Full Pipeline
+Execute the main pipeline script:
+```bash
+python code/main_pipeline.py
+```
+*This script will:*
+1.  **Preflight**: Check runtime on a sample of clips.
+2.  **Inference**: Compute divergence scores for all clips (CPU-only).
+3.  **Analysis**: Perform correlation and sensitivity analysis.
+4.  **Report**: Generate `variance_report.csv`, `correlation_results.csv`, `sensitivity_report.csv`, and `final_report.md`.
+
+### Check Results
+View the final outputs in `data/processed/`:
+- `divergence_scores.csv`: Computed metrics.
+- `correlation_results.csv`: Pearson/Spearman coefficients.
+- `sensitivity_report.csv`: Threshold analysis.
+- `variance_report.csv`: Variance check results.
+- `final_report.md`: Final narrative report.
 
 ## Troubleshooting
 
-- **CUDA Error**: Ensure `onnxruntime` is installed with CPU support only. Check `providers=['CPUExecutionProvider']`.
-- **Memory Error**: Reduce batch size in `compute_divergence.py` or process fewer clips.
-- **Missing Model**: Verify `models/anyflow_cpu.onnx` exists. The system cannot proceed without it.
-- **Annotation Reliability**: If Krippendorff's Alpha < 0.6, review the annotation rubric and re-annotate.
-- **Model Architecture Mismatch**: If the model hash or structure does not match the "On-Policy Flow Map Distil" definition, the script will halt with an error.
+- **Runtime Exceeded**: If the preflight check fails, the script will reduce Euler steps to N=200 or halt.
+- **Memory Error**: Ensure no other heavy processes are running. The script processes clips sequentially.
+- **Variance Error**: If `variance < 0.05`, the script will halt. Re-check your manual annotations to ensure a mix of scores.
+- **Model Source Missing**: If the AnyFlow model is not found at the verified URL, the script will halt with a "Blocked" status.
