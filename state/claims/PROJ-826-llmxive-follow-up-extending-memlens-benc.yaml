@@ -1,0 +1,431 @@
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Install specific versions of torch, transformers, datasets, faiss-cpu,
+    ultralytics, scikit-learn, psutil, pytest, and pyyaml
+  claim_id: c_d664bab6
+  context: 'Task T002: Initialize Python 3.11 project with requirements.txt dependencies'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Execute pip install torch==2.1.0+cpu transformers==4.40.0 datasets==2.19.0
+    faiss-cpu==1.8.0 ultralytics==8.1.0 scikit-learn==1.4.2 psutil==5.9.8 pytest==8.1.1
+    pyyaml==6.0.1
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T22:37:46Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Profiler logs latency_ms and peak_ram_mb using psutil
+  claim_id: c_5822f99f
+  context: 'Task T012: Implement code/profiler.py to log latency_ms and peak_ram_mb
+    using psutil (FR-005)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Profiler_logs_latency_ms_and_peak_ram_mb_using_psutil
+  kind: entity_fact
+  raw_text: Implement code/profiler.py to log latency_ms and peak_ram_mb using psutil
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:37:59Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Peak RAM must be less than 7GB
+  claim_id: c_d116dba7
+  context: 'Task T014: Implement checkpointing/resume logic and aggressive garbage
+    collection to ensure peak RAM < 7GB'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_must_be_less_than_7GB
+  kind: magnitude
+  raw_text: Ensure peak RAM < 7GB between store runs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:38:22Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Exclusion of queries is not correlated with session types or visual complexity
+  claim_id: c_6efcb0ae
+  context: 'Task T026: Generate exclusion stats and verify that the exclusion is not
+    correlated with specific session types or visual complexity'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclusion_of_queries_is_not_correlated_with_session_types_or
+  kind: entity_fact
+  raw_text: Verify that the exclusion is not correlated with specific session types
+    or visual complexity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:38:51Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Total duration must be less than 6 hours on simulated CI
+  claim_id: c_4f357d40
+  context: 'Task T035: Performance verification to generate profile report and verify
+    total duration < 6 hours'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_duration_must_be_less_than_6_hours_on_simulated_CI
+  kind: magnitude
+  raw_text: Verify total duration < 6 hours on a simulated CI environment
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:39:45Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 0
+  canonical: 'Install pinned Python dependencies: torch 2.1.0+cpu, transformers 4.40.0,
+    datasets 2.19.0, faiss-cpu 1.8.0, ultralytics 8.1.0, scikit-learn 1.4.2, psutil
+    5.9.8, pytest 8.1.1, pyyaml 6.0.1'
+  claim_id: c_1389c415
+  context: 'Task T002: Initialize Python 3.11 project with requirements.txt dependencies.'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Execute pip install torch==2.1.0+cpu transformers==4.40.0 datasets==2.19.0
+    faiss-cpu==1.8.0 ultralytics==8.1.0 scikit-learn==1.4.2 psutil==5.9.8 pytest==8.1.1
+    pyyaml==6.0.1
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T22:40:35Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Configure linter and formatter with line-length 88
+  claim_id: c_a832f6dd
+  context: 'Tasks T003a and T003b: Configure linting and formatting settings.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure line-length = 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:40:54Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Filter MemLens dataset for Multi-Session Reasoning and Temporal Reasoning
+    task types
+  claim_id: c_0a19991e
+  context: 'Task T005: Implement data_loader to download and filter MemLens data.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'Temporal reasoning about robotics applications: refinement and temporal
+        logic'
+      source_id: Q134406005
+      url: https://www.wikidata.org/wiki/Q134406005
+      value: 'Temporal reasoning about robotics applications: refinement and temporal
+        logic'
+    filled: true
+  kind: entity_fact
+  raw_text: Filter for task_type in ['Multi-Session Reasoning', 'Temporal Reasoning']
+  resolved_value: 'Temporal reasoning about robotics applications: refinement and
+    temporal logic'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T22:41:03Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Run YOLOv8n with seed 42 for object detection
+  claim_id: c_09de6e40
+  context: 'Task T009: Implement fine_store.py to load summaries and run YOLOv8n.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run CPU-optimized YOLOv8n (seed=42) for object captions/bboxes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:41:17Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Load low-bit quantized Llama-3-8B-Instruct on CPU
+  claim_id: c_d2bfd49d
+  context: 'Task T011: Implement generator.py for inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load a low-bit quantized Llama-3-8B-Instruct on CPU (no CUDA) for inference
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:41:41Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Ensure peak RAM usage is less than 7GB
+  claim_id: c_6d5f6445
+  context: 'Task T014: Implement checkpointing and garbage collection to ensure peak
+    RAM < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_peak_RAM_usage_is_less_than_7GB
+  kind: magnitude
+  raw_text: Ensure peak RAM < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:42:02Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Perform Wilcoxon Signed-Rank Test to compare accuracy distributions
+  claim_id: c_3b9e1dcb
+  context: 'Tasks T014 and T025: Statistical analysis implementation deviating from
+    ANOVA.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: data points, obtaining the corresponding p- value of 0.04 (<0.05). Thus,
+        the Wilcoxon singed-
+      source_id: '1812.08824'
+      url: https://arxiv.org/abs/1812.08824
+      value: '0.04'
+    filled: true
+  kind: entity_fact
+  raw_text: Perform Wilcoxon Signed-Rank Test (paired) to compare accuracy distributions
+  resolved_value: '0.04'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T22:42:41Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Verify total pipeline duration is less than 6 hours on simulated CI
+  claim_id: c_0008e056
+  context: 'Task T035: Performance verification to generate profile report.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_pipeline_duration_is_less_than_6_hours_on_simul
+  kind: magnitude
+  raw_text: Verify total duration < 6 hours on a simulated CI environment
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:42:43Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 0
+  canonical: Filter dataset for Multi-Session Reasoning and Temporal Reasoning task
+    types
+  claim_id: c_695c935e
+  context: Implement code/data_loader.py to download MemLens from HuggingFace and
+    filter for task_type in ['Multi-Session Reasoning', 'Temporal Reasoning'] (FR-001).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'Temporal reasoning about robotics applications: refinement and temporal
+        logic'
+      source_id: Q134406005
+      url: https://www.wikidata.org/wiki/Q134406005
+      value: 'Temporal reasoning about robotics applications: refinement and temporal
+        logic'
+    filled: true
+  kind: entity_fact
+  raw_text: filter for task_type in ['Multi-Session Reasoning', 'Temporal Reasoning']
+  resolved_value: 'Temporal reasoning about robotics applications: refinement and
+    temporal logic'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T22:44:41Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: 'Install dependencies with pinned versions: torch 2.1.0, transformers
+    4.40.0, datasets 2.19.0, faiss-cpu 1.8.0, ultralytics 8.1.0, scikit-learn 1.4.2,
+    psutil 5.9.8, pytest 8.1.1, pyyaml 6.0.1'
+  claim_id: c_02b12065
+  context: 'Initialize Python 3.11 project with requirements.txt dependencies: Execute
+    pip install... and write these exact pinned versions to projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/requirements.txt.'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pip install torch==2.1.0+cpu transformers==4.40.0 datasets==2.19.0 faiss-cpu==1.8.0
+    ultralytics==8.1.0 scikit-learn==1.4.2 psutil==5.9.8 pytest==8.1.1 pyyaml==6.0.1
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T22:44:41Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Configure line-length to 88 for linting and formatting
+  claim_id: c_84459f86
+  context: 'Configure linting: Create .ruff.toml... and ensure line-length = 88. Configure
+    formatting: Create .black configuration... setting line-length = 88.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length = 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:45:02Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Set batch size to 4 in config
+  claim_id: c_c1228638
+  context: 'Create code/config.py defining: SEED = 42, DATA_PATH = ''data/raw'', OUTPUT_PATH
+    = ''outputs'', TOP_K = 5, BATCH_SIZE = 4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BATCH_SIZE = 4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:45:15Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Ensure peak RAM usage is less than 7GB
+  claim_id: c_31215486
+  context: Implement checkpointing/resume logic and aggressive garbage collection
+    (model unloading) between store runs to ensure peak RAM < 7GB (FR-006, SC-005).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_peak_RAM_usage_is_less_than_7GB
+  kind: magnitude
+  raw_text: peak RAM < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:45:36Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Verify total pipeline duration is less than 6 hours on simulated CI
+  claim_id: c_53004c57
+  context: Run python code/run_pipeline.py --profile locally to generate outputs/profile_report.json
+    and verify total duration < 6 hours on a simulated CI environment (SC-005).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_pipeline_duration_is_less_than_6_hours_on_simul
+  kind: magnitude
+  raw_text: total duration < 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:45:51Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Run CPU-optimized YOLOv8n model with seed 42
+  claim_id: c_1b328aba
+  context: Implement code/stores/fine_store.py to load summaries and run CPU-optimized
+    YOLOv8n (seed=42) for object captions/bboxes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run CPU-optimized YOLOv8n (seed=42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:46:09Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Load low-bit quantized Llama-3-8B-Instruct model on CPU
+  claim_id: c_b4949b09
+  context: Implement code/generator.py to load a low-bit quantized Llama-3-8B-Instruct
+    on CPU (no CUDA) for inference (FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load a low-bit quantized Llama-3-8B-Instruct on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T22:46:30Z'
+- artifact_path: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc/tasks.md
+  attempts: 1
+  canonical: Implement paired Wilcoxon Signed-Rank Test for accuracy distributions
+  claim_id: c_f93c8926
+  context: Implement code/statistics.py to perform Wilcoxon Signed-Rank Test (paired)
+    to compare accuracy distributions across the three store configurations.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q1751970
+        url: https://www.wikidata.org/wiki/Q1751970
+        value: Wilcoxon signed-rank test
+      quote: Wilcoxon signed rank test using ranked-set sample
+      source_id: Q127201774
+      url: https://www.wikidata.org/wiki/Q127201774
+      value: Wilcoxon signed rank test using ranked-set sample
+    filled: true
+  kind: entity_fact
+  raw_text: implement Wilcoxon Signed-Rank Test (paired)
+  resolved_value: Wilcoxon signed rank test using ranked-set sample
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-11T22:46:40Z'

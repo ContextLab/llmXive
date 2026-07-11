@@ -1,0 +1,10 @@
+torch==2.1.0+cpu
+transformers==4.40.0
+datasets==2.19.0
+faiss-cpu==1.8.0
+ultralytics==8.1.0
+scikit-learn==1.4.2
+psutil==5.9.8
+pytest==8.1.1
+pyyaml==6.0.1
+pillow==10.2.0

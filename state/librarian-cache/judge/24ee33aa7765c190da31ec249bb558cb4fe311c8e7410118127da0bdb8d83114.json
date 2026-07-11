@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.19294",
+  "judged_at": "2026-07-11T21:59:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memlens: benchmarking multimodal long-term memory in large vision-lang\" computer science",
+  "rationale": "The paper is a general review of object detection using LVLMs and does not address the specific mechanism of \"multimodal long-term memory\" or the \"MemLens\" benchmarking framework central to the user's question. While both topics involve Large Vision-Language Models, the paper focuses on detection accuracy and architectural integration rather than the memory retention, retrieval, or benchmarking of long-term context, failing to meet the criteria for same-mechanism evidence, variable overlap, or f",
+  "relevant": false
+}

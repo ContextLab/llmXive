@@ -1,0 +1,195 @@
+resolved_at: '2026-07-11T22:05:19.079564+00:00'
+datasets:
+- intent: MemLens
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/liar-zzy/MemLens/resolve/main/test.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 14
+      parsed: true
+  - url: https://huggingface.co/datasets/xiyuRenBill/MEMLENS/resolve/main/dataset_128k.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/liar-zzy/MemLens/resolve/main/test.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/xiyuRenBill/MEMLENS/resolve/main/dataset_128k.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Supplementary_Material_Participants_Answers_and_Questionnaire/32964497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Uso_de_ACs_com_IAGen_na_Personaliza_o_do_Aprendizado_na_Educa_o_B_sica_uma_Revis_o_Sistem_tica_da_Literatura_MATERIAL_COMPLEMENTAR/32964473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Western_blot_data/32964452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_PREVIS_O_DE_10_ANOS_DA_MORTALIDADE_POR_COVID-19_NO_ESTADO_DE_MATO_GROSSO_BRASIL_2024_A_2033_DEVIDO_AS_MUTA_ES_DO_SARS-COV-2_E_SEUS_FATORES_ASSOCIADOS_UM_ESTUDO_DE_S_RIES_TEMPORAIS_b_/32964446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Loss_of_neuronal_population_organization_links_pathology_to_behavior_in_a_model_of_Alzheimer_s_disease_b_/32961443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.14906
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/8xbyd/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MSR
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/Supplementary_Material_Participants_Answers_and_Questionnaire/32964497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Uso_de_ACs_com_IAGen_na_Personaliza_o_do_Aprendizado_na_Educa_o_B_sica_uma_Revis_o_Sistem_tica_da_Literatura_MATERIAL_COMPLEMENTAR/32964473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Western_blot_data/32964452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_PREVIS_O_DE_10_ANOS_DA_MORTALIDADE_POR_COVID-19_NO_ESTADO_DE_MATO_GROSSO_BRASIL_2024_A_2033_DEVIDO_AS_MUTA_ES_DO_SARS-COV-2_E_SEUS_FATORES_ASSOCIADOS_UM_ESTUDO_DE_S_RIES_TEMPORAIS_b_/32964446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Loss_of_neuronal_population_organization_links_pathology_to_behavior_in_a_model_of_Alzheimer_s_disease_b_/32961443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7600036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13232183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13232157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13232165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13232175
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270033
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270033
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ANOVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16586
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/media/Supplementary_Material_Participants_Answers_and_Questionnaire/32964497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Uso_de_ACs_com_IAGen_na_Personaliza_o_do_Aprendizado_na_Educa_o_B_sica_uma_Revis_o_Sistem_tica_da_Literatura_MATERIAL_COMPLEMENTAR/32964473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Western_blot_data/32964452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_PREVIS_O_DE_10_ANOS_DA_MORTALIDADE_POR_COVID-19_NO_ESTADO_DE_MATO_GROSSO_BRASIL_2024_A_2033_DEVIDO_AS_MUTA_ES_DO_SARS-COV-2_E_SEUS_FATORES_ASSOCIADOS_UM_ESTUDO_DE_S_RIES_TEMPORAIS_b_/32964446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Loss_of_neuronal_population_organization_links_pathology_to_behavior_in_a_model_of_Alzheimer_s_disease_b_/32961443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312674
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312674
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Respiratory_management_of_children_with_polyhandicap_assessment_of_the_BREATHE_caregiver_education_module/31113089/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Respiratory_management_of_children_with_polyhandicap_assessment_of_the_BREATHE_caregiver_education_module/31113089
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/363316
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

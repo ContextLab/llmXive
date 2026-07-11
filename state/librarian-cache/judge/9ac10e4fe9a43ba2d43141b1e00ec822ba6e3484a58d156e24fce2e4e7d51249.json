@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.09265",
+  "judged_at": "2026-07-11T21:59:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memlens: benchmarking multimodal long-term memory in large vision-lang\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it provides a foundational evaluation framework and benchmark for Large Vision-Language Models (LVLMs), which is the specific domain of the user's question regarding \"MemLens\" (a benchmark for multimodal long-term memory in LVLMs). While it does not focus exclusively on \"long-term memory,\" it establishes the canonical empirical baseline and evaluation metrics for the same class of models and multimodal capabilities, making it essential prior work for ",
+  "relevant": true
+}

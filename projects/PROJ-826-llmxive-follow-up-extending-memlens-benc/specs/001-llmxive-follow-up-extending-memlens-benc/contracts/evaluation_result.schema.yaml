@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Result Schema
+description: Schema for the output of the RAG evaluation pipeline.
+type: object
+required:
+  - query_id
+  - store_granularity
+  - generated_answer
+  - exact_match
+  - semantic_similarity
+  - retrieval_latency_ms
+  - generation_latency_ms
+  - peak_ram_mb
+properties:
+  query_id:
+    type: string
+    description: "Reference to the input query."
+  store_granularity:
+    type: string
+    enum:
+      - "coarse"
+      - "medium"
+      - "fine"
+    description: "The indexing strategy used."
+  generated_answer:
+    type: string
+    description: "The LLM's output string."
+  exact_match:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "1 if generated answer matches ground truth exactly, else 0."
+  semantic_similarity:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Semantic similarity score between generated and ground truth."
+  retrieval_latency_ms:
+    type: number
+    minimum: 0.0
+    description: "Time to fetch context in milliseconds."
+  generation_latency_ms:
+    type: number
+    minimum: 0.0
+    description: "Time to generate answer in milliseconds."
+  peak_ram_mb:
+    type: number
+    minimum: 0.0
+    description: "Peak memory usage in MB during this step."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of the evaluation."

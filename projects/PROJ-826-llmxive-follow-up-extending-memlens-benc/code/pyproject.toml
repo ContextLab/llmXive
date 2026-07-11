@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-memlens"
+version = "0.1.0"
+description = "Automated science pipeline for extending MemLens benchmarks"
+requires-python = ">=3.11"
+dependencies = [
+    "torch==2.1.0+cpu",
+    "transformers==4.40.0",
+    "datasets==2.19.0",
+    "faiss-cpu==1.8.0",
+    "ultralytics==8.1.0",
+    "scikit-learn==1.4.2",
+    "psutil==5.9.8",
+    "pytest==8.1.1",
+    "pyyaml==6.0.1",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "T20"]

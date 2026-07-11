@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.00086",
+  "judged_at": "2026-07-11T21:58:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memlens: benchmarking multimodal long-term memory in large vision-lang\" computer science",
+  "rationale": "The paper focuses on architectural improvements for vision-language alignment and hierarchical feature fusion, which is distinct from the user's specific question regarding \"long-term memory\" benchmarking and mechanisms. While both involve multimodal LLMs, the candidate paper does not measure the same biological/algorithmic mechanism (memory retention/retrieval over time) nor does it address the specific variables (memory benchmarks) central to the user's query, failing to meet criteria (a) or (",
+  "relevant": false
+}

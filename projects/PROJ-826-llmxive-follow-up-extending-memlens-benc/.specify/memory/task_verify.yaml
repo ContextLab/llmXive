@@ -1,0 +1,14 @@
+? 'T001 Create project structure per implementation plan: `mkdir -p projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/{code,code/stores,data/raw,data/processed,tests/unit,tests/integration,outputs}`
+  and create empty `__init__.py` files.'
+: 1
+? "T003b [P] Configure formatting: Create `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/.black`\
+  \ configuration in `pyproject.toml` setting `line-length = 88 [UNRESOLVED-CLAIM:\
+  \ c_84459f86 \u2014 status=not_enough_info]` and `target-version = ['py311']`."
+: 1
+? "T004 Create `code/config.py` defining: `SEED = 42`, `DATA_PATH = 'data/raw'`, `OUTPUT_PATH\
+  \ = 'outputs'`, `TOP_K = 5`, `BATCH_SIZE = 4 [UNRESOLVED-CLAIM: c_c1228638 \u2014\
+  \ status=not_enough_info]`."
+: 1
+? T005 [P] Implement `code/data_loader.py` to download MemLens from HuggingFace and
+  filter for `task_type` in ["Multi-Session Reasoning", "Temporal Reasoning"] (FR-001).
+: 1
