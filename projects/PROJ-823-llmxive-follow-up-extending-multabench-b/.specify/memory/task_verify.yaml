@@ -1,0 +1,5 @@
+T009a [P] Create `contracts/frozen_embedding.schema.yaml` defining the schema for frozen embeddings: 1
+T009b [P] Create `contracts/tabular_metadata.schema.yaml` defining the schema for tabular metadata: 1
+T009c [P] Update `data-model.md` to reference the new contract files and define `run_id` propagation: 1
+T010 Create `code/models/__init__.py` and base model structures: 1
+T011 [P] [US1] Unit test for batch processing logic in `tests/test_embeddings.py::test_batch_processing_memory`: 1

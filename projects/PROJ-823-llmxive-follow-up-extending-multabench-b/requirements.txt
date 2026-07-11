@@ -1,0 +1,13 @@
+torch-cpu
+transformers
+sentence-transformers
+scikit-learn
+pandas
+pyarrow
+numpy
+requests
+pyyaml
+ruff
+black
+pytest
+pytest-cov

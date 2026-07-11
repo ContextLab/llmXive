@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `code/`, `tests/`, `data/`
-- [ ] T002 Initialize Python 3.11 project with `pyproject.toml` dependencies (torch-cpu, transformers, sentence-transformers, scikit-learn, pandas, pyarrow, numpy, requests, pyyaml)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan in `code/`, `tests/`, `data/`
+- [X] T002 Initialize Python 3.11 project with `pyproject.toml` dependencies (torch-cpu, transformers, sentence-transformers, scikit-learn, pandas, pyarrow, numpy, requests, pyyaml)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` for global config, seeds (`random_seed=42`), and paths
-- [ ] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RAM usage (memory limit)
-- [ ] T006 [P] Implement `code/utils/logging.py` for structured pipeline logging
-- [ ] T007 Create `code/data_loader.py` for MulTaBench ingestion with local checksum verification (SHA-256)
-- [ ] T008 Setup `data/README.md` with instructions for local data ingestion and checksum validation
+- [X] T004 Implement `code/config.py` for global config, seeds (`random_seed=42`), and paths
+- [X] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RAM usage (memory limit)
+- [X] T006 [P] Implement `code/utils/logging.py` for structured pipeline logging
+- [X] T007 Create `code/data_loader.py` for MulTaBench ingestion with local checksum verification (SHA-256)
+- [X] T008 Setup `data/README.md` with instructions for local data ingestion and checksum validation
 - [ ] T009a [P] Create `contracts/frozen_embedding.schema.yaml` defining the schema for frozen embeddings
 - [ ] T009b [P] Create `contracts/tabular_metadata.schema.yaml` defining the schema for tabular metadata
 - [ ] T009c [P] Update `data-model.md` to reference the new contract files and define `run_id` propagation
@@ -80,19 +80,19 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T011 [P] [US1] Unit test for batch processing logic in `tests/test_embeddings.py::test_batch_processing_memory`
-- [ ] T012 [P] [US1] Unit test for gradient disabling in `tests/test_embeddings.py::test_no_grad_context`
+- [~] T012 [P] [US1] Unit test for gradient disabling in `tests/test_embeddings.py::test_no_grad_context`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/embeddings/generator.py` with CLIP ViT-B/32 and Sentence-BERT loaders (CPU-only, default precision)
-- [ ] T014 [US1] Implement `code/embeddings/utils.py` with batch processing logic to ensure memory safety (max batch size)
-- [ ] T015 [US1] Implement `code/pipelines/run_baseline.py` to generate embeddings for **ALL available datasets** in the pipeline with `random_seed=42`. Output must include `data/processed/embeddings_{run_id}.parquet` with `run_id`, `dataset_id`, and embedding vectors. Ensure deterministic re-computation for all datasets to satisfy FR-001.
-- [ ] T016 [US1] Add logic to handle datasets with zero variance or missing image/text fields gracefully (skip or impute constant)
-- [ ] T017 [US1] Implement output serialization to `data/processed/embeddings_{run_id}.parquet` with `run_id` and metadata
-- [ ] T018 [US1] Add validation to ensure no gradient tracking is enabled during inference
-- [ ] T019 [P] [US1] Sensitivity analysis script `code/pipelines/run_baseline_sensitivity.py` to generate embeddings for **ALL available datasets** using additional seeds (total seeds including primary). Note: While generation is parallel, aggregation (T019b) depends on completion.
-- [ ] T019b [US1] Implement `code/pipelines/merge_sensitivity_outputs.py` to merge the 5-seed Parquet files from T019 into a single intermediate file.
-- [ ] T019c [US1] Implement `code/pipelines/aggregate_sensitivity.py` to compute mean/std of embeddings and metrics from merged files and write to `data/artifacts/frozen_baseline_aggregated_{run_id}.json`.
+- [~] T013 [US1] Implement `code/embeddings/generator.py` with CLIP ViT-B/32 and Sentence-BERT loaders (CPU-only, default precision)
+- [~] T014 [US1] Implement `code/embeddings/utils.py` with batch processing logic to ensure memory safety (max batch size)
+- [~] T015 [US1] Implement `code/pipelines/run_baseline.py` to generate embeddings for **ALL available datasets** in the pipeline with `random_seed=42`. Output must include `data/processed/embeddings_{run_id}.parquet` with `run_id`, `dataset_id`, and embedding vectors. Ensure deterministic re-computation for all datasets to satisfy FR-001.
+- [~] T016 [US1] Add logic to handle datasets with zero variance or missing image/text fields gracefully (skip or impute constant)
+- [~] T017 [US1] Implement output serialization to `data/processed/embeddings_{run_id}.parquet` with `run_id` and metadata
+- [~] T018 [US1] Add validation to ensure no gradient tracking is enabled during inference
+- [~] T019 [P] [US1] Sensitivity analysis script `code/pipelines/run_baseline_sensitivity.py` to generate embeddings for **ALL available datasets** using additional seeds (total seeds including primary). Note: While generation is parallel, aggregation (T019b) depends on completion.
+- [~] T019b [US1] Implement `code/pipelines/merge_sensitivity_outputs.py` to merge the 5-seed Parquet files from T019 into a single intermediate file.
+- [~] T019c [US1] Implement `code/pipelines/aggregate_sensitivity.py` to compute mean/std of embeddings and metrics from merged files and write to `data/artifacts/frozen_baseline_aggregated_{run_id}.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,18 +106,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Unit test for projection layer gradient isolation in `tests/test_projection.py::test_frozen_backbone_gradients`
-- [ ] T021 [P] [US2] Integration test for training loop convergence in `tests/test_projection.py::test_training_convergence`
+- [~] T020 [P] [US2] Unit test for projection layer gradient isolation in `tests/test_projection.py::test_frozen_backbone_gradients`
+- [~] T021 [P] [US2] Integration test for training loop convergence in `tests/test_projection.py::test_training_convergence`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/models/projection.py` with MLP or single-head attention module accepting tabular features as query
-- [ ] T023 [US2] Implement `code/models/trainer.py` with training loop that freezes backbone weights and trains only projection layer
-- [ ] T024 [US2] Implement `code/analysis/metadata_stats.py` to compute cardinality, missingness, sparsity, and variance for tabular features for **ALL available datasets**. Output must be a single summary CSV: `data/processed/metadata_stats_summary.csv` with columns [dataset_id, cardinality, missingness, sparsity, variance]. This task must complete before T025.
-- [ ] T025 [US2] Implement `code/pipelines/run_conditioned.py` to train the projection layer on **ALL available datasets**, consuming metadata stats from T024.
-- [ ] T026 [US2] Add logic to handle edge cases (e.g., zero variance features) by skipping or imputing constants
-- [ ] T027 [US2] Implement evaluation logic to record performance metrics (AUC/RMSE) for held-out test sets
-- [ ] T028 [US2] Store results in `data/artifacts/metrics_conditioned_{run_id}.json` with `run_id` linkage
+- [~] T022 [US2] Implement `code/models/projection.py` with MLP or single-head attention module accepting tabular features as query
+- [~] T023 [US2] Implement `code/models/trainer.py` with training loop that freezes backbone weights and trains only projection layer
+- [~] T024 [US2] Implement `code/analysis/metadata_stats.py` to compute cardinality, missingness, sparsity, and variance for tabular features for **ALL available datasets**. Output must be a single summary CSV: `data/processed/metadata_stats_summary.csv` with columns [dataset_id, cardinality, missingness, sparsity, variance]. This task must complete before T025.
+- [~] T025 [US2] Implement `code/pipelines/run_conditioned.py` to train the projection layer on **ALL available datasets**, consuming metadata stats from T024.
+- [~] T026 [US2] Add logic to handle edge cases (e.g., zero variance features) by skipping or imputing constants
+- [~] T027 [US2] Implement evaluation logic to record performance metrics (AUC/RMSE) for held-out test sets
+- [~] T028 [US2] Store results in `data/artifacts/metrics_conditioned_{run_id}.json` with `run_id` linkage
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,20 +131,20 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for correlation calculation in `tests/test_analysis.py::test_correlation_calculation`
-- [ ] T030 [P] [US3] Unit test for FDR correction implementation in `tests/test_analysis.py::test_benjamini_hochberg`
+- [~] T029 [P] [US3] Unit test for correlation calculation in `tests/test_analysis.py::test_correlation_calculation`
+- [~] T030 [P] [US3] Unit test for FDR correction implementation in `tests/test_analysis.py::test_benjamini_hochberg`
 
 ### Implementation for User Story 3
 
-- [ ] T032a [US3] Implement `code/pipelines/validate_baselines.py` to validate the presence of 'GPU-Tuned' baselines for all datasets. Generate `data/artifacts/gpu_tuned_baselines.csv` with explicit schema (dataset_id, task_type, baseline_value) and a 'Data Availability Gap' report listing missing entries.
-- [ ] T032b [US3] Implement logic to fetch 'GPU-Tuned' baselines from MulTaBench paper data using the validated CSV from T032a.
-- [ ] T031 [US3] Implement `code/analysis/correlation.py` to calculate "Recovery Ratio" = (CPU-Conditioned - Frozen_Aggregated) / (GPU-Tuned - Frozen_Aggregated) using the aggregated baseline from T019c and the **deterministic re-computed baseline** for consistency. Input: `data/artifacts/gpu_tuned_baselines.csv` from T032a.
-- [ ] T033 [US3] Perform Pearson correlation between "Recovery Ratio" and metadata features (Cardinality, Missingness, Sparsity, Variance) for **ALL available datasets with complete data**.
-- [ ] T034 [US3] Implement Benjamini-Hochberg (FDR) correction for multiple comparisons across metadata features AND for the one-sample t-test results. Input: p-values from T033 (correlation) and T035 (t-test). Output: JSON with adjusted p-values.
-- [ ] T035 [US3] Perform one-sample t-test (or Wilcoxon if normality fails) comparing CPU-Conditioned performance vs. fixed GPU-Tuned baseline for **ALL valid datasets**.
-- [ ] T036 [US3] Generate `data/artifacts/correlation_report_{run_id}.json` with coefficients, p-values, and significance flags
-- [ ] T037 [US3] Create `code/pipelines/run_analysis.py` to orchestrate the full statistical analysis pipeline
-- [ ] T038 [US3] Add "Data Availability Gap" reporting for datasets missing GPU-Tuned baselines to the final report
+- [~] T032a [US3] Implement `code/pipelines/validate_baselines.py` to validate the presence of 'GPU-Tuned' baselines for all datasets. Generate `data/artifacts/gpu_tuned_baselines.csv` with explicit schema (dataset_id, task_type, baseline_value) and a 'Data Availability Gap' report listing missing entries.
+- [~] T032b [US3] Implement logic to fetch 'GPU-Tuned' baselines from MulTaBench paper data using the validated CSV from T032a. <!-- FAILED: unspecified -->
+- [~] T031 [US3] Implement `code/analysis/correlation.py` to calculate "Recovery Ratio" = (CPU-Conditioned - Frozen_Aggregated) / (GPU-Tuned - Frozen_Aggregated) using the aggregated baseline from T019c and the **deterministic re-computed baseline** for consistency. Input: `data/artifacts/gpu_tuned_baselines.csv` from T032a.
+- [~] T033 [US3] Perform Pearson correlation between "Recovery Ratio" and metadata features (Cardinality, Missingness, Sparsity, Variance) for **ALL available datasets with complete data**.
+- [~] T034 [US3] Implement Benjamini-Hochberg (FDR) correction for multiple comparisons across metadata features AND for the one-sample t-test results. Input: p-values from T033 (correlation) and T035 (t-test). Output: JSON with adjusted p-values.
+- [~] T035 [US3] Perform one-sample t-test (or Wilcoxon if normality fails) comparing CPU-Conditioned performance vs. fixed GPU-Tuned baseline for **ALL valid datasets**.
+- [~] T036 [US3] Generate `data/artifacts/correlation_report_{run_id}.json` with coefficients, p-values, and significance flags
+- [~] T037 [US3] Create `code/pipelines/run_analysis.py` to orchestrate the full statistical analysis pipeline
+- [~] T038 [US3] Add "Data Availability Gap" reporting for datasets missing GPU-Tuned baselines to the final report
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,12 +154,19 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Update `code/pipelines/update_state.py` to hash artifacts and update `state/projects/...yaml`
-- [ ] T040 Code cleanup and refactoring for memory efficiency
-- [ ] T041 [US1/US2/US3] Performance optimization to ensure total runtime < 6 hours. Implement adaptive batching and dynamic parallelism to process **ALL available datasets** within the time limit. Do NOT use early termination to skip datasets; instead, adjust batch sizes to ensure full coverage.
-- [ ] T042 [P] Additional unit tests for edge cases (e.g., empty datasets, single-row datasets) in `tests/`
-- [ ] T043a [P] Generate/Update `quickstart.md` with new pipeline steps (US1, US2, US3) and data ingestion instructions.
-- [ ] T044 Final integration test of the entire pipeline on a subset of datasets
+- [~] T039 [P] Update `code/pipelines/update_state.py` to hash artifacts and update `state/projects/...yaml`
+- [~] T040 Code cleanup and refactoring for memory efficiency <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+ in "<unicode string>", line 2, column 1:
+ **Key Changes in `code/utils/mem...
+ ^
+expected alphabetic or numeric character, but found '*'
+ in "<unicode string>", line 2, column 2:
+ **Key Changes in `code/utils/memo...
+ ^) -->
+- [~] T041 [US1/US2/US3] Performance optimization to ensure total runtime < 6 hours. Implement adaptive batching and dynamic parallelism to process **ALL available datasets** within the time limit. Do NOT use early termination to skip datasets; instead, adjust batch sizes to ensure full coverage.
+- [~] T042 [P] Additional unit tests for edge cases (e.g., empty datasets, single-row datasets) in `tests/`
+- [~] T043a [P] Generate/Update `quickstart.md` with new pipeline steps (US1, US2, US3) and data ingestion instructions.
+- [~] T044 Final integration test of the entire pipeline on a subset of datasets
 
 ---
 
@@ -170,8 +177,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -237,9 +244,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
