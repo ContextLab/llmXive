@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-826-llmxive-follow-up-extending-memlens-benc
-last_run_id: 40e85cb6-9add-43b5-b7ae-42571ae3dd2a
+last_run_id: 845efa1b-11b9-4667-8a49-67f17c61b1a3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/specs/001-llmxive-follow-up-extending-memlens-benc
 title: 'llmXive follow-up: extending "MemLens: Benchmarking Multimodal Long-Term Memory
   in Large Vision-Lang"'
-updated_at: '2026-07-11T22:46:54.614955Z'
+updated_at: '2026-07-11T23:34:12.832359Z'

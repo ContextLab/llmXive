@@ -1,4 +1,4 @@
-# Tasks: llmXive follow-up: extending "MemLens"
+# Tasks: llmXive follow-up: extending "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
 
 **Input**: Design documents from `/specs/001-llmxive-follow-up-extending-memlens-benc/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
@@ -43,10 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `mkdir -p projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/{code,code/stores,data/raw,data/processed,tests/unit,tests/integration,outputs}` and create empty `__init__.py` files.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` dependencies: Execute `{{claim:c_02b12065}}` and write these exact pinned versions to `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/requirements.txt`. (Note: Do NOT use `pip freeze` to ensure reproducibility).
-- [X] T003a [P] Configure linting: Create `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/.ruff.toml` with rules for E, F, W, I, N, UP, B, C4, T20, and ensure `line-length = 88 [UNRESOLVED-CLAIM: c_84459f86 — status=not_enough_info]`.
-- [ ] T003b [P] Configure formatting: Create `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/.black` configuration in `pyproject.toml` setting `line-length = 88 [UNRESOLVED-CLAIM: c_84459f86 — status=not_enough_info]` and `target-version = ['py311']`.
+- [ ] T001 [P] Create project directories: `data/raw`, `data/processed`, `code`, `tests/unit`, `state/projects` in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/`
+- [ ] T002 [P] Create empty placeholder files: `code/__init__.py`, `tests/__init__.py`, `README.md`, `requirements.txt`
+- [ ] T003 [P] Populate `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/requirements.txt` with pinned dependencies: torch-cpu, transformers, ultralytics, sentence-transformers, scipy, pandas, datasets, pytest
 
 ---
 
@@ -56,83 +55,76 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` defining: `SEED = 42`, `DATA_PATH = 'data/raw'`, `OUTPUT_PATH = 'outputs'`, `TOP_K = 5`, `BATCH_SIZE = 4 [UNRESOLVED-CLAIM: c_c1228638 — status=not_enough_info]`.
-- [ ] T005 [P] Implement `code/data_loader.py` to download MemLens from HuggingFace and filter for `task_type` in ["Multi-Session Reasoning", "Temporal Reasoning"] (FR-001).
-- [~] T006 [P] Create `code/stores/__init__.py` and base store interface.
-- [~] T007 [P] Implement `code/stores/coarse_store.py` to load text summaries only, discarding all image data (Constitution VI).
-- [~] T008 [P] Implement `code/stores/medium_store.py` to load summaries and compute frozen CLIP embeddings for images (Constitution VI).
-- [~] T009 [P] Implement `code/stores/fine_store.py` to load summaries and run CPU-optimized YOLOv8n (seed=42) [UNRESOLVED-CLAIM: c_1b328aba — status=not_enough_info] for object captions/bboxes; if object list is empty, return context string "[No objects detected]" (Constitution VI).
-- [~] T010 [P] Implement `code/retrieval.py` using `faiss-cpu` for cosine similarity search (FR-003).
-- [ ] T011 [P] Implement `code/generator.py` to load a low-bit quantized Llama-3-8B-Instruct on CPU [UNRESOLVED-CLAIM: c_b4949b09 — status=not_enough_info] (no CUDA) for inference (FR-004).
-- [ ] T012 [P] Implement `code/profiler.py` to log `latency_ms` and `peak_ram_mb` using `psutil` (FR-005).
-- [ ] T013 [P] Implement `code/evaluator.py` to calculate exact match and semantic similarity scores (FR-005).
-- [ ] T014 [P] Implement `code/statistics.py` to perform **Wilcoxon Signed-Rank Test** (paired) to compare accuracy distributions across the three store configurations. (Note: Deviates from spec FR-006's ANOVA/Friedman to align with Plan.md's Complexity Tracking which rejects ANOVA for deterministic systems). Implement checkpointing/resume logic and aggressive garbage collection (model unloading) between store runs to ensure peak RAM < 7GB [UNRESOLVED-CLAIM: c_31215486 — status=not_enough_info] (FR-006, SC-005).
+- [X] T004 Implement `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/download.py` to fetch MemLens dataset from HuggingFace and compute SHA-256 checksums
+- [ ] T005 Implement state update logic in `download.py` to write artifact hashes to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`
+- [ ] T006 Create base data loading utilities and schema validators in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
+- [~] T007 Configure logging infrastructure to track `detection_status` and fallback events in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/utils/logger.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Multi-Session Reasoning Evaluation (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Core Retrieval and Inference Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Process filtered MemLens dataset to generate answers using a retrieval-augmented generation pipeline.
+**Goal**: Download MemLens, filter for MSR/TR, construct Coarse/Medium/Fine memory stores, and run CPU-optimized inference.
 
-**Independent Test**: Run evaluation script against a set of hardcoded MemLens queries and verify output JSON contains generated answers and ground truth labels.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T015 [P] [US1] Unit test for `data_loader` filtering logic in `tests/unit/test_data_loader.py`: Implement `test_filter_multi_session_reasoning` asserting that only queries with `task_type` in ["Multi-Session Reasoning", "Temporal Reasoning"] are returned.
-- [ ] T016 [P] [US1] Unit test for `generator` output format in `tests/unit/test_generator.py`.
+**Independent Test**: Run pipeline on a subset of questions and verify three distinct answer sets are generated without GPU.
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement `code/run_pipeline.py` main orchestration to load queries and iterate through **all three store strategies (Coarse, Medium, Fine)** sequentially for each query to generate the comparison dataset (US-1, FR-002).
-- [ ] T018 [US1] Integrate `data_loader` to fetch real MemLens data (no fabrication) and validate ground truth labels are read-only (FR-007).
-- [ ] T019 [US1] Integrate `generator` to produce answers for the filtered subset (US-1).
-- [ ] T020 [US1] Implement error handling for empty object detection in `fine_store.py` (fallback to "[No objects detected]") - *Note: Logic moved to T009; this task confirms integration.*
+- [~] T008 [P] [US1] Implement MSR/TR filtering logic in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py` (FR-001)
+- [~] T009 [P] [US1] Implement Coarse store construction (text summaries only) with sentence-transformer embeddings in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
+- [~] T010 [P] [US1] Implement Medium store construction (summaries + global CLIP embeddings) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
+- [~] T011 [US1] Implement YOLOv8-Tiny object detection and fallback logic; check for existence of ground-truth bounding boxes in MemLens dataset (log 'N/A' if missing); calculate Object Detection Recall (TP/(TP+FN)) only if GT exists; write results to `data/processed/metrics/detection_recall.json` (FR-008, FR-009, Edge Case)
+- [ ] T011B [US1] Implement logic to explicitly set `detection_status` for ALL samples: 'success' if YOLO detects ≥1 object, 'zero_detection' if YOLO runs but detects 0 objects, 'fallback' if YOLO fails; ensure this flag is written to the Fine store for all entries (Edge Case, Plan Complexity Tracking)
+- [~] T012 [US1] Implement LLM-based natural language captioning for detected objects (NO templates) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py` <!-- ATOMIZE: requested -->
+- [~] T013 [US1] Implement Fine store construction (object captions + bounding boxes) ensuring coordinates are stored as metadata ONLY and explicitly excluded from similarity calculation (Plan Phase 2, FR-002)
+- [ ] T013B [US1] Configure top-k retrieval parameter to `k=5` in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/config.py` (Spec Assumptions: fixed for fair comparison)
+- [~] T014 [P] [US1] Implement retrieval logic using cosine similarity on text embeddings for Coarse/Medium in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/retrieval.py` (Depends: T009, T010)
+- [~] T015 [US1] Implement retrieval logic using cosine similarity on text-only object captions for Fine store (coordinates stored as metadata but excluded from similarity vector per Plan Phase 2) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/retrieval.py` (FR-003 corrected, Depends: T012, T013, T013B)
+- [ ] T016 [US1] Implement CPU-optimized LLM inference (Phi-3-mini or Llama-3-8B 4-bit/16-bit CPU) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` (FR-004, US-3)
+- [ ] T017 [US1] Implement context window management (truncation/sliding window) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` (Edge Case)
+- [ ] T018 [US1] Implement resource monitoring (RAM, CPU time) and raw latency recording per strategy in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (FR-005)
+- [ ] T019 [US1] Implement main orchestrator `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/main.py` to run Coarse, Medium, and Fine pipelines sequentially or in parallel (FR-001, Depends: T014, T015, T016)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Comparative Indexing Strategy Execution (Priority: P2)
+## Phase 4: User Story 2 - Statistical Comparison and Significance Testing (Priority: P2)
 
-**Goal**: Execute the same evaluation loop across Coarse, Medium, and Fine memory store configurations.
+**Goal**: Compare Fine vs. Coarse accuracy using Wilcoxon signed-rank test and validate visual fidelity.
 
-**Independent Test**: Run pipeline on a representative sample of queries for each store type and verify logs contain distinct entries with non-identical context windows.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T022 [P] [US2] Integration test comparing context windows of Coarse vs Fine stores in `tests/integration/test_store_comparison.py`.
+**Independent Test**: Run analysis on generated answer sets and verify Wilcoxon test output (p-value, statistic).
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Extend `run_pipeline.py` to orchestrate the **multi-strategy runs** defined in T017, ensuring results are tagged with the store type (Coarse/Medium/Fine) and aggregated correctly (US-2).
-- [ ] T024 [US2] Ensure `coarse_store` strictly discards image data and `fine_store` includes object-level captions (Constitution VI).
-- [ ] T025 [US2] Aggregate results into a single `outputs/results.csv` linking query ID to accuracy for all three strategies; perform **Wilcoxon Signed-Rank Test** (paired) to compare accuracy distributions and write the p-value and decision (reject/fail to reject) to `results.csv` (Plan.md Complexity Tracking, US-2).
-- [ ] T026 [US2] Implement logic to report distribution of excluded queries (missing metadata) by generating a JSON report to `outputs/exclusion_stats.json` **and verify that the exclusion is not correlated with specific session types or visual complexity** (FR-008).
+- [ ] T020 [US2] Implement accuracy calculation against ground truth answers in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (Depends: T016)
+- [ ] T021 [US2] Implement stratification logic to filter out `detection_status: fallback` AND `detection_status: zero_detection` samples for the primary test in the codebase.
+- [ ] T022 [US2] Implement paired Wilcoxon signed-rank test for Fine vs. Coarse accuracy distributions in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py` (FR-006, Depends: T020)
+- [ ] T024 [US2] Implement significance flagging (p < 0.05) and effect size calculation in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py`
+- [ ] T025 [US2] Implement handling for insufficient sample size (n < 30) to report descriptive stats only in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py` (Edge Case)
+- [ ] T026 [US2] Generate final comparison report (mean accuracy, std, p-value, effect size) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Efficiency and Resource Profiling (Priority: P3)
+## Phase 5: User Story 3 - Computational Feasibility and Resource Monitoring (Priority: P3)
 
-**Goal**: Measure and record retrieval latency and peak RAM usage for each indexing strategy.
+**Goal**: Verify pipeline runs within free-tier CI constraints (≤2 CPU, ≤7GB RAM, ≤6h).
 
-**Independent Test**: Instrument retrieval pipeline on a single query and verify logs contain numerical values for `latency_ms` and `peak_ram_mb`.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T028 [P] [US3] Unit test for `profiler` logging accuracy in `tests/unit/test_profiler.py`.
+**Independent Test**: Run full filtered subset on simulated CI limits and verify no OOM/timeout.
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Integrate `profiler` into `retrieval.py` to time cosine similarity search (US-3).
-- [ ] T030 [US3] Integrate `profiler` into `run_pipeline.py` to monitor peak RAM for each strategy run (US-3).
-- [ ] T031 [US3] Update `outputs/results.csv` schema to include `latency_ms` and `peak_ram_mb` columns (US-3).
-- [ ] T032 [US3] Generate summary table in `run_pipeline.py` showing accuracy vs latency/RAM trade-off (US-3).
+- [ ] T027 [US3] Integrate strict memory monitoring hooks in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` to log peak RAM per inference (FR-005, Depends: T016)
+- [ ] T028 [US3] Implement fallback logic to 16-bit precision or smaller model (TinyLlama) if 4-bit quantization exceeds RAM limits in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py`
+- [ ] T029 [US3] Implement chunked processing for large datasets to prevent OOM in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/main.py` (Depends: T019)
+- [ ] T030 [US3] Implement timeout guards and early exit if estimated runtime > 6 hours in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/main.py`
+- [ ] T031 [US3] Generate resource usage report (CPU time, peak RAM, total duration) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (FR-005, SC-003)
+- [ ] T034 [US3] Compute retrieval latency relative to Coarse baseline (Fine/Medium - Coarse) / Coarse and flag deviations in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (SC-004, Depends: T018)
+- [ ] T035 [US2] Calculate composite metric: (1) Relative improvement in accuracy (Fine vs Coarse) AND (2) Object Detection Recall; implement logic to check if Recall ≥ 0.6: if YES write status 'VALID', if NO write status 'INVALID' and HALT pipeline; write to `data/processed/metrics/composite_fidelity.json` (SC-005, FR-009, Depends: T020, T011)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,12 +134,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Documentation updates: Update `quickstart.md` to include the command `python code/run_pipeline.py --store all` and the expected output schema (including `results.csv` and `exclusion_stats.json`).
-- [ ] T034a [P] Refactor `code/stores/` modules: Implement a common abstract base class `MemoryStore` in `code/stores/base.py` and refactor `coarse_store.py`, `medium_store.py`, `fine_store.py` to inherit from it, ensuring consistent interface for `get_context()` and `build_index()`.
-- [ ] T035 [P] Performance verification: Run `python code/run_pipeline.py --profile` locally to generate `outputs/profile_report.json` and verify total duration < 6 hours [UNRESOLVED-CLAIM: c_53004c57 — status=not_enough_info] on a simulated CI environment (SC-005).
-- [ ] T036 [P] Additional unit tests for statistical analysis in `tests/unit/test_statistics.py`.
-- [ ] T037 Run `quickstart.md` validation to ensure end-to-end reproducibility.
-- [ ] T038 [P] **Statistical Method Alignment Check**: Verify that `code/statistics.py` implements **Wilcoxon Signed-Rank Test** (as per Plan.md) and that `plan.md` and `tasks.md` are consistent. Add a comment in `code/statistics.py` explaining the deviation from spec FR-006 (ANOVA) due to deterministic system constraints.
+- [ ] T032 [P] Documentation updates in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/README.md`: Add CLI usage instructions, environment variables, and data flow diagram
+- [ ] T033A [P] Refactor `stats.py` to reduce cyclomatic complexity of `run_wilcoxon` function to < 10
+- [ ] T033B [P] Refactor `inference.py` to reduce cyclomatic complexity of `load_model` function to < 10
+- [ ] T036A [P] Write unit tests for `preprocessing.py` (filtering, store construction) with >80% coverage
+- [ ] T036B [P] Write unit tests for `retrieval.py` (cosine similarity logic) with >80% coverage
+- [ ] T036C [P] Write unit tests for `stats.py` (stratification, Wilcoxon test) with >80% coverage
+- [ ] T037 Run `quickstart.md` validation
 
 ---
 
@@ -165,8 +158,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 pipeline structure to run comparative loops
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1/US2 pipeline to instrument metrics
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data outputs (AnswerSets)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 implementation for monitoring hooks
 
 ### Within Each User Story
 
@@ -190,13 +183,10 @@
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for data_loader filtering logic in tests/unit/test_data_loader.py"
-Task: "Unit test for generator output format in tests/unit/test_generator.py"
-
 # Launch all models for User Story 1 together:
-Task: "Implement code/run_pipeline.py main orchestration (multi-strategy)"
-Task: "Integrate data_loader to fetch real MemLens data"
+Task: "Implement Coarse store construction..."
+Task: "Implement Medium store construction..."
+Task: "Implement YOLOv8-Tiny object detection..."
 ```
 
 ---
@@ -207,7 +197,7 @@ Task: "Integrate data_loader to fetch real MemLens data"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Multi-strategy loop)
+3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -241,5 +231,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All data must be real (MemLens); no fabrication. All models must run on CPU (no CUDA).
-- **Statistical Method**: Tasks T014, T025, T038 implement **Wilcoxon Signed-Rank Test** per Plan.md Complexity Tracking, deviating from spec FR-006 (ANOVA) to accommodate deterministic system constraints.
+- **CRITICAL**: All tasks must run on CPU-only (minimal cores, standard RAM). No CUDA, no 8-bit quantization requiring GPU.
+- **Dependencies**: Tasks without [P] tag explicitly depend on previous tasks in the same phase or previous phases.

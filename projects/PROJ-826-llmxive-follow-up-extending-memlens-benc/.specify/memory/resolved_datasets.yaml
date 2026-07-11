@@ -1,4 +1,4 @@
-resolved_at: '2026-07-11T22:05:19.079564+00:00'
+resolved_at: '2026-07-11T22:54:53.742466+00:00'
 datasets:
 - intent: MemLens
   status: verified
@@ -26,23 +26,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Supplementary_Material_Participants_Answers_and_Questionnaire/32964497
+  - url: https://figshare.com/articles/journal_contribution/The_Shadow_of_a_Theorem_Prop-Erasure_the_Lawvere_Fixed_Point_of_Vacuity_and_a_Genuine_Equivariantization_Core_for_Fixed-Point_Conformal_Nets/32964767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Uso_de_ACs_com_IAGen_na_Personaliza_o_do_Aprendizado_na_Educa_o_B_sica_uma_Revis_o_Sistem_tica_da_Literatura_MATERIAL_COMPLEMENTAR/32964473
+  - url: https://figshare.com/articles/journal_contribution/Russell_s_Wall_Why_a_Set_Cannot_Be_Its_Own_Form_but_a_Limit_Can/32964764
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Western_blot_data/32964452
+  - url: https://figshare.com/articles/journal_contribution/Reading_the_Cohomology_Off_the_Graph/32964761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/_b_PREVIS_O_DE_10_ANOS_DA_MORTALIDADE_POR_COVID-19_NO_ESTADO_DE_MATO_GROSSO_BRASIL_2024_A_2033_DEVIDO_AS_MUTA_ES_DO_SARS-COV-2_E_SEUS_FATORES_ASSOCIADOS_UM_ESTUDO_DE_S_RIES_TEMPORAIS_b_/32964446
+  - url: https://figshare.com/articles/journal_contribution/Quantum_Mechanics_Without_Hilbert_Space_Verified_Superposition_Interference_and_Measurement_over_Finite_Sets/32964758
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Loss_of_neuronal_population_organization_links_pathology_to_behavior_in_a_model_of_Alzheimer_s_disease_b_/32961443
+  - url: https://figshare.com/articles/journal_contribution/Purity_Is_Indistinction/32964755
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -58,31 +58,31 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/media/Supplementary_Material_Participants_Answers_and_Questionnaire/32964497
+  - url: https://figshare.com/articles/journal_contribution/singularities_without_approximation_2026_05_19/32964770
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Uso_de_ACs_com_IAGen_na_Personaliza_o_do_Aprendizado_na_Educa_o_B_sica_uma_Revis_o_Sistem_tica_da_Literatura_MATERIAL_COMPLEMENTAR/32964473
+  - url: https://figshare.com/articles/journal_contribution/The_Shadow_of_a_Theorem_Prop-Erasure_the_Lawvere_Fixed_Point_of_Vacuity_and_a_Genuine_Equivariantization_Core_for_Fixed-Point_Conformal_Nets/32964767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Western_blot_data/32964452
+  - url: https://figshare.com/articles/journal_contribution/Russell_s_Wall_Why_a_Set_Cannot_Be_Its_Own_Form_but_a_Limit_Can/32964764
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/_b_PREVIS_O_DE_10_ANOS_DA_MORTALIDADE_POR_COVID-19_NO_ESTADO_DE_MATO_GROSSO_BRASIL_2024_A_2033_DEVIDO_AS_MUTA_ES_DO_SARS-COV-2_E_SEUS_FATORES_ASSOCIADOS_UM_ESTUDO_DE_S_RIES_TEMPORAIS_b_/32964446
+  - url: https://figshare.com/articles/journal_contribution/Reading_the_Cohomology_Off_the_Graph/32964761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Loss_of_neuronal_population_organization_links_pathology_to_behavior_in_a_model_of_Alzheimer_s_disease_b_/32961443
+  - url: https://figshare.com/articles/journal_contribution/Quantum_Mechanics_Without_Hilbert_Space_Verified_Superposition_Interference_and_Measurement_over_Finite_Sets/32964758
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7600036
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/13232183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7600036
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -118,78 +118,206 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: ANOVA
+- intent: CPU-optimized
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/You_Cannot_Hide_a_Spike_Twice_A_Machine-Checked_Uncertainty_Floor_for_Bounded_Canonical_Transforms/32964779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Spectrum_Has_a_Modulus/32964776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Spectrum_of_a_Network_A_Calculus_of_Propagation_Stability_and_Certification/32964773
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/singularities_without_approximation_2026_05_19/32964770
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Shadow_of_a_Theorem_Prop-Erasure_the_Lawvere_Fixed_Point_of_Vacuity_and_a_Genuine_Equivariantization_Core_for_Fixed-Point_Conformal_Nets/32964767
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/803257
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1136109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1331998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308155
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308155
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21307430
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
-    format: json
+    format: parquet
     relevance: 1.0
     sample_check:
-      downloaded_bytes: 16586
+      downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     status: verified
-    format: json
-  - url: https://figshare.com/articles/media/Supplementary_Material_Participants_Answers_and_Questionnaire/32964497
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Quantitative_hydroclimate_reconstruction_of_YD_in_northeastern_China/29582570
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Uso_de_ACs_com_IAGen_na_Personaliza_o_do_Aprendizado_na_Educa_o_B_sica_uma_Revis_o_Sistem_tica_da_Literatura_MATERIAL_COMPLEMENTAR/32964473
+  - url: https://figshare.com/articles/journal_contribution/Stone_Duality_You_Can_Run_Point-Free_Choice-Free_Representation_of_Boolean_and_Swap_Algebras/32964788
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Western_blot_data/32964452
+  - url: https://figshare.com/articles/journal_contribution/The_Still_Point_of_the_Turn/32964785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/_b_PREVIS_O_DE_10_ANOS_DA_MORTALIDADE_POR_COVID-19_NO_ESTADO_DE_MATO_GROSSO_BRASIL_2024_A_2033_DEVIDO_AS_MUTA_ES_DO_SARS-COV-2_E_SEUS_FATORES_ASSOCIADOS_UM_ESTUDO_DE_S_RIES_TEMPORAIS_b_/32964446
+  - url: https://figshare.com/articles/journal_contribution/You_Cannot_Hide_a_Spike_Twice_A_Machine-Checked_Uncertainty_Floor_for_Bounded_Canonical_Transforms/32964779
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Loss_of_neuronal_population_organization_links_pathology_to_behavior_in_a_model_of_Alzheimer_s_disease_b_/32961443
+  - url: https://figshare.com/articles/journal_contribution/The_Spectrum_Has_a_Modulus/32964776
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10437571
+  - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1255322
+  - url: https://zenodo.org/records/5951740
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15804920
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10011805
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14242875
+  - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21312674
+  - url: https://zenodo.org/records/21313838
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21312674
+  - url: https://zenodo.org/records/21313838
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Respiratory_management_of_children_with_polyhandicap_assessment_of_the_BREATHE_caregiver_education_module/31113089/1
+  - url: https://zenodo.org/records/21314728
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Respiratory_management_of_children_with_polyhandicap_assessment_of_the_BREATHE_caregiver_education_module/31113089
+  - url: https://zenodo.org/records/21314728
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/363316
+  - url: https://zenodo.org/records/21223570
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: YOLOv8-Tiny
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/The_Arithmetic_a_Geometry_Leaves_Behind_Integral_Fourier_Duality_on_Abelian_Varieties_Made_Explicit/32964797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/tamper_evident_distributed_verification_agentic_ai_sovereign_compute_satellite_mesh_2026_05_24/32964794
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Counting_Without_Searching/32964791
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Quantitative_hydroclimate_reconstruction_of_YD_in_northeastern_China/29582570
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Stone_Duality_You_Can_Run_Point-Free_Choice-Free_Representation_of_Boolean_and_Swap_Algebras/32964788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15309987
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10443805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17340214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19715900
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20265682
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210376
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210376
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20739282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20739282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2509.17078
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Memory Store Entry Schema"
+type: object
+properties:
+  entry_id:
+    type: string
+    description: "Unique identifier for the memory entry."
+  session_id:
+    type: string
+    description: "Identifier for the multi-session context."
+  text_summary:
+    type: string
+    description: "Text summary of the session."
+  embedding_vector:
+    type: array
+    items:
+      type: number
+    description: "Dense vector from sentence-transformers."
+  image_embedding:
+    type: array
+    items:
+      type: number
+    description: "Global CLIP embedding of the image."
+  object_captions:
+    type: array
+    items:
+      type: string
+    description: "List of captions for detected objects."
+  bounding_boxes:
+    type: array
+    items:
+      type: object
+      properties:
+        x_min:
+          type: number
+        y_min:
+          type: number
+        x_max:
+          type: number
+        y_max:
+          type: number
+        label:
+          type: string
+      required:
+        - x_min
+        - y_min
+        - x_max
+        - y_max
+        - label
+  multimodal_embedding:
+    type: array
+    items:
+      type: number
+    description: "Fused embedding of text and box coordinates."
+  detection_status:
+    type: string
+    enum: ["success", "fallback"]
+    description: "Success if YOLO ran, fallback if global embedding used."
+  recall_score:
+    type: number
+    description: "Object detection recall (if ground truth available)."
+required:
+  - entry_id
+  - session_id
+  - detection_status

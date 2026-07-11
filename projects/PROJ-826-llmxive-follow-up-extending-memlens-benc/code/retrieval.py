@@ -1,189 +1,301 @@
-"""
-Retrieval module for MemLens using faiss-cpu for cosine similarity search.
-
-Implements FR-003: Efficient retrieval of relevant memory snippets using
-cosine similarity on pre-computed embeddings.
-"""
-import faiss
+import os
+import json
+import math
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
-from typing import List, Dict, Any, Optional, Tuple
-import config
 
-class RetrievalEngine:
+from code.utils.logger import get_logger, log_retrieval_results
+
+logger = get_logger(__name__)
+
+def cosine_similarity(vec_a: np.ndarray, vec_b: np.ndarray) -> float:
     """
-    Manages FAISS index construction and similarity search for memory retrieval.
-    
-    Uses cosine similarity by normalizing query and index vectors.
-    Supports dynamic addition of embeddings and batch retrieval.
+    Compute cosine similarity between two vectors.
+    Handles zero vectors by returning 0.0.
     """
+    norm_a = np.linalg.norm(vec_a)
+    norm_b = np.linalg.norm(vec_b)
     
-    def __init__(self, dimension: int = 512):
-        """
-        Initialize the retrieval engine.
-        
-        Args:
-            dimension: Dimension of the embedding vectors (default 512 for CLIP).
-        """
-        self.dimension = dimension
-        self.index: Optional[faiss.IndexFlatIP] = None
-        self.documents: List[Dict[str, Any]] = []
-        self._is_normalized = False
-        
-    def build_index(self, embeddings: np.ndarray, documents: List[Dict[str, Any]]) -> None:
-        """
-        Build a FAISS index from pre-computed embeddings.
-        
-        For cosine similarity, we normalize vectors and use Inner Product (IP) index.
-        
-        Args:
-            embeddings: Array of shape (n_samples, dimension) containing embeddings.
-            documents: List of document metadata corresponding to each embedding.
-        """
-        if len(embeddings) == 0:
-            raise ValueError("Cannot build index with empty embeddings.")
-        
-        if embeddings.shape[1] != self.dimension:
-            raise ValueError(f"Embedding dimension mismatch: expected {self.dimension}, got {embeddings.shape[1]}")
-        
-        # Normalize embeddings for cosine similarity
-        faiss.normalize_L2(embeddings)
-        self._is_normalized = True
-        
-        # Create FAISS index for inner product (cosine similarity after normalization)
-        self.index = faiss.IndexFlatIP(self.dimension)
-        self.index.add(embeddings.astype('float32'))
-        
-        # Store documents for retrieval
-        self.documents = documents
-        
-    def add_embeddings(self, embeddings: np.ndarray, documents: List[Dict[str, Any]]) -> None:
-        """
-        Add new embeddings to the existing index.
-        
-        Args:
-            embeddings: Array of shape (n_samples, dimension).
-            documents: List of document metadata corresponding to each embedding.
-        """
-        if self.index is None:
-            self.build_index(embeddings, documents)
-            return
-        
-        if embeddings.shape[1] != self.dimension:
-            raise ValueError(f"Embedding dimension mismatch: expected {self.dimension}, got {embeddings.shape[1]}")
-        
-        # Normalize new embeddings
-        faiss.normalize_L2(embeddings)
-        
-        # Add to index
-        self.index.add(embeddings.astype('float32'))
-        
-        # Append documents
-        self.documents.extend(documents)
-        
-    def retrieve(
-        self,
-        query_embedding: np.ndarray,
-        top_k: Optional[int] = None
-    ) -> Tuple[List[Dict[str, Any]], List[float]]:
-        """
-        Retrieve top-k most similar documents for a query embedding.
-        
-        Args:
-            query_embedding: Query embedding vector of shape (dimension,) or (1, dimension).
-            top_k: Number of results to return (defaults to config.TOP_K).
-        
-        Returns:
-            Tuple of (documents, scores) where:
-                - documents: List of retrieved document metadata
-                - scores: List of cosine similarity scores
-        """
-        if self.index is None:
-            raise RuntimeError("Index not built. Call build_index() first.")
-        
-        if top_k is None:
-            top_k = config.TOP_K
-        
-        top_k = min(top_k, len(self.documents))
-        
-        # Ensure query is 2D
-        if query_embedding.ndim == 1:
-            query_embedding = query_embedding.reshape(1, -1)
-        
-        # Normalize query for cosine similarity
-        faiss.normalize_L2(query_embedding)
-        
-        # Perform search
-        scores, indices = self.index.search(
-            query_embedding.astype('float32'),
-            top_k
-        )
-        
-        # Extract results
-        results = []
-        score_list = []
-        
-        for i, idx in enumerate(indices[0]):
-            if idx == -1:  # FAISS returns -1 for empty slots
-                continue
-            results.append(self.documents[idx])
-            score_list.append(float(scores[0][i]))
-        
-        return results, score_list
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
     
-    def retrieve_batch(
-        self,
-        query_embeddings: np.ndarray,
-        top_k: Optional[int] = None
-    ) -> Tuple[List[List[Dict[str, Any]]], List[List[float]]]:
-        """
-        Retrieve top-k documents for multiple query embeddings.
-        
-        Args:
-            query_embeddings: Array of shape (n_queries, dimension).
-            top_k: Number of results per query.
-        
-        Returns:
-            Tuple of (all_results, all_scores) where each is a list of length n_queries.
-        """
-        if self.index is None:
-            raise RuntimeError("Index not built. Call build_index() first.")
-        
-        if top_k is None:
-            top_k = config.TOP_K
-        
-        top_k = min(top_k, len(self.documents))
-        
-        # Normalize all queries
-        faiss.normalize_L2(query_embeddings)
-        
-        # Perform batch search
-        scores, indices = self.index.search(
-            query_embeddings.astype('float32'),
-            top_k
-        )
-        
-        all_results = []
-        all_scores = []
-        
-        for i in range(len(query_embeddings)):
-            results = []
-            score_list = []
-            for j, idx in enumerate(indices[i]):
-                if idx == -1:
-                    continue
-                results.append(self.documents[idx])
-                score_list.append(float(scores[i][j]))
-            all_results.append(results)
-            all_scores.append(score_list)
-        
-        return all_results, all_scores
+    dot_product = np.dot(vec_a, vec_b)
+    return float(dot_product / (norm_a * norm_b))
+
+def retrieve_top_k(
+    query_vector: np.ndarray,
+    store_vectors: List[np.ndarray],
+    store_metadata: List[Dict[str, Any]],
+    k: int = 5
+) -> List[Tuple[Dict[str, Any], float]]:
+    """
+    Retrieve top-k items based on cosine similarity.
     
-    def get_index_size(self) -> int:
-        """Return the number of vectors in the index."""
-        return len(self.documents) if self.documents else 0
+    Args:
+        query_vector: The query embedding.
+        store_vectors: List of stored embeddings.
+        store_metadata: List of metadata dictionaries corresponding to store_vectors.
+        k: Number of top results to return.
+        
+    Returns:
+        List of tuples (metadata, similarity_score) sorted by score descending.
+    """
+    if not store_vectors:
+        return []
     
-    def clear_index(self) -> None:
-        """Clear the index and documents."""
-        self.index = None
-        self.documents = []
-        self._is_normalized = False
+    similarities = []
+    for i, vec in enumerate(store_vectors):
+        sim = cosine_similarity(query_vector, vec)
+        similarities.append((i, sim))
+    
+    # Sort by similarity descending
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    
+    # Get top k
+    top_k_indices = similarities[:k]
+    
+    results = []
+    for idx, score in top_k_indices:
+        results.append((store_metadata[idx], score))
+        
+    return results
+
+def run_coarse_retrieval(
+    query: str,
+    coarse_store_path: str,
+    k: int = 5
+) -> List[Dict[str, Any]]:
+    """
+    Run retrieval on the Coarse store using text summaries.
+    
+    Args:
+        query: The natural language query.
+        coarse_store_path: Path to the coarse store JSON file.
+        k: Number of top results.
+        
+    Returns:
+        List of retrieved items with metadata and scores.
+    """
+    from code.preprocessing import get_text_embedding, load_sentence_transformer_model
+    
+    logger.info(f"Running Coarse retrieval for query: {query[:50]}...")
+    
+    # Load store
+    with open(coarse_store_path, 'r') as f:
+        store_data = json.load(f)
+    
+    # Extract vectors and metadata
+    store_vectors = [np.array(item['embedding']) for item in store_data]
+    store_metadata = [item for item in store_data]
+    
+    # Get query embedding
+    model = load_sentence_transformer_model()
+    query_vector = get_text_embedding(model, query)
+    
+    # Retrieve
+    results = retrieve_top_k(query_vector, store_vectors, store_metadata, k)
+    
+    # Format results
+    formatted_results = []
+    for metadata, score in results:
+        formatted_results.append({
+            'metadata': metadata,
+            'similarity_score': score
+        })
+        
+    log_retrieval_results("coarse", len(formatted_results), query)
+    return formatted_results
+
+def run_medium_retrieval(
+    query: str,
+    medium_store_path: str,
+    k: int = 5
+) -> List[Dict[str, Any]]:
+    """
+    Run retrieval on the Medium store using global CLIP embeddings.
+    
+    Args:
+        query: The natural language query.
+        medium_store_path: Path to the medium store JSON file.
+        k: Number of top results.
+        
+    Returns:
+        List of retrieved items with metadata and scores.
+    """
+    from code.preprocessing import get_text_embedding, load_sentence_transformer_model
+    
+    logger.info(f"Running Medium retrieval for query: {query[:50]}...")
+    
+    # Load store
+    with open(medium_store_path, 'r') as f:
+        store_data = json.load(f)
+    
+    # Extract vectors and metadata
+    store_vectors = [np.array(item['embedding']) for item in store_data]
+    store_metadata = [item for item in store_data]
+    
+    # Get query embedding
+    model = load_sentence_transformer_model()
+    query_vector = get_text_embedding(model, query)
+    
+    # Retrieve
+    results = retrieve_top_k(query_vector, store_vectors, store_metadata, k)
+    
+    # Format results
+    formatted_results = []
+    for metadata, score in results:
+        formatted_results.append({
+            'metadata': metadata,
+            'similarity_score': score
+        })
+        
+    log_retrieval_results("medium", len(formatted_results), query)
+    return formatted_results
+
+def run_fine_retrieval(
+    query: str,
+    fine_store_path: str,
+    k: int = 5
+) -> List[Dict[str, Any]]:
+    """
+    Run retrieval on the Fine store using text-only object captions.
+    
+    This implementation strictly adheres to the requirement that coordinates
+    are stored as metadata but EXCLUDED from the similarity vector.
+    The similarity vector is constructed ONLY from the concatenated object
+    captions (text) using sentence-transformer embeddings.
+    
+    Args:
+        query: The natural language query.
+        fine_store_path: Path to the fine store JSON file.
+        k: Number of top results.
+        
+    Returns:
+        List of retrieved items with metadata (including coordinates) and scores.
+    """
+    from code.preprocessing import get_text_embedding, load_sentence_transformer_model
+    
+    logger.info(f"Running Fine retrieval for query: {query[:50]}...")
+    
+    # Load store
+    with open(fine_store_path, 'r') as f:
+        store_data = json.load(f)
+    
+    if not store_data:
+        logger.warning("Fine store is empty.")
+        return []
+    
+    store_vectors = []
+    store_metadata = []
+    
+    # Construct embeddings from text-only object captions
+    model = load_sentence_transformer_model()
+    
+    for item in store_data:
+        # Extract object captions, ignoring coordinates for embedding
+        # The item structure is expected to have 'objects' which is a list of dicts
+        # Each dict has 'caption' (text) and 'bbox' (coordinates)
+        objects = item.get('objects', [])
+        captions = []
+        
+        for obj in objects:
+            caption = obj.get('caption', '')
+            if caption:
+                captions.append(caption)
+        
+        # Concatenate all captions into a single text block for this item
+        # This ensures the retrieval is based on the semantic content of all detected objects
+        combined_text = " ".join(captions)
+        
+        if not combined_text.strip():
+            # If no captions, use a fallback or skip
+            # For robustness, we'll use a generic placeholder if no text exists
+            combined_text = "no objects detected"
+        
+        # Generate embedding from text ONLY
+        embedding = get_text_embedding(model, combined_text)
+        
+        store_vectors.append(embedding)
+        
+        # Store the full metadata (including bboxes) for the result
+        store_metadata.append(item)
+    
+    # Get query embedding
+    query_vector = get_text_embedding(model, query)
+    
+    # Retrieve
+    results = retrieve_top_k(query_vector, store_vectors, store_metadata, k)
+    
+    # Format results
+    formatted_results = []
+    for metadata, score in results:
+        formatted_results.append({
+            'metadata': metadata,
+            'similarity_score': score
+        })
+        
+    log_retrieval_results("fine", len(formatted_results), query)
+    return formatted_results
+
+def save_retrieval_results(
+    results: List[Dict[str, Any]],
+    output_path: str,
+    strategy: str
+) -> None:
+    """
+    Save retrieval results to a JSON file.
+    
+    Args:
+        results: List of retrieval results.
+        output_path: Path to save the results.
+        strategy: Strategy name (coarse, medium, fine).
+    """
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_data = {
+        'strategy': strategy,
+        'results': results
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Saved {len(results)} results to {output_path}")
+
+def main():
+    """
+    Main entry point for testing retrieval logic.
+    This function demonstrates the retrieval process for all three stores.
+    """
+    # Example usage (paths would be configured via CLI or config in real usage)
+    project_root = Path(__file__).parent.parent
+    data_dir = project_root / "data" / "processed"
+    
+    coarse_store = data_dir / "stores" / "coarse_store.json"
+    medium_store = data_dir / "stores" / "medium_store.json"
+    fine_store = data_dir / "stores" / "fine_store.json"
+    
+    query = "What is happening in the image?"
+    k = 5
+    
+    if coarse_store.exists():
+        logger.info("Testing Coarse Retrieval...")
+        coarse_results = run_coarse_retrieval(query, str(coarse_store), k)
+        save_retrieval_results(coarse_results, str(data_dir / "retrieval_coarse.json"), "coarse")
+    
+    if medium_store.exists():
+        logger.info("Testing Medium Retrieval...")
+        medium_results = run_medium_retrieval(query, str(medium_store), k)
+        save_retrieval_results(medium_results, str(data_dir / "retrieval_medium.json"), "medium")
+        
+    if fine_store.exists():
+        logger.info("Testing Fine Retrieval...")
+        fine_results = run_fine_retrieval(query, str(fine_store), k)
+        save_retrieval_results(fine_results, str(data_dir / "retrieval_fine.json"), "fine")
+        
+    logger.info("Retrieval test completed.")
+
+if __name__ == "__main__":
+    main()

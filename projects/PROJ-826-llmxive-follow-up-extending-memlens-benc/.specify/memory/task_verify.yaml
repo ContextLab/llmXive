@@ -1,14 +1,12 @@
-? 'T001 Create project structure per implementation plan: `mkdir -p projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/{code,code/stores,data/raw,data/processed,tests/unit,tests/integration,outputs}`
-  and create empty `__init__.py` files.'
+? 'T001 [P] Create project directories: `data/raw`, `data/processed`, `code`, `tests/unit`,
+  `state/projects` in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/`'
 : 1
-? "T003b [P] Configure formatting: Create `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/.black`\
-  \ configuration in `pyproject.toml` setting `line-length = 88 [UNRESOLVED-CLAIM:\
-  \ c_84459f86 \u2014 status=not_enough_info]` and `target-version = ['py311']`."
+'T002 [P] Create empty placeholder files: `code/__init__.py`, `tests/__init__.py`, `README.md`, `requirements.txt`': 1
+? 'T003 [P] Populate `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/requirements.txt`
+  with pinned dependencies: torch-cpu, transformers, ultralytics, sentence-transformers,
+  scipy, pandas, datasets, pytest'
 : 1
-? "T004 Create `code/config.py` defining: `SEED = 42`, `DATA_PATH = 'data/raw'`, `OUTPUT_PATH\
-  \ = 'outputs'`, `TOP_K = 5`, `BATCH_SIZE = 4 [UNRESOLVED-CLAIM: c_c1228638 \u2014\
-  \ status=not_enough_info]`."
+? T005 Implement state update logic in `download.py` to write artifact hashes to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`
 : 1
-? T005 [P] Implement `code/data_loader.py` to download MemLens from HuggingFace and
-  filter for `task_type` in ["Multi-Session Reasoning", "Temporal Reasoning"] (FR-001).
+? T006 Create base data loading utilities and schema validators in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
 : 1

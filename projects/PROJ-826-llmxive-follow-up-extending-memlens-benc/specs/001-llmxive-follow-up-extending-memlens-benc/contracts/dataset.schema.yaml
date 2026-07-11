@@ -1,40 +1,35 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: MemLens Query Schema
-description: Schema for the filtered MemLens dataset used in the evaluation pipeline.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MemLens Dataset Schema"
 type: object
-required:
-  - query_id
-  - query_text
-  - ground_truth
-  - task_type
-  - session_ids
 properties:
-  query_id:
+  id:
     type: string
-    description: "Unique identifier for the query."
-  query_text:
-    type: string
-    description: "The natural language question."
-  ground_truth:
-    type: string
-    description: "The correct answer string."
+    description: "Unique identifier for the question."
   task_type:
     type: string
-    enum:
-      - "Multi-Session Reasoning"
-      - "Temporal Reasoning"
-    description: "Classification of the reasoning task."
-  session_ids:
+    enum: ["MSR", "TR", "Other"]
+    description: "Task category. Only MSR and TR are processed."
+  question:
+    type: string
+    description: "The natural language question."
+  answer:
+    type: string
+    description: "The ground truth answer."
+  images:
     type: array
     items:
       type: string
-    description: "List of session IDs referenced by the query."
-  image_paths:
-    type: array
-    items:
-      type: string
-    description: "Relative paths to images in the referenced sessions."
+    description: "Paths or URLs to the images involved in the session."
+  session_id:
+    type: string
+    description: "Identifier for the multi-session context."
   metadata:
     type: object
-    description: "Additional metadata from the dataset."
-    additionalProperties: true
+    description: "Additional metadata (e.g., timestamps, difficulty)."
+required:
+  - id
+  - task_type
+  - question
+  - answer
+  - images
+  - session_id

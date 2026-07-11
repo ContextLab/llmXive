@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Performance Metrics Schema"
+type: object
+properties:
+  strategy:
+    type: string
+    enum: ["Coarse", "Medium", "Fine"]
+    description: "The memory indexing strategy used."
+  metrics:
+    type: object
+    properties:
+      accuracy:
+        type: number
+        description: "Proportion of correct answers."
+      retrieval_latency_ms:
+        type: number
+        description: "Time taken for retrieval in milliseconds."
+      inference_latency_ms:
+        type: number
+        description: "Time taken for LLM inference in milliseconds."
+      peak_ram_mb:
+        type: number
+        description: "Peak RAM usage in megabytes."
+    required:
+      - accuracy
+      - retrieval_latency_ms
+      - inference_latency_ms
+      - peak_ram_mb
+  statistical_comparison:
+    type: object
+    properties:
+      test_name:
+        type: string
+        const: "Wilcoxon Signed-Rank"
+        description: "Name of the statistical test performed."
+      statistic:
+        type: number
+        description: "Test statistic value."
+      p_value:
+        type: number
+        description: "P-value from the test."
+      significant:
+        type: boolean
+        description: "Whether the result is statistically significant (p < 0.05)."
+      effect_size:
+        type: number
+        description: "Effect size (e.g., r or Cohen's d)."
+      sample_size:
+        type: integer
+        description: "Number of samples used in the test (filtered for success status)."
+      power_warning:
+        type: boolean
+        description: "True if sample size < 30."
+      fallback_count:
+        type: integer
+        description: "Number of samples in the Fine group that fell back to global embedding."
+      semantic_relevance_score:
+        type: number
+        description: "Average Semantic Relevance Score for the Fine strategy."
+    required:
+      - test_name
+      - statistic
+      - p_value
+      - significant
+      - sample_size
+      - power_warning
+      - fallback_count
+required:
+  - strategy
+  - metrics
+  - statistical_comparison

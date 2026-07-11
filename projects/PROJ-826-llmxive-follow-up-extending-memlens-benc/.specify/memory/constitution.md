@@ -39,25 +39,22 @@ project's `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml
 
 ### VI. Indexing Granularity Control
 
-To isolate the variable of memory compression versus retrieval strategy, the
-project MUST strictly maintain three distinct memory store configurations
-(Coarse, Medium, Fine) as defined in the Methodology sketch. The Coarse
-Store MUST discard all image data in favor of text summaries; the Medium
-Store MUST utilize frozen CLIP embeddings; and the Fine Store MUST rely on
-object-level captions and bounding-box descriptions derived from a
-CPU-optimized detector (e.g., YOLOv8n). Any deviation from these specific
-construction rules invalidates the comparative statistical analysis (ANOVA)
-required to answer the research question regarding visual fidelity loss.
+The project MUST explicitly isolate and compare three distinct memory
+representations: Coarse (session-level text summaries only), Medium
+(session summaries with global CLIP embeddings), and Fine (object-level
+captions and bounding-box descriptions). This differentiation is required
+to empirically determine if visual fidelity loss stems from the compression
+algorithm or the indexing strategy, as defined in the project's research
+question and methodology sketch.
 
 ### VII. CPU-Tractability Constraint
 
-All retrieval and generation pipelines MUST be executed on CPU-optimized
-infrastructure (using `faiss-cpu`, `scikit-learn`, and 4-bit quantized
-LLMs) to ensure the results validate the feasibility of long-term memory
-systems without GPU acceleration. Performance metrics MUST explicitly record
-retrieval latency and RAM usage for each indexing strategy to verify that
-improved accuracy in the Fine Store does not exceed the project's
-CPU-tractability budget.
+All memory store construction, retrieval pipelines, and inference steps
+MUST utilize CPU-optimized components (e.g., YOLOv8-Tiny for detection,
+Phi-3-mini or 4-bit quantized Llama-3 for inference) to ensure the
+system remains tractable without massive context windows. This constraint
+is derived from the project's explicit goal of designing efficient,
+CPU-tractable memory systems for multi-session reasoning.
 
 ## Reproducibility Requirements
 

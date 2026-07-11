@@ -1,26 +1,22 @@
-# Implementation Plan: llmXive follow-up: extending "MemLens"
+# Implementation Plan: llmXive follow-up: extending "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
 
-**Branch**: `001-llmxive-memlens-granularity` | **Date**: 2026-07-11 | **Spec**: `specs/001-llmxive-follow-up-extending-memlens-benc/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-07-11 | **Spec**: `specs/001-llmxive-follow-up-extending-memlens-benc/spec.md`
 **Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-memlens-benc/spec.md`
 
 ## Summary
 
-This project implements a Retrieval-Augmented Generation (RAG) evaluation pipeline to benchmark multimodal long-term memory in Large Vision-Language models. The core objective is to measure the impact of **Indexing Granularity** (Coarse, Medium, Fine) on reasoning accuracy and computational efficiency. The system will process the filtered MemLens dataset (Multi-Session and Temporal Reasoning subsets) using three distinct memory store configurations and a frozen, -bit quantized LLM running strictly on CPU. The output includes a structured dataset of accuracy metrics, latency, and RAM usage, followed by a statistical analysis (Wilcoxon Signed-Rank Test) to determine significance, explicitly handling the deterministic nature of the system.
+This project extends the MemLens benchmark to evaluate the impact of memory indexing granularity (Coarse, Medium, Fine) on multi-session reasoning (MSR) and temporal reasoning (TR) in Large Vision-Language Models (LVLMs). The system will download the MemLens dataset, filter for MSR/TR tasks, construct three distinct memory representations using CPU-optimized tools (YOLOv8-Tiny for object detection, LLM-based captioning, CLIP for embeddings, Phi-3-mini for inference), and perform statistical significance testing (Wilcoxon signed-rank) on the resulting accuracy metrics. The entire pipeline is designed to run within the constraints of a free-tier GitHub Actions runner (≤2 CPU, ≤7GB RAM, ≤6h).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `datasets`, `transformers`, `torch` (CPU-only), `faiss-cpu`, `scikit-learn`, `sentence-transformers`, `ultralytics` (YOLOv8n), `pytest`, `pyyaml`, `huggingface_hub`, `requests`, `psutil`  
-**Storage**: Local filesystem (`data/` for raw/processed data, `outputs/` for results)  
-**Testing**: `pytest` (Unit tests for store construction, integration tests for retrieval loop)  
-**Target Platform**: GitHub Actions Free Runner (Linux, 2 vCPU, ~7GB RAM, No GPU)  
-**Project Type**: Computational Research / CLI Pipeline  
-**Performance Goals**: Complete evaluation of filtered subset (N=30) within 6 hours; Peak RAM < 7GB; Latency measured per query.  
-**Constraints**: 
-- No GPU/CUDA usage (strictly `faiss-cpu`, CPU-only PyTorch).
-- No unverified datasets (MemLens only).
-- Strict adherence to Constitution Principle VI (Granularity definitions).
-- **Determinism**: All random seeds will be pinned to ensure reproducibility.; YOLOvn uses fixed seed and deterministic fallback for empty detections.
+**Primary Dependencies**: `datasets`, `torch` (CPU-only), `transformers`, `accelerate`, `sentence-transformers`, `ultralytics` (YOLOv8-Tiny), `scipy`, `pandas`, `pyyaml`, `pytest`  
+**Storage**: Local file system (`data/` for datasets, `artifacts/` for intermediate results)  
+**Testing**: `pytest` with contract validation against `contracts/` schemas  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Computational research pipeline / CLI  
+**Performance Goals**: Complete full filtered dataset analysis (MSR/TR) within 6 hours; Peak RAM ≤ 7GB; Latency metrics recorded per strategy.  
+**Constraints**: No GPU/CUDA; No 8-bit/4-bit quantization requiring CUDA (use CPU-native quantization or 16-bit fallback); Object detection fallback for failures; **No template-based descriptions** for Fine store.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -28,15 +24,15 @@ This project implements a Retrieval-Augmented Generation (RAG) evaluation pipeli
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Plan Action |
+| Principle | Status | Evidence/Action |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Pass | Random seeds fixed to a constant value for reproducibility. in `config.py`; `requirements.txt` pins all deps; MemLens fetched from canonical HuggingFace URLs. |
-| **II. Verified Accuracy** | ✅ Pass | Citations in `research.md` restricted to the "Verified datasets" block. No external URLs invented. |
-| **III. Data Hygiene** | ✅ Pass | Raw data checksummed in `state/`. Transformations (store construction) write to new files; original data read-only. |
-| **IV. Single Source of Truth** | ✅ Pass | All metrics (accuracy, latency) derived strictly from `code/` execution logs; no hand-typed numbers in `paper/`. |
-| **V. Versioning Discipline** | ✅ Pass | **Action**: A `hash_artifact` script runs on every file write, updating `state/...yaml` with the new hash and `updated_at` timestamp. |
-| **VI. Indexing Granularity Control** | ✅ Pass | **Critical**: Three stores implemented exactly: Coarse (text only), Medium (text+CLIP), Fine (text+YOLOvn objects). **Determinism**: YOLOv8n uses seed=42; if 0 objects detected, a fixed string "[No objects detected]" is used to ensure identical context windows across runs. |
-| **VII. CPU-Tractability Constraint** | ✅ Pass | Pipeline uses `faiss-cpu`, -bit quantized LLM, and CPU-optimized detector. RAM/Latency logged per FR-005. Checkpointing ensures completion within 6h. |
+| **I. Reproducibility** | **PASS** | Pipeline will use pinned `requirements.txt`, random seeds, and fetch data from canonical HuggingFace URLs only. |
+| **II. Verified Accuracy** | **PASS** | Citations restricted to the "Verified datasets" block in the user message. No fabricated URLs. |
+| **III. Data Hygiene** | **PASS** | `download.py` computes SHA-256 checksums immediately after download and writes them to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`. Raw data is preserved; derivations are new files. |
+| **IV. Single Source of Truth** | **PASS** | All metrics (accuracy, latency) generated by code and written to JSON/Parquet; paper stats derived solely from these files. |
+| **V. Versioning Discipline** | **PASS** | `download.py` writes artifact hashes to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml` upon completion of each data step. Code changes trigger state updates. |
+| **VI. Indexing Granularity Control** | **PASS** | Plan explicitly defines Coarse, Medium, and Fine store construction and retrieval logic. |
+| **VII. CPU-Tractability Constraint** | **PASS** | Selected models (Phi-3-mini, YOLOv8-Tiny, CLIP) are CPU-optimized. Quantization strategy verified for CPU compatibility. |
 
 ## Project Structure
 
@@ -45,55 +41,88 @@ This project implements a Retrieval-Augmented Generation (RAG) evaluation pipeli
 ```text
 specs/001-llmxive-follow-up-extending-memlens-benc/
 ├── plan.md              # This file
-├── research.md          # Phase 0 output (Dataset verification, Strategy)
-├── data-model.md        # Phase 1 output (Schema definitions)
-├── quickstart.md        # Phase 1 output (Run instructions)
-├── contracts/           # Phase 1 output (Schemas)
-│   ├── dataset.schema.yaml
-│   ├── evaluation_result.schema.yaml
-│   └── fine_store_output.schema.yaml  # NEW: Schema for YOLOv8n output
-└── tasks.md             # Future Artifact: Generated by Implementer Agent in next stage (absent now).
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── memory_store.schema.yaml
+    └── metrics.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/
+├── data/
+│   ├── raw/
+│   │   └── memlens/           # Downloaded raw JSON/Parquet + images
+│   └── processed/
+│       ├── filtered_msr_tr/   # Filtered dataset
+│       └── memory_stores/     # Coarse, Medium, Fine stores
 ├── code/
 │   ├── __init__.py
-│   ├── config.py              # Paths, seeds (42), hyperparameters
-│   ├── data_loader.py         # MemLens download & filtering (FR-001)
-│   ├── stores/
-│   │   ├── __init__.py
-│   │   ├── coarse_store.py    # Text summaries only (Constitution VI)
-│   │   ├── medium_store.py    # Summaries + CLIP (Constitution VI)
-│   │   └── fine_store.py      # Summaries + YOLOv8n (Constitution VI, seed=42)
-│   ├── retrieval.py           # FAISS-cpu cosine similarity (FR-003)
-│   ├── generator.py           # 4-bit LLM inference (FR-004)
-│   ├── evaluator.py           # Metrics calculation (FR-005)
-│   ├── profiler.py            # RAM/Latency logging (FR-005, FR-003)
-│   └── run_pipeline.py        # Main orchestration (US-1, US-2, US-3)
-├── data/
-│   ├── raw/                   # Downloaded MemLens (checksummed)
-│   └── processed/             # Constructed stores
+│   ├── download.py            # Data ingestion, checksumming, state update
+│   ├── preprocessing.py       # Filtering & store construction
+│   ├── retrieval.py           # Cosine similarity logic (text-only for Fine)
+│   ├── inference.py           # CPU-optimized LLM execution
+│   ├── evaluation.py          # Accuracy & latency metrics
+│   ├── stats.py               # Wilcoxon test & significance
+│   └── main.py                # Orchestrator
 ├── tests/
-│   ├── unit/
-│   │   ├── test_store_construction.py
-│   │   └── test_metrics.py
-│   └── integration/
-│       └── test_pipeline.py
-├── outputs/
-│   └── results.csv            # Aggregated evaluation results (append-only)
-└── requirements.txt
+│   ├── contract/              # Validates against contracts/ in specs/
+│   ├── integration/
+│   └── unit/
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Selected **Option 1: Single project** with modular `code/` structure. This minimizes overhead for a research pipeline and aligns with the requirement for a single executable script (`run_pipeline.py`) that orchestrates the three store variants sequentially to ensure reproducibility.
+**Structure Decision**: Single project structure (`code/`) chosen for a research pipeline. Separation of concerns (download, preprocess, inference, eval) ensures modularity and testability.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Three Store Variants** | Required by Constitution Principle VI and FR-002 to isolate granularity effects. | Running only one store (e.g., Coarse) would fail to answer the research question about the *influence* of granularity. |
-| **YOLOv8n Integration** | Required for "Fine" store (object-level captions) per Constitution VI. | Using image-level embeddings only (Medium) would not satisfy the "Fine" definition requiring object-level granularity. |
-| **4-bit Quantized LLM** | Required by FR-004 and Constitution VII for CPU feasibility. | Full precision LLMs exceed 7GB RAM on the target runner; GPU-based inference is disallowed. |
-| **Wilcoxon Signed-Rank** | Required due to deterministic system and small N. | Repeated-Measures ANOVA assumes normality and random variance, which is violated by deterministic LLM outputs and binary metrics. |
+| **Three Memory Stores** | Required by Spec (FR-002), Constitution (Principle VI), and **Success Criteria (SC-005)** to isolate indexing granularity effects. | A single store would fail to answer the core research question regarding visual fidelity loss vs. compression. |
+| **Object Detection Fallback** | Required by Spec (Edge Cases, FR-008) to handle YOLO failures gracefully without pipeline crash. | Hard failing on detection errors would invalidate the dataset subset and bias results. |
+| **LLM-based Captioning** | Required to avoid the confound of 'template quality' vs. 'granularity' (Methodology Concern). Template descriptions lack semantic richness. | Template-based descriptions (e.g., 'Object at [x,y]') would introduce a text-quality confound, invalidating the comparison with Coarse/Medium stores. |
+| **Stratified Statistical Test** | Required to handle the 'mixed strategy' issue where YOLO fallback occurs. | Running a Wilcoxon test on a mixed group (object-level + global) would violate the ceteris paribus assumption, invalidating the causal claim. |
+
+## Phase Plan
+
+### Phase 0: Data Ingestion & Validation
+1.  **Download**: Fetch MemLens dataset (JSON) and associated images from HuggingFace.
+2.  **Checksum**: Compute SHA-256 of all raw artifacts. Write hashes to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`.
+3.  **Filter**: Extract MSR and TR tasks. Verify sample size (n ≥ 30).
+4.  **Validate**: Check image accessibility (ensure `image_path` fields resolve).
+
+### Phase 1: Memory Store Construction
+1.  **Coarse**: Text summaries only. Embed with `sentence-transformers`.
+2.  **Medium**: Text summaries + Global CLIP image embeddings.
+3.  **Fine**:
+    *   Run YOLOv8-Tiny on images.
+    *   **Captioning**: Use a lightweight CPU-optimized VLM/LLM to generate natural language descriptions for each detected object. **No templates allowed.**
+    *   **Fallback**: If YOLO fails, store global CLIP embedding and flag `detection_status: fallback`.
+    *   **Embedding**: Embed object captions only (no spatial coordinates in similarity vector).
+
+### Phase 2: Retrieval & Inference
+1.  **Retrieval**:
+    *   Coarse/Medium: Text cosine similarity.
+    *   Fine: Text cosine similarity on object captions. (Spatial coordinates stored but **excluded** from similarity calculation).
+2.  **Inference**: Run Phi-3-mini (frozen) on retrieved context. Record latency.
+
+### Phase 3: Evaluation & Statistics
+1.  **Accuracy**: Compare generated answers to ground truth.
+2.  **Stratification**: Filter out samples with `detection_status: fallback` for the primary test.
+3.  **Test**: Paired Wilcoxon signed-rank test on the 'success' subset.
+4.  **Reporting**: If n < 30 in 'success' subset, report descriptive stats only.
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **OOM (Out of Memory)** | Pipeline crashes; no results. | Implement strict memory monitoring. Drop to 16-bit if 4-bit fails. Process data in chunks. |
+| **Insufficient Samples (N < 30)** | Statistical test invalid. | Log warning. Report descriptive stats (mean, std) and effect size (Cohen's d) without p-value significance claims. |
+| **YOLO Failures > 40%** | Fine store invalid (SRS < 0.6). | Fallback to global embeddings (Medium). Report SRS metric. If SRS < 0.6, flag "Visual Fidelity Not Validated". |
+| **Model Not CPU Compatible** | Inference fails. | Fallback to smaller model (e.g., TinyLlama) or CPU-optimized quantization. |
+| **Spec Contradiction (FR-003/SC-005)** | Plan requires coordinate exclusion, Spec requires fusion. | **Flagged for Kickback**: The plan implements the methodologically sound approach (text-only retrieval). The spec must be amended to reflect that spatial coordinates are metadata only, not retrieval features. |

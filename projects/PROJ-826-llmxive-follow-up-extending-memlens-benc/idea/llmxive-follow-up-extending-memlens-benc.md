@@ -9,45 +9,46 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-How does the semantic granularity of a retrieval index (coarse session summaries vs. fine-grained object-level embeddings) influence the visual fidelity loss and multi-session reasoning accuracy in memory-augmented Large Vision-Language Models (LVLMs)?
+How does the semantic granularity of the retrieval index (coarse session summaries vs. fine-grained object-level embeddings) specifically impact the visual fidelity loss in memory-augmented agents performing multi-session reasoning on the MemLens benchmark?
 
 ## Motivation
 
-Current memory-augmented LVLMs suffer from a trade-off where compression strategies that enable long-context handling often degrade visual fidelity, yet the specific contribution of *indexing granularity* to this loss remains unisolated. Understanding whether the failure in multi-session reasoning stems from the compression algorithm itself or the retrieval strategy is critical for designing efficient, CPU-tractable memory systems that do not require massive context windows or GPU acceleration.
+Memory-augmented agents for Large Vision-Language Models (LVLMs) often suffer from visual fidelity loss when compressing long-term context, but it remains unclear whether this degradation stems from the compression algorithm itself or the indexing strategy used to select memories. Isolating the impact of indexing granularity is critical for designing efficient, CPU-tractable memory systems that can support complex multi-session reasoning without requiring massive context windows.
 
 ## Related work
 
-- [MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models](https://arxiv.org/abs/2605.14906) — Establishes the baseline benchmark for multimodal long-term memory, identifying that memory-augmented agents maintain stability in length but lose visual fidelity due to compression, motivating the need to isolate compression versus indexing effects.
-- [Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method](https://arxiv.org/abs/2412.09082) — Highlights the limitations of existing methods in multi-stage, long-horizon tasks, providing context on why current single-stage or coarse-grained approaches fail in complex dynamic environments similar to the multi-session reasoning challenges in MemLens.
-- [LVLM-eHub: A Comprehensive Evaluation Benchmark for Large Vision-Language Models](https://arxiv.org/abs/2306.09265) — Offers a holistic evaluation framework for LVLMs, underscoring the current lack of specific benchmarks that isolate memory indexing strategies as a variable for performance degradation.
+- [MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models](https://arxiv.org/abs/2605.14906) — Establishes the primary benchmark and identifies the trade-off where memory agents maintain stability in length but lose visual fidelity due to compression.
+- [Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method](https://arxiv.org/abs/2412.09082) — Highlights the limitations of existing methods in long-horizon, multi-stage tasks, providing context for why granular memory retrieval is necessary for complex reasoning beyond single-stage interactions.
+- [LVLM-eHub: A Comprehensive Evaluation Benchmark for Large Vision-Language Models](https://arxiv.org/abs/2306.09265) — Provides a broader framework for evaluating LVLM efficacy, though it lacks the specific focus on long-term memory indexing strategies addressed in this project.
 
 ## Expected results
 
-We expect that fine-grained object-level indexing will significantly reduce visual fidelity loss and improve multi-session reasoning accuracy compared to coarse session-level summaries, even when using the same compression backbone. The measurement of this effect will be the delta in accuracy on the MemLens multi-session reasoning subset, with the hypothesis that the null result (no difference) would imply that the compression algorithm, not the indexing, is the primary bottleneck.
+We expect that fine-grained object-level indexing will significantly reduce visual fidelity loss compared to coarse session-level summaries on multi-session reasoning tasks, demonstrating that the choice of indexing strategy is a primary driver of performance degradation. The results will provide empirical evidence that granular retrieval can compensate for compression artifacts, enabling stable multimodal memory with lower computational overhead than full-context attention.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the MemLens dataset (789 questions) from the official repository; filter for the ~30% of queries requiring Multi-Session Reasoning (MSR) and Temporal Reasoning (TR).
-- **Memory Store Construction**:
-  - *Coarse Store*: Generate session-level text summaries using a lightweight text-only LLM (e.g., Phi-3-mini) and discard all image data.
-  - *Medium Store*: Combine session summaries with CLIP-encoded image embeddings (frozen, CPU-optimized) for the entire session.
-  - *Fine Store*: Run a CPU-optimized object detector (e.g., YOLOv8n or a distilled variant) on session images to extract object-level captions and bounding-box descriptions; encode these as text embeddings.
-- **Retrieval Pipeline**: Implement a retrieval-augmented generation (RAG) loop where a query is embedded and matched against each store using cosine similarity (via `faiss-cpu` or `scikit-learn`); retrieve top-k chunks (k=5) to construct the context window.
-- **Generation & Evaluation**: Feed the retrieved context into a frozen, 4-bit quantized LLM (e.g., Llama-3-8B-Instruct) running on CPU to generate answers; compare against ground truth labels using exact match and semantic similarity scores.
-- **Statistical Analysis**: Perform a repeated-measures ANOVA (or Friedman test if non-parametric) on accuracy scores across the three indexing strategies (Coarse, Medium, Fine) to determine if granularity significantly predicts performance.
-- **Efficiency Measurement**: Record retrieval latency and memory footprint (RAM usage) for each strategy to assess the CPU-tractability trade-off.
-- **Validation Independence**: Ensure the ground truth labels for evaluation are derived strictly from the original MemLens annotations, independent of the generated memory stores or the retrieval process, preventing circular validation.
+- **Data Preparation**: Download the MemLens dataset (789 questions) and filter for the subset requiring multi-session reasoning (MSR) and temporal reasoning (TR).
+- **Memory Store Construction**: For each session in the filtered dataset, generate three distinct memory representations:
+    - *Coarse*: Session-level text summaries only (no images).
+    - *Medium*: Session summaries combined with global CLIP image embeddings.
+    - *Fine*: Object-level captions and bounding-box descriptions generated using a CPU-optimized detector (e.g., YOLOv8-Tiny or a distilled variant).
+- **Retrieval Pipeline**: Implement a retrieval-augmented generation (RAG) pipeline using a CPU-based retriever (cosine similarity on text embeddings) to select the top-k relevant chunks from each memory store type.
+- **Inference**: Feed the retrieved chunks into a frozen, CPU-friendly language model (e.g., Phi-3-mini or Llama-3-8B in 4-bit quantization) to generate answers to the MSR/TR queries.
+- **Evaluation**: Measure accuracy for each indexing strategy (Coarse, Medium, Fine) against the ground truth answers provided in MemLens.
+- **Latency Analysis**: Record retrieval and inference latency for each strategy to assess the computational trade-off between granularity and speed.
+- **Statistical Analysis**: Apply a paired t-test or Wilcoxon signed-rank test to compare the accuracy distributions between the Fine and Coarse strategies to determine statistical significance.
+- **Independent Validation**: Ensure the evaluation metric (answer accuracy against MemLens ground truth) is independent of the input features used to construct the memory stores, avoiding circular validation.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: llmXive follow-up: extending "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Lang".
-- Closest match: (None) — This is the primary iteration of the idea; no prior fleshed-out duplicates exist in the corpus.
+- Reviewed existing ideas: (None in the provided list).
+- Closest match: None (N/A).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T21:59:07Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T22:48:12Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Lang" computer science
 **Verified citation count**: 3
@@ -57,26 +58,26 @@ We expect that fine-grained object-level indexing will significantly reduce visu
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Lang" computer science | 0 |
-| 1 | multimodal long-term memory benchmarks for vision-language models | 5 |
-| 2 | evaluating persistent memory in large vision-language models | 0 |
-| 3 | long-context multimodal understanding in LLMs | 0 |
-| 4 | vision-language model memory retention mechanisms | 0 |
-| 5 | benchmarking multimodal context windows in AI systems | 0 |
-| 6 | multimodal retrieval-augmented generation for long-term memory | 0 |
-| 7 | visual long-term memory evaluation in foundation models | 0 |
-| 8 | multimodal episodic memory in large language models | 0 |
-| 9 | scaling memory capabilities in vision-language architectures | 0 |
-| 10 | multimodal context compression and recall in VLMs | 0 |
-| 11 | persistent multimodal state tracking in generative AI | 0 |
-| 12 | long-horizon multimodal reasoning benchmarks | 0 |
-| 13 | multimodal memory injection techniques for LLMs | 0 |
-| 14 | visual context persistence in transformer-based models | 0 |
-| 15 | benchmarking multimodal instruction following over long contexts | 0 |
-| 16 | multimodal semantic memory in large-scale vision systems | 0 |
-| 17 | multimodal memory consistency and stability in VLMs | 0 |
-| 18 | long-term visual grounding in language models | 0 |
-| 19 | multimodal context management strategies in generative models | 0 |
-| 20 | evaluation metrics for multimodal long-range dependencies in AI | 0 |
+| 1 | Multimodal long-term memory benchmarks for vision-language models | 5 |
+| 2 | Evaluating long-context retention in vision-language large language models | 0 |
+| 3 | Persistent multimodal memory mechanisms in large vision-language models | 0 |
+| 4 | Benchmarking multimodal context windows in VLMs | 0 |
+| 5 | Long-term visual memory retrieval in vision-language transformers | 0 |
+| 6 | Multimodal episodic memory evaluation for large language models | 0 |
+| 7 | Scalable multimodal memory architectures for vision-language tasks | 0 |
+| 8 | Assessing multimodal context limits in vision-language models | 0 |
+| 9 | Long-range dependency modeling in multimodal large language models | 0 |
+| 10 | Vision-language model memory capacity and retrieval benchmarks | 0 |
+| 11 | Multimodal context compression and retention in VLMs | 0 |
+| 12 | Evaluating multimodal working memory in large vision-language systems | 0 |
+| 13 | Long-horizon multimodal reasoning benchmarks for VLMs | 0 |
+| 14 | Multimodal memory injection techniques for vision-language models | 0 |
+| 15 | Retention of visual context in long-form vision-language generation | 0 |
+| 16 | Comparative analysis of multimodal memory in large vision-language models | 0 |
+| 17 | Multimodal long-context understanding benchmarks for VLMs | 0 |
+| 18 | Architectural approaches to multimodal long-term memory in VLMs | 0 |
+| 19 | Multimodal memory consistency and fidelity in large vision-language models | 0 |
+| 20 | Multimodal context window expansion and evaluation in VLMs | 0 |
 
 ### Verified citations
 

@@ -1,60 +1,68 @@
-# Quickstart: llmXive follow-up: extending "MemLens"
+# Quickstart: llmXive follow-up: extending "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
 
 ## Prerequisites
+
 - Python 3.11+
 - Git
-- GitHub Actions Runner (or local machine with sufficient RAM, CPU-only)
+- Access to a GitHub Actions runner (or local machine with ≤7GB RAM)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-826-llmxive-follow-up-extending-memlens-benc
-   ```
+1.  **Clone the repository** and navigate to the project directory.
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-826-llmxive-follow-up-extending-memlens-benc
+    ```
 
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment** and install dependencies.
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
 
-3. **Install Dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: Ensure `faiss-cpu` is installed, not `faiss-gpu`.*
+3.  **Verify CPU availability**:
+    Ensure no CUDA is forced. The code will default to CPU.
+    ```bash
+    python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+    ```
 
 ## Running the Pipeline
 
-### 1. Download Data
-The pipeline will automatically download the MemLens dataset on first run if `data/raw/` is empty.
-```bash
-python code/data_loader.py --download
-```
-*Note: This step includes retry logic for image assets. Failed downloads are logged and the query is excluded.*
+The pipeline is orchestrated via `code/main.py`.
 
-### 2. Run Evaluation (Full)
-Executes the full pipeline: download, store construction, retrieval, generation, and statistical analysis.
+### Step 1: Download and Filter Data
 ```bash
-python code/run_pipeline.py --full
+python code/main.py --action download
 ```
-*This may take several hours. It will save intermediate checkpoints (appends to `outputs/results.csv`).*
+*Downloads MemLens, verifies checksum, and filters for MSR/TR tasks.*
 
-### 3. Run Evaluation (Debug/Quick)
-Runs on a small subset (e.g., 5 queries) to verify the pipeline logic.
+### Step 2: Construct Memory Stores
 ```bash
-python code/run_pipeline.py --debug
+python code/main.py --action build-stores
 ```
+*Generates Coarse, Medium, and Fine stores. Includes YOLOv8-Tiny detection.*
 
-### 4. View Results
-Results are saved to `outputs/results.csv` and `outputs/statistics.json`.
+### Step 3: Run Inference
 ```bash
-cat outputs/statistics.json
+python code/main.py --action infer
 ```
+*Runs the frozen LLM on all three stores. Records latency and RAM.*
+
+### Step 4: Evaluate and Test Statistics
+```bash
+python code/main.py --action evaluate
+```
+*Calculates accuracy, runs Wilcoxon test, and generates `metrics.json`.*
+
+## Expected Outputs
+
+- `data/processed/memory_stores/`: JSONL files for each strategy.
+- `artifacts/results/metrics.json`: Aggregated performance and statistical results.
+- `artifacts/logs/`: Detailed logs of YOLO failures, truncations, and OOM attempts.
 
 ## Troubleshooting
-- **OOM Error**: Reduce the `batch_size` in `code/config.py` or use the `--debug` flag.
-- **CUDA Error**: Ensure `device="cpu"` is set in `code/generator.py`.
-- **Missing Dataset**: Check that the HuggingFace URLs in `research.md` are accessible.
-- **Timeout**: If the job times out, `outputs/results.csv` will contain partial results valid for analysis.
+
+- **OOM Error**: Reduce `batch_size` in `code/inference.py` to 1. Ensure no GPU processes are running.
+- **YOLO Failure**: Check `artifacts/logs/yolo_errors.log`. The system will automatically fallback to global embeddings.
+- **Model Load Error**: If 4-bit loading fails on CPU, the system will auto-switch to 16-bit. Check logs for `quantization_fallback`.
