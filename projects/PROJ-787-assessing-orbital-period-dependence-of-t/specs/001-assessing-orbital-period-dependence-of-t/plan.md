@@ -95,7 +95,7 @@ projects/PROJ-787-assessing-orbital-period-dependence-of-t/
 -   **Completeness Correction**: Download the Kepler completeness map. Apply it as a weight/covariate to correct for selection bias introduced by the uncertainty filter. The completeness map is used to re-weight the sample in the regression model.
 
 ### 2. Binning Strategy (FR-003)
--   **Range**: Log-period from 0.7 to 2.0 (5 to 100 days).
+-   **Range**: Log-period from the lower bound of the log-scale to 2.0 (5 to 100 days).
 -   **Method**: **Fixed** log-spaced bins (no dynamic merging). Bin boundaries are defined a priori to avoid data-dependent bias.
 -   **Minimum Count**: Bins with <30 planets are **retained** but flagged with `low_count=True`. Their `bimodality_weight` is set to 0 in the regression to avoid selection bias, rather than merging them.
 -   **Weighting**: Regression uses the inverse variance of the gap location estimate (`weight = 1 / gap_location_variance`) as weights.
@@ -110,7 +110,7 @@ projects/PROJ-787-assessing-orbital-period-dependence-of-t/
 ### 4. Slope Calculation & Theory Comparison (FR-006, FR-007)
 -   **Regression**: **Errors-in-Variables (EIV)** regression of $\log(R_{gap})$ vs $\log(P)$, accounting for uncertainty in both X (bin center variance) and Y (gap location variance). This replaces simple weighted OLS to avoid bias from measurement error in the independent variable.
 -   **Completeness**: Include the Kepler completeness map as a covariate in the regression model to correct for Malmquist bias.
--   **Theoretical Comparison**: **Monte Carlo Consistency Test**. The theoretical slopes (Owen & Wu: -0.11, Ginzburg: -0.09) are treated as distributions with $\sigma = 0.05$, derived from the physical model's parameter uncertainties (stellar mass, temp, etc.). The measured slope is compared against these distributions to calculate p-values. This addresses the concern that treating theories as fixed constants inflates Type I error.
+-   **Theoretical Comparison**: **Monte Carlo Consistency Test**. The theoretical slopes (Owen & Wu: a negative offset consistent with theoretical expectations for atmospheric mass loss., Ginzburg: a negative effect size) are treated as distributions with $\sigma = 0.05$, derived from the physical model's parameter uncertainties (stellar mass, temp, etc.). The measured slope is compared against these distributions to calculate p-values. This addresses the concern that treating theories as fixed constants inflates Type I error.
 
 ### 5. Validation (FR-008, FR-009)
 -   **KDE Validation**: Adaptive bandwidth KDE on cumulative distribution. Log `kde_bandwidth` and `kde_cumulative_data_path`.
