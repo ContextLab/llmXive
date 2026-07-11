@@ -1,110 +1,88 @@
 # Research: Bayesian Nonparametrics for Anomaly Detection in Time Series
 
-## 1. Literature Review & Theoretical Basis
+## 1. Problem Statement & Hypothesis
 
-### 1.1 Dirichlet Process Gaussian Mixture Models (DP-GMM)
-DP-GMMs allow the number of mixture components to grow with the data, making them ideal for detecting unknown regime shifts in time series. The stick-breaking construction (Sethuraman,) provides a tractable representation for inference.
+**Hypothesis**: The rate of change of the concentration parameter ($\dot{\alpha}$) in a time-varying Dirichlet Process Gaussian Mixture Model (DP-GMM) serves as a robust early-warning signal for regime shifts in time series, detectable before the posterior distribution of component weights fully converges to the new regime.
 
-**Critical Theoretical Correction**: In standard DP-GMM, the concentration parameter $\alpha$ is a global hyperparameter. To make $\alpha$ a valid local signal for sliding windows, this project implements a **hierarchical time-varying prior**: $\alpha_t \sim \text{Normal}(\alpha_{t-1}, \sigma)$. This re-parameterization allows $\alpha$ to evolve locally, making its derivative $\dot{\alpha}$ a meaningful signal for local regime shifts.
-
-**Key Insight**: Under normal conditions, $\alpha_t$ is stable. During a regime shift, the model adapts by increasing the number of components locally, causing $\alpha_t$ to fluctuate. The rate of change $\dot{\alpha}_t$ is hypothesized to be an early-warning signal (FR-020, US-1).
-
-### 1.2 Variational Inference (ADVI) & MCMC Validation
-Automatic Differentiation Variational Inference (ADVI) (Kucukelbir et al.,) is used for scalable inference in PyMC 4. Unlike MCMC, ADVI is deterministic and faster, making it feasible for sliding window inference on CPU. However, ADVI assumes a unimodal posterior approximation, which may fail in the small-n (n=50) regime.
-
-**Robustness Strategy**: We perform a **MCMC subset validation** (Phase 4) on 50 representative windows to verify that the ADVI approximation is accurate for this specific model and data regime.
-
-### 1.3 Baseline Methods
-- **Fixed GMMs**: k=3, 5, 10 components. These serve as static baselines to isolate the nonparametric advantage.
-- **ARIMA**: Autoregressive Integrated Moving Average models capture linear temporal dependencies. Reconstruction error (MSE) is the anomaly score.
+**Research Question**: Does the DP-GMM dynamic signature ($\dot{\alpha}$, $\text{Var}(\pi)$) detect anomalies significantly earlier than static baselines (fixed GMM, ARIMA) while maintaining low false-positive rates under gradual drift?
 
 ## 2. Dataset Strategy
 
-### 2.1 Verified Datasets
-Per the project constraints, we use ONLY the following verified datasets (URLs from `# Verified datasets` block):
+The system will utilize **synthetic data** for primary hypothesis testing (due to the need for precise ground-truth injection timestamps and pre-anomaly dynamics) and **verified real-world datasets** for generalizability checks.
 
-| Dataset | Source URL | Usage |
-|---------|------------|-------|
-| **NAB (Numenta Anomaly Benchmark)** | ` | Real-world time series with labeled anomalies (verified). |
-| **PhysioNet Sleep** | ` | Multivariate physiological signals. **Projection**: Select ECG lead II or compute heart rate variability to obtain univariate series. |
-| **PhysioNet Digiscope** | ` | High-frequency time series. **Projection**: Select single representative channel (e.g., SpO2). |
+### 2.1 Synthetic Data Generator
+- **Purpose**: Generate univariate time series with controlled regime shifts (abrupt, gradual, point anomalies) and explicit pre-anomaly dynamics (increasing variance, changing autocorrelation) as required by FR-021.
+- **Validation**: FR-022 requires verification of injected statistics against expected values before use.
+- **Ground Truth**: Injection timestamps are independent of model inference.
 
-> **Note**: UCI HAR is **excluded** as it is a static classification dataset, not a continuous time series with regime shifts. Real-world datasets with labeled regime shifts are scarce; synthetic data is the primary source for pre-anomaly dynamics.
+### 2.2 Real-World Datasets (Verified Sources Only)
+Per the `# Verified datasets` block and FR-017, the system will attempt to load:
+- **NAB (Numenta Anomaly Benchmark)**:
+ - URL: `
+ - Search Keywords: "NAB anomaly detection ground truth", "NAB time series regime shift".
+- **PhysioNet MIT-BIH Arrhythmia**:
+ - URL: ` (or verified HuggingFace mirror)
+ - Search Keywords: "PhysioNet MIT-BIH arrhythmia ground truth", "ECG regime shift detection".
 
-### 2.2 Dataset Search Procedure (FR-017, FR-017b)
-1. Search for "time series regime shift labeled" in UCI, NAB, PhysioNet.
-2. If no verified source found with labeled regime shifts, generate a "Validation Deferred" report.
-3. Log the search query and result count in the final report.
-4. Mark requirement as "Deferred by Design" if no source is found.
-
-### 2.3 Synthetic Data Generation
-Since real-world datasets may lack labeled regime shifts, we implement a synthetic generator (FR-021) that:
-- Injects point anomalies, abrupt shifts, and gradual drift.
-- Includes **pre-anomaly dynamics** (increasing variance, changing autocorrelation) to test the early-warning hypothesis.
-- Verifies generator logic (FR-022) before use.
-- **Null Hypothesis Simulation**: Generates stationary data with known properties to verify that $\dot{\alpha}$ remains near zero under the null (FR-020).
-
-### 2.4 Data Preprocessing
-- **Normalization**: Zero mean, unit variance (FR-001).
-- **Missing Timestamps**: Synthetic integer timestamps generated (Edge Case).
-- **Sample Size**: Datasets with <1,000 obs are rejected (Edge Case).
-- **Splitting**: Data is split into Training/Validation/Test sets. Thresholds selected on Validation, applied to Test (FR-019).
+**Note**: If no verified source contains a known regime shift suitable for the specific "early-warning" hypothesis, the system will output a **"Validation Deferred"** report citing the search query and result count (FR-017b). **NO fabricated URLs** will be used.
 
 ## 3. Methodology & Statistical Rigor
 
-### 3.1 Sliding Window Inference
-- **Window Length**: 50 observations (increased from 30 for stability in nonparametric estimation).
-- **Stride**: 1 observation.
-- **Model**: Hierarchical DP-GMM with time-varying $\alpha_t$ (PyMC 4, ADVI).
-- **Output**: Posterior mean $\alpha_t$, component weights $\pi_t$, and their derivatives $\dot{\alpha}_t$, $\dot{\pi}_t$.
+### 3.1 Model Architecture & Mathematical Definition
+- **DP-GMM**: Stick-breaking construction with a **time-varying prior** on $\alpha$: $\alpha_t \sim \text{Normal}(\alpha_{t-1}, \sigma_\alpha)$.
+- **Interpretation**: In this modified regime, $\alpha_t$ is a **local latent state** per window, not a global hyperparameter. $\dot{\alpha}$ represents the rate of change of this local state.
+- **Null Hypothesis**: To distinguish prior-induced drift from data signal, we run a simulation on null data (known $\alpha$) to subtract the prior-induced derivative component from the observed $\dot{\alpha}$.
+- **Inference**: ADVI (Automatic Differentiation Variational Inference) for speed on CPU.
+- **Convergence**: ELBO delta < 0.01 over 10 iterations within 500 max iterations (FR-009). Non-convergent windows are excluded.
+- **Robustness Check**: MCMC (NUTS) run on a subset of windows (e.g., 50 highest variance) to validate ADVI results (FR-018). **Bias Quantification**: We will explicitly measure the bias between ADVI and MCMC estimates for $\dot{\alpha}$ and $\text{Var}(\pi)$.
 
-### 3.2 Anomaly Scoring
-- **DP-GMM**: $|\dot{\alpha}_t|$ (rate of change of local concentration parameter).
-- **Baselines**: Reconstruction error (MSE) from fixed GMMs and ARIMA.
+### 3.2 Baselines
+- **Fixed GMMs**: k=3, 5, 10.
+- **ARIMA**: Auto-selected order on sliding windows.
+- **Metric**: Reconstruction error (MSE).
 
 ### 3.3 Statistical Testing
-- **Time-to-Detection**: Steps from injection to threshold crossing.
-- **Blind Validation**: Detect anomalies in held-out test set without prior knowledge of injection points.
-- **Bootstrap Resampling**: If anomaly count <10, switch to non-parametric bootstrap for p-values (FR-011, FR-012). This is the **primary** test for distributional differences.
-- **Kolmogorov-Smirnov (KS) Test**: Supplementary descriptive metric for distributional differences (FR-010, FR-014, FR-015).
+- **Time-to-Detection**: Wilcoxon signed-rank test (primary) and paired t-test (secondary) on detection steps. **Censoring**: For windows where no detection occurs, we use **Survival Analysis (Kaplan-Meier)** to handle censored data, avoiding the skewness violation of standard Wilcoxon.
+- **Distributional Differences**: Two-sample Kolmogorov-Smirnov (KS) test for:
+ - Anomaly vs. Normal window signatures (FR-010).
+ - Transient anomalies vs. gradual drift (FR-014).
+ - Baseline vs. DP-GMM signatures (FR-015).
+- **Sample Size**: If anomaly count < 10, switch to **non-parametric bootstrap** for p-values and CIs (FR-011, FR-012).
+- **Signal-to-Noise**: Simulation study to verify SNR > 1 for $\dot{\alpha}$ under null (FR-020). **Separation of Variance**: The study separates 'estimator variance' (inference noise) from 'data variance' by running on null data with known parameters.
+- **Temporal Alignment**: To compare 'early warning' claims, we will align the $\dot{\alpha}$ spike and the MSE threshold crossing in time. The 'time-to-detection' is calculated as the difference between the injection timestamp and the first threshold crossing of each metric, ensuring a fair comparison of temporal scales.
 
 ### 3.4 Sensitivity Analysis
-- **Threshold**: Sweep {0.01, 0.05, 0.1} on normalized MSE (FR-007).
-- **Window Size & Smoothing**: Robustness check for $\dot{\alpha}$ signal (FR-016).
-- **Prior Sensitivity**: Vary $\alpha$ hyperparameters (Constitution Principle VII).
+- **Threshold**: Sweep {0.01, 0.05, 0.1} on **$\dot{\alpha}$** (not just MSE) to validate the core hypothesis (FR-007).
+- **Window Size**: Vary length (20, 30, 50) and stride (1, 5) (FR-016).
+- **Prior**: Vary $\sigma_\alpha$ in the time-varying prior (FR-007, FR-016).
+- **Power Analysis**: We will perform a power analysis to justify the window size of 30 or propose an adaptive windowing strategy if 30 is insufficient for stable $\alpha$ estimation (Scientific Soundness Concern).
 
-### 3.5 Simulation Study (FR-020)
-- **Goal**: Verify signal-to-noise ratio of $\dot{\alpha}$ under null hypothesis (stationary data).
-- **Null Hypothesis**: Data is stationary; $\dot{\alpha}$ should be near zero.
-- **Outcome**: If SNR < 1, flag metric as invalid and halt pipeline (US-1, Scenario 2).
+## 4. Compute Feasibility & Constraints
 
-## 4. Computational Feasibility
-
-### 4.1 Resource Constraints
-- **Hardware**: GitHub Actions free-tier (multi-core CPU, ~7 GB RAM, 14 GB disk).
-- **Runtime Limit**: ≤6 hours per job.
-- **Memory Limit**: Peak RAM < 7 GB (measured via `psutil`).
-
-### 4.2 Feasibility Strategy
-- **No GPU**: PyMC 4 configured for CPU-only; no CUDA imports.
-- **Sampled Data**: Real-world datasets sampled to fit RAM (e.g., a manageable number of observations).
-- **ADVI Limit**: Max 500 iterations per window; non-convergent models excluded.
-- **Parallelization**: Sliding windows processed sequentially to avoid memory spikes.
-- **MCMC Subset**: A subset of windows runs with NUTS to keep runtime feasible.
-
-### 4.3 Validation
-- **Peak RAM Monitoring**: `psutil.Process().memory_info().rss` tracked throughout pipeline.
-- **Runtime Tracking**: `time` module logs total execution time.
-- **Failure Mode**: If limits exceeded, pipeline fails with validation report (FR-008).
+- **Hardware**: GitHub Actions free tier (2 CPU, 7 GB RAM).
+- **Strategy**:
+ - **No GPU**: All models run on CPU.
+ - **Memory**: Data subset to fit <7 GB; use `chunked` processing if necessary.
+ - **Runtime**: Target < 6 hours. ADVI is used instead of MCMC for full trajectory.
+ - **Libraries**: `pymc` (CPU wheel), `scikit-learn`, `statsmodels`, `lifelines`. No `bitsandbytes` or CUDA-specific ops.
 
 ## 5. Decision Rationale
 
 | Decision | Rationale |
 |----------|-----------|
-| **Hierarchical Time-Varying Alpha** | Standard global $\alpha$ is invalid for local signals. The hierarchical prior makes $\alpha_t$ a local state variable, enabling $\dot{\alpha}$ as a valid signal. |
-| **ADVI over MCMC (Full)** | MCMC (NUTS) is too slow for full sliding window inference on CPU. ADVI provides a CPU-tractable approximation. |
-| **MCMC Subset Validation** | ADVI may fail in small-n regimes. Running NUTS on 50 windows validates the approximation without violating CPU constraints. |
-| **Window Size = 50** | Increased from 30 to ensure sufficient data for nonparametric estimation and reduce prior dominance. |
-| **Bootstrap for n<10** | Parametric tests require sufficient sample size. Bootstrap ensures robustness for rare anomalies. |
-| **Synthetic Injection** | Real-world datasets often lack labeled regime shifts. Synthetic injection allows controlled validation of the early-warning hypothesis. |
-| **Blind Validation** | Required to prove the metric has predictive power on unseen data, not just fitting injection artifacts. |
+| **ADVI over MCMC** | MCMC is too slow for sliding window inference on large-scale datasets; ADVI provides necessary speed on CPU. MCMC retained for robustness check on subset. |
+| **Time-varying $\alpha$ prior** | Standard DP-GMM has global $\alpha$; derivative is meaningless. Time-varying prior enables $\dot{\alpha}$ as a local signal. |
+| **Bootstrap for N<10** | Parametric tests (t-test) assume normality which fails for small $N$. Bootstrap is robust. |
+| **Specific Threshold Sweep {0.01, 0.05, 0.1}** | Mandated by FR-007 to ensure sensitivity analysis is not arbitrary. |
+| **Survival Analysis** | Required to handle censored detection times where no anomaly is detected. |
+
+## 6. Risks & Mitigations
+
+- **Risk**: $\dot{\alpha}$ is too noisy.
+ - **Mitigation**: Simulation study (FR-020) validates SNR before deployment. If SNR < 1, flag metric as invalid.
+- **Risk**: ADVI non-convergence.
+ - **Mitigation**: Exclude non-convergent windows (FR-009); log warnings.
+- **Risk**: No verified real-world dataset with regime shifts.
+ - **Mitigation**: Output "Validation Deferred" report (FR-017b); rely on synthetic data for primary results.
+- **Risk**: Bias between ADVI and MCMC.
+ - **Mitigation**: Explicit bias quantification test in robustness check (FR-018).

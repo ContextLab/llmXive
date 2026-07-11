@@ -1,0 +1,65 @@
+- What happens when the anomaly injection rate is too low for statistical power? → The system performs a sample size check; if the observed number of anomalies is <10 (based on the current run), it flags a warning and proceeds with descriptive statistics for all metrics, and switches to a non-parametric bootstrap resampling method for inferential testing (p-values, confidence intervals) to ensure the pipeline remains robust without requiring manual intervention. Descriptive statistics are supplementary to the mandatory bootstrap inferential testing.
+- How does the system handle datasets with missing timestamps? → The system assumes the data is sorted by time and generates synthetic integer timestamps (0, 1, 2...) for indexing if real timestamps are missing, as the analysis relies on relative order.
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST load univariate time series datasets with ≥1,000 observations, normalizing them to zero mean and unit variance before processing (See US-1)
+- **FR-002**: System MUST implement a stick-breaking DP-GMM using PyMC 4 with ADVI variational inference, tracking the posterior mean of the concentration parameter ($\alpha$) and component weights ($\pi$) at each sliding window step (See US-1). Note: The derivative of $\alpha$ is a proxy signal subject to validation against ground-truth and simulation studies.
+- **FR-003**: System MUST compute the first derivative (rate of change) of the posterior mean $\alpha$ and the variance of component weights for every time step $t$ (See US-1)
+- **FR-004**: System MUST fit fixed-component GMMs (k=3, 5, 10) and an ARIMA model on the same sliding windows to serve as baselines for reconstruction error comparison (See US-2)
+- **FR-005**: System MUST calculate "time-to-detection" (steps from injection to threshold crossing) for both DP-GMM dynamic signatures and baseline reconstruction errors (See US-2)
+- **FR-006**: System MUST perform a Wilcoxon signed-rank test on time-to-detection values across multiple datasets to assess statistical significance of earlier detection by DP-GMM, with a paired t-test as a secondary sensitivity check ONLY if normality assumptions are met (See US-2)
+- **FR-007**: System MUST implement a sensitivity analysis for the anomaly detection threshold, sweeping the cutoff over a range of low normalized reconstruction error MSE values (scaled to [0,1]) to evaluate robustness across potential detection boundaries. and reporting the variation in false-positive and false-negative rates (See US-3)
+- **FR-008**: System MUST validate memory usage (<7 GB) and total runtime (<6 hours) on a CPU-only environment by measuring peak RAM (via `psutil`) and total runtime (via `time`), excluding any GPU-dependent operations, and outputting a specific validation report or failing the run if limits are exceeded (See US-4)
+- **FR-009**: System MUST exclude models from evaluation if the ADVI ELBO fails to converge (delta > 0.01 for 10 consecutive iterations) within 500 iterations (See US-1, US-4)
+- **FR-010**: System MUST perform a Kolmogorov-Smirnov test to compare the distribution of "rate of change" metrics between anomaly and normal windows (See US-2)
+- **FR-011**: System MUST perform a sample size check; if the observed number of anomalies is <10, the system MUST switch to non-parametric bootstrap resampling for inferential testing (See US-1)
+- **FR-012**: System MUST execute the bootstrap switch for p-value estimation and confidence intervals when the observed anomaly count is <10, ensuring the output includes bootstrap-based p-values (See US-1)
+- **FR-013**: System MUST define "time-to-detection" against an independent ground-truth injection timestamp that is distinct from the model's own trajectory (See US-2)
+- **FR-014**: System MUST perform a two-sample KS test to compare the distribution of "rate of change" metrics between transient anomalies and gradual drift (negative control) (See US-1)
+- **FR-015**: System MUST perform a KS test to compare the distribution of baseline reconstruction error metrics (GMM/ARIMA) against the DP-GMM signature distribution (See US-2)
+- **FR-016**: System MUST implement a sensitivity analysis on window size and derivative calculation method (smoothing, lag) to validate the robustness of the "rate of change" signal (See US-3)
+- **FR-017**: System MUST perform a search for real-world datasets with known regime shifts (e.g., UCI, PhysioNet) using specific keywords; if no verified source is found, the system MUST output a "Validation Deferred" report citing the search query and result count, and mark the requirement as "Deferred by Design" (See US-1)
+- **FR-017b**: System MUST explicitly define the search procedure for real-world datasets and the "Deferred" state transition in the output report (See US-1)
+- **FR-018**: System MUST perform a robustness check by validating the $\dot{\alpha}$ signal against a subset of data using MCMC (NUTS) to ensure the signal is not an ADVI artifact (See US-1)
+- **FR-019**: System MUST split data into training/validation/test sets for threshold selection; the threshold must be selected on the validation set and applied to the held-out test set to avoid data-dredging bias (See US-3)
+- **FR-020**: System MUST perform a simulation study to verify the signal-to-noise ratio of the $\dot{\alpha}$ estimator under the null hypothesis (normal data) before relying on it as a primary metric (See US-1)
+- **FR-021**: System MUST model 'pre-anomaly' regime dynamics (e.g., increasing variance, changing autocorrelation) in the synthetic data generator to test the 'early-warning' hypothesis (See US-1)
+- **FR-022**: System MUST verify the synthetic data generator's logic (e.g., by comparing injected statistics to expected values) before use (See Assumptions)
+- **FR-023**: System MUST update the state file hash upon changes to the synthetic data generator or sliding window logic (See Assumptions)
+- **FR-024**: System MUST validate `config.yaml` against `anomaly_detector.schema.yaml` at runtime (See Assumptions)
+
+### Key Entities
+
+- **TimeSeriesWindow**: A sliding window of univariate data (length=30, stride=1) used for local distributional estimation.
+- **PosteriorTrajectory**: The time-series record of posterior means for $\alpha$ and $\pi$, and their derivatives, extracted from the DP-GMM.
+- **DetectionEvent**: A record containing the timestamp of anomaly injection, the detection timestamp by a specific method, and the calculated time-to-detection.
+- **SensitivityReport**: A structured output listing the threshold values tested and the corresponding false-positive/false-negative rates.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The distinctness of dynamic signatures (oscillation frequency/rate of change) is measured against the ground-truth injection timestamps of transient anomalies versus gradual drift, quantified as Cohen's d ≥ 0.5 (See US-1)
+- **SC-002**: The time-to-detection advantage of DP-GMM over baselines is measured against the Wilcoxon signed-rank test p-value across the three datasets (See US-2)
+- **SC-003**: The stability of the detection threshold is measured against the variation in false-positive rates across the sensitivity sweep {0.01, 0.05, 0.1} (threshold selected on validation set applied to test set) (See US-3)
+- **SC-004**: The computational feasibility is measured against the peak RAM usage (<7 GB) and total runtime (<6 hours) on the GitHub Actions runner (See US-4)
+- **SC-005**: The statistical power for detecting anomalies is measured against the observed number of anomalies in the dataset (target ≥10); if <10, the system proceeds with bootstrap resampling as per FR-012 (See US-1)
+- **SC-006**: The fallback to bootstrap resampling is measured against the successful execution of the bootstrap procedure when anomaly count <10 (See US-1)
+- **SC-007**: The distributional difference between anomaly and normal windows is measured against the KS statistic and p-value from FR-014 (See US-1)
+- **SC-008**: The distributional difference between baseline reconstruction error and DP-GMM signatures is measured against the KS statistic and p-value from FR-015 (See US-2)
+
+## Assumptions
+
+- The UCI/OpenML datasets (Electricity Load Diagrams, Air Quality, Sensors) contain sufficient observations (≥1,000) and are univariate or can be reduced to a single representative univariate series without losing the target regime shift characteristics.
+- ADVI variational inference in PyMC 4 is capable of converging adequately for the DP-GMM on the specified sliding window size (30) within 500 iterations; if convergence fails, the model is excluded as per FR-009 rather than switching to MCMC (which would violate CPU constraints).
+- The synthetic anomaly injection process (point anomalies, abrupt shifts, gradual drift, **including pre-anomaly dynamics**) accurately simulates the real-world phenomena described in the research question, and the ground-truth labels generated by the injection script are independent of the model's inference.
+- The GitHub Actions free-tier runner (standard CPU allocation, sufficient RAM) is sufficient to run the ADVI inference and baseline comparisons for the specified dataset sizes; no GPU acceleration or 8-bit quantization is required or used.
+- The "rate of change" of the concentration parameter $\alpha$ is a **hypothesis under test** as a valid and observable proxy for the "early-warning" signal. Note: In standard DP-GMM theory (e.g., Blei & Frazier, 2011), $\alpha$ is a global parameter often dominated by the prior in small windows (n=30), making the derivative a high-variance signal subject to validation. The system will perform a simulation study (FR-020) to verify the signal-to-noise ratio before relying on this metric as a primary indicator.
+- The power analysis assumption holds: with ≥1,000 observations and a 1-5% anomaly rate, the observed number of anomalies (10-50) is sufficient for the statistical tests (KS test, Wilcoxon test) to have reasonable power, though a formal power calculation is deferred to the implementation phase.
+- The sliding window length and stride are selected to be optimal for capturing short-term distributional properties without introducing excessive computational overhead or latency.

@@ -1,33 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Anomaly Detection Output Schema"
-description: "Schema for detection events and posterior trajectories"
 type: object
 properties:
-  detection_events:
-    type: array
-    items:
-      type: object
-      properties:
-        event_id:
-          type: integer
-        method:
-          type: string
-          enum: ["DP-GMM", "GMM-k3", "GMM-k5", "GMM-k10", "ARIMA"]
-        detection_timestamp:
-          type: integer
-        injection_timestamp:
-          type: integer
-        time_to_detection:
-          type: integer
-        score:
-          type: number
-      required:
-        - event_id
-        - method
-        - detection_timestamp
-        - injection_timestamp
-        - time_to_detection
-        - score
+  run_metadata:
+    type: object
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      config_hash:
+        type: string
+      peak_ram_mb:
+        type: number
+        maximum: 7168
+        description: "Peak RAM usage in MB (must be < 7GB)"
+      total_runtime_seconds:
+        type: number
+        maximum: 21600
+        description: "Total runtime in seconds (must be < 6h)"
+    required:
+      - timestamp
+      - config_hash
+      - peak_ram_mb
+      - total_runtime_seconds
   posterior_trajectory:
     type: array
     items:
@@ -37,52 +32,108 @@ properties:
           type: integer
         alpha_mean:
           type: number
-        alpha_std:
+        alpha_deriv:
           type: number
-        pi_mean:
-          type: array
-          items:
-            type: number
-        pi_var:
-          type: number
-        alpha_derivative:
+        pi_variance:
           type: number
         converged:
           type: boolean
       required:
         - window_id
         - alpha_mean
-        - alpha_std
-        - pi_mean
-        - pi_var
-        - alpha_derivative
+        - alpha_deriv
+        - pi_variance
         - converged
-  sensitivity_report:
+  detection_events:
+    type: array
+    items:
+      type: object
+      properties:
+        method:
+          type: string
+        injection_timestamp:
+          type: integer
+        detection_timestamp:
+          type: integer
+        time_to_detection:
+          type: integer
+        threshold_value:
+          type: number
+      required:
+        - method
+        - injection_timestamp
+        - detection_timestamp
+        - time_to_detection
+        - threshold_value
+  statistical_tests:
     type: object
     properties:
-      threshold_values:
+      wilcoxon:
+        type: object
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+          method:
+            type: string
+            enum: ["wilcoxon", "t-test"]
+        required:
+          - statistic
+          - p_value
+          - method
+      ks_tests:
         type: array
         items:
+          type: object
+          properties:
+            comparison:
+              type: string
+              description: "e.g., 'anomaly_vs_normal', 'baseline_vs_dpgmm'"
+            statistic:
+              type: number
+            p_value:
+              type: number
+          required:
+            - comparison
+            - statistic
+            - p_value
+      bootstrap:
+        type: object
+        properties:
+          used:
+            type: boolean
+            description: "True if anomaly count < 10"
+          p_value:
+            type: number
+          ci_lower:
+            type: number
+          ci_upper:
+            type: number
+        required:
+          - used
+  sensitivity_report:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
           type: number
-      false_positive_rates:
-        type: array
-        items:
+        false_positive_rate:
           type: number
-      false_negative_rates:
-        type: array
-        items:
+        false_negative_rate:
           type: number
-      stability_flags:
-        type: array
-        items:
+        stability_flag:
           type: boolean
-    required:
-      - threshold_values
-      - false_positive_rates
-      - false_negative_rates
-      - stability_flags
+      required:
+        - threshold
+        - false_positive_rate
+        - false_negative_rate
+        - stability_flag
 required:
-  - detection_events
+  - run_metadata
   - posterior_trajectory
+  - detection_events
+  - statistical_tests
   - sensitivity_report
-additionalProperties: false
+description: "Schema for final output report. Validates resource constraints and statistical completeness."

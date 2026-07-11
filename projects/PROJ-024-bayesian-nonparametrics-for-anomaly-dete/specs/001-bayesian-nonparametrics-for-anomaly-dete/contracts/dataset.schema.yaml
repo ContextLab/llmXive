@@ -1,30 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dataset Schema"
-description: "Schema for time series dataset used in anomaly detection"
 type: object
 properties:
-  dataset_name:
-    type: string
-    description: "Name of the dataset"
-  source_url:
-    type: string
-    format: uri
-    description: "Verified source URL (from # Verified datasets block)"
-  num_observations:
-    type: integer
-    minimum: 1000
-    description: "Number of observations (min 1000)"
-  is_univariate:
-    type: boolean
-    description: "Whether the dataset is univariate"
-  checksum:
-    type: string
-    pattern: "^[a-f0-9]{64}$"
-    description: "SHA256 checksum of the raw file"
+  metadata:
+    type: object
+    properties:
+      source_url:
+        type: string
+        description: "Verified URL from # Verified datasets block"
+      checksum:
+        type: string
+        description: "SHA256 checksum of raw file"
+      rows:
+        type: integer
+        minimum: 1000
+        description: "Number of observations (must be >= 1000)"
+      columns:
+        type: array
+        items:
+          type: string
+        description: "Column names"
+    required:
+      - source_url
+      - checksum
+      - rows
+      - columns
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: "Synthetic or real timestamp"
+        value:
+          type: number
+          description: "Normalized univariate value"
+        is_anomaly:
+          type: boolean
+          description: "Ground truth label (if available)"
+      required:
+        - timestamp
+        - value
 required:
-  - dataset_name
-  - source_url
-  - num_observations
-  - is_univariate
-  - checksum
-additionalProperties: false
+  - metadata
+  - data
+description: "Schema for input datasets. Enforces minimum row count and verified source."

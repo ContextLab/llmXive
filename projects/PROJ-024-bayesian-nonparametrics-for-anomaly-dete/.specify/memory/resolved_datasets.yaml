@@ -1,138 +1,5 @@
-resolved_at: '2026-07-10T19:41:41.673709+00:00'
+resolved_at: '2026-07-11T02:49:07.029881+00:00'
 datasets:
-- intent: DPGMM
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Aqueous_Processing_of_Mechanically_Robust_Dense_Films_from_Carboxymethyl_Cellulose-Based_Coacervates/31523045
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/821246
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/822737
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/4369142/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/4369142
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/collections/Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/3613103/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/4369142/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/collections/Method_to_represent_the_distribution_of_QTL_additive_and_dominance_effects_associated_with_quantitative_traits_in_computer_simulation/3613103
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: NOT
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
-    source: huggingface
-    format: zip
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
-    source: huggingface
-    format: json
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 39475
-      parsed: true
-  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/Type-1-Civilisation/Liber-Primus-Not-Decoded/resolve/main/liber_primus_undecoded_pseudolatin_lower.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/dataset/Data_for_Drought_intensifies_dominant_competitor_avoidance_and_risk-dependent_habitat_selection_in_a_large_carnivore_guild_/30715541
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Monarch_plant_visitation_data/30837338
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Replication_data_for_International_Linkage_and_Democratic_Velocity_Nonlinear_Attribution_Evidence_from_a_Neural_Additive_Model_for_Panel_Data/32961437
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/RSV-related_hospital_admissions_in_a_subset_of_hospitals_in_England_and_Scotland_A_real-world_study_2018_2023_/32961351
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Aqueous_Processing_of_Mechanically_Robust_Dense_Films_from_Carboxymethyl_Cellulose-Based_Coacervates/31523045
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16413212
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15525595
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16413231
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5105584
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4578581
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: MSE
   status: verified
   candidates:
@@ -152,23 +19,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Exosome-Coated_Dendrimer_Nanogels_as_a_Therapeutic_Vaccine_for_CT_Imaging-Guided_Chemoimmunotherapy_of_Pancreatic_Cancer/32961527
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Multipolar_Polarizabilities_in_materials_with_Wannier_Function_calculations_b_/32961440
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Holistic_Defect_Passivation_by_a_Dual-Additive_Strategy_Enables_Efficient_and_Stable_Wide_Bandgap_Perovskite_Solar_Cells_and_Perovskite_CZTSSe_Tandem_Solar_Cells/32961524
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/H_sub_2_sub_O_Enabled_Reversible_SO_sub_2_sub_Resistance_on_Separately_Dual-Functional_Pd_W_Sites_for_Low-Temperature_Hydrocarbon_Oxidation/32961521
+  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Adaptive_rewiring_of_NADPH_electron_flow_reveals_escape_routes_from_redox-coupled_growth_selection_in_b_b_i_Escherichia_coli_i_b_/32961449
+  - url: https://openaccess.wgtn.ac.nz/articles/thesis/Promoting_the_Wellbeing_of_Teachers_Working_With_Students_With_Special_Needs_A_Mindfulness-Supporting_Programme/32962406
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -192,6 +59,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21295442
     source: datacite
     status: wrong_format
@@ -201,14 +76,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21292904
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21292904
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://dmphub.uc3prd.cdlib.net/dmps/10.48321/D12FC13A68
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -227,23 +94,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Exosome-Coated_Dendrimer_Nanogels_as_a_Therapeutic_Vaccine_for_CT_Imaging-Guided_Chemoimmunotherapy_of_Pancreatic_Cancer/32961527
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Multipolar_Polarizabilities_in_materials_with_Wannier_Function_calculations_b_/32961440
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Holistic_Defect_Passivation_by_a_Dual-Additive_Strategy_Enables_Efficient_and_Stable_Wide_Bandgap_Perovskite_Solar_Cells_and_Perovskite_CZTSSe_Tandem_Solar_Cells/32961524
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/H_sub_2_sub_O_Enabled_Reversible_SO_sub_2_sub_Resistance_on_Separately_Dual-Functional_Pd_W_Sites_for_Low-Temperature_Hydrocarbon_Oxidation/32961521
+  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Adaptive_rewiring_of_NADPH_electron_flow_reveals_escape_routes_from_redox-coupled_growth_selection_in_b_b_i_Escherichia_coli_i_b_/32961449
+  - url: https://openaccess.wgtn.ac.nz/articles/thesis/Promoting_the_Wellbeing_of_Teachers_Working_With_Students_With_Special_Needs_A_Mindfulness-Supporting_Programme/32962406
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -263,7 +130,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/11865219
+  - url: https://zenodo.org/records/6536144
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -324,23 +191,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://acs.figshare.com/articles/journal_contribution/Exosome-Coated_Dendrimer_Nanogels_as_a_Therapeutic_Vaccine_for_CT_Imaging-Guided_Chemoimmunotherapy_of_Pancreatic_Cancer/32961527
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Multipolar_Polarizabilities_in_materials_with_Wannier_Function_calculations_b_/32961440
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Holistic_Defect_Passivation_by_a_Dual-Additive_Strategy_Enables_Efficient_and_Stable_Wide_Bandgap_Perovskite_Solar_Cells_and_Perovskite_CZTSSe_Tandem_Solar_Cells/32961524
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/H_sub_2_sub_O_Enabled_Reversible_SO_sub_2_sub_Resistance_on_Separately_Dual-Functional_Pd_W_Sites_for_Low-Temperature_Hydrocarbon_Oxidation/32961521
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Adaptive_rewiring_of_NADPH_electron_flow_reveals_escape_routes_from_redox-coupled_growth_selection_in_b_b_i_Escherichia_coli_i_b_/32961449
+  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -388,39 +255,39 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/preprint/Multi-Point_Texture_Statistics_Structure_Latent_Geometry_V2_Alignment_Dimensionality_and_Compositional_Transfer_Across_Four_Architectures/32961506
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Exosome-Coated_Dendrimer_Nanogels_as_a_Therapeutic_Vaccine_for_CT_Imaging-Guided_Chemoimmunotherapy_of_Pancreatic_Cancer/32961527
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Multipolar_Polarizabilities_in_materials_with_Wannier_Function_calculations_b_/32961440
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Holistic_Defect_Passivation_by_a_Dual-Additive_Strategy_Enables_Efficient_and_Stable_Wide_Bandgap_Perovskite_Solar_Cells_and_Perovskite_CZTSSe_Tandem_Solar_Cells/32961524
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/H_sub_2_sub_O_Enabled_Reversible_SO_sub_2_sub_Resistance_on_Separately_Dual-Functional_Pd_W_Sites_for_Low-Temperature_Hydrocarbon_Oxidation/32961521
+  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/821246
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/822737
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7023930
+  - url: https://zenodo.org/records/821246
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7712937
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7023930
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -444,11 +311,107 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.19161331
+  - url: https://zenodo.org/records/19163565
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ONLY
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/entfane/jailbreaks-only/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 160026
+      parsed: true
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/entfane/jailbreaks-only/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/545819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20480751
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/36352
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_73777
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/105571
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304032
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304032
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: UCI
   status: verified
   candidates:
@@ -494,23 +457,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Multi-Point_Texture_Statistics_Structure_Latent_Geometry_V2_Alignment_Dimensionality_and_Compositional_Transfer_Across_Four_Architectures/32961506
+  - url: https://figshare.com/articles/online_resource/_i_Five_Steps_to_Prove_Your_Music_Isn_t_AI_A_Provenance_Framework_for_Independent_Musicians_i_/32962436
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Exosome-Coated_Dendrimer_Nanogels_as_a_Therapeutic_Vaccine_for_CT_Imaging-Guided_Chemoimmunotherapy_of_Pancreatic_Cancer/32961527
+  - url: https://figshare.com/articles/media/Coal_City_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962442
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Multipolar_Polarizabilities_in_materials_with_Wannier_Function_calculations_b_/32961440
+  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Holistic_Defect_Passivation_by_a_Dual-Additive_Strategy_Enables_Efficient_and_Stable_Wide_Bandgap_Perovskite_Solar_Cells_and_Perovskite_CZTSSe_Tandem_Solar_Cells/32961524
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/H_sub_2_sub_O_Enabled_Reversible_SO_sub_2_sub_Resistance_on_Separately_Dual-Functional_Pd_W_Sites_for_Low-Temperature_Hydrocarbon_Oxidation/32961521
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -522,15 +485,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7681792
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10685355
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7627577
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4432825
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -595,23 +558,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Multi-Point_Texture_Statistics_Structure_Latent_Geometry_V2_Alignment_Dimensionality_and_Compositional_Transfer_Across_Four_Architectures/32961506
+  - url: https://figshare.com/articles/online_resource/_i_Five_Steps_to_Prove_Your_Music_Isn_t_AI_A_Provenance_Framework_for_Independent_Musicians_i_/32962436
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Exosome-Coated_Dendrimer_Nanogels_as_a_Therapeutic_Vaccine_for_CT_Imaging-Guided_Chemoimmunotherapy_of_Pancreatic_Cancer/32961527
+  - url: https://figshare.com/articles/media/Coal_City_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962442
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Multipolar_Polarizabilities_in_materials_with_Wannier_Function_calculations_b_/32961440
+  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Holistic_Defect_Passivation_by_a_Dual-Additive_Strategy_Enables_Efficient_and_Stable_Wide_Bandgap_Perovskite_Solar_Cells_and_Perovskite_CZTSSe_Tandem_Solar_Cells/32961524
+  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/H_sub_2_sub_O_Enabled_Reversible_SO_sub_2_sub_Resistance_on_Separately_Dual-Functional_Pd_W_Sites_for_Low-Temperature_Hydrocarbon_Oxidation/32961521
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -619,11 +582,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10117296
+  - url: https://zenodo.org/records/20076996
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20076996
+  - url: https://zenodo.org/records/10117296
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -635,121 +598,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280106
+  - url: https://ww2.nemar.org/dataset/on004362?v=v1.0.0
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280106
+  - url: https://ww2.nemar.org/dataset/on004362
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21296183
+  - url: https://ww2.nemar.org/dataset/nm000225?v=v1.1.0
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21296183
+  - url: https://ww2.nemar.org/dataset/nm000225
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21288923
+  - url: https://ww2.nemar.org/dataset/nm000185?v=v1.0.0
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: ADVI
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/jonathanli/legal-advice-reddit/resolve/main/test.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/violetamaral/adv-int/resolve/main/data/test-00000-of-00001-84f0db34bd082f4b.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 92312
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/api/resolve-cache/datasets/ziq/depression_advice/45e5c66d00da94de5e7481e2ca35321b7b6d27b6/test.csv?%2Fdatasets%2Fziq%2Fdepression_advice%2Fresolve%2Fmain%2Ftest.csv=&etag=%220fcfca98582852633c64eb828339d81fc4e7c3ff%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/jonathanli/legal-advice-reddit/resolve/main/test.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/mihirinamdar/wealth-advisor/resolve/main/news_data_raw.csv
-    source: huggingface
-    status: wrong_format
-    reason: HTTP 401
-  - url: https://huggingface.co/datasets/violetamaral/adv-int/resolve/main/data/test-00000-of-00001-84f0db34bd082f4b.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/api/resolve-cache/datasets/medalpaca/medical_meadow_health_advice/f76bc618ed2a3c56e7487875a7c12c249bf08c31/medical_meadow_health_advice.json?%2Fdatasets%2Fmedalpaca%2Fmedical_meadow_health_advice%2Fresolve%2Fmain%2Fmedical_meadow_health_advice.json=&etag=%22a11b52809c4229a6afa8fe65bd2ea61a3b355a1d%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Multi-Point_Texture_Statistics_Structure_Latent_Geometry_V2_Alignment_Dimensionality_and_Compositional_Transfer_Across_Four_Architectures/32961506
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Exosome-Coated_Dendrimer_Nanogels_as_a_Therapeutic_Vaccine_for_CT_Imaging-Guided_Chemoimmunotherapy_of_Pancreatic_Cancer/32961527
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Multipolar_Polarizabilities_in_materials_with_Wannier_Function_calculations_b_/32961440
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Holistic_Defect_Passivation_by_a_Dual-Additive_Strategy_Enables_Efficient_and_Stable_Wide_Bandgap_Perovskite_Solar_Cells_and_Perovskite_CZTSSe_Tandem_Solar_Cells/32961524
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/H_sub_2_sub_O_Enabled_Reversible_SO_sub_2_sub_Resistance_on_Separately_Dual-Functional_Pd_W_Sites_for_Low-Temperature_Hydrocarbon_Oxidation/32961521
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/580017
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7691719
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1155778
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19027190
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20773535
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.32927.52646
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://osf.io/fdser/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20773535
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20773535
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.24511.88485
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
+  status: unresolved
+  candidates: []
+  candidates_tried: []

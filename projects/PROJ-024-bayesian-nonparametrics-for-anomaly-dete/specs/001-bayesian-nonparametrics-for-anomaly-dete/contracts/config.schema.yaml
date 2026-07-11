@@ -1,36 +1,84 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Anomaly Detector Configuration"
-description: "Configuration schema for Bayesian Nonparametrics Anomaly Detection (max 2KB)"
 type: object
 properties:
-  random_seed:
-    type: integer
-    description: "Random seed for reproducibility"
-  window_length:
-    type: integer
-    description: "Sliding window length (default: 30)"
-  stride:
-    type: integer
-    description: "Sliding window stride (default: 1)"
-  advi_max_iter:
-    type: integer
-    description: "Maximum ADVI iterations (default: 500)"
-  advi_tol:
-    type: number
-    description: "ADVI convergence tolerance (default: 0.01)"
-  threshold_default:
-    type: number
-    description: "Default anomaly threshold (default: 0.05)"
-  sensitivity_sweep:
+  seeds:
+    type: object
+    properties:
+      global_seed:
+        type: integer
+        description: "Global random seed for reproducibility"
+      advi_seed:
+        type: integer
+        description: "Seed for ADVI inference"
+    required:
+      - global_seed
+      - advi_seed
+  model:
+    type: object
+    properties:
+      window_length:
+        type: integer
+        default: 30
+        description: "Sliding window length"
+      window_stride:
+        type: integer
+        default: 1
+        description: "Sliding window stride"
+      max_advi_iterations:
+        type: integer
+        default: 500
+        description: "Maximum ADVI iterations"
+      elbo_delta_threshold:
+        type: number
+        default: 0.01
+        description: "ELBO convergence threshold"
+      alpha_prior_sigma:
+        type: number
+        default: 0.1
+        description: "Standard deviation for time-varying alpha prior"
+    required:
+      - window_length
+      - window_stride
+      - max_advi_iterations
+  thresholds:
     type: array
     items:
       type: number
-    description: "Threshold values for sensitivity analysis (e.g., [0.01, 0.05, 0.1])"
+    description: "Mandatory set of thresholds for sensitivity analysis"
+    default: [0.01, 0.05, 0.1]
+  baselines:
+    type: object
+    properties:
+      gmm_k:
+        type: array
+        items:
+          type: integer
+        description: "Number of components for fixed GMMs"
+        default: [3, 5, 10]
+    required:
+      - gmm_k
+  paths:
+    type: object
+    properties:
+      data_raw:
+        type: string
+        default: "data/raw"
+      data_processed:
+        type: string
+        default: "data/processed"
+      state_file:
+        type: string
+        default: "state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
+    required:
+      - data_raw
+      - data_processed
+      - state_file
 required:
-  - random_seed
-  - window_length
-  - stride
-  - advi_max_iter
-  - advi_tol
-  - threshold_default
+  - seeds
+  - model
+  - thresholds
+  - baselines
+  - paths
 additionalProperties: false
+description: "Configuration for Bayesian Nonparametrics Anomaly Detection. Must be <2KB."

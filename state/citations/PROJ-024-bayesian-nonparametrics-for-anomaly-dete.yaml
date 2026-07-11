@@ -585,7 +585,29 @@
   verification_status: verified
   verified_against_url: https://github.com/numenta/NAB
   verified_at: '2026-05-03T23:58:56.889049Z'
-- artifact_hash: 4646eab739a37e2073317d01428ad261ffea608cad16985bfd8ca9d5482921d1
+- artifact_hash: cc190e825c73e061787aa433b28d2729c7f1ee3b21b2e27a2db1f02bbd932793
+  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - numenta/NAB: The Numenta Anomaly Benchmark \xB7 GitHub"
+  kind: url
+  value: https://github.com/numenta/NAB`
+  verification_status: verified
+  verified_against_url: https://github.com/numenta/NAB
+  verified_at: '2026-07-11T03:13:42.448391Z'
+- artifact_hash: cc190e825c73e061787aa433b28d2729c7f1ee3b21b2e27a2db1f02bbd932793
+  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: MIT-BIH Arrhythmia Database v1.0.0
+  kind: url
+  value: https://physionet.org/content/mitdb/1.0.0/`
+  verification_status: verified
+  verified_against_url: https://physionet.org/content/mitdb/1.0.0/
+  verified_at: '2026-07-11T03:13:42.448391Z'
+- artifact_hash: 017b1051842e8e3e798ebdce8017f4903327f90b41df4a8954084ffe8688cfdf
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/research.md
   cite_id: c-001
   cited_authors: []
@@ -595,26 +617,15 @@
   value: https://github.com/numenta/NAB`
   verification_status: verified
   verified_against_url: https://github.com/numenta/NAB
-  verified_at: '2026-07-10T19:50:11.797869Z'
-- artifact_hash: 4646eab739a37e2073317d01428ad261ffea608cad16985bfd8ca9d5482921d1
+  verified_at: '2026-07-11T03:14:24.790585Z'
+- artifact_hash: 017b1051842e8e3e798ebdce8017f4903327f90b41df4a8954084ffe8688cfdf
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: MIT-BIH Arrhythmia Database v1.0.0
   kind: url
-  value: https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip`
-  verification_status: unreachable
-  verified_against_url: https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip
-  verified_at: '2026-07-10T19:50:11.797869Z'
-- artifact_hash: 4646eab739a37e2073317d01428ad261ffea608cad16985bfd8ca9d5482921d1
-  artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/miguellmartins/circor-digiscope-physionet22/resolve/main/data/train-00000-of-00002.parquet`
-  verification_status: unreachable
-  verified_against_url: https://huggingface.co/datasets/miguellmartins/circor-digiscope-physionet22/resolve/main/data/train-00000-of-00002.parquet
-  verified_at: '2026-07-10T19:50:11.797869Z'
+  value: https://physionet.org/content/mitdb/1.0.0/`
+  verification_status: verified
+  verified_against_url: https://physionet.org/content/mitdb/1.0.0/
+  verified_at: '2026-07-11T03:14:24.790585Z'

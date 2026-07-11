@@ -1,80 +1,85 @@
 # Quickstart: Bayesian Nonparametrics for Anomaly Detection in Time Series
 
 ## Prerequisites
-
 - Python 3.11+
-- `pip` (or `venv`/`conda`)
-- GitHub Actions runner (for CI validation)
+- pip
+- Access to GitHub Actions (for CI validation) or local environment with sufficient RAM.
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone and Setup**:
    ```bash
    git clone <repo-url>
    cd projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete
-   ```
-
-2. **Create virtual environment**:
-   ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate  # or `venv\Scripts\activate` on Windows
    ```
 
-3. **Install dependencies**:
+2. **Install Dependencies**:
    ```bash
    pip install -r code/requirements.txt
    ```
+   *Note: `requirements.txt` pins CPU-compatible versions of PyMC 4 and other libraries.*
 
-## Configuration
-
-1. **Edit `code/config.yaml`** (must remain <2KB):
-   ```yaml
-   random_seed: 42
-   window_length: 50
-   stride: 1
-   advi_max_iter: 500
-   advi_tol: 0.01
-   threshold_default: 0.05
-   ```
-
-2. **Verify configuration**:
+3. **Verify Environment**:
    ```bash
-   python code/src/data/validate_config.py
+   python code/src/config.py --check
    ```
+   This validates `config.yaml` against `contracts/config.schema.yaml` (FR-024) and checks file size (<2KB).
 
-## Running the Pipeline
+## Data Preparation
 
-1. **Download datasets & validate URLs** (verified sources only):
+1. **Download Datasets**:
    ```bash
    python code/src/data/download_datasets.py
    ```
+   This script fetches only verified datasets from HuggingFace/UCI as per `research.md`.
 
-2. **Run full analysis**:
+2. **Generate Synthetic Data** (if needed):
    ```bash
-   python code/src/services/anomaly_detector.py
+   python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05
    ```
+   *This includes pre-anomaly dynamics as per FR-021.*
 
-3. **Generate report** (includes traceability):
-   ```bash
-   python code/src/evaluation/report_generator.py
-   ```
+## Running the Pipeline
+
+### Full Analysis
+```bash
+python code/src/services/anomaly_detector.py
+```
+This executes:
+1. Sliding window extraction.
+2. DP-GMM inference (ADVI) and baseline fitting.
+3. Statistical testing (Wilcoxon, KS, Bootstrap, Survival Analysis).
+4. Sensitivity analysis.
+5. Report generation.
+
+### Specific Tasks
+- **Simulation Study**:
+  ```bash
+  python code/src/evaluation/simulation.py
+  ```
+- **MCMC Robustness Check**:
+  ```bash
+  python code/src/evaluation/robustness.py --subset-size 50
+  ```
+
+## Output Artifacts
+
+- **Reports**: `data/processed/results/detection_report.json`
+- **Trajectories**: `data/processed/posterior_trajectory.parquet`
+- **Figures**: `data/processed/results/figures/`
+- **State**: `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`
 
 ## Validation
 
-- **Check RAM usage**:
-  ```bash
-  python code/src/services/monitor_resources.py
-  ```
-
-- **Run tests**:
-  ```bash
-  pytest code/tests/
-  ```
-
-## Output
-
-- **Posterior Trajectory**: `data/processed/posterior_trajectory.jsonl`
-- **Detection Events**: `data/processed/detection_events.jsonl`
-- **Sensitivity Report**: `data/processed/sensitivity_report.json`
-- **Traceability Report**: `data/processed/traceability_report.json`
-- **Final Report**: `data/processed/final_report.md`
+1. **Check Convergence**:
+   Review logs for `WARNING: ADVI did not converge`.
+2. **Verify Config Size**:
+   ```bash
+   ls -lh code/config.yaml  # Must be < 2KB
+   ```
+3. **Memory Check**:
+   Ensure peak RAM < 7GB (logged in `state/` file).
+4. **Verify Data Split**:
+   Check `data/processed/split_indices.json` for Train/Val/Test split (FR-019).

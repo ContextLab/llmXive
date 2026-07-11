@@ -1,0 +1,5 @@
+- Synthetic anomaly injection may not fully capture complex, multivariate dependencies of real regime shifts; validation against real-world datasets (FR-017) is required to ensure generalizability. If no verified source is found, the requirement is marked as "Deferred by Design" in the output report.
+- The synthetic data generator's logic is verified (FR-022) before use to satisfy Constitution Principle II.
+- The state file hash is updated (FR-023) upon changes to the synthetic data generator or sliding window logic to satisfy Constitution Principle V.
+- All processed data resides in `data/processed/` to avoid ambiguity with legacy paths. The 'Local file system' constraint includes the specific directory structure `data/processed/`.
+- `config.yaml` is validated against `anomaly_detector.schema.yaml` at runtime to ensure contract enforcement.

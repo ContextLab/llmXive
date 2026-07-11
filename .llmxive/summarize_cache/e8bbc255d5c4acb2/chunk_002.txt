@@ -1,0 +1,111 @@
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `research_reviewer_implementation_correctness__2026-05-04__research.md`
+
+---
+artifact_hash: 84e673d00f287241baa1403c417e7f866406914de23823f0441b8b5a2a5b91b2
+artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-04T04:34:36.300245Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_correctness
+score: 0.0
+verdict: reject
+---
+
+# Implementation Correctness Review — Critical Specification Deviations Detected
+
+The implementation does NOT correctly realize the design specification. Multiple violations between spec.md requirements and actual filesystem state are documented in the data summary.
+
+## 1. Configuration File Size Violation (FR-009, SC-006)
+
+**Spec Requirement**: `code/config.yaml` must be <2KB (2048 bytes)
+
+**Actual State**: Data summary shows `config.yaml` at **7890 bytes**
+
+This violates FR-009 and SC-006. Tasks T210-T212, T243 claim to verify config compliance, but the file is still 4x the allowed size. The implementation does not match the design.
+
+## 2. Legacy Directory Structure Violation (spec.md Data Directory Structure)
+
+**Spec Requirement**: NO `data/results/` directory permitted; all results must be in `data/processed/results/`
+
+**Actual State**: Data summary shows `data/results/moving_average_predictions.json` and `data/results/moving_average_summary.json`
+
+Tasks T214-T215 claim to remove this directory, b
+
+*[truncated]*
+
+## `research_reviewer_implementation_correctness__2026-05-03__research.md`
+
+---
+artifact_hash: 663c04241d808894bb9a1f0d12b3883dcc5b4312796e931123c14957216bc923
+artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-03T22:50:15.925106Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_correctness
+score: 0.0
+verdict: full_revision
+---
+
+## Implementation Correctness Review — Critical Specification Deviations
+
+### 1. Configuration File Size Violation (FR-009 Critical)
+
+The `code/config.yaml` file is **7890 bytes** according to the code summary. The spec.md **FR-009** requirement explicitly states:
+
+> "The `config.yaml` file must not exceed **2KB** in size. Only hyperparameters, random seeds, and base paths are permitted... Derived statistics and computed values must be stored in the state file."
+
+This is a **direct implementation deviation** from the specification. The file exceeds the limit by nearly 4x. Per FR-009, all computed values and derived statistics should be moved to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detect.yaml`.
+
+**Required Fix**: Split config.yaml - keep only hyperparameters, seeds, and base paths (<2KB). Move all computed statistics, checksums, and derived values to the state file.
+
+### 2. Directory Structure Deviation (Plan.md Phase 7.6)
+
+Plan.md specifies results must be stored under:
+
+*[truncated]*
+
+## `research_reviewer_implementation_correctness__2026-05-01__research.md`
+
+---
+artifact_hash: ef85e45872295bef4e537c74ed3f31f1281ca0a2b250cbbab24e15afcc4fa83e
+artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-01T16:18:08.014476Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_correctness
+score: 0.0
+verdict: full_revision
+---
+
+# Implementation Correctness Review — Critical Deviations from Design Specification
+
+## 1. Directory Structure Violation (plan.md Section: Project Structure)
+
+**Severity**: Blocking
+
+The code summary shows files at `code/` root level instead of under `code/src/` as specified in plan.md:
+
+| Specified Path (plan.md) | Actual Path (code summary) | Status |
+|--------------------------|---------------------------|--------|
+| `code/src/baselines/arima.py` | `baselines/arima.py` | ❌ |
+| `code/src/data/download_datasets.py` | `download_datasets.py` | ❌ |
+| `code/src/evaluation/metrics.py` | `evaluation/metrics.py` | ❌ |
+| `code/src/models/dpgmm.py` | Not visible in summary | ❓ |
+| `code/src/services/anomaly_detector.py` | Not visible in summary | ❓ |
+
+**Requirement**: plan.md explicitly states "All code under `code/src/` follows standard Python package layout." Task T060 and T061 were marked complete for restructuring, but evidence shows files remain at wrong locations.
+

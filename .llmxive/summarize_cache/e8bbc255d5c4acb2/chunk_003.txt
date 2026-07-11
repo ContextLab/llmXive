@@ -1,0 +1,75 @@
+## 2. Dataset Compliance Violat
+
+*[truncated]*
+
+## `research_reviewer_implementation_correctness__2026-04-30__research.md`
+
+---
+artifact_hash: bce6e5aeb10b03c90dc630149075c9976cf4c010ed6426f962e73b36bf7bbc69
+artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-04-30T17:59:57.759791Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_correctness
+score: 0.0
+verdict: full_revision
+---
+
+## Implementation Correctness Review — Critical Deviations from Design Specification
+
+### 1. Structure Compliance Violation (plan.md vs Reality)
+
+**FR-007 / Constitution Principle V**: The plan.md explicitly specifies code must be under `projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/` with subdirectories `models/`, `services/`, `data/`, `evaluation/`.
+
+**Current State**: The code summary shows files at incorrect paths:
+- `baselines/arima.py` should be at `projects/.../code/baselines/arima.py`
+- `models/__init__.py` should be at `projects/.../code/models/__init__.py`
+- `config.yaml` should be at `projects/.../code/config.yaml`
+
+This matches the prior `filesystem_hygiene` review finding. The implementation does NOT match the plan.md structure.
+
+### 2. Configuration Size Violation (T073)
+
+**T073 Requirement**: config.yaml must be under 2KB (move derived statistics to state files).
+
+**Current State**: config.yaml is 11,449 bytes — **5.7x over the limit**. This directly violates th
+
+*[truncated]*
+
+## `research_reviewer_implementation_completeness__2026-05-04__research.md`
+
+---
+artifact_hash: 84e673d00f287241baa1403c417e7f866406914de23823f0441b8b5a2a5b91b2
+artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-04T04:35:04.108365Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_completeness
+score: 0.0
+verdict: full_revision
+---
+
+## Implementation Completeness Review — Critical Gaps Between Claims and Evidence
+
+### 1. Task Completion Markers Do Not Match Filesystem State (Critical)
+
+Multiple tasks are marked `[X]` complete but the actual code/data summaries show violations:
+
+- **T210/T211/T243 (Config.yaml <2KB)**: Claims verified via `os.path.getsize()`, but `code/config.yaml` is **7890 bytes** (7.8KB), exceeding the 2048-byte limit per FR-009. This is a direct contradiction between task completion and implementation state.
+
+- **T213/T216/T240/T241/T242 (Data Directory Cleanup)**: Tasks claim PEMS-SF deletion, nested `raw/` removal, and legacy `data/results/` migration. However:
+  - `data/raw/pems_sf.csv` (539274 bytes) and `data/raw/pems_sf_synthetic.csv` (401046 bytes) still exist
+  - `data/raw/raw/` subdirectory contains files (pems_sf_traffic.csv, synthetic_control_chart.csv)
+  - `data/results/` directory exists with `moving_average_predictions.json` (295140 bytes)
+
+- **T178/T219 (Source File Location)**: Claims a
+
+*[truncated]*
