@@ -36,18 +36,16 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 .coverage.*
-.cache
+cache/
 nosetests.xml
 coverage.xml
 *.cover
-.pytest_cache
+.hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
 *.pot
-
-# Jupyter Notebook
-.ipynb_checkpoints
 
 # Environments
 .env
@@ -63,9 +61,18 @@ venv.bak/
 .vscode/
 *.swp
 *.swo
+*~
 
-# Data
-data/raw/mpea_raw.csv
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+data/raw/*.csv
+data/raw/*.json
 data/processed/*.csv
-data/rejected_entries.log
-figures/
+data/logs/*.log
+reports/*.json
+figures/*.png
+figures/*.jpg
+figures/*.svg

@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Compositional Descriptor Schema"
+description: "Schema for the derived compositional features."
+type: "object"
+properties:
+  system_id:
+    type: "string"
+    description: "FK to AlloyRecord."
+  delta_radius:
+    type: "number"
+    description: "Atomic radius mismatch (%)."
+  vec:
+    type: "number"
+    description: "Valence Electron Concentration."
+  mixing_entropy:
+    type: "number"
+    description: "Mixing entropy (J/mol·K)."
+  mixing_enthalpy:
+    type: "number"
+    description: "Mixing enthalpy (kJ/mol)."
+  electronegativity_diff:
+    type: "number"
+    description: "Electronegativity difference."
+  ilr_features:
+    type: "array"
+    description: "Isometric Log-Ratio transformed features."
+    items:
+      type: "number"
+  selected_features:
+    type: "array"
+    description: "Names of features selected by RFE/L1."
+    items:
+      type: "string"
+required:
+  - system_id
+  - delta_radius
+  - vec
+  - mixing_entropy
+  - mixing_enthalpy
+  - electronegativity_diff
+  - ilr_features
+additionalProperties: false

@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BCC Alloy Dataset Schema"
+description: "Schema for the filtered BCC alloy dataset used in the yield strength prediction pipeline."
+type: "object"
+properties:
+  system_id:
+    type: "string"
+    description: "Unique identifier for the alloy."
+    minLength: 1
+  elemental_composition:
+    type: "object"
+    description: "Map of element symbol to atomic fraction."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+    required:
+      - "Fe"
+      - "Cr"
+      - "Ni"
+  yield_strength:
+    type: "number"
+    description: "Yield strength in MPa."
+    minimum: 0
+  crystal_structure:
+    type: "string"
+    description: "Crystal phase."
+    enum:
+      - "BCC"
+  source_reference:
+    type: "string"
+    description: "DOI or URL of the source."
+  processing_status:
+    type: "string"
+    enum:
+      - "filtered"
+required:
+  - system_id
+  - elemental_composition
+  - yield_strength
+  - crystal_structure
+  - source_reference
+  - processing_status
+additionalProperties: false

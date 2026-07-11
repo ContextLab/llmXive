@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Schema"
+description: "Schema for model evaluation results."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique ID for the run."
+  model_type:
+    type: "string"
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+      - "Ridge"
+  r_squared_mean:
+    type: "number"
+    description: "Mean R² across 5-fold CV."
+  r_squared_ci_lower:
+    type: "number"
+    description: "Lower bound of 95% CI."
+  r_squared_ci_upper:
+    type: "number"
+    description: "Upper bound of 95% CI."
+  mae_mean:
+    type: "number"
+    description: "Mean Absolute Error."
+  rmse_mean:
+    type: "number"
+    description: "Root Mean Square Error."
+  feature_importance:
+    type: "object"
+    description: "Map of feature name to importance score."
+    additionalProperties:
+      type: "number"
+  seed:
+    type: "integer"
+    description: "Random seed used."
+required:
+  - model_id
+  - model_type
+  - r_squared_mean
+  - r_squared_ci_lower
+  - r_squared_ci_upper
+  - mae_mean
+  - rmse_mean
+  - seed
+additionalProperties: false

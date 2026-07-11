@@ -2,32 +2,38 @@
 
 ## Prerequisites
 - Python 3.11+
-- Installed dependencies (`pip install -r requirements.txt`)
+- `pip`
 
-## Step 1: Data Preparation
-Place the raw MPEA database file at `data/raw/mpea_raw.csv`.
-Ensure the file contains columns: `crystal_structure`, `yield_strength`, and elemental composition columns.
-
-## Step 2: Run Data Ingestion (User Story 1)
-Execute the download and filtering script:
+## Installation
 ```bash
-python code/01_download.py
-```
-This will produce `data/processed/bcc_filtered.csv`.
-
-## Step 3: Run Feature Engineering (User Story 2)
-Once data is filtered, run:
-```bash
-python code/02_engineer.py
+pip install -r requirements.txt
 ```
 
-## Step 4: Run Model Training (User Story 3)
+## Running the Pipeline
+
+### Step 1: Data Ingestion (US1)
+Downloads the MPEA database and filters for BCC alloys.
 ```bash
-python code/03_train.py
+python code/data_ingestion.py
 ```
+Output: `data/processed/bcc_filtered.csv`
+
+### Step 2: Feature Engineering (US2)
+Calculates compositional descriptors and ILR transformations.
+```bash
+python code/feature_engineering.py
+```
+Output: `data/processed/features_engineered.csv`
+
+### Step 3: Modeling (US3)
+Trains models and generates comparison reports.
+```bash
+python code/modeling.py
+```
+Output: `reports/model_comparison_report.json`
 
 ## Validation
-To validate the project structure and dependencies:
+Run tests to verify the pipeline:
 ```bash
-python code/config.py --validate
+python -m pytest tests/ -v
 ```

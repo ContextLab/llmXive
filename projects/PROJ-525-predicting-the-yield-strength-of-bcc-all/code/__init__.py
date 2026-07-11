@@ -1,3 +1,3 @@
 """
-llmXive Research Implementer: BCC Yield Strength Prediction Project
+llmXive Research Pipeline for BCC Alloy Yield Strength Prediction.
 """

@@ -29,14 +29,13 @@ A researcher needs to generate derived compositional descriptors (e.g., atomic r
 
 **Why this priority**: Raw elemental compositions are insufficient for the hypothesis. The scientific value lies in the derived descriptors or the mathematically robust ILR transformation to address compositional closure. This step transforms the data into the format required for the regression analysis.
 
-**Independent Test**: The system can be tested by selecting a known alloy composition (e.g., a standard Mo-Nb-Ta alloy) from the literature, manually calculating its descriptors using the NIST periodic table and standard formulas, and comparing the result against the system's output for that specific row with a strict numerical tolerance.
+**Independent Test**: The system can be tested by running the feature engineering module on a fixed reference alloy (Mo-25Nb-25Ta-25W in atomic percent) and verifying that the calculated descriptors (δ, VEC, mixing entropy, mixing enthalpy, electronegativity difference) match the manually calculated reference values within a relative tolerance of ≤ 1e-6.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid atomic composition for a multi-principal element alloy, **When** the feature engineering module runs, **Then** it outputs a row containing the calculated atomic radius mismatch (δ), valence electron concentration (VEC), mixing entropy, and mixing enthalpy.
-2. **Given** a valid atomic composition, **When** the feature engineering module runs with ILR selected, **Then** it outputs the Isometric Log-Ratio (ILR) transformed coordinates to address compositional closure.
-3. **Given** an alloy composition containing an element not found in the standard periodic table reference (e.g., a typo), **When** the feature engineering module runs, **Then** the process halts for that row and logs a "Missing Element Reference" error rather than producing NaN values.
-4. **Given** a dataset of 500 alloys, **When** the feature engineering runs, **Then** the processing time is efficient and completes within the CI pipeline limits.
+1. **Given** a valid atomic composition for a multi-principal element alloy, **When** the feature engineering module runs, **Then** it outputs a row containing the calculated atomic radius mismatch (δ), valence electron concentration (VEC), mixing entropy, mixing enthalpy, and electronegativity difference.
+2. **Given** an alloy composition containing an element not found in the standard periodic table reference (e.g., a typo), **When** the feature engineering module runs, **Then** the process halts for that row and logs a "Missing Element Reference" error rather than producing NaN values.
+3. **Given** a dataset of 500 alloys, **When** the feature engineering runs, **Then** the processing time is efficient and completes within the CI pipeline limits.
 
 ---
 
@@ -46,31 +45,21 @@ A data scientist needs to train multiple regression models (Random Forest, Gradi
 
 **Why this priority**: This is the core research output. It directly answers the research question regarding the relationship between composition and yield strength. The inclusion of validation (Repeated 5-Fold CV) ensures the results are statistically defensible and robust for small datasets.
 
-**Independent Test**: The system can be tested by running the training script with a fixed random seed and verifying that the reported R², MAE, and RMSE values match the expected values within a tolerance of 0.001, and that the bootstrapped confidence intervals are generated.
+**Independent Test**: The system can be tested by running the training script with a fixed random seed and verifying that the reported R², MAE, and RMSE values match the expected values within a tolerance of 0.001, and that the bootstrapped confidence intervals are generated using the specified method.
 
 **Acceptance Scenarios**:
 
-1. **Given** the engineered dataset, **When** the model training script executes, **Then** it outputs a report comparing R², MAE, and RMSE for Random Forest, Gradient Boosting, and Ridge regression models.
+1. **Given** the engineered dataset split into training and testing sets, **When** the model training script executes, **Then** it outputs a report comparing R², MAE, and RMSE for Random Forest, Gradient Boosting, and Ridge regression models, explicitly identifying the best-performing model by the highest R² score.
 2. **Given** the best-performing model, **When** the permutation importance test runs, **Then** it outputs a ranked list of the top 5 features contributing to the prediction, verifying that the model is not relying on a single spurious correlation.
-3. **Given** the dataset, **When** the validation strategy runs (Repeated 5-Fold Cross-Validation with 10 repetitions), **Then** the system outputs a 95% confidence interval for the R² metric, formatted as [lower_bound, upper_bound] using the percentile method.
+3. **Given** the test set predictions, **When** the validation strategy runs (using 5-fold Cross-Validation), **Then** the system outputs a 95% confidence interval for the R² metric, formatted as [lower_bound, upper_bound], calculated via the percentile method on 100 bootstrap resamples of the 5-fold scores.
 
 ---
 
 ### User Story 4 - Data Quality and Scarcity Handling (Priority: P4)
 
-A researcher needs to ensure the system handles edge cases such as data scarcity and duplicate entries robustly, preventing invalid model training on insufficient or noisy data.
-
-**Why this priority**: Statistical validity requires a minimum sample size. Handling duplicates ensures data integrity. These edge cases are critical for the reliability of the research findings and must be explicitly managed.
-
-**Independent Test**: The system can be tested by providing a dataset with N < 80 entries and verifying the pipeline halts with a specific warning, and by providing duplicate entries and verifying they are averaged correctly.
-
-**Acceptance Scenarios**:
-
-1. **Given** a dataset with fewer than 80 BCC alloys after filtering, **When** the pipeline checks the dataset size, **Then** the system flags a "Data Scarcity Warning" (justified by power analysis for regression with 5 predictors at α=0.05, power=0.8) AND halts the training step.
-2. **Given** an alloy with multiple reported yield strength values for the same composition, **When** the cleaning process runs, **Then** the system averages the values, records the standard deviation, and logs the selection method.
-3. **Given** a calculated descriptor resulting in a mathematical domain error (e.g., log of zero), **When** the feature engineering module runs, **Then** the system catches the exception, assigns a value of 0.0 (if physically justified) or NaN, and logs the specific alloy ID for manual review.
-
----
+- **What happens when** the public dataset contains fewer than 80 BCC alloys after filtering? The system MUST halt immediately, exit with code 1, and write the exact log message "DATA_SCARCITY: Insufficient BCC alloys (N < 80)" to stderr.
+- **How does the system handle** alloys with multiple reported yield strength values for the same composition? The system MUST average the values and record the standard deviation, or select the median, and log the selection method.
+- **What happens when** a calculated descriptor (e.g., mixing entropy) results in a mathematical domain error (e.g., log of zero)? The system MUST catch the exception, assign a value of 0.0 (if physically justified) or NaN, and log the specific alloy ID for manual review.
 
 ## Requirements *(mandatory)*
 
@@ -78,18 +67,17 @@ A researcher needs to ensure the system handles edge cases such as data scarcity
 
 - **FR-001**: System MUST download and parse the MPEA database (DOI: 10.1038/s41597-020-00768-9), filtering for BCC-phase alloys with reported yield strength (See US-1).
 - **FR-002**: System MUST normalize elemental compositions to atomic fractions summing to 1.0 and exclude entries with missing yield strength data (See US-1).
-- **FR-003**: System MUST calculate atomic radius mismatch (δ), valence electron concentration (VEC), mixing entropy, and mixing enthalpy for every valid alloy (See US-2).
-- **FR-003.1**: System MUST apply Isometric Log-Ratio (ILR) transformation to the compositional features prior to modeling if the ILR feature set is selected, to address compositional closure and multicollinearity (See US-2).
-- **FR-003.2**: System MUST select EITHER the ILR-transformed features OR the scalar descriptors (δ, VEC, entropy, enthalpy) as the input feature set for modeling, but NOT both simultaneously, to ensure feature independence (See US-2).
-- **FR-003.3**: System MUST verify that the source of binary interaction parameters (Ω_ij) for Mixing Enthalpy is distinct from the experimental yield strength source (MPEA). If the MPEA dataset was generated using CALPHAD methods utilizing these parameters, the system MUST flag a "Circular Validation Warning" and exclude those entries or use only raw composition features (See US-2).
-- **FR-004**: System MUST perform a stratified 80/20 train-test split based on binned YIELD STRENGTH (target variable) using quantile-based binning with 5 bins IF the dataset size is ≥ 80; ELSE the system MUST flag a Data Scarcity Warning and halt the pipeline (See US-4).
-- **FR-005**: System MUST train Random Forest, Gradient Boosting, and Ridge Regression models using Repeated 5-Fold Cross-Validation (10 repetitions) for all N ≥ 80 and report R², MAE, and RMSE on the holdout set (See US-3).
-- **FR-006**: System MUST perform permutation importance testing and generate 95% confidence intervals for the R² metric using the percentile method from 1000 bootstrap resamples of the CV scores (See US-3).
+- **FR-003**: System MUST calculate atomic radius mismatch (δ), valence electron concentration (VEC), electronegativity difference, mixing entropy, and mixing enthalpy for every valid alloy. The binary interaction parameters (Ω_ij) for mixing enthalpy MUST be sourced from a documented thermodynamic database (e.g., NIST-JANAF or a specific CALPHAD assessment) distinct from the experimental yield strength source to ensure predictor independence (See US-2).
+- **FR-003.1**: System MUST apply Isometric Log-Ratio (ILR) or similar log-ratio transformations to the compositional features prior to modeling to address compositional closure and multicollinearity. These ILR features are used in COMPLEMENT with the scalar descriptors (δ, VEC, etc.) to capture both geometric constraints and specific physical mechanisms (See US-2).
+- **FR-003.2**: System MUST apply a feature selection step (e.g., L1 regularization or Recursive Feature Elimination) to the combined set of ILR and scalar descriptors to mitigate potential redundancy and identify the most predictive subset (See US-2).
+- **FR-004**: System MUST perform a stratified 80/20 train-test split based on 4 quantile-based bins of the target variable (yield strength) IF the dataset size is ≥ 80; ELSE the system MUST halt with exit code 1 and the message "DATA_SCARCITY: Insufficient BCC alloys (N < 80)" (See US-3).
+- **FR-005**: System MUST train Random Forest, Gradient Boosting, and Ridge Regression models using 5-fold Cross-Validation for all datasets with N ≥ 80, reporting the mean R², MAE, and RMSE across folds on the holdout set (See US-3).
+- **FR-006**: System MUST perform permutation importance testing and generate 95% confidence intervals for the R² metric using the percentile method on 100 bootstrap resamples of the 5-fold CV scores (See US-3).
 
 ### Key Entities
 
 - **AlloyRecord**: Represents a single alloy entry; attributes include `elemental_composition` (dict), `yield_strength` (float, MPa), `crystal_structure` (string), `system_id` (string).
-- **CompositionalDescriptor**: Represents derived features; attributes include `delta_radius` (float), `vec` (float), `mixing_entropy` (float), `mixing_enthalpy` (float), `ilr_transformed_features` (list).
+- **CompositionalDescriptor**: Represents derived features; attributes include `delta_radius` (float), `vec` (float), `mixing_entropy` (float), `mixing_enthalpy` (float), `electronegativity_diff` (float), `ilr_transformed_features` (list).
 - **ModelPerformance**: Represents evaluation results; attributes include `model_type` (string), `r_squared` (float), `mae` (float), `rmse` (float), `confidence_interval` (tuple).
 
 ## Success Criteria *(mandatory)*
@@ -101,14 +89,15 @@ A researcher needs to ensure the system handles edge cases such as data scarcity
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The coefficient of determination (R²) for the best-performing model is measured against the null hypothesis baseline (predicting the mean yield strength of the training set) to determine if composition explains significant variance (See US-3).
-- **SC-002**: The mean absolute error (MAE) of the model predictions is measured against the experimental uncertainty range of the MPEA database metadata (≤ 50 MPa) to assess practical utility (See US-3).
-- **SC-003**: The stability of feature importance rankings is measured against 10 repetitions of 5-Fold CV using the Spearman rank correlation coefficient of the rankings, with a threshold of ≥ 0.8 for robustness (See US-3).
+- **SC-002**: The mean absolute error (MAE) of the model predictions MUST be ≤ 50 MPa (the experimental uncertainty threshold of the source dataset) to demonstrate practical utility (See US-3).
+- **SC-003**: The stability of feature importance rankings is measured against 100 bootstrap resamples; the standard deviation of feature importance ranks across these resamples MUST be < 2.0 to ensure robustness (See US-3).
 - **SC-004**: The computational runtime of the full pipeline (data download to final report) is measured against the 6-hour GitHub Actions free-tier limit to ensure feasibility (See US-3).
 
 ## Assumptions
 
 - The public MPEA database (https://doi.org/10.1038/s41597-020-00768-9) contains sufficient entries (≥ 80) of BCC-phase alloys with reported yield strength values to support a statistical regression analysis.
-- Elemental properties (atomic radius, electronegativity, valence) can be reliably retrieved from a standard periodic table reference (e.g., NIST) without requiring external API calls that might fail or rate-limit during CI.
-- The relationship between composition and yield strength in BCC alloys can be approximated by the selected compositional descriptors (δ, VEC, etc.) OR the ILR transformed features, without needing explicit microstructural data (grain size, dislocation density) for this initial screening model.
+- Elemental properties (atomic radius, electronegativity, valence) can be reliably retrieved from a standard periodic table reference (e.g., NIST or a local static dictionary) without requiring external API calls that might fail or rate-limit during CI.
+- The binary interaction parameters (Ω_ij) used for mixing enthalpy are sourced from a thermodynamic database distinct from the experimental yield strength measurements to avoid circular validation.
+- The relationship between composition and yield strength in BCC alloys can be approximated by the selected compositional descriptors (δ, VEC, etc.) and ILR coordinates, provided a feature selection step is applied to mitigate redundancy.
 - The GitHub Actions free-tier runner (multi-core CPU, standard memory allocation) is sufficient to process the filtered dataset and train the specified scikit-learn models within the 6-hour job limit, provided the dataset is not expanded beyond the initial public source.
 - The yield strength values reported in the source datasets are measured under comparable conditions (room temperature, standard strain rates) such that they can be pooled without complex normalization for testing conditions.

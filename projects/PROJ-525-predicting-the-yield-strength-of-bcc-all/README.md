@@ -1,29 +1,41 @@
-# Predicting Yield Strength of BCC Alloys (PROJ-525)
+# PROJ-525: Predicting Yield Strength of BCC Alloys
 
-## Overview
-This project implements a machine learning pipeline to predict the yield strength of Body-Centered Cubic (BCC) alloys.
-It follows the `llmXive` automated science pipeline methodology.
+This project implements an automated research pipeline to predict the yield strength of Body-Centered Cubic (BCC) High-Entropy Alloys (HEAs) and Medium-Entropy Alloys (MEAs).
 
 ## Project Structure
-- `code/`: Source code for data processing, feature engineering, and modeling.
-- `data/raw/`: Raw input datasets (e.g., MPEA database).
-- `data/processed/`: Cleaned and engineered datasets.
-- `tests/`: Unit and integration tests.
+
+- `code/`: Source code for data ingestion, feature engineering, and modeling.
+- `data/`:
+ - `raw/`: Downloaded raw datasets (e.g., MPEA database).
+ - `processed/`: Cleaned and filtered datasets.
+ - `logs/`: Execution logs and rejected entries.
+ - `figures/`: Generated plots.
+- `reports/`: Model comparison reports and metrics.
 - `specs/`: Feature specifications and design documents.
+- `tests/`: Unit and integration tests.
 
-## Setup
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+## Dependencies
 
-## Running the Pipeline
-See `quickstart.md` for execution instructions once implementation is complete.
+Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Quick Start
+
+1. Run data ingestion:
+ ```bash
+ python code/data_ingestion.py
+ ```
+2. Run feature engineering:
+ ```bash
+ python code/feature_engineering.py
+ ```
+3. Run modeling:
+ ```bash
+ python code/modeling.py
+ ```
 
 ## License
-Research use only.
+
+MIT

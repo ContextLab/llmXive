@@ -3,8 +3,8 @@
 ## Prerequisites
 
 - Python 3.11+
-- Git
-- GitHub Actions (for CI) or Local Environment
+- `pip` or `conda`
+- Access to the MPEA database (DOI: 10.1038/s41597-020-00768-9) or a verified BCC dataset.
 
 ## Installation
 
@@ -20,73 +20,50 @@
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Data Setup (Critical)
-
-**Note**: The MPEA database does not have a verified programmatic URL. You must manually download it.
-
-1. **Download the MPEA dataset**:
- - Go to the DOI: `
- - Download the CSV/Excel file containing the alloy data.
- - Rename it to `mpea_raw.csv` (or the format expected by the script).
- - **Important**: Do not pre-filter or clean the data. The pipeline expects the raw file.
-
-2. **Place the file**:
- - Move the file to `data/raw/mpea_raw.csv`.
-
-3. **Verify**:
- - Ensure the file contains columns for `crystal_structure`, `yield_strength`, and elemental compositions.
- - Ensure the file is the **raw** version (contains non-BCC phases, missing values, etc.).
+4.  **Download Data**:
+    - Manually download the MPEA database (or verified BCC dataset) and place it in `data/raw/mpea_raw.csv`.
+    - Ensure the file contains columns: `system_id`, `elemental_composition`, `yield_strength`, `crystal_structure`.
+    - Run the checksum verification (if provided):
+      ```bash
+      python code/utils.py --verify data/raw/mpea_raw.csv
+      ```
 
 ## Running the Pipeline
 
-### 1. Data Download & Filtering
-```bash
-python code/01_download.py
-```
-- **Output**: `data/processed/bcc_filtered.csv`
-- **Action**: Filters for BCC phase, normalizes compositions, excludes missing data.
-- **Check**: If N < 80, the pipeline halts with a warning.
+Execute the full pipeline from data ingestion to model evaluation:
 
-### 2. Feature Engineering
 ```bash
-# Option A: Scalar Descriptors
-python code/02_engineer.py --method descriptors
-
-# Option B: ILR Transformation
-python code/02_engineer.py --method ilr
+python code/main.py
 ```
-- **Output**: `data/processed/features_descriptors.csv` or `features_ilr.csv`
-- **Note**: Run these separately. Do not combine features.
 
-### 3. Model Training & Validation
-```bash
-python code/03_train.py --features features_descriptors.csv --method rf,gb,ridge
-```
-- **Output**: `data/processed/model_results.json`
-- **Action**: Repeated K-Fold CV (K ≥ 2, 10 reps) + Bootstrapping (1000 resamples).
+### Expected Output
 
-### 4. Evaluation & Reporting
-```bash
-python code/04_evaluate.py
-```
-- **Output**: `data/processed/performance_report.csv`, `data/processed/feature_importance.png`
-- **Action**: Calculates Spearman stability, MAE vs uncertainty, and Friedman/Nemenyi test.
+- `data/processed/filtered_bcc.csv`: Cleaned dataset.
+- `data/processed/descriptors.csv`: Feature-engineered dataset.
+- `data/processed/model_results.json`: Performance metrics and confidence intervals.
+- `data/logs/rejected_entries.log`: List of excluded alloys and reasons.
 
 ## Testing
 
-Run the test suite:
+Run the unit tests to verify feature engineering accuracy:
+
 ```bash
-pytest tests/
+pytest tests/unit/test_feature_engineering.py -v
+```
+
+Run the integration test to verify the full pipeline:
+
+```bash
+pytest tests/integration/test_pipeline.py -v
 ```
 
 ## Troubleshooting
 
-- **Error: "Data Scarcity Warning"**: The filtered dataset has fewer than 80 BCC alloys. Check the raw data source.
-- **Error: "Missing Element Reference"**: The dataset contains an element not in the `periodictable` library. Check for typos.
-- **Error: "No Verified Source"**: If you are running on CI without the manual data file, the pipeline will fail. Ensure `data/raw/` is populated.
-- **Error: "Circular Validation Warning"**: The dataset contains yield strength values derived from CALPHAD using the same parameters as the predictor. These rows are flagged or excluded.
+- **Error: "DATA_SCARCITY: Insufficient BCC alloys (N < 80)"**: The filtered dataset has fewer than 80 entries. Verify the source data or the filtering logic.
+- **Error: "Missing Element Reference"**: An element in the composition is not found in the periodic table reference. Check for typos in the data.
+- **Error: "Math Domain Error"**: A mixing entropy calculation encountered a log of zero. The script will log the alloy ID and assign 0.0 or NaN.

@@ -1,0 +1,60 @@
+# Ruff Configuration for PROJ-525
+# Based on standard scientific Python practices
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and flake8-bugbear (`B`)
+select = ["E", "F", "B", "I", "N", "W", "UP", "C90"]
+ignore = []
+
+# Allow autofix for all enabled rules (as of version 0.4)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "data/raw",
+    "data/processed",
+]
+
+# Same as `--force-exclude`
+force-exclude = true
+
+# Line length configuration
+line-length = 88
+
+# Allow unused variables starting with underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Ignore unused imports in __init__.py files
+"__init__.py" = ["F401"]
+
+[lint.mccabe]
+# Flag functions with complexity > 10
+max-complexity = 10

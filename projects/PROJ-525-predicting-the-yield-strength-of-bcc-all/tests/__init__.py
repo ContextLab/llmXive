@@ -1,4 +1,3 @@
 """
-Test package initialization.
+Test suite for the BCC Yield Strength Prediction pipeline.
 """
-pass
