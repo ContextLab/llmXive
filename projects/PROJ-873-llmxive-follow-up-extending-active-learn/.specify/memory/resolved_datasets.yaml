@@ -1,0 +1,410 @@
+resolved_at: '2026-07-11T04:52:23.870770+00:00'
+datasets:
+- intent: NDCG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/islam23/Retrival_evaluation_NDCG/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/rachid16/Retrival_evaluation_ndcg_1000/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/islam23/Retrival_evaluation_ndcg_1000/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/islam23/Retrival_evaluation_NDCG/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rachid16/Retrival_evaluation_ndcg_1000/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/islam23/Retrival_evaluation_ndcg_1000/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NDCG-alignment/RAW_ListUltraFeedback/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NDCG-alignment/ListUltraFeedback/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Electronically_tuned_N-terminal_glycine_selective_bioconjugation_enables_i_in_vitro_i_and_i_in_vivo_i_species-specific_i_Staphylococcus_aureus_i_targeting/30819182
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Rancang_bangun_Sistem_Smart_Campus_Helpdesk_UNSAP_Berbasis_Web_dengan_integrasi_Machine_Learning_untuk_b_b_i_Sentiment_Analysis_i_b_b_dan_Penentuan_Prioritas_laporan_otomatis_b_/32962835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rapid_Formation_of_Large-Scale-Ordered_Hexagonal_Cylinders_by_Asymmetric_Diblock_Copolymers_under_the_Direction_of_Periodic_Trenches/32962847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Diacyl_Peroxide-Enabled_Palladium-Catalyzed_Oxidative_Borylation-Acyloxylation_of_Enallenes_Homogeneous_and_Recyclable_Heterogeneous_Platforms/32962844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Balancing_Glass_Transition_and_Dynamic_Behavior_in_Epoxy_Anhydride_Vitrimer_Networks/32962821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15580030
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21107863
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21066086
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21064993
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10575639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2602.12612
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MinHash
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/BEE-spoke-data/open-web-math-minhash/resolve/main/data/train-00000-of-00009-9c0bf4fdd3fbef95.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/medarc/clinical_pile_v1_minhash_deduped/resolve/main/data/train-00000-of-00017.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/distilabel-internal-testing/Capybara-and-SystemChat-1.1-MinHash/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/BEE-spoke-data/open-web-math-minhash/resolve/main/data/train-00000-of-00009-9c0bf4fdd3fbef95.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/medarc/clinical_pile_v1_minhash_deduped/resolve/main/data/train-00000-of-00017.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/distilabel-internal-testing/Capybara-and-SystemChat-1.1-MinHash/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yizhilll/fineweb-edu-score-2-minhash/resolve/main/minhash_logs/CC-MAIN-2013-20/signatures/executor.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/fosaber/wikipedia-en-deduped-minhash/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/Electronically_tuned_N-terminal_glycine_selective_bioconjugation_enables_i_in_vitro_i_and_i_in_vivo_i_species-specific_i_Staphylococcus_aureus_i_targeting/30819182
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Rancang_bangun_Sistem_Smart_Campus_Helpdesk_UNSAP_Berbasis_Web_dengan_integrasi_Machine_Learning_untuk_b_b_i_Sentiment_Analysis_i_b_b_dan_Penentuan_Prioritas_laporan_otomatis_b_/32962835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rapid_Formation_of_Large-Scale-Ordered_Hexagonal_Cylinders_by_Asymmetric_Diblock_Copolymers_under_the_Direction_of_Periodic_Trenches/32962847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Diacyl_Peroxide-Enabled_Palladium-Catalyzed_Oxidative_Borylation-Acyloxylation_of_Enallenes_Homogeneous_and_Recyclable_Heterogeneous_Platforms/32962844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Balancing_Glass_Transition_and_Dynamic_Behavior_in_Epoxy_Anhydride_Vitrimer_Networks/32962821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/22773
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17585931
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8319042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11462182
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3461012
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.08382
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.01601
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21020196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21020196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.19361610
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+- intent: LSH
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Lshafii/Jailbreak-PromptBank/resolve/main/JailBreakPrompts_EJUST21.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.SVO/resolve/main/data/train-00000-of-00014-5485665605950ae4.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.VOS/resolve/main/data/train-00000-of-00014-4045948518da9280.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Lshafii/Jailbreak-PromptBank/resolve/main/JailBreakPrompts_EJUST21.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.SVO/resolve/main/data/train-00000-of-00014-5485665605950ae4.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.VOS/resolve/main/data/train-00000-of-00014-4045948518da9280.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.OSV/resolve/main/data/train-00000-of-00014-6f05a823b6db722f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Electronically_tuned_N-terminal_glycine_selective_bioconjugation_enables_i_in_vitro_i_and_i_in_vivo_i_species-specific_i_Staphylococcus_aureus_i_targeting/30819182
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Rancang_bangun_Sistem_Smart_Campus_Helpdesk_UNSAP_Berbasis_Web_dengan_integrasi_Machine_Learning_untuk_b_b_i_Sentiment_Analysis_i_b_b_dan_Penentuan_Prioritas_laporan_otomatis_b_/32962835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rapid_Formation_of_Large-Scale-Ordered_Hexagonal_Cylinders_by_Asymmetric_Diblock_Copolymers_under_the_Direction_of_Periodic_Trenches/32962847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Diacyl_Peroxide-Enabled_Palladium-Catalyzed_Oxidative_Borylation-Acyloxylation_of_Enallenes_Homogeneous_and_Recyclable_Heterogeneous_Platforms/32962844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Balancing_Glass_Transition_and_Dynamic_Behavior_in_Epoxy_Anhydride_Vitrimer_Networks/32962821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/439577
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2553256
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15286471
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5903223
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15068305
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039863
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039863
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21281086
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21281086
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ads.nipr.ac.jp/data/meta/A20241210-006
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BEIR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/BeIR/scifact/resolve/main/corpus/corpus-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/BeIR/fiqa/resolve/main/corpus/corpus-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/BeIR/trec-covid/resolve/main/corpus/corpus-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/BeIR/scifact/resolve/main/corpus/corpus-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BeIR/fiqa/resolve/main/corpus/corpus-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BeIR/trec-covid/resolve/main/corpus/corpus-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Electronically_tuned_N-terminal_glycine_selective_bioconjugation_enables_i_in_vitro_i_and_i_in_vivo_i_species-specific_i_Staphylococcus_aureus_i_targeting/30819182
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Rancang_bangun_Sistem_Smart_Campus_Helpdesk_UNSAP_Berbasis_Web_dengan_integrasi_Machine_Learning_untuk_b_b_i_Sentiment_Analysis_i_b_b_dan_Penentuan_Prioritas_laporan_otomatis_b_/32962835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rapid_Formation_of_Large-Scale-Ordered_Hexagonal_Cylinders_by_Asymmetric_Diblock_Copolymers_under_the_Direction_of_Periodic_Trenches/32962847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Diacyl_Peroxide-Enabled_Palladium-Catalyzed_Oxidative_Borylation-Acyloxylation_of_Enallenes_Homogeneous_and_Recyclable_Heterogeneous_Platforms/32962844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Balancing_Glass_Transition_and_Dynamic_Behavior_in_Epoxy_Anhydride_Vitrimer_Networks/32962821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.jstor.org/stable/1778990?origin=crossref
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/5645804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6116693
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10738479
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11337314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303621
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303621
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303243
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303243
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21303221
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

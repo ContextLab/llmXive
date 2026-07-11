@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pipeline Output Metrics Schema"
+description: "Schema for the aggregated metrics produced by the pipeline run."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the pipeline run."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  variant:
+    type: string
+    enum:
+      - baseline
+      - clustering_aided
+      - unique_baseline
+    description: "The experimental variant executed."
+  budget:
+    type: integer
+    description: "Total LLM call budget for this run."
+  total_calls_made:
+    type: integer
+    description: "Actual number of LLM calls made."
+  wasted_calls:
+    type: integer
+    description: "Number of calls classified as 'wasted' (similarity > 0.95)."
+  wasted_ratio:
+    type: number
+    description: "Ratio of wasted calls to total calls."
+  ndcg_at_10:
+    type: number
+    description: "NDCG@10 score against ground truth."
+  runtime_seconds:
+    type: number
+    description: "Total execution time in seconds."
+  peak_memory_mb:
+    type: number
+    description: "Peak memory usage in MB."
+  minhash_threshold:
+    type: number
+    description: "Jaccard threshold used for MinHash-LSH (if applicable)."
+  correlation_coefficient:
+    type: number
+    description: "Pearson/Spearman correlation between Jaccard and Cosine similarity (if applicable)."
+  correlation_p_value:
+    type: number
+    description: "P-value for the correlation test (if applicable)."
+required:
+  - run_id
+  - seed
+  - variant
+  - budget
+  - total_calls_made
+  - wasted_calls
+  - wasted_ratio
+  - ndcg_at_10
+  - runtime_seconds
+  - peak_memory_mb
+additionalProperties: false
