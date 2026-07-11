@@ -11,5 +11,3 @@ psutil
 ruff
 black
 pre-commit
-pytest
-pydantic

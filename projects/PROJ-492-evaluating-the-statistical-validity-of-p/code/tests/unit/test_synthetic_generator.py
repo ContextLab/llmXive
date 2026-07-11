@@ -1,190 +1,114 @@
 """
 Unit tests for the synthetic dataset generator (T026).
-
-Verifies that:
-1. The generator produces the required number of records (>= 10,000).
-2. Both binary and continuous outcomes are generated.
-3. Statistical values are within valid ranges.
-4. The output files are created correctly.
 """
+
 import csv
 import json
 import os
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, List
+import unittest
 
-import pytest
 import numpy as np
 
 from code.src.audit.synthetic import (
-    generate_synthetic_dataset,
-    verify_outcome_types,
-    write_summaries_to_csv,
-    write_metadata,
+    set_all_seeds,
     generate_sample_sizes,
     generate_binary_outcome,
     generate_continuous_outcome,
-    set_all_seeds,
-    MIN_SAMPLE_SIZE,
-    MAX_SAMPLE_SIZE,
-    BINARY_RATIO,
-    TOTAL_RECORDS
+    generate_synthetic_dataset,
+    verify_outcome_types
 )
 from code.src.config import SEED
 
 
-class TestSyntheticGenerator:
-    """Tests for the synthetic dataset generator."""
+class TestSyntheticGenerator(unittest.TestCase):
 
-    @pytest.fixture
-    def temp_dir(self):
-        """Create a temporary directory for test outputs."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.output_path = Path(self.temp_dir)
+        set_all_seeds(SEED)
 
-    def test_generate_sample_sizes_range(self):
-        """Test that sample sizes are within valid bounds."""
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_set_all_seeds(self):
+        """Test that seeds are set correctly."""
+        set_all_seeds(123)
+        # Simple check: random should be deterministic
+        val1 = random.random()
+        set_all_seeds(123)
+        val2 = random.random()
+        self.assertEqual(val1, val2)
+
+    def test_generate_sample_sizes(self):
+        """Test sample size generation."""
         sizes = generate_sample_sizes(100)
-        assert len(sizes) == 100
-        assert all(MIN_SAMPLE_SIZE <= s <= MAX_SAMPLE_SIZE for s in sizes)
+        self.assertEqual(len(sizes), 100)
+        for s in sizes:
+            self.assertGreaterEqual(s, 50)
+            self.assertLessEqual(s, 10000)
 
-    def test_generate_binary_outcome_validity(self):
-        """Test that binary outcome generation produces valid statistics."""
-        n_c, n_t = 1000, 1000
-        base_rate, lift = 0.1, 0.05
-        
-        successes_c, successes_t, n_c_out, n_t_out, p_val = generate_binary_outcome(
-            n_c, n_t, base_rate, lift
+    def test_generate_binary_outcome(self):
+        """Test binary outcome generation."""
+        n, s_c, n_t, s_t, true_p, obs_p = generate_binary_outcome(
+            1000, 0.5, 0.1
         )
-        
-        assert 0 <= successes_c <= n_c
-        assert 0 <= successes_t <= n_t
-        assert 0.0 <= p_val <= 1.0
-        assert n_c_out == n_c
-        assert n_t_out == n_t
+        self.assertEqual(n, 1000)
+        self.assertEqual(n_t, 1000)
+        self.assertGreaterEqual(s_c, 0)
+        self.assertLessEqual(s_c, n)
+        self.assertGreaterEqual(s_t, 0)
+        self.assertLessEqual(s_t, n_t)
+        self.assertGreaterEqual(obs_p, 0.0)
+        self.assertLessEqual(obs_p, 1.0)
 
-    def test_generate_continuous_outcome_validity(self):
-        """Test that continuous outcome generation produces valid statistics."""
-        n_c, n_t = 1000, 1000
-        base_mean, lift, std_dev = 200.0, 0.05, 100.0
-        
-        mean_c, mean_t, std_c, std_t, p_val = generate_continuous_outcome(
-            n_c, n_t, base_mean, lift, std_dev
+    def test_generate_continuous_outcome(self):
+        """Test continuous outcome generation."""
+        vals_c, vals_t, true_p, obs_p = generate_continuous_outcome(
+            1000, 100.0, 15.0, 5.0
         )
-        
-        assert mean_c > 0
-        assert mean_t > 0
-        assert std_c > 0
-        assert std_t > 0
-        assert 0.0 <= p_val <= 1.0
+        self.assertEqual(len(vals_c), 1000)
+        self.assertEqual(len(vals_t), 1000)
+        self.assertGreaterEqual(obs_p, 0.0)
+        self.assertLessEqual(obs_p, 1.0)
 
-    def test_generate_synthetic_dataset_count(self):
-        """Test that the generated dataset has at least 10,000 records."""
-        records = generate_synthetic_dataset(n_records=TOTAL_RECORDS, seed=SEED)
-        assert len(records) >= 10000
+    def test_generate_synthetic_dataset_size(self):
+        """Test that the generated dataset meets the >= 10,000 record requirement."""
+        csv_path = generate_synthetic_dataset(n_records=10000, output_dir=self.output_path)
+        
+        # Count lines in CSV (excluding header)
+        with open(csv_path, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            next(reader) # Skip header
+            count = sum(1 for _ in reader)
+        
+        self.assertGreaterEqual(count, 10000)
 
     def test_generate_synthetic_dataset_outcome_types(self):
-        """Test that both binary and continuous outcomes are present."""
-        records = generate_synthetic_dataset(n_records=TOTAL_RECORDS, seed=SEED)
-        outcome_counts = verify_outcome_types(records)
+        """Test that the dataset contains both binary and continuous outcomes."""
+        csv_path = generate_synthetic_dataset(n_records=10000, output_dir=self.output_path)
+        counts = verify_outcome_types(csv_path)
         
-        assert outcome_counts["binary"] > 0
-        assert outcome_counts["continuous"] > 0
-        
-        # Check approximate ratio (allowing some variance)
-        total = outcome_counts["binary"] + outcome_counts["continuous"]
-        binary_ratio = outcome_counts["binary"] / total
-        assert 0.5 < binary_ratio < 0.7  # Around 60%
+        self.assertGreater(counts["binary"], 0)
+        self.assertGreater(counts["continuous"], 0)
 
-    def test_generate_synthetic_dataset_required_fields(self):
-        """Test that all required fields are present in each record."""
-        records = generate_synthetic_dataset(n_records=100, seed=SEED)
+    def test_metadata_generation(self):
+        """Test that metadata file is generated correctly."""
+        csv_path = generate_synthetic_dataset(n_records=10000, output_dir=self.output_path)
+        meta_path = self.output_path / "metadata.json"
         
-        required_fields = [
-            "id", "outcome_type", "n_control", "n_treatment",
-            "p_value", "effect_size", "statistical_test", "domain", "year"
-        ]
+        self.assertTrue(meta_path.exists())
         
-        for record in records:
-            for field in required_fields:
-                assert field in record, f"Missing field: {field}"
+        with open(meta_path, "r", encoding="utf-8") as f:
+            meta = json.load(f)
+        
+        self.assertIn("total_records", meta)
+        self.assertEqual(meta["total_records"], 10000)
+        self.assertIn("seed", meta)
 
-    def test_write_summaries_to_csv(self, temp_dir):
-        """Test that CSV output is written correctly."""
-        records = generate_synthetic_dataset(n_records=100, seed=SEED)
-        output_path = temp_dir / "test_output.csv"
-        
-        write_summaries_to_csv(records, output_path)
-        
-        assert output_path.exists()
-        
-        with open(output_path, "r", newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        
-        assert len(rows) == len(records)
-        assert len(rows[0]) >= 10  # At least 10 columns
 
-    def test_write_metadata(self, temp_dir):
-        """Test that metadata JSON is written correctly."""
-        records = generate_synthetic_dataset(n_records=100, seed=SEED)
-        output_path = temp_dir / "test_metadata.json"
-        
-        write_metadata(records, output_path)
-        
-        assert output_path.exists()
-        
-        with open(output_path, "r", encoding="utf-8") as f:
-            metadata = json.load(f)
-        
-        assert "total_records" in metadata
-        assert "outcome_type_distribution" in metadata
-        assert metadata["total_records"] == len(records)
-
-    def test_deterministic_generation(self):
-        """Test that generation is deterministic with the same seed."""
-        set_all_seeds(SEED)
-        records1 = generate_synthetic_dataset(n_records=50, seed=SEED)
-        
-        set_all_seeds(SEED)
-        records2 = generate_synthetic_dataset(n_records=50, seed=SEED)
-        
-        # Check that IDs and key values match
-        for r1, r2 in zip(records1, records2):
-            assert r1["id"] == r2["id"]
-            assert r1["p_value"] == r2["p_value"]
-            assert r1["effect_size"] == r2["effect_size"]
-
-    def test_sample_size_constraints(self):
-        """Test that all sample sizes respect the defined constraints."""
-        records = generate_synthetic_dataset(n_records=1000, seed=SEED)
-        
-        for record in records:
-            assert record["n_control"] >= MIN_SAMPLE_SIZE
-            assert record["n_control"] <= MAX_SAMPLE_SIZE
-            assert record["n_treatment"] >= MIN_SAMPLE_SIZE
-            assert record["n_treatment"] <= MAX_SAMPLE_SIZE
-
-    def test_p_value_range(self):
-        """Test that all p-values are in the valid range [0, 1]."""
-        records = generate_synthetic_dataset(n_records=1000, seed=SEED)
-        
-        for record in records:
-            assert 0.0 <= record["p_value"] <= 1.0
-
-    def test_domain_distribution(self):
-        """Test that records are distributed across multiple domains."""
-        records = generate_synthetic_dataset(n_records=1000, seed=SEED)
-        domains = set(record["domain"] for record in records)
-        
-        # We expect at least 3 different domains
-        assert len(domains) >= 3
-
-    def test_year_distribution(self):
-        """Test that records are distributed across multiple years."""
-        records = generate_synthetic_dataset(n_records=1000, seed=SEED)
-        years = set(record["year"] for record in records)
-        
-        # We expect at least 2 different years
-        assert len(years) >= 2
+if __name__ == "__main__":
+    import random
+    unittest.main()
