@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Tabular Dataset Schema
+description: |
+  Schema defining the structure of a valid tabular dataset.
+  A dataset is represented as an object with a required `columns`
+  field describing each column's name and data type. Optional
+  dataset‑level metadata may be provided.
+type: object
+required:
+  - columns
+properties:
+  columns:
+    type: array
+    description: List of column specifications; at least one column required.
+    minItems: 1
+    items:
+      type: object
+      required:
+        - name
+        - dtype
+      properties:
+        name:
+          type: string
+          description: Column name (must be a valid identifier).
+          pattern: "^[A-Za-z_][A-Za-z0-9_]*$"
+        dtype:
+          type: string
+          description: Data type of the column.
+          enum:
+            - integer
+            - float
+            - string
+            - boolean
+            - categorical
+        nullable:
+          type: boolean
+          description: Whether the column may contain missing values.
+          default: false
+        categories:
+          type: array
+          description: |
+            Allowed category values when `dtype` is `categorical`.
+            Ignored for other dtypes.
+          items:
+            type: string
+          default: []
+      additionalProperties: false
+  metadata:
+    type: object
+    description: Optional free‑form metadata about the dataset.
+additionalProperties: false

@@ -1,0 +1,22 @@
+? "T001 [P] Create project directory structure with exact tree: `data/raw`, `data/corrupted`,\
+  \ `code`, `results`, `tests`. **MUST include creating empty `__init__.py` files\
+  \ in `code/` and `tests/` directories** to ensure Python package recognition. **Note**:\
+  \ The path `data/corrupted` is used for error\u2011injected data as per Plan.md\
+  \ Project Structure."
+: 2
+? 'T002 [P] Initialize Python project with dependencies: pandas, numpy, scipy, statsmodels,
+  matplotlib, seaborn, pyyaml, pytest'
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
+T004 [P] Create `contracts/dataset.schema.yaml` defining valid tabular dataset structures: 2
+? 'T005a [P] Create `contracts/injection.schema.yaml` defining error types (replacement,
+  misclassification, MCAR) and a field `error_rates: list[float]` to be loaded from
+  a configuration file. **MUST explicitly state that the schema validates the structure
+  of a list of floats, not specific values.**'
+: 2
+? "T005b [P] [TDD] [FR-002] [Constitution-VI] Write a unit test in `tests/unit/test_schema_validation.py`\
+  \ that loads `contracts/injection.schema.yaml` and a sample `config/error_rates.yaml`,\
+  \ asserting that `error_rates` is a non-empty list of floats. **This test must be\
+  \ written BEFORE implementation tasks T020\u2011T022 to ensure schema consistency,\
+  \ validating the structure of deferred values without asserting specific rates.**"
+: 2

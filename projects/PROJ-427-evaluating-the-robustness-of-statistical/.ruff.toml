@@ -1,0 +1,6 @@
+# Ruff configuration
+line-length = 88
+select = ["E", "F", "W", "C90"]
+ignore = []
+exclude = ["__init__.py", "setup.py"]
+target-version = "py38"

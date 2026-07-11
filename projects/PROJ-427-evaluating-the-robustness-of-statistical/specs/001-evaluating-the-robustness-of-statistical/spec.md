@@ -95,7 +95,7 @@ A researcher needs the system to aggregate results across multiple simulation ru
 
 - The UCI Machine Learning Repository provides datasets with sufficient sample sizes (N ≥ 30) to satisfy the assumptions of standard parametric tests (t-test, ANOVA, linear regression) in the clean state.
 - The "reference baseline" parameters (mean, effect size) are established by calculating statistics on the clean dataset before any error injection, acknowledging this serves as the sample-based truth for the primary analysis, while FR-006 validates against population truth.
-- The simulation will use a sufficient number of iterations to ensure stable estimates of Type I error and coverage rates, which is computationally feasible within the 6-hour CPU limit.
+- The simulation will use a sufficient number of iterations to ensure stable estimates of Type I error and coverage rates, which is computationally feasible within the allocated CPU time budget.
 - The statistical tests will be performed using standard Python libraries (scipy, statsmodels) in default floating-point precision, as no GPU acceleration is available or required for these operations.
 - Missing data will be handled via listwise deletion (removing rows with any missing values) before running the statistical tests. For MCAR mechanisms, this is expected to reduce statistical power (via reduced N) but NOT inflate Type I error rates; the spec explicitly measures both power loss and Type I error stability to distinguish these effects.
 - The random value replacement will draw from a uniform distribution spanning the observed min/max range of the original variable to avoid introducing impossible values.

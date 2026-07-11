@@ -35,7 +35,7 @@ The pipeline strictly separates **Synthetic Data** (used for calculating Bias an
 | **IV. Single Source of Truth** | **Compliant** | Figures/tables in final report trace to `data/` artifacts and `code/` execution logs. No hand-typed numbers. |
 | **V. Versioning Discipline** | **Compliant** | Content hashes tracked in `state/`. Artifacts updated on change. |
 | **VI. Systematic Error Injection** | **Compliant** | Error rates (**[deferred], [deferred], [deferred], [deferred]**) and types (replacement, misclassification, MCAR) strictly implemented as per spec. Parameters recorded in logs. |
-| **VII. Comprehensive Test Coverage** | **Compliant** | All 4 tests (**t-test, ANOVA, chi-squared, regression**) run across all specified error types/rates. All 4 metrics (Type I, CI coverage, bias, degradation) reported. |
+| **VII. Comprehensive Test Coverage** | **Compliant** | All 4 tests (**t-test, ANOVA, chi-squared, regression**) run across all specified error types/rates. All metrics (Type I, CI coverage, bias, degradation) reported. |
 
 ## Project Structure
 

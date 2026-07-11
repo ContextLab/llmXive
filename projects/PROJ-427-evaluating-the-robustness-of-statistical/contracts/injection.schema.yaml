@@ -1,0 +1,20 @@
+type: object
+properties:
+  error_rates:
+    type: array
+    items:
+      type: number
+    minItems: 1
+  error_types:
+    type: array
+    items:
+      type: string
+    enum:
+      - replacement
+      - misclassification
+      - MCAR
+    minItems: 1
+required:
+  - error_rates
+  - error_types
+additionalProperties: false

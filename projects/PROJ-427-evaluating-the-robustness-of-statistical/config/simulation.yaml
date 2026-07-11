@@ -1,0 +1,31 @@
+# Configuration for synthetic dataset generation (T013a)
+# Defines parameters for generating datasets with known population parameters
+
+# Number of samples per dataset
+n_samples:
+  - 100
+  - 500
+  - 1000
+
+# Number of groups per dataset
+n_groups:
+  - 2
+  - 3
+
+# Population means to test
+means:
+  - 0.0
+  - 1.0
+
+# Population standard deviations to test
+stds:
+  - 1.0
+  - 2.0
+
+# Base random seed (will be incremented for each configuration)
+seed: 42
+
+# Convergence parameters (for T030a)
+convergence:
+  target_se: 0.005
+  max_iterations: 1000

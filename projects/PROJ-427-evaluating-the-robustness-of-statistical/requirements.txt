@@ -1,0 +1,9 @@
+pandas
+numpy
+pyyaml
+pytest
+# Additional packages required by other parts of the project
+scipy
+statsmodels
+matplotlib
+seaborn
