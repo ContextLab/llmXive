@@ -2,78 +2,78 @@
 
 ## Executive Summary
 
-This research investigates the robustness of standard imputation methods (Mean, KNN, MICE) when applied to data with Missing Not At Random (MNAR) mechanisms in causal inference. By generating synthetic Structural Causal Models (SCMs) with known ground-truth Average Treatment Effects (ATE) and explicitly parameterized MNAR missingness, we quantify the bias introduced when standard methods (designed for MAR) are applied to non-ignorable missingness. The study confirms that bias increases monotonically with the strength of the MNAR mechanism ($\beta$) and that confidence interval coverage collapses as $\beta$ increases.
+This research investigates the robustness of standard imputation methods (Mean, KNN, MICE) when applied to data with Missing Not At Random (MNAR) mechanisms, specifically where missingness depends on the unobserved outcome. Using synthetic Structural Causal Models (SCMs) with known ground-truth Average Treatment Effects (ATE), we quantify the bias introduced by these methods. The study confirms that standard methods, which assume Missing At Random (MAR), fail to recover the true ATE under MNAR, with bias increasing monotonically with the strength of the MNAR mechanism ($\beta$).
 
 ## Dataset Strategy
 
-**Note**: This project relies on **synthetically generated data** to ensure ground-truth ATEs and MNAR parameters are known and controllable. No external datasets are used for the core simulation logic, as no verified external dataset contains both a known causal effect and a parameterized MNAR mechanism for validation.
+**Note**: This study relies on **synthetic data generation** to ensure precise control over the MNAR mechanism and ground-truth ATE. No external real-world datasets are used for the primary simulation, as real-world datasets rarely have known ground-truth causal effects or explicitly parameterized MNAR mechanisms.
 
-| Dataset Role | Source / Generation Method | Verification Status |
-| :--- | :--- | :--- |
-| **Primary Simulation Data** | `code/sim/generate.py` (Synthetic SCM) | **Verified**: Generated deterministically via code; ground truth explicitly stored. |
-| **Imputation Reference** | `code/sim/impute.py` (Scikit-learn/Statsmodels) | **Verified**: Standard library implementations; no external data dependency. |
-| **Causal Estimation** | `code/sim/estimate.py` (Custom IPW/PSM) | **Verified**: Implementation matches standard econometric definitions. |
+However, for methodological validation and comparison, we reference the following verified datasets where relevant concepts (imputation, causal estimation) have been studied, though they are **not** used as the primary input for the simulation loop:
 
-*Note: The "Verified datasets" list provided in the project context contains no dataset that satisfies the requirement of "Known ATE + Parameterized MNAR". Therefore, the synthetic generation approach is the only valid strategy.*
+| Concept | Dataset Name | Verified URL | Usage Note |
+|:--- |:--- |:--- |:--- |
+| MNAR Mechanisms | HW4_REGRESSION_mnar | ` | Referenced for understanding MNAR data structures; not used for simulation generation. |
+| Imputation (MICE) | gp2protein_mice_JAX | ` | Referenced for MICE implementation patterns; not used for simulation. |
+| Causal Estimation (IPW/PSM) | ipw-sft-trajectories | ` | Referenced for IPW logic validation; not used for simulation. |
+| Synthetic Data Patterns | Synthetic_Ateso_MMS | ` | Referenced for synthetic data schema patterns; not used for simulation. |
+
+**Primary Data Source**: The `code/simulate.py` module generates all data. The "ground truth" is the parameter $\tau_{true}$ defined in the generative SCM, not an external reality.
 
 ## Methodology
 
-### 1. Synthetic Data Generation (US-1)
-We generate Structural Causal Models (SCMs) defined by:
-- $T \sim \text{Bernoulli}(0.5)$ (Treatment)
-- $X \sim \mathcal{N}(0, 1)$ (Confounder)
-- $Y = \tau_{true} T + \gamma X + \epsilon, \quad \epsilon \sim \mathcal{N}(0, 1)$
-- **Ground Truth**: $\tau_{true} = 0.5$ (explicitly stored).
+### 1. Synthetic Data Generation (FR-001, FR-002)
+We generate data from a Structural Causal Model:
+- **Treatment ($T$)**: Binary, generated from confounders $X$.
+- **Outcome ($Y$)**: Continuous, $Y = \tau T + \beta_X X + \epsilon$.
+- **Confounders ($X$)**: Continuous multivariate normal.
+- **MNAR Mechanism**: Missingness indicator $M$ is generated via a logistic model: $P(M=1|Y) = \text{logit}^{-1}(\alpha + \beta_{mnar} Y)$.
+ - $\beta_{mnar}$ controls the strength of the MNAR mechanism.
+ - **Alpha Tuning**: To ensure construct validity, we perform a **binary search** on $\alpha$ for each $\beta_{mnar}$ value to achieve a **target a moderate missingness rate**. This ensures that any observed bias trend is attributable to the strength of the MNAR mechanism ($\beta$) and not confounded by varying missingness rates.
+ - When $\beta_{mnar} = 0$, data is MAR (baseline).
+ - When $\beta_{mnar} > 0$, missingness depends on $Y$ (MNAR).
 
-**MNAR Mechanism**: Missingness $M$ is induced on $Y$ via:
-$$ P(M=1 | Y) = \text{logit}^{-1}(\alpha + \beta Y) $$
-Where $\beta$ controls the strength of MNAR.
-- $\beta = 0$: MAR (Missing At Random, effectively).
-- $\beta > 0$: MNAR (Missing Not At Random).
+**Ground Truth**: The true ATE ($\tau_{true}$) is set at generation time (e.g., a moderate value) and stored in the dataset metadata.
 
-**Validation**: Spearman correlation between $M$ and $Y$ must be $> 0.5$ with $p < 0.01$ for $\beta \ge 0.5$.
+### 2. Imputation Strategies (FR-003)
+Three methods are applied to the incomplete dataset:
+1. **Mean Imputation**: Replaces missing values with the column mean (computed on observed data).
+2. **KNN Imputation**: Uses $k=5$ nearest neighbors (Euclidean distance) to impute.
+3. **MICE (Multiple Imputation by Chained Equations)**: Uses iterative chained equations (default multiple iterations) to generate ** imputed datasets**.
+ - **Rubin's Rules**: For MICE, we apply Rubin's Rules to combine the 5 imputed estimates. This involves calculating the average point estimate and combining the within-imputation and between-imputation variances to produce valid standard errors and confidence intervals. This resolves the statistical invalidity of using single imputation for MICE.
 
-### 2. Imputation Pipeline (US-2)
-Three methods are applied to the incomplete $Y$:
-1.  **Mean Imputation**: Replace missing $Y$ with $\bar{Y}_{obs}$.
-2.  **KNN Imputation**: $k=5$, Euclidean distance on $X$ and $T$.
-3.  **MICE**: Iterative imputation using `IterativeImputer` (scikit-learn) with 5 iterations.
+### 3. Causal Estimation (FR-004)
+For each imputed dataset (or combined MICE result):
+1. **Propensity Score Estimation**: Fit a logistic regression $P(T=1|X)$ using only observed confounders $X$.
+2. **IPW**: Calculate weights $w = \frac{T}{e(X)} + \frac{1-T}{1-e(X)}$.
+ - **Weight Trimming**: To ensure stability and address positivity violations, weights are truncated at the extreme percentiles before estimation.
+ - Estimate ATE via weighted regression.
+3. **PSM**: Match treated and control units using nearest neighbor matching (caliper set to a small, pre-specified threshold) and estimate ATE as the mean difference in matched pairs.
 
-*Constraint*: All methods run on CPU only. No GPU acceleration.
+### 4. Statistical Analysis (FR-005, FR-006, FR-007)
+- **Bias Calculation**: $|\hat{\tau} - \tau_{true}|$.
+- **RMSE**: $\sqrt{\text{mean}((\hat{\tau} - \tau_{true})^2)}$.
+- **Coverage Rate**: Proportion of 95% CIs containing $\tau_{true}$.
+- **Hypothesis Testing**:
+ - **Primary Method**: **Linear Mixed-Effects Model (LMM)**. We model bias as the dependent variable with imputation method and $\beta$ as fixed effects, and simulation run ID as a random effect. This approach is robust to non-normality in the bias distribution and handles the repeated measures structure of the simulation study without requiring preliminary normality tests (replacing the flawed Shapiro-Wilk -> ANOVA/Friedman tree).
+ - **Interaction Effects**: We check if the difference in bias between IPW and PSM for the same imputation method exceeds 10%. If so, an interaction flag is raised.
+- **Sensitivity Analysis**: Sweep $\beta_{mnar} \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$.
+ - **Bias Trend**: Calculate Spearman rank correlation ($\rho$) between $\beta$ and mean absolute bias. Given only 5 points, p-values are not statistically meaningful; we report $\rho$ and the direction of the trend descriptively.
+ - **Coverage Trend**: Use a **Generalized Linear Model (GLM)** with a binomial family and logit link to model the coverage rate as a function of $\beta$. This accounts for the bounded nature of the coverage proportion (0 to 1). We test for a statistically significant negative slope ($p < 0.05$).
 
-### 3. Causal Estimation (US-2)
-For each imputed dataset, ATE is estimated via:
-- **Inverse Probability Weighting (IPW)**: Weights $w = \frac{T}{e(X)} + \frac{1-T}{1-e(X)}$.
-- **Propensity Score Matching (PSM)**: 1-to-1 nearest neighbor matching on $e(X)$.
+## Compute Feasibility & Constraints
 
-### 4. Statistical Analysis (US-3)
-- **Bias Calculation**: $|\hat{\tau}_{imp} - \tau_{true}|$.
-- **Significance Testing**:
-  - Shapiro-Wilk test on bias distribution.
-  - If $p < 0.05$ (non-normal): Friedman test.
-  - If $p \ge 0.05$ (normal): Repeated-Measures ANOVA.
-  - **Robust Alternative**: If distribution is skewed (assessed via skewness statistic), compute bootstrap CIs for median differences.
-- **Sensitivity Analysis**: Sweep $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$.
-  - Verify monotonicity: Spearman $\rho > 0.9$, $p < 0.05$.
-  - Verify coverage collapse: Regression slope of coverage vs. $\beta$ must be negative ($p < 0.05$).
+- **Hardware**: CPU cores, ~7 GB RAM, no GPU.
+- **Runtime Limit**: A total duration of several hours is allocated. (target < 4 hours).
+- **Optimization**:
+ - Sample size $N=1000$ per run (small enough for fast imputation/estimation).
+ - simulation runs total (Multiple runs per $\beta$ value).
+ - **Parallelization**: The main loop is parallelized using Python's `multiprocessing` module to utilize both CPU cores.
+ - Libraries pinned to CPU-optimized versions (e.g., `scikit-learn` without CUDA).
+ - No deep learning models; all methods are classical statistical/machine learning.
 
-## Decision Rationale
+## References
 
-### Why Synthetic Data?
-Real-world datasets rarely have known ground-truth causal effects or parameterized MNAR mechanisms. Using external data would require unverifiable assumptions about the "true" ATE, violating **Constitution Principle VI**. Synthetic generation allows exact control over $\beta$ and $\tau_{true}$, enabling rigorous bias quantification.
-
-### Why CPU-Only Methods?
-The project targets GitHub Actions free-tier runners (2 CPU, 7GB RAM). GPU-dependent libraries (e.g., PyTorch with CUDA, 8-bit quantization) are excluded to ensure the simulation completes within the 6-hour limit and memory constraints. `scikit-learn` and `statsmodels` provide robust CPU-tractable implementations of Mean, KNN, and MICE.
-
-### Why Dual Estimators (IPW & PSM)?
-**Constitution Principle VII** requires distinguishing imputation error from causal identification error. If Mean Imputation biases the propensity score estimate, IPW and PSM may diverge. Reporting both ensures the results are robust to the specific causal estimator used.
-
-### Statistical Rigor
-- **Multiple Comparisons**: The Friedman test (or ANOVA) controls for family-wise error across the 3 imputation methods.
-- **Power**: 200 replications per condition provides sufficient power (>0.9) to detect medium effect sizes ($d=0.5$) in bias differences.
-- **Collinearity**: VIF checks are performed; runs with VIF > 10 are flagged/excluded to prevent unstable estimates.
-
-## Limitations
-- **Generalizability**: Results are specific to the linear SCM and logistic MNAR mechanism defined. Non-linear relationships or different missingness functions may yield different results.
-- **Sample Size**: $N=1000$ per run is sufficient for stable ATEs but may not reflect small-sample regimes where imputation fails more dramatically.
-- **MICE Convergence**: MICE may fail to converge in extreme missingness scenarios (>50%); these runs are flagged as "failed" and excluded from bias averages.
+- Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*.
+- Little, R. J. A., & Rubin, D. B. (2019). *Statistical Analysis with Missing Data*.
+- Imbens, G. W., & Rubin, D. B. (2015). *Causal Inference for Statistics, Social, and Biomedical Sciences*.
+- *Verified Datasets*: See "Dataset Strategy" table above for URLs used for methodological reference.

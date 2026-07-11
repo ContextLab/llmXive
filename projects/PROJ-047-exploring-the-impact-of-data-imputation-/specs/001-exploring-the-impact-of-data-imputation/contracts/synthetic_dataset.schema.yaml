@@ -1,53 +1,47 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: SyntheticDataset
-description: Schema for generated synthetic data with MNAR missingness.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticDataset"
+description: "Schema for a single generated synthetic dataset with MNAR missingness. Defines the structure of data/raw/*.csv."
+type: "object"
 properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run (e.g., seed_42_beta_0.5)."
   seed:
-    type: integer
-    description: "Unique random seed for this replication."
-  N:
-    type: integer
-    description: "Sample size (e.g., 1000)."
-  beta:
-    type: number
-    description: "MNAR strength parameter (e.g., 0.5)."
+    type: "integer"
+    description: "Random seed used for generation."
+  n_samples:
+    type: "integer"
+    description: "Number of samples in the dataset."
   tau_true:
-    type: number
-    description: "Ground truth Average Treatment Effect."
-  treatment:
-    type: array
-    items:
-      type: integer
-      enum: [0, 1]
-    description: "Binary treatment variable."
-  outcome:
-    type: array
-    items:
-      oneOf:
-        - type: number
-        - type: "null"
-    description: "Continuous outcome variable (may contain nulls for missing)."
-  confounders:
-    type: array
-    items:
-      type: array
-      items:
-        type: number
-    description: "Matrix of continuous confounders (N x K)."
-  missingness_indicator:
-    type: array
-    items:
-      type: integer
-      enum: [0, 1]
-    description: "Binary indicator (1 if missing, 0 if observed)."
+    type: "number"
+    description: "Ground-truth Average Treatment Effect (ATE) defined in the SCM."
+  beta:
+    type: "number"
+    description: "MNAR parameter controlling the strength of missingness dependence on Y."
+  alpha:
+    type: "number"
+    description: "Intercept used in the MNAR logistic model (tuned to achieve target missingness rate)."
+  missingness_rate:
+    type: "number"
+    description: "Proportion of missing values in the outcome variable Y."
+  correlation_M_Y:
+    type: "number"
+    description: "Spearman correlation between missingness indicator M and unobserved Y."
+  vif_max:
+    type: "number"
+    description: "Maximum Variance Inflation Factor for confounders."
+  data_file_path:
+    type: "string"
+    description: "Relative path to the CSV file containing the data."
 required:
+  - run_id
   - seed
-  - N
-  - beta
+  - n_samples
   - tau_true
-  - treatment
-  - outcome
-  - confounders
-  - missingness_indicator
+  - beta
+  - alpha
+  - missingness_rate
+  - correlation_M_Y
+  - vif_max
+  - data_file_path
 additionalProperties: false

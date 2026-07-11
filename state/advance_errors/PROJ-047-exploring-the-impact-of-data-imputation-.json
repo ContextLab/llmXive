@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-047-exploring-the-impact-of-data-imputation-",
-  "stage": "clarified",
-  "last_error": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): Dartmouth model 'qwen.qwen3.5-122b' hung past 360s deadline (no response received) | google.gemma-3-27b-it(permanent): Error code: 400 - {'detail': \"litellm.ContextWindowExceededError: litellm.BadRequestError: ContextWindowExceededError: OpenAIException - 'max_tokens' or 'max_completion_tokens' is too large: 131072. This model's maximum context length is 98304 tokens and your request has 23312 input tokens (131072 > 98304 - 23312). None\\nmodel=google.gemma-3-27b-it. context_window_fallbacks=None. fallbacks=None.\\n\\nSet 'context_window_fallback' - https://docs.litellm.ai/docs/routing#fallbacks. Received Model Group=google.gemma-3-27b-it\\nAvailable Model Group Fallbacks=None\"} | openai.gpt-oss-120b(model-down attempt 1): Dartmouth model 'openai.gpt-oss-120b' hung past 360s deadline",
-  "last_seen": "2026-07-11T13:02:47.754889+00:00",
-  "count": 1
+  "stage": "planned",
+  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md.\n  Rules fired: unfilled_bracket_density=7 bracket markers; sample=['[Requires: T029a]', '[Requires: T029b]', '[Requires: T029b]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "last_seen": "2026-07-11T13:32:54.345992+00:00",
+  "count": 2
 }

@@ -1,78 +1,62 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Simulation Summary Schema"
-description: "Schema for data/results/simulation_summary.csv. This file is the Single Source of Truth for all analysis and figures."
+description: "Schema for the aggregated results of the imputation impact simulation study. Defines the structure of data/results/simulation_summary.csv. This is the Single Source of Truth (SSoT) for all aggregated results."
 type: "object"
 properties:
   run_id:
     type: "string"
     description: "Unique identifier for the simulation run."
-  seed:
-    type: "integer"
-    description: "Random seed used for reproducibility."
-  sample_size:
-    type: "integer"
-    description: "Number of samples in the synthetic dataset."
-  ground_truth_ate:
+  beta_mnar:
     type: "number"
-    description: "Theoretical ATE defined in the SCM (e.g., 0.5)."
-  mnar_beta:
+    description: "The MNAR parameter value for this run (e.g., 0.0, 0.2, 0.5)."
+  true_ate:
     type: "number"
-    description: "The MNAR parameter controlling missingness strength."
-  missingness_rate:
-    type: "number"
-    description: "Proportion of missing values in the outcome variable."
+    description: "The ground-truth Average Treatment Effect defined in the generative model."
   imputation_method:
     type: "string"
     enum:
-      - "Mean"
-      - "KNN"
-      - "MICE"
-    description: "The imputation method applied."
+      - "mean"
+      - "knn"
+      - "mice"
+    description: "The imputation method used."
   estimator_type:
     type: "string"
     enum:
-      - "IPW"
-      - "PSM"
+      - "ipw"
+      - "psm"
     description: "The causal estimation method used."
   estimated_ate:
     type: "number"
-    description: "The estimated Average Treatment Effect."
-  standard_error:
-    type: "number"
-    description: "Standard error of the estimated ATE."
+    description: "The estimated ATE from the imputed data."
   bias:
     type: "number"
-    description: "Absolute bias: |estimated_ate - ground_truth_ate|."
+    description: "Absolute bias: |estimated_ate - true_ate|."
   rmse:
     type: "number"
-    description: "Root Mean Squared Error of the estimate."
-  coverage:
-    type: "integer"
-    description: "Binary indicator (0 or 1) if the true ATE falls within the 95% CI."
-  convergence_status:
-    type: "string"
-    enum:
-      - "success"
-      - "failed"
-      - "warning"
-    description: "Status of the imputation/estimation process."
-  vif_max:
+    description: "Root Mean Squared Error."
+  ci_lower:
     type: "number"
-    description: "Maximum Variance Inflation Factor for confounders in this run."
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  coverage:
+    type: "boolean"
+    description: "True if the CI contains the true_ate."
+  interaction_flag:
+    type: "boolean"
+    description: "True if the relative bias difference between IPW and PSM exceeds 10%."
 required:
   - run_id
-  - seed
-  - sample_size
-  - ground_truth_ate
-  - mnar_beta
-  - missingness_rate
+  - beta_mnar
+  - true_ate
   - imputation_method
   - estimator_type
   - estimated_ate
-  - standard_error
   - bias
   - rmse
+  - ci_lower
+  - ci_upper
   - coverage
-  - convergence_status
-  - vif_max
+  - interaction_flag
 additionalProperties: false

@@ -3,87 +3,69 @@
 ## Prerequisites
 
 - Python 3.11+
-- Git
-- (Optional) Docker for isolated local testing
+- pip
+- git
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root):
-   ```bash
-   cd projects/PROJ-047-exploring-the-impact-of-data-imputation-
-   ```
+1.  **Clone and Navigate**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-047-exploring-the-impact-of-data-imputation-/code
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: This installs CPU-only compatible versions of `scikit-learn`, `statsmodels`, `linearmodels`, etc.*
 
 ## Running the Simulation
 
-### Full Simulation (200 Runs)
-
-To execute the full sensitivity analysis across all MNAR parameters:
-
+### 1. Generate Synthetic Data (Single Run)
+To verify ground truth generation and alpha tuning:
 ```bash
-python code/analysis/run_simulation.py --runs 200 --beta-sweep 0.0,0.2,0.5,0.8,1.0
+python simulate.py --seed 42 --beta 0.5 --n 1000
+```
+*Output*: `data/raw/synth_{run_id}.csv` and `data/results/ground_truth_42.json`.
+
+### 2. Run Full Simulation
+Execute the full study (multiple runs, 5 beta values, parallelized):
+```bash
+python main.py
+```
+*Output*: `data/results/simulation_summary.csv`, `data/results/trend_verification.json`, `data/results/coverage_slope_verification.json`, and `data/results/plots/`.
+
+### 3. Statistical Analysis & Plots
+If you have run the simulation and want to regenerate plots or re-run statistical tests:
+```bash
+python analyze.py --input data/results/simulation_summary.csv
+python visualize.py --input data/results/simulation_summary.csv
 ```
 
-**Expected Output**:
-- `data/results/simulation_summary.csv`
-- `data/results/verification_stats.json`
-- Console logs indicating progress and any convergence warnings.
-
-### Single Run (Debugging)
-
-To test a single run with specific parameters:
-
+### 4. Run Tests
+Verify reproducibility and logic:
 ```bash
-python code/analysis/run_simulation.py --runs 1 --beta 0.5 --seed 42
+pytest tests/ -v
 ```
 
-### Generating Figures
+## Expected Outputs
 
-After the simulation completes, generate the required plots:
-
-```bash
-python code/analysis/visualization.py --input data/results/simulation_summary.csv
-```
-
-**Output Files**:
-- `data/results/figures/bias_vs_beta.png`
-- `data/results/figures/coverage_vs_beta.png`
-- `data/results/figures/bias_distributions.png`
-
-## Verification
-
-### Check Ground Truth Integrity
-
-Verify that the generated ground truth matches the theoretical value:
-
-```bash
-python code/tests/test_generate.py
-```
-
-### Run Statistical Tests
-
-Verify the monotonicity and coverage collapse:
-
-```bash
-python code/analysis/sensitivity.py --input data/results/simulation_summary.csv
-```
-
-**Expected Output**:
-- Spearman $\rho > 0.9$ for bias vs. $\beta$.
-- Negative slope ($p < 0.05$) for coverage vs. $\beta$.
+- **`data/results/simulation_summary.csv`**: The single source of truth for all bias, RMSE, and coverage metrics.
+- **`data/results/trend_verification.json`**: Verification of the monotonic bias trend (Spearman rho).
+- **`data/results/coverage_slope_verification.json`**: Verification of the negative slope in coverage vs. beta.
+- **`data/results/plots/bias_vs_beta.png`**: Bias trends across MNAR strength.
+- **`data/results/plots/coverage_vs_beta.png`**: Confidence interval coverage trends.
+- **`data/results/plots/bias_distributions.png`**: Distribution of bias per method.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce `--runs` or `sample_size` in `run_simulation.py`.
-- **MICE Convergence Failure**: Increase `max_iter` in `impute.py` or exclude failed runs from bias averages.
-- **Non-Monotonic Trend**: Check if $\beta$ values are too sparse; consider increasing the sweep density.
+- **Memory Error**: Ensure `sample_size` in `main.py` is not increased beyond 1000. The default is optimized for a moderate memory footprint.
+- **Convergence Failure (MICE)**: The script automatically flags runs where MICE fails to converge. These are excluded from the final bias average but recorded in `data/results/failed_runs.json`.
+- **Statistical Test Failure**: The LMM is robust to non-normality. If convergence fails, the script falls back to a non-parametric permutation test.
