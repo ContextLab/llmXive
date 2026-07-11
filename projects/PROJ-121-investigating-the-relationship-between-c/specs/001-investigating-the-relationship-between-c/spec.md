@@ -1,6 +1,6 @@
 # Feature Specification: Cosmic Ray Anisotropy Solar‑Cycle Modulation
 
-**Feature Branch**: `001-cosmic-ray-anisotropy-solar-cycle`  
+**Feature Branch**: `121-cosmic-ray-anisotropy-solar-cycle`  
 **Created**: 2026‑06‑24  
 **Status**: Draft  
 **Input**: User description: "Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Variations"
@@ -9,7 +9,7 @@
 
 ### User Story 1 – End‑to‑end Data Pipeline (Priority: P1)
 
-A researcher wants to run a fully automated pipeline that downloads the IceCube and Pierre Auger public event data for the 2010‑2020 interval, retrieves solar‑activity indices from NOAA, and outputs a time‑series of dipole amplitude and phase for each Carrington interval.
+A researcher wants to run a fully automated pipeline that downloads the IceCube and Pierre Auger public event data for the 2010‑2020 interval, retrieves solar‑activity indices from NOAA, and outputs a time‑series of dipole amplitude and phase for each solar rotation (Carrington) interval.
 
 **Why this priority**: This story delivers the core scientific asset – a reproducible, calibrated anisotropy time‑series – without which any subsequent analysis is impossible.
 
@@ -17,8 +17,8 @@ A researcher wants to run a fully automated pipeline that downloads the IceCube 
 
 **Acceptance Scenarios**:
 
-1. **Given** a clean runner environment, **When** the `run_all.sh` script is invoked, **Then** the script finishes within 6 hours, the output CSV contains ≥ 128 rows ([deferred] of a theoretical number of rows for 10 years / 27 days), and a log reports "Data acquisition completed" without errors.
-2. **Given** a corrupted or missing IceCube file, **When** the script reaches the download step, **Then** it retries up to 3 times, logs a warning, and proceeds using the available Auger data, still producing a CSV with ≥ 90 % of rows.
+1. **Given** a clean runner environment, **When** the `run_all.sh` script is invoked, **Then** the script finishes within 6 hours, the output CSV contains ≥ 115 rows (≈10 years ÷ 27 days), and a log reports "Data acquisition completed" without errors.  
+2. **Given** a corrupted or missing IceCube file, **When** the script reaches the download step, **Then** it retries up to 3 times, logs a warning, and proceeds using the available Auger data, still producing a CSV with ≥ 90 % of the *available* Auger intervals for the 2010-2020 period.
 
 ---
 
@@ -28,7 +28,7 @@ A scientist wants to apply Lomb‑Scargle periodograms and block‑bootstrap cro
 
 **Why this priority**: This story directly tests the hypothesis and yields the primary quantitative result (e.g., a 3 σ detection or a robust upper limit).
 
-**Independent Test**: Run the `analyze_correlation.py` module on the CSV from Story 1; verify that it outputs (a) periodogram with a peak at the solar-cycle frequency, (b) Pearson/Spearman coefficients with associated p‑values, and (c) a Monte‑Carlo false‑alarm probability (FAP) calculated via shuffling the solar proxy series.
+**Independent Test**: Run the `analyze_correlation.py` module on the CSV from Story 1; verify that it outputs (a) a periodogram with a peak at a multi-year frequency, (b) Pearson/Spearman coefficients with associated p‑values, and (c) a Monte‑Carlo false‑alarm probability (FAP) calculated via shuffling the solar proxy series.
 
 **Acceptance Scenarios**:
 
@@ -79,10 +79,10 @@ A researcher wants to experiment with different temporal bin sizes (e.g., 14, 27
 
 - **FR-001**: System MUST download the IceCube muon‑track dataset (2010‑2020) and Pierre Auger surface‑detector files from their respective open‑data portals, verifying file integrity via SHA‑256 checksums. (See US‑1)
 - **FR-002**: System MUST retrieve daily solar‑activity indices (sunspot number, solar‑wind speed, IMF magnitude) from NOAA NGDC, handling FTP failures with up to 3 automatic retries and exponential back‑off. (See US‑1)
-- **FR-003**: System MUST convert event timestamps to UTC Julian dates, bin events into non‑overlapping intervals of length specified by the configurable parameter defined in FR‑010, and generate HEALPix Nside 64 sky maps for each interval. If the final interval is shorter than the bin size, it MUST be included as a partial bin with a `partial_interval` flag set to `true`. (See US‑1)
-- **FR-004**: System MUST fit spherical‑harmonic coefficients up to ℓ = 2 for each sky map and export dipole amplitude, phase, and quadrupole metrics to a CSV file with column headers `interval_start, dipole_amp, dipole_phase, quad_amp, partial_interval`. (See US‑1)
-- **FR-005**: System MUST perform, for each detector (IceCube and Pierre Auger) separately, Lomb‑Scargle periodogram analysis on the dipole‑amplitude series, compute Pearson and Spearman cross‑correlations with each solar proxy, and estimate significance via (i) block‑bootstrap (block length = 2 × bin_size, 10 000 resamples) to generate confidence intervals for r, and (ii) Monte‑Carlo shuffle (10 000 permutations) where the solar proxy time-series is shuffled relative to the anisotropy series to estimate the False Alarm Probability (FAP). If the number of independent blocks for the block-bootstrap is < 30, the system MUST reduce the block length to 1 × bin_size to ensure sufficient resamples. (See US‑2)
-- **FR-006**: System MUST apply a Bonferroni correction for the multiple hypothesis tests (multiple detectors × 3 proxies) with an adjusted significance threshold of α = 0.0017. The system MUST report the observed correlation coefficient |r| and p-value for each test. A "positive result" label is generated if and only if |r| ≥ 0.4 **and** the corrected p‑value ≤ 0.0017 for **at least one detector-proxy pair** independently. This label does not constitute a system failure if not met; the system MUST still report the observed values. The system succeeds if it correctly calculates and reports these metrics, regardless of whether the "positive result" flag is raised. (See US‑2)
+- **FR-003**: System MUST convert event timestamps to UTC Julian dates, bin events into non‑overlapping intervals of length specified by FR‑010, and generate HEALPix Nside 64 sky maps for each interval. (See US‑1)
+- **FR-004**: System MUST fit spherical‑harmonic coefficients up to ℓ = 2 for each sky map and export dipole amplitude, phase, and quadrupole metrics to a CSV file with column headers `interval_start, dipole_amp, dipole_phase, quad_amp`. (See US‑1)
+- **FR-005**: System MUST perform, for each detector (IceCube and Pierre Auger) separately, Lomb‑Scargle periodogram analysis on the dipole‑amplitude series, compute Pearson and Spearman cross‑correlations with each solar proxy, and estimate significance via (i) block‑bootstrap (block length = 2 × (configured bin_size), 10 000 resamples) to generate confidence intervals for r, and (ii) Monte‑Carlo shuffle (10 000 permutations) where the solar proxy time-series is shuffled relative to the anisotropy series to estimate the False Alarm Probability (FAP). **If the number of resulting bootstrap blocks is < 10, the system MUST switch to a phase randomization resampling strategy (Fourier-based surrogate generation, 10,000 permutations) to ensure statistical validity.** (See US‑2)
+- **FR-006**: System MUST apply a Bonferroni correction for the multiple hypothesis tests (multiple detectors × 3 proxies) with an adjusted significance threshold of α = 0.0017. The system MUST report the observed correlation coefficient |r| and p-value for each test. A "positive result" label is generated if and only if |r| ≥ 0.4 **and** the corrected p‑value ≤ 0.0017 for **at least one** proxy–detector pair. This label does not constitute a system failure if not met; the system MUST still report the observed values. (See US‑2)
 - **FR-007**: System MUST produce a LaTeX‑based PDF report that includes (a) time‑series plots, (b) periodograms, (c) correlation heat‑maps, and (d) a concise interpretation of statistical significance, for each detector independently and optionally a combined analysis. (See US‑3)
 - **FR-008**: System MUST expose a single entry‑point script (`run_all.sh`) that orchestrates data acquisition, preprocessing, analysis, and reporting, invoking the modular scripts (`run_pipeline.sh`, `analyze_correlation.py`, `make_report.sh`) as sub‑steps, exiting with status 0 on success and non‑zero on any failure. (See US‑3)
 - **FR-009**: System MUST generate a `requirements.txt` pinning exact versions of all Python packages used (minimum Python 3.11) and ensure all dependencies are CPU‑only (no CUDA/GPU requirements). (See US‑3)
@@ -100,11 +100,11 @@ A researcher wants to experiment with different temporal bin sizes (e.g., 14, 27
 ### Measurable Outcomes
 
 - **SC-001**: End‑to‑end pipeline completes within 6 hours on a standard GitHub Actions runner (2 CPU, 4 GB RAM) for the full 10‑year dataset. (See US‑1)
-- **SC-002**: Dipole‑amplitude CSV contains ≥ 128 rows ([deferred] of the theoretical rows) and passes schema validation (all numeric columns non-null, `partial_interval` boolean present). (See US‑1)
-- **SC-003**: Lomb‑Scargle periodogram identifies and reports a peak at the decadal frequency. The system MUST calculate the 'noise level' as the median power of the periodogram in a low-frequency band and report the peak power relative to this noise level (e.g., "3.2σ above median noise"). The system MUST also report the Monte‑Carlo False Alarm Probability (FAP) for the peak. The system succeeds if it correctly identifies and reports the peak power and FAP, including the case where the peak is not statistically significant (null result). (See US‑2)
-- **SC-004**: For each detector (IceCube and Pierre Auger) separately, the system MUST report the Pearson or Spearman correlation coefficient and the two‑sided p‑value. A "positive result" is flagged if |r| ≥ 0.4 and the Bonferroni‑corrected p‑value ≤ 0.0017 for at least one detector-proxy pair. The system succeeds if it correctly calculates and reports these metrics, even if the "positive result" flag is not raised. (See US‑2)
+- **SC-002**: Dipole‑amplitude CSV contains ≥ 115 rows (≤ 5 % missing intervals) and passes schema validation (all numeric columns non‑null). (See US‑1)
+- **SC-003**: Lomb‑Scargle periodogram identifies and reports a peak at the approximately decadal frequency. The system MUST calculate the 'noise level' as the median power of the periodogram in a low-frequency band and report the peak power relative to this noise level (e.g., "3.2σ above median noise") and the associated Monte-Carlo FAP. The system succeeds if the peak is identified and reported with these significance metrics, regardless of whether the power exceeds a statistically significant threshold. (See US‑2)
+- **SC-004**: For each detector (IceCube and Pierre Auger) separately, the system MUST report the Pearson or Spearman correlation coefficient and the two‑sided p‑value. A "positive result" is flagged if |r| ≥ 0.4 and the Bonferroni‑corrected p‑value ≤ 0.0017. The system succeeds if it correctly calculates and reports these metrics, even if the "positive result" flag is not raised. (See US‑2)
 - **SC-005**: For each detector separately, the Monte‑Carlo shuffle test (null hypothesis: solar proxy values are independent of anisotropy; metric shuffled: solar proxy time-series) returns a false‑alarm probability (FAP). The system MUST report the FAP value. A "positive result" is flagged if FAP ≤ 0.0017 (aligned with FR-006). The system succeeds if it correctly calculates and reports the FAP, regardless of the value. (See US‑2)
-- **SC-006**: The generated `report.pdf` compiles without LaTeX errors and is ≤ 25 pages, containing all required figures and a clear statement of whether the hypothesis is supported at the Bonferroni‑corrected significance level (p ≤ 0.0017). This statement MUST be derived from the Bonferroni-corrected p-values reported in SC-004/SC-005. (See US‑3)
+- **SC-006**: The generated `report.pdf` compiles without LaTeX errors and is ≤ 25 pages, containing all required figures and a clear statement of whether the hypothesis is supported at ≥ 3 σ confidence (defined as p ≤ 0.00135, one-tailed) AND whether the Bonferroni-corrected result (p ≤ 0.0017) is met. This statement MUST be derived from the Bonferroni-corrected p-values reported in SC-004/SC-005 and the 3σ threshold (p ≤ 0.00135). (See US‑3)
 - **SC-007**: The analysis executes entirely on CPU without invoking CUDA libraries or requiring GPU acceleration, verified by the absence of GPU-specific error logs during the 6‑hour runner execution. (See US‑2)
 - **SC-008**: The blind validation step (FR-011) confirms that the false-positive rate is ≤ 0.05 and the power is ≥ 0.8 for the injected signal at the 0.0017 significance level. (See US‑2)
 

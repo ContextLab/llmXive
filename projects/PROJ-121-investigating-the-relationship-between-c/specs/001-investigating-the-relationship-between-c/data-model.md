@@ -3,85 +3,68 @@
 ## Entities
 
 ### EventDataset
-Represents raw event data from a detector.
-- `source`: str (e.g., "IceCube", "Auger")
-- `filepath`: str (local path)
-- `checksum`: str (SHA-256)
-- `timestamp_min`: datetime (earliest event)
-- `timestamp_max`: datetime (latest event)
-- `event_count`: int
-- `coverage_status`: str (e.g., "full", "partial", "missing")
+Represents raw event data from IceCube or Pierre Auger.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `source` | str | "icecube" or "auger" |
+| `filepath` | str | Local path to downloaded file |
+| `checksum` | str | SHA-256 hash of file |
+| `start_date` | datetime | Earliest event timestamp |
+| `end_date` | datetime | Latest event timestamp |
+| `event_count` | int | Total number of events |
+| `sampled` | bool | True if data was sampled to fit memory |
 
 ### SolarProxySeries
-Time-ordered solar activity indices.
-- `proxy_name`: str (e.g., "sunspot_number")
-- `date`: datetime
-- `value`: float
-- `source`: str (e.g., "NOAA NGDC")
+Time-ordered series of solar activity indicators.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `proxy_name` | str | "sunspot", "solar_wind", "imf_magnitude" |
+| `date` | datetime | Observation date (UTC) |
+| `value` | float | Measured value |
+| `source` | str | "NOAA" |
 
 ### AnisotropyInterval
-Binned anisotropy metrics for one interval.
-- `interval_start`: datetime
-- `interval_end`: datetime
-- `detector`: str (e.g., "IceCube")
-- `dipole_amp`: float (relative anisotropy amplitude)
-- `dipole_phase`: float (radians, 0–2π)
-- `quad_amp`: float
-- `partial_interval`: bool
-- `event_count`: int
-- `coverage_status`: str (inherited from dataset)
+Aggregated anisotropy metrics for a temporal bin.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `interval_start` | datetime | Start of bin (UTC) |
+| `interval_end` | datetime | End of bin (UTC) |
+| `dipole_amplitude` | float | Fitted dipole amplitude |
+| `dipole_phase` | float | Fitted dipole phase (degrees) |
+| `quadrupole_amplitude` | float | Fitted quadrupole amplitude |
+| `detector` | str | "icecube" or "auger" |
+| `event_count` | int | Events in this interval |
 
 ### CorrelationResult
-Statistical test output for one detector-proxy pair.
-- `detector`: str
-- `proxy`: str
-- `method`: str (e.g., "pearson", "spearman", "shuffle")
-- `r`: float (correlation coefficient)
-- `p_value`: float
-- `fap`: float (False Alarm Probability)
-- `bonferroni_adjusted`: bool
-- `positive_result`: bool (True if |r|≥0.4 and p≤0.0017)
+Statistical correlation metrics between anisotropy and solar proxy.
 
-## Schemas
-
-### CSV Output Schema (`anisotropy_timeseries.csv`)
-| Column | Type | Description |
-|--------|------|-------------|
-| interval_start | datetime | Start of the binning interval in UTC ISO8601 format. |
-| interval_end | datetime | End of the binning interval in UTC ISO8601 format. |
-| detector | str | Detector name. |
-| dipole_amp | float | Relative dipole amplitude (dimensionless). |
-| dipole_phase | float | Dipole phase (radians). |
-| quad_amp | float | Quadrupole amplitude. |
-| partial_interval | bool | True if the interval is shorter than the configured bin size. |
-| event_count | int | Number of events included in this interval. |
-| coverage_status | str | "full" or "partial" (if dataset coverage <90%). |
-
-### JSON Schema (`correlation_results.json`)
-```json
-{
-  "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      "detector": {"type": "string"},
-      "proxy": {"type": "string"},
-      "method": {"type": "string"},
-      "r": {"type": "number"},
-      "p_value": {"type": "number"},
-      "fap": {"type": "number"},
-      "bonferroni_adjusted": {"type": "boolean"},
-      "positive_result": {"type": "boolean"}
-    },
-    "required": ["detector", "proxy", "method", "r", "p_value", "fap", "positive_result"]
-  }
-}
-```
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `detector` | str | "icecube" or "auger" |
+| `proxy_name` | str | "sunspot", "solar_wind", "imf_magnitude" |
+| `correlation_type` | str | "pearson" or "spearman" |
+| `r_value` | float | Correlation coefficient |
+| `p_value` | float | Two-sided p-value |
+| `bonferroni_p` | float | Bonferroni-corrected p-value |
+| `fap` | float | Monte-Carlo false alarm probability |
+| `positive_result` | bool | True if abs(r)≥0.4 AND p≤0.0017 (spec artifact) |
+| `phase_corr_r` | float | Circular-linear correlation coefficient |
+| `phase_corr_p` | float | P-value for phase correlation |
 
 ## Data Flow
 
-1. **Download**: Raw parquet/CSV → `data/raw/` (checksummed).
-2. **Validation**: Check temporal coverage → set `coverage_status`.
-3. **Binning**: Events → Exposure Map → Relative Anisotropy → HEALPix maps → Anisotropy intervals → `data/processed/anisotropy_timeseries.csv`.
-4. **Analysis**: Anisotropy CSV + Solar proxies → Correlation results → `data/results/correlation_results.json`.
-5. **Report**: Results → LaTeX → `reports/report.pdf`.
+1. **Download**: `EventDataset` and `SolarProxySeries` fetched from sources; checksums verified.
+2. **Preprocess**: Events binned into `AnisotropyInterval`; HEALPix maps generated; dipole/quadrupole fitted. Sampling applied if needed.
+3. **Analyze**: `CorrelationResult` computed via Lomb-Scargle, data-driven block bootstrap, phase-sensitive correlation, Monte-Carlo shuffle (both series).
+4. **Report**: Results aggregated into CSV, plots, and LaTeX report.
+
+## Schema Validation
+
+- All numeric columns must be non-null.
+- Dates must be valid UTC timestamps.
+- `detector` must be "icecube" or "auger".
+- `proxy_name` must be one of the three solar proxies.
+- `positive_result` is a boolean derived from spec thresholds.

@@ -1,22 +1,11 @@
-- artifact_hash: 25cda05e736e7821dccaebc1ed5bd9d31a597ad79f7a212c80d7d8aa57fc5926
+- artifact_hash: a5ada56db58a82f091f9ece89ec9abfab7f65397b0a6a9b4ebd68cfd6e460242
   artifact_path: projects/PROJ-121-investigating-the-relationship-between-c/specs/001-investigating-the-relationship-between-c/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: file-000.parquet
   kind: url
-  value: https://icecube.wisc.edu/science/data/open-data`
-  verification_status: mismatch
-  verified_against_url: https://icecube.wisc.edu/science/data/open-data
-  verified_at: '2026-07-11T21:15:02.513436Z'
-- artifact_hash: 25cda05e736e7821dccaebc1ed5bd9d31a597ad79f7a212c80d7d8aa57fc5926
-  artifact_path: projects/PROJ-121-investigating-the-relationship-between-c/specs/001-investigating-the-relationship-between-c/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.auger.org/archive/data.html`
-  verification_status: mismatch
-  verified_against_url: https://www.auger.org/archive/data.html
-  verified_at: '2026-07-11T21:15:02.513436Z'
+  value: https://huggingface.co/datasets/chy626/icecube_cup_w_distractors_new_0/resolve/main/data/chunk-000/file-000.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6983eef91d823e0cdd8f596d/2b08a7c73bbb1290a77bcc9fb3fb044968643861731b8dff9005608a59876dc0?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27file-000.parquet%3B+filename%3D%22file-000.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783812060&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk4M2VlZjkxZDgyM2UwY2RkOGY1OTZkLzJiMDhhN2M3M2JiYjEyOTBhNzdiY2M5ZmIzZmIwNDQ5Njg2NDM4NjE3MzFiOGRmZjkwMDU2MDhhNTk4NzZkYzBcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmlsZS0wMDAucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZpbGUtMDAwLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzgxMjA2MH19fV19&Signature=MEUCIQCfOxE8D9YPIDs4w32WoBDlGZTE2g51u5wMqb04qN35FgIgOi3UEOzBu5CNYAorjwf1G%7EHTmC1xqx6fSRhvBBPWx1g_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T22:21:00.264940Z'

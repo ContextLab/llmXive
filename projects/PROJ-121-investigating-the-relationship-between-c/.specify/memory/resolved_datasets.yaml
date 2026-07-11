@@ -1,4 +1,4 @@
-resolved_at: '2026-07-11T21:04:28.303349+00:00'
+resolved_at: '2026-07-11T22:06:08.162481+00:00'
 datasets:
 - intent: IceCube
   status: verified
@@ -45,6 +45,18 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://figshare.com/articles/media/Supplementary_Material_Participants_Answers_and_Questionnaire/32964497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Uso_de_ACs_com_IAGen_na_Personaliza_o_do_Aprendizado_na_Educa_o_B_sica_uma_Revis_o_Sistem_tica_da_Literatura_MATERIAL_COMPLEMENTAR/32964473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Western_blot_data/32964452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/thesis/_b_PREVIS_O_DE_10_ANOS_DA_MORTALIDADE_POR_COVID-19_NO_ESTADO_DE_MATO_GROSSO_BRASIL_2024_A_2033_DEVIDO_AS_MUTA_ES_DO_SARS-COV-2_E_SEUS_FATORES_ASSOCIADOS_UM_ESTUDO_DE_S_RIES_TEMPORAIS_b_/32964446
     source: figshare
     status: wrong_format
@@ -53,23 +65,11 @@ datasets:
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Raport_de_audit_independent_privind_conformitatea_si_performanta_institutionala/32964443
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4709733
+  - url: https://zenodo.org/records/8180337
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8180337
+  - url: https://zenodo.org/records/4709733
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -126,8 +126,20 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6a2e232a19d4300f61c3b119/b4d8c1ffea8d465c4904ded9f18fd4f05c090f4f696ef574f8f02b1dc5528836?user_id=public&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev.json%3B+filename%3D%22dev.json%22%3B&Expires=1783807452&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEyZTIzMmExOWQ0MzAwZjYxYzNiMTE5L2I0ZDhjMWZmZWE4ZDQ2NWM0OTA0ZGVkOWYxOGZkNGYwNWMwOTBmNGY2OTZlZjU3NGY4ZjAyYjFkYzU1Mjg4MzZcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkZXYuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRldi5qc29uJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM4MDc0NTJ9fX1dfQ__&Signature=MEUCIQDZQmzdq8-Vsa2wXK722nodTBk7gB5RBouwzyfy4B42AwIgGnZhNgS-4ycIc4Oe4ia6ju35brj5iKdYejDFnRSxs0U_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6a2e232a19d4300f61c3b119/b4d8c1ffea8d465c4904ded9f18fd4f05c090f4f696ef574f8f02b1dc5528836?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev.json%3B+filename%3D%22dev.json%22%3B&response-content-type=application%2Fjson&Expires=1783811151&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEyZTIzMmExOWQ0MzAwZjYxYzNiMTE5L2I0ZDhjMWZmZWE4ZDQ2NWM0OTA0ZGVkOWYxOGZkNGYwNWMwOTBmNGY2OTZlZjU3NGY4ZjAyYjFkYzU1Mjg4MzZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV2Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkZXYuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM4MTExNTF9fX1dfQ__&Signature=MEUCIQCp6gJtaljNPuxmx3H7XP8BEWfpqQBtzAvslN57AUESWwIgPOpeWcy~961jT9ZPUofiWUcBzUP3TgC24TcL7Yk4nFY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Supplementary_Material_Participants_Answers_and_Questionnaire/32964497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Uso_de_ACs_com_IAGen_na_Personaliza_o_do_Aprendizado_na_Educa_o_B_sica_uma_Revis_o_Sistem_tica_da_Literatura_MATERIAL_COMPLEMENTAR/32964473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Western_blot_data/32964452
+    source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/thesis/_b_PREVIS_O_DE_10_ANOS_DA_MORTALIDADE_POR_COVID-19_NO_ESTADO_DE_MATO_GROSSO_BRASIL_2024_A_2033_DEVIDO_AS_MUTA_ES_DO_SARS-COV-2_E_SEUS_FATORES_ASSOCIADOS_UM_ESTUDO_DE_S_RIES_TEMPORAIS_b_/32964446
@@ -135,18 +147,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/dataset/_b_Loss_of_neuronal_population_organization_links_pathology_to_behavior_in_a_model_of_Alzheimer_s_disease_b_/32961443
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Raport_de_audit_independent_privind_conformitatea_si_performanta_institutionala/32964443
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

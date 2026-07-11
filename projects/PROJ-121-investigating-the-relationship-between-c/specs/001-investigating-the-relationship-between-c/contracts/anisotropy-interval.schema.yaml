@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnisotropyInterval"
+description: "Schema for aggregated anisotropy metrics per temporal bin."
+type: "object"
+properties:
+  interval_start:
+    type: "string"
+    format: "date-time"
+    description: "Start of bin (UTC)."
+  interval_end:
+    type: "string"
+    format: "date-time"
+    description: "End of bin (UTC)."
+  dipole_amplitude:
+    type: "number"
+    description: "Fitted dipole amplitude."
+  dipole_phase:
+    type: "number"
+    description: "Fitted dipole phase (degrees)."
+  quadrupole_amplitude:
+    type: "number"
+    description: "Fitted quadrupole amplitude."
+  detector:
+    type: "string"
+    enum:
+      - "icecube"
+      - "auger"
+    description: "Detector source."
+  event_count:
+    type: "integer"
+    description: "Events in this interval."
+required:
+  - "interval_start"
+  - "interval_end"
+  - "dipole_amplitude"
+  - "dipole_phase"
+  - "quadrupole_amplitude"
+  - "detector"
+  - "event_count"
+additionalProperties: false
