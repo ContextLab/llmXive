@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationMetrics"
+description: "Schema for performance metrics and recovery ratios."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Global unique identifier for the pipeline run, linking to embeddings."
+  dataset_id:
+    type: "string"
+    description: "Identifier for the dataset."
+  task_type:
+    type: "string"
+    enum:
+      - "classification"
+      - "regression"
+    description: "Type of machine learning task."
+  metric_type:
+    type: "string"
+    enum:
+      - "AUC"
+      - "RMSE"
+      - "MAE"
+    description: "Performance metric used."
+  frozen_baseline:
+    type: "number"
+    description: "Mean performance of the frozen baseline (re-computed, averaged over 5 seeds)."
+  frozen_baseline_variance:
+    type: "number"
+    description: "Variance of the frozen baseline across the 5 seeds."
+  cpu_conditioned:
+    type: "number"
+    description: "Performance of the CPU-conditioned model."
+  gpu_tuned_baseline:
+    type: "number"
+    description: "Performance of the GPU-tuned baseline (from paper)."
+  recovery_ratio:
+    type: "number"
+    description: "Calculated recovery ratio."
+  metadata_stats:
+    type: "object"
+    description: "Snapshot of metadata stats used for this dataset."
+required:
+  - run_id
+  - dataset_id
+  - task_type
+  - metric_type
+  - frozen_baseline
+  - frozen_baseline_variance
+  - cpu_conditioned
+  - gpu_tuned_baseline
+  - recovery_ratio
+  - metadata_stats

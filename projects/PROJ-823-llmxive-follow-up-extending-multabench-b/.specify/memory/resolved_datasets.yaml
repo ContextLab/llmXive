@@ -1,0 +1,758 @@
+resolved_at: '2026-07-11T20:01:51.612063+00:00'
+datasets:
+- intent: MulTaBench
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://researchdata.up.ac.za/articles/dataset/Systemic_collaboration_within_the_broader_inclusive_education_framework_in_supporting_learners_with_mild_intellectual_disabilities_MIDs_in_mainstream_schools/32956880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M04_____/32964377
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Fundamental_Fifth_Field_as_a_Unified_Alternative_to_Dark_Matter_and_Dark_Energy/32964173
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Redesign_of_the_Course_Registration_System_KRS_Workflow_Using_a_Design_Thinking_Approach_to_Reduce_Students_Cognitive_Load/32964374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Chemical_constituents_of_i_Camellia_kissi_i_leaves_with_i_i_-glucosidase_acetylcholinesterase_and_nitric_oxide_inhibitory_effects/32964384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.10616
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CUDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-CUDA-v1/resolve/main/data/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-CUDA-v1/resolve/main/data/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://researchdata.up.ac.za/articles/dataset/Systemic_collaboration_within_the_broader_inclusive_education_framework_in_supporting_learners_with_mild_intellectual_disabilities_MIDs_in_mainstream_schools/32956880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M04_____/32964377
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Fundamental_Fifth_Field_as_a_Unified_Alternative_to_Dark_Matter_and_Dark_Energy/32964173
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Redesign_of_the_Course_Registration_System_KRS_Workflow_Using_a_Design_Thinking_Approach_to_Reduce_Students_Cognitive_Load/32964374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Chemical_constituents_of_i_Camellia_kissi_i_leaves_with_i_i_-glucosidase_acetylcholinesterase_and_nitric_oxide_inhibitory_effects/32964384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313913
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313913
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21311603
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://researchdata.up.ac.za/articles/dataset/Systemic_collaboration_within_the_broader_inclusive_education_framework_in_supporting_learners_with_mild_intellectual_disabilities_MIDs_in_mainstream_schools/32956880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M04_____/32964377
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Fundamental_Fifth_Field_as_a_Unified_Alternative_to_Dark_Matter_and_Dark_Energy/32964173
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Redesign_of_the_Course_Registration_System_KRS_Workflow_Using_a_Design_Thinking_Approach_to_Reduce_Students_Cognitive_Load/32964374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Chemical_constituents_of_i_Camellia_kissi_i_leaves_with_i_i_-glucosidase_acetylcholinesterase_and_nitric_oxide_inhibitory_effects/32964384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1972 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7fc17581f110>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21223570
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21223570
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312208
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AUC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChanceFocus/flare-finarg-ecc-auc/resolve/main/data/test-00000-of-00001-fa1c3bc21bf5ca66.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 177802
+      parsed: true
+  - url: https://huggingface.co/datasets/auchoi/website_data/resolve/main/benefitscal-data.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 256589
+      parsed: true
+  - url: https://huggingface.co/datasets/Surajsangwan90/AucklandTransport-FAQs-new/resolve/main/questions_answers_NZTA_with_simple_synthetic.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 24179
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ChanceFocus/flare-finarg-ecc-auc/resolve/main/data/test-00000-of-00001-fa1c3bc21bf5ca66.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/auchoi/website_data/resolve/main/benefitscal-data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/Surajsangwan90/AucklandTransport-FAQs/6f8b774f6ae151509358621641ffaa77b734cdb6/auckland_transport_dialogue_based_faq.csv?%2Fdatasets%2FSurajsangwan90%2FAucklandTransport-FAQs%2Fresolve%2Fmain%2Fauckland_transport_dialogue_based_faq.csv=&etag=%2204053b600b77df84e8458e78145c6f2699390dc7%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Surajsangwan90/AucklandTransport-FAQs-new/resolve/main/questions_answers_NZTA_with_simple_synthetic.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/tipani/Shanghai-License-Plate-Auction/resolve/main/data_csv.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://researchdata.up.ac.za/articles/dataset/Systemic_collaboration_within_the_broader_inclusive_education_framework_in_supporting_learners_with_mild_intellectual_disabilities_MIDs_in_mainstream_schools/32956880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M04_____/32964377
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Fundamental_Fifth_Field_as_a_Unified_Alternative_to_Dark_Matter_and_Dark_Energy/32964173
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Redesign_of_the_Course_Registration_System_KRS_Workflow_Using_a_Design_Thinking_Approach_to_Reduce_Students_Cognitive_Load/32964374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Chemical_constituents_of_i_Camellia_kissi_i_leaves_with_i_i_-glucosidase_acetylcholinesterase_and_nitric_oxide_inhibitory_effects/32964384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18836515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18897449
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2228178
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154284
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154218
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26207/z3df-qs02
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: (''Connection aborted.'', ConnectionResetError(104,
+      ''Connection reset by peer''))'
+  - url: https://tandf.figshare.com/articles/dataset/Machine_Learning_Reveals_the_Association_Between_Aridification_and_Sediment_Bacterial_Community_Changes_in_the_Linxia_Basin_NE_Tibetan_Plateau/32964251/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Machine_Learning_Reveals_the_Association_Between_Aridification_and_Sediment_Bacterial_Community_Changes_in_the_Linxia_Basin_NE_Tibetan_Plateau/32964251
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21311752
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21311752
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GPU-Tuned
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://researchdata.up.ac.za/articles/dataset/Systemic_collaboration_within_the_broader_inclusive_education_framework_in_supporting_learners_with_mild_intellectual_disabilities_MIDs_in_mainstream_schools/32956880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M04_____/32964377
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Fundamental_Fifth_Field_as_a_Unified_Alternative_to_Dark_Matter_and_Dark_Energy/32964173
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Redesign_of_the_Course_Registration_System_KRS_Workflow_Using_a_Design_Thinking_Approach_to_Reduce_Students_Cognitive_Load/32964374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Chemical_constituents_of_i_Camellia_kissi_i_leaves_with_i_i_-glucosidase_acetylcholinesterase_and_nitric_oxide_inhibitory_effects/32964384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8081590
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14019209
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7686966
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10298950
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8374848
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300368
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300368
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300131
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21299885
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CLIP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CodedotAI/code-clippy-tfrecords/resolve/main/tfrecords/test/checkpoint.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11
+      parsed: true
+  - url: https://huggingface.co/datasets/CodedotAI/code_clippy_github/resolve/main/github-dedup-000000000000.json.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clips/mfaq/resolve/main/data/cs/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/CodedotAI/code-clippy-tfrecords/resolve/main/tfrecords/test/checkpoint.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/CodedotAI/code_clippy_github/resolve/main/github-dedup-000000000000.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/clips/mfaq/resolve/main/data/cs/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/clips/mqa/resolve/main/data/data.af.cqa.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://researchdata.up.ac.za/articles/dataset/Systemic_collaboration_within_the_broader_inclusive_education_framework_in_supporting_learners_with_mild_intellectual_disabilities_MIDs_in_mainstream_schools/32956880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M04_____/32964377
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Fundamental_Fifth_Field_as_a_Unified_Alternative_to_Dark_Matter_and_Dark_Energy/32964173
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Redesign_of_the_Course_Registration_System_KRS_Workflow_Using_a_Design_Thinking_Approach_to_Reduce_Students_Cognitive_Load/32964374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Chemical_constituents_of_i_Camellia_kissi_i_leaves_with_i_i_-glucosidase_acetylcholinesterase_and_nitric_oxide_inhibitory_effects/32964384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20625770
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1435755
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://audiovisual-art.knukim.edu.ua/article/view/185691
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11411734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7347780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313181
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313181
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308547
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BERT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Tamuul/mini-bert-mlm-nsp-epoch-3/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/leetdavid/market-positivity-bert-tokenized/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Amba/bert-finetuned-ner_raw_datasets/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 258464
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Tamuul/mini-bert-mlm-nsp-epoch-3/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bertin-project/mc4-es-sampled/resolve/main/mc4-es-train-50M-gaussian-shard-0001-of-1024.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/bertin-project/mc4-sampling/resolve/main/dummy/af/0.0.0/dummy_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/leetdavid/market-positivity-bert-tokenized/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Amba/bert-finetuned-ner_raw_datasets/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://researchdata.up.ac.za/articles/dataset/Systemic_collaboration_within_the_broader_inclusive_education_framework_in_supporting_learners_with_mild_intellectual_disabilities_MIDs_in_mainstream_schools/32956880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M04_____/32964377
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Fundamental_Fifth_Field_as_a_Unified_Alternative_to_Dark_Matter_and_Dark_Energy/32964173
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Redesign_of_the_Course_Registration_System_KRS_Workflow_Using_a_Design_Thinking_Approach_to_Reduce_Students_Cognitive_Load/32964374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Chemical_constituents_of_i_Camellia_kissi_i_leaves_with_i_i_-glucosidase_acetylcholinesterase_and_nitric_oxide_inhibitory_effects/32964384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7249590
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7268337
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15607758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13916381
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5105626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313744
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313744
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313664
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313664
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312538
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ALL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/allenai/c4/resolve/main/en.noblocklist/c4-train.00000-of-01024.json.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/allenai/olmOCR-bench/resolve/main/bench_data/arxiv_math.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/allenai/peS2o/resolve/main/data/v1/train-00000-of-00020.json.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/allenai/c4/resolve/main/en.noblocklist/c4-train.00000-of-01024.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/allenai/olmOCR-bench/resolve/main/bench_data/arxiv_math.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/allenai/peS2o/resolve/main/data/v1/train-00000-of-00020.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/DL3DV/DL3DV-ALL-960P/resolve/main/10K/970a5c674c27b504d592d0a70c496d0e35ab0dc76802fb6e1bf336a4c1fe150a.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/allenai/tmax-15k-open-instruct/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://researchdata.up.ac.za/articles/dataset/Systemic_collaboration_within_the_broader_inclusive_education_framework_in_supporting_learners_with_mild_intellectual_disabilities_MIDs_in_mainstream_schools/32956880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M04_____/32964377
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Fundamental_Fifth_Field_as_a_Unified_Alternative_to_Dark_Matter_and_Dark_Energy/32964173
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Redesign_of_the_Course_Registration_System_KRS_Workflow_Using_a_Design_Thinking_Approach_to_Reduce_Students_Cognitive_Load/32964374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Chemical_constituents_of_i_Camellia_kissi_i_leaves_with_i_i_-glucosidase_acetylcholinesterase_and_nitric_oxide_inhibitory_effects/32964384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7246539
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7246569
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12525194
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12524979
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12525249
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313709
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313949
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313949
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-Conditioned
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://researchdata.up.ac.za/articles/dataset/Systemic_collaboration_within_the_broader_inclusive_education_framework_in_supporting_learners_with_mild_intellectual_disabilities_MIDs_in_mainstream_schools/32956880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M04_____/32964377
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Fundamental_Fifth_Field_as_a_Unified_Alternative_to_Dark_Matter_and_Dark_Energy/32964173
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Redesign_of_the_Course_Registration_System_KRS_Workflow_Using_a_Design_Thinking_Approach_to_Reduce_Students_Cognitive_Load/32964374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Chemical_constituents_of_i_Camellia_kissi_i_leaves_with_i_i_-glucosidase_acetylcholinesterase_and_nitric_oxide_inhibitory_effects/32964384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12770771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308353
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308353
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271670
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271670
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TabularMetadata
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RMSE
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: MAE
+  status: unresolved
+  candidates: []
+  candidates_tried: []

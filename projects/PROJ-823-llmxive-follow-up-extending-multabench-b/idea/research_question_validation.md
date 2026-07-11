@@ -1,31 +1,21 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: pass
-
-The question asks about the intrinsic recoverability of task-specific signal from frozen embeddings via interaction with structured features, and how this depends on modality alignment. While the methodology mentions a "CPU-Conditioned" approach, the core inquiry is about the theoretical limits of signal recovery and the role of alignment, not merely whether a specific architecture fits within a time budget.
+The question investigates a substantive mechanism in multimodal learning: whether structured tabular features can compensate for the lack of task-specific adaptation in frozen unstructured encoders. While it mentions "CPU" in the motivation and methodology, the core inquiry focuses on the *efficacy of cross-modal injection* and the *structural properties* of data that determine this efficacy, rather than merely benchmarking a specific hardware constraint.
 
 ### Circularity check
-
 **Verdict**: pass
-
-The predictor (tabular features) and the predicted variable (task labels) are derived from independent sources within the dataset structure. The alignment score used for stratification is computed from the relationship between frozen embeddings and labels, but the primary prediction task (labels from embeddings+tabular) does not mechanically guarantee success based on the construction of the predictors alone.
+The predictor involves the interaction between frozen unstructured embeddings (derived from images/text) and structured tabular features (derived from rows/columns). The predicted variable is the downstream task performance (classification/regression metrics). These are distinct data modalities and distinct targets; the relationship is not mechanically guaranteed by the construction of the inputs.
 
 ### Triviality check
-
 **Verdict**: pass
-
-A positive result (high recoverability in aligned domains) would provide a practical blueprint for efficient multimodal learning, while a null result (signal is irretrievable without fine-tuning) would fundamentally clarify the necessity of expensive encoder adaptation. Both outcomes offer significant theoretical and practical insight into the nature of "task-awareness" in multimodal representations.
+A positive result (high recovery of task-awareness) would be significant for efficient AI deployment, proving that expensive fine-tuning is not always necessary. Conversely, a null result (low recovery) would be equally informative, establishing a theoretical lower bound for frozen-encoder performance and suggesting that task-awareness is inextricably linked to encoder plasticity. Both outcomes advance the understanding of information flow in multimodal systems.
 
 ### Question-narrowing check
-
 **Verdict**: pass
-
-The question explicitly names a domain relationship: the dependency of signal recoverability on the intrinsic alignment between unstructured modalities. It avoids framing the inquiry as a constraint on a specific implementation (e.g., "Can we fit this on a CPU?") and instead asks "To what extent..." regarding the underlying mechanism of information flow.
+The question explicitly names a domain relationship: the link between "structural properties of tabular data" and the "efficacy of cross-modal injection." It avoids framing the inquiry solely around whether a specific model runs on a specific CPU within a specific time, instead treating the resource constraint as a boundary condition for a broader scientific question about feature interaction.
 
 ### Overall verdict
-
 **Verdict**: validated
-
-All four checks pass as the research question targets a substantive scientific relationship between modality alignment and signal recoverability, independent of specific implementation constraints. The framing avoids circularity and triviality by posing a question where both positive and negative results yield significant domain knowledge regarding the efficiency of multimodal learning.
+All four checks pass; the research question targets a genuine gap in understanding how structured data can modulate frozen unstructured representations. The focus on "structural properties" and "task-awareness signal" elevates this beyond a simple engineering benchmark to a study of multimodal information theory and efficiency.

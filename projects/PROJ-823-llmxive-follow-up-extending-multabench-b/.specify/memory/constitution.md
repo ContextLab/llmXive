@@ -37,27 +37,23 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-823-llmxive-follow-up-extending-multabench-b.yaml` `updated_at` timestamp.
 
-### VI. Computational Efficiency and Hardware Constraints
+### VI. Frozen-Backbone Integrity
 
-Given the project's explicit goal of democratizing multimodal learning for
-resource-constrained environments, all proposed "Tabular-Conditioned
-Projection" modules and training protocols MUST be validated to run
-exclusively on CPU within the defined 6-hour GitHub Actions limit. The
-implementation MUST prioritize lightweight MLP or cross-attention layers
-over heavy fine-tuning, ensuring that the "CPU-Conditioned" baseline
-remains strictly distinct from GPU-accelerated full encoder fine-tuning
-as described in the Methodology sketch.
+The unstructured encoder weights (e.g., CLIP ViT-B/32, Sentence-BERT) MUST
+remain strictly frozen with zero gradient flow during the training of the
+Tabular-Conditioned Projection module. Any artifact claiming performance
+gains must explicitly verify via gradient inspection logs that no weights
+in the frozen backbone were updated, ensuring the results isolate the efficacy
+of the lightweight conditioning mechanism as defined in the Methodology sketch.
 
-### VII. Modality Alignment Stratification
+### VII. Tabular Feature Conditionability Analysis
 
-The project's validity depends on the correlation between performance
-recovery and intrinsic modality alignment. Therefore, every experimental
-run MUST compute and record a "Modality Alignment Score" (e.g., via
-canonical correlation analysis or mutual information between frozen
-embeddings and labels) prior to model training. Results MUST be reported
-stratified by these alignment scores to explicitly test the interaction
-effect between conditioning methods and domain alignment, as required by
-the Statistical Analysis plan.
+The project MUST report the correlation between the performance recovery ratio
+(CPU-Conditioned vs. GPU-Tuned baseline) and specific structural properties of
+the tabular data (cardinality, missingness, variance) for the 40 MulTaBench
+datasets. A failure to compute or report these metadata statistics for the
+selected dataset subset constitutes a violation of the Expected Results
+requirements.
 
 ## Reproducibility Requirements
 
