@@ -9,29 +9,29 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can deterministic, parameter-free heuristics based on local block entropy and gradient magnitude replace the learned "Index Branch" in MiniMax Sparse Attention (MSA) to achieve comparable long-context retrieval accuracy without requiring auxiliary training or GPU-accelerated selection logic?
+To what extent can local statistical properties of token blocks (such as entropy and gradient magnitude) approximate the information-selection capability of a learned attention routing mechanism in long-context language models?
 
 ## Motivation
 
-The current MSA implementation relies on a learned scoring head trained via KL-divergence, which introduces training instability, hyperparameter sensitivity, and computational overhead for the selection mechanism. Replacing this with a deterministic heuristic would enable immediate deployment of block-sparse attention on resource-constrained edge devices or CPU-only inference servers while preserving the efficiency gains of block-granular access.
+Current sparse attention mechanisms like MiniMax Sparse Attention rely on learned routing heads that introduce training instability, hyperparameter sensitivity, and computational overhead for the selection process. Replacing this with deterministic, parameter-free heuristics would enable immediate deployment of block-sparse attention on resource-constrained edge devices or CPU-only inference servers while preserving the efficiency gains of block-granular access, provided the approximation quality remains high.
 
 ## Related work
 
-- [MiniMax-01: Scaling Foundation Models with Lightning Attention](https://arxiv.org/abs/2501.08313) — Establishes the MiniMax series' capability for ultra-long context processing, providing the foundational architecture that MSA extends.
-- [MiniMax-M1: Scaling Test-Time Compute Efficiently with Lightning Attention](https://arxiv.org/abs/2506.13585) — Introduces hybrid-attention and MoE architectures in the MiniMax ecosystem, offering context for how sparse mechanisms integrate with larger model families.
-- [Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models](https://arxiv.org/abs/2601.15305) — Investigates alternative sparse attention mechanisms that balance efficiency and stability, serving as a comparative baseline for the proposed heuristic approach.
+- [MiniMax-01: Scaling Foundation Models with Lightning Attention](https://arxiv.org/abs/2501.08313) — Establishes the MiniMax series' capability for ultra-long context processing, providing the foundational architecture that the proposed heuristic extension targets.
+- [MiniMax-M1: Scaling Test-Time Compute Efficiently with Lightning Attention](https://arxiv.org/abs/2506.13585) — Introduces hybrid-attention and MoE architectures in the MiniMax ecosystem, offering context for how sparse mechanisms integrate with larger model families and the necessity of efficient routing.
+- [Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models](https://arxiv.org/abs/2601.15305) — Investigates alternative sparse attention mechanisms that balance efficiency and stability, serving as a comparative baseline for the proposed heuristic approach to replace learned gating.
 - [Block Sparse Flash Attention](https://arxiv.org/abs/2512.07011) — Details block-granular access patterns to mitigate quadratic complexity, validating the block-level selection strategy used in the proposed methodology.
 
 ## Expected results
 
-We expect the "Local Gradient Magnitude" heuristic to outperform entropy-based methods in retrieving semantically critical information ("needles"), achieving within 1-2% accuracy of the learned Index Branch. A successful result would demonstrate that a zero-parameter selector can eliminate the ~0.5% parameter overhead and training complexity of the learned head while maintaining retrieval parity, whereas a null result would suggest that learned selection logic captures non-local dependencies that local heuristics cannot approximate.
+We expect the "Local Gradient Magnitude" heuristic to approximate the learned routing mechanism's performance within 1-2% accuracy on long-context retrieval tasks, demonstrating that zero-parameter selectors can eliminate the auxiliary training overhead. A successful result would prove that local statistical signals capture sufficient information for block selection, whereas a null result would indicate that learned heads capture non-local or latent dependencies that simple block-wise statistics cannot approximate.
 
 ## Methodology sketch
 
 - **Data Acquisition**: Download the RULER benchmark dataset (specifically "Needle In A Haystack" and "Multi-Hop Retrieval" tasks) and a subset of the CommonCrawl corpus; chunk documents into fixed-size blocks matching the MSA block granularity using standard Python libraries.
-- **Model Loading**: Load the pre-trained MiniMax-M3 model weights in frozen mode using the HuggingFace `transformers` library, ensuring the original "Index Branch" parameters are loaded but not updated.
+- **Model Loading**: Load the pre-trained MiniMax-M3 model weights in frozen mode using the HuggingFace `transformers` library, ensuring the original "Index Branch" parameters are loaded but not updated to serve as the ground-truth baseline.
 - **Heuristic Implementation**: Implement three CPU-executable selection heuristics: (1) Block Entropy (calculating token distribution uniformity per block), (2) Local Gradient Magnitude (performing a single backward pass on a small batch to score block importance), and (3) Recency-Weighted Positional Bias.
-- **Selection Logic Replacement**: Disable the learned Index Branch and inject the heuristic functions to select the Top-k key-value blocks for each query group during the prefill phase.
+- **Selection Logic Replacement**: Disable the learned Index Branch and inject the heuristic functions to select the Top-k key-value blocks for each query group during the prefill phase, ensuring the selection logic runs entirely on CPU.
 - **Inference Execution**: Run inference on the frozen model using each heuristic to select blocks, measuring the computational cost (CPU time) and memory footprint on a standard 2-core runner.
 - **Performance Evaluation**: Calculate perplexity and retrieval accuracy (Exact Match / F1) on the RULER tasks for each heuristic, comparing them against the original learned Index Branch baseline and a dense GQA baseline.
 - **Statistical Analysis**: Apply a paired t-test to compare the retrieval accuracy scores of the best-performing heuristic against the learned baseline across multiple RULER tasks to determine statistical significance.
@@ -45,7 +45,7 @@ We expect the "Local Gradient Magnitude" heuristic to outperform entropy-based m
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-05T12:50:52Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T17:05:29Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "MiniMax Sparse Attention" computer science
 **Verified citation count**: 4
@@ -54,27 +54,7 @@ We expect the "Local Gradient Magnitude" heuristic to outperform entropy-based m
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "MiniMax Sparse Attention" computer science | 0 |
-| 1 | MiniMax sparse attention mechanism | 4 |
-| 2 | sparse attention patterns in large language models | 4 |
-| 3 | efficient attention mechanisms for LLMs | 0 |
-| 4 | linear attention approximations for transformers | 0 |
-| 5 | sparse matrix multiplication in transformer models | 0 |
-| 6 | memory-efficient attention algorithms | 0 |
-| 7 | long-context sparse attention strategies | 0 |
-| 8 | MiniMax model architecture optimization | 0 |
-| 9 | dynamic sparse attention selection | 0 |
-| 10 | low-rank sparse attention methods | 0 |
-| 11 | sliding window attention mechanisms | 0 |
-| 12 | block-sparse attention for large scale models | 0 |
-| 13 | context-aware sparse attention | 0 |
-| 14 | scaling laws for sparse attention models | 0 |
-| 15 | hardware-aware sparse attention implementations | 0 |
-| 16 | pruning attention heads for efficiency | 0 |
-| 17 | hybrid dense-sparse attention architectures | 0 |
-| 18 | sub-quadratic complexity attention models | 0 |
-| 19 | adaptive sparse attention routing | 0 |
-| 20 | inference acceleration via sparse attention | 0 |
+| 0 (initial) | llmXive follow-up: extending "MiniMax Sparse Attention" computer science | 4 |
 
 ### Verified citations
 

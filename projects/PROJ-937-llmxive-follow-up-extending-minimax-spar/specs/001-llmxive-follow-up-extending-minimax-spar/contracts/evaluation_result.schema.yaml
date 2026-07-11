@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult"
+description: "Schema for the result of a single task run with a specific heuristic."
+type: "object"
+required:
+  - run_id
+  - task_id
+  - heuristic_name
+  - k_value
+  - selected_blocks
+  - generated_text
+  - exact_match
+  - f1_score
+  - cpu_time_ms
+  - heuristic_time_ms
+  - inference_time_ms
+  - memory_peak_mb
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run (timestamp + config hash)."
+  task_id:
+    type: "string"
+    description: "Reference to the RulerTask."
+  heuristic_name:
+    type: "string"
+    description: "Name of the heuristic used (e.g., 'GradientMagnitude')."
+  k_value:
+    type: "integer"
+    minimum: 1
+    description: "The Top-k selection cutoff used."
+  selected_blocks:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Indices of the selected blocks."
+  generated_text:
+    type: "string"
+    description: "Model output for the query."
+  exact_match:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "1.0 if generated_text equals expected_answer, else 0.0."
+  f1_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "F1 score for Multi-Hop tasks."
+  cpu_time_ms:
+    type: "number"
+    minimum: 0.0
+    description: "Total CPU time for the task (inference + heuristic)."
+  heuristic_time_ms:
+    type: "number"
+    minimum: 0.0
+    description: "Time spent only on heuristic calculation (isolated)."
+  inference_time_ms:
+    type: "number"
+    minimum: 0.0
+    description: "Time spent only on model inference (isolated)."
+  memory_peak_mb:
+    type: "number"
+    minimum: 0.0
+    description: "Peak memory usage during the task."

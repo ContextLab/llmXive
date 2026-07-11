@@ -1,0 +1,14 @@
+? 'T001 Create project structure per implementation plan: `mkdir -p projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/{models,heuristics,data,analysis,utils}
+  projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/tests/{unit,integration}
+  projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/data/{raw,processed}`'
+: 1
+? T002 Create `projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/requirements.txt`
+  containing pinned versions of `llama-cpp-python`, `datasets`, `scipy`, `pandas`,
+  `numpy`, `pytest`
+: 1
+? T003 [P] Create `projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/pyproject.toml`
+  with `[tool.black]` and `[tool.ruff]` configuration sections
+: 1
+? T004 [P] Implement `code/data/ruler_loader.py` to download RULER benchmark tasks
+  from ` to `data/raw/`, compute SHA-256 checksums, and record the checksums in `state/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar.yaml`
+: 1

@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalSummary"
+description: "Schema for aggregated statistical results."
+type: "object"
+required:
+  - heuristic_name
+  - baseline_name
+  - mean_accuracy
+  - std_accuracy
+  - delta_accuracy
+  - tost_p_value
+  - tost_ci_lower
+  - tost_ci_upper
+  - is_equivalent
+  - avg_cpu_time_ms
+  - avg_memory_mb
+properties:
+  heuristic_name:
+    type: "string"
+    description: "Name of the heuristic being evaluated."
+  baseline_name:
+    type: "string"
+    description: "Name of the baseline (e.g., 'Dense')."
+  mean_accuracy:
+    type: "number"
+    description: "Mean Exact Match/F1 across all tasks."
+  std_accuracy:
+    type: "number"
+    description: "Standard deviation of accuracy."
+  delta_accuracy:
+    type: "number"
+    description: "mean_accuracy (Heuristic) - mean_accuracy (Baseline)."
+  tost_p_value:
+    type: "number"
+    description: "P-value from TOST equivalence test."
+  tost_ci_lower:
+    type: "number"
+    description: "Lower bound of 90% CI for mean difference."
+  tost_ci_upper:
+    type: "number"
+    description: "Upper bound of 90% CI for mean difference."
+  is_equivalent:
+    type: "boolean"
+    description: "True if CI is within [-0.02, +0.02]."
+  avg_cpu_time_ms:
+    type: "number"
+    description: "Mean CPU time."
+  avg_memory_mb:
+    type: "number"
+    description: "Mean memory usage."
