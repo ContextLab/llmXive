@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-follow-up-extending-minimax-spar"
 version = "0.1.0"
-description = "Extending MiniMax Sparse Attention with Heuristics"
-readme = "README.md"
-requires-python = ">=3.9"
+description = "llmXive follow-up: extending MiniMax Sparse Attention"
+requires-python = ">=3.11"
 dependencies = [
-    "llama-cpp-python",
+    "transformers",
+    "torch",
     "datasets",
     "scipy",
     "pandas",
@@ -17,47 +17,36 @@ dependencies = [
     "pytest",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest-cov",
+]
+
 [tool.black]
-line-length = 100
-target-version = ['py39', 'py310', 'py311']
+line-length = 88
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.tox
+    | __pycache__
+    | build
+    | dist
+    | data
+    | results
 )/
 '''
 
 [tool.ruff]
-line-length = 100
-target-version = "py39"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.isort]
-known-first-party = ["code", "tests"]
-force-sort-within-sections = true
-combine-as-imports = true
+# Inherit settings from code/ruff.toml if needed, 
+# but typically we keep ruff config in the project root or a dedicated file.
+# This section serves as a fallback or override for project-wide settings.
+extend = "code/ruff.toml"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = "test_*.py"
 addopts = "-v --tb=short"

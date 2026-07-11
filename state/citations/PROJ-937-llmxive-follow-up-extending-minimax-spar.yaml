@@ -1,33 +1,44 @@
-- artifact_hash: f49f1277a7f57a69fb9c4002260b5949930321707e5469b3a4661df77c903672
+- artifact_hash: dd9666edf168edfba6318d276d98a5834794d39a957e256a9845905287f9d843
   artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: 131072.jsonl
   kind: url
-  value: https://huggingface.co/datasets/ruler/ruler`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/ruler/ruler
-  verified_at: '2026-07-11T17:28:07.822541Z'
-- artifact_hash: f49f1277a7f57a69fb9c4002260b5949930321707e5469b3a4661df77c903672
+  value: https://huggingface.co/datasets/VenusChenyy/RULER_50/resolve/main/cwe/131072.jsonl`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a510334fe4097aaf5d48d83/9d3ccbf8dca2160fff9a1259f63ef2aa4a877b837c0d4e7b9c06a66a1596d0a3?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27131072.jsonl%3B+filename%3D%22131072.jsonl%22%3B&user_id=public&Expires=1783796936&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE1MTAzMzRmZTQwOTdhYWY1ZDQ4ZDgzLzlkM2NjYmY4ZGNhMjE2MGZmZjlhMTI1OWY2M2VmMmFhNGE4NzdiODM3YzBkNGU3YjljMDZhNjZhMTU5NmQwYTNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3MTMxMDcyLmpzb25sJTNCK2ZpbGVuYW1lJTNEJTIyMTMxMDcyLmpzb25sJTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3OTY5MzZ9fX1dfQ__&Signature=MEYCIQDfzx1oWCJ7Jk9iN5r2OF1sD4-SIs6thbJMnymavpavTAIhAKu9yJCgAtr9hFe5MHn7REaX6%7EJLlgQ0jl09pHSN2cKg&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T18:08:56.009413Z'
+- artifact_hash: dd9666edf168edfba6318d276d98a5834794d39a957e256a9845905287f9d843
   artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: test.csv
+  fetched_title: validation-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/sc2qa/sc2qa_commoncrawl/resolve/main/test.csv`
+  value: https://huggingface.co/datasets/rbiswasfc/ruler/resolve/main/cwe_4k/validation-00000-of-00001.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f183ed8/270a2c5e725d57cef2c12e67e52f4e64cba1299092bf015bb3eb1da092736244?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&response-content-type=text%2Fcsv&user_id=public&X-Xet-Cas-Uid=public&Expires=1783794487&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzZWQ4LzI3MGEyYzVlNzI1ZDU3Y2VmMmMxMmU2N2U1MmY0ZTY0Y2JhMTI5OTA5MmJmMDE1YmIzZWIxZGEwOTI3MzYyNDRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzk0NDg3fX19XX0_&Signature=MEUCIHd6ypfrom1kOXxqTX6gtlg13CpqpsdOEbsofg-ym8uKAiEAzsvWd-CdPr0w6nI%7EG-bwAhNSzrj-JQ-C9mlpMH3P36w_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T17:28:07.822541Z'
-- artifact_hash: f0d414b53c20e173e7950bfa3317f3677e2fd0e7d618a382369f47f34bd4e427
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/667ce2c57932f1c57f3335ca/cfb0a3a9239eb5671c0135c2859ac532393b316a0554fcf48a9a699ca3274cef?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27validation-00000-of-00001.parquet%3B+filename%3D%22validation-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783796950&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY3Y2UyYzU3OTMyZjFjNTdmMzMzNWNhL2NmYjBhM2E5MjM5ZWI1NjcxYzAxMzVjMjg1OWFjNTMyMzkzYjMxNmEwNTU0ZmNmNDhhOWE2OTljYTMyNzRjZWZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dmFsaWRhdGlvbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydmFsaWRhdGlvbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3OTY5NTB9fX1dfQ__&Signature=MEUCIE0IIZlK6OEt5%7EpbXA6LgoGHjvHdTbfklwsqVUyDgYhjAiEAoJJVG7w2Abtml2%7EZKP0A4ZFAI%7E7YBQS2yNFjoIwYFy0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T18:08:56.009413Z'
+- artifact_hash: dd9666edf168edfba6318d276d98a5834794d39a957e256a9845905287f9d843
+  artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "MiniMaxAI/MiniMax-M3 \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/MiniMaxAI/MiniMax-M3`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/MiniMaxAI/MiniMax-M3
+  verified_at: '2026-07-11T18:08:56.009413Z'
+- artifact_hash: e192fcc83ebfb86031e52b4bea77d04fc49a60100651c38dbe2b954850688a80
   artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: cpu
   kind: url
-  value: https://huggingface.co/datasets/ruler/ruler`
+  value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/ruler/ruler
-  verified_at: '2026-07-11T17:28:43.674900Z'
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-11T18:09:31.411722Z'

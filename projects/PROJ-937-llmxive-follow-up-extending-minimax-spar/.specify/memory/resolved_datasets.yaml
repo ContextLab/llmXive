@@ -1,5 +1,110 @@
-resolved_at: '2026-07-11T17:10:03.216498+00:00'
+resolved_at: '2026-07-11T18:03:01.645175+00:00'
 datasets:
+- intent: MiniMax
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/empero-ai/MiniMax-M3-150k-Mixed/resolve/main/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/armand0e/minimax-m3-claude-code-traces/resolve/main/07d61462-9f44-48dc-a6c4-ccd6b8721166.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/creaoai/lilianweng_blog_url_synthetic_data_extractive_minimax/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 237552
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/empero-ai/MiniMax-M3-150k-Mixed/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/MiniMaxAI/role-play-bench/resolve/main/data/en/dialogues.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/armand0e/minimax-m3-claude-code-traces/resolve/main/07d61462-9f44-48dc-a6c4-ccd6b8721166.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/minimaxir/pokemon-embeddings/resolve/main/pokemon_embeddings.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/creaoai/lilianweng_blog_url_synthetic_data_extractive_minimax/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/Treze_de_Maio_proposta_curricular_para_Ensino_Religioso_no_ensino_fundamental_perspectivas_e_tend_ncias/32964281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/The_Impact_of_kernel_Dimensions_on_the_Generalizability_and_Efficienty_in_Neural_Drive_Estimation_from_HD-sEMG_Signal_/30392995
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M01____/32964191
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Analisis_Kinerja_Algoritma_Decision_Tree_dan_Random_Forest_untuk_Prediksi_Harga_Bawang_Merah_di_Jawa_Barat_Menggunakan_Data_Historis_Januari_2022_s_d_Februari_2026/32964272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_Identifying_the_Dimensions_Challenges_Criteria_Indicators_and_Requirements_of_the_Scholarly_Peer_Review_Process_and_Proposing_a_Framework_for_the_Evaluation_of_Scientific_Works_in_Iran_b_/32964269
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v12i2.4180
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/18190357
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18299218
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stp.ust.edu.ua/article/view/257929
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17662902
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312807
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312807
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21103985
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21103985
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21305516
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: RULER
   status: verified
   candidates:
@@ -30,7 +135,7 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/668cba6daf57d6e4b5390f28/9d756aeb698a0f66023dd5382e9c110b3e9a2f77c76bd93dfe105584bf3130c0?X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27cleaned_data.json%3B+filename%3D%22cleaned_data.json%22%3B&user_id=public&Expires=1783793350&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY4Y2JhNmRhZjU3ZDZlNGI1MzkwZjI4LzlkNzU2YWViNjk4YTBmNjYwMjNkZDUzODJlOWMxMTBiM2U5YTJmNzdjNzZiZDkzZGZlMTA1NTg0YmYzMTMwYzBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdjbGVhbmVkX2RhdGEuanNvbiUzQitmaWxlbmFtZSUzRCUyMmNsZWFuZWRfZGF0YS5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3OTMzNTB9fX1dfQ__&Signature=MEUCIH9OsNwZ8xbII1bBlspv5Qvwk3oEhpJ3dWziPmx-gTP~AiEAqQ6aGzPih0YhqMVtknslDo6r~n40N0Le6DpF4kXde9g_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/668cba6daf57d6e4b5390f28/9d756aeb698a0f66023dd5382e9c110b3e9a2f77c76bd93dfe105584bf3130c0?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27cleaned_data.json%3B+filename%3D%22cleaned_data.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&Expires=1783796472&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY4Y2JhNmRhZjU3ZDZlNGI1MzkwZjI4LzlkNzU2YWViNjk4YTBmNjYwMjNkZDUzODJlOWMxMTBiM2U5YTJmNzdjNzZiZDkzZGZlMTA1NTg0YmYzMTMwYzBcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Y2xlYW5lZF9kYXRhLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJjbGVhbmVkX2RhdGEuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3OTY0NzJ9fX1dfQ__&Signature=MEUCICssU-R2bKd20sWtbPjYLeNhZGWIrIZkSCDvbKLtJqSlAiEA1V-ejp4NgheFNBO940nuuFDfnznO-QFZ8g5eTZM4VCo_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -38,23 +143,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Decoding_Thermal_Stability_In_Situ_Insights_into_Phase_Controlled_Phosphine-Free_Colloidal_Bi_Te_Nanosheets/32964239
+  - url: https://figshare.com/articles/figure/Treze_de_Maio_proposta_curricular_para_Ensino_Religioso_no_ensino_fundamental_perspectivas_e_tend_ncias/32964281
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Decoding_Thermal_Stability_In_Situ_Insights_into_Phase_Controlled_Phosphine-Free_Colloidal_Bi_Te_Nanosheets/32964236
+  - url: https://figshare.com/articles/dataset/The_Impact_of_kernel_Dimensions_on_the_Generalizability_and_Efficienty_in_Neural_Drive_Estimation_from_HD-sEMG_Signal_/30392995
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Decoding_Thermal_Stability_In_Situ_Insights_into_Phase_Controlled_Phosphine-Free_Colloidal_Bi_Te_Nanosheets/32964233
+  - url: https://figshare.com/articles/preprint/__M01____/32964191
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Stereoselective_C_Aryl_and_C_Vinyl_Glycosylation_via_Iron-Catalyzed_Reductive_Coupling/32964230
+  - url: https://figshare.com/articles/dataset/Analisis_Kinerja_Algoritma_Decision_Tree_dan_Random_Forest_untuk_Prediksi_Harga_Bawang_Merah_di_Jawa_Barat_Menggunakan_Data_Historis_Januari_2022_s_d_Februari_2026/32964272
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multifunctional_Polydopamine_Nanoparticles_to_Alleviate_Oxidative_Stress_and_Inhibit_Ferroptosis_for_Cisplatin-Induced_Acute_Kidney_Injury_Therapy/32964227
+  - url: https://figshare.com/articles/online_resource/_b_Identifying_the_Dimensions_Challenges_Criteria_Indicators_and_Requirements_of_the_Scholarly_Peer_Review_Process_and_Proposing_a_Framework_for_the_Evaluation_of_Scientific_Works_in_Iran_b_/32964269
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -66,11 +171,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14124665
+  - url: https://zenodo.org/records/10276322
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10276322
+  - url: https://zenodo.org/records/14124665
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -98,108 +203,208 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: CommonCrawl
+- intent: RuntimeError
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Treze_de_Maio_proposta_curricular_para_Ensino_Religioso_no_ensino_fundamental_perspectivas_e_tend_ncias/32964281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/The_Impact_of_kernel_Dimensions_on_the_Generalizability_and_Efficienty_in_Neural_Drive_Estimation_from_HD-sEMG_Signal_/30392995
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M01____/32964191
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Analisis_Kinerja_Algoritma_Decision_Tree_dan_Random_Forest_untuk_Prediksi_Harga_Bawang_Merah_di_Jawa_Barat_Menggunakan_Data_Historis_Januari_2022_s_d_Februari_2026/32964272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_Identifying_the_Dimensions_Challenges_Criteria_Indicators_and_Requirements_of_the_Scholarly_Peer_Review_Process_and_Proposing_a_Framework_for_the_Evaluation_of_Scientific_Works_in_Iran_b_/32964269
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15790564
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20648208
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21156733
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21291217
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19688884
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21302658
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21291217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21291217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CUDA
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/sc2qa/sc2qa_commoncrawl/resolve/main/test.csv
-    source: huggingface
-    format: csv
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/snoop2head/commoncrawl_sampled_gpt2-xl/resolve/main/data/train-00000-of-00001-71674c4c4f2f8428.parquet
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
     source: huggingface
     format: parquet
     relevance: 1.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/snoop2head/common_crawl/resolve/main/data/train-00000-of-00001-aafbe4647e537cd2.parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
     source: huggingface
-    format: parquet
-    relevance: 0.0
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-CUDA-v1/resolve/main/data/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f183ed6/50c61193585bb82a2812c69a8463d72e14d4ff863d0c1c0ae097713a0ab7e337?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&response-content-type=text%2Fcsv&user_id=public&Expires=1783793376&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzZWQ2LzUwYzYxMTkzNTg1YmI4MmEyODEyYzY5YTg0NjNkNzJlMTRkNGZmODYzZDBjMWMwYWUwOTc3MTNhMGFiN2UzMzdcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzkzMzc2fX19XX0_&Signature=MEYCIQCeYT-Oo4qJL4GA7Y8XqJerYbiJo~fuyNOoMdTRU-WDCgIhAI9QPoQdzRUMwR3N~5QU54Ud7lgr5uln6HYzxwqamhK9&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f183ed7/738a0d46c9ca2b45b07dea4c1fcbdce0287e7e82300e6ac7ebb69bc98f159399?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&response-content-type=text%2Fcsv&user_id=public&Expires=1783793377&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzZWQ3LzczOGEwZDQ2YzljYTJiNDViMDdkZWE0YzFmY2JkY2UwMjg3ZTdlODIzMDBlNmFjN2ViYjY5YmM5OGYxNTkzOTlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzkzMzc3fX19XX0_&Signature=MEUCIDquUzgSWhG4Co6tjsNMzfnLU92f2RytNe~G1h-cJFHnAiEAv6VcPQvEMzArjouCVWauPy5ZdaPIz3Jl68WqoMPEvGU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/sc2qa/sc2qa_commoncrawl/resolve/main/test.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/snoop2head/common_crawl/resolve/main/data/train-00000-of-00001-aafbe4647e537cd2.parquet
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/snoop2head/commoncrawl_sampled_gpt2-xl/resolve/main/data/train-00000-of-00001-71674c4c4f2f8428.parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
     source: huggingface
     status: verified
-    format: parquet
-  - url: https://acs.figshare.com/articles/media/Decoding_Thermal_Stability_In_Situ_Insights_into_Phase_Controlled_Phosphine-Free_Colloidal_Bi_Te_Nanosheets/32964239
+    format: jsonl
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-CUDA-v1/resolve/main/data/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/figure/Treze_de_Maio_proposta_curricular_para_Ensino_Religioso_no_ensino_fundamental_perspectivas_e_tend_ncias/32964281
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Decoding_Thermal_Stability_In_Situ_Insights_into_Phase_Controlled_Phosphine-Free_Colloidal_Bi_Te_Nanosheets/32964236
+  - url: https://figshare.com/articles/dataset/The_Impact_of_kernel_Dimensions_on_the_Generalizability_and_Efficienty_in_Neural_Drive_Estimation_from_HD-sEMG_Signal_/30392995
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Decoding_Thermal_Stability_In_Situ_Insights_into_Phase_Controlled_Phosphine-Free_Colloidal_Bi_Te_Nanosheets/32964233
+  - url: https://figshare.com/articles/preprint/__M01____/32964191
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Stereoselective_C_Aryl_and_C_Vinyl_Glycosylation_via_Iron-Catalyzed_Reductive_Coupling/32964230
+  - url: https://figshare.com/articles/dataset/Analisis_Kinerja_Algoritma_Decision_Tree_dan_Random_Forest_untuk_Prediksi_Harga_Bawang_Merah_di_Jawa_Barat_Menggunakan_Data_Historis_Januari_2022_s_d_Februari_2026/32964272
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multifunctional_Polydopamine_Nanoparticles_to_Alleviate_Oxidative_Stress_and_Inhibit_Ferroptosis_for_Cisplatin-Induced_Acute_Kidney_Injury_Therapy/32964227
+  - url: https://figshare.com/articles/online_resource/_b_Identifying_the_Dimensions_Challenges_Criteria_Indicators_and_Requirements_of_the_Scholarly_Peer_Review_Process_and_Proposing_a_Framework_for_the_Evaluation_of_Scientific_Works_in_Iran_b_/32964269
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15090736
+  - url: https://zenodo.org/records/5550909
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6044920
+  - url: https://zenodo.org/records/16299984
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7476697
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/19228158
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18490474
+  - url: https://zenodo.org/records/7683127
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7859245
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20929473
+  - url: https://zenodo.org/records/21312149
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20929473
+  - url: https://zenodo.org/records/21312149
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20814398
+  - url: https://zenodo.org/records/21311603
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20814398
+  - url: https://zenodo.org/records/21311603
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19787654
+  - url: https://zenodo.org/records/21308578
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OutOfMemoryError
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Treze_de_Maio_proposta_curricular_para_Ensino_Religioso_no_ensino_fundamental_perspectivas_e_tend_ncias/32964281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/The_Impact_of_kernel_Dimensions_on_the_Generalizability_and_Efficienty_in_Neural_Drive_Estimation_from_HD-sEMG_Signal_/30392995
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M01____/32964191
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Analisis_Kinerja_Algoritma_Decision_Tree_dan_Random_Forest_untuk_Prediksi_Harga_Bawang_Merah_di_Jawa_Barat_Menggunakan_Data_Historis_Januari_2022_s_d_Februari_2026/32964272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_Identifying_the_Dimensions_Challenges_Criteria_Indicators_and_Requirements_of_the_Scholarly_Peer_Review_Process_and_Proposing_a_Framework_for_the_Evaluation_of_Scientific_Works_in_Iran_b_/32964269
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20062701
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19413144
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Hands-On_NLP_with_Hugging_Face_ALTA_2024_Tutorial_on_Efficient_Fine-Tuning_and_Quantisation/27929580
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19159671
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19159671
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

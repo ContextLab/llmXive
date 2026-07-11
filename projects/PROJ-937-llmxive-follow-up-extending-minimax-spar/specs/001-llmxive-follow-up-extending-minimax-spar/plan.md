@@ -1,42 +1,25 @@
 # Implementation Plan: llmXive follow-up: extending "MiniMax Sparse Attention"
 
-**Branch**: `001-llmxive-sparse-attention-heuristics` | **Date**: 2026-07-11 | **Spec**: [link]
+**Branch**: `001-llmxive-sparse-attention-heuristics` | **Date**: 2026-07-11 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-llmxive-sparse-attention-heuristics/spec.md`
 
 ## Summary
 
-This feature implements a zero-parameter heuristic selector to replace the learned "Index Branch" in the MiniMax-M3 model for long-context retrieval tasks. The plan validates whether local statistical properties (Block Entropy, Local Gradient Magnitude, Recency-Weighted Bias) can approximate the information-selection capability of the dense attention baseline. The implementation targets a CPU-only GitHub Actions runner, executing the RULER benchmark (Needle In A Haystack, Multi-Hop) with a frozen model, measuring Exact Match/F1 accuracy, computational overhead, and statistical significance (TOST equivalence test) against a % tolerance threshold.
-
-**Addressed Requirements**:
-- **FR-001**: Addressed by `code/models/mini_max_wrapper.py` (frozen mode, Index Branch disable).
-- **FR-002**: Addressed by `code/heuristics/gradient_magnitude.py` (CPU-only gradient calc).
-- **FR-003**: Addressed by `code/heuristics/block_entropy.py` and `recency_bias.py`.
-- **FR-004**: Addressed by `code/main.py` (RULER execution).
-- **FR-005**: Addressed by `code/analysis/stats.py` (TOST implementation).
-- **FR-006**: Addressed by `code/main.py` and `code/analysis/stats.py` (Sensitivity sweep).
-- **SC-001**: Addressed by TOST margin (±2%).
-- **SC-002**: Addressed by TOST p-value (alpha=0.05).
-- **SC-003**: Addressed by separate timing logs for heuristic vs. inference.
-- **SC-004**: Addressed by sensitivity curve generation.
-- **SC-005**: Addressed by GGUF -bit quantization and streaming.
+This project implements a CPU-feasible evaluation framework to test whether local signal statistics (Block Entropy, Local Gradient Magnitude, Recency Bias) can substitute for the learned "Index Branch" in MiniMax Sparse Attention. The system loads the MiniMax-M3 model in frozen mode, processes the RULER benchmark (Needle In A Haystack, Multi-Hop Retrieval), and executes three deterministic heuristics to select Top-k context blocks. Performance is measured via Exact Match, F1, and Perplexity against a **Dense Attention (Full Context)** baseline, which serves as the ground truth for retrieval capability. Statistical significance is assessed using a **Paired t-test** (per Constitution Principle VII) with Holm-Bonferroni correction for multiple comparisons, alongside a Wilcoxon signed-rank test as a robustness check. The implementation strictly adheres to CPU-only constraints (limited cores, constrained RAM) by utilizing aggressive subsampling and streaming chunking.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `llama-cpp-python` (CPU-only, GGUF), `datasets`, `scipy`, `pandas`, `numpy`, `pytest`, `transformers` (for metadata only).  
-**Storage**: Local `data/` directory for cached RULER tasks and model weights; no persistent database.  
-**Testing**: `pytest` for unit tests of heuristic logic; `pytest` integration tests for RULER task execution.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, GB RAM, no GPU).  
-**Project Type**: Research tool / Benchmarking suite.  
-**Performance Goals**: Complete RULER tasks within 6 hours; memory footprint < 6 GB during inference.  
-**Constraints**: No GPU usage; **MUST use GGUF low-bit quantization** via `llama-cpp-python` to fit model in RAM; strict block alignment for gradient/entropy calculation.  
-**Scale/Scope**: RULER tasks, A small number of heuristics will be explored. 
+**Primary Dependencies**: `transformers` (CPU-only), `torch` (CPU), `datasets` (HuggingFace), `scipy` (statistical tests), `pandas`, `numpy`, `pytest`  
+**Storage**: Local file system (`data/` for cached datasets, `results/` for JSON outputs)  
+**Testing**: `pytest` (unit tests for heuristics, integration tests for full RULER loop)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM)  
+**Project Type**: Research/Computational Experiment  
+**Performance Goals**: Complete full RULER subset evaluation in < 6 hours; memory footprint < 7 GB.  
+**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; frozen model weights only; deterministic heuristics.  
+**Scale/Scope**: RULER subset (sampled to fit memory); MiniMax-M3 (frozen); Several heuristics vs 1 Dense Baseline.
 
-The research question is: Can automated heuristic selection improve the performance of algorithm configuration tools?
-
-The method is: We will implement a runtime system that selects from a set of pre-defined heuristics based on problem features.
-
-(Smith et al., 2020), baseline, sensitivity thresholds (k=10,20,30).
+> **Statistical Methodology Note**: The Constitution (Principle VII) mandates a **Paired t-test** for statistical significance. While the Spec (FR-005) mentions Wilcoxon, the Constitution is the higher-order SSoT. The plan implements the Paired t-test as the primary test. Wilcoxon is retained as a secondary robustness check if normality assumptions fail.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -44,13 +27,15 @@ The method is: We will implement a runtime system that selects from a set of pre
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: Plan mandates pinned `requirements.txt`, fixed random seeds in `code/`, and re-fetching of canonical RULER datasets from HuggingFace on every run.
-- **II. Verified Accuracy**: All dataset citations (RULER) are restricted to the verified official URLs provided in the spec. No fabricated URLs.
-- **III. Data Hygiene**: Raw RULER JSONL/Parquet files downloaded to `data/raw/` will be **checksummed (SHA-256) immediately** and the hash recorded in `state/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar.yaml`. No in-place modification.
-- **IV. Single Source of Truth**: All accuracy metrics and latency logs will be written to CSV/JSON artifacts in `data/`; the final paper will reference these artifacts directly.
-- **V. Versioning Discipline**: Every artifact under this project carries a content hash. The `state/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar.yaml` file will be updated with new checksums upon any artifact change.
-- **VI. Zero-Parameter Heuristic Fidelity**: The plan explicitly isolates the computational cost of these heuristics from the frozen MiniMax-M3 model inference. The "Index Branch" will be programmatically disabled. **Metrics will log 'heuristic_time' and 'inference_time' separately** to ensure routing overhead is not conflated.
-- **VII. Block-Granular Statistical Validity**: The data processing pipeline will enforce strict block alignment (fixed-size chunks) matching the MiniMax Sparse Attention granularity. **Statistical analysis will only aggregate results where block boundaries align with the original RULER benchmark tasks** to ensure validity.
+| Principle | Status | Compliance Strategy |
+|-----------|--------|---------------------|
+| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`. Datasets fetched from verified HuggingFace URLs. `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | Citations restricted to verified dataset URLs provided in spec. No hallucinated sources. |
+| **III. Data Hygiene** | **PASS** | Raw RULER data downloaded to `data/raw/` with checksums. Derived results written to `data/processed/` without modifying raw files. |
+| **IV. Single Source of Truth** | **PASS** | All metrics (F1, PPL) generated by `code/` scripts and stored in JSON; paper figures generated directly from these files. |
+| **V. Versioning Discipline** | **PASS** | Artifact hashes tracked in `state/`. Implementation uses content-addressable storage for results. |
+| **VI. Deterministic Heuristic Fidelity** | **PASS** | Heuristics implemented as pure, stateless functions. No stochastic training; gradients computed via proxy loss on frozen weights. |
+| **VII. Benchmark-Grounded Statistical Significance** | **PASS** | **Paired t-test** implemented as primary method per Constitution Principle VII. Wilcoxon retained as secondary robustness check. Holm-Bonferroni correction applied for multiple comparisons. |
 
 ## Project Structure
 
@@ -63,7 +48,7 @@ specs/001-llmxive-sparse-attention-heuristics/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (not created by /speckit-plan)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -72,43 +57,47 @@ specs/001-llmxive-sparse-attention-heuristics/
 projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/
 ├── code/
 │   ├── __init__.py
-│   ├── main.py                 # Entry point for RULER benchmark execution
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── mini_max_wrapper.py # Wrapper to disable Index Branch and inject heuristics (Addressed by FR-001)
+│   ├── requirements.txt
+│   ├── main.py                # Entry point: loads model, runs heuristics, triggers eval
 │   ├── heuristics/
 │   │   ├── __init__.py
-│   │   ├── gradient_magnitude.py # Addressed by FR-002
-│   │   ├── block_entropy.py      # Addressed by FR-003
-│   │   └── recency_bias.py       # Addressed by FR-003
+│   │   ├── entropy.py         # Block Entropy calculation
+│   │   ├── gradient.py        # Local Gradient Magnitude (proxy loss)
+│   │   └── recency.py         # Recency Bias weighting
+│   ├── eval/
+│   │   ├── __init__.py
+│   │   ├── metrics.py         # Exact Match, F1, Perplexity calculators
+│   │   └── statistical.py     # Paired t-test, Holm-Bonferroni, sensitivity sweep logic
 │   ├── data/
-│   │   ├── __init__.py
-│   │   └── ruler_loader.py     # Downloads and parses RULER tasks (Addressed by FR-004)
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── stats.py            # TOST, sensitivity analysis (Addressed by FR-005, FR-006)
-│   │   └── metrics.py          # Exact Match, F1 calculation
+│   │   ├── loader.py          # RULER dataset loading & chunking
+│   │   └── preprocess.py      # Streaming chunker for memory safety
 │   └── utils/
-│       ├── __init__.py
-│       └── logging.py          # CPU time/memory logging (Addressed by SC-003)
+│       ├── config.py          # Seed pinning, threshold configs
+│       └── logger.py          # Structured logging
 ├── data/
-│   ├── raw/                    # Downloaded RULER JSONL/Parquet (Checksummed per Constitution III)
-│   └── processed/              # Block-aligned, sampled tasks
+│   ├── raw/                   # Downloaded RULER JSONL/Parquet
+│   └── processed/             # Chunked/filtered datasets, result JSONs
 ├── tests/
 │   ├── unit/
 │   │   ├── test_heuristics.py
 │   │   └── test_metrics.py
 │   └── integration/
-│       └── test_ruler_run.py
-└── requirements.txt
+│       └── test_ruler_loop.py
+└── results/
+    └── benchmark_report.json  # Final aggregated metrics
 ```
 
-**Structure Decision**: Single project structure selected to simplify dependency management for the research workflow. The `code/` directory is split by domain (models, heuristics, data, analysis) to enforce separation of concerns between the frozen model wrapper, the heuristic logic, and the statistical analysis, ensuring the "Zero-Parameter Heuristic Fidelity" principle is maintained.
+**Structure Decision**: Single project structure (`code/`, `data/`, `tests/`) selected to maintain tight coupling between heuristic logic, data loading, and statistical evaluation, ensuring reproducibility and simplifying the CPU-only execution path.
 
 ## Complexity Tracking
 
-No complexity violations identified. The constraints (CPU-only, 7GB RAM) are addressed by:
-1.  **Quantization**: Using GGUF 4-bit quantization via `llama-cpp-python` to fit the model in RAM.
-2.  **Sampling**: Limiting RULER tasks to a representative subset if full load exceeds memory.
-3.  **Gradient Batching**: Calculating input gradients on small batches (≤4 sequences) to fit in RAM.
-4.  **Streaming**: Processing tasks one-by-one to avoid OOM.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Proxy Gradient Calculation** | Required for "Local Gradient Magnitude" heuristic on frozen model. | Direct gradient computation on frozen weights is impossible without a proxy loss; ignoring this would violate FR-002. |
+| **Streaming Chunking** | RULER with long-context settings exceeds 7 GB RAM
+
+Research Question: How does the RULER benchmark scale with increasing context lengths in terms of memory consumption?
+Method: Systematic profiling of peak RAM usage across a range of context lengths using the RULER benchmark suite.
+References: [Citation placeholder]. | Loading full context fails; must process in sliding windows to fit memory constraints (FR-003, FR-007). |
+| **Paired t-test vs Wilcoxon** | Constitution (Principle VII) mandates t-test; Spec (FR-005) mentions Wilcoxon. | Constitution is the higher-order SSoT. Plan implements t-test as primary, Wilcoxon as secondary. |
+| **Dense Baseline** | "Learned Index Branch" cannot be executed if disabled. | Baseline is defined as "Dense Attention" (Full Context) performance, which is the true ground truth for retrieval capability. |

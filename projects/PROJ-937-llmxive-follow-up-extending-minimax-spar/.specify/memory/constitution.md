@@ -37,29 +37,13 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar.yaml` `updated_at` timestamp.
 
-### VI. Zero-Parameter Heuristic Fidelity
+### VI. Deterministic Heuristic Fidelity
 
-The project's core contribution relies on replacing the learned "Index Branch"
-with deterministic, parameter-free heuristics (Block Entropy, Local Gradient
-Magnitude, Recency-Weighted Positional Bias). Consequently, the evaluation
-protocol MUST explicitly isolate the computational cost of these heuristics
-from the frozen MiniMax-M3 model inference. Any comparison against the
-learned baseline MUST ensure the baseline's routing overhead is not conflated
-with the model's intrinsic compute, as the methodology sketch specifies
-running selection logic entirely on CPU to validate deployment on
-resource-constrained edge devices.
+The project's core contribution relies on replacing the learned "Index Branch" with deterministic, parameter-free heuristics (Block Entropy, Local Gradient Magnitude, Recency-Weighted Positional Bias). Consequently, the selection logic MUST be implemented as pure, stateless functions that produce identical block selections for identical input blocks, ensuring that the "CPU-only" deployment claim is valid and that performance gains are not confounded by stochastic training dynamics or non-deterministic gradient approximations. This principle directly addresses the methodology's requirement to "disable the learned Index Branch" and "inject heuristic functions" to verify if local statistics suffice without auxiliary training overhead.
 
-### VII. Block-Granular Statistical Validity
+### VII. Benchmark-Grounded Statistical Significance
 
-Since the methodology relies on chunking documents into fixed-size blocks
-matching the MiniMax Sparse Attention (MSA) granularity, the data processing
-pipeline MUST enforce strict block alignment. The statistical analysis
-(paired t-tests on retrieval accuracy) MUST only aggregate results where
-block boundaries align with the original RULER benchmark tasks (Needle In A
-Haystack, Multi-Hop Retrieval) to ensure that the "local statistical
-properties" measured (entropy, gradient magnitude) accurately reflect the
-information-selection capability intended by the research question, rather
-than artifacts of arbitrary chunking.
+Evaluation results MUST be validated against the RULER benchmark (specifically "Needle In A Haystack" and "Multi-Hop Retrieval" tasks) using a paired t-test to determine statistical significance against the frozen MiniMax-M3 baseline. Claims of "within 1-2% accuracy" or "negligible degradation" are invalid unless supported by this specific statistical analysis comparing the best-performing heuristic against the learned baseline across multiple RULER tasks, as mandated by the project's statistical analysis plan.
 
 ## Reproducibility Requirements
 

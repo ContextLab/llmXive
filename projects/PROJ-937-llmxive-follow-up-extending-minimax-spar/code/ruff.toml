@@ -1,0 +1,45 @@
+[tool.ruff]
+# Target Python 3.11 as per project spec
+target-version = "py311"
+
+# Line length consistent with Black
+line-length = 88
+
+# Exclude generated or large directories
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    "data",
+    "results",
+    "venv",
+    ".venv"
+]
+
+[tool.ruff.lint]
+# Enable standard rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in dataclasses)
+    "C901", # Too complex (allow higher complexity for now)
+]
+
+# Allow unused imports in __init__.py for re-exports
+per-file-ignores = { "code/heuristics/__init__.py" = ["F401"] }
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+force-single-line = false
+lines-after-imports = 2

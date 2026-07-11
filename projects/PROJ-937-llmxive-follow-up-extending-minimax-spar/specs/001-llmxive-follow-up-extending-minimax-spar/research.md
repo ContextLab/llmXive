@@ -1,83 +1,87 @@
 # Research: llmXive follow-up: extending "MiniMax Sparse Attention"
 
-## Research Question
-To what extent can local statistical properties of token blocks (entropy, gradient magnitude) approximate the information-selection capability of a learned attention routing mechanism in long-context language models?
+## 1. Research Question & Hypotheses
 
-## Dataset Strategy
+**Primary Question**: To what extent do local signal statistics (block entropy, gradient magnitude, recency) correlate with the semantic importance of context tokens in long-window language models, and do these local approximations achieve retrieval performance comparable to a full-context (Dense) baseline within resource-constrained environments?
 
-The research relies on the **RULER** benchmark for long-context retrieval evaluation. The dataset must be verified against the provided list.
+**Hypotheses**:
+- **H1 (Entropy)**: Block Entropy correlates positively with semantic importance in "Needle In A Haystack" tasks, allowing Top-k selection to match Dense baseline F1 within a descriptive margin (target < 10% drop).
+- **H2 (Gradient)**: Local Gradient Magnitude (via targeted proxy loss) provides a robust signal for "Multi-Hop" tasks, capturing token relevance to the retrieval target.
+- **H3 (Recency)**: Recency Bias serves as a strong baseline but fails in tasks requiring long-range retrieval (e.g., mid-document needles).
+- **H4 (Operational Substitution)**: The best-performing heuristic will not show a statistically significant difference (p > 0.05) from the Dense baseline across the RULER subset, supporting its use as a resource-efficient operational substitute.
 
-| Dataset Name | Description | Verified URL | Usage in Plan |
+*Note on Causality*: Findings will be framed as **associational** (correlation between heuristic scores and retrieval success) rather than causal. The study does not claim the heuristic *causes* the performance, but that it *correlates* with the performance of the full model. "Substitution" refers to operational replacement in constrained environments, not causal replacement of the learned mechanism's function.
+
+## 2. Dataset Strategy
+
+**Target Benchmark**: RULER (Retrieval Under Long Contexts Evaluation).
+**Specific Tasks**: "Needle In A Haystack" (NIAH) and "Multi-Hop Retrieval".
+
+| Dataset | Verified Source URL | Usage Strategy | Notes |
 |:--- |:--- |:--- |:--- |
-| **RULER (Official)** | Long-context retrieval tasks (Needle In A Haystack, Multi-Hop) in JSONL/Parquet format. | `https://huggingface.co/datasets/ruler/ruler` | Primary evaluation suite. Tasks will be downloaded, parsed, and aligned to block boundaries. |
-| **CommonCrawl** | General text corpus for pre-training context or additional retrieval noise. | ` | **Not used** in this specific feature scope (RULER tasks are self-contained). |
+| **RULER (Primary)** | ` | Downloaded via `datasets.load_dataset`. Processed in chunks of 4k tokens to fit RAM. | Verified source. Contains NIAH and Multi-Hop tasks. **Must be 128k context** for validity. |
+| **RULER (Debug Only)** | ` | **Debug/Validation Only**. Used ONLY to verify code logic if 128k fails. **NOT** used for primary hypothesis testing. | If 128k processing fails, the experiment aborts rather than switching to 4k, preserving the "Long-Window" claim. |
+| **MiniMax-M3 Model** | `https://huggingface.co/MiniMaxAI/MiniMax-M3` | Model weights loaded via `transformers` from HuggingFace Hub. | **NOT** a dataset. This is the model repository. |
 
-**Dataset Fit Analysis**:
-- The RULER dataset (Official) contains the specific "Needle In A Haystack" and "Multi-Hop" tasks required by the spec.
-- The dataset provides the full context length (up to 128k) necessary to test long-context heuristics.
-- **Constraint Check**: The dataset size (JSONL) is manageable within the available disk limit. If the full task suite exceeds RAM during processing, the `ruler_loader.py` will implement on-demand streaming and sampling to fit the available RAM constraint.
+**Data Mismatch Check**: The RULER dataset contains synthetic needles and multi-hop questions, which perfectly matches the requirement for "retrieval accuracy" testing. No variable mismatch exists.
 
-## Heuristic Methodology
+**Preprocessing Strategy**:
+1. **Loading**: Use `datasets` library to stream the RULER JSONL.
+2. **Chunking**: Implement a sliding window (stride = 50%) to break 128k contexts into 4k blocks for memory safety (FR-007).
+3. **Filtering**: Exclude samples where the "needle" string is missing or corrupted (Edge Case handling).
 
-### 1. Local Gradient Magnitude (Primary)
-- **Mechanism**: Computes gradients of the **Query-Context Cross-Entropy Loss** with respect to the input context tokens.
-- **Target Definition**: The "target" for the loss is the **Query Tokens** (one-hot encoded). The "prediction" is the model's output distribution over the context tokens. This measures how much the context tokens influence the prediction of the query, without requiring the ground-truth answer.
-- **Aggregation**: Aggregates gradient magnitudes per block to produce a scalar importance score.
-- **Constraint**: Must run entirely on CPU. A single backward pass on a small batch (≤4 sequences) is feasible on CPU but will be the primary bottleneck.
-- **Validation**: If GPU is detected, the system logs an error and aborts (per FR-002). **Ground-truth answer is NEVER used in this calculation.**
+## 3. Methodology & Statistical Plan
 
-### 2. Block Entropy (Secondary)
-- **Mechanism**: Calculates the Shannon entropy of the token probability distribution within a block.
-- **Aggregation**: High entropy indicates high information density; low entropy indicates redundancy.
-- **Validation**: Zero-gradient (uniform) distribution edge case handled by assigning a default low priority or skipping the block (per Edge Cases).
+### 3.1 Experimental Setup
+- **Model**: MiniMax-M3 (Frozen).
+- **Hardware**: CPU-only (minimal cores, limited RAM).
+- **Baselines**:
+ 1. **Dense Attention (Ground Truth)**: Full context inference (all tokens included). This represents the maximum achievable performance and serves as the baseline for comparison.
+ 2. **Learned Index Branch (Reference)**: Weights are loaded frozen to verify existence, but **not** used for the primary baseline metric to avoid circularity.
+- **Heuristics**:
+ 1. **Block Entropy**: Calculate Shannon entropy per block; select Top-k.
+ 2. **Local Gradient Magnitude**: Compute gradient norms of the last hidden state w.r.t. a **targeted proxy loss** (cross-entropy of the *needle* tokens). This ensures gradients reflect relevance to the retrieval target, not general entropy.
+ 3. **Recency Bias**: Linear decay weighting based on token position.
 
-### 3. Recency-Weighted Bias (Tertiary)
-- **Mechanism**: Applies a decay function based on the position of the block within the context window.
-- **Validation**: Serves as a naive baseline to ensure heuristics are not outperformed by simple positional bias.
+*Parameter-Free Definition*: The heuristics are "parameter-free" because they do not **train** new weights; they compute statistics (entropy, gradients) on **frozen** weights using deterministic functions.
 
-## Statistical Analysis Plan
+### 3.2 Metrics
+- **Retrieval Accuracy**: Exact Match (EM) and F1 score against the "needle" string (Ground Truth from dataset).
+- **Perplexity**: Average perplexity of the model over the selected context.
+- **Computational Cost**: CPU time (seconds) and Peak RAM usage.
+- **False Positive Rate (FPR)**: Proportion of selected blocks that **do not** contain the needle string (calculated against dataset ground truth, NOT against the baseline's selection).
 
-### Primary Metric: Retrieval Accuracy
-- **Measure**: Exact Match (EM) for Needle In A Haystack; F1 score for Multi-Hop.
-- **Comparison**: Heuristic EM/F1 vs. Dense Baseline EM/F1.
-- **Target**: Delta ≤ 2% (per SC-001).
+### 3.3 Statistical Analysis
+- **Primary Test**: **Paired t-test** (Constitution Principle VII) comparing the F1 scores of each heuristic vs. the Dense Baseline across all RULER tasks.
+ - *Null Hypothesis*: No difference in mean F1 scores.
+ - *Significance Level*: α = 0.05.
+ - *Multiple Comparisons*: **Holm-Bonferroni correction** applied to the p-values of the three pairwise tests (Entropy vs. Dense, Gradient vs. Dense, Recency vs. Dense) to control Family-Wise Error Rate (FWER).
+- **Secondary Test**: Wilcoxon signed-rank test (robustness check if normality assumptions fail).
+- **Sensitivity Analysis**: Sweep Top-k threshold (or gradient cutoff) across a range of small values.
+ - *Output*: Accuracy variance and FPR (defined as selecting a block without the needle).
 
-### Secondary Metric: Statistical Significance (Equivalence)
-- **Test**: **Two One-Sided Tests (TOST)** for equivalence.
-- **Equivalence Margin (Delta)**: **±0.02** (2% accuracy).
-- **Input**: 50 paired scores (Heuristic vs. Baseline) across distinct RULER tasks.
-- **Threshold**: If the confidence interval of the mean difference lies entirely within [-0.02, +0.02], the heuristic is declared "statistically equivalent" to the baseline.
-- **Power Analysis**: N=50 tasks is calculated to achieve **[deferred] power (beta=0.2)** to detect an effect size (delta) of 0.02 at alpha=0.05 (one-sided for TOST). If observed variance is higher, the achieved power will be reported and the result flagged as "underpowered" rather than falsely claiming equivalence.
+### 3.4 Power Analysis & Sample Size Justification
+- **Sample Size**: N=50 (RULER 50 subset).
+- **Power Limitation**: With N=50, the power to detect a small effect size (e.g., 1-2% drop) is low (< 0.5).
+- **Interpretation**:
+ - If p < 0.05: We reject the null and conclude a significant difference exists.
+ - If p > 0.05: We conclude there is **no evidence of degradation**, but we **cannot** claim statistical equivalence to the 1-2% margin. The 1-2% target is treated as a descriptive goal, not a statistical hypothesis.
+ - The study is powered to detect **large** effect sizes (>10% drop) with high confidence.
 
-### Tertiary Metric: Sensitivity Analysis
-- **Variable**: Top-k selection cutoff (k ∈ {small, medium, large}).
-- **Output**: Accuracy drop-off curve.
-- **Flag**: Accuracy drop > 5% for a 10-block increase triggers a warning (per US-3).
+## 4. Compute Feasibility & Risk Mitigation
 
-## Computational Feasibility & Rationale
+| Risk | Mitigation Strategy |
+|:--- |:--- |
+| **OOM (GB limit)** | Aggressive chunking (k context); batch size = 1; clear cache after each sample. |
+| **Runtime > 6h** | Limit RULER subset to a representative sample size.
 
-**Constraint**: 2 CPU cores, 7 GB RAM, 6 hours, No GPU.
+The research question, method, and references remain unchanged as per the planning document requirements.; use streaming; abort if time > 5h. |
+| **Gradient Computation Cost** | Proxy loss computed on a single forward-backward pass on a small subset of tokens (needle tokens only), not full sequence. |
+| **CUDA Errors** | Explicit `device="cpu"` flags; disable `torch.cuda` checks. |
+| **Empty Selection** | Fallback to first k blocks if all scores are near-zero (Edge Case). |
 
-| Component | Feasibility Strategy | Rationale |
-|:--- |:--- |:--- |
-| **Model Loading** | Load MiniMax-M3 in **GGUF 4-bit quantization** via `llama-cpp-python`. | Default precision (FP16) requires >14GB RAM. GGUF -bit fits in ~-5GB, leaving room for KV cache and overhead. `n_gpu_layers=0` ensures CPU-only. |
-| **Gradient Calculation** | Small batch (≤4) with `llama-cpp` backend (if supported) or `transformers` with CPU offload. | Input gradients are expensive on CPU. Limiting batch size to a conservative value ensures memory safety. |
-| **RULER Execution** | Stream tasks one-by-one; no full dataset loading. | Prevents OOM. Each task is processed, scored, and results logged before moving to the next. |
-| **Total Runtime** | 50 tasks × (Inference + Gradient + Overhead) ≤ 6h. | Estimated time per task is expected to be in the range of several minutes. If a task exceeds this, it is flagged and skipped to prevent job timeout. |
-
-**Decision**: The plan prioritizes **correctness of the heuristic** over speed. If the gradient calculation is too slow on CPU to meet the 6-hour limit for 50 tasks, the plan will trigger a "Compute Limit Exceeded" flag, and the research will proceed with a reduced sample size (N=20) while explicitly noting the power limitation in the final report.
-
-**Baseline Comparison Note**: The "Dense Baseline" run will explicitly include the computational overhead of the "Index Branch" routing mechanism (as it is part of the model's standard inference path). The "Heuristic" run disables the Index Branch. The comparison measures "selection quality + routing cost" vs "selection quality + heuristic cost", which is the correct operational comparison.
-
-## Edge Case Handling
-
-1. **Uniform Distribution (Zero Gradient)**:
- - *Action*: If block entropy is uniform or gradient magnitude is zero for all tokens in a block, the block is assigned a default priority score of 0.0 and excluded from the Top-k selection unless k exceeds the number of non-zero blocks.
-2. **Needle Split Across Blocks**:
- - *Action*: The RULER task generator ensures "needles" are placed within blocks. If a split occurs, the heuristic may miss the needle. This is a known limitation of block-level selection and will be reported as a "False Negative" in the sensitivity analysis.
-3. **Model Corruption/Version Mismatch**:
- - *Action*: The `mini_max_wrapper.py` will verify model architecture compatibility upon load. If the HF `transformers` version mismatches, the script aborts with a clear error message.
-
-## References
-- RULER Dataset: ruler/ruler (Official HuggingFace).
-- MiniMax Sparse Attention: (Internal/Parent Project Reference).
+## 5. Ethical & Validity Considerations
+- **Causal Claims**: None. The study uses observational benchmark data; findings are correlational (Association between heuristic score and retrieval success).
+- **Measurement Validity**: RULER is a standard benchmark for long-context retrieval; F1/EM are standard metrics.
+- **Collinearity**: Recency and Gradient Magnitude may be correlated in sequential data; this will be noted in the discussion.
+- **Circularity Avoidance**: The baseline is **Dense Attention** (Full Context), not the Learned Index Branch. The FPR is calculated against the **Dataset Ground Truth**, not the baseline's selection. This prevents tautological validation.

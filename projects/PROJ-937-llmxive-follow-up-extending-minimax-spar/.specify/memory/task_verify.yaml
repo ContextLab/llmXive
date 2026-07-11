@@ -1,14 +1,9 @@
-? 'T001 Create project structure per implementation plan: `mkdir -p projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/{models,heuristics,data,analysis,utils}
-  projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/tests/{unit,integration}
-  projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/data/{raw,processed}`'
+? 'T001 Create project structure per `plan.md` (directories: `code/`, `data/raw`,
+  `data/processed`, `results`, `tests/unit`, `tests/integration`)'
 : 1
-? T002 Create `projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/requirements.txt`
-  containing pinned versions of `llama-cpp-python`, `datasets`, `scipy`, `pandas`,
-  `numpy`, `pytest`
+? 'T002 Initialize Python 3.11 project with `requirements.txt` (dependencies: `transformers`,
+  `torch`, `datasets`, `scipy`, `pandas`, `numpy`, `pytest`)'
 : 1
-? T003 [P] Create `projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/pyproject.toml`
-  with `[tool.black]` and `[tool.ruff]` configuration sections
-: 1
-? T004 [P] Implement `code/data/ruler_loader.py` to download RULER benchmark tasks
-  from ` to `data/raw/`, compute SHA-256 checksums, and record the checksums in `state/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar.yaml`
-: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T005 [P] Implement `code/utils/logger.py` for structured logging and memory/CPU usage tracking: 1
+T006 [P] Implement `code/data/loader.py` to fetch RULER dataset from HuggingFace `datasets` library (verified URL): 1
