@@ -1,4 +1,4 @@
-resolved_at: '2026-07-10T20:16:08.393468+00:00'
+resolved_at: '2026-07-11T12:37:17.407444+00:00'
 datasets:
 - intent: ATE
   status: verified
@@ -25,7 +25,7 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/69ec8a7023951f22475c419c/f64a122d051825e71abf02e718dfd22eaa00f9accc15cf246783241908e13d7c?response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27final_dataset_augmented_v9_boundary.csv%3B+filename%3D%22final_dataset_augmented_v9_boundary.csv%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783717863&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjllYzhhNzAyMzk1MWYyMjQ3NWM0MTljL2Y2NGExMjJkMDUxODI1ZTcxYWJmMDJlNzE4ZGZkMjJlYWEwMGY5YWNjYzE1Y2YyNDY3ODMyNDE5MDhlMTNkN2NcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3MTc4NjN9fX1dfQ__&Signature=MEQCIHr79b47PiLe~vvv-5taBhTWieRujQNc0si7DDzVmzmXAiBzitbSMTVfQaFpl1xOqjSel4wopdXxGoL4xOZI3lexaw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/69ec8a7023951f22475c419c/f64a122d051825e71abf02e718dfd22eaa00f9accc15cf246783241908e13d7c?user_id=public&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27final_dataset_augmented_v9_boundary.csv%3B+filename%3D%22final_dataset_augmented_v9_boundary.csv%22%3B&Expires=1783776737&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjllYzhhNzAyMzk1MWYyMjQ3NWM0MTljL2Y2NGExMjJkMDUxODI1ZTcxYWJmMDJlNzE4ZGZkMjJlYWEwMGY5YWNjYzE1Y2YyNDY3ODMyNDE5MDhlMTNkN2NcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NzY3Mzd9fX1dfQ__&Signature=MEUCIQCMKHXivgrzjUZQ~v02CwyeOcSz~-otfP8dXPh4B~Sb3AIgKORZhg6ZSC1nYcMpwZkc~ktaImm705QJg86dIYiVjvY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -41,24 +41,32 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/conference_contribution/LLM-Driven_Generation_of_Summaries_for_Symbolic_Execution/32961548
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Metadynamics_Simulations_Meet_Ligand_Design_for_the_Reversible_Inhibition_of_Human_Peroxiredoxin_5/32961570
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961567
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961564
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Statistical_codes/32961545
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7302007
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8252296
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3827021
@@ -69,35 +77,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3547974
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4535943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7629625
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21289276
+  - url: https://zenodo.org/records/21303877
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21289276
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2603.10254
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.08122
+  - url: https://zenodo.org/records/21303877
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://yareta.unige.ch/archives/7a5d6ff2-e600-4d82-8ab5-8d17ebfdfffc
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21289276
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21289276
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -139,23 +139,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/conference_contribution/LLM-Driven_Generation_of_Summaries_for_Symbolic_Execution/32961548
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Metadynamics_Simulations_Meet_Ligand_Design_for_the_Reversible_Inhibition_of_Human_Peroxiredoxin_5/32961570
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961567
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961564
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Statistical_codes/32961545
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -167,11 +167,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1246469
+  - url: https://zenodo.org/records/13753161
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13753161
+  - url: https://zenodo.org/records/1246469
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -179,7 +179,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.esrf.fr/10.15151/ESRF-ES-2441496863
+  - url: https://osf.io/27nmp/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -187,15 +187,15 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.08515
+  - url: https://figshare.com/articles/dataset/Cases_Outputs_and_Figures/32962283/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.08142
+  - url: https://figshare.com/articles/dataset/Cases_Outputs_and_Figures/32962283
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.08093
+  - url: https://publica.fraunhofer.de/entities/publication/de087a13-2ec2-4962-88f7-e79b056c2602
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -244,23 +244,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/conference_contribution/LLM-Driven_Generation_of_Summaries_for_Symbolic_Execution/32961548
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Metadynamics_Simulations_Meet_Ligand_Design_for_the_Reversible_Inhibition_of_Human_Peroxiredoxin_5/32961570
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961567
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961564
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Statistical_codes/32961545
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -284,6 +284,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21301806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21301806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21298787
     source: datacite
     status: wrong_format
@@ -293,14 +301,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://arxiv.org/abs/2607.08579
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21277101
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21277101
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -341,23 +341,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/conference_contribution/LLM-Driven_Generation_of_Summaries_for_Symbolic_Execution/32961548
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Metadynamics_Simulations_Meet_Ligand_Design_for_the_Reversible_Inhibition_of_Human_Peroxiredoxin_5/32961570
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961567
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961564
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Statistical_codes/32961545
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -365,7 +365,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.g05350g
+  - url: https://datadryad.org/dataset/doi:10.7272/Q6KK991S
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -373,7 +373,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.7272/Q6KK991S
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.g05350g
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -385,19 +385,19 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.984082
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.973764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://era.ed.ac.uk/handle/1842/42247
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://oa.tib.eu/renate/handle/123456789/23127
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.08746
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.08588
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -446,23 +446,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/conference_contribution/LLM-Driven_Generation_of_Summaries_for_Symbolic_Execution/32961548
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Metadynamics_Simulations_Meet_Ligand_Design_for_the_Reversible_Inhibition_of_Human_Peroxiredoxin_5/32961570
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961567
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961564
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Statistical_codes/32961545
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -486,23 +486,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20350578
+  - url: https://usiena-air.unisi.it//handle/11365/1128669
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20350578
+  - url: https://iris.unitn.it/handle/11572/246239
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://panoramaweb.org/Panorama%20Public/2026/MacCoss%20-%20aging-mouse-ev-2026/login-login.view?returnUrl=%2FPanorama%2520Public%2F2026%2FMacCoss%2520-%2520aging-mouse-ev-2026%2Fproject-begin.view
+  - url: https://usiena-air.unisi.it//handle/11365/1148712
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21300098
+  - url: https://usiena-air.unisi.it//handle/11365/1118557
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21300098
+  - url: https://iris.uniupo.it//handle/11579/115578
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -524,13 +524,6 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/markov-ai/sample-100-hours/resolve/main/metadata.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 160351
-      parsed: true
   - url: https://huggingface.co/datasets/AxisQuant/marathi-ml-chat/resolve/main/data/test-00000-of-00001.parquet
     source: huggingface
     format: parquet
@@ -538,12 +531,15 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
+  - url: https://huggingface.co/datasets/markov-ai/sample-100-hours/resolve/main/metadata.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 160351
+      parsed: true
   candidates_tried:
   - url: https://huggingface.co/datasets/markov-ai/gaming-500-hours/resolve/main/metadata.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/markov-ai/sample-100-hours/resolve/main/metadata.jsonl
     source: huggingface
     status: verified
     format: jsonl
@@ -551,6 +547,10 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://huggingface.co/datasets/markov-ai/sample-100-hours/resolve/main/metadata.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
   - url: https://huggingface.co/datasets/marmal88/skin_cancer/resolve/main/data/test-00000-of-00001-61e7cf54bf274ae2.parquet
     source: huggingface
     status: verified
@@ -559,28 +559,24 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Efficient_Hydrogen_Production_from_Aqueous_Methanol_Driven_by_Microdroplet_Interfaces/32961573
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/LLM-Driven_Generation_of_Summaries_for_Symbolic_Execution/32961548
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Metadynamics_Simulations_Meet_Ligand_Design_for_the_Reversible_Inhibition_of_Human_Peroxiredoxin_5/32961570
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961567
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961564
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15000750
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4525735
@@ -591,31 +587,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15000750
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4432680
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3605058
+  - url: https://www.scientificamerican.com/article/our-heritage-of-the-mechanical-arts-1905-05/
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.gbif.org/dataset/92e7a11c-2765-4eee-9341-2a89083e6132
+  - url: https://www.gbif.org/occurrence/download/0033326-260623161305970
     source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://zenodo.org/records/21075708
+  - url: https://iris.unitn.it/handle/11572/147019
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21075708
+  - url: https://usiena-air.unisi.it//handle/11365/1144841
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/115590
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://unige.iris.cineca.it/handle/11567/929289
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://datosdeinvestigacion.udea.edu.co/dataset.xhtml?persistentId=doi:10.82116/OFV4YU
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -664,23 +664,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Interface-Limited_Amperometric_Cholesterol_Biosensing_in_Ultrathin_Pd-NPs-Based-Enzyme_Films/32961576
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Efficient_Hydrogen_Production_from_Aqueous_Methanol_Driven_by_Microdroplet_Interfaces/32961573
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/LLM-Driven_Generation_of_Summaries_for_Symbolic_Execution/32961548
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Metadynamics_Simulations_Meet_Ligand_Design_for_the_Reversible_Inhibition_of_Human_Peroxiredoxin_5/32961570
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961567
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -692,15 +692,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.jstage.jst.go.jp/article/sesj/35/5/35_350508/_article
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7268661
+  - url: https://zenodo.org/records/1301290
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/12558540
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.jstage.jst.go.jp/article/sesj/35/5/35_350508/_article
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -769,23 +769,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/conference_contribution/LLM-Driven_Generation_of_Summaries_for_Symbolic_Execution/32961548
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Interface-Limited_Amperometric_Cholesterol_Biosensing_in_Ultrathin_Pd-NPs-Based-Enzyme_Films/32961576
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Efficient_Hydrogen_Production_from_Aqueous_Methanol_Driven_by_Microdroplet_Interfaces/32961573
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Metadynamics_Simulations_Meet_Ligand_Design_for_the_Reversible_Inhibition_of_Human_Peroxiredoxin_5/32961570
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961567
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -809,26 +809,30 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21294750
+  - url: https://zenodo.org/records/21307399
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21294750
+  - url: https://zenodo.org/records/21307399
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20729045
+  - url: https://zenodo.org/records/21135831
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20729045
+  - url: https://zenodo.org/records/21135831
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Negative_association_between_asthma_and_tuberculosis_The_mediating_effect_of_albumin/32956254/1
+  - url: https://doi.org/10.82112/ijssb.v2i2.51
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''www.inujournal.edu.et'',
+      port=443): Max retries exceeded with url: /index.php/IJSSB/article/view/51 (Caused
+      by SSLError(SSLCertVerificationError(1, "[SSL: CERTIFICATE_VERIFY_FAILED] certificate
+      verify failed: Hostname mismatch, certificate is not valid for ''www.inujournal.edu.et''.
+      (_ssl.c:1016)")))'
 - intent: ATEs
   status: verified
   candidates:
@@ -870,34 +874,226 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/LLM-Driven_Generation_of_Summaries_for_Symbolic_Execution/32961548
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Interface-Limited_Amperometric_Cholesterol_Biosensing_in_Ultrathin_Pd-NPs-Based-Enzyme_Films/32961576
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Efficient_Hydrogen_Production_from_Aqueous_Methanol_Driven_by_Microdroplet_Interfaces/32961573
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Metadynamics_Simulations_Meet_Ligand_Design_for_the_Reversible_Inhibition_of_Human_Peroxiredoxin_5/32961570
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Chitosan-Lignin_Cryogel_Beads_for_the_Adsorption_of_Diclofenac_in_Water/32961567
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10775751
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0048969715304307
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/s00767-025-00590-3
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10640574
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17356548
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.28469
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://oa.tib.eu/renate/handle/123456789/39211
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21225084
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21225084
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_set_for_b_Mortality-related_factors_and_perioperative_antibiotic_strategies_in_a_resource-limited_population_undergoing_pediatric_congenital_cardiac_surgery_b_/32907230
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: VIF
-  status: unresolved
-  candidates: []
-  candidates_tried: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dongguanting/VIF-RAG-QA-20K/resolve/main/VIF-RAG_sampled%20(20K).json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1783776996&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUzQitmaWxlbmFtZSUzRCUyMmdwdDRfc2luZ2xlX211bHRpX2F1dG9pZl9zaGFyZWdwdF9yYWdfbWl4Lmpzb24lMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzc2OTk2fX19XX0_&Signature=MEYCIQC4t7KjZQ3Gglh7lvOA~g7YWZ6rC2LcffE9JVhLlBH2PAIhAJriSa02P2rT~VtsCodChlwosBS8bITJ5te62rA5EbfA&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19154354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20926278
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20191456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14837515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journal.multitechpublisher.com/index.php/ijist/article/view/726
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Daily_COVID-19_Data_Socio-Economic_and_Governance_Indices_and_Statistical_Analysis_Results_for_54_African_Countries_14_February_12_June_2020_/32961629
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Daily_COVID-19_Data_Socio-Economic_and_Governance_Indices_and_Statistical_Analysis_Results_for_54_African_Countries_14_February_12_June_2020_/32961629/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300098
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300098
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294080
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: SyntheticDataset
-  status: unresolved
-  candidates: []
-  candidates_tried: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/coding-Jay/Synthetic-Datasets-Unity-CV/resolve/main/NewDatasetProduced0.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset1/resolve/main/syntheticdata.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 33525
+      parsed: true
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset4/resolve/main/syntheticdata4.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 47385
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/coding-Jay/Synthetic-Datasets-Unity-CV/resolve/main/NewDatasetProduced0.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/ProGamerGov/synthetic-dataset-1m-dalle3-high-quality-captions/216b8becd8c112e2a87c08f9ce8f2d65247c8c09/source_column_values.txt?%2Fdatasets%2FProGamerGov%2Fsynthetic-dataset-1m-dalle3-high-quality-captions%2Fresolve%2Fmain%2Fsource_column_values.txt=&etag=%2287adfe3c7ae472408d4b8a63db1de1ca0e0865b2%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset1/resolve/main/syntheticdata.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset4/resolve/main/syntheticdata4.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/kamilakesbi/synthetic_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://preprints.opticaopen.org/articles/preprint/Physics-informed_deep_learning_for_phase_retrieval_and_self-calibration_in_Zernike_phase-contrast_microscopy/32953283
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Optical_Equalization_using_Spectral_Phase_Shaping/31937424
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Role_of_Composition_as_a_Visual_Language_in_Safavid_Painting_b_/32963633
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_The_Influence_of_Political_and_Religious_Power_Structure_Transformations_b_b_b_b_on_the_Art_and_Architecture_of_Middle_Elam_b_/32963627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Sulphur_oxygen_and_carbon_isotope_geochemistry_of_the_Windy_Craggy_mafic-siliciclastic_Besshi-type_volcanogenic_massive_sulphide_deposit_British_Columbia/32963630
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21289725
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16809493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18733015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: ImputationResult
   status: unresolved
   candidates: []
