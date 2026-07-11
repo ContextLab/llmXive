@@ -1,5 +1,6 @@
-95|accuracy csv data extraction label manual real sc validation verify world:
-  quote: 90.01% 94.47% 97.39% 97.15% 98.11%
-  source_id: '1407.6748'
-  url: https://arxiv.org/abs/1407.6748
-  value: 98.11%
+'|each replicate run statistical test':
+  quote: nsim = 10 000 simulation runs. Throughout the simulations, the newly developed
+    tests T(u), T(w),a n d TW proposed in
+  source_id: https://doi.org/10.1002/sim.8343
+  url: https://refubium.fu-berlin.de/bitstream/fub188/34847/1/2019_Roy_etal.pdf
+  value: 10 000

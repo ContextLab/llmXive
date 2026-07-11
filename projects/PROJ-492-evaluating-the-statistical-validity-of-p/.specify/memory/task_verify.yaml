@@ -463,7 +463,7 @@
   030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
   \ ** (constraint\u2011preservation\u20112958f04c) (verify files are created and\
   \ contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011T012."
-: 1
+: 2
 ? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM:\
   \ c_071edb63 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
