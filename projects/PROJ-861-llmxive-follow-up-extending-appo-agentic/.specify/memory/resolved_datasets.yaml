@@ -1,0 +1,531 @@
+resolved_at: '2026-07-11T04:01:04.842537+00:00'
+datasets:
+- intent: GSM8K
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/codelion/gsm8k-synth/resolve/main/gsm8k_synth.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/adalberto-temp/gsm8k-test-portuguese/5d3d1b8bfd11d9319b863b6de68c0d40295f4bc1/gsm8k_test_portuguese_final.json?%2Fdatasets%2Fadalberto-temp%2Fgsm8k-test-portuguese%2Fresolve%2Fmain%2Fgsm8k_test_portuguese_final.json=&etag=%22d62ba65882c8052dc69e6aff34c103dd137572ff%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/codelion/gsm8k-synth/resolve/main/gsm8k_synth.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/skrishna/gsm8k_only_answer/ff5ae986e89102894e6d9ba4a055c02393793df0/test.json?%2Fdatasets%2Fskrishna%2Fgsm8k_only_answer%2Fresolve%2Fmain%2Ftest.json=&etag=%22e9feab9670cce1f6bcad4e5ad65ec0158c03a1d8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/ZnO-Functionalized_Cotton_Textiles_with_Enhanced_Antibacterial_Activity_Moisture_Management_and_Wear_Comfort/32962806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_7_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962804
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlled_Precipitation_and_Microcoating_Formation_of_Shellac_via_Sequential_Ethanol_Water_Solvent_Exchange/32962803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/figure/Additional_file_6_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/figure/Additional_file_5_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962798
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13294003
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17587991
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11126655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753555
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753643
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2602.22911
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2602.17686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.22588
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MATH
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-web-math/open-web-math/resolve/main/data/train-00000-of-00114-5a023365406cb9c4.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/microsoft/orca-math-word-problems-200k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/MathLLMs/MathVision/resolve/main/data/test-00000-of-00001-3532b8d3f1b4047a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MathLLMs/MathVision/resolve/main/data/test-00000-of-00001-3532b8d3f1b4047a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-web-math/open-web-math/resolve/main/data/train-00000-of-00114-5a023365406cb9c4.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64ff224ee7ef4e223d949733/415eeb24535f7a3e3ca8cbe274a5afa353d19d937b0952d11cff007cecf2af99?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27MathInstruct.json%3B+filename%3D%22MathInstruct.json%22%3B&response-content-type=application%2Fjson&Expires=1783745944&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmZjIyNGVlN2VmNGUyMjNkOTQ5NzMzLzQxNWVlYjI0NTM1ZjdhM2UzY2E4Y2JlMjc0YTVhZmEzNTNkMTlkOTM3YjA5NTJkMTFjZmYwMDdjZWNmMmFmOTlcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3TWF0aEluc3RydWN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJNYXRoSW5zdHJ1Y3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NDU5NDR9fX1dfQ__&Signature=MEUCIQDiUun8aKls8vlLgCxQcfKLQG0iUlLuayUB-4D~-gbXCgIgJq0juHnWPqx0gH7QWrgA6NhFsiDUqcTr~Lra0JWM8io_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/microsoft/orca-math-word-problems-200k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Edwin_Clark_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962811
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/ZnO-Functionalized_Cotton_Textiles_with_Enhanced_Antibacterial_Activity_Moisture_Management_and_Wear_Comfort/32962806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_7_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962804
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlled_Precipitation_and_Microcoating_Formation_of_Shellac_via_Sequential_Ethanol_Water_Solvent_Exchange/32962803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/figure/Additional_file_6_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01347645
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01462346
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602415553
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18866579
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8093367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304460
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304460
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304229
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304229
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304069
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Edwin_Clark_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962811
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/ZnO-Functionalized_Cotton_Textiles_with_Enhanced_Antibacterial_Activity_Moisture_Management_and_Wear_Comfort/32962806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_7_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962804
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlled_Precipitation_and_Microcoating_Formation_of_Shellac_via_Sequential_Ethanol_Water_Solvent_Exchange/32962803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/figure/Additional_file_6_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20300649
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20300649
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: APPO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/alquimista888/appointments/resolve/main/app_dataset.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 20743
+      parsed: true
+  - url: https://huggingface.co/datasets/aryamanstha/appointment-sentiment-labeled/resolve/main/appointment.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 31105
+      parsed: true
+  - url: https://huggingface.co/datasets/aryamanstha/appointments/resolve/main/metadata.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 33305
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/leeroy-jankins/OMB-Circular-A11-Section-120-Apportionment-Process/81731f4d5b9fc130d6639dd8a5ba27e795058a0e/OMB%20Circular%20A-11%20Section%20120%20Apportionment%20Process.csv?%2Fdatasets%2Fleeroy-jankins%2FOMB-Circular-A11-Section-120-Apportionment-Process%2Fresolve%2Fmain%2FOMB+Circular+A-11+Section+120+Apportionment+Process.csv=&etag=%22534964bbd398d3f5d555f9d4c59657978ac5173f%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/alquimista888/appointments/resolve/main/app_dataset.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/aryamanstha/appointment-sentiment-labeled/resolve/main/appointment.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/aryamanstha/appointments/resolve/main/metadata.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/aryamanstha/appointment/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Edwin_Clark_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962811
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/ZnO-Functionalized_Cotton_Textiles_with_Enhanced_Antibacterial_Activity_Moisture_Management_and_Wear_Comfort/32962806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_7_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962804
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlled_Precipitation_and_Microcoating_Formation_of_Shellac_via_Sequential_Ethanol_Water_Solvent_Exchange/32962803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/figure/Additional_file_6_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19008342
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15564647
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14985593
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14985601
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15564670
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20703381
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20703381
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20665107
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20665107
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20664631
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 108629
+      parsed: true
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Edwin_Clark_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962811
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/ZnO-Functionalized_Cotton_Textiles_with_Enhanced_Antibacterial_Activity_Moisture_Management_and_Wear_Comfort/32962806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_7_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962804
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlled_Precipitation_and_Microcoating_Formation_of_Shellac_via_Sequential_Ethanol_Water_Solvent_Exchange/32962803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/figure/Additional_file_6_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3377115
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3370149
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3365586
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSMK
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sarahpann/gsmk_sbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Ayushhhhh123456789/gsmk_sbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sarahpann/gsmk_sbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Ayushhhhh123456789/gsmk_sbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/_b_The_surface_formation_mechanism_and_sub-surface_microstructure_analysis_of_Inconel_718_alloys_fabricated_by_powder_bed-based_additive_and_subtractive_hybrid_manufacturing_b_/32962808
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Edwin_Clark_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962811
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/ZnO-Functionalized_Cotton_Textiles_with_Enhanced_Antibacterial_Activity_Moisture_Management_and_Wear_Comfort/32962806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_7_of_ARF-like_GTPase_8B_orchestrates_lipophagy_and_exocytosis_to_drive_single-stranded_RNA_virus_replication/32962804
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlled_Precipitation_and_Microcoating_Formation_of_Shellac_via_Sequential_Ethanol_Water_Solvent_Exchange/32962803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:79111810X/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:791053679/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:1031820205/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

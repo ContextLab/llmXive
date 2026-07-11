@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Residual Analysis Report Schema"
+description: "Schema for residual analysis summary by reasoning type."
+type: "object"
+properties:
+  reasoning_type:
+    type: "string"
+    description: "Category (e.g., 'algebra')."
+  mean_residual:
+    type: "number"
+    description: "Average residual for this category."
+  std_residual:
+    type: "number"
+    description: "Standard deviation of residuals."
+  count:
+    type: "integer"
+    description: "Number of traces in this category."
+  plot_path:
+    type: "string"
+    description: "Relative path to the generated plot image."
+required:
+  - reasoning_type
+  - mean_residual
+  - std_residual
+  - count
+  - plot_path
+additionalProperties: false

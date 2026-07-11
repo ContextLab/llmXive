@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.18805",
+  "judged_at": "2026-07-11T03:23:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"appo: agentic procedural policy optimization\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it provides a foundational benchmark and evaluation framework for \"agentic\" LLM systems, which is the core domain of the user's question regarding \"Agentic Procedural Policy Optimization.\" While it focuses on recommendation agents rather than the specific optimization algorithm, it establishes the canonical metrics and tool-use environments necessary to evaluate the behavior of any agentic policy, making it essential related work for defining the empi",
+  "relevant": true
+}

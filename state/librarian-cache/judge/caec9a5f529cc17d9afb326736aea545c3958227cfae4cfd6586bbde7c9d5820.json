@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.25136",
+  "judged_at": "2026-07-11T03:23:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"appo: agentic procedural policy optimization\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it proposes a novel policy optimization framework (Frictive Policy Optimization) for LLMs that directly extends the domain of agentic procedural optimization, offering a canonical methodological reference for the user's follow-up research on \"APPO.\"",
+  "relevant": true
+}

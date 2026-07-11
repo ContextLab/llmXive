@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.12384",
+  "judged_at": "2026-07-11T03:23:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"appo: agentic procedural policy optimization\" computer science",
+  "rationale": "This paper is the foundational source for the specific method \"APPO: Agentic Procedural Policy Optimization\" mentioned in the user's question, satisfying criterion (d) as the canonical reference that any follow-up work must cite. Additionally, it directly measures the same algorithmic mechanism (fine-grained credit assignment in agentic RL) that the user intends to extend, satisfying criterion (a).",
+  "relevant": true
+}

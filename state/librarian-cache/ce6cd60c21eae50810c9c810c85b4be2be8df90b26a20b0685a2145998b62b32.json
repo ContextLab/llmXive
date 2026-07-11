@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-04T01:39:02Z",
+  "fetched_at": "2026-07-11T03:23:14Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,105 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\"",
       "target_n": 5
     },
-    "duration_seconds": 85.001,
-    "ended_at": "2026-07-04T01:39:02Z",
+    "duration_seconds": 52.425,
+    "ended_at": "2026-07-11T03:23:14Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Agentic Policy Optimization for procedural tasks"
+          "Agentic Procedural Policy Optimization"
         ],
         [
           2,
-          "procedural policy optimization in large language models"
+          "procedural policy optimization for LLM agents"
         ],
         [
           3,
-          "reinforcement learning for LLM agentic workflows"
+          "APPO algorithm large language models"
         ],
         [
           4,
-          "multi-step reasoning policy optimization"
+          "agentic reinforcement learning for procedural tasks"
         ],
         [
           5,
-          "hierarchical reinforcement learning for LLM agents"
+          "LLM-based procedural policy optimization"
         ],
         [
           6,
-          "algorithmic reasoning optimization in generative models"
+          "reinforcement learning with procedural policies"
         ],
         [
           7,
-          "LLM-based procedural planning with policy gradients"
+          "agentic workflows policy optimization"
         ],
         [
           8,
-          "agentic behavior learning in language models"
+          "hierarchical policy optimization for LLMs"
         ],
         [
           9,
-          "optimizing multi-turn agent interactions via RL"
+          "LLM agent training via procedural rewards"
         ],
         [
           10,
-          "reinforcement learning from human feedback for procedural tasks"
+          "procedural reasoning in agentic LLMs"
         ],
         [
           11,
-          "automated reasoning policy improvement in LLMs"
+          "optimization of agentic decision policies"
         ],
         [
           12,
-          "task decomposition and policy optimization for agents"
+          "language model policy gradient methods"
         ],
         [
           13,
-          "sequential decision making optimization for generative AI"
+          "agentic behavior learning in LLMs"
         ],
         [
           14,
-          "language model alignment for complex procedural goals"
+          "procedural task solving with reinforcement learning"
         ],
         [
           15,
-          "policy gradient methods for LLM agent training"
+          "LLM fine-tuning for agentic procedures"
         ],
         [
           16,
-          "iterative refinement of agent policies in LLMs"
+          "reward modeling for procedural agent tasks"
         ],
         [
           17,
-          "structured output optimization for agentic systems"
+          "iterative policy improvement for LLM agents"
         ],
         [
           18,
-          "learning to plan with large language models"
+          "structured policy learning for language agents"
         ],
         [
           19,
-          "agentic workflow optimization via reinforcement learning"
+          "agentic RLHF for procedural domains"
         ],
         [
           20,
-          "procedural knowledge acquisition in language models"
+          "large language model agent optimization techniques"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Agentic Policy Optimization for procedural tasks": 3,
+        "Agentic Procedural Policy Optimization": 2,
         "llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" computer science": 0,
-        "procedural policy optimization in large language models": 4
+        "procedural policy optimization for LLM agents": 3
       },
       "total_queries_issued": 2
     },
     "extracted_queries": [
-      "agentic policy optimization large language models",
-      "LLM multi-step reasoning task planning",
-      "reinforcement learning from human feedback RLHF",
-      "task success rate step-wise reward shaping",
-      "policy gradient alignment procedural reasoning"
+      "policy gradient agent alignment LLM",
+      "APPO reinforcement learning agentic workflows",
+      "hierarchical planning large language model reasoning",
+      "reward shaping agent behavior optimization stability",
+      "procedural knowledge distillation agentic systems"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -121,56 +121,31 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2009.08438"
+        "2604.25136"
       ]
     },
     "per_query_hit_count": {
-      "LLM multi-step reasoning task planning": 3,
-      "agentic policy optimization large language models": 3,
+      "APPO reinforcement learning agentic workflows": 3,
+      "hierarchical planning large language model reasoning": 3,
       "llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" computer science": 3,
-      "policy gradient alignment procedural reasoning": 2,
-      "reinforcement learning from human feedback RLHF": 3,
-      "task success rate step-wise reward shaping": 3
+      "policy gradient agent alignment LLM": 3,
+      "procedural knowledge distillation agentic systems": 3,
+      "reward shaping agent behavior optimization stability": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 6,
+      "rejected_count": 1,
       "rejections": [
         {
           "primary_pointer": "2005.11257",
           "rationale": "The paper focuses on epidemiological policy optimization using Bayesian optimization, which is an off-domain application distinct from the user's specific question regarding \"Agentic Procedural Policy Optimization\" (APPO) in computer science. While both involve optimization, the paper does not address the specific algorithmic mechanism (APPO), the computer science domain, or the agentic procedural framework the user is investigating, failing to meet the criteria for same-mechanism evidence or fo",
           "title": "Epidemiologically and Socio-economically Optimal Policies via Bayesian Optimization"
-        },
-        {
-          "primary_pointer": "2010.14374",
-          "rationale": "The paper focuses on explainable machine learning (XAI) in the context of public policy use cases, which is a distinct construct from the user's question about \"Agentic Procedural Policy Optimization\" (APPO), a specific reinforcement learning algorithm for training autonomous agents. While both involve \"policy,\" the former refers to government/social policy and the latter to decision-making strategies in RL, satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
-          "title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions"
-        },
-        {
-          "primary_pointer": "2501.05032",
-          "rationale": "The paper focuses on general techniques for improving human-like qualities (emotional intelligence, conversational coherence) in LLMs, which is a distinct construct from the specific \"Agentic Procedural Policy Optimization\" (APPO) reinforcement learning framework mentioned in the user's question. It fails to address the mechanism, variables, or domain of procedural policy optimization for agentic systems, falling under the rejection rule for distinct constructs sharing only broad keywords like \"",
-          "title": "Enhancing Human-Like Responses in Large Language Models"
-        },
-        {
-          "primary_pointer": "2402.14679",
-          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from \"Agentic Procedural Policy Optimization\" (APPO), a specific reinforcement learning algorithm for training agents. While both involve LLMs, the candidate paper does not measure the same mechanism, variables, or empirical setting as the user's question regarding policy optimization algorithms, and it falls under the rejection rule for distinct constructs sharing only the broad domain of \"LLMs.",
-          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
-        },
-        {
-          "primary_pointer": "2405.11357",
-          "rationale": "The paper investigates a specific architectural limitation of LLMs regarding character-level understanding, which is a distinct construct from \"Agentic Procedural Policy Optimization\" (APPO) or the specific optimization algorithms and agentic frameworks implied by the user's question. It fails to meet any inclusion criteria (a-f) as it does not measure the same mechanism, variables, or domain, nor does it serve as a foundational reference for policy optimization or agentic systems.",
-          "title": "Large Language Models Lack Understanding of Character Composition of Words"
-        },
-        {
-          "primary_pointer": "2403.09676",
-          "rationale": "The paper focuses on the phenomenon of AI deception (strategic deception, sycophancy, etc.) and governance, which is a distinct construct from the user's specific question about \"Agentic Procedural Policy Optimization\" (APPO), a reinforcement learning algorithm for training agents. While both relate to LLMs, the paper does not measure the same mechanism, variables, or empirical setting as the APPO algorithm, nor does it serve as a foundational reference for that specific optimization method.",
-          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-04T01:37:37Z",
+    "started_at": "2026-07-11T03:22:22Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"appo: agentic procedural policy optimization\" computer science",
       "raw": "llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" computer science"
@@ -189,7 +164,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-04T01:38:07Z",
+        "failed_at": "2026-07-11T03:22:49Z",
         "reason": "query_irrelevant"
       },
       {
@@ -208,7 +183,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-04T01:38:07Z",
+        "failed_at": "2026-07-11T03:22:49Z",
         "reason": "query_irrelevant"
       },
       {
@@ -226,7 +201,230 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-04T01:38:07Z",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Frictive Policy Optimization (FPO), a framework for learning language model policies that regulate not only what to say, but when and how to intervene in order to manage epistemic and normative risk. Unlike standard alignment methods that optimize surface-level preference or task utility, FPO treats clarification, verification, challenge, redirection, and refusal as explicit control actions whose purpose is to shape the evolution of belief, commitment, and uncertainty over time. We formalize alignment as a risk-sensitive epistemic control problem in which intervention decisions are selected based on their expected effect on downstream epistemic quality rather than on immediate reward alone. We introduce a compact taxonomy of frictive interventions, a structured friction functional that operationalizes multiple alignment failure modes, and a unified family of FPO methods spanning reward shaping, preference pairing, group-relative ranking, and risk-conditioned trust regions. We further propose an evaluation framework that measures epistemic competence directly through clarification behavior, calibration, contradiction repair, refusal proportionality, and information efficiency. Together, these results provide a formal and algorithmic foundation for learning agents that are aligned not only in outcome, but in epistemic conduct.",
+          "claimed_authors": [
+            "James Pustejovsky",
+            "Nikhil Krishnaswamy"
+          ],
+          "claimed_title": "Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25136"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Our ability to build autonomous agents that leverage Generative AI continues to increase by the day. As builders and users of such agents it is unclear what parameters we need to align on before the agents start performing tasks on our behalf. To discover these parameters, we ran a qualitative empirical research study about designing agents that can negotiate during a fictional yet relatable task of selling a camera online. We found that for an agent to perform the task successfully, humans/users and agents need to align over 6 dimensions: 1) Knowledge Schema Alignment 2) Autonomy and Agency Alignment 3) Operational Alignment and Training 4) Reputational Heuristics Alignment 5) Ethics Alignment and 6) Human Engagement Alignment. These empirical findings expand previous work related to process and specification alignment and the need for values and safety in Human-AI interactions. Subsequently we discuss three design directions for designers who are imagining a world filled with Human-Agent collaborations.",
+          "claimed_authors": [
+            "Nitesh Goyal",
+            "Minsuk Chang",
+            "Michael Terry"
+          ],
+          "claimed_title": "Designing for Human-Agent Alignment: Understanding what humans want from their agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.04289"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Designing for Human-Agent Alignment: Understanding what humans want from their agents')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_authors": [
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
+          ],
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01907"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Skele-Code is a natural-language and graph-based interface for building workflows with AI agents, designed especially for less or non-technical users. It supports incremental, interactive notebook-style development, and each step is converted to code with a required set of functions and behavior to enable incremental building of workflows. Agents are invoked only for code generation and error recovery, not orchestration or task execution. This agent-supported, but code-first approach to workflows, along with the context-engineering used in Skele-Code, can help reduce token costs compared to the multi-agent system approach to executing workflows. Skele-Code produces modular, easily extensible, and shareable workflows. The generated workflows can also be used as skills by agents, or as steps in other workflows.",
+          "claimed_authors": [
+            "Sriram Gopalakrishnan"
+          ],
+          "claimed_title": "Don't Vibe Code, Do Skele-Code: Interactive No-Code Notebooks for Subject Matter Experts to Build Lower-Cost Agentic Workflows",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.18122"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title=\"Don't Vibe Code, Do Skele-Code: Interactive No-Code Notebooks for Subject Matter Experts to Build Lower-Cost Agentic Workflows\")",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Designing effective task sequences is crucial for curriculum reinforcement learning (CRL), where agents must gradually acquire skills by training on intermediate tasks. A key challenge in CRL is to identify tasks that promote exploration, yet are similar enough to support effective transfer. While recent approach suggests comparing tasks via their Structural Causal Models (SCMs), the method requires access to ground-truth causal structures, an unrealistic assumption in most RL settings. In this work, we propose Causal-Paced Deep Reinforcement Learning (CP-DRL), a curriculum learning framework aware of SCM differences between tasks based on interaction data approximation. This signal captures task novelty, which we combine with the agent's learnability, measured by reward gain, to form a unified objective. Empirically, CP-DRL outperforms existing curriculum methods on the Point Mass benchmark, achieving faster convergence and higher returns. CP-DRL demonstrates reduced variance with comparable final returns in the Bipedal Walker-Trivial setting, and achieves the highest average performance in the Infeasible variant. These results indicate that leveraging causal relationships between tasks can improve the structure-awareness and sample efficiency of curriculum reinforcement learning. We provide the full implementation of CP-DRL to facilitate the reproduction of our main results at https://github.com/Cho-Geonwoo/CP-DRL.",
+          "claimed_authors": [
+            "Geonwoo Cho",
+            "Jaegyun Im",
+            "Doyoon Kim",
+            "Sundong Kim"
+          ],
+          "claimed_title": "Causal-Paced Deep Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.02910"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Causal-Paced Deep Reinforcement Learning')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have shown remarkable performance in various basic natural language tasks. For completing the complex task, we still need a plan for the task to guide LLMs to generate the specific solutions step by step. LLMs can directly generate task plans, but these plans may still contain factual errors or are incomplete. A high-quality task plan contains correct step-by-step solutions for solving all situations and behavioral instructions for avoiding mistakes. To obtain it, we propose the Learning to Plan method, which involves two phases: (1) In the first learning task plan phase, it iteratively updates the task plan with new step-by-step solutions and behavioral instructions, which are obtained by prompting LLMs to derive from training error feedback. (2) In the subsequent test phase, the LLM uses the learned task plan to guide the inference of LLM on the test set. We demonstrate the effectiveness of our method on the five different reasoning type tasks (8 datasets). Further, our analysis experiment shows that the task plan learned by one LLM can directly guide another LLM to improve its performance, which reveals a new transfer learning paradigm. We release the code at \\url{https://github.com/Eureka6174/LearnNLPlan}",
+          "claimed_authors": [
+            "Yiduo Guo",
+            "Yaobo Liang",
+            "Chenfei Wu",
+            "Wenshan Wu",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "Learning to Plan with Natural Language",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.10464"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Learning to Plan with Natural Language')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Real world applications as in industry and robotics need modelling rich and diverse automated planning problems. Their resolution usually requires coordinated and concurrent action execution. In several cases, these problems are naturally decomposed in a hierarchical way and expressed by a Hierarchical Task Network (HTN) formalism.\n  HDDL, a hierarchical extension of the Planning Domain Definition Language (PDDL), unlike PDDL 2.1 does not allow to represent planning problems with numerical and temporal constraints, which are essential for real world applications. We propose to fill the gap between HDDL and these operational needs and to extend HDDL by taking inspiration from PDDL 2.1 in order to express numerical and temporal expressions. This paper opens discussions on the semantics and the syntax needed for a future HDDL 2.1 extension.",
+          "claimed_authors": [
+            "Damien Pellier",
+            "Alexandre Albore",
+            "Humbert Fiorino",
+            "Rafael Bailon-Ruiz"
+          ],
+          "claimed_title": "HDDL 2.1: Towards Defining a Formalism and a Semantics for Temporal HTN Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.07353"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='HDDL 2.1: Towards Defining a Formalism and a Semantics for Temporal HTN Planning')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To make effective decisions in novel environments with long-horizon goals, it is crucial to engage in hierarchical reasoning across spatial and temporal scales. This entails planning abstract subgoal sequences, visually reasoning about the underlying plans, and executing actions in accordance with the devised plan through visual-motor control. We propose Compositional Foundation Models for Hierarchical Planning (HiP), a foundation model which leverages multiple expert foundation model trained on language, vision and action data individually jointly together to solve long-horizon tasks. We use a large language model to construct symbolic plans that are grounded in the environment through a large video diffusion model. Generated video plans are then grounded to visual-motor control, through an inverse dynamics model that infers actions from generated videos. To enable effective reasoning within this hierarchy, we enforce consistency between the models via iterative refinement. We illustrate the efficacy and adaptability of our approach in three different long-horizon table-top manipulation tasks.",
+          "claimed_authors": [
+            "Anurag Ajay",
+            "Seungwook Han",
+            "Yilun Du",
+            "Shuang Li",
+            "Abhi Gupta",
+            "Tommi Jaakkola",
+            "Josh Tenenbaum",
+            "Leslie Kaelbling",
+            "Akash Srivastava",
+            "Pulkit Agrawal"
+          ],
+          "claimed_title": "Compositional Foundation Models for Hierarchical Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.08587"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Compositional Foundation Models for Hierarchical Planning')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
+          "claimed_authors": [
+            "Xiefeng Wu"
+          ],
+          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces and investigates a regularity condition in the asymptotic sense for optimization problems whose objective functions are polynomial. Under this regularity condition, the normalization argument in asymptotic analysis enables us to see the solution existence as well as the solution stability of these problems. We prove a Frank-Wolfe type theorem for regular optimization problems and an Eaves type theorem for non-regular pseudoconvex optimization problems. Moreover, we show results on the stability such as upper semicontinuity and local upper-Hölder stability of the solution map of polynomial optimization problems. At the end of the paper, we discuss the genericity of the regularity condition.",
+          "claimed_authors": [
+            "Vu Trung Hieu"
+          ],
+          "claimed_title": "On the solution existence and stability of polynomial optimization problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.06100"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='On the solution existence and stability of polynomial optimization problems')",
+        "failed_at": "2026-07-11T03:22:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) consistently benefit from scaled Chain-of-Thought (CoT) reasoning, but also suffer from heavy computational overhead. To address this issue, efficient reasoning aims to incentivize short yet accurate thinking trajectories, typically through reward shaping with Reinforcement Learning (RL). In this paper, we systematically investigate the mechanics of efficient reasoning for LLMs. For comprehensive evaluation, we advocate for more fine-grained metrics, including length distribution conditioned on correctness and performance across a wide spectrum of token budgets ranging from 2k to 32k. First, we reveal that the training process follows a two-stage paradigm: length adaptation and reasoning refinement. Through extensive experiments (about 0.2 million GPU hours) in a unified protocol, we deconstruct training prompts and rollouts, reward shaping, and optimization strategies. A central finding is to maintain a sufficient density of positive reward signals and avoid the short-is-correct trap. Moreover, the learned length bias generalizes across domains and difficulty levels. We distill these findings into valuable insights and practical guidelines, and validate them across the Qwen3 models ranging from 0.6B to 30B, demonstrating the robustness and generalization. Weights are available at https://wutaiqiang.github.io/project/Art",
+          "claimed_authors": [
+            "Taiqiang Wu",
+            "Zenan Xu",
+            "Bo Zhou",
+            "Ngai Wong"
+          ],
+          "claimed_title": "The Art of Efficient Reasoning: Data, Reward, and Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.20945"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='The Art of Efficient Reasoning: Data, Reward, and Optimization')",
+        "failed_at": "2026-07-11T03:22:49Z",
         "reason": "query_irrelevant"
       },
       {
@@ -247,249 +445,46 @@
           "primary_pointer": "2504.19565"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training')",
-        "failed_at": "2026-07-04T01:38:07Z",
+        "failed_at": "2026-07-11T03:22:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper explores the advancements in making large language models (LLMs) more human-like. We focus on techniques that enhance natural language understanding, conversational coherence, and emotional intelligence in AI systems. The study evaluates various approaches, including fine-tuning with diverse datasets, incorporating psychological principles, and designing models that better mimic human reasoning patterns. Our findings demonstrate that these enhancements not only improve user interactions but also open new possibilities for AI applications across different domains. Future work will address the ethical implications and potential biases introduced by these human-like attributes.",
+          "claimed_abstract": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
           "claimed_authors": [
-            "Ethem Yağız Çalık",
-            "Talha Rüzgar Akkuş"
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
           ],
-          "claimed_title": "Enhancing Human-Like Responses in Large Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2501.05032"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Enhancing Human-Like Responses in Large Language Models')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large Language Models utilizing reasoning techniques improve task performance but incur significant latency and token costs due to verbose generation. Existing automatic prompt optimization(APO) frameworks target task accuracy exclusively at the expense of generating long reasoning traces. We propose Cost-Regularized Optimization of Prompts (CROP), an APO method that introduces regularization on response length by generating textual feedback in addition to standard accuracy feedback. This forces the optimization process to produce prompts that elicit concise responses containing only critical information and reasoning. We evaluate our approach on complex reasoning datasets, specifically GSM8K, LogiQA and BIG-Bench Hard. We achieved an 80.6\\% reduction in token consumption while maintaining competitive accuracy, seeing only a nominal decline in performance. This presents a pragmatic solution for deploying token-efficient and cost-effective agentic AI systems in production pipelines.",
-          "claimed_authors": [
-            "Deep Shah",
-            "Sanket Badhe",
-            "Nehal Kathrotia",
-            "Priyanka Tiwari"
-          ],
-          "claimed_title": "CROP: Token-Efficient Reasoning in Large Language Models via Regularized Prompt Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2604.14214"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='CROP: Token-Efficient Reasoning in Large Language Models via Regularized Prompt Optimization')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large Language Models (LLM) with reasoning capabilities offer a promising path for improving candidate evaluation in planning frameworks, but their relative performance against traditional non-reasoning models remains largely underexplored. In this study, we benchmark a distilled 1.5B parameter reasoning model (DeepSeek-R1) against several state-of-the-art non-reasoning LLMs within a generator-discriminator LLM planning framework for the text-to-SQL task. For this, we introduce a novel method for extracting soft scores from the chain-of-thought (CoT) outputs from reasoning that enables fine-grained ranking of candidates. Our central hypothesis is that reasoning models are more effective discriminators than non-reasoning LLMs. Our results show that distilled DeepSeek-R1-1.5B achieves up to $87\\%$ higher F1 and $3.7\\%$ better discrimination accuracy than CodeLlama-7B, as well as $3.7\\%$ higher execution accuracy than CodeLlama-13B, despite having significantly fewer parameters. Furthermore, we find that there is a limit to the logical capabilities of reasoning models, and only providing more context or allowing more compute budget for reasoning is not enough to improve their discrimination performance. Finally, we demonstrate that, unlike non-reasoning LLMs, reasoning models find generation more challenging than discrimination and may underperform as generators compared to smaller non-reasoning LLMs. Our work highlights the potential of reasoning models as discriminators in agentic frameworks, far outweighing their capabilities as generators, offering insights into their optimal role within LLM planning infrastructures.",
-          "claimed_authors": [
-            "Md Fahim Anjum"
-          ],
-          "claimed_title": "When Reasoning Beats Scale: A 1.5B Reasoning Model Outranks 13B LLMs as Discriminator",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2505.03786"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='When Reasoning Beats Scale: A 1.5B Reasoning Model Outranks 13B LLMs as Discriminator')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
-          "claimed_authors": [
-            "Dinithi Dissanayake",
-            "Suranga Nanayakkara"
-          ],
-          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16021"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Reliability and failure detection of large language models (LLMs) is critical for their deployment in high-stakes, multi-step reasoning tasks. Prior work explores confidence estimation for self-evaluating LLM-scorer systems, with confidence scorers estimating the likelihood of errors in LLM responses. However, most methods focus on single-step outputs and overlook the challenges of multi-step reasoning. In this work, we extend self-evaluation techniques to multi-step tasks, testing two intuitive approaches: holistic scoring and step-by-step scoring. Using two multi-step benchmark datasets, we show that stepwise evaluation generally outperforms holistic scoring in detecting potential errors, with up to 15% relative increase in AUC-ROC. Our findings demonstrate that self-evaluating LLM systems provide meaningful confidence estimates in complex reasoning, improving their trustworthiness and providing a practical framework for failure detection.",
-          "claimed_authors": [
-            "Vaibhav Mavi",
-            "Shubh Jaroria",
-            "Weiqi Sun"
-          ],
-          "claimed_title": "Self-Evaluating LLMs for Multi-Step Tasks: Stepwise Confidence Estimation for Failure Detection",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2511.07364"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Self-Evaluating LLMs for Multi-Step Tasks: Stepwise Confidence Estimation for Failure Detection')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "To use reinforcement learning from human feedback (RLHF) in practical applications, it is crucial to learn reward models from diverse sources of human feedback and to consider human factors involved in providing feedback of different types. However, the systematic study of learning from diverse types of feedback is held back by limited standardized tooling available to researchers. To bridge this gap, we propose RLHF-Blender, a configurable, interactive interface for learning from human feedback. RLHF-Blender provides a modular experimentation framework and implementation that enables researchers to systematically investigate the properties and qualities of human feedback for reward learning. The system facilitates the exploration of various feedback types, including demonstrations, rankings, comparisons, and natural language instructions, as well as studies considering the impact of human factors on their effectiveness. We discuss a set of concrete research opportunities enabled by RLHF-Blender. More information is available at https://rlhfblender.info/.",
-          "claimed_authors": [
-            "Yannick Metz",
-            "David Lindner",
-            "Raphaël Baur",
-            "Daniel Keim",
-            "Mennatallah El-Assady"
-          ],
-          "claimed_title": "RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.04332"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We argue for the epistemic and ethical advantages of pluralism in Reinforcement Learning from Human Feedback (RLHF) in the context of Large Language Models (LLM). Drawing on social epistemology and pluralist philosophy of science, we suggest ways in which RHLF can be made more responsive to human needs and how we can address challenges along the way. The paper concludes with an agenda for change, i.e. concrete, actionable steps to improve LLM development.",
-          "claimed_authors": [
-            "Kristian González Barman",
-            "Simon Lohse",
-            "Henk de Regt"
-          ],
-          "claimed_title": "Reinforcement Learning from Human Feedback: Whose Culture, Whose Values, Whose Perspectives?",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2407.17482"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Reinforcement Learning from Human Feedback: Whose Culture, Whose Values, Whose Perspectives?')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We investigate Reinforcement Learning from Human Feedback (RLHF) in the context of a general preference oracle. In particular, we do not assume the existence of a reward function and an oracle preference signal drawn from the Bradley-Terry model as most of the prior works do. We consider a standard mathematical formulation, the reverse-KL regularized minimax game between two LLMs for RLHF under general preference oracle. The learning objective of this formulation is to find a policy so that it is consistently preferred by the KL-regularized preference oracle over any competing LLMs. We show that this framework is strictly more general than the reward-based one, and propose sample-efficient algorithms for both the offline learning from a pre-collected preference dataset and online learning where we can query the preference oracle along the way of training. Empirical studies verify the effectiveness of the proposed framework.",
-          "claimed_authors": [
-            "Chenlu Ye",
-            "Wei Xiong",
-            "Yuheng Zhang",
-            "Hanze Dong",
-            "Nan Jiang",
-            "Tong Zhang"
-          ],
-          "claimed_title": "Online Iterative Reinforcement Learning from Human Feedback with General Preference Model",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.07314"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Online Iterative Reinforcement Learning from Human Feedback with General Preference Model')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
-          "claimed_authors": [
-            "Xiefeng Wu"
-          ],
-          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2410.01458"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Reinforcement Learning (RL) models have continually evolved to navigate the exploration - exploitation trade-off in uncertain Markov Decision Processes (MDPs). In this study, I leverage the principles of stochastic thermodynamics and system dynamics to explore reward shaping via diffusion processes. This provides an elegant framework as a way to think about exploration-exploitation trade-off. This article sheds light on relationships between information entropy, stochastic system dynamics, and their influences on entropy production. This exploration allows us to construct a dual-pronged framework that can be interpreted as either a maximum entropy program for deriving efficient policies or a modified cost optimization program accounting for informational costs and benefits. This work presents a novel perspective on the physical nature of information and its implications for online learning in MDPs, consequently providing a better understanding of information-oriented formulations in RL.",
-          "claimed_authors": [
-            "Peeyush Kumar"
-          ],
-          "claimed_title": "Reward Shaping via Diffusion Process in Reinforcement Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2306.11885"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Reward Shaping via Diffusion Process in Reinforcement Learning')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large Language Models (LLMs) consistently benefit from scaled Chain-of-Thought (CoT) reasoning, but also suffer from heavy computational overhead. To address this issue, efficient reasoning aims to incentivize short yet accurate thinking trajectories, typically through reward shaping with Reinforcement Learning (RL). In this paper, we systematically investigate the mechanics of efficient reasoning for LLMs. For comprehensive evaluation, we advocate for more fine-grained metrics, including length distribution conditioned on correctness and performance across a wide spectrum of token budgets ranging from 2k to 32k. First, we reveal that the training process follows a two-stage paradigm: length adaptation and reasoning refinement. Through extensive experiments (about 0.2 million GPU hours) in a unified protocol, we deconstruct training prompts and rollouts, reward shaping, and optimization strategies. A central finding is to maintain a sufficient density of positive reward signals and avoid the short-is-correct trap. Moreover, the learned length bias generalizes across domains and difficulty levels. We distill these findings into valuable insights and practical guidelines, and validate them across the Qwen3 models ranging from 0.6B to 30B, demonstrating the robustness and generalization. Weights are available at https://wutaiqiang.github.io/project/Art",
-          "claimed_authors": [
-            "Taiqiang Wu",
-            "Zenan Xu",
-            "Bo Zhou",
-            "Ngai Wong"
-          ],
-          "claimed_title": "The Art of Efficient Reasoning: Data, Reward, and Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.20945"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='The Art of Efficient Reasoning: Data, Reward, and Optimization')",
-        "failed_at": "2026-07-04T01:38:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
-          "claimed_authors": [
-            "Matthew Guzdial",
-            "Devi Acharya",
-            "Max Kreminski",
-            "Michael Cook",
-            "Mirjam Eladhari",
-            "Antonios Liapis",
-            "Anne Sullivan"
-          ],
-          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_title": "Triplet Loss for Knowledge Distillation",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2007.06108"
+          "primary_pointer": "2004.08116"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
-        "failed_at": "2026-07-04T01:38:07Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Triplet Loss for Knowledge Distillation')",
+        "failed_at": "2026-07-11T03:22:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+          "claimed_abstract": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
           "claimed_authors": [
-            "Peiyi Wang",
-            "Lei Li",
-            "Liang Chen",
-            "Feifan Song",
-            "Binghuai Lin",
-            "Yunbo Cao",
-            "Tianyu Liu",
-            "Zhifang Sui"
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
           ],
-          "claimed_title": "Making Large Language Models Better Reasoners with Alignment",
+          "claimed_title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.02144"
+          "claimed_year": 2026,
+          "primary_pointer": "2602.13567"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='Making Large Language Models Better Reasoners with Alignment')",
-        "failed_at": "2026-07-04T01:38:07Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"APPO: Agentic Procedural Policy Optimization\" comp', candidate_title='DistillLens: Symmetric Knowledge Distillation Through Logit Lens')",
+        "failed_at": "2026-07-11T03:22:49Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -497,27 +492,117 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Szymon Brych",
-            "Antoine Cully"
+            "Xucong Wang",
+            "Ziyu Ma",
+            "Yong Wang",
+            "Yuxiang Ji",
+            "Shidong Yang",
+            "Guanhua Chen",
+            "Pengkun Wang",
+            "Xiangxiang Chu"
           ],
-          "title": "Competitiveness of MAP-Elites against Proximal Policy Optimization on locomotion tasks in deterministic simulations",
+          "title": "APPO: Agentic Procedural Policy Optimization",
           "venue": "arXiv",
-          "year": 2020
+          "year": 2026
         },
-        "primary_pointer": "2009.08438",
-        "summary": "The increasing importance of robots and automation creates a demand for learnable controllers which can be obtained through various approaches such as Evolutionary Algorithms (EAs) or Reinforcement Learning (RL). Unfortunately, these two families of algorithms have mainly developed independently and there are only a few works comparing modern EAs with deep RL algorithms. We show that Multidimensional Archive of Phenotypic Elites (MAP-Elites), which is a modern EA, can deliver better-performing solutions than one of the state-of-the-art RL methods, Proximal Policy Optimization (PPO) in the generation of locomotion controllers for a simulated hexapod robot. Additionally, extensive hyper-parameter tuning shows that MAP-Elites displays greater robustness across seeds and hyper-parameter sets. Generally, this paper demonstrates that EAs combined with modern computational resources display promising characteristics and have the potential to contribute to the state-of-the-art in controller learning.",
+        "primary_pointer": "2606.12384",
+        "summary": "Recent advances in agentic Reinforcement Learning (RL) have substantially improved the multi-turn tool-use capabilities of large language model agents. However, most existing methods assign credit over coarse heuristic units, such as tool-call boundaries or fixed workflows, making it difficult to identify which intermediate decisions influence downstream outcomes. In this work, we study agentic RL from two perspectives: \\textit{where to branch and how to assign credit after branching}. Our pilot analysis shows that influential decision points are broadly distributed throughout the generated sequence rather than concentrated at tool calls, while token entropy alone does not reliably reflect their impact on final outcomes. Motivated by these observations, we propose \\textbf{Agentic Procedural Policy Optimization (APPO)}, which shifts branching and credit assignment from coarse interaction units to fine-grained decision points in the sequence. APPO selects branching locations using a Branching Score that combines token uncertainty with policy-induced likelihood gains of subsequent continuations, enabling more targeted exploration while filtering out spurious high-entropy positions. It further introduces procedure-level advantage scaling to better distribute credit across branched rollouts. Experiments on 13 benchmarks show that APPO consistently improves strong agentic RL baselines by nearly 4 points, while keeping efficient tool-calls and maintaining behavior interpretability.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2009.08438",
+          "final_url": "https://arxiv.org/abs/2606.12384",
           "http_status": 200,
-          "pdf_sample_score": 0.2331,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T03:22:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Imad Aouali",
+            "Flavian Vasile",
+            "Otmane Sakhi",
+            "Alexandre Gilotte",
+            "Benjamin Heymann"
+          ],
+          "title": "RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.18805",
+        "summary": "LLM recommendation agents increasingly produce structured recommendation reports: sets of items accompanied by natural-language justifications. Yet existing evaluations often reduce this setting to reranking small shortlisted candidate sets or judge reports mainly by semantic plausibility. We introduce Recommendation Atlas (Agentic Tool-Level Assessment for Shopping), or RecoAtlas, a benchmark and toolkit for evaluating shopping agents with behavior-grounded metrics. RecoAtlas complements held-out interaction metrics with learned utility proxies for relevance, complementarity, and diversity derived from interaction data, while separately measuring semantic coherence and explanation quality. Its controlled tool environment exposes agents to either semantic, behavior-aligned, or faulty tools, enabling diagnosis of whether performance gains arise from stronger reasoning, better signals, or more effective tool-use policies. Across controlled experiments, we show that RecoAtlas exhibits key properties of a meaningful benchmark for agentic systems: performance scales with model capacity and test-time compute, improves with stronger and better-aligned tools, degrades under noisy or misaligned signals, and reveals that semantic plausibility does not necessarily capture behavior-grounded utility. RecoAtlas provides a foundation for developing and evaluating shopping assistants that optimize not only for plausible recommendations, but also for coherent, behaviorally grounded recommendation sets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.18805",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T03:22:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "James Pustejovsky",
+            "Nikhil Krishnaswamy"
+          ],
+          "title": "Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.25136",
+        "summary": "We propose Frictive Policy Optimization (FPO), a framework for learning language model policies that regulate not only what to say, but when and how to intervene in order to manage epistemic and normative risk. Unlike standard alignment methods that optimize surface-level preference or task utility, FPO treats clarification, verification, challenge, redirection, and refusal as explicit control actions whose purpose is to shape the evolution of belief, commitment, and uncertainty over time. We formalize alignment as a risk-sensitive epistemic control problem in which intervention decisions are selected based on their expected effect on downstream epistemic quality rather than on immediate reward alone. We introduce a compact taxonomy of frictive interventions, a structured friction functional that operationalizes multiple alignment failure modes, and a unified family of FPO methods spanning reward shaping, preference pairing, group-relative ranking, and risk-conditioned trust regions. We further propose an evaluation framework that measures epistemic competence directly through clarification behavior, calibration, contradiction repair, refusal proportionality, and information efficiency. Together, these results provide a formal and algorithmic foundation for learning agents that are aligned not only in outcome, but in epistemic conduct.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.25136",
+          "http_status": 200,
+          "pdf_sample_score": 0.249,
           "query_relevance_score": 0.6,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T01:38:18Z"
+          "verified_at": "2026-07-11T03:22:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Saman Forouzandeh",
+            "Wei Peng",
+            "Parham Moradi",
+            "Xinghuo Yu",
+            "Mahdi Jalili"
+          ],
+          "title": "Learning Hierarchical Procedural Memory for LLM Agents through Bayesian Selection and Contrastive Refinement",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.18950",
+        "summary": "We present MACLA, a framework that decouples reasoning from learning by maintaining a frozen large language model while performing all adaptation in an external hierarchical procedural memory. MACLA extracts reusable procedures from trajectories, tracks reliability via Bayesian posteriors, selects actions through expected-utility scoring, and refines procedures by contrasting successes and failures. Across four benchmarks (ALFWorld, WebShop, TravelPlanner, InterCodeSQL), MACLA achieves 78.1 percent average performance, outperforming all baselines. On ALFWorld unseen tasks, MACLA reaches 90.3 percent with 3.1 percent positive generalization. The system constructs memory in 56 seconds, 2800 times faster than the state-of-the-art LLM parameter-training baseline, compressing 2851 trajectories into 187 procedures. Experimental results demonstrate that structured external memory with Bayesian selection and contrastive refinement enables sample-efficient, interpretable, and continually improving agents without LLM parameter updates.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.18950",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T03:22:59Z"
         }
       }
     ]

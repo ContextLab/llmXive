@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reasoning Trace Schema"
+description: "Schema for a single reasoning trace with static and dynamic scores."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the problem."
+  dataset:
+    type: "string"
+    enum:
+      - "gsm8k"
+      - "math"
+    description: "Source dataset name."
+  question:
+    type: "string"
+    description: "The original problem text."
+  solution:
+    type: "string"
+    description: "The full solution text."
+  tokens:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of token IDs representing the solution."
+  static_scores:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of KL divergence scores, one per token."
+  dynamic_scores:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of APPO likelihood gains (cumulative reward), one per token."
+  reasoning_type:
+    type: "string"
+    description: "Categorical label (e.g., 'arithmetic', 'algebra')."
+required:
+  - task_id
+  - dataset
+  - question
+  - solution
+  - tokens
+  - static_scores
+  - dynamic_scores
+  - reasoning_type
+additionalProperties: false

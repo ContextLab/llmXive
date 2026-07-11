@@ -1,0 +1,53 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Reasoning Trace Dataset Schema"
+description: "Schema for the aligned static and dynamic branching scores dataset."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the problem instance."
+  dataset:
+    type: string
+    description: "Source dataset (e.g., 'gsm8k', 'math')."
+    enum:
+      - "gsm8k"
+      - "math"
+  question:
+    type: string
+    description: "The original problem statement."
+  ground_truth:
+    type: string
+    description: "The correct answer."
+  tokens:
+    type: array
+    items:
+      type: string
+    description: "Tokenized sequence of the reasoning trace."
+  static_scores:
+    type: array
+    items:
+      type: number
+    description: "KL divergence scores for each token position."
+  dynamic_scores:
+    type: array
+    items:
+      type: number
+    description: "APPO likelihood gains for each token position."
+  reasoning_pattern:
+    type: string
+    description: "Classified pattern (e.g., 'arithmetic', 'algebra')."
+    enum:
+      - "arithmetic"
+      - "algebra"
+      - "geometry"
+      - "other"
+required:
+  - task_id
+  - dataset
+  - question
+  - ground_truth
+  - tokens
+  - static_scores
+  - dynamic_scores
+  - reasoning_pattern
+additionalProperties: false
