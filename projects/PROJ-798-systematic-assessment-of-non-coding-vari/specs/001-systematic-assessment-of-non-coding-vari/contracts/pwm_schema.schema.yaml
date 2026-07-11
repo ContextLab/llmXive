@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PWM Schema"
+description: "Schema for JASPAR Position Weight Matrices."
+type: "object"
+properties:
+  pwm_id:
+    type: "string"
+    description: "JASPAR unique ID (e.g., MA0139.1)."
+  tf_name:
+    type: "string"
+    description: "Transcription Factor name."
+  matrix:
+    type: "object"
+    description: "4xL matrix of counts/weights."
+    properties:
+      A:
+        type: "array"
+        items:
+          type: "number"
+      C:
+        type: "array"
+        items:
+          type: "number"
+      G:
+        type: "array"
+        items:
+          type: "number"
+      T:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - A
+      - C
+      - G
+      - T
+  length:
+    type: "integer"
+    minimum: 1
+    description: "Length of the motif in base pairs."
+required:
+  - pwm_id
+  - tf_name
+  - matrix
+  - length
+additionalProperties: false

@@ -27,7 +27,7 @@ properties:
     description: "Sequence context (dynamic window) for the alternate allele."
   window_size:
     type: "integer"
-    description: "Total window size in bp (dynamic, PWM-length dependent)."
+    description: "Total window size in bp (matches PWM length)."
 required:
   - "snp_id"
   - "tf_id"

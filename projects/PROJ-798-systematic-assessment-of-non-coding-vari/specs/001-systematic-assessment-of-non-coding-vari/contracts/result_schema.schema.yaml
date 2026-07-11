@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Enrichment Result Schema"
+description: "Schema for final GWAS enrichment results. 'Significance' is determined by fdr_q_value < 0.05."
+type: "object"
+properties:
+  pwm_id:
+    type: "string"
+    description: "JASPAR PWM ID."
+  tf_name:
+    type: "string"
+    description: "Transcription Factor name."
+  n_snps_tested:
+    type: "integer"
+    minimum: 0
+    description: "Total number of SNPs scored for this TF."
+  observed_gwas_overlap:
+    type: "integer"
+    minimum: 0
+    description: "Observed overlap with GWAS loci."
+  expected_gwas_overlap:
+    type: "number"
+    description: "Expected overlap under null hypothesis."
+  enrichment_ratio:
+    type: "number"
+    description: "Ratio of observed to expected."
+  p_value_raw:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from permutation test."
+  p_value_fdr:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "FDR-adjusted p-value (q-value)."
+  significance:
+    type: "boolean"
+    description: "True if fdr_q_value < 0.05 (corrected threshold)."
+required:
+  - pwm_id
+  - tf_name
+  - n_snps_tested
+  - observed_gwas_overlap
+  - expected_gwas_overlap
+  - enrichment_ratio
+  - p_value_raw
+  - p_value_fdr
+  - significance
+additionalProperties: false

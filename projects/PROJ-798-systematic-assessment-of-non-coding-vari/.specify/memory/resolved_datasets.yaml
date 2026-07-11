@@ -1,26 +1,26 @@
-resolved_at: '2026-07-10T23:02:42.093669+00:00'
+resolved_at: '2026-07-10T23:21:08.273894+00:00'
 datasets:
 - intent: SNPs
   status: unresolved
   candidates: []
   candidates_tried:
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Experiences_and_perceptions_of_the_menstrual_cycle_within_women_s_professional_soccer_A_qualitative_case_study/32957564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Semantic_Fidelity_Project_Formative_Essays_on_Meaning_Compression_and_AI_Systems/32961779
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -36,11 +36,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10866351
+  - url: https://zenodo.org/records/7053677
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7053677
+  - url: https://zenodo.org/records/14800106
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -101,6 +101,14 @@ datasets:
     source: huggingface
     status: verified
     format: csv
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Experiences_and_perceptions_of_the_menstrual_cycle_within_women_s_professional_soccer_A_qualitative_case_study/32957564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
@@ -110,14 +118,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -137,7 +137,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6378127
+  - url: https://zenodo.org/records/19412362
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -191,6 +191,14 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Experiences_and_perceptions_of_the_menstrual_cycle_within_women_s_professional_soccer_A_qualitative_case_study/32957564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
@@ -200,14 +208,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -227,7 +227,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10760183
+  - url: https://zenodo.org/records/8062771
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -247,7 +247,7 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Neonatal_genetic_sequencing_as_a_first-tier_option_a_real-world_clinical_implementation_study_in_Northern_China/32946844
+  - url: https://tandf.figshare.com/articles/dataset/Neonatal_genetic_sequencing_as_a_first-tier_option_a_real-world_clinical_implementation_study_in_Northern_China/32946844/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -296,6 +296,14 @@ datasets:
     source: huggingface
     status: verified
     format: csv
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Experiences_and_perceptions_of_the_menstrual_cycle_within_women_s_professional_soccer_A_qualitative_case_study/32957564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
@@ -305,14 +313,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -340,11 +340,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/7e1af251-839f-4de7-9f0e-bb0978e8d28b
+  - url: https://yareta.unige.ch/archives/66cbf2d5-d170-4fff-a192-8f18fcfff268
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/66cbf2d5-d170-4fff-a192-8f18fcfff268
+  - url: https://yareta.unige.ch/archives/7e1af251-839f-4de7-9f0e-bb0978e8d28b
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -401,6 +401,14 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Experiences_and_perceptions_of_the_menstrual_cycle_within_women_s_professional_soccer_A_qualitative_case_study/32957564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
@@ -413,14 +421,6 @@ datasets:
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19206321
     source: zenodo
     status: wrong_format
@@ -429,11 +429,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13305679
+  - url: https://zenodo.org/records/200884
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/200884
+  - url: https://zenodo.org/records/13305679
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -465,6 +465,14 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Experiences_and_perceptions_of_the_menstrual_cycle_within_women_s_professional_soccer_A_qualitative_case_study/32957564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
@@ -474,14 +482,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -529,6 +529,14 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Experiences_and_perceptions_of_the_menstrual_cycle_within_women_s_professional_soccer_A_qualitative_case_study/32957564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
@@ -538,14 +546,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -626,6 +626,10 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Experiences_and_perceptions_of_the_menstrual_cycle_within_women_s_professional_soccer_A_qualitative_case_study/32957564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
     source: figshare
     status: wrong_format
@@ -639,10 +643,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -709,6 +709,14 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Human_rights_or_human_responsibilities_Rebalancing_Ocean_Governance/32901521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Experiences_and_perceptions_of_the_menstrual_cycle_within_women_s_professional_soccer_A_qualitative_case_study/32957564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
     source: figshare
     status: wrong_format
@@ -718,14 +726,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -745,7 +745,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15355910
+  - url: https://zenodo.org/records/1304814
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/96856a30-ea2b-4e9f-b605-c3d45fa31a6e
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://depositonce.tu-berlin.de/handle/11303/27412
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/occurrence/download/0032677-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21301252
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21301252
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

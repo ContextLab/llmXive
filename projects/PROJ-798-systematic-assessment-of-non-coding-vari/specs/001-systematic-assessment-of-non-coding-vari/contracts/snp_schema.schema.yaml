@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SNP Filtered Schema"
+description: "Schema for filtered SNPs located within regulatory regions."
+type: "object"
+properties:
+  snp_id:
+    type: "string"
+    description: "dbSNP rsID identifier."
+  chromosome:
+    type: "string"
+    pattern: "^[0-9XYMT]+$"
+    description: "Chromosome name (e.g., chr1)."
+  position:
+    type: "integer"
+    minimum: 1
+    description: "1-based genomic position."
+  ref_allele:
+    type: "string"
+    pattern: "^[ACGT]$"
+    description: "Reference allele."
+  alt_allele:
+    type: "string"
+    pattern: "^[ACGT]$"
+    description: "Alternate allele."
+  maf:
+    type: "number"
+    minimum: 0.01
+    maximum: 0.5
+    description: "Minor Allele Frequency."
+  quality_score:
+    type: "number"
+    minimum: 0
+    description: "Phred-scaled quality score."
+  regulatory_type:
+    type: "string"
+    enum:
+      - "promoter"
+      - "enhancer"
+    description: "Type of regulatory region."
+  overlap_region_id:
+    type: "string"
+    description: "ID of the overlapping regulatory region."
+required:
+  - snp_id
+  - chromosome
+  - position
+  - ref_allele
+  - alt_allele
+  - maf
+  - quality_score
+  - regulatory_type
+  - overlap_region_id
+additionalProperties: false

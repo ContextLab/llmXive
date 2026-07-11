@@ -8,9 +8,6 @@ properties:
   n_snps_tested:
     type: "integer"
     description: "Total number of SNPs scored for this TF."
-  n_high_impact:
-    type: "integer"
-    description: "Number of SNPs in the top impact threshold."
   observed_overlap:
     type: "integer"
     description: "Number of high-impact SNPs overlapping GWAS loci."
@@ -32,11 +29,10 @@ properties:
     description: "Ratio of observed to expected overlap."
   significant:
     type: "boolean"
-    description: "True if p_value < 0.05 and fdr_q_value < 0.1."
+    description: "True if fdr_q_value < 0.05."
 required:
   - "tf_id"
   - "n_snps_tested"
-  - "n_high_impact"
   - "observed_overlap"
   - "expected_overlap"
   - "p_value"
