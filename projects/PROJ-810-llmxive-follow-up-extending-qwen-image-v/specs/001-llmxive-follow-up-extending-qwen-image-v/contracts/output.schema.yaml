@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Results Schema"
+description: "Schema for the output metrics of the separability and editing experiments"
+type: "object"
+properties:
+  test_id:
+    type: "string"
+    description: "Unique identifier for the experiment run"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run"
+  metrics:
+    type: "object"
+    description: "Dictionary of metric names to values"
+    additionalProperties:
+      type: "object"
+      properties:
+        value:
+          type: "number"
+        confidence_interval:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
+        p_value:
+          type: "number"
+          description: "P-value for statistical significance"
+      required:
+        - value
+  sample_size:
+    type: "integer"
+    description: "Number of samples used in the experiment"
+  power_analysis:
+    type: "object"
+    description: "Power analysis results"
+    properties:
+      achieved_power:
+        type: "number"
+      effect_size:
+        type: "number"
+      status:
+        type: "string"
+        enum:
+          - "conclusive"
+          - "inconclusive"
+    required:
+      - achieved_power
+      - status
+  linearity_verified:
+    type: "boolean"
+    description: "True if the latent space was verified to be locally linear (direction consistency + PCA separation)"
+  triviality_flag:
+    type: "boolean"
+    description: "True if raw pixel statistics were >99% separable (trivial result)"
+  model_used:
+    type: "string"
+    description: "Name of the VAE model actually used (e.g., 'Qwen-Image-VAE-2.0' or 'Fallback-Model')"
+required:
+  - test_id
+  - timestamp
+  - metrics
+  - sample_size
+  - power_analysis
+  - linearity_verified
+  - triviality_flag
+  - model_used
+additionalProperties: false

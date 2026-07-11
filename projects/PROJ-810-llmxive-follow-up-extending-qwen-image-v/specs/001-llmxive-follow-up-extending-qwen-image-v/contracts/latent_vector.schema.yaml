@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Latent Vector Schema"
+description: "Schema for encoded latent vectors of image regions"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the latent vector"
+  region_id:
+    type: "string"
+    description: "Reference to the RegionAnnotation id"
+  vector:
+    type: "array"
+    items:
+      type: "number"
+    description: "Flattened latent vector (dimension D)"
+  modality:
+    type: "string"
+    enum: ["text", "image"]
+    description: "Ground truth modality label"
+  source_image_id:
+    type: "string"
+    description: "Reference to the source document id"
+required: ["id", "region_id", "vector", "modality", "source_image_id"]
+additionalProperties: false

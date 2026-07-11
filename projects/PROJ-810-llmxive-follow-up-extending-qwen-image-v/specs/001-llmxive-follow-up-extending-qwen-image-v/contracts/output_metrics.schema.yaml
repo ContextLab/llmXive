@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for analysis results and metrics"
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the metric (e.g., 'accuracy', 'ssim', 'f1', 'ocr_accuracy')"
+  value:
+    type: "number"
+    description: "Value of the metric"
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value for statistical significance (if applicable)"
+  threshold:
+    type: "number"
+    description: "Threshold used for the metric (if applicable)"
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples used in the calculation"
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval [lower, upper]"
+required: ["metric_name", "value", "sample_size"]
+additionalProperties: false

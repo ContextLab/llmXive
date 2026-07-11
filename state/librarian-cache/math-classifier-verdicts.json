@@ -879,6 +879,10 @@
     "classified_at": "2026-07-04T01:11:53Z",
     "verdict": false
   },
+  "PROJ-810-llmxive-follow-up-extending-qwen-image-v::1.6.0": {
+    "classified_at": "2026-07-11T04:42:49Z",
+    "verdict": false
+  },
   "PROJ-813-llmxive-follow-up-extending-mint-managed::1.6.0": {
     "classified_at": "2026-07-05T07:28:23Z",
     "verdict": false

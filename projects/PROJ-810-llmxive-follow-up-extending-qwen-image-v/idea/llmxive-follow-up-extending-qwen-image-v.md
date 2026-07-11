@@ -5,34 +5,59 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Qwen-Image-VAE-2.0 Technical Report"
 
-## Summary of the prior work
-The paper introduces Qwen-Image-VAE-2.0, a high-compression Variational Autoencoder suite that utilizes Global Skip Connections, expanded latent channels, and an asymmetric attention-free backbone to achieve state-of-the-art reconstruction fidelity and diffusability. It addresses text-rich image bottlenecks by incorporating a synthetic rendering engine and proposes OmniDoc-TokenBench, a new benchmark with OCR-based metrics for evaluating document reconstruction. The model demonstrates superior convergence in downstream diffusion tasks and robust performance on real-world documents at high compression ratios.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Does the semantic alignment strategy in Qwen-Image-VAE-2.0 create a latent space topology where text token embeddings are linearly separable from visual texture embeddings, and can this separability be exploited to enable CPU-only, zero-shot document editing via simple vector arithmetic?
-**Why it matters:** While the original paper proves the model's *generative* and *reconstruction* capabilities, it does not explicitly analyze the geometric structure of the latent space regarding text-vs-image disentanglement. Demonstrating linear separability would unlock efficient, non-diffusion-based editing tools for documents that run entirely on CPUs, making high-fidelity document manipulation accessible without expensive GPU infrastructure.
+## Research question
+
+How does the Qwen-Image-VAE-2.0 latent space organize and disentangle text versus visual-texture features, and to what extent does this geometric structure support zero-shot semantic manipulation via linear vector arithmetic?
+
+## Motivation
+
+While the original technical report establishes the reconstruction fidelity and diffusability of Qwen-Image-VAE-2.0, it does not analyze the geometric topology of its latent space regarding semantic disentanglement. Demonstrating that text and image features form distinct, linearly separable manifolds would unlock efficient, non-diffusion-based editing tools for documents, making high-fidelity manipulation accessible on CPU-only infrastructure without the need for expensive retraining or GPU inference.
+
+## Related work
+
+- [Qwen-Image-VAE-2.0 Technical Report (2026)](https://arxiv.org/abs/2605.13565) — Introduces the high-compression VAE architecture and the OmniDoc-TokenBench benchmark, establishing the baseline reconstruction capabilities and text-rendering focus that this project seeks to analyze geometrically.
+- [Qwen-Image Technical Report (2025)](https://arxiv.org/abs/2508.02324) — Describes the broader Qwen-Image foundation model and its text-rendering capabilities, providing context on the generative objectives that likely shape the latent space structure analyzed here.
+- [Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond (2023)](https://arxiv.org/abs/2308.12966) — Presents a vision-language model for text reading and localization, offering a conceptual precedent for models that must jointly process and distinguish textual and visual modalities, though it operates in a different architectural regime than the VAE suite.
+
+## Expected results
+
+We expect to observe a high degree of linear separability (e.g., SVM accuracy > 90%) between latent vectors derived from text-only regions and those from image-only regions, confirming a structured disentanglement in the latent manifold. Furthermore, we anticipate that simple vector arithmetic (subtracting a "text mean" and adding a "new text mean") will result in decoded images where the semantic content of the text changes while the layout and visual style remain intact, validating the feasibility of zero-shot editing.
 
 ## Methodology sketch
-**Data:** Utilize the OmniDoc-TokenBench dataset from the original paper, specifically the subset containing documents with clear semantic headers, body text, and graphical elements.
-**Procedure:** 
-1. Encode a balanced set of document images into the Qwen-Image-VAE-2.0 latent space.
-2. Extract latent vectors for regions labeled as "text-only" and "image-only" using the model's internal attention masks or by cropping ground-truth regions.
-3. Perform Principal Component Analysis (PCA) and Linear Discriminant Analysis (LDA) on the CPU to project these vectors into 2D/3D space and calculate the linear separability score (e.g., classification accuracy of a simple SVM or logistic regression classifier).
-4. Attempt "vector arithmetic" editing: subtract the mean "text" vector from a document containing text and a specific header, then add a different header vector, and decode the result to check if the text content changes while the layout remains intact.
-**Expected Result:** We anticipate finding a high degree of linear separability between text and visual latent clusters (SVM accuracy > 90%), and successful zero-shot editing where swapping text vectors results in the correct semantic change in the decoded image without retraining or GPU inference.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the OmniDoc-TokenBench dataset (or the specific subset referenced in the Qwen-Image-VAE-2.0 report) containing documents with distinct headers, body text, and graphical elements via the provided repository link.
+- **Latent Encoding**: Use the pre-trained Qwen-Image-VAE-2.0 encoder (available via HuggingFace or the paper's codebase) to encode the document images into latent vectors, ensuring all operations are performed on CPU.
+- **Region Extraction**: Crop ground-truth regions corresponding to "text-only" and "image-only" areas using the provided bounding box annotations or attention masks to isolate specific latent sub-vectors.
+- **Dimensionality Reduction & Visualization**: Apply Principal Component Analysis (PCA) to reduce the latent vectors to 2D/3D and plot the clusters to visually inspect the separation between text and visual features.
+- **Linear Separability Test**: Train a lightweight Logistic Regression or Linear SVM classifier on the CPU to predict the modality (text vs. image) of the latent vectors; report the classification accuracy and F1-score as the separability metric.
+- **Vector Arithmetic Editing**: Compute the centroid vectors for the "text" and "image" clusters; perform arithmetic operations (e.g., $z_{new} = z_{doc} - \mu_{text\_old} + \mu_{text\_new}$) to simulate text swapping.
+- **Decoding & Evaluation**: Decode the modified latent vectors back to images using the VAE decoder and qualitatively assess whether the text content changes while preserving layout; quantitatively measure reconstruction fidelity using SSIM and LPIPS against a ground-truth "swapped" document if available, or rely on OCR-based metrics (like those in OmniDoc-TokenBench) to verify text correctness.
+- **Statistical Validation**: Perform a permutation test to ensure that the observed separability is significantly higher than random chance, confirming the non-trivial nature of the latent structure.
 
-- **Qwen-Image-VAE-2.0 Technical Report** — Zekai Zhang, Deqing Li, Kuan Cao, Yujia Wu, Chenfei Wu, Yu Wu, Liang Peng, Hao Meng, Jiahao Li, Jie Zhang, Kaiyuan Gao, Kun Yan, Lihan Jiang, Ningyuan Tang, Shengming Yin, Tianhe Wu, Xiao Xu, Xiaoyue Chen, Yan Shu, Yanran Zhang, Yilei Chen, Yixian Xu, Yuxiang Chen, Zhendong Wang, Zihao Liu, Zikai Zhou, Yiliang Gu, Yi Wang, Xiaoxiao Xu, Lin Qu. https://arxiv.org/abs/2605.13565.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_13565,
-  title = {Qwen-Image-VAE-2.0 Technical Report},
-  author = {Zekai Zhang and Deqing Li and Kuan Cao and Yujia Wu and Chenfei Wu and Yu Wu and Liang Peng and Hao Meng and Jiahao Li and Jie Zhang and Kaiyuan Gao and Kun Yan and Lihan Jiang and Ningyuan Tang and Shengming Yin and Tianhe Wu and Xiao Xu and Xiaoyue Chen and Yan Shu and Yanran Zhang and Yilei Chen and Yixian Xu and Yuxiang Chen and Zhendong Wang and Zihao Liu and Zikai Zhou and Yiliang Gu and Yi Wang and Xiaoxiao Xu and Lin Qu},
-  year = {2026},
-  eprint = {2605.13565},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.13565},
-  url = {https://arxiv.org/abs/2605.13565}
-}
-```
+- Reviewed existing ideas: None (this is a follow-up to a specific preprint not yet in the corpus).
+- Closest match: None.
+- Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T04:43:43Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Qwen-Image-VAE-2.0 Technical Report" computer science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Qwen-Image-VAE-2.0 Technical Report" computer science | 3 |
+
+### Verified citations
+
+1. **Qwen-Image-VAE-2.0 Technical Report** (2026). Zekai Zhang, Deqing Li, Kuan Cao, Yujia Wu, Chenfei Wu, et al.. arXiv. [2605.13565](https://arxiv.org/abs/2605.13565). PDF-sampled: No.
+2. **Qwen-Image Technical Report** (2025). Chenfei Wu, Jiahao Li, Jingren Zhou, Junyang Lin, Kaiyuan Gao, et al.. arXiv. [2508.02324](https://arxiv.org/abs/2508.02324). PDF-sampled: No.
+3. **Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond** (2023). Jinze Bai, Shuai Bai, Shusheng Yang, Shijie Wang, Sinan Tan, et al.. arXiv. [2308.12966](https://arxiv.org/abs/2308.12966). PDF-sampled: No.

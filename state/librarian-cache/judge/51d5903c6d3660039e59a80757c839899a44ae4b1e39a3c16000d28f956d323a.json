@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.12966",
+  "judged_at": "2026-07-11T04:43:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-image-vae-2.0 technical report\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (e) as it is the foundational technical report for the Qwen-VL series, which serves as the canonical prior work and empirical baseline for any follow-up research extending the Qwen-Image-VAE architecture or the broader Qwen multimodal ecosystem.",
+  "relevant": true
+}

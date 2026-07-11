@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.02324",
+  "judged_at": "2026-07-11T04:43:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-image-vae-2.0 technical report\" computer science",
+  "rationale": "This paper is the foundational technical report for the \"Qwen-Image-VAE-2.0\" system mentioned in the user's question, satisfying category (d) as the canonical reference for the model's architecture, training strategy, and VAE mechanisms. It provides the essential empirical baseline and methodological context required for any follow-up research or literature review on this specific model family.",
+  "relevant": true
+}

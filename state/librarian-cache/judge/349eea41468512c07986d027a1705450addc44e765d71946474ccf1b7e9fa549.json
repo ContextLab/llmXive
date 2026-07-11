@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.13565",
+  "judged_at": "2026-07-11T04:43:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-image-vae-2.0 technical report\" computer science",
+  "rationale": "The paper is the foundational technical report for the specific model (\"Qwen-Image-VAE-2.0\") explicitly named in the user's research question, satisfying category (d) as the canonical reference for the system being studied. Additionally, it provides the empirical baseline and mechanism details (category c and a) required for any follow-up research extending this work.",
+  "relevant": true
+}

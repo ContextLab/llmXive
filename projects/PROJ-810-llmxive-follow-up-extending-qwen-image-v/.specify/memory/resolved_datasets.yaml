@@ -1,0 +1,338 @@
+resolved_at: '2026-07-11T05:18:35.790005+00:00'
+datasets:
+- intent: OmniDoc
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/omnineura/Omni-Doc-1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 9635
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/omnineura/Omni-Doc-1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/674d19e2548e472d0e95089b/3d6b708d53f4375f8a54098d439b7043b5c8518e3319e46709bbee512c0ba908?user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27OmniDocBench.json%3B+filename%3D%22OmniDocBench.json%22%3B&Expires=1783750608&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc0ZDE5ZTI1NDhlNDcyZDBlOTUwODliLzNkNmI3MDhkNTNmNDM3NWY4YTU0MDk4ZDQzOWI3MDQzYjVjODUxOGUzMzE5ZTQ2NzA5YmJlZTUxMmMwYmE5MDhcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdPbW5pRG9jQmVuY2guanNvbiUzQitmaWxlbmFtZSUzRCUyMk9tbmlEb2NCZW5jaC5qc29uJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NTA2MDh9fX1dfQ__&Signature=MEUCIQDhEmfgBSjFNcoaGXEi5gRaLnHTIPejnZtfyD8ckg1SxAIgSr7QCoZgSiX3wkV0tTSCW4l566sM08MosEbszbw21ac_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6793c004b1928f01ef08cc8d/e48284ffe2d6baee5717a0fd9ae23f3d8e5140ab199f10e74319dfcfbd9aea51?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27OmniDocBench.json%3B+filename%3D%22OmniDocBench.json%22%3B&user_id=public&response-content-type=application%2Fjson&Expires=1783750608&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc5M2MwMDRiMTkyOGYwMWVmMDhjYzhkL2U0ODI4NGZmZTJkNmJhZWU1NzE3YTBmZDlhZTIzZjNkOGU1MTQwYWIxOTlmMTBlNzQzMTlkZmNmYmQ5YWVhNTFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3T21uaURvY0JlbmNoLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJPbW5pRG9jQmVuY2guanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NTA2MDh9fX1dfQ__&Signature=MEQCIEypo5nCmqZD3KLAds5MYySjylMbnUfw6F~7sA9bWhyxAiAVjuFCojAfKAz18p7BErRkU09z4fCcSdKJE3ekl9KB4w__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67a1e7136bb4f91f39bd2acb/c89dd26da74f5a42c470d257c1dd6ea4888f6a4c7a2382d93f50aad7e0da3b19?response-content-type=text%2Ftab-separated-values&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27OmniDocBench.tsv%3B+filename%3D%22OmniDocBench.tsv%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783750609&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdhMWU3MTM2YmI0ZjkxZjM5YmQyYWNiL2M4OWRkMjZkYTc0ZjVhNDJjNDcwZDI1N2MxZGQ2ZWE0ODg4ZjZhNGM3YTIzODJkOTNmNTBhYWQ3ZTBkYTNiMTlcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnRhYi1zZXBhcmF0ZWQtdmFsdWVzJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdPbW5pRG9jQmVuY2gudHN2JTNCK2ZpbGVuYW1lJTNEJTIyT21uaURvY0JlbmNoLnRzdiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzUwNjA5fX19XX0_&Signature=MEUCIC1h51xkRVPKnbGatwXBsScwTWXeUIuyJzyXmCPvPhhSAiEA5pOL~nJlflN3N2-2UZ8UgJ4LUFPITXpy2NlvK3-vDvo_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68dc06a22deb54b754ee957b/19b490c0151d2934ff027077f2c96aa89f515bc23509175a098a24a756f48e99?user_id=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27OmniDocBench.json%3B+filename%3D%22OmniDocBench.json%22%3B&X-Xet-Cas-Uid=public&Expires=1783750610&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhkYzA2YTIyZGViNTRiNzU0ZWU5NTdiLzE5YjQ5MGMwMTUxZDI5MzRmZjAyNzA3N2YyYzk2YWE4OWY1MTViYzIzNTA5MTc1YTA5OGEyNGE3NTZmNDhlOTlcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdPbW5pRG9jQmVuY2guanNvbiUzQitmaWxlbmFtZSUzRCUyMk9tbmlEb2NCZW5jaC5qc29uJTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NTA2MTB9fX1dfQ__&Signature=MEYCIQDrtR7X5llpL8vn17-as05wk0QeYhltvXv3odjgN3BqUwIhAINhhKzYrOxYX4WHKh2RqQzCzvr5ei0J6uTwkCIO3DDR&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Paul_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962916
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sauropod_teeth_from_the_Khorat_Group_of_Thailand_suggest_the_faunal_turnover_of_sauropod_dinosaurs_across_the_J_K_boundary/31366984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Rhema_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Medaka_Gene_Model_version_5n/32962850
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/AgentBreaker_Evaluating_Context-Aware_Indirect_Prompt_Injection_Risks_in_Modern_Web_Agents_Artifact_/32835578
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.13565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TokenBench
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/Paul_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962916
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sauropod_teeth_from_the_Khorat_Group_of_Thailand_suggest_the_faunal_turnover_of_sauropod_dinosaurs_across_the_J_K_boundary/31366984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Rhema_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Medaka_Gene_Model_version_5n/32962850
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/AgentBreaker_Evaluating_Context-Aware_Indirect_Prompt_Injection_Risks_in_Modern_Web_Agents_Artifact_/32835578
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.06158
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.13565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VAE-2
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.unimelb.edu.au/articles/dataset/Australian_Chemical_Engineering_Actioning_Sustainable_Development_An_Integrative_Review_Reference_Manager_Files_/32962910
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Oduduwa_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962919
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Paul_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962916
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sauropod_teeth_from_the_Khorat_Group_of_Thailand_suggest_the_faunal_turnover_of_sauropod_dinosaurs_across_the_J_K_boundary/31366984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Rhema_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7350768
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7273500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6819570
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13917741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13841258
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2603.22916
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21282789
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21282789
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://codeocean.com/capsule/9896399/tree/v1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21281616
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: F1-score
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 98811
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 82904
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94356
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.unimelb.edu.au/articles/dataset/Australian_Chemical_Engineering_Actioning_Sustainable_Development_An_Integrative_Review_Reference_Manager_Files_/32962910
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Oduduwa_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962919
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Paul_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962916
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sauropod_teeth_from_the_Khorat_Group_of_Thailand_suggest_the_faunal_turnover_of_sauropod_dinosaurs_across_the_J_K_boundary/31366984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Rhema_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1753520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.15802/stp2025/325888
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPSConnectionPool(host=''stp.ust.edu.ua'',
+      port=443): Max retries exceeded with url: /article/view/325888 (Caused by NewConnectionError("HTTPSConnection(host=''stp.ust.edu.ua'',
+      port=443): Failed to establish a new connection: [Errno 111] Connection refused"))'
+  - url: https://zenodo.org/records/18063014
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/ijai.v14.i5.pp3915-3925
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/6936930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17615/m24v-ah57
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/db78tt37p (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f67177bdb50>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+  - url: https://figshare.com/articles/journal_contribution/_b_Rancang_bangun_Sistem_Smart_Campus_Helpdesk_UNSAP_Berbasis_Web_dengan_integrasi_Machine_Learning_untuk_b_b_i_Sentiment_Analysis_i_b_b_dan_Penentuan_Prioritas_laporan_otomatis_b_/32962835/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Rancang_bangun_Sistem_Smart_Campus_Helpdesk_UNSAP_Berbasis_Web_dengan_integrasi_Machine_Learning_untuk_b_b_i_Sentiment_Analysis_i_b_b_dan_Penentuan_Prioritas_laporan_otomatis_b_/32962835
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304414
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304414
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.unimelb.edu.au/articles/dataset/Australian_Chemical_Engineering_Actioning_Sustainable_Development_An_Integrative_Review_Reference_Manager_Files_/32962910
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Oduduwa_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962919
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Paul_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962916
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sauropod_teeth_from_the_Khorat_Group_of_Thailand_suggest_the_faunal_turnover_of_sauropod_dinosaurs_across_the_J_K_boundary/31366984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Rhema_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20300649
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20300649
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
