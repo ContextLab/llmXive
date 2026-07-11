@@ -4,78 +4,74 @@
 
 - Python 3.11+
 - Git
-- Access to HuggingFace (for dataset/model downloads)
+- Sufficient RAM available (free-tier runner)
+
+The research question remains: [Research Question]
+The method remains: [Method]
+The references remain: [References]
 
 ## Installation
 
-1. **Clone the Repository**:
+1. **Clone the repository** (if not already done):
    ```bash
    git clone <repo-url>
    cd projects/PROJ-861-llmxive-follow-up-extending-appo-agentic
    ```
 
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install Dependencies**:
+2. **Install dependencies**:
    ```bash
    pip install -r code/requirements.txt
    ```
+   *Note: `requirements.txt` pins `torch` to a CPU-only wheel to avoid CUDA dependencies.*
 
-## Data Setup
-
-1. **Download Datasets**:
-   The system will automatically download GSM and MATH datasets from HuggingFace on first run. Ensure you have sufficient disk space.
+3. **Verify environment**:
    ```bash
-   python code/main.py --setup-data
+   python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
+   # Expected output: CUDA available: False
    ```
-
-2. **Verify Checksums**:
-   The system will verify the integrity of downloaded data against recorded checksums.
 
 ## Running the Pipeline
 
-### 1. Compute Static Scores
-Run the static scoring module on a CPU-only environment:
+The full pipeline (Static -> Dynamic -> Analysis) can be run via the CLI:
+
 ```bash
-python code/main.py --stage static --seed 42
+python code/cli/run_pipeline.py --subset-size 85 --max-permutations 10000
 ```
 
-### 2. Generate Dynamic Scores
-Run the APPO rollout module for dynamic scoring:
-```bash
-python code/main.py --stage dynamic --seed 42
-```
+### Parameters
 
-### 3. Perform Correlation Analysis
-Run the full correlation analysis with permutation test:
-```bash
-python code/main.py --stage analysis --seed 42 --iterations 10000
-```
+- `--subset-size`: Number of tasks for dynamic scoring (default:, to account for dropouts and alignment noise).
+- `--max-permutations`: Number of iterations for the permutation test (default: a sufficiently large sample size to ensure statistical power).
+- `--dry-run`: Skips APPO rollout, only computes static scores (for testing).
 
-### 4. View Results
-Results are stored in `data/derived/`. Visualizations can be generated using:
-```bash
-python code/main.py --stage visualize
-```
+### Output
 
-## Testing
+- **Static Scores**: `data/processed/static_scores.parquet`
+- **Dynamic Scores**: `data/processed/dynamic_scores.parquet`
+- **Results**: `data/results/correlation_results.json`
+- **Logs**: `data/logs/pipeline.log` (includes memory usage and timing)
 
-Run unit and contract tests:
-```bash
-pytest tests/
-```
+## Verification
 
-Run integration tests with a small batch:
-```bash
-pytest tests/integration/test_pipeline.py --batch-size=5
-```
+After running, verify the results:
+
+1. **Check for errors**:
+   ```bash
+   grep "RESOURCE_LIMIT_EXCEEDED" data/logs/pipeline.log
+   ```
+   *Expected: No matches.*
+
+2. **Inspect results**:
+   ```bash
+   cat data/results/correlation_results.json | jq .
+   ```
+   *Look for `threshold_met: true` if the hypothesis is supported.*
+
+3. **Reproducibility**:
+   Run the pipeline again with the same seed (set in `requirements.txt` or env var `RANDOM_SEED=42`) and verify identical `correlation_results.json`.
 
 ## Troubleshooting
 
-- **Memory Errors**: Ensure no other heavy processes are running. The system is designed to stay under a specified memory footprint.
-- **Timeout Errors**: If the permutation test times out, check the logs for partial results. The system will flag results as "inconclusive" if the timeout triggers.
-- **CUDA Errors**: Ensure no GPU is detected. The system should run on CPU only. If CUDA is detected, set `CUDA_VISIBLE_DEVICES=""`.
+- **Memory Error**: If you encounter OOM, reduce `--subset-size` or the model size.
+- **Timeout**: If the job exceeds a prolonged duration, the pipeline will exit with code 1 and log `RESOURCE_LIMIT_EXCEEDED`.
+- **CUDA Detected**: If `torch.cuda.is_available()` is True, ensure the `requirements.txt` does not install `torch` with CUDA support (use `torch-cpu` wheel).

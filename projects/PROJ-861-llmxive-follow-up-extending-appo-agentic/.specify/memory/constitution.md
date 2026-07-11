@@ -37,27 +37,26 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-861-llmxive-follow-up-extending-appo-agentic.yaml` `updated_at` timestamp.
 
-### VI. Static-Dynamic Correlation Rigor
+### VI. Static-Dynamic Correlation Validation
 
-The core validity of this project relies on the statistical alignment between
-static co-occurrence metrics and dynamic policy outcomes. Every reported
-correlation coefficient (Pearson or Spearman) MUST be accompanied by the
-results of a 10,000-iteration permutation test to confirm significance (p <
-0.05). Residual analysis MUST be performed to explicitly categorize
-reasoning patterns (e.g., multi-step algebraic deductions vs. simple
-arithmetic) where static approximation fails, ensuring that high aggregate
-correlation does not mask critical local failures in specific reasoning
-domains.
+Every claim regarding the feasibility of replacing online rollouts with static
+pre-computation MUST be supported by a statistically significant correlation
+(Pearson or Spearman > 0.7, p < 0.05) between the "Static Branching Score"
+(KL divergence on frozen LLM inference) and the "Dynamic Branching Score"
+(APPO policy likelihood gains). This principle is grounded in the project's
+primary research question and the "Expected results" section, which defines
+the success metric as a moderate-to-strong positive correlation between these
+two specific metrics on GSM8K and MATH reasoning traces.
 
-### VII. CPU-First Computational Constraint
+### VII. Resource-Constrained Methodology Enforcement
 
-To validate the project's goal of democratizing agentic RL for
-resource-constrained hardware, the "Static Score Computation" phase MUST
-execute exclusively on CPU-only infrastructure without GPU acceleration.
-Performance metrics MUST include wall-clock time per inference pass to
-demonstrate that the static approximation is computationally feasible on
-standard hardware, directly addressing the motivation to reduce overhead
-associated with online rollouts.
+All static score computations MUST be executable on CPU-only environments using
+only the inference pass of a frozen decoder-only model (e.g., Phi-2 or
+Llama-3-8B). No GPU-accelerated training or online policy rollouts are permitted
+for the generation of static scores. This principle is explicitly grounded in
+the "Motivation" and "Methodology sketch" sections, which define the project's
+goal of democratizing agentic RL to resource-constrained hardware by eliminating
+the need for expensive online rollouts and GPU resources.
 
 ## Reproducibility Requirements
 

@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-861-llmxive-follow-up-extending-appo-agentic
-last_run_id: b2368459-7800-4278-8637-1cb4ffafbdf8
+last_run_id: 0a0131fb-2d38-48e0-aab2-4f71928acb40
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic
 title: 'llmXive follow-up: extending "APPO: Agentic Procedural Policy Optimization"'
-updated_at: '2026-07-11T04:14:50.653656Z'
+updated_at: '2026-07-11T04:36:28.630647Z'

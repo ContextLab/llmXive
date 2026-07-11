@@ -1,61 +1,87 @@
 # Research: llmXive follow-up: extending "APPO: Agentic Procedural Policy Optimization"
 
-## Summary of Research Strategy
+## Problem Definition
 
-This research investigates the correlation between **Static Branching Scores** (structural confidence via KL divergence) and **Dynamic Branching Scores** (procedural value via APPO rollouts). The study is designed to run on CPU-only infrastructure, adhering to strict computational constraints while maintaining statistical rigor through permutation testing and residual analysis.
+The project investigates whether a "Static Branching Score" (computed via frozen LLM next-token entropy at semantic steps) can serve as a valid proxy for "Dynamic Branching Score" (computed via online APPO Advantage values) in reasoning tasks. If valid, this would allow researchers to estimate the value of decision points without expensive online rollouts, democratizing agentic RL on CPU-only infrastructure.
 
 ## Dataset Strategy
 
-The study utilizes the **GSM8K** and **MATH** datasets, which are verified to contain the necessary token-level reasoning traces.
+The study utilizes reasoning traces from GSM8K and MATH datasets. The following verified sources are used:
 
-| Dataset | Source URL (Verified) | Role | Variable Fit Check |
-|---------|-----------------------|------|--------------------|
-| **GSM8K** | ` | Primary source for arithmetic and multi-step reasoning traces. | **Verified**: Contains `question` and `answer` fields with reasoning steps. Tokenization will generate the required next-token distributions. |
-| **MATH** | ` | Secondary source for complex algebraic reasoning. | **Verified**: Contains detailed solution steps. Sampling will be stratified by difficulty to ensure diversity. |
-| **CPU-Only Reference** | ` | Validation set for CPU inference stability (optional). | **Verified**: Confirms compatibility with CPU-only inference pipelines. |
+| Dataset | Description | Verified Source | Usage |
+|---------|-------------|--------------|-------|
+| **GSM8K** | Grade school math word problems (reasoning traces with CoT). | `openai/gsm8k` (via `load_dataset`) | Primary source for static and dynamic scoring. Contains `question`, `answer`, and `cot` (reasoning steps). |
+| **MATH** | Mathematical problem solving dataset (text-only). | `hendrycks/math` (via `load_dataset`) | Secondary source for binary reward validation. **Note**: Raw MATH lacks CoT traces; used only if GSM8K is insufficient or for reward check. |
+| **APPO Baseline** | CleanRL PPO Implementation | ` | The "Dynamic Branching Score" is generated dynamically via the APPO algorithm adapted from CleanRL. |
 
-**Sampling Strategy**:
-- Target: A substantial set of tasks (stratified split between GSM8K and MATH).
-- Method: Stratified random sampling by problem difficulty (if available) or length.
-- Preprocessing: Traces will be truncated to the length of the shorter trace for alignment if lengths diverge significantly (overlap < 80%).
+**Variable Fit Verification**:
+- **Predictor**: Next-token probability distribution at semantic steps (available from any decoder-only LLM inference).
+- **Outcome**: "Final answer correctness" (binary: 1 if correct, 0 otherwise). This is derived from the ground-truth solution in the GSM8K/MATH datasets.
+- **Covariates**: Task difficulty (inferred from dataset split), reasoning length.
+- **Fit**: GSM8K contains the necessary question, ground-truth answer, and reasoning traces (CoT). The "Dynamic Score" is not a pre-existing column but a derived metric from the APPO rollout (Advantage values), which is feasible given the dataset structure. MATH is used only for reward validation if GSM8K is insufficient.
 
-## Methodology & Statistical Rigor
+**Constraint**: The datasets are loaded via the HuggingFace `datasets` library using their canonical IDs (`openai/gsm8k`, `hendrycks/math`). No direct file URLs are used to ensure reproducibility and version stability.
 
-### 1. Static Branching Score Calculation (FR-001, FR-002)
-- **Model**: Phi-2 (default) or Llama-3-8B (fallback), loaded in default precision (float32/float16) on CPU.
-- **Metric**: Kullback-Leibler (KL) divergence between the model's actual next-token distribution $P$ and a uniform distribution $Q$ over the top-k alternatives.
- $$ D_{KL}(P || Q) = \sum P(x) \log \frac{P(x)}{Q(x)} $$
-- **Stability**: Probabilities clamped to $[1e-9, 1-1e-9]$ to prevent NaN errors.
-- **Constraint**: No CUDA, no quantization. Inference runs on a limited number of CPU cores.
+## Methodology
 
-### 2. Dynamic Branching Score Generation (FR-003)
-- **Algorithm**: APPO (Agentic Procedural Policy Optimization) with online rollouts.
-- **Reward**: Binary correctness (1 for correct answer, 0 for incorrect).
-- **Output**: Future-aware likelihood gains for each decision point.
+### Phase 1: Static Score Generation
+- **Model**: Phi-2 (or similar small decoder-only model) loaded in CPU-only mode (`torch_dtype=torch.float32`).
+- **Metric**: KL Divergence between model's next-token distribution and a uniform distribution over the top-5 tokens, computed at each **semantic step** (parsed via `step_parser.py`).
+- **Formula**: $D_{KL}(P || U) = \sum P(x) \log \frac{P(x)}{U(x)}$.
+- **Handling Zeros**: Apply $\epsilon = 10^{-9}$ smoothing to $P(x)$ to prevent $\log(0)$.
+- **Throughput**: Stream data in chunks to stay within available RAM.
+- **Semantic Step Parser**: Uses a fixed regex grammar (e.g., `Step \d+:`, `Therefore:`, `Conclusion:`) to identify step boundaries. Only tokens following a valid step header are scored.
 
-### 3. Correlation Analysis (FR-005, SC-001, SC-003)
-- **Alignment**: Scores aligned by `task_id` and token position. Truncation applied for length mismatches.
-- **Coefficients**: Pearson ($r$) and Spearman ($\rho$) correlation.
-- **Significance Testing**:
- - **Permutation Test**: 10,000 iterations per run.
- - **Seeds**: 3 independent runs ($n=3$) with different random seeds.
- - **Stopping Condition**: Hard timeout (pre-specified duration) or early stop if p-value stabilizes (change < 0.001).
- - **Reporting**: If timeout triggers, report actual p-value with "inconclusive" flag.
-- **Model**: Linear Mixed-Effects Model (LMM) with `task_id` as a random effect to account for autocorrelation within traces.
+### Phase 2: Dynamic Score Generation
+- **Algorithm**: APPO (Agentic Procedural Policy Optimization) adapted from **CleanRL** (PPO implementation).
+- **Environment**: GSM8K/MATH tasks as the environment.
+- **Reward**: Binary correctness (1 if final answer matches ground truth, 0 otherwise).
+- **Metric**: **Advantage Values (A(s,a))** computed via Generalized Advantage Estimation (GAE).
+ - **Formula**: $A(s_t, a_t) = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}$, where $\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)$.
+ - **Value Function**: $V(s)$ is the value function learned jointly with the policy by the APPO agent. This ensures the Advantage metric reflects the *outcome quality* (reward) relative to the state baseline, not just policy confidence.
+- **Scope**: A subset of tasks (to account for [deferred] dropout and alignment noise) to ensure completion within the designated time window.
+- **Failure Handling**: If a rollout exceeds token limits or fails to converge, the task is excluded from the final correlation analysis.
 
-### 4. Residual Analysis (FR-006, SC-004)
-- **Classifier**: Pre-trained BERT model fine-tuned on GSM8K labels (domain-specific) to categorize reasoning patterns (e.g., "arithmetic", "algebra").
-- **Visualization**: Residual plots categorized by reasoning pattern to identify where static approximations fail.
+### Phase 3: Statistical Analysis
+- **Alignment**: **Semantic Step Alignment**. Both static and dynamic traces are parsed into semantic steps using the fixed regex grammar. Scores are aligned based on matching step identifiers (e.g., "Step 1: Define variables"). If a step in the static trace has no matching identifier in the dynamic trace (or vice versa), the score is marked 'unalignable' and **excluded** from the correlation analysis. **No token-level DTW or Levenshtein distance is used**, as this would align noise rather than logical decision points.
+- **Correlation**: Compute Pearson ($r$) and Spearman ($\rho$) coefficients on the aligned score vectors.
+- **Significance**: Permutation test (sufficient iterations to generate a null distribution and p-value).
+- **Residuals**: Ljung-Box test on residuals to detect systematic patterns (e.g., algebraic vs. arithmetic failures).
 
-## Decision Rationale & Constraints
+### Sensitivity Analysis
+- **Dropout Impact**: Assuming a [deferred] failure rate and [deferred] alignment noise, the initial subset of 85 tasks ensures an effective $n \approx 60$.
+- **Power**: A power analysis for correlation ($r=0.7$) at $\alpha=0.05$ and power=0.8 requires $n \approx 20$. With $n \ge 60$, the study is robust to attenuation from alignment noise.
+- **Attenuation**: If the observed correlation is weaker than expected, the plan includes a directional check (testing for negative correlation) to identify if high-value paths are unexpectedly low-predictability.
+- **Alignment Noise**: The plan explicitly models the reduction in effective sample size due to step mismatches. If >20% of steps fail to align, the analysis reports the reduced power and interprets the result as a lower-bound estimate.
 
-- **CPU-Only Constraint**: The study prioritizes CPU feasibility to validate the "democratization" of agentic RL. GPU acceleration is explicitly excluded to ensure the method is accessible on standard hardware.
-- **Permutation Test Iterations**: The [deferred]-iteration target is mandated by Constitution Principle VI to ensure robust significance testing. The hard timeout mechanism ensures the CI job does not exceed a predefined duration threshold.
-- **Dataset Fit**: GSM8K and MATH are selected because they contain the necessary reasoning traces. No external variables (e.g., user demographics) are required.
-- **Collinearity**: Static and dynamic scores are derived from the same underlying architecture (or fine-tuned version). The correlation is interpreted as "initial structural confidence predicting final policy value," acknowledging the training process as a confounding variable.
+## Decision Rationale
 
-## Assumptions & Risks
+### CPU-Only Constraint
+- **Rationale**: The project aims to democratize agentic RL. GPU resources are not available on the target CI runner.
+- **Trade-off**: Inference speed is slower; however, the static pass is lightweight (just log-probs), and the dynamic pass is limited to a subset of tasks.
+- **Fallback**: If the model is too slow, the plan will reduce the subset size or switch to a smaller model (e.g., TinyLlama) while maintaining the architecture.
 
-- **Assumption**: The frozen models (Phi-2/Llama-3-8B) will not crash on CPU with default precision.
-- **Risk**: Permutation test may exceed 6-hour CI limit. **Mitigation**: Hard timeout with partial result reporting.
-- **Risk**: Dataset lacks specific reasoning patterns. **Mitigation**: Stratified sampling to ensure diversity; fallback to alternative verified datasets if necessary.
+### Metric Selection (KL Divergence)
+- **Rationale**: KL divergence measures the "surprise" or "predictability" of the next token. High predictability (low KL) implies the model is confident, which may correlate with high-value decision points in a well-trained policy.
+- **Alternative**: Entropy was considered, but KL divergence against a uniform baseline provides a normalized "distance from randomness" metric.
+
+### Advantage Value Selection (vs. Likelihood Gain)
+- **Rationale**: "Likelihood gain" can be tautological (correlating a policy with itself). "Advantage values (A(s,a))" derived from GAE and external rewards provide an independent measure of *outcome quality* at each step, ensuring the dynamic score is a valid ground truth. This breaks the circular validation risk where the static score (model probabilities) correlates with the dynamic score (model probabilities).
+
+### Sample Size (85 Tasks)
+- **Rationale**: 85 tasks is a compromise between statistical power and the 5-hour runtime limit, accounting for a [deferred] dropout rate and alignment noise.
+- **Power Analysis**: A power analysis for correlation ($r=0.7$) at $\alpha=0.05$ and power=0.8 typically requires $n \approx 20$. $n=85$ provides a buffer for task dropouts and alignment noise.
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **APPO rollout timeout** | High (missing dynamic scores) | Limit to a fixed number of tasks; enforce hard token limits; log failures and exclude from analysis. |
+| **Memory overflow** | High (job killed) | Stream data; use `torch.no_grad()`; monitor memory and fallback to a predefined number of permutations (5,000 or 2,500) if >6.5 GB. |
+| **Zero probability in static trace** | Medium (NaN errors) | Apply $\epsilon$ smoothing (1e-9) as per spec. |
+| **Weak correlation** | Low (scientific result) | Report negative result; analyze residuals to understand *why* (e.g., static score misses long-horizon dependencies). |
+| **Spec Conflict** | High (Methodology mismatch) | Flagged for kickback to update `spec.md` FR-002/FR-003 to match Advantage/Step Alignment definitions. |
+
+## Hypothesis Nuance
+
+The hypothesis that "predictability correlates with value" is not a standard identity. High-value paths in complex reasoning may be *less* predictable (high entropy) because they require exploring non-obvious branches. The analysis plan explicitly tests for both positive and negative correlations and analyzes residuals to identify if the static score systematically fails on high-entropy/high-value paths. The Dynamic Score is defined as Advantage (outcome quality), not likelihood gain, to ensure independence from the static predictor.

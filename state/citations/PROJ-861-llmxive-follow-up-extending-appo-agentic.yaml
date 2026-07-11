@@ -1,55 +1,13 @@
-- artifact_hash: de933d25722454a84072053fad50aaf6626ea09855e22bb155977a19bad1f5ac
-  artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: test-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1783746789&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NDY3ODl9fX1dfQ__&Signature=MEYCIQDulP78NbDa9xmbz01tZlYezgomK-8wW8aPfLY050DbCwIhAITKDiokjQEZ1eejj6zjl4CUcEP0iTn9TFXKdtZXeS5J&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T04:13:09.037633Z'
-- artifact_hash: de933d25722454a84072053fad50aaf6626ea09855e22bb155977a19bad1f5ac
-  artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/hendrycks/math/resolve/main/train-00000-of-00001.parquet`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/hendrycks/math/resolve/main/train-00000-of-00001.parquet
-  verified_at: '2026-07-11T04:13:09.037633Z'
-- artifact_hash: 9bf22f159d72cf33d3f72b3235b2e5fc40520c2a767507371ddcdc3086598e3b
+- artifact_hash: a611c32de82e0cd0a7b1427f3a5523e23d3ff71948293b2110d542871a67e610
   artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: test-00000-of-00001.parquet
+  fetched_title: "GitHub - vwxyzjn/cleanrl: High-quality single file implementation\
+    \ of Deep Reinforcement Learning algorithms with research-friendly features (PPO,\
+    \ DQN, C51, DDPG, TD3, SAC, PPG) \xB7 GitHub"
   kind: url
-  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet`
+  value: https://github.com/vwxyzjn/cleanrl`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783746836&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NDY4MzZ9fX1dfQ__&Signature=MEYCIQDjHLLDiOXXTexumeP9EUtG3XmtUDvFWLNyls1Lyp3BdQIhAN2Eceh0rUmlr0d8UyvjoyS7xMQ99v93Vlx2wlXK0R7C&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T04:13:56.727127Z'
-- artifact_hash: 9bf22f159d72cf33d3f72b3235b2e5fc40520c2a767507371ddcdc3086598e3b
-  artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00114-5a023365406cb9c4.parquet
-  kind: url
-  value: https://huggingface.co/datasets/open-web-math/open-web-math/resolve/main/data/train-00000-of-00114-5a023365406cb9c4.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64f7c6e8baa3b4ec4e37b1d8/4a739c2d81271524b2c553cf4d42d553c9c9c976a2f07975550873417c8b5961?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00114-5a023365406cb9c4.parquet%3B+filename%3D%22train-00000-of-00114-5a023365406cb9c4.parquet%22%3B&user_id=public&Expires=1783746837&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmN2M2ZThiYWEzYjRlYzRlMzdiMWQ4LzRhNzM5YzJkODEyNzE1MjRiMmM1NTNjZjRkNDJkNTUzYzljOWM5NzZhMmYwNzk3NTU1MDg3MzQxN2M4YjU5NjFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAxMTQtNWEwMjMzNjU0MDZjYjljNC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAxMTQtNWEwMjMzNjU0MDZjYjljNC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NDY4Mzd9fX1dfQ__&Signature=MEUCIHVULKREkbFLbyfphHPFCK2euLAGnPoOpSVze9wUnbrGAiEAoKKrZkDpR%7EunQpGHqzxFR5BDivttkit6qozqvRm8DQA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T04:13:56.727127Z'
-- artifact_hash: 9bf22f159d72cf33d3f72b3235b2e5fc40520c2a767507371ddcdc3086598e3b
-  artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67e62aa67dac83cb62dbeb68/56dfb335c9b1ba64858f209c312c0679964a3d5c6320deb1457b008fe0b28e85?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&Expires=1783746883&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdlNjJhYTY3ZGFjODNjYjYyZGJlYjY4LzU2ZGZiMzM1YzliMWJhNjQ4NThmMjA5YzMxMmMwNjc5OTY0YTNkNWM2MzIwZGViMTQ1N2IwMDhmZTBiMjhlODVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzc0Njg4M319fV19&Signature=MEUCIB20SsQtPrGBoYMJwqvGthlJhhy%7EQjDoIy2fkoZ7gQSYAiEA13F6KQ3rE%7EKfM-XINbyEfmHuoy5180bHgF4v1y1AD7Y_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T04:13:56.727127Z'
+  verified_against_url: https://github.com/vwxyzjn/cleanrl
+  verified_at: '2026-07-11T04:36:12.491036Z'

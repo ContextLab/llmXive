@@ -1,53 +1,52 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: "Reasoning Trace Dataset Schema"
-description: "Schema for the aligned static and dynamic branching scores dataset."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReasoningTrace Dataset Schema"
 type: object
+description: "Schema for the processed reasoning trace data including static and dynamic scores."
 properties:
-  task_id:
+  trace_id:
     type: string
-    description: "Unique identifier for the problem instance."
+    description: "Unique identifier for the trace (UUID)."
   dataset:
     type: string
-    description: "Source dataset (e.g., 'gsm8k', 'math')."
+    description: "Source dataset name (e.g., 'gsm8k', 'math')."
     enum:
       - "gsm8k"
       - "math"
   question:
     type: string
-    description: "The original problem statement."
+    description: "The problem text."
   ground_truth:
     type: string
     description: "The correct answer."
-  tokens:
+  reasoning_steps:
     type: array
     items:
       type: string
-    description: "Tokenized sequence of the reasoning trace."
+    description: "List of intermediate reasoning steps (semantic steps)."
   static_scores:
     type: array
     items:
       type: number
-    description: "KL divergence scores for each token position."
+    description: "KL divergence scores for each semantic step index."
   dynamic_scores:
     type: array
     items:
       type: number
-    description: "APPO likelihood gains for each token position."
-  reasoning_pattern:
+    description: "APPO Advantage values (A(s,a)) for each semantic step index."
+  status:
     type: string
-    description: "Classified pattern (e.g., 'arithmetic', 'algebra')."
+    description: "Processing status."
     enum:
-      - "arithmetic"
-      - "algebra"
-      - "geometry"
-      - "other"
+      - "completed"
+      - "dropped_timeout"
+      - "dropped_failure"
 required:
-  - task_id
+  - trace_id
   - dataset
   - question
   - ground_truth
-  - tokens
+  - reasoning_steps
   - static_scores
   - dynamic_scores
-  - reasoning_pattern
+  - status
 additionalProperties: false

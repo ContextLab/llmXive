@@ -1,188 +1,110 @@
 # Implementation Plan: llmXive follow-up: extending "APPO: Agentic Procedural Policy Optimization"
 
-**Branch**: `001-llmxive-appo-static-branching` | **Date**: 2026-07-11 | **Spec**: `specs/001-llmxive-static-branching/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-static-branching/spec.md`
+**Branch**: `001-llmxive-followup` | **Date**: 2026-07-04 | **Spec**: `specs/001-llmxive-followup/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-followup/spec.md`
 
 ## Summary
 
-This project implements a comparative analysis between **Static Branching Scores** (derived from KL divergence of next-token distributions on a frozen model) and **Dynamic Branching Scores** (derived from APPO online rollouts). The primary goal is to validate the hypothesis that structural confidence (static) is a necessary but not sufficient predictor of procedural value (dynamic). The implementation strictly adheres to CPU-only constraints for the static phase to demonstrate feasibility on resource-constrained hardware (GitHub Actions free tier), while performing rigorous statistical correlation analysis (Pearson, Spearman, permutation tests) with specific attention to residual patterns in mathematical reasoning.
+This feature implements a CPU-only validation pipeline to test the hypothesis that a "Static Branching Score" (derived from frozen LLM next-token entropy/KL divergence at semantic steps) correlates with a "Dynamic Branching Score" (derived from APPO Advantage values on online rollouts). The implementation covers three phases: (1) Static score generation on GSM8K/MATH traces using a frozen decoder-only model (e.g., Phi-2) in CPU mode; (2) Dynamic score generation on a subset of tasks using the APPO algorithm with Advantage estimation (A(s,a)) based on binary reward signals; and (3) Statistical alignment and correlation analysis (Pearson/Spearman + permutation tests) to validate the proxy metric. The solution strictly adheres to the 7 GB RAM and 6-hour runtime constraints of free-tier GitHub Actions runners, avoiding GPU dependencies and large-model training.
+
+> **Spec Conflict Note**: The source `spec.md` FR-002 and FR-003 mandate "likelihood gains" and "DTW/edit distance" respectively. This plan implements the scientifically necessary revisions (Advantage values, semantic step alignment) as per panel feedback. A kickback is required to update `spec.md` to match these definitions.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `torch` (CPU-only), `transformers`, `datasets`, `scikit-learn`, `scipy`, `pandas`, `matplotlib`, `seaborn`, `statsmodels`
-**Storage**: Local JSON/Parquet files in `data/` (checksummed), `data/derived/`
-**Testing**: `pytest` (unit/contract), `pytest-timeout` for CI limits
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7GB RAM, No GPU)
-**Project Type**: Computational Research / Data Analysis Pipeline
-**Performance Goals**:
-- Static Inference: < 2 minutes per task (sampled subset of 50 tasks for full test).
-- Correlation Analysis: Permutation test (10k iters per seed) on task-level aggregated data must complete within 4 hours.
-- Total CI Job: < 6 hours.
-**Constraints**:
-- **NO GPU/CUDA**: All inference and training (if any) must run on CPU.
-- **NO Quantization**: Use default precision (float32/float16) with numerical stabilization (clamping).
-- **Dataset Fit**: Must use **GSM8K** and **`hendrycks/math`** datasets only. No fallback to unverified alternatives.
-- **Statistical Rigor**: Permutation test target **10,000 iterations PER SEED RUN** (n=3 seeds). Must run on **task-level aggregated scores** (N=500) to ensure independence and feasibility.
-- **Model Specifics**: Default model **`microsoft/phi-2`**, fallback **`meta-llama/Meta-Llama-3-8B`**.
-- **Statistical Model**: **Linear Mixed-Effects Model (LMM)** with `task_id` as random effect is MANDATORY. Standard regression is FORBIDDEN.
-- **Residual Analysis**: Must use **rule-based keyword classifier** (regex) validated by manual audit, NOT a generic BERT model.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `transformers` (CPU-only), `datasets`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `torch` (CPU wheel), `huggingface_hub`, `cleanrl` (for APPO base)  
+**Storage**: Local temporary files in `data/` (parquet/jsonl), checksummed via `data/` hygiene protocols.  
+**Testing**: `pytest` with unit tests for score calculation logic and integration tests for the full pipeline (mocked for APPO rollout *only* in tests).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7 GB RAM).  
+**Project Type**: Research pipeline / CLI tool.  
+**Performance Goals**: Static score pass < 30 mins; Dynamic generation < 4.5 hours; Analysis < 30 mins. Total < 6 hours.  
+**Constraints**: No GPU/CUDA; no 8-bit quantization; memory < 7 GB peak; time < 6 hours; must handle log(0) via epsilon smoothing; must exclude failed rollouts.  
+**Scale/Scope**: Static pass on ~ tasks (to account for dropouts and alignment noise); Dynamic pass on subset; Analysis on aligned valid tasks.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Strategy |
-|-----------|--------|-----------------------|
-| **I. Reproducibility** | **PASS** | `requirements.txt` pins versions; random seeds pinned in `code/`; datasets fetched from canonical HF URLs (`openai/gsm8k`, `hendrycks/math`). |
-| **II. Verified Accuracy** | **PASS** | All dataset URLs cited from the `# Verified datasets` block. Residual analysis uses **rule-based keyword classifier** with **manual validation** protocol (audit of n=50 samples) to ensure ground truth accuracy. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved; derivations written to new files; checksums recorded in state. |
-| **IV. Single Source of Truth** | **PASS** | All stats trace to `data/` rows; no hand-typed numbers in `paper/`. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked; `updated_at` timestamps managed by agent. |
-| **VI. Static-Dynamic Correlation Rigor** | **PASS** | Plan mandates **10,000-iteration** permutation test **PER SEED RUN** (n=3). Hard requirement: <10k iterations results in "inconclusive" status. Residual analysis by reasoning pattern via rule-based classifier. p < 0.05 threshold. |
-| **VII. CPU-First Computational Constraint** | **PASS** | Static inference runs on CPU only; memory profiling included; no CUDA/8-bit quantization. Task-level aggregation ensures 10k iterations fit within 6h limit. |
+| Principle | Compliance Status | Notes |
+|-----------|-------------------|-------|
+| **I. Reproducibility** | **Compliant** | Plan mandates pinned seeds, `requirements.txt` at `code/`, and re-runnable scripts on fresh runners. |
+| **II. Verified Accuracy** | **Compliant** | Plan requires citing only verified dataset IDs (e.g., `openai/gsm8k`, `cleanrl`) and standard libraries; no invented URLs. |
+| **III. Data Hygiene** | **Compliant** | Plan mandates checksums for raw data in `data/`, no in-place modification, and PII scanning. |
+| **IV. Single Source of Truth** | **Compliant** | All figures/stats in the final paper must trace to `data/` rows and `code/` blocks. |
+| **V. Versioning Discipline** | **Compliant** | Plan includes content hashing for artifacts and timestamp updates in state YAML. |
+| **VI. Static-Dynamic Correlation** | **Compliant** | The core plan (Phase 3) is explicitly designed to compute Pearson/Spearman and p-values to validate this principle using Advantage values derived from external rewards. |
+| **VII. Resource-Constrained** | **Compliant** | Plan explicitly forbids GPU/CUDA, quantization, and large training runs; mandates CPU-only inference and streaming. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-llmxive-static-branching/
-├── plan.md # This file
-├── research.md # Phase 0 output
-├── data-model.md # Phase 1 output
-├── quickstart.md # Phase 1 output
-├── contracts/ # Phase 1 output
-│ ├── dataset.schema.yaml
-│ ├── dataset_schema.schema.yaml
-│ ├── output.schema.yaml
-│ ├── output_schema.schema.yaml
-│ ├── aligned_scores.schema.yaml
-│ └── residual_analysis_schema.schema.yaml
-└── tasks.md # Phase 2 output (generated by /speckit-tasks)
+specs/001-llmxive-followup/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/
-├── code/
-│ ├── __init__.py
-│ ├── config.py # Hyperparams, seeds, dataset paths
-│ ├── data/
-│ │ ├── loader.py # GSM8K/MATH loading & sampling
-│ │ └── preprocess.py # Truncation, alignment logic
-│ ├── static/
-│ │ ├── __init__.py
-│ │ └── scorer.py # KL divergence calculation (CPU)
-│ ├── dynamic/
-│ │ ├── __init__.py
-│ │ └── appo_runner.py # APPO rollout simulation
-│ ├── analysis/
-│ │ ├── __init__.py
-│ │ ├── correlation.py # Pearson/Spearman, Permutation test (task-level)
-│ │ ├── lmm.py # Linear Mixed-Effects Model
-│ │ └── residuals.py # Rule-based classifier & residual visualization
-│ └── main.py # Orchestration script
-├── tests/
-│ ├── contract/
-│ │ └── test_schemas.py # Validates against contracts/*.yaml
-│ ├── unit/
-│ │ └── test_scorer.py # KL divergence edge cases
-│ └── integration/
-│ └── test_pipeline.py # End-to-end small batch
-├── data/
-│ ├── raw/ # Downloaded datasets (checksummed)
-│ └── derived/ # Processed scores, aligned traces
-├── docs/
-│ └── paper/ # Draft manuscript
-└── requirements.txt # Pinned dependencies
+src/
+├── models/              # Data classes for ReasoningTrace, BranchingScore, CorrelationResult
+├── services/
+│   ├── static_scorer.py # KL divergence calculation (CPU-only)
+│   ├── dynamic_scorer.py# APPO rollout wrapper (subset)
+│   ├── step_parser.py   # Semantic Step Parser (regex-based)
+│   └── analyzer.py      # Alignment, correlation, permutation tests
+├── cli/
+│   └── run_pipeline.py  # Entry point: static -> dynamic -> analyze
+└── lib/
+    └── utils.py         # Epsilon smoothing, memory monitoring, logging
+
+tests/
+├── contract/            # Schema validation tests
+├── integration/         # End-to-end pipeline tests (mocked APPO if needed)
+└── unit/                # Unit tests for score calculations
+
+data/
+├── raw/                 # Downloaded datasets (checksummed)
+├── processed/           # Intermediate score files
+└── results/             # Final correlation outputs
 ```
 
-**Structure Decision**: Single project structure (`code/`) selected to minimize overhead and align with the "CPU-First" constraint, ensuring all components (data loading, inference, analysis) share the same lightweight environment. The separation into `static/`, `dynamic/`, and `analysis/` modules ensures modularity for testing and reproducibility.
+**Structure Decision**: Single project structure (`src/`, `tests/`, `data/`) selected to maintain simplicity for a research pipeline. No frontend/backend split required. The `cli/` entry point ensures reproducibility via a single command.
 
 ## Complexity Tracking
 
-> **Mandatory Constraints** (Not Violations)
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Constraint | Why Needed | Simpler Alternative Rejected Because |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Linear Mixed-Effects Model (LMM)** | Required to handle autocorrelation in token-level scores within the same task (random effect: `task_id`). | Standard regression assumes independence of observations, which is violated by sequential token data, leading to inflated Type I errors. |
-| **Rule-Based Keyword Classifier** | Required by FR-006 and Constitution Principle II to categorize residuals by reasoning pattern (e.g., algebra vs. arithmetic). | Generic BERT lacks the fine-tuned knowledge to distinguish mathematical reasoning patterns accurately (GSM8K lacks pattern labels), and a fine-tuned model cannot be verified without ground truth. Rule-based + manual audit ensures "Verified Accuracy". |
-| **Permutation Test (10k iters per seed)** | Required by Constitution Principle VI to robustly establish significance (p < 0.05) against the null hypothesis. | Fewer iterations (e.g., 1000) may lack power to detect subtle correlations or may yield unstable p-values, failing the "Static-Dynamic Correlation Rigor" constraint. Task-level aggregation ensures feasibility. |
+| **N/A** | Constitution Check passed. | N/A |
 
+## FR/SC Coverage Map
 
-## projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/research.md
+| ID | Coverage in Plan |
+|----|------------------|
+| **FR-001** (Static Score) | Phase 1: `static_scorer.py` implements KL divergence vs uniform top-5 at semantic steps (parsed by `step_parser.py`). |
+| **FR-002** (Dynamic Score) | Phase 2: `dynamic_scorer.py` runs APPO (via CleanRL) on subset with **Advantage estimation (A(s,a))** derived from binary rewards, not likelihood gains. |
+| **FR-003** (Alignment) | Phase 3: `analyzer.py` aligns **semantic step identifiers** (extracted via regex) between static and dynamic traces. Steps without matching identifiers are excluded from correlation. |
+| **FR-004** (Correlation) | Phase 3: `analyzer.py` computes Pearson/Spearman. |
+| **FR-005** (Permutation) | Phase 3: `analyzer.py` runs a sufficient number of iterations. **Explicit fallback**: If memory > 6.5 GB or time remaining < 30 mins, iterations reduce to a substantially lower count to ensure job completion (SC-003/SC-004). |
+| **FR-006** (Resource Limits) | Phase 0 & 1: Memory monitoring wrapper; streaming data; timeout handlers. |
+| **SC-001** (r > 0.7) | Phase 3: Threshold check in `analyzer.py`. |
+| **SC-002** (p < 0.05) | Phase 3: Significance check in `analyzer.py`. |
+| **SC-003** (Time < 5h) | Phase 0: Runtime estimation and chunking strategy. |
+| **SC-004** (Mem < 7GB) | Phase 0: Memory profiling and chunking. |
+| **SC-005** (Residuals) | Phase 3: Ljung-Box test implementation in `analyzer.py`. |
 
-# Research: llmXive follow-up: extending "APPO: Agentic Procedural Policy Optimization"
+## Testing Strategy
 
-## Summary of Research Strategy
-
-This research investigates the correlation between **Static Branching Scores** (structural confidence via KL divergence) and **Dynamic Branching Scores** (procedural value via APPO rollouts). The study is designed to run on CPU-only infrastructure, adhering to strict computational constraints while maintaining statistical rigor through permutation testing and residual analysis.
-
-## Dataset Strategy
-
-The study utilizes the **GSM8K** and **MATH** datasets, which are verified to contain the necessary token-level reasoning traces.
-
-| Dataset | Source URL (Verified) | Role | Variable Fit Check |
-|---------|-----------------------|------|--------------------|
-| **GSM8K** | ` | Primary source for arithmetic and multi-step reasoning traces. | **Verified**: Contains `question` and `answer` fields with reasoning steps. Tokenization will generate the required next-token distributions. |
-| **MATH** | `https://huggingface.co/datasets/hendrycks/math/resolve/main/train-00000-of-00001.parquet` | Secondary source for complex algebraic reasoning. | **Verified**: Contains detailed solution steps and `level` field for stratification. Sampling will be stratified by difficulty to ensure diversity. |
-
-**Sampling Strategy**:
-- Target: A substantial number of tasks total (stratified split between GSM8K and MATH).
-- **Subset for Heavy Computation**: 50 tasks selected for full static inference + dynamic rollout + 10k-iteration permutation test.
-- **Subset for Aggregation**: Remaining 450 tasks used for dynamic scoring and final correlation on task-level aggregates.
-- Method: Stratified random sampling by problem difficulty (if available) or length.
-- Preprocessing: Traces will be truncated to the length of the shorter trace for alignment if lengths diverge significantly (overlap < 80%).
-
-## Methodology & Statistical Rigor
-
-### 1. Static Branching Score Calculation (FR-001, FR-002)
-- **Model**: Default **`microsoft/phi-2`**, fallback **`meta-llama/Meta-Llama-3-8B`**, loaded in default precision (float32/float16) on CPU.
-- **Metric**: Kullback-Leibler (KL) divergence between the model's actual next-token distribution $P$ and a uniform distribution $Q$ over the top-k alternatives.
- $$ D_{KL}(P || Q) = \sum P(x) \log \frac{P(x)}{Q(x)} $$
-- **Stability**: Probabilities clamped to $[1e-9, 1-1e-9]$ to prevent NaN errors.
-- **Constraint**: No CUDA, no quantization. Inference runs on a limited number of CPU cores.
-
-### 2. Dynamic Branching Score Generation (FR-003)
-- **Algorithm**: APPO (Agentic Procedural Policy Optimization) with online rollouts.
-- **Reward**: Binary correctness (1 for correct answer, 0 for incorrect).
-- **Output**: Future-aware likelihood gains for each decision point.
-- **Note**: The APPO policy is **fine-tuned** from the frozen model used for Static scores. This acknowledges the confounding variable; the hypothesis is "does initial structural confidence predict fine-tuned value?".
-
-### 3. Correlation Analysis (FR-005, SC-001, SC-003)
-- **Alignment**: Scores aligned by `task_id` and token position. Truncation applied for length mismatches.
-- **Aggregation**: **Task-level aggregation** used for the primary permutation test to ensure independence of observations (N=500 tasks).
-- **Coefficients**: Pearson ($r$) and Spearman ($\rho$) correlation on task-level aggregates.
-- **Significance Testing**:
- - **Permutation Test**: **10,000 iterations PER SEED RUN** (n=3 seeds). Total target: a sufficient number of iterations to ensure convergence.
- - **Stopping Condition**: Hard timeout (4 hours) or early stop if p-value stabilizes (change < 0.001).
- - **Reporting**: If timeout triggers, report actual p-value with "inconclusive" flag. **<10k iterations per seed is not a pass for Principle VI.**
-- **Model**: **Linear Mixed-Effects Model (LMM)** with `task_id` as a random effect to account for autocorrelation within traces (Mandatory Constraint).
-
-### 4. Residual Analysis (FR-006, SC-004)
-- **Classifier**: **Rule-based keyword classifier** (regex patterns for "algebra", "geometry", "arithmetic") validated against a **manually annotated subset (n=50)**. This replaces the invalid BERT approach (GSM8K lacks pattern labels).
-- **Visualization**: Residual plots categorized by reasoning pattern to identify where static approximations fail.
-
-## Tautology Mitigation & Assumptions
-
-- **Tautology Mitigation**: The study acknowledges that the Static Score is a function of model uncertainty and the Dynamic Score is derived from the same model. The hypothesis is not that they are independent, but that **structural confidence (static)** predicts **procedural success (dynamic)** beyond chance. The correlation is interpreted as a measure of alignment between initial structure and final value.
-- **Assumption**: The frozen models (Phi-2/Llama-3-8B) will not crash on CPU with default precision.
-- **Risk**: Permutation test may exceed 6-hour CI limit. **Mitigation**: Task-level aggregation reduces compute time; dynamic iteration cap (max 10k, but capped at 2k if estimated time > 4h) ensures completion.
-- **Risk**: Dataset lacks specific reasoning patterns. **Mitigation**: Rule-based classifier + manual validation ensures ground truth.
-
-## Power & Limitations
-
-- **Sample Size**: 500 tasks is limited for subgroup analysis (residuals). Subgroup results will be **descriptive** (mean residuals, counts) rather than inferential (p-values).
-- **Statistical Power**: The primary hypothesis test relies on the permutation test's robustness (10k iterations) rather than asymptotic normality.
-- **Compute Feasibility**: Task-level aggregation (N=500) makes the 10k-iteration target feasible within 6 hours. Token-level aggregation (N=thousands) would be infeasible.
-
-## Decision Rationale & Constraints
-
-- **CPU-Only Constraint**: The study prioritizes CPU feasibility to validate the "democratization" of agentic RL. GPU acceleration is explicitly excluded to ensure the method is accessible on standard hardware.
-- **Permutation Test Iterations**: The [deferred]-iteration target is mandated by Constitution Principle VI to ensure robust significance testing. The hard timeout mechanism ensures the CI job does not exceed 6 hours.
-- **Dataset Fit**: GSM8K and `hendrycks/math` are selected because they contain the necessary reasoning traces. No external variables (e.g., user demographics) are required.
-- **Collinearity**: Static and dynamic scores are derived from the same underlying architecture (or fine-tuned version). The correlation is interpreted as "initial structural confidence predicting final policy value," acknowledging the training process as a confounding variable.
+- **Unit Tests**: Verify KL divergence calculation, epsilon smoothing, and Advantage estimation logic.
+- **Integration Tests**: Run the full pipeline on a *mocked* APPO environment (pre-computed Advantage values) to verify data flow and schema compliance.
+- **Research Run Constraint**: **Mocks are strictly forbidden in the research run.** The actual research execution (Phase 2) MUST use the real APPO implementation (CleanRL) on the dataset. If the real APPO run fails to complete within constraints, the job must fail (exit code 1) rather than fall back to mocks, ensuring validity per Constitution Principle VI.

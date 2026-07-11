@@ -2,56 +2,56 @@
 
 ## Overview
 
-This document defines the data structures used to store reasoning traces, branching scores, and analysis results. All data is stored in JSON/Parquet formats to ensure reproducibility and compatibility with the analysis pipeline.
+This document defines the data structures for the static and dynamic branching scores, the alignment process, and the final correlation results. All data is stored in `data/` with checksums.
 
-## Key Entities
+## Entities
 
-### 1. Reasoning Trace
-A sequence of tokens representing a solution path for a math problem.
+### 1. ReasoningTrace
+Represents a single problem instance from GSM8K or MATH.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `task_id` | `string` | Unique identifier for the problem instance. |
-| `dataset` | `string` | Source dataset (e.g., "gsm8k", "math"). |
-| `question` | `string` | The original problem statement. |
-| `ground_truth` | `string` | The correct answer. |
-| `tokens` | `list[string]` | Tokenized sequence of the reasoning trace. |
-| `static_scores` | `list[float]` | KL divergence scores for each token position. |
-| `dynamic_scores` | `list[float]` | APPO likelihood gains for each token position. |
-| `reasoning_pattern` | `string` | Classified pattern (e.g., "arithmetic", "algebra"). |
+| Field | Type | Description | Source |
+|-------|------|-------------|--------|
+| `trace_id` | `string` | Unique identifier for the trace. | Generated (UUID) |
+| `dataset` | `string` | Source dataset name (e.g., "gsm8k", "math"). | Input |
+| `question` | `string` | The problem text. | Input |
+| `ground_truth` | `string` | The correct answer. | Input |
+| `reasoning_steps` | `list<string>` | List of intermediate reasoning steps (semantic steps extracted via fixed regex). | Input |
+| `static_scores` | `list<dict>` | List of objects: `{"step_id": string, "score": float}` for each valid semantic step. | Derived |
+| `dynamic_scores` | `list<dict>` | List of objects: `{"step_id": string, "score": float}` for each valid semantic step. | Derived |
+| `status` | `string` | "completed", "dropped_timeout", "dropped_failure". | System |
 
-### 2. Branching Score
-A numeric value representing the "decision value" at a specific token position.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `task_id` | `string` | Reference to the parent trace. |
-| `token_position` | `int` | Index of the token in the sequence. |
-| `score_type` | `string` | "static" or "dynamic". |
-| `value` | `float` | The calculated score. |
-
-### 3. Correlation Result
-Aggregated statistical results from the analysis.
+### 2. BranchingScore
+A single score instance (either static or dynamic).
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `run_id` | `string` | Unique identifier for the correlation run (seed). |
+| `step_id` | `string` | Semantic step identifier (e.g., "Step 1: Define variables"). |
+| `score` | `float` | The calculated score (KL divergence or Advantage value). |
+| `type` | `string` | "static" or "dynamic". |
+| `context` | `string` | The text of the reasoning step at this identifier. |
+
+### 3. CorrelationResult
+The final output of the analysis phase.
+
+| Field | Type | Description |
+|-------|------|-------------|
 | `pearson_r` | `float` | Pearson correlation coefficient. |
 | `spearman_rho` | `float` | Spearman rank correlation coefficient. |
-| `p_value` | `float` | P-value from the permutation test. |
-| `iterations` | `int` | Number of permutation iterations performed. |
-| `status` | `string` | "complete", "timeout", or "inconclusive". |
-| `residual_summary` | `dict` | Summary of residuals by reasoning pattern. |
+| `p_value` | `float` | P-value from permutation test. |
+| `n_pairs` | `integer` | Number of aligned score pairs. |
+| `residuals` | `list[float]` | List of residuals (static - dynamic). |
+| `ljung_box_p` | `float` | P-value from Ljung-Box test on residuals. |
+| `threshold_met` | `boolean` | True if `pearson_r > 0.7` and `p_value < 0.05`. |
 
 ## Data Flow
 
-1. **Raw Data**: Downloaded from HuggingFace (GSM8K, MATH) and stored in `data/raw/`.
-2. **Processed Traces**: Tokenized and scored by `static/scorer.py` and `dynamic/appo_runner.py`, stored in `data/derived/traces.jsonl`.
-3. **Aligned Scores**: Traces aligned by token position, stored in `data/derived/aligned_scores.parquet`.
-4. **Analysis Results**: Correlation and residual analysis results stored in `data/derived/correlation_results.jsonl`.
+1. **Raw Data Ingestion**: GSM8K/MATH parquet files are downloaded to `data/raw/` via `load_dataset`.
+2. **Static Processing**: `static_scorer.py` reads raw data, extracts semantic steps via `step_parser.py`, computes `static_scores` at semantic steps, and writes to `data/processed/static_scores.parquet`.
+3. **Dynamic Processing**: `dynamic_scorer.py` reads raw data, runs APPO, computes `dynamic_scores` (Advantage values), and writes to `data/processed/dynamic_scores.parquet`.
+4. **Alignment & Analysis**: `analyzer.py` joins the two files, aligns based on **step_id** (semantic step identifier), computes correlations, and writes to `data/results/correlation_results.json`.
 
-## Constraints
+## Storage Constraints
 
-- **No PII**: No personally identifiable information is included in any dataset.
-- **Checksums**: All raw data files are checksummed and recorded in `state/`.
-- **Immutability**: Raw data is never modified; derivations are written to new files.
+- **Format**: Parquet for intermediate data (efficient columnar storage); JSON for final results.
+- **Size Limit**: The size of the `data/` directory must be constrained to a manageable limit appropriate for the research infrastructure.
+- **Memory**: Streaming processing ensures peak RAM < 7 GB.
