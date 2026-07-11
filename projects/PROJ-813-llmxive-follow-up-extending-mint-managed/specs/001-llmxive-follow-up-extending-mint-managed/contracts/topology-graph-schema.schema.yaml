@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Topology Graph Schema
+description: Defines the structure of the pairwise parameter overlap matrix (sparse).
+type: object
+properties:
+  num_nodes:
+    type: integer
+    description: "Number of adapters in the graph."
+    minimum: 1
+  num_edges:
+    type: integer
+    description: "Number of non-zero edges in the sparse matrix."
+    minimum: 0
+  format:
+    type: string
+    description: "Storage format of the matrix."
+    enum:
+      - csr
+      - csc
+      - coo
+  is_symmetric:
+    type: boolean
+    description: "Indicates if the overlap matrix is symmetric."
+    const: true
+  has_nan:
+    type: boolean
+    description: "Indicates if the matrix contains NaN values (must be false)."
+    const: false
+  has_inf:
+    type: boolean
+    description: "Indicates if the matrix contains Infinite values (must be false)."
+    const: false
+  edge_weight_metric:
+    type: string
+    description: "The metric used to calculate edge weights."
+    enum:
+      - jaccard_similarity
+      - cosine_similarity
+      - euclidean_distance
+required:
+  - num_nodes
+  - num_edges
+  - format
+  - is_symmetric
+  - has_nan
+  - has_inf
+  - edge_weight_metric
+additionalProperties: false

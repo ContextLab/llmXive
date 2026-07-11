@@ -37,29 +37,27 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-813-llmxive-follow-up-extending-mint-managed.yaml` `updated_at` timestamp.
 
-### VI. Simulation Validity and Discrete-Event Fidelity
+### VI. Simulation Determinism & Topological Fidelity
 
-All performance metrics (cold-start latency, eviction rates, wall-clock time)
-MUST be derived exclusively from the discrete-event simulation environment
-implemented in `code/` using SimPy. The simulation logic must explicitly
-model MinT's memory constraints and adapter loading mechanics as described
-in the methodology. Synthetic datasets (10,000 LoRA adapters, 10^6 request
-trace) MUST be generated deterministically from pinned seeds to ensure the
-"LoRA Topology Graph" and subsequent scheduling evaluations are reproducible.
-Any deviation between the simulation's internal time counter and the reported
-latency metrics is a violation of this principle.
+All discrete-event simulations utilizing the SimPy environment MUST be
+configured to produce identical wall-clock time trajectories for identical
+input seeds, ensuring that performance gains attributed to the "Topological
+Lookahead" policy are not artifacts of simulation randomness. The constructed
+"LoRA Topology Graph" (pairwise parameter overlap matrix) MUST be derived
+strictly from the synthesized 10,000 adapters' rank and sparsity patterns
+without leakage from the access trace, preserving the independence of the
+topology generation from the workload dynamics as specified in the
+Methodology sketch.
 
-### VII. Topological Signal Grounding
+### VII. Statistical Rigor in Latency Evaluation
 
-The "Topological Lookahead" scheduling policy MUST be implemented strictly
-using the pairwise parameter overlap matrix derived from the synthesized
-LoRA adapters. Claims regarding performance improvements (targeting ≥15%
-reduction in cold-start latency) MUST be directly attributable to the
-clustering and pre-fetching logic based on this specific overlap graph,
-not to generic frequency heuristics. The statistical significance of results
-MUST be established via paired t-tests or non-parametric equivalents comparing
-the Topological Lookahead policy against the FCFS baseline using the exact
-same access trace.
+Comparative analysis between the "Topological Lookahead" policy and the FCFS
+baseline MUST employ paired t-tests (or non-parametric equivalents where
+normality fails) on the full distribution of latency measurements across the
+10^6 request trace. Claims of "at least 15% reduction" in cold-start latency
+MUST be supported by the resulting p-values and confidence intervals,
+preventing over-interpretation of marginal performance differences in
+high-variance system simulations.
 
 ## Reproducibility Requirements
 

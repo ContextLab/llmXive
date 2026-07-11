@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Result Schema"
+type: "object"
+properties:
+  request_id:
+    type: "integer"
+    description: "Sequential ID of the request."
+  policy:
+    type: "string"
+    enum:
+      - "FCFS"
+      - "GREEDY"
+      - "TOPOLOGICAL"
+    description: "Scheduling policy used."
+  latency_ms:
+    type: "number"
+    minimum: 0.0
+    description: "Total latency in milliseconds."
+  is_cold_start:
+    type: "boolean"
+    description: "Whether the adapter had to be loaded from disk."
+  eviction_count:
+    type: "integer"
+    minimum: 0
+    description: "Cumulative eviction count."
+  memory_usage_mb:
+    type: "number"
+    minimum: 0.0
+    maximum: 7168.0
+    description: "Current memory usage in MB (must be < 7168)."
+  network_latency_component:
+    type: "number"
+    minimum: 0.0
+    description: "The T_net component of the total latency."
+  topology_bias:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "The coupling coefficient (alpha) used for the trace generation."
+required:
+  - request_id
+  - policy
+  - latency_ms
+  - is_cold_start
+  - eviction_count
+  - memory_usage_mb
+  - network_latency_component
+  - topology_bias
+additionalProperties: false

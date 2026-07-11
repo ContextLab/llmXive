@@ -1,102 +1,119 @@
 # Feature Specification: llmXive follow-up: extending "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
 
-**Feature Branch**: `001-lrmxive-lora-topology-scheduling`  
+**Feature Branch**: `001-lora-topology-scheduling`  
 **Created**: 2026-07-05  
 **Status**: Draft  
-**Input**: User description: "llmXive follow-up: extending MinT infrastructure to optimize multi-tenant LLM serving via parameter overlap clustering of LoRA adapters"
+**Input**: User description: "llmXive follow-up: extending 'MinT: Managed Infrastructure for Training and Serving Millions of LLMs'"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Synthetic Workload Generation & Topology Construction (Priority: P1)
+### User Story 1 - Synthetic Data Generation & Topology Construction (Priority: P1)
 
-The research engineer must be able to generate a synthetic dataset of LoRA adapters with varying ranks and sparsity patterns, explicitly injecting correlation between base weights to ensure non-trivial overlap variance, and compute a pairwise parameter overlap matrix to construct a "LoRA Topology Graph" where edge weights represent the degree of shared weight updates.
+The system must generate a synthetic dataset of 10,000 LoRA adapters and compute their pairwise parameter overlap to construct a "LoRA Topology Graph." This is the foundational step; without a valid graph representing structural similarities, no scheduling optimization can occur.
 
-**Why this priority**: This is the foundational data layer. Without a valid topology graph derived from the adapters, no overlap-aware scheduling can occur. This step establishes the "predictor" variable (structural similarity) required for the entire study.
+**Why this priority**: This is the data ingestion and preprocessing layer. If the topology graph is not generated correctly or is computationally infeasible on the target hardware, the entire simulation cannot run. It is the prerequisite for all subsequent logic.
 
-**Independent Test**: Can be fully tested by running the data generation script and verifying the existence of the adjacency matrix file and its dimensionality ([deferred] x [deferred]) without executing any simulation logic.
-
-**Acceptance Scenarios**:
-
-1. **Given** a configuration for [deferred] adapters with ranks in [1, 256], **When** the generation script executes, **Then** a JSON or CSV file containing the pairwise overlap matrix is created with values between 0.0 and 1.0, calculated as `(cosine_similarity + 1) / 2` to ensure the normalized range.
-2. **Given** the generated overlap matrix, **When** a graph construction utility runs, **Then** an undirected graph object is returned where nodes represent adapters and edge weights match the overlap values within a tolerance of 1e-6.
-
----
-
-### User Story 2 - Discrete-Event Simulation of MinT Infrastructure (Priority: P1)
-
-The system must implement a discrete-event simulation (using SimPy) that models the MinT infrastructure's memory constraints, adapter loading mechanics (including a stochastic jitter component of ±10% to simulate real-world variance), and cache eviction policies on a CPU-only environment, capable of processing a trace of a substantial volume of requests.
-
-**Why this priority**: This provides the "environment" for the experiment. It must accurately model the hardware constraints (memory, CPU) and include stochastic elements to ensure the results reflect real-world feasibility rather than theoretical ideals or mathematical identities.
-
-**Independent Test**: Can be fully tested by running the simulation with a "No-Op" policy (instant load) and a "FCFS" policy against a small trace ([deferred] requests) to verify that memory usage never exceeds the configured limit and that request processing order matches the input trace.
+**Independent Test**: Can be fully tested by running the data generation script on a CPU-only environment (GitHub Actions ubuntu-latest, 2 vCPU, 7GB RAM) and verifying that a valid adjacency matrix (or graph structure) is produced with dimensions matching [deferred] synthesized adapters, without requiring the simulation engine to be active.
 
 **Acceptance Scenarios**:
 
-1. **Given** a memory limit of 7 GB and a trace of [deferred] requests, **When** the simulation runs with the FCFS policy, **Then** the total wall-clock time is recorded, and no memory overflow errors occur (defined as the simulation raising a `MemoryLimitExceeded` event or assertion failure if current_memory > 7 GB).
-2. **Given** a specific request trace, **When** the simulation processes a request for an adapter not in cache, **Then** the system records a "cache miss" event and triggers a load operation that consumes simulated time proportional to the adapter size plus a random jitter of ±10%.
+1. **Given** a request to synthesize [deferred] adapters with ranks between 1 and 256, **When** the data generation module executes on a GitHub Actions ubuntu-latest (2 vCPU, 7GB RAM) runner, **Then** it outputs a valid parameter overlap matrix where every entry represents the degree of shared weight updates, and the process completes within a wall-clock time budget of 6 hours.
+2. **Given** the generated topology graph, **When** the system validates the graph structure, **Then** it confirms that the graph is symmetric (if overlap is mutual) and contains no NaN or infinite values, ensuring numerical stability for downstream scheduling.
 
 ---
 
-### User Story 3 - Policy Comparison & Statistical Validation (Priority: P2)
+### User Story 2 - Discrete-Event Simulation of MinT Infrastructure (Priority: P2)
 
-The system must execute the simulation under three distinct policies (FCFS, Greedy Frequency, Topological Lookahead using Markov chain request transitions) against the same trace, running multiple independent replications with different random seeds., and apply a block-bootstrapping approach (or paired t-test on replication means) to compare the latency distributions of the Topological Lookahead policy against the FCFS baseline.
+The system must implement a discrete-event simulation (using SimPy) that models the MinT infrastructure's memory constraints, adapter loading mechanics, and request processing on a CPU-only environment.
 
-**Why this priority**: This delivers the core research output: the comparative analysis. It transforms raw simulation data into a statistically significant conclusion regarding the efficacy of the proposed optimization, ensuring validity against autocorrelation.
+**Why this priority**: This is the core execution engine. It allows the system to test scheduling policies against the synthetic workload without needing real GPU hardware. It translates the theoretical topology into measurable system behaviors (latency, evictions).
 
-**Independent Test**: Can be fully tested by running the analysis script on a pre-generated set of simulation logs to verify that the statistical test returns a p-value and that the mean latency difference is calculated correctly across replications.
+**Independent Test**: Can be fully tested by running the simulator with a fixed "FCFS" (First-Come-First-Served) baseline policy and a static request trace of 10^6 requests, verifying that the simulation produces a deterministic log of wall-clock time and cache events that matches the theoretical memory constraints.
 
 **Acceptance Scenarios**:
 
-1. **Given** simulation logs from 30 independent replications of FCFS and Topological Lookahead policies, **When** the analysis script runs, **Then** a block-bootstrapping analysis (or paired t-test on replication means) is performed, and a p-value < 0.05 is reported if the improvement is significant.
-2. **Given** the comparison results, **When** the report is generated, **Then** it explicitly states whether the Topological Lookahead policy reduced average cold-start latency by at least 15% compared to the FCFS baseline, outputting a boolean `PASS` or `FAIL` based on this threshold.
+1. **Given** a request trace of 10^6 requests and a fixed memory capacity of 7168 MB, **When** the simulator runs with the FCFS policy, **Then** it records the total wall-clock time and cache eviction count, ensuring the simulation completes within 6 hours and respects the 7168 MB RAM constraint.
+2. **Given** a specific adapter request that exceeds available memory, **When** the simulation executes the eviction logic, **Then** it correctly removes the least recently used or lowest priority adapter and logs the eviction event before loading the new one.
 
 ---
+
+### User Story 3 - Greedy Frequency-Based Scheduling Policy (Priority: P2.5)
+
+The system must implement and execute a "Greedy frequency-based" scheduling policy, which evicts adapters based on their historical request frequency to serve as a secondary baseline against the FCFS and Topological Lookahead policies.
+
+**Why this priority**: This provides a standard heuristic baseline to validate that the Topological Lookahead policy offers improvement over simple frequency-based heuristics, not just FCFS.
+
+**Independent Test**: Can be fully tested by running the simulation with the Greedy policy on the same trace used in US-2, and verifying that the eviction logic prioritizes least-frequently accessed adapters.
+
+**Acceptance Scenarios**:
+
+1. **Given** the request trace and memory constraints, **When** the Greedy policy is executed, **Then** it correctly identifies and evicts the adapters with the lowest historical access frequency when memory is full.
+2. **Given** the results from the Greedy policy run, **When** the statistical analysis module runs, **Then** it records the latency and eviction metrics for comparison against FCFS and Topological Lookahead.
+
+---
+
+### User Story 4 - Topological Lookahead Scheduling Policy Execution (Priority: P3)
+
+The system must implement and execute the "Topological Lookahead" scheduling policy, which utilizes the LoRA Topology Graph to cluster and pre-fetch adapters based on Markov chain request transitions, comparing its performance against the FCFS and Greedy baselines.
+
+**Why this priority**: This is the specific innovation being tested. It represents the "solution" to the research question. While P1 and P2 are necessary, this story delivers the specific research value (reduction in cold-start latency via overlap awareness).
+
+**Independent Test**: Can be fully tested by running the simulation with the Topological Lookahead policy on the same trace used in US-2, and statistically comparing the resulting latency distribution against the FCFS and Greedy baselines using a robust statistical test on independent replications.
+
+**Acceptance Scenarios**:
+
+1. **Given** the LoRA Topology Graph, the request trace, and Markov chain request transitions, **When** the Topological Lookahead policy is executed, **Then** it successfully pre-fetches adapters with high parameter overlap before they are requested, achieving a ≥ 15% reduction in the total number of load operations compared to the FCFS baseline with statistical significance (p < 0.05).
+2. **Given** the results from the Topological Lookahead, Greedy, and FCFS runs across 10 independent replications, **When** the statistical analysis module runs, **Then** it performs a Shapiro-Wilk normality test on the latency differences and selects a paired t-test or Wilcoxon signed-rank test (with block bootstrapping) to determine if the latency reduction is statistically significant (p < 0.05).
 
 ### Edge Cases
 
-- What happens if the synthetic trace contains a "cold start" request for an adapter that was never loaded and the memory is full? (System must evict the least recently used or least relevant adapter based on the policy).
-- How does the system handle a scenario where the parameter overlap calculation results in a fully disconnected graph (no shared parameters)? (The Topological Lookahead policy must degrade gracefully to a frequency-based or random strategy without crashing).
-- What occurs if the simulated memory limit is exceeded during a bulk load operation? (The simulation must log an error event and either fail the request or trigger an immediate eviction sequence, depending on the policy configuration).
+- What happens when the parameter overlap matrix is too large to fit in RAM (e.g., >10,000 adapters)? The system MUST fall back to a sparse matrix representation or a sampled subset to remain within the available RAM limit.
+- How does the system handle a request trace with zero locality (purely random access)? The system MUST correctly report that the Topological Lookahead policy yields no improvement over FCFS in this scenario, rather than crashing or producing NaNs.
+- What happens if the simulation exceeds the designated CPU time limit? The system MUST terminate gracefully and report a timeout error with partial results if available, rather than hanging indefinitely.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST generate a large corpus of synthetic LoRA adapters with ranks uniformly distributed between 1 and 256, random sparsity patterns, and explicitly injected correlations in base weights to ensure non-trivial overlap variance, serving as the dataset for the study (See US-1).
-- **FR-002**: The system MUST compute a pairwise parameter overlap matrix for all generated adapters and construct an undirected graph where edge weights represent the degree of shared weight updates (See US-1).
-- **FR-003**: The system MUST implement a discrete-event simulation engine using SimPy that enforces a strict memory cap, models adapter loading latency proportional to adapter size, and includes a stochastic jitter component of ±10% to prevent tautological validation (See US-2).
-- **FR-004**: The system MUST support three distinct scheduling policies: (1) First-Come-First-Served (FCFS), (2) Greedy frequency-based loading, and (3) Topological Lookahead using Markov chain request transitions (See US-2, US-3).
-- **FR-005**: The system MUST execute the simulation for a trace of requests across 30 independent replications and record total wall-clock time, cache hit rates, and eviction counts for each policy (See US-3).
-- **FR-006**: The system MUST perform a statistical comparison (block-bootstrapping or paired t-test on replication means) between the latency distributions of the Topological Lookahead and FCFS policies to determine significance (See US-3).
-
-### Non-Functional Requirements
-
-- **NFR-001**: The simulation must complete within 6 hours on a standard GitHub Actions free-tier runner to ensure feasibility (See US-2).
+- **FR-001**: System MUST synthesize [deferred] LoRA adapters with varying ranks (1–256) and random sparsity patterns to generate a representative dataset for simulation (See US-1).
+- **FR-002**: System MUST compute a pairwise parameter overlap matrix for all synthesized adapters to construct a LoRA Topology Graph where edge weights represent shared weight updates (See US-1).
+- **FR-003**: System MUST implement a discrete-event simulation environment using SimPy that models memory constraints, adapter loading, and request processing on a CPU-only runner, utilizing a cost model that includes I/O bandwidth, memory copy time, and simulated network contention to ensure non-trivial latency calculation (See US-2).
+- **FR-004**: System MUST implement three distinct scheduling policies: FCFS (baseline), Greedy frequency-based, and Topological Lookahead (See US-2, US-3, US-4).
+- **FR-005**: System MUST record total wall-clock time, cache hit rates, and eviction counts for each policy run against the same large-scale request trace (See US-4).
+- **FR-006**: System MUST perform a statistical significance test (Shapiro-Wilk followed by paired t-test or Wilcoxon signed-rank) comparing the latency distributions of Topological Lookahead against FCFS and Greedy, using block bootstrapping or 10 independent replications to ensure statistical independence (See US-4).
+- **FR-007**: System MUST enforce a hard memory limit of 7168 MB and a time limit of 6 hours, terminating gracefully if exceeded (See US-2).
+- **FR-008**: System MUST perform a sensitivity analysis on the synthetic sparsity patterns (e.g., varying sparsity from [deferred] to [deferred]) to validate that the Topological Lookahead policy remains robust across different data generation assumptions (See US-1, US-4).
+- **FR-009**: System MUST calibrate the simulation cost model parameters (I/O bandwidth, memory copy time) against published MinT hardware benchmarks before running experiments to ensure the latency metrics reflect real-world performance (See US-2).
 
 ### Key Entities
 
-- **LoRA Adapter**: A synthetic model component defined by its rank, sparsity pattern, base weight correlation, and parameter weight matrix.
-- **Topology Graph**: An undirected graph structure where nodes are adapters and edge weights are the calculated parameter overlap values.
-- **Access Trace**: A time-ordered sequence of [deferred] requests, each targeting a specific adapter ID.
-- **Simulation Event**: A discrete point in time representing a request arrival, adapter load, cache eviction, or request completion.
+- **LoRA Adapter**: A synthetic entity representing a low-rank adaptation module, characterized by its rank, sparsity pattern, and parameter vector.
+- **Topology Graph**: A graph structure where nodes are adapters and weighted edges represent the degree of parameter overlap between them.
+- **Request Trace**: A sequence of 10^6 synthetic requests simulating multi-tenant access patterns with defined "hotspots."
+- **Simulation Event**: An atomic unit of time in the discrete-event simulation representing an action (load, evict, process request).
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Average cold-start latency is measured against the FCFS baseline to determine the percentage reduction (See US-3).
-- **SC-002**: Cache eviction count is measured against the FCFS baseline to verify if the Topological Lookahead policy reduces unnecessary evictions (See US-3).
-- **SC-003**: Statistical significance of the latency improvement is measured against a p-value threshold of 0.05 using block-bootstrapping or a paired t-test on replication means (See US-3).
-- **SC-004**: Memory usage during simulation is measured against the 7 GB RAM limit to ensure the workload fits within the free-tier runner constraints (See US-2).
+- **SC-001**: p50 (median) cold-start latency in milliseconds is measured against the First-Come-First-Served (FCFS) baseline to determine the percentage reduction, calculated using a cost model including I/O bandwidth, memory copy time, and simulated network contention, with a target reduction of ≥ 15% (See US-4).
+- **SC-002**: Total number of cache evictions is measured against the FCFS baseline to quantify resource efficiency gains, with a target reduction of ≥ 15% (See US-4).
+- **SC-003**: Statistical significance of the latency difference is measured against a p-value threshold of 0.05 using a paired t-test or Wilcoxon signed-rank test, selected based on the result of a Shapiro-Wilk normality test on the difference distribution, utilizing block bootstrapping or 10 independent replications (See US-4).
+- **SC-004**: Simulation execution time is measured against a predefined CPU-only time limit of 6 hours on a GitHub Actions ubuntu-latest (2 vCPU) runner, to ensure compute feasibility (See US-2).
+- **SC-005**: Peak RSS memory usage during simulation is measured against a hard limit of 7168 MB to ensure compliance with system resource constraints (See US-2).
+- **SC-006**: Average cold-start latency of the Greedy frequency-based policy is measured against the FCFS baseline to establish a secondary performance benchmark (See US-3).
 
 ## Assumptions
 
-- The synthetic dataset generation (a large number of adapters, a substantial volume of requests) will fit within the memory and disk limits of the GitHub Actions free-tier runner when processed in batches or via efficient data structures.
-- The "Topological Lookahead" policy will utilize a simplified Markov chain approximation for request transitions to ensure the scheduling decision overhead remains negligible compared to the simulated load time, preventing the scheduler itself from becoming a bottleneck.
-- The parameter overlap metric is defined as the cosine similarity of the flattened weight vectors of the LoRA adapters, normalized to [0.0, 1.0] via `(cosine_sim + 1) / 2`, which is computationally tractable on CPU for the specified dataset size.
-- The simulation time unit is abstract and relative; absolute wall-clock time in the simulation is a proxy for real-world latency, scaled by a constant factor derived from typical PCIe/NVMe transfer speeds.
-- The statistical power of the test is sufficient with N=30 independent replications; if the effect size is very small, the analysis will report a confidence interval rather than a binary significance claim.
-- No GPU acceleration is required or available; all computations (overlap matrix, simulation logic, statistical tests) are performed using standard CPU libraries (NumPy, SciPy, SimPy).
-- The simulation must complete within 6 hours on a standard GitHub Actions free-tier runner; if it exceeds this, the trace size or replication count will be reduced.
+- The synthetic data generation (a large number of adapters, a high volume of requests) can be generated and stored as sparse matrices within the available memory constraints of the GitHub Actions free-tier runner.
+- The parameter overlap calculation can be performed using CPU-tractable linear algebra operations (e.g., matrix multiplication) without requiring GPU acceleration or quantization libraries that depend on CUDA.
+- The "MinT" infrastructure's memory constraints and adapter loading mechanics can be accurately approximated by a discrete-event simulation in Python (SimPy) without needing a full C++ or CUDA-based simulation engine.
+- The synthetic access trace, generated based on "hotspots," sufficiently mimics real-world multi-tenant LLM serving patterns to provide valid insights into scheduling efficiency.
+- The statistical analysis (Shapiro-Wilk followed by t-test or Wilcoxon) is appropriate for the resulting latency distributions when using block bootstrapping or independent replications.
+- A sufficiently large request trace size is sufficient to achieve statistical power for detecting a latency reduction, given the simulation's variance.
+- The study is framed as a simulation of a hypothetical scenario; the synthetic topology's validity is established through sensitivity analysis of sparsity patterns (FR-008) rather than direct empirical validation against real-world adapter distributions.
+- The simulation cost model parameters are calibrated against published MinT hardware benchmarks to ensure the latency metrics are scientifically meaningful (FR-009).

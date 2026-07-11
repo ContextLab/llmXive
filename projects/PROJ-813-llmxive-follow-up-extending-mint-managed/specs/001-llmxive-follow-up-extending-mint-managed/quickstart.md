@@ -2,72 +2,85 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- pip
-- (Optional) `virtualenv` or `conda`
+*   Python 3.11+
+*   Git
+*   Access to a GitHub Actions runner (or local machine with 7GB+ RAM)
 
 ## Installation
 
-1. **Clone and Setup**:
-   ```bash
-   cd projects/PROJ-813-llmxive-follow-up-extending-mint-managed
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
+1.  **Clone the repository** (if not already done):
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-813-llmxive-follow-up-extending-mint-managed/code
+    ```
 
-2. **Verify Dependencies**:
-   ```bash
-   python -c "import simpy; import numpy; import scipy; print('Dependencies OK')"
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-## Running the Pipeline
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins versions for reproducibility.*
 
-The pipeline is executed in three stages: Data Generation, Topology Construction, and Simulation.
+## Running the Simulation
 
-### Step 1: Generate Synthetic Data
+The simulation is designed to run end-to-end on a CPU-only environment.
 
+### 1. Generate Synthetic Data
+Generate adapters and the topology graph.
 ```bash
-# Generate 10,000 adapters in 50 clusters
-python code/data/generate_adapters.py --seed 42 --count 10000 --clusters 50
-
-# Generate the overlap matrix
-python code/data/compute_overlap.py --input data/raw/adapters.parquet --output data/processed/overlap_matrix.csv
-
-# Generate a single trace for testing (or use the experiment runner for full traces)
-python code/data/generate_trace.py --seed 42 --count 1000000 --output data/processed/test_trace.parquet
+python -m data_generation.synthetic_adapters --seed 42 --num-adapters 10000
+python -m data_generation.overlap_graph --seed 42
 ```
 
-### Step 2: Run Simulations
-
-Run a single replication for testing:
+Generate the request trace with a specific topological coupling coefficient (e.g., 0.8 for high correlation).
 ```bash
-python code/simulation/run_simulation.py --policy fcfs --replication 1 --trace data/processed/test_trace.parquet
+python -m data_generation.request_trace --seed 42 --num-requests 100000 --topology-bias 0.8
 ```
 
-Run the full experiment (30 replications, 3 policies):
+### 2. Run Simulations
+Run the simulation for each policy (FCFS, Greedy, Topological) with a specific seed.
+*Note: The same seed and trace are used for all policies to ensure a paired design.*
 ```bash
-python code/simulation/run_experiment.py --policies fcfs greedy topological --replications 30 --trace-size 1000000
+# Run FCFS
+python -m simulation.main --policy fcfs --seed 42 --replications 10
+
+# Run Greedy
+python -m simulation.main --policy greedy --seed 42 --replications 10
+
+# Run Topological Lookahead
+python -m simulation.main --policy topological --seed 42 --replications 10
 ```
-*Note: This may take up to 6 hours on a 2-core runner. Each replication uses a unique trace, but the same trace is used for all policies within that replication.*
 
-### Step 3: Analyze Results
-
+### 3. Run Statistical Analysis
 ```bash
-python code/analysis/stats.py --input data/logs/ --output data/processed/results_summary.csv
-python code/analysis/visualize.py --input data/processed/results_summary.csv
+python -m analysis.statistics --input data/results/summary_metrics.csv
 ```
 
 ## Validation
 
-To verify the setup:
-```bash
-pytest tests/unit/ -v
-pytest tests/integration/ -v
-```
+To ensure the system meets the acceptance criteria:
+
+1.  **Check Memory**: Monitor RSS usage during simulation. The resource usage must remain within the designated system capacity limits.
+    ```bash
+    # Example using `time` and `ps` (Linux)
+    /usr/bin/time -v python -m simulation.main --policy topological --seed 42
+    ```
+2.  **Check Time**: Ensure the full run completes within 6 hours.
+3.  **Check Graph Validity**:
+    ```bash
+    python -c "from code.data_generation.overlap_graph import validate_graph; validate_graph('data/processed/topology_graph.npz')"
+    ```
+4.  **Check Statistical Significance**: The output of `analysis.statistics` must report a p-value < 0.05 for the Topological vs. FCFS comparison to claim success.
+5.  **Check Coupling**: Verify that the `topology_bias` field in the results matches the input parameter.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce `--trace-size` or `--count` in generation. Ensure `float32` is used for the overlap matrix.
-- **Timeout**: If the simulation exceeds 6 hours, the CI job will fail. Check `code/simulation/engine.py` for inefficient loops.
-
+*   **OOM Error**: Reduce `--num-adapters` or increase sparsity in `synthetic_adapters.py`.
+*   **Timeout**: Reduce `--num-requests` (e.g., to 50k) or `--replications` for testing; scale up for final run.
+*   **Non-Deterministic Results**: Ensure `--seed` is pinned and `simpy` random state is not overridden.
+*   **No Improvement**: If the Topological policy shows no improvement, check the `--topology-bias` parameter. If it is 0.0, the trace is random and the policy has no signal to exploit.

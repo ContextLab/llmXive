@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LoRA Adapter Schema"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the adapter (e.g., 'adapter_0001')."
+  rank:
+    type: "integer"
+    minimum: 1
+    maximum: 256
+    description: "Rank of the LoRA adapter."
+  sparsity:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of zero parameters."
+  size_mb:
+    type: "number"
+    minimum: 0.0
+    description: "Estimated memory size in MB."
+  cluster_id:
+    type: "integer"
+    description: "ID of the cluster this adapter belongs to (for alignment with workload)."
+required:
+  - id
+  - rank
+  - sparsity
+  - size_mb
+  - cluster_id
+additionalProperties: false

@@ -2,77 +2,72 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships for the synthetic LoRA generation, topology construction, and simulation logging. All data is stored in `data/` and validated against the schemas in `contracts/`.
+This document defines the data structures used throughout the simulation pipeline. All data is generated synthetically and processed in memory before being persisted to `data/` in standardized formats (Parquet, JSON, NumPy `.npz`).
 
 ## Entities
 
-### 1. LoRA Adapter (Synthetic)
+### 1. LoRA Adapter
+Represents a single low-rank adaptation module.
+*   **ID**: Unique string identifier (e.g., `adapter_00001`).
+*   **Rank**: Integer, range [1, 256].
+*   **Sparsity**: Float, ratio of non-zero parameters (0.0 to 1.0).
+*   **Parameter Vector**: Sparse representation of weights (stored as CSR format in `data/raw/adapters.npz`).
+*   **Generated At**: Timestamp.
 
-Represents a single synthetic LoRA adapter.
-- **Attributes**:
-  - `adapter_id`: Unique string identifier (UUID).
-  - `rank`: Integer (1-256).
-  - `sparsity`: Float (0.0-1.0).
-  - `cluster_id`: Integer (0-49) indicating the latent cluster.
-  - `base_correlation`: Float (0.0-1.0) indicating injection level.
-  - `weight_hash`: SHA-256 hash of the flattened weight vector (for integrity).
-  - `size_bytes`: Approximate memory footprint.
-
-### 2. Overlap Matrix
-
-A symmetric matrix representing pairwise similarity.
-- **Attributes**:
-  - `source_adapter_id`: String.
-  - `target_adapter_id`: String.
-  - `overlap_score`: Float (0.0-1.0).
-  - `cosine_similarity`: Float (-1.0-1.0).
+### 2. Topology Graph
+A weighted graph where nodes are adapters and edges represent parameter overlap.
+*   **Nodes**: Adapter IDs.
+*   **Edges**: Weighted by overlap metric (e.g., Jaccard similarity of non-zero indices).
+*   **Storage**: Sparse adjacency matrix (CSR) stored in `data/processed/topology_graph.npz`.
+*   **Properties**: Symmetric, no self-loops (or self-loop weight = 1.0).
 
 ### 3. Request Trace
+A sequence of adapter requests simulating workload.
+*   **Fields**:
+    *   `request_id`: Unique integer (0 to $10^6-1$).
+    *   `adapter_id`: String ID of the requested adapter.
+    *   `timestamp`: Simulated time (float).
+    *   `hotspot_cluster`: Integer ID indicating the cluster of the request (for analysis).
+    *   `topology_bias`: Float (0.0 to 1.0) indicating the coupling coefficient used for this trace generation. This field is critical for the sensitivity analysis.
+*   **Storage**: Parquet file `data/processed/request_trace.parquet`.
 
-A time-ordered sequence of requests.
-- **Attributes**:
-  - `request_id`: Integer (sequential).
-  - `timestamp`: Float (simulated time).
-  - `adapter_id`: String (target).
-  - `arrival_time`: Float.
-  - `cluster_id`: Integer (for analysis, derived from adapter_id).
+### 4. Simulation Log
+Records of events during the simulation run.
+*   **Fields**:
+    *   `event_id`: Integer.
+    *   `timestamp`: Simulated time.
+    *   `event_type`: String (`LOAD`, `EVICTION`, `REQUEST`, `CACHE_HIT`).
+    *   `adapter_id`: String (if applicable).
+    *   `memory_usage`: Integer (MB).
+    *   `latency`: Float (ms).
+*   **Storage**: Parquet file `data/results/simulation_log_{policy}_{seed}.parquet`.
 
-### 4. Simulation Event
-
-A log entry for a discrete event.
-- **Attributes**:
-  - `event_id`: Integer.
-  - `timestamp`: Float.
-  - `event_type`: Enum (REQUEST_ARRIVAL, CACHE_HIT, CACHE_MISS, LOAD_START, LOAD_END, EVICTION, MEMORY_ERROR).
-  - `adapter_id`: String (optional).
-  - `latency`: Float (optional).
-  - `memory_usage`: Float (GB).
-  - `delta_factor`: Float (optional, the reduction factor applied due to overlap).
-
-### 5. Policy Result
-
-Aggregated metrics for a specific policy run.
-- **Attributes**:
-  - `policy_name`: String.
-  - `replication_id`: Integer.
-  - `trace_id`: String (UUID of the trace used).
-  - `total_requests`: Integer.
-  - `avg_cold_start_latency`: Float.
-  - `cache_hit_rate`: Float.
-  - `total_evictions`: Integer.
-  - `max_memory_usage`: Float.
+### 5. Results Summary
+Aggregated metrics per policy run.
+*   **Fields**:
+    *   `policy`: String (`FCFS`, `GREEDY`, `TOPOLOGICAL`).
+    *   `seed`: Integer.
+    *   `total_requests`: Integer.
+    *   `total_latency_ms`: Float.
+    *   `p50_latency_ms`: Float.
+    *   `p99_latency_ms`: Float.
+    *   `cache_hit_rate`: Float.
+    *   `eviction_count`: Integer.
+    *   `total_loads`: Integer.
+    *   `topology_bias`: Float (The coupling coefficient used for this run).
+*   **Storage**: CSV `data/results/summary_metrics.csv`.
 
 ## Data Flow
 
-1. **Generation**: `generate_adapters.py` -> `data/raw/adapters.parquet`
-2. **Trace**: `generate_trace.py` -> `data/processed/request_trace_{replication_id}.parquet`
-3. **Topology**: `compute_overlap.py` -> `data/processed/overlap_matrix.csv` + `data/processed/topology_graph.json`
-4. **Simulation**: `run_experiment.py` -> `data/logs/{policy}_{replication_id}.jsonl`
-5. **Analysis**: `stats.py` -> `data/processed/results_summary.csv`
+1.  **Generation**: `synthetic_adapters.py` -> `data/raw/adapters.npz`.
+2.  **Graph Construction**: `overlap_graph.py` reads `adapters.npz` -> `data/processed/topology_graph.npz`.
+3.  **Trace Generation**: `request_trace.py` (with `--topology-bias` parameter) -> `data/processed/request_trace.parquet`.
+4.  **Simulation**: `main.py` reads graph, trace, config -> runs SimPy -> writes `simulation_log_*.parquet`.
+5.  **Analysis**: `statistics.py` reads logs -> computes metrics -> writes `summary_metrics.csv`.
 
-## Storage Constraints
+## Constraints
 
-- **Raw Adapters**: [deferred] adapters. If stored as full matrices, this exceeds a substantial storage threshold. **Strategy**: Store only metadata and a compressed representation (e.g., rank decomposition factors) or regenerate weights on-the-fly using the seed. The `weight_hash` is stored for verification.
-- **Overlap Matrix**: [deferred] x [deferred] float32 = 400 MB. Stored as CSV/Parquet.
-- **Logs**: 30 reps x 1M events. Compressed JSONL or Parquet.
-
+*   **Memory**: All intermediate data structures must fit within 7168 MB.
+*   **Determinism**: Random seeds must be recorded in the metadata of each output file.
+*   **Immutability**: Raw data files are never overwritten; new runs create new timestamped files.
+*   **Correlation**: The `topology_bias` field in the trace must match the coupling coefficient used during generation to ensure valid sensitivity analysis.

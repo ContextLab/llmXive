@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Request Trace"
+description: "Schema for the synthetic request trace used in simulation."
+type: "object"
+properties:
+  request_id:
+    type: "integer"
+    description: "Unique sequential ID for the request."
+  timestamp:
+    type: "number"
+    description: "Simulated time of the request arrival (float)."
+  adapter_id:
+    type: "string"
+    description: "ID of the LoRA adapter requested."
+  is_hotspot:
+    type: "boolean"
+    description: "Whether this request is part of a defined hotspot."
+  cluster_id:
+    type: "integer"
+    description: "Cluster ID of the requested adapter (for alignment verification)."
+  topology_bias:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "The coupling coefficient (alpha) used to generate this trace. Indicates the strength of correlation between parameter overlap and access patterns."
+required:
+  - request_id
+  - timestamp
+  - adapter_id
+  - is_hotspot
+  - cluster_id
+  - topology_bias
+additionalProperties: false

@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Simulation Result Summary Schema
+description: Defines the structure of the aggregated simulation metrics per run.
+type: object
+properties:
+  policy:
+    type: string
+    description: "The scheduling policy used."
+    enum:
+      - FCFS
+      - GREEDY
+      - TOPOLOGICAL
+  seed:
+    type: integer
+    description: "Random seed used for this replication."
+  total_requests:
+    type: integer
+    description: "Total number of requests processed."
+    minimum: 1
+  total_latency_ms:
+    type: number
+    description: "Sum of all latencies in milliseconds."
+    minimum: 0
+  p50_latency_ms:
+    type: number
+    description: "Median (p50) cold-start latency in milliseconds."
+    minimum: 0
+  p99_latency_ms:
+    type: number
+    description: "99th percentile cold-start latency in milliseconds."
+    minimum: 0
+  cache_hit_rate:
+    type: number
+    description: "Ratio of cache hits to total requests."
+    minimum: 0.0
+    maximum: 1.0
+  eviction_count:
+    type: integer
+    description: "Total number of cache evictions."
+    minimum: 0
+  total_loads:
+    type: integer
+    description: "Total number of adapter loads."
+    minimum: 1
+  execution_time_seconds:
+    type: number
+    description: "Wall-clock time taken for the simulation run."
+    minimum: 0
+required:
+  - policy
+  - seed
+  - total_requests
+  - total_latency_ms
+  - p50_latency_ms
+  - p99_latency_ms
+  - cache_hit_rate
+  - eviction_count
+  - total_loads
+  - execution_time_seconds
+additionalProperties: false

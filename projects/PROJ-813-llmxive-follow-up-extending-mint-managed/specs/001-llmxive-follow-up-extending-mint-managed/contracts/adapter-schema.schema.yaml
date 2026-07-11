@@ -1,39 +1,33 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "LoRA Adapter Metadata Schema"
-description: "Schema for synthetic LoRA adapter metadata stored in data/raw/adapters.parquet"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: LoRA Adapter Schema
+description: Defines the structure of a single synthesized LoRA adapter record.
+type: object
 properties:
-  adapter_id:
-    type: "string"
-    description: "Unique identifier for the adapter (UUID format)"
+  id:
+    type: string
+    description: "Unique identifier for the adapter (e.g., 'adapter_00001')."
   rank:
-    type: "integer"
+    type: integer
+    description: "The rank of the LoRA adapter. Range: 1 to 256."
     minimum: 1
     maximum: 256
-    description: "Rank of the LoRA adapter"
   sparsity:
-    type: "number"
+    type: number
+    description: "Ratio of non-zero parameters. Range: 0.0 to 1.0."
     minimum: 0.0
     maximum: 1.0
-    description: "Sparsity ratio of the adapter weights"
-  base_correlation:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Level of injected correlation with the shared basis"
-  weight_hash:
-    type: "string"
-    pattern: "^[a-f0-9]{64}$"
-    description: "SHA-256 hash of the flattened weight vector"
-  size_bytes:
-    type: "integer"
+  non_zero_count:
+    type: integer
+    description: "Total number of non-zero parameters in the adapter."
     minimum: 0
-    description: "Approximate memory footprint in bytes"
+  generated_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of generation."
 required:
-  - adapter_id
+  - id
   - rank
   - sparsity
-  - base_correlation
-  - weight_hash
-  - size_bytes
+  - non_zero_count
+  - generated_at
 additionalProperties: false

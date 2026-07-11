@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Results"
+description: "Schema for the output of a single policy run."
+type: "object"
+properties:
+  policy_name:
+    type: "string"
+    enum: ["FCFS", "GREEDY", "TOPOLOGICAL"]
+    description: "The scheduling policy executed."
+  total_requests:
+    type: "integer"
+    description: "Total number of requests processed."
+  total_wall_clock_time:
+    type: "number"
+    description: "Total simulated time (ms) for the run."
+  avg_latency_ms:
+    type: "number"
+    description: "Average cold-start latency in milliseconds."
+  p50_latency_ms:
+    type: "number"
+    description: "Median cold-start latency in milliseconds."
+  p95_latency_ms:
+    type: "number"
+    description: "95th percentile cold-start latency in milliseconds."
+  eviction_count:
+    type: "integer"
+    description: "Total number of cache evictions performed."
+  cache_hit_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of requests served from cache."
+  peak_memory_mb:
+    type: "number"
+    description: "Peak RSS memory usage during the simulation (MB)."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+  topology_bias:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "The coupling coefficient (alpha) used for the trace generation."
+  bias_correction_applied:
+    type: "boolean"
+    description: "Whether a bias correction was applied due to request subsampling."
+required:
+  - policy_name
+  - total_requests
+  - total_wall_clock_time
+  - avg_latency_ms
+  - p50_latency_ms
+  - eviction_count
+  - cache_hit_rate
+  - peak_memory_mb
+  - seed
+  - topology_bias
+  - bias_correction_applied
+additionalProperties: false
