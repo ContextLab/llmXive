@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for the final analysis output (router simulation results)"
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the problem"
+  predicted_k:
+    type: "integer"
+    description: "Predicted optimal loop count by the router"
+  actual_k:
+    type: "integer"
+    description: "Ground truth convergence step (mapped to 4 if non-convergence)"
+  flops_saved:
+    type: "integer"
+    description: "FLOPs saved compared to static k=2 baseline"
+  accuracy_delta:
+    type: "number"
+    description: "Difference in accuracy vs static baseline"
+  correlation_rho:
+    type: "number"
+    description: "Spearman correlation coefficient"
+  p_value:
+    type: "number"
+    description: "P-value for the correlation test (permutation test)"
+  is_significant:
+    type: "boolean"
+    description: "True if p_value < 0.05 (after correction)"
+  is_underpowered:
+    type: "boolean"
+    description: "True if the stratum sample size was < 50"
+required:
+  - problem_id
+  - predicted_k
+  - actual_k
+  - flops_saved
+  - accuracy_delta
+  - correlation_rho
+  - p_value
+  - is_significant
+  - is_underpowered
+additionalProperties: false

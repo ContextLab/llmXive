@@ -1,0 +1,244 @@
+resolved_at: '2026-07-11T06:43:59.143779+00:00'
+datasets:
+- intent: HumanEval
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/braindao/humaneval-for-solidity-25/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 36513
+      parsed: true
+  - url: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 83920
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/bigcode/humanevalpack/resolve/main/cpp/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/braindao/humaneval-for-solidity-25/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zai-org/humaneval-x/resolve/main/data/cpp/data/humaneval.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/SIM-EVAL-2026_Simulated_Evaluation_Dataset_and_Offline_Ranking_Scripts_for_BeatHive_Sound-Effect_Recommendation/32963051
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/COVID-19_Psychological_Stress_on_Indian_Citizen_s_Lifestyle_and_Travel/32962982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Local-to-Global_Model_for_Constructing_Cohomology_in_Mathematics_and_Scientific_Modeling/32963042
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Assessing_thermal_comfort_dynamics_through_the_urban_fragmentation_approach_a_case_study_of_the_hot_and_arid_metropolitan_of_Tabriz/32963052
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Full_Bibliography_from_Jack_Halpern_19_January_1925_31_January_2018/32963040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15554034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10530787
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19237762
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617097
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20708135
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254113
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254113
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21253931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21253931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252512
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MBPP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7878
+      parsed: true
+  - url: https://huggingface.co/datasets/Muennighoff/mbpp/resolve/main/data/mbpp.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/reshinthadith/dfg_augmented_mbpp/resolve/main/data/train-00000-of-00001-4ebb86d98288602f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 17897
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Muennighoff/mbpp/resolve/main/data/mbpp.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/reshinthadith/dfg_augmented_mbpp/resolve/main/data/train-00000-of-00001-4ebb86d98288602f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OllieStanley/humaneval-mbpp-codegen-qa/resolve/main/data/train-00000-of-00001-ac785dce89a6b31a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OllieStanley/humaneval-mbpp-testgen-qa/resolve/main/data/train-00000-of-00001-f74ac2f05bba8dfe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/SIM-EVAL-2026_Simulated_Evaluation_Dataset_and_Offline_Ranking_Scripts_for_BeatHive_Sound-Effect_Recommendation/32963051
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/COVID-19_Psychological_Stress_on_Indian_Citizen_s_Lifestyle_and_Travel/32962982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Local-to-Global_Model_for_Constructing_Cohomology_in_Mathematics_and_Scientific_Modeling/32963042
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Assessing_thermal_comfort_dynamics_through_the_urban_fragmentation_approach_a_case_study_of_the_hot_and_arid_metropolitan_of_Tabriz/32963052
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Full_Bibliography_from_Jack_Halpern_19_January_1925_31_January_2018/32963040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12658269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11649373
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17197937
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17198015
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15448879
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.08255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21253931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21253931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.28998
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.03236
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LoopCoder
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/juiceb0xc0de/loopcoder-v2-atlas/e4850b449dcf1d744296f2a5d8bc19d6189a0c29/features%2Freasoning%2Fatp_scores.json?%2Fdatasets%2Fjuiceb0xc0de%2Floopcoder-v2-atlas%2Fresolve%2Fmain%2Ffeatures%2Freasoning%2Fatp_scores.json=&etag=%222dd6e876fedc0116624e897febcbe05217c599a7%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/SIM-EVAL-2026_Simulated_Evaluation_Dataset_and_Offline_Ranking_Scripts_for_BeatHive_Sound-Effect_Recommendation/32963051
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/COVID-19_Psychological_Stress_on_Indian_Citizen_s_Lifestyle_and_Travel/32962982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Local-to-Global_Model_for_Constructing_Cohomology_in_Mathematics_and_Scientific_Modeling/32963042
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Assessing_thermal_comfort_dynamics_through_the_urban_fragmentation_approach_a_case_study_of_the_hot_and_arid_metropolitan_of_Tabriz/32963052
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Full_Bibliography_from_Jack_Halpern_19_January_1925_31_January_2018/32963040
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.18023
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

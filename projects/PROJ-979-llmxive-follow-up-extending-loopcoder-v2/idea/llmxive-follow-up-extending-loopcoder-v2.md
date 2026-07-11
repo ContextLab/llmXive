@@ -9,16 +9,16 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can input-independent syntactic and cross-lingual consistency metrics serve as sufficient proxies to dynamically allocate test-time computation in Parallel Loop Transformers, effectively decoupling optimal inference depth from the model's internal convergence signals?
+How does the semantic uncertainty of an initial hidden state correlate with the convergence trajectory of iterative refinement models, and does this correlation reveal a fundamental disconnect between a model's internal confidence signal and its actual reasoning capability on complex tasks?
 
 ## Motivation
 
-Current Parallel Loop Transformer (PLT) architectures typically employ a static loop count, leading to inefficient resource allocation where simple queries consume unnecessary compute and complex queries remain under-served. Establishing a link between input-independent syntactic or consistency metrics and required loop depth would enable dynamic compute allocation, breaking the fixed ceiling of static strategies and optimizing the trade-off between inference cost and reasoning performance without relying on the internal convergence dynamics of the loop itself.
+Current iterative refinement models (like Parallel Loop Transformers) often rely on static loop counts, wasting compute on easy inputs or failing on hard ones. If a model's initial uncertainty (entropy) reliably predicts its ability to converge, we could replace fixed budgets with dynamic routing. Conversely, if high uncertainty does not correlate with failure (or vice versa), it reveals a critical flaw in using internal confidence as a proxy for reasoning quality, necessitating new calibration strategies.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar and arXiv using terms including "test-time computation scaling," "adaptive loop count," "semantic entropy LLM routing," "Parallel Loop Transformer," and "dynamic inference efficiency." We also broadened the search to "LLM inference efficiency" and "input-dependent model depth" to capture methodological precedents.
+We queried Semantic Scholar and arXiv using terms such as "iterative refinement LLM convergence," "semantic entropy uncertainty estimation," "dynamic loop count test-time scaling," and "internal confidence vs reasoning capability." We also broadened the search to include "LLM calibration," "input-dependent inference depth," and "Parallel Loop Transformer limitations."
 
 ### What is known
 - [Scaling Behavior of Machine Translation with Large Language Models under Prompt Injection Attacks (2024)](https://arxiv.org/abs/2403.09832) — This work analyzes LLM scaling behaviors but focuses on robustness against prompt injection rather than adaptive computation allocation or loop-based inference strategies.
@@ -28,27 +28,27 @@ We queried Semantic Scholar and arXiv using terms including "test-time computati
 - [Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models (2024)](https://arxiv.org/abs/2403.09676) — This research focuses on deceptive behaviors in AI, which is unrelated to the efficiency mechanisms of Parallel Loop Transformers.
 
 ### What is NOT known
-No published work has empirically investigated the feasibility of dynamically predicting the optimal loop count for Parallel Loop Transformers based on input-specific proxies like syntactic complexity or cross-lingual consistency that are computed *independently* of the model's internal states. Furthermore, there is no existing literature demonstrating whether such a dynamic routing strategy can successfully decouple the performance ceiling of static loop counts (specifically the two-loop saturation point) from the computational cost.
+No published work has empirically investigated the specific correlation between the *initial* semantic uncertainty of a hidden state and the subsequent *convergence trajectory* in iterative refinement architectures like LoopCoder-v2. Furthermore, there is no existing literature determining whether internal confidence metrics (like entropy) in these specific looped models actually predict reasoning success or if they are decoupled from the model's ability to solve complex tasks.
 
 ### Why this gap matters
-Filling this gap is critical for enabling cost-efficient deployment of advanced reasoning models, as it would allow systems to automatically allocate more compute only to difficult inputs while saving resources on trivial ones. This could significantly improve the practical viability of test-time scaling techniques in resource-constrained environments.
+Filling this gap is critical for two reasons: (1) If the correlation exists, it enables highly efficient, dynamic compute allocation that could drastically reduce inference costs for reasoning models. (2) If the correlation is weak or non-existent, it exposes a fundamental limitation in current "confidence-based" routing strategies, preventing the deployment of unreliable dynamic systems in production.
 
 ### How this project addresses the gap
-This project addresses the gap by implementing a lightweight heuristic that maps syntactic parse tree depth and cross-lingual consistency scores (derived from external parsers and translation APIs) to a predicted optimal loop count ($k \in \{1, 2, 3\}$) and empirically validating its performance against static baselines on a curated dataset of code generation and reasoning problems.
+This project addresses the gap by systematically measuring the initial semantic entropy of inputs in a Parallel Loop Transformer and tracking its convergence trajectory (success/failure at specific loop counts) on a curated dataset. By correlating these independent measures, we will determine if internal uncertainty is a valid predictor of reasoning capability or if a disconnect exists.
 
 ## Expected results
 
-We expect the dynamic model to achieve parity or slight improvement on hard tasks by routing them to $k=3$ (where the static model fails due to oscillation) while routing easy tasks to $k=1$, resulting in a net reduction in average inference latency and FLOPs without sacrificing accuracy. The primary evidence will be a statistically significant reduction in average FLOPs per successful completion compared to the static $k=2$ baseline, while maintaining or improving task success rates.
+We expect to find a non-monotonic or weak correlation between initial semantic uncertainty and convergence success, suggesting that internal confidence is a poor proxy for reasoning capability in iterative models. Alternatively, if a strong correlation exists, we expect it to hold only for a specific range of difficulty levels. The primary evidence will be a statistical analysis (e.g., Spearman's rank correlation) showing the degree of alignment between initial entropy and the final pass@1 metric across varying loop counts.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the LoopCoder-v2-2B checkpoint (publicly available on HuggingFace) and curate a dataset of 5,000 code generation and reasoning problems from the HumanEval and MBPP benchmarks, labeling them with difficulty levels (easy, medium, hard) based on token length and cyclomatic complexity.
-- **Proxy Extraction (Independent)**: For each input in the test set, compute the syntactic complexity (e.g., average dependency tree depth, parse tree height) using a standalone parser (e.g., SpaCy or Stanza) and cross-lingual consistency scores using a separate translation model, ensuring these features are derived **independently** of the target LoopCoder's internal hidden states.
-- **Router Training**: Train a lightweight logistic regression or small MLP (CPU-tractable, <10M parameters) on a held-out training split of the dataset to map the complexity proxy to the optimal loop count ($k \in \{1, 2, 3\}$), using the ground-truth performance of static runs ($k=1, 2, 3$) as the label.
-- **Dynamic Inference**: Execute inference on the full test set using the trained router to dynamically select the loop count for each input, ensuring the router itself adds negligible overhead (e.g., <1% of total inference time).
-- **Evaluation**: Measure total compute (FLOPs) and performance (pass@1) on the test set, comparing the dynamic strategy against the static $k=2$ baseline.
-- **Statistical Analysis**: Apply a paired t-test to compare the FLOPs and accuracy metrics between the dynamic and static configurations to determine statistical significance.
-- **Validation Independence**: Ensure the evaluation metric (pass@1 on HumanEval/MBPP) is derived from an independent ground-truth dataset (the benchmark's official test suite), which is distinct from the syntactic/consistency proxies used to train the router, thereby avoiding circular validation.
+- **Data Acquisition**: Download the LoopCoder-v2-2B checkpoint from HuggingFace and curate a dataset of 5,000 code generation and reasoning problems from HumanEval and MBPP, stratified by difficulty.
+- **Uncertainty Extraction**: For each input, perform a single forward pass ($k=1$) to extract the semantic entropy of the initial hidden state as the "uncertainty proxy."
+- **Trajectory Tracking**: Run the model iteratively ($k=1, 2, 3$) on the same inputs to record the convergence trajectory (i.e., at which loop count the correct answer first appears or if it fails entirely).
+- **Correlation Analysis**: Compute the correlation between the initial entropy values and the "convergence step" (or binary success at max loops) to test the hypothesis of a disconnect.
+- **Router Simulation (Optional)**: Train a lightweight logistic regression model on the entropy proxy to predict the optimal loop count, then evaluate its FLOPs savings vs. accuracy to see if the theoretical gain is practical.
+- **Statistical Validation**: Apply Spearman's rank correlation and a paired t-test to compare the performance of a "static $k=2$" baseline against a "dynamic routing" strategy derived from the entropy analysis.
+- **Independence Check**: Ensure the evaluation metric (correctness on HumanEval/MBPP) is derived from the benchmark's reference solutions (external ground truth), which is mathematically independent of the initial hidden state entropy (internal model state), preventing circular validation.
 
 ## Duplicate-check
 
@@ -59,7 +59,7 @@ We expect the dynamic model to achieve parity or slight improvement on hard task
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T06:42:54Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T06:38:38Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scali" computer science
 **Verified citation count**: 5

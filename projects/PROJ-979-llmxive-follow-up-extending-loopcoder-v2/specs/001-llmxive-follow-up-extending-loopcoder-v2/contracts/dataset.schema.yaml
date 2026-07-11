@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the processed dataset files (entropy and convergence results)"
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the problem (e.g., humaneval_0)"
+  source:
+    type: "string"
+    description: "Source dataset name (HumanEval or MBPP)"
+  prompt:
+    type: "string"
+    description: "The input prompt"
+  canonical_solution:
+    type: "string"
+    description: "The reference solution code"
+  entropy_value:
+    type: "number"
+    description: "Computed semantic entropy value"
+  num_clusters:
+    type: "integer"
+    description: "Number of semantic clusters found"
+  converged_at:
+    type: ["integer", "null"]
+    description: "First loop count k where solution was correct, or null if never"
+  is_underpowered:
+    type: "boolean"
+    description: "Flag indicating if the stratum sample size was < 50"
+  execution_failed_count:
+    type: "integer"
+    description: "Number of samples that failed execution (for debugging)"
+required:
+  - problem_id
+  - source
+  - prompt
+  - canonical_solution
+  - entropy_value
+  - num_clusters
+  - converged_at
+  - is_underpowered
+additionalProperties: false
