@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.10988",
+  "judged_at": "2026-07-11T11:08:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anyflow: any-step video diffusion model with on-policy flow map distil\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it investigates the same core mechanism (flow map distillation and score distillation) and methodology (diffusion model training via distillation) as the user's question, even though it applies these techniques to the text-to-3D domain rather than video. It serves as a canonical reference for the \"Flow Score Distillation\" technique mentioned in the user's follow-up context.",
+  "relevant": true
+}

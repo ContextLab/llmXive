@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.26105",
+  "judged_at": "2026-07-11T11:08:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anyflow: any-step video diffusion model with on-policy flow map distil\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (on-policy flow map distillation) and variables (distilling video diffusion models into autoregressive students) as the user's question, despite focusing on an autoregressive student architecture rather than the specific \"AnyFlow\" implementation. It represents the canonical alternative-vocabulary cluster (criterion f) for the user's topic, addressing the exact technical challenge of on-policy distillation in vid",
+  "relevant": true
+}

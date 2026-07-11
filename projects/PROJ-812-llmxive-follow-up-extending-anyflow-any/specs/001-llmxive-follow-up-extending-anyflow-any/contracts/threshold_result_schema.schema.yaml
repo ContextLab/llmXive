@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ThresholdResultSchema"
+description: "Schema for the threshold optimization and sensitivity analysis results."
+type: "object"
+properties:
+  optimal_threshold:
+    type: "number"
+    description: "The divergence threshold that maximizes F1-score."
+  precision:
+    type: "number"
+    description: "Precision at the optimal threshold."
+  recall:
+    type: "number"
+    description: "Recall at the optimal threshold."
+  f1_score:
+    type: "number"
+    description: "F1-score at the optimal threshold."
+  sensitivity_sweep:
+    type: "array"
+    description: "Array of sensitivity analysis results across a range of thresholds."
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+        false_positive_rate:
+          type: "number"
+        false_negative_rate:
+          type: "number"
+      required:
+        - threshold
+        - false_positive_rate
+        - false_negative_rate
+required:
+  - optimal_threshold
+  - precision
+  - recall
+  - f1_score
+  - sensitivity_sweep
+additionalProperties: false

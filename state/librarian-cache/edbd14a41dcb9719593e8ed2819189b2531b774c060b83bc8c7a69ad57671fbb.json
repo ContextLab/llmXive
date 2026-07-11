@@ -1,0 +1,630 @@
+{
+  "fetched_at": "2026-07-11T11:08:35Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil\"",
+      "target_n": 5
+    },
+    "duration_seconds": 45.282,
+    "ended_at": "2026-07-11T11:08:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "on-policy flow map distillation for video generation"
+        ],
+        [
+          2,
+          "Any-Step video diffusion models"
+        ],
+        [
+          3,
+          "flow matching for video diffusion"
+        ],
+        [
+          4,
+          "multi-step video synthesis with flow matching"
+        ],
+        [
+          5,
+          "trajectory distillation in diffusion models"
+        ],
+        [
+          6,
+          "arbitrary-step video generation"
+        ],
+        [
+          7,
+          "policy distillation for generative flow networks"
+        ],
+        [
+          8,
+          "continuous time video diffusion"
+        ],
+        [
+          9,
+          "flow map learning in diffusion probabilistic models"
+        ],
+        [
+          10,
+          "consistent video generation via flow matching"
+        ],
+        [
+          11,
+          "stochastic differential equation video generation"
+        ],
+        [
+          12,
+          "rectified flow for video synthesis"
+        ],
+        [
+          13,
+          "video generation with flexible sampling steps"
+        ],
+        [
+          14,
+          "on-policy learning for diffusion trajectories"
+        ],
+        [
+          15,
+          "distilling flow fields for video models"
+        ],
+        [
+          16,
+          "adaptive step video diffusion"
+        ],
+        [
+          17,
+          "flow-based video generation frameworks"
+        ],
+        [
+          18,
+          "trajectory optimization in video diffusion"
+        ],
+        [
+          19,
+          "any-step sampling strategies for diffusion"
+        ],
+        [
+          20,
+          "efficient video diffusion via flow distillation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil\" computer science": 0,
+        "on-policy flow map distillation for video generation": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "flow matching distillation trajectory alignment",
+      "AnyFlow model on-policy video generation",
+      "rectified flow ODE sampling diffusion",
+      "video diffusion model frame interpolation latency",
+      "teacher-student distillation stochastic process"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.13724"
+      ]
+    },
+    "per_query_hit_count": {
+      "AnyFlow model on-policy video generation": 3,
+      "flow matching distillation trajectory alignment": 3,
+      "llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil\" computer science": 3,
+      "rectified flow ODE sampling diffusion": 3,
+      "teacher-student distillation stochastic process": 3,
+      "video diffusion model frame interpolation latency": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T11:07:50Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"anyflow: any-step video diffusion model with on-policy flow map distil\" computer science",
+      "raw": "llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dataset distillation aims to synthesize small datasets with little information loss from original large-scale ones for reducing storage and training costs. Recent state-of-the-art methods mainly constrain the sample synthesis process by matching synthetic images and the original ones regarding gradients, embedding distributions, or training trajectories. Although there are various matching objectives, currently the strategy for selecting original images is limited to naive random sampling.\n  We argue that random sampling overlooks the evenness of the selected sample distribution, which may result in noisy or biased matching targets.\n  Besides, the sample diversity is also not constrained by random sampling. These factors together lead to optimization instability in the distilling process and degrade the training efficiency. Accordingly, we propose a novel matching strategy named as \\textbf{D}ataset distillation by \\textbf{RE}present\\textbf{A}tive \\textbf{M}atching (DREAM), where only representative original images are selected for matching. DREAM is able to be easily plugged into popular dataset distillation frameworks and reduce the distilling iterations by more than 8 times without performance drop. Given sufficient training time, DREAM further provides significant improvements and achieves state-of-the-art performances.",
+          "claimed_authors": [
+            "Yanqing Liu",
+            "Jianyang Gu",
+            "Kai Wang",
+            "Zheng Zhu",
+            "Wei Jiang",
+            "Yang You"
+          ],
+          "claimed_title": "DREAM: Efficient Dataset Distillation by Representative Matching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.14416"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='DREAM: Efficient Dataset Distillation by Representative Matching')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ultimate goal of Dataset Distillation is to synthesize a small synthetic dataset such that a model trained on this synthetic set will perform equally well as a model trained on the full, real dataset. Until now, no method of Dataset Distillation has reached this completely lossless goal, in part due to the fact that previous methods only remain effective when the total number of synthetic samples is extremely small. Since only so much information can be contained in such a small number of samples, it seems that to achieve truly loss dataset distillation, we must develop a distillation method that remains effective as the size of the synthetic dataset grows. In this work, we present such an algorithm and elucidate why existing methods fail to generate larger, high-quality synthetic sets. Current state-of-the-art methods rely on trajectory-matching, or optimizing the synthetic data to induce similar long-term training dynamics as the real data. We empirically find that the training stage of the trajectories we choose to match (i.e., early or late) greatly affects the effectiveness of the distilled dataset. Specifically, early trajectories (where the teacher network learns easy patterns) work well for a low-cardinality synthetic set since there are fewer examples wherein to distribute the necessary information. Conversely, late trajectories (where the teacher network learns hard patterns) provide better signals for larger synthetic sets since there are now enough samples to represent the necessary complex patterns. Based on our findings, we propose to align the difficulty of the generated patterns with the size of the synthetic dataset. In doing so, we successfully scale trajectory matching-based methods to larger synthetic datasets, achieving lossless dataset distillation for the very first time. Code and distilled datasets are available at https://gzyaftermath.github.io/DATM.",
+          "claimed_authors": [
+            "Ziyao Guo",
+            "Kai Wang",
+            "George Cazenavette",
+            "Hui Li",
+            "Kaipeng Zhang",
+            "Yang You"
+          ],
+          "claimed_title": "Towards Lossless Dataset Distillation via Difficulty-Aligned Trajectory Matching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.05773"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Towards Lossless Dataset Distillation via Difficulty-Aligned Trajectory Matching')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in Text-to-3D generation have yielded remarkable progress, particularly through methods that rely on Score Distillation Sampling (SDS). While SDS exhibits the capability to create impressive 3D assets, it is hindered by its inherent maximum-likelihood-seeking essence, resulting in limited diversity in generation outcomes. In this paper, we discover that the Denoise Diffusion Implicit Models (DDIM) generation process (\\ie PF-ODE) can be succinctly expressed using an analogue of SDS loss. One step further, one can see SDS as a generalized DDIM generation process. Following this insight, we show that the noise sampling strategy in the noise addition stage significantly restricts the diversity of generation results. To address this limitation, we present an innovative noise sampling approach and introduce a novel text-to-3D method called Flow Score Distillation (FSD). Our validation experiments across various text-to-image Diffusion Models demonstrate that FSD substantially enhances generation diversity without compromising quality.",
+          "claimed_authors": [
+            "Runjie Yan",
+            "Kailu Wu",
+            "Kaisheng Ma"
+          ],
+          "claimed_title": "Flow Score Distillation for Diverse Text-to-3D Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.10988"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Flow Score Distillation for Diverse Text-to-3D Generation')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The evolution of video generation from text, from animating MNIST to simulating the world with Sora, has progressed at a breakneck speed. Here, we systematically discuss how far text-to-video generation technology supports essential requirements in world modeling. We curate 250+ studies on text-based video synthesis and world modeling. We then observe that recent models increasingly support spatial, action, and strategic intelligences in world modeling through adherence to completeness, consistency, invention, as well as human interaction and control. We conclude that text-to-video generation is adept at world modeling, although homework in several aspects, such as the diversity-consistency trade-offs, remains to be addressed.",
+          "claimed_authors": [
+            "Fachrina Dewi Puspitasari",
+            "Chaoning Zhang",
+            "Joseph Cho",
+            "Adnan Haider",
+            "Noor Ul Eman",
+            "Omer Amin",
+            "Alexis Mankowski",
+            "Muhammad Umair",
+            "Jingyao Zheng",
+            "Sheng Zheng",
+            "Lik-Hang Lee",
+            "Caiyan Qin",
+            "Tae-Ho Kim",
+            "Choong Seon Hong",
+            "Yang Yang",
+            "Heng Tao Shen"
+          ],
+          "claimed_title": "Sora as a World Model? A Complete Survey on Text-to-Video Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.05131"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Sora as a World Model? A Complete Survey on Text-to-Video Generation')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video generation models have demonstrated great capabilities of producing impressive monocular videos, however, the generation of 3D stereoscopic video remains under-explored. We propose a pose-free and training-free approach for generating 3D stereoscopic videos using an off-the-shelf monocular video generation model. Our method warps a generated monocular video into camera views on stereoscopic baseline using estimated video depth, and employs a novel frame matrix video inpainting framework. The framework leverages the video generation model to inpaint frames observed from different timestamps and views. This effective approach generates consistent and semantically coherent stereoscopic videos without scene optimization or model fine-tuning. Moreover, we develop a disocclusion boundary re-injection scheme that further improves the quality of video inpainting by alleviating the negative effects propagated from disoccluded areas in the latent space. We validate the efficacy of our proposed method by conducting experiments on videos from various generative models, including Sora [4 ], Lumiere [2], WALT [8 ], and Zeroscope [ 42]. The experiments demonstrate that our method has a significant improvement over previous methods. The code will be released at \\url{https://daipengwa.github.io/SVG_ProjectPage}.",
+          "claimed_authors": [
+            "Peng Dai",
+            "Feitong Tan",
+            "Qiangeng Xu",
+            "David Futschik",
+            "Ruofei Du",
+            "Sean Fanello",
+            "Xiaojuan Qi",
+            "Yinda Zhang"
+          ],
+          "claimed_title": "SVG: 3D Stereoscopic Video Generation via Denoising Frame Matrix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.00367"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='SVG: 3D Stereoscopic Video Generation via Denoising Frame Matrix')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sampling from Flow Matching generative models requires solving an ordinary differential equation (ODE) whose computational cost is dominated by neural network forward passes. We derive four classical ODE solvers -- Euler, Explicit Midpoint, Classical Runge-Kutta (RK4), and Dormand-Prince 5(4) -- from first principles via Taylor expansion, implement them from scratch in PyTorch, and systematically benchmark their efficiency on Conditional Flow Matching tasks ranging from 2D toy distributions to MNIST digits. On the quantitative side, we use sliced Wasserstein distance to construct NFE-quality Pareto frontiers,finding that RK4 at 80 function evaluations achieves sample quality comparable to Euler at 200. Beyond reproducing known convergence rates, we report two empirical observations: (1) the Jacobian eigenvalue spectrum of the learned velocity field stiffens sharply near t=1, explaining why the adaptive Dormand-Prince solver automatically concentrates its step budget at the end of the trajectory; (2) the quality gap between low-order and high-order solvers widens for undertrained and smaller models, indicating that solver choice matters most when the model is imperfect. Code and all experiment scripts are publicly available.",
+          "claimed_authors": [
+            "Hao Xiao"
+          ],
+          "claimed_title": "From Euler to Dormand-Prince: ODE Solvers for Flow Matching Generative Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.00836"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='From Euler to Dormand-Prince: ODE Solvers for Flow Matching Generative Models')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion models have greatly improved visual generation but are hindered by slow generation speed due to the computationally intensive nature of solving generative ODEs. Rectified flow, a widely recognized solution, improves generation speed by straightening the ODE path. Its key components include: 1) using the diffusion form of flow-matching, 2) employing $\\boldsymbol v$-prediction, and 3) performing rectification (a.k.a. reflow). In this paper, we argue that the success of rectification primarily lies in using a pretrained diffusion model to obtain matched pairs of noise and samples, followed by retraining with these matched noise-sample pairs. Based on this, components 1) and 2) are unnecessary. Furthermore, we highlight that straightness is not an essential training target for rectification; rather, it is a specific case of flow-matching models. The more critical training target is to achieve a first-order approximate ODE path, which is inherently curved for models like DDPM and Sub-VP. Building on this insight, we propose Rectified Diffusion, which generalizes the design space and application scope of rectification to encompass the broader category of diffusion models, rather than being restricted to flow-matching models. We validate our method on Stable Diffusion v1-5 and Stable Diffusion XL. Our method not only greatly simplifies the training procedure of rectified flow-based previous works (e.g., InstaFlow) but also achieves superior performance with even lower training cost. Our code is available at https://github.com/G-U-N/Rectified-Diffusion.",
+          "claimed_authors": [
+            "Fu-Yun Wang",
+            "Ling Yang",
+            "Zhaoyang Huang",
+            "Mengdi Wang",
+            "Hongsheng Li"
+          ],
+          "claimed_title": "Rectified Diffusion: Straightness Is Not Your Need in Rectified Flow",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.07303"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Rectified Diffusion: Straightness Is Not Your Need in Rectified Flow')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion models, which convert noise into new data instances by learning to reverse a diffusion process, have become a cornerstone in contemporary generative modeling. In this work, we develop non-asymptotic convergence theory for a popular diffusion-based sampler (i.e., the probability flow ODE sampler) in discrete time, assuming access to $\\ell_2$-accurate estimates of the (Stein) score functions. For distributions in $\\mathbb{R}^d$, we prove that $d/\\varepsilon$ iterations -- modulo some logarithmic and lower-order terms -- are sufficient to approximate the target distribution to within $\\varepsilon$ total-variation distance. This is the first result establishing nearly linear dimension-dependency (in $d$) for the probability flow ODE sampler. Imposing only minimal assumptions on the target data distribution (e.g., no smoothness assumption is imposed), our results also characterize how $\\ell_2$ score estimation errors affect the quality of the data generation processes. In contrast to prior works, our theory is developed based on an elementary yet versatile non-asymptotic approach without the need of resorting to SDE and ODE toolboxes.",
+          "claimed_authors": [
+            "Gen Li",
+            "Yuting Wei",
+            "Yuejie Chi",
+            "Yuxin Chen"
+          ],
+          "claimed_title": "A Sharp Convergence Theory for The Probability Flow ODEs of Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.02320"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='A Sharp Convergence Theory for The Probability Flow ODEs of Diffusion Models')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video Frame Interpolation (VFI) is a core low-level vision task that synthesizes intermediate frames between existing ones while ensuring spatial and temporal coherence. Over the past decades, VFI methodologies have evolved from classical motion compensation-based approach to a wide spectrum of deep learning-based approaches, including kernel-, flow-, hybrid-, phase-, GAN-, Transformer-, Mamba-, and most recently, diffusion-based models. We introduce AceVFI, a comprehensive and up-to-date review of the VFI field, covering over 250 representative papers. We systematically categorize VFI methods based on their core design principles and architectural characteristics. Further, we classify them into two major learning paradigms: Center-Time Frame Interpolation (CTFI) and Arbitrary-Time Frame Interpolation (ATFI). We analyze key challenges in VFI, including large motion, occlusion, lighting variation, and non-linear motion. In addition, we review standard datasets, loss functions, evaluation metrics. We also explore VFI applications in other domains and highlight future research directions. This survey aims to serve as a valuable reference for researchers and practitioners seeking a thorough understanding of the modern VFI landscape.",
+          "claimed_authors": [
+            "Dahyeon Kye",
+            "Changhyun Roh",
+            "Sukhun Ko",
+            "Chanho Eom",
+            "Jihyong Oh"
+          ],
+          "claimed_title": "AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.01061"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generating intermediate video content of varying lengths based on given first and last frames, along with text prompt information, offers significant research and application potential. However, traditional frame interpolation tasks primarily focus on scenarios with a small number of frames, no text control, and minimal differences between the first and last frames. Recent community developers have utilized large video models represented by Wan to endow frame-to-frame capabilities. However, these models can only generate a fixed number of frames and often fail to produce satisfactory results for certain frame lengths, while this setting lacks a clear official definition and a well-established benchmark. In this paper, we first propose a new practical Semantic Frame Interpolation (SFI) task from the perspective of academic definition, which covers the above two settings and supports inference at multiple frame rates. To achieve this goal, we propose a novel SemFi model building upon Wan2.1, which incorporates a Mixture-of-LoRA module to ensure the generation of high-consistency content that aligns with control conditions across various frame length limitations. Furthermore, we propose SFI-300K, the first general-purpose dataset and benchmark specifically designed for SFI. To support this, we collect and process data from the perspective of SFI, carefully designing evaluation metrics and methods to assess the model's performance across multiple dimensions, encompassing image and video, and various aspects, including consistency and diversity. Through extensive experiments on SFI-300K, we demonstrate that our method is particularly well-suited to meet the requirements of the SFI task.",
+          "claimed_authors": [
+            "Yijia Hong",
+            "Jiangning Zhang",
+            "Ran Yi",
+            "Yuji Wang",
+            "Weijian Cao",
+            "Xiaobin Hu",
+            "Zhucun Xue",
+            "Yabiao Wang",
+            "Chengjie Wang",
+            "Lizhuang Ma"
+          ],
+          "claimed_title": "Semantic Frame Interpolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.05173"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Semantic Frame Interpolation')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose a novel motion-compensated frame rate up-conversion (MC-FRUC) algorithm. The proposed algorithm creates interpolated frames by first estimating motion vectors using unilateral (jointing forward and backward) and bilateral motion estimation. Then motion vectors are combined based on adaptive threshold, in order to creates high-quality interpolated frames and reduce block artifacts. Since motion-compensated frame interpolation along unilateral motion trajectories yields holes, a new algorithm is introduced to resolve this problem. The experimental results show that the quality of the interpolated frames using the proposed algorithm is much higher than the existing algorithms.",
+          "claimed_authors": [
+            "Hanieh Naderi",
+            "Mohammad Rahmati"
+          ],
+          "claimed_title": "Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.03621"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although Deep neural networks (DNNs) have shown a strong capacity to solve large-scale problems in many areas, such DNNs are hard to be deployed in real-world systems due to their voluminous parameters. To tackle this issue, Teacher-Student architectures were proposed, where simple student networks with a few parameters can achieve comparable performance to deep teacher networks with many parameters. Recently, Teacher-Student architectures have been effectively and widely embraced on various knowledge distillation (KD) objectives, including knowledge compression, knowledge expansion, knowledge adaptation, and knowledge enhancement. With the help of Teacher-Student architectures, current studies are able to achieve multiple distillation objectives through lightweight and generalized student networks. Different from existing KD surveys that primarily focus on knowledge compression, this survey first explores Teacher-Student architectures across multiple distillation objectives. This survey presents an introduction to various knowledge representations and their corresponding optimization objectives. Additionally, we provide a systematic overview of Teacher-Student architectures with representative learning algorithms and effective distillation schemes. This survey also summarizes recent applications of Teacher-Student architectures across multiple purposes, including classification, recognition, generation, ranking, and regression. Lastly, potential research directions in KD are investigated, focusing on architecture design, knowledge quality, and theoretical studies of regression-based learning, respectively. Through this comprehensive survey, industry practitioners and the academic community can gain valuable insights and guidelines for effectively designing, learning, and applying Teacher-Student architectures on various distillation objectives.",
+          "claimed_authors": [
+            "Chengming Hu",
+            "Xuan Li",
+            "Dan Liu",
+            "Haolun Wu",
+            "Xi Chen",
+            "Ju Wang",
+            "Xue Liu"
+          ],
+          "claimed_title": "Teacher-Student Architecture for Knowledge Distillation: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.04268"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Teacher-Student Architecture for Knowledge Distillation: A Survey')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Training a small student network with the guidance of a larger teacher network is an effective way to promote the performance of the student. Despite the different types, the guided knowledge used to distill is always kept unchanged for different teacher and student pairs in previous knowledge distillation methods. However, we find that teacher and student models with different networks or trained from different initialization could have distinct feature representations among different channels. (e.g. the high activated channel for different categories). We name this incongruous representation of channels as teacher-student knowledge discrepancy in the distillation process. Ignoring the knowledge discrepancy problem of teacher and student models will make the learning of student from teacher more difficult. To solve this problem, in this paper, we propose a novel student-dependent distillation method, knowledge consistent distillation, which makes teacher's knowledge more consistent with the student and provides the best suitable knowledge to different student networks for distillation. Extensive experiments on different datasets (CIFAR100, ImageNet, COCO) and tasks (image classification, object detection) reveal the widely existing knowledge discrepancy problem between teachers and students and demonstrate the effectiveness of our proposed method. Our method is very flexible that can be easily combined with other state-of-the-art approaches.",
+          "claimed_authors": [
+            "Jiangfan Han",
+            "Mengya Gao",
+            "Yujie Wang",
+            "Quanquan Li",
+            "Hongsheng Li",
+            "Xiaogang Wang"
+          ],
+          "claimed_title": "Fixing the Teacher-Student Knowledge Discrepancy in Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.16844"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Fixing the Teacher-Student Knowledge Discrepancy in Distillation')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Advances in self-distillation have shown that when knowledge is distilled from a teacher to a student using the same deep learning (DL) architecture, the student performance can surpass the teacher particularly when the network is overparameterized and the teacher is trained with early stopping. Alternatively, ensemble learning also improves performance, although training, storing, and deploying multiple models becomes impractical as the number of models grows. Even distilling an ensemble to a single student model or weight averaging methods first requires training of multiple teacher models and does not fully leverage the inherent stochasticity for generating and distilling diversity in DL models. These constraints are particularly prohibitive in resource-constrained or latency-sensitive applications such as wearable devices. This paper proposes to train only one model and generate multiple diverse teacher representations using distillation-time dropout. However, generating these representations stochastically leads to noisy representations that are misaligned with the learned task. To overcome this problem, a novel stochastic self-distillation (SSD) training strategy is introduced for filtering and weighting teacher representation to distill from task-relevant representations only, using student-guided knowledge distillation (SGKD). The student representation at each distillation step is used as authority to guide the distillation process. Experimental results on real-world affective computing, wearable/biosignal datasets from the UCR Archive, the HAR dataset, and image classification datasets show that the proposed SSD method can outperform state-of-the-art methods without increasing the model size at both training and testing time, and incurs negligible computational complexity compared to state-of-the-art ensemble learning and weight averaging methods.",
+          "claimed_authors": [
+            "Muhammad Haseeb Aslam",
+            "Clara Martinez",
+            "Marco Pedersoli",
+            "Alessandro Koerich",
+            "Ali Etemad",
+            "Eric Granger"
+          ],
+          "claimed_title": "Learning from Stochastic Teacher Representations Using Student-Guided Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.14307"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"AnyFlow: Any-Step Video Diffusion Model with On-Po', candidate_title='Learning from Stochastic Teacher Representations Using Student-Guided Knowledge Distillation')",
+        "failed_at": "2026-07-11T11:08:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuchao Gu",
+            "Guian Fang",
+            "Yuxin Jiang",
+            "Weijia Mao",
+            "Song Han",
+            "Han Cai",
+            "Mike Zheng Shou"
+          ],
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.13724",
+        "summary": "Few-step video generation has been significantly advanced by consistency distillation. However, the performance of consistency-distilled models often degrades as more sampling steps are allocated at test time, limiting their effectiveness for any-step video diffusion. This limitation arises because consistency distillation replaces the original probability-flow ODE trajectory with a consistency-sampling trajectory, weakening the desirable test-time scaling behavior of ODE sampling. To address this limitation, we introduce AnyFlow, the first any-step video diffusion distillation framework based on flow maps. Instead of distilling a model for only a few fixed sampling steps, AnyFlow optimizes the full ODE sampling trajectory. To this end, we shift the distillation target from endpoint consistency mapping $(z_{t}\\rightarrow z_{0})$ to flow-map transition learning $(z_{t}\\rightarrow z_{r})$ over arbitrary time intervals. We further propose Flow Map Backward Simulation, which decomposes a full Euler rollout into shortcut flow-map transitions, enabling efficient on-policy distillation that reduces test-time errors (i.e., discretization error in few-step sampling and exposure bias in causal generation). Extensive experiments across both bidirectional and causal architectures, at scales ranging from 1.3B to 14B parameters, demonstrate that AnyFlow achieves performance matches or surpasses consistency-based counterparts in the few-step regime, while scaling with sampling step budgets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.13724",
+          "http_status": 200,
+          "pdf_sample_score": 0.2916,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T11:08:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Runjie Yan",
+            "Kailu Wu",
+            "Kaisheng Ma"
+          ],
+          "title": "Flow Score Distillation for Diverse Text-to-3D Generation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.10988",
+        "summary": "Recent advancements in Text-to-3D generation have yielded remarkable progress, particularly through methods that rely on Score Distillation Sampling (SDS). While SDS exhibits the capability to create impressive 3D assets, it is hindered by its inherent maximum-likelihood-seeking essence, resulting in limited diversity in generation outcomes. In this paper, we discover that the Denoise Diffusion Implicit Models (DDIM) generation process (\\ie PF-ODE) can be succinctly expressed using an analogue of SDS loss. One step further, one can see SDS as a generalized DDIM generation process. Following this insight, we show that the noise sampling strategy in the noise addition stage significantly restricts the diversity of generation results. To address this limitation, we present an innovative noise sampling approach and introduce a novel text-to-3D method called Flow Score Distillation (FSD). Our validation experiments across various text-to-image Diffusion Models demonstrate that FSD substantially enhances generation diversity without compromising quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.10988",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T11:08:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yang Luo",
+            "Shengju Qian",
+            "Xiaohang Tang",
+            "Zirui Zhu",
+            "Yong Liu",
+            "Xin Wang",
+            "Yang You"
+          ],
+          "title": "On-Policy Adversarial Flow Distillation for Autoregressive Video Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.26105",
+        "summary": "Autoregressive video generators are attractive for streaming, long-horizon, and interactive applications, but distilling strong black-box teachers into causal students remains difficult. The student must learn under its own rollout distribution, whereas practical teachers may expose only prompt-conditioned completed videos and may differ in architecture, capacity, temporal design, and sampling schedule. This interface makes supervised fine-tuning off-policy, score-based distillation inapplicable, and direct adversarial imitation too sparse for denoising-time credit assignment. We propose Adversarial Flow Distillation (AFD), an on-policy framework for heterogeneous black-box video distillation. AFD queries the teacher and rolls out the current student on the same prompts, trains a prompt-paired Bradley-Terry discriminator to estimate clean-sample teacher-student discrepancy, and converts the resulting on-policy advantage into forward-process flow-matching updates on the student's own noised states. Thus, AFD provides dense velocity-field supervision while requiring no teacher scores, latents, denoising trajectories, step alignment, or reverse-chain reinforcement learning. Experiments across two causal AR student families show that AFD consistently improves motion- and physics-sensitive generation while preserving general video quality, and ablations validate the importance of adaptive on-policy feedback and forward-process credit assignment. The method requires only clean teacher videos and student rollouts, providing a practical route for distilling proprietary or heterogeneous video generators into efficient autoregressive students.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.26105",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T11:08:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhen Fang",
+            "Wenxuan Huang",
+            "Yu Zeng",
+            "Yiming Zhao",
+            "Shuang Chen",
+            "Kaituo Feng",
+            "Yunlong Lin",
+            "Lin Chen",
+            "Zehui Chen",
+            "Shaosheng Cao",
+            "Feng Zhao"
+          ],
+          "title": "Flow-OPD: On-Policy Distillation for Flow Matching Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.08063",
+        "summary": "Existing Flow Matching (FM) text-to-image models suffer from two critical bottlenecks under multi-task alignment: the reward sparsity induced by scalar-valued rewards, and the gradient interference arising from jointly optimizing heterogeneous objectives, which together give rise to a 'seesaw effect' of competing metrics and pervasive reward hacking. Inspired by the success of On-Policy Distillation (OPD) in the large language model community, we propose Flow-OPD, the first unified post-training framework that integrates on-policy distillation into Flow Matching models. Flow-OPD adopts a two-stage alignment strategy: it first cultivates domain-specialized teacher models via single-reward GRPO fine-tuning, allowing each expert to reach its performance ceiling in isolation; it then establishes a robust initial policy through a Flow-based Cold-Start scheme and seamlessly consolidates heterogeneous expertise into a single student via a three-step orchestration of on-policy sampling, task-routing labeling, and dense trajectory-level supervision. We further introduce Manifold Anchor Regularization (MAR), which leverages a task-agnostic teacher to provide full-data supervision that anchors generation to a high-quality manifold, effectively mitigating the aesthetic degradation commonly observed in purely RL-driven alignment. Built upon Stable Diffusion 3.5 Medium, Flow-OPD raises the GenEval score from 63 to 92 and the OCR accuracy from 59 to 94, yielding an overall improvement of roughly 10 points over vanilla GRPO, while preserving image fidelity and human-preference alignment and exhibiting an emergent 'teacher-surpassing' effect. These results establish Flow-OPD as a scalable alignment paradigm for building generalist text-to-image models. The codes and weights will be released in: https://github.com/CostaliyA/Flow-OPD .",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.08063",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T11:08:25Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"anyflow: any-step video diffusion model with on-policy flow map distil\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DivergenceMetricSchema"
+description: "Schema for the flow-map divergence metric calculation results."
+type: "object"
+properties:
+  clip_id:
+    type: "string"
+    description: "Unique identifier for the video clip."
+  l2_distance:
+    type: "number"
+    description: "L2 distance between predicted latent state and Euler rollout state."
+  euler_steps:
+    type: "integer"
+    description: "Number of steps used in the Euler rollout (100)."
+  computation_time_sec:
+    type: "number"
+    description: "Time taken to compute the divergence metric in seconds."
+  is_primary_analysis:
+    type: "boolean"
+    description: "True if the clip used 100 steps and completed within the timeout."
+required:
+  - clip_id
+  - l2_distance
+  - euler_steps
+  - computation_time_sec
+  - is_primary_analysis
+additionalProperties: false

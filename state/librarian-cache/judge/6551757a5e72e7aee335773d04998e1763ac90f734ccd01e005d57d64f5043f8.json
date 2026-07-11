@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.08063",
+  "judged_at": "2026-07-11T11:08:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anyflow: any-step video diffusion model with on-policy flow map distil\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it directly investigates the same core mechanism (On-Policy Distillation applied to Flow Matching models) and proposes a foundational framework for this specific technique, which is the exact subject of the user's follow-up research on extending \"AnyFlow\".",
+  "relevant": true
+}
