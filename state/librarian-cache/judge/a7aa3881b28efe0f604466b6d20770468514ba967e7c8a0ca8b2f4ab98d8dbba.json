@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.04618",
+  "judged_at": "2026-07-11T12:32:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of visual attention on recall of emotional stimuli in rapid visual sequences psychology",
+  "rationale": "The paper focuses on engineering methods for Brain-Computer Interfaces (BCI) to classify EEG signals during Rapid Serial Visual Presentation (RSVP), rather than investigating the psychological mechanisms of how visual attention influences the recall of emotional stimuli. While it shares the \"Rapid Visual Sequence\" (RSVP) domain, it addresses a distinct construct (signal processing for machine learning) and lacks the specific variables (emotional stimuli, recall performance) required by the user'",
+  "relevant": false
+}

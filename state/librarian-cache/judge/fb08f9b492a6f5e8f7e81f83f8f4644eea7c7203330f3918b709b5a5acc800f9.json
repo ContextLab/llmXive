@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.00719",
+  "judged_at": "2026-07-11T12:29:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the validity of the weak equivalence principle with publicly available planetary orbital data physics",
+  "rationale": "This paper satisfies criterion (a) as it tests the Strong Equivalence Principle (SEP) using planetary ephemerides, which is the canonical mechanism and domain for investigating the validity of equivalence principles in planetary orbital data; while the user asked about the Weak Equivalence Principle (WEP), the SEP is the broader framework that encompasses the WEP, and testing SEP violations in this specific domain provides the necessary foundational evidence for any literature review on equivale",
+  "relevant": true
+}

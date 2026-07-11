@@ -1,1 +1,1 @@
-"""Statistical analysis and meta-analysis modules."""
+# Analysis modules (effect sizes, meta-analysis)

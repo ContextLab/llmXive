@@ -1,0 +1,470 @@
+{
+  "fetched_at": "2026-07-11T12:32:30Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Sequences",
+      "target_n": 5
+    },
+    "duration_seconds": 52.408,
+    "ended_at": "2026-07-11T12:32:30Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "emotional salience in rapid serial visual presentation"
+        ],
+        [
+          2,
+          "attentional blink and emotional stimuli"
+        ],
+        [
+          3,
+          "visual working memory for affective images"
+        ],
+        [
+          4,
+          "emotion-driven attentional capture in RSVP"
+        ],
+        [
+          5,
+          "recall accuracy for emotional versus neutral stimuli"
+        ],
+        [
+          6,
+          "temporal attention and emotional memory consolidation"
+        ],
+        [
+          7,
+          "affective bias in rapid visual perception"
+        ],
+        [
+          8,
+          "emotional modulation of the attentional blink"
+        ],
+        [
+          9,
+          "visual search for emotional targets in sequences"
+        ],
+        [
+          10,
+          "working memory capacity for emotional faces"
+        ],
+        [
+          11,
+          "attentional selection of valenced visual stimuli"
+        ],
+        [
+          12,
+          "emotional interference in rapid visual streams"
+        ],
+        [
+          13,
+          "memory retrieval of affective events in time"
+        ],
+        [
+          14,
+          "prioritization of emotional information in visual attention"
+        ],
+        [
+          15,
+          "attentional resources for emotional processing in sequences"
+        ],
+        [
+          16,
+          "visual attention mechanisms for threat detection"
+        ],
+        [
+          17,
+          "temporal dynamics of emotional memory encoding"
+        ],
+        [
+          18,
+          "affective priming in rapid visual sequences"
+        ],
+        [
+          19,
+          "selective attention to emotional content in RSVP tasks"
+        ],
+        [
+          20,
+          "cognitive control of emotional distraction in visual memory"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Sequences psychology": 0,
+        "emotional salience in rapid serial visual presentation": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "attentional blink emotional valence",
+      "rapid serial visual presentation affective pictures",
+      "emotional salience attentional selection mechanism",
+      "recall accuracy emotional stimulus recognition",
+      "attentional capture affective prioritization theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1411.3489"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Sequences psychology": 3,
+      "attentional blink emotional valence": 3,
+      "attentional capture affective prioritization theory": 1,
+      "emotional salience attentional selection mechanism": 3,
+      "rapid serial visual presentation affective pictures": 3,
+      "recall accuracy emotional stimulus recognition": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2202.09741",
+          "rationale": "The paper addresses \"visual attention\" as a computational mechanism in deep learning (specifically self-attention in neural networks for image processing), which is a distinct construct from the user's question regarding human \"visual attention\" as a psychological cognitive process affecting memory recall. This falls under the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"attention\" in AI vs. \"attention\" in psychology).",
+          "title": "Visual Attention Network"
+        },
+        {
+          "primary_pointer": "2503.12623",
+          "rationale": "The paper focuses on a computer vision and machine learning architecture for automatic emotion recognition from multi-modal data, which is a distinct construct from the user's question about the psychological mechanism of human visual attention affecting memory recall. While both involve \"attention\" and \"emotion,\" the paper studies algorithmic feature weighting for classification rather than the cognitive process of human attention or its impact on memory, failing the \"distinct construct sharing",
+          "title": "MAVEN: Multi-modal Attention for Valence-Arousal Emotion Network"
+        },
+        {
+          "primary_pointer": "1908.01699",
+          "rationale": "The paper focuses on engineering a tool for speed reading using NLP to optimize text presentation, which is an off-domain application of Rapid Serial Visual Presentation (RSVP) that does not measure the psychological mechanisms of visual attention, emotional stimuli processing, or recall performance required by the user's question. It fails to satisfy any inclusion criteria (a-f) as it addresses a different construct (reading efficiency tool) rather than the cognitive variables of interest.",
+          "title": "Thoth: Improved Rapid Serial Visual Presentation using Natural Language Processing"
+        },
+        {
+          "primary_pointer": "1901.04618",
+          "rationale": "The paper focuses on engineering methods for Brain-Computer Interfaces (BCI) to classify EEG signals during Rapid Serial Visual Presentation (RSVP), rather than investigating the psychological mechanisms of how visual attention influences the recall of emotional stimuli. While it shares the \"Rapid Visual Sequence\" (RSVP) domain, it addresses a distinct construct (signal processing for machine learning) and lacks the specific variables (emotional stimuli, recall performance) required by the user'",
+          "title": "Spatial Filtering Pipeline Evaluation of Cortically Coupled Computer Vision System for Rapid Serial Visual Presentation"
+        },
+        {
+          "primary_pointer": "2102.03796",
+          "rationale": "The paper focuses on optimizing Brain-Computer Interface (BCI) classification accuracy using P300 signals, which is an engineering application distinct from the user's psychological inquiry into the mechanism of visual attention and emotional recall. While both involve \"rapid serial presentation,\" the candidate paper does not measure the specific dependent variable (recall of emotional stimuli) or the psychological construct (attention's impact on memory) required for the user's literature revie",
+          "title": "Brain-computer interface with rapid serial multimodal presentation using artificial facial images and voice"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T12:31:37Z",
+    "term_input": {
+      "normalized": "the impact of visual attention on recall of emotional stimuli in rapid visual sequences psychology",
+      "raw": "The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Sequences psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The analysis of spatiotemporal data is essential in domains such as epidemiology and environmental monitoring, where understanding the interplay between spatially distributed phenomena and their temporal evolution is critical. Dense pixel visualizations offer a compact, effective overview of spatiotemporal dynamics. However, the necessary linearization of 2D geographic space into a 1D ordering inevitably introduces structural distortions that manifest as visual artifacts. We propose a measure-driven visual analytics approach that captures visual artifacts through neighborhood preservation measures for 1D orderings and renders them using visual boosting techniques such as glyphs, halos, and hatching. We demonstrate our approach through a usage scenario analyzing COVID-19 incidence data across German districts, showing that interactive, measure-driven boosting enables analysts to reliably distinguish genuine spatial patterns from linearization artifacts.",
+          "claimed_authors": [
+            "Julius Rauscher",
+            "Frederik L. Dennig",
+            "Udo Schlegel",
+            "Daniel A. Keim",
+            "Tobias Schreck"
+          ],
+          "claimed_title": "Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25298"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations')",
+        "failed_at": "2026-07-11T12:32:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Argumentation Mining addresses the challenging tasks of identifying boundaries of argumentative text fragments and extracting their relationships. Fully automated solutions do not reach satisfactory accuracy due to their insufficient incorporation of semantics and domain knowledge. Therefore, experts currently rely on time-consuming manual annotations. In this paper, we present a visual analytics system that augments the manual annotation process by automatically suggesting which text fragments to annotate next. The accuracy of those suggestions is improved over time by incorporating linguistic knowledge and language modeling to learn a measure of argument similarity from user interactions. Based on a long-term collaboration with domain experts, we identify and model five high-level analysis tasks. We enable close reading and note-taking, annotation of arguments, argument reconstruction, extraction of argument relations, and exploration of argument graphs. To avoid context switches, we transition between all views through seamless morphing, visually anchoring all text- and graph-based layers. We evaluate our system with a two-stage expert user study based on a corpus of presidential debates. The results show that experts prefer our system over existing solutions due to the speedup provided by the automatic suggestions and the tight integration between text and graph views.",
+          "claimed_authors": [
+            "Fabian Sperrle",
+            "Rita Sevastjanova",
+            "Rebecca Kehlbeck",
+            "Mennatallah El-Assady"
+          ],
+          "claimed_title": "VIANA: Visual Interactive Annotation of Argumentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.12413"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='VIANA: Visual Interactive Annotation of Argumentation')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Blink, a new benchmark for multimodal language models (LLMs) that focuses on core visual perception abilities not found in other evaluations. Most of the Blink tasks can be solved by humans \"within a blink\" (e.g., relative depth estimation, visual correspondence, forensics detection, and multi-view reasoning). However, we find these perception-demanding tasks cast significant challenges for current multimodal LLMs because they resist mediation through natural language. Blink reformats 14 classic computer vision tasks into 3,807 multiple-choice questions, paired with single or multiple images and visual prompting. While humans get 95.70% accuracy on average, Blink is surprisingly challenging for existing multimodal LLMs: even the best-performing GPT-4V and Gemini achieve accuracies of 51.26% and 45.72%, only 13.17% and 7.63% higher than random guessing, indicating that such perception abilities have not \"emerged\" yet in recent multimodal LLMs. Our analysis also highlights that specialist CV models could solve these problems much better, suggesting potential pathways for future improvements. We believe Blink will stimulate the community to help multimodal LLMs catch up with human-level visual perception.",
+          "claimed_authors": [
+            "Xingyu Fu",
+            "Yushi Hu",
+            "Bangzheng Li",
+            "Yu Feng",
+            "Haoyu Wang",
+            "Xudong Lin",
+            "Dan Roth",
+            "Noah A. Smith",
+            "Wei-Chiu Ma",
+            "Ranjay Krishna"
+          ],
+          "claimed_title": "BLINK: Multimodal Large Language Models Can See but Not Perceive",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.12390"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='BLINK: Multimodal Large Language Models Can See but Not Perceive')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study proposes a real-time system that translates voluntary eye blinks into Morse code, enabling communication for individuals with severe motor impairments. Using a standard webcam and computer vision, the system detects and classifies blinks as short (dot) or long (dash), then decodes them into alphanumeric characters. Experiments with five participants show 62% decoding accuracy and 18-20 seconds response times, demonstrating a viable, low-cost assistive communication method.",
+          "claimed_authors": [
+            "Anushka Bhatt"
+          ],
+          "claimed_title": "Blink-to-code: real-time Morse code communication via eye blink detection and classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.09344"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Blink-to-code: real-time Morse code communication via eye blink detection and classification')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Thoth is a tool designed to combine many different types of speed reading technology. The largest insight is using natural language parsing for more optimal rapid serial visual presentation and more effective reading information.",
+          "claimed_authors": [
+            "David Awad"
+          ],
+          "claimed_title": "Thoth: Improved Rapid Serial Visual Presentation using Natural Language Processing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.01699"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Thoth: Improved Rapid Serial Visual Presentation using Natural Language Processing')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How could we gather affect annotations in a rapid, unobtrusive, and accessible fashion? How could we still make sure that these annotations are reliable enough for data-hungry affect modelling methods? This paper addresses these questions by introducing PAGAN, an accessible, general-purpose, online platform for crowdsourcing affect labels in videos. The design of PAGAN overcomes the accessibility limitations of existing annotation tools, which often require advanced technical skills or even the on-site involvement of the researcher. Such limitations often yield affective corpora that are restricted in size, scope and use, as the applicability of modern data-demanding machine learning methods is rather limited. The description of PAGAN is accompanied by an exploratory study which compares the reliability of three continuous annotation tools currently supported by the platform. Our key results reveal higher inter-rater agreement when annotation traces are processed in a relative manner and collected via unbounded labelling.",
+          "claimed_authors": [
+            "David Melhart",
+            "Antonios Liapis",
+            "Georgios N. Yannakakis"
+          ],
+          "claimed_title": "PAGAN: Video Affect Annotation Made Easy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01008"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='PAGAN: Video Affect Annotation Made Easy')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces BReG-NeXt, a residual-based network architecture using a function wtih bounded derivative instead of a simple shortcut path (a.k.a. identity mapping) in the residual units for automatic recognition of facial expressions based on the categorical and dimensional models of affect. Compared to ResNet, our proposed adaptive complex mapping results in a shallower network with less numbers of training parameters and floating point operations per second (FLOPs). Adding trainable parameters to the bypass function further improves fitting and training the network and hence recognizing subtle facial expressions such as contempt with a higher accuracy. We conducted comprehensive experiments on the categorical and dimensional models of affect on the challenging in-the-wild databases of AffectNet, FER2013, and Affect-in-Wild. Our experimental results show that our adaptive complex mapping approach outperforms the original ResNet consisting of a simple identity mapping as well as other state-of-the-art methods for Facial Expression Recognition (FER). Various metrics are reported in both affect models to provide a comprehensive evaluation of our method. In the categorical model, BReG-NeXt-50 with only 3.1M training parameters and 15 MFLOPs, achieves 68.50% and 71.53% accuracy on AffectNet and FER2013 databases, respectively. In the dimensional model, BReG-NeXt achieves 0.2577 and 0.2882 RMSE value on AffectNet and Affect-in-Wild databases, respectively.",
+          "claimed_authors": [
+            "Behzad Hasani",
+            "Pooran Singh Negi",
+            "Mohammad H. Mahoor"
+          ],
+          "claimed_title": "BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08495"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The optimal dimensional synthesis for planar mechanisms using differential evolution (DE) is demonstrated. Four examples are included: in the first case, the synthesis of a mechanism for hybrid-tasks, considering path generation, function generation, and motion generation, is carried out. The second and third cases pertain to path generation, with and without prescribed timing. Finally, the synthesis of an Ackerman mechanism is reported. Order defect problem is solved by manipulating individuals instead of penalizing or discretizing the search space for the parameters. A technique that consists in applying a transformation in order to satisfy the Grashof and crank conditions to generate an initial elitist population is introduced. As a result, the evolutionary algorithm increases its efficiency.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "D. Pech-Oy"
+          ],
+          "claimed_title": "Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.2017"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of path generation for the spherical 4R mechanism is solved using the Differential Evolution algorithm (DE). Formulas for the spherical geodesics are employed in order to obtain the parametric equation for the generated trajectory. Direct optimization of the objective function gives the solution to the path generation task without prescribed timing. Therefore, there is no need to separate this task into two stages to make the optimization. Moreover, the order defect problem can be solved without difficulty by means of manipulations of the individuals in the DE algorithm. Two examples of optimum synthesis showing the simplicity and effectiveness of this approach are included.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "Carlos A. Cruz-Villar"
+          ],
+          "claimed_title": "Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.2954"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Emotion recognition in dynamic social contexts requires an understanding of the complex interaction between facial expressions and situational cues. This paper presents a salience-adjusted framework for context-aware emotion recognition with Bayesian Cue Integration (BCI) and Visual-Language Models (VLMs) to dynamically weight facial and contextual information based on the expressivity of facial cues. We evaluate this approach using human annotations and automatic emotion recognition systems in prisoner's dilemma scenarios, which are designed to evoke emotional reactions. Our findings demonstrate that incorporating salience adjustment enhances emotion recognition performance, offering promising directions for future research to extend this framework to broader social contexts and multimodal applications.",
+          "claimed_authors": [
+            "Bin Han",
+            "Jonathan Gratch"
+          ],
+          "claimed_title": "Salience Adjustment for Context-Based Emotion Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.15878"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Salience Adjustment for Context-Based Emotion Recognition')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning has been widely adopted in automatic emotion recognition and has lead to significant progress in the field. However, due to insufficient annotated emotion datasets, pre-trained models are limited in their generalization capability and thus lead to poor performance on novel test sets. To mitigate this challenge, transfer learning performing fine-tuning on pre-trained models has been applied. However, the fine-tuned knowledge may overwrite and/or discard important knowledge learned from pre-trained models. In this paper, we address this issue by proposing a PathNet-based transfer learning method that is able to transfer emotional knowledge learned from one visual/audio emotion domain to another visual/audio emotion domain, and transfer the emotional knowledge learned from multiple audio emotion domains into one another to improve overall emotion recognition accuracy. To show the robustness of our proposed system, various sets of experiments for facial expression recognition and speech emotion recognition task on three emotion datasets: SAVEE, EMODB, and eNTERFACE have been carried out. The experimental results indicate that our proposed system is capable of improving the performance of emotion recognition, making its performance substantially superior to the recent proposed fine-tuning/pre-trained models based transfer learning methods.",
+          "claimed_authors": [
+            "Dung Nguyen",
+            "Sridha Sridharan",
+            "Duc Thanh Nguyen",
+            "Simon Denman",
+            "David Dean",
+            "Clinton Fookes"
+          ],
+          "claimed_title": "Meta Transfer Learning for Emotion Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.13211"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Meta Transfer Learning for Emotion Recognition')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper addresses data quality issues in multimodal emotion recognition in conversation (MERC) through systematic quality control and multi-stage transfer learning. We implement a quality control pipeline for MELD and IEMOCAP datasets that validates speaker identity, audio-text alignment, and face detection. We leverage transfer learning from speaker and face recognition, assuming that identity-discriminative embeddings capture not only stable acoustic and Facial traits but also person-specific patterns of emotional expression. We employ RecoMadeEasy(R) engines for extracting 512-dimensional speaker and face embeddings, fine-tune MPNet-v2 for emotion-aware text representations, and adapt these features through emotion-specific MLPs trained on unimodal datasets. MAMBA-based trimodal fusion achieves 64.8% accuracy on MELD and 74.3% on IEMOCAP. These results show that combining identity-based audio and visual embeddings with emotion-tuned text representations on a quality-controlled subset of data yields consistent competitive performance for multimodal emotion recognition in conversation and provides a basis for further improvement on challenging, low-frequency emotion classes.",
+          "claimed_authors": [
+            "Zanxu Wang",
+            "Homayoon Beigi"
+          ],
+          "claimed_title": "Quality-Controlled Multimodal Emotion Recognition in Conversations with Identity-Based Transfer Learning and MAMBA Fusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.14969"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Quality-Controlled Multimodal Emotion Recognition in Conversations with Identity-Based Transfer Learning and MAMBA Fusion')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work we tackle the task of video-based visual emotion recognition in the wild. Standard methodologies that rely solely on the extraction of bodily and facial features often fall short of accurate emotion prediction in cases where the aforementioned sources of affective information are inaccessible due to head/body orientation, low resolution and poor illumination. We aspire to alleviate this problem by leveraging visual context in the form of scene characteristics and attributes, as part of a broader emotion recognition framework. Temporal Segment Networks (TSN) constitute the backbone of our proposed model. Apart from the RGB input modality, we make use of dense Optical Flow, following an intuitive multi-stream approach for a more effective encoding of motion. Furthermore, we shift our attention towards skeleton-based learning and leverage action-centric data as means of pre-training a Spatial-Temporal Graph Convolutional Network (ST-GCN) for the task of emotion recognition. Our extensive experiments on the challenging Body Language Dataset (BoLD) verify the superiority of our methods over existing approaches, while by properly incorporating all of the aforementioned modules in a network ensemble, we manage to surpass the previous best published recognition scores, by a large margin.",
+          "claimed_authors": [
+            "Ioannis Pikoulis",
+            "Panagiotis P. Filntisis",
+            "Petros Maragos"
+          ],
+          "claimed_title": "Leveraging Semantic Scene Characteristics and Multi-Stream Convolutional Architectures in a Contextual Approach for Video-Based Visual Emotion Recognition in the Wild",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.07484"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Leveraging Semantic Scene Characteristics and Multi-Stream Convolutional Architectures in a Contextual Approach for Video-Based Visual Emotion Recognition in the Wild')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Se', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-07-11T12:32:07Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Luís F. Seoane",
+            "Stephan Gabler",
+            "Benjamin Blankertz"
+          ],
+          "title": "Images from the Mind: BCI image evolution based on Rapid Serial Visual Presentation of polygon primitives",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1411.3489",
+        "summary": "This paper provides a proof of concept for an EEG-based reconstruction of a visual image which is on a user's mind. Our approach is based on the Rapid Serial Visual Presentation (RSVP) of polygon primitives and Brain-Computer Interface (BCI) technology. The presentation of polygons that contribute to build a target image (because they match the shape and/or color of the target) trigger attention-related EEG patterns. Accordingly, these target primitives can be determined using BCI classification of Event-Related Potentials (ERPs). They are then accumulated in the display until a satisfactory reconstruction is reached. Selection steps have an average classification accuracy of $75\\%$. $25\\%$ of the images could be reconstructed completely, while more than $65\\%$ of the available visual details could be captured on average. Most of the misclassifications were not misinterpretations of the BCI concerning users' intent; rather, users tried to select polygons that were different than what was intended by the experimenters. Open problems and alternatives to develop a practical BCI-based image reconstruction application are discussed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1411.3489",
+          "http_status": 200,
+          "pdf_sample_score": 0.2149,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:32:13Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of visual attention on recall of emotional stimuli in rapid visual sequences psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

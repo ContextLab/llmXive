@@ -1,0 +1,3 @@
+# This file extends the configuration in pyproject.toml for Ruff.
+# It is kept separate for clarity in CI/CD pipelines if needed.
+extend = "pyproject.toml"

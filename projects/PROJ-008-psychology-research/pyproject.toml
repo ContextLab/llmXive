@@ -3,32 +3,79 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-008-psychology-research"
+name = "mindfulness-asd-social-skills"
 version = "0.1.0"
-description = "Meta-analysis of mindfulness interventions for social skills in ASD"
-readme = "README.md"
+description = "Meta-analysis of Mindfulness Components and Delivery Formats in ASD Social Skills"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas>=2.0.0",
-    "scikit-learn>=1.3.0",
-    "statsmodels>=0.14.0",
-    "matplotlib>=3.7.0",
-    "requests>=2.31.0",
-    "pyyaml>=6.0",
-    "pytest>=7.4.0",
-    "bayesmeta>=0.3.0",
-    "pdfplumber>=0.9.0",
-    "pytesseract>=0.3.10",
-    "pydantic>=2.0.0",
+    "pandas",
+    "scikit-learn",
+    "statsmodels",
+    "matplotlib",
+    "requests",
+    "pyyaml",
+    "pytest",
+    "bayesmeta",
+    "pdfplumber",
+    "pytesseract",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.ruff]
+# Linting configuration
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function calls in argument defaults (common in Pydantic/FastAPI)
+]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[tool.ruff.isort]
+known-first-party = ["data", "utils", "analysis", "viz"]
+force-sort-within-sections = true
+
+[tool.black]
+# Formatting configuration
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
 
 [tool.setuptools.packages.find]
 where = ["code"]
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-
-[tool.black]
-line-length = 88
-target-version = ["py311"]
+include = ["data*", "utils*", "analysis*", "viz*"]

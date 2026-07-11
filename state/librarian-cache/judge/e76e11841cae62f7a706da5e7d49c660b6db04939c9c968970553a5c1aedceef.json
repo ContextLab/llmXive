@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1908.01699",
+  "judged_at": "2026-07-11T12:32:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of visual attention on recall of emotional stimuli in rapid visual sequences psychology",
+  "rationale": "The paper focuses on engineering a tool for speed reading using NLP to optimize text presentation, which is an off-domain application of Rapid Serial Visual Presentation (RSVP) that does not measure the psychological mechanisms of visual attention, emotional stimuli processing, or recall performance required by the user's question. It fails to satisfy any inclusion criteria (a-f) as it addresses a different construct (reading efficiency tool) rather than the cognitive variables of interest.",
+  "relevant": false
+}

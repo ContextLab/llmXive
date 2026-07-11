@@ -602,3 +602,42 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T10:25:46Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: llama.cpp CPU inference LMM interaction term significance test
+  claim_id: c_ce4160a8
+  context: 'Independent Test for User Story 3: The system can run inference on a sample
+    of few-shot prompts using ''llama.cpp'' (CPU mode), collect accuracy metrics,
+    aggregate them by seed, and output a statistical report confirming whether the
+    interaction term in the LMM is significant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Llama.cpp_CPU_inference_LMM_interaction_term_significance_te
+  kind: entity_fact
+  raw_text: The system can run inference on a sample of few-shot prompts using 'llama.cpp'
+    (CPU mode), collect accuracy metrics, aggregate them by seed, and output a statistical
+    report confirming whether the interaction term in the LMM is significant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:35:21Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: DAG parser runtime < 15 min on 1000 traces
+  claim_id: c_73b2564a
+  context: 'T042 Performance optimization for DAG parsing: Refactor ''parser.py''
+    to achieve < 15 min runtime on 1000 raw/CoT traces; verify by running benchmark
+    script and recording time in ''artifacts/perf_log.txt'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor 'parser.py' to achieve < 15 min runtime on 1000 raw/CoT traces.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T12:35:21Z'

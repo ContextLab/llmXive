@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-07-11T12:30:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting reaction mechanisms from spectroscopic data with machine learning chemistry",
+  "rationale": "The paper focuses on \"official statistics\" and general data source reliability in a policy context, which is an off-domain application compared to the user's specific question about predicting chemical reaction mechanisms from spectroscopic data. It does not address the chemical domain, the specific spectroscopic variables, or the machine learning mechanisms for chemical reaction prediction, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

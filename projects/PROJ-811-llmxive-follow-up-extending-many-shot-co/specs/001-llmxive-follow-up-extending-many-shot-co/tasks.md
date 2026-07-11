@@ -58,7 +58,7 @@
 - [X] T004 Setup `data/` directory structure (`raw/`, `processed/`, `results/`) and `artifacts/` for checksums
 - [X] T005 [P] Implement `code/src/update_state.py` for Constitution Principle V (artifact hashing and state YAML updates)
 - [X] T006 [P] Setup environment configuration management (load seeds, model paths from `.env` or YAML)
-- [ ] T007 Create base data loading utilities for HuggingFace datasets (`aaabiao/DAG_sft`)
+- [X] T007 Create base data loading utilities for HuggingFace datasets (`aaabiao/DAG_sft`)
 - [X] T008 Implement `code/src/parser.py` skeleton with `networkx` DAG initialization logic
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -82,7 +82,7 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement CoT trace parser in `code/src/parser.py` to convert text steps to `networkx` DAG nodes/edges
-- [~] T013 [US1] Implement cycle detection logic (max cycle length of 5 steps, >3 incoming edges) and flagging mechanism in `code/src/parser.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [ ] T013 [US1] Implement cycle detection logic (max cycle length of 5 steps, >3 incoming edges) and flagging mechanism in `code/src/parser.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 4, column 1:
  **Input**: Design documents from...
  ^
@@ -122,8 +122,8 @@ expected alphabetic or numeric character, but found '*'
 - [~] T024b [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024a.
 - [~] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
 - [~] T026 [US2] Create batch runner to generate prompts for multiple seeds across three strategies, saving to `data/processed/prompts/`
-- [ ] T027 [US2] Add validation to ensure no duplicate orderings within a strategy group across seeds
-- [ ] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
+- [~] T027 [US2] Add validation to ensure no duplicate orderings within a strategy group across seeds
+- [~] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,7 +137,7 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for accuracy calculation and retry logic in `code/tests/test_inference.py`
+- [~] T029 [P] [US3] Unit test for accuracy calculation and retry logic in `code/tests/test_inference.py`
 - [ ] T030 [P] [US3] Unit test for LMM model fitting and p-value extraction in `code/tests/test_analysis.py`
 - [ ] T031 [P] [US3] Integration test for full pipeline (Prompt → Inference → Stats) on a small subset in `code/tests/test_integration.py`
 

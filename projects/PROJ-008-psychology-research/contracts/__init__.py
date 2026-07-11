@@ -1,1 +1,1 @@
-"""Data contract schemas."""
+# Schema contracts directory

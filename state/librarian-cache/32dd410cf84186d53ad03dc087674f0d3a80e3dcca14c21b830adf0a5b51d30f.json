@@ -1,0 +1,612 @@
+{
+  "fetched_at": "2026-07-11T12:29:36Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data",
+      "target_n": 5
+    },
+    "duration_seconds": 54.837,
+    "ended_at": "2026-07-11T12:29:36Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "test of the weak equivalence principle using planetary ephemerides"
+        ],
+        [
+          2,
+          "constraints on the universality of free fall from solar system dynamics"
+        ],
+        [
+          3,
+          "lunar laser ranging and equivalence principle violations"
+        ],
+        [
+          4,
+          "PPN parameters gamma and beta from planetary orbit analysis"
+        ],
+        [
+          5,
+          "differential acceleration of planets in the solar gravitational field"
+        ],
+        [
+          6,
+          "search for fifth forces using planetary orbital residuals"
+        ],
+        [
+          7,
+          "Nordtvedt effect in planetary motion"
+        ],
+        [
+          8,
+          "gravitational redshift and equivalence principle tests with spacecraft tracking"
+        ],
+        [
+          9,
+          "violations of the Einstein equivalence principle in the solar system"
+        ],
+        [
+          10,
+          "post-Newtonian constraints on alternative gravity theories from ephemeris data"
+        ],
+        [
+          11,
+          "composition-dependent gravitational acceleration of solar system bodies"
+        ],
+        [
+          12,
+          "analysis of MESSENGER and Cassini tracking data for equivalence principle tests"
+        ],
+        [
+          13,
+          "solar system tests of general relativity and modified gravity"
+        ],
+        [
+          14,
+          "planetary perihelion precession and equivalence principle constraints"
+        ],
+        [
+          15,
+          "dark matter coupling to baryonic matter via planetary orbit perturbations"
+        ],
+        [
+          16,
+          "scalar-tensor theory constraints from planetary orbital data"
+        ],
+        [
+          17,
+          "equivalence principle tests using astrometric data from Gaia and VLBI"
+        ],
+        [
+          18,
+          "gravitational binding energy contribution to planetary inertial mass"
+        ],
+        [
+          19,
+          "long-range forces and equivalence principle violation limits"
+        ],
+        [
+          20,
+          "solar system dynamics as a probe for new gravitational interactions"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data physics": 0,
+        "test of the weak equivalence principle using planetary ephemerides": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Eötvös parameter lunar laser ranging",
+      "planetary ephemeris INPOP JPL DE440",
+      "gravitational redshift light deflection time delay",
+      "orbital residuals perihelion precession anomaly",
+      "Nordtvedt effect strong equivalence principle violation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2303.01821"
+      ]
+    },
+    "per_query_hit_count": {
+      "Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data physics": 3,
+      "Eötvös parameter lunar laser ranging": 3,
+      "Nordtvedt effect strong equivalence principle violation": 1,
+      "gravitational redshift light deflection time delay": 3,
+      "orbital residuals perihelion precession anomaly": 3,
+      "planetary ephemeris INPOP JPL DE440": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "hep-ph/0204284",
+          "rationale": "The paper investigates the Weak Equivalence Principle using ultracold neutrons and quantum effects, which is a distinct experimental domain (subatomic particles in a lab) from the user's specific question regarding \"publicly available planetary orbital data\" (macroscopic celestial mechanics). While the core physical principle is the same, the paper fails the \"off-domain entirely\" rejection rule because it does not measure the specific variables (planetary orbits) or utilize the specific data typ",
+          "title": "Ultracold neutrons, quantum effects of gravity and the Weak Equivalence Principle"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T12:28:41Z",
+    "term_input": {
+      "normalized": "exploring the validity of the weak equivalence principle with publicly available planetary orbital data physics",
+      "raw": "Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this Chapter we illustrate the close connection between the violation of the weak equivalence principle typical of gravitational interactions at finite temperature, and similar violations induced by a breaking of the local Lorentz symmetry. We also discuss the physical implications of the effective repulsive forces possibly arising in such a generalized gravitational context, by considering, for an illustrative purpose, a quasi-Riemannian model of gravity with rotational symmetry as the local gauge group in tangent space.",
+          "claimed_authors": [
+            "M. Gasperini"
+          ],
+          "claimed_title": "Gravity at Finite Temperature, Equivalence Principle,and Local Lorentz Invariance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.00458"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Gravity at Finite Temperature, Equivalence Principle,and Local Lorentz Invariance')",
+        "failed_at": "2026-07-11T12:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            " LIGO Scientific Collaboration",
+            " Virgo Collaboration",
+            "Fermi GBM",
+            " INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            " GRAWITA",
+            " :",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            " ATCA",
+            " :",
+            "Australia Telescope Compact Array",
+            " ASKAP",
+            " :",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            " OzGrav",
+            " DWF",
+            " AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            " J-GEM",
+            " GROWTH",
+            " JAGWAR",
+            "Caltech- NRAO",
+            " TTU-NRAO",
+            "NuSTAR Collaborations",
+            " Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            " ePESSTO",
+            " GROND",
+            "Texas Tech University",
+            "SALT Group",
+            " TOROS",
+            " :",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            " MWA",
+            " :",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            " LWA",
+            " :",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            " DFN",
+            " :",
+            "Desert Fireball Network",
+            " ATLAS",
+            "High Time Resolution Universe Survey",
+            " RIMAS",
+            " RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-07-11T12:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider an extension of the recent experiment with ultracold neutrons and the quantization of its vertical motion in order to test the Weak Equivalence Principle. We show that an improvement on the energy resolution of the experiment may allow to establish a modest limit to the Weak Equivalence Principle and on the gravitational screening constant. We also discuss the influence of a possible new interaction of Nature.",
+          "claimed_authors": [
+            "O. Bertolami",
+            "F. M. Nunes"
+          ],
+          "claimed_title": "Ultracold neutrons, quantum effects of gravity and the Weak Equivalence Principle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "hep-ph/0204284"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Ultracold neutrons, quantum effects of gravity and the Weak Equivalence Principle')",
+        "failed_at": "2026-07-11T12:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper provides an overview of the Lunar Laser Ranging (LLR) experiments. The measurement principle is explained and its theory is derived. Both contributions, the direct reflected light from retroreflectors as well as the scattered light from the lunar surface are considered. The measurement results from the Sixties until 2007 are then compared between different LLR stations and with the theoretical forecast. The very first experiment was in 1962: a laser beam was directed to the Moon and the scattered light from the lunar surface was detected. The number of received photons was in line with the theory. Then from 1969 the laser beams were directed to retroreflectors placed by Apollo astronauts and Luna space crafts. Retroreflectors are on the one hand reference points for long term measurements; on the other hand they deliver a much stronger return signal compared to the scattered return. But none of the stations could measure the expected amplification of the retroreflectors. The number of received photons remained in line with measurements to the bare surface of the Moon. Therefore either all retroreflectors have degraded such that their return signals fit to the scattered return from the lunar soil or the measurements were indeed taken to the lunar surface only.",
+          "claimed_authors": [
+            "Andreas Märki"
+          ],
+          "claimed_title": "A Critical Review of the Lunar Laser Ranging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.05863"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='A Critical Review of the Lunar Laser Ranging')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Moon is a unique platform for fundamental astrophysical measurements of gravitation, the Sun, and the Universe. Lacking a permanent ionosphere and, on the farside, shielded from terrestrial radio emissions, a radio telescope on the Moon will be an unparalleled heliospheric and astrophysical observatory. Crucial stages in particle acceleration near the Sun can be imaged and tracked. The evolution of the Universe before and during the formation of the first stars will be traced, yielding high precision cosmological constraints. Lunar Laser Ranging of the Earth-Moon distance provides extremely high precision constraints on General Relativity and alternative models of gravity, and also reveals details about the interior structure of the Moon. With the aim of providing additional perspective on the Moon as a scientific platform, this white paper describes key research projects in these areas of astrophysics from the Moon that are being undertaken by the NLSI-funded LUNAR consortium. The NASA Lunar Science Institute (NLSI) recently funded 7 mostly university-based teams to study science of, on, and from the Moon. The LUNAR consortium was selected by the NLSI for astrophysical research and education that focuses on the key, unique instruments that most effectively take scientific advantage of sites on the lunar surface - low frequency heliophysics and cosmology, and lunar laser ranging. We are submitting this white paper to the Planetary Sciences Decadal Survey to provide additional perspective on the value of Moon for conducting cutting-edge research in astrophysics and gravitational physics by describing our key projects for LUNAR. This program of astrophysics from the Moon complements as well as takes advantage of expected scientific infrastructure on the Moon during the next few decades.",
+          "claimed_authors": [
+            "Jack O. Burns",
+            "the LUNAR Consortium"
+          ],
+          "claimed_title": "Science from the Moon: The NASA/NLSI Lunar University Network for Astrophysics Research (LUNAR)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0909.1509"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Science from the Moon: The NASA/NLSI Lunar University Network for Astrophysics Research (LUNAR)')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Based on the use of MESSENGER radiotracking data in the construction of new Mercury ephemerides (Verma et al. 2014) a new planetary ephemerides INPOP13b was built including Mercury improvements but also improvements on the Mars orbit and on the tie of INPOP planetary ephemerides to ICRF in general.",
+          "claimed_authors": [
+            "A. Fienga",
+            "H. Manche",
+            "J. Laskar",
+            "M. Gastineau",
+            "A. Verma"
+          ],
+          "claimed_title": "INPOP new release: INPOP13b",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1405.0484"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='INPOP new release: INPOP13b')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We give here a detailed description of the latest INPOP planetary ephemerides INPOP20a. We test the sensitivity of the Sun oblateness determination obtained with INPOP to different models for the Sun core rotation. We also present new evaluations of possible GRT violations with the PPN parameters $β$,$γ$ and $\\dotμ/μ$. With a new method for selecting acceptable alternative ephemerides we provide conservative limits of about $7.16 \\times 10^{-5}$ and $7.49 \\times 10^{-5}$ for $β-1$ and $γ-1$ respectively using the present day planetary data samples. We also present simulations of Bepi-Colombo range tracking data and their impact on planetary ephemeris construction. We show that the use of future BC range observations should improve these estimates, in particular $γ$. Finally, interesting perspectives for the detection of the Sun core rotation seem to be reachable thanks to the BC mission and its accurate range measurements in the GRT frame.",
+          "claimed_authors": [
+            "A. Fienga",
+            "L. Bigot",
+            "D. Mary",
+            "P. Deram",
+            "A. Di Ruscio",
+            "L. Bernus",
+            "M. Gastineau",
+            "J. Laskar"
+          ],
+          "claimed_title": "Evolution of INPOP planetary ephemerides and Bepi-Colombo simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.04499"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Evolution of INPOP planetary ephemerides and Bepi-Colombo simulations')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fate of surface water on Venus is one of the most important outstanding problems in comparative planetology. Here a new concept is proposed to explain water removal on a steam-covered proto Venus, referred to as impact-driven planetary desiccation. Since a steam atmosphere is photochemically unstable, water vapor dissociates into hydrogen and oxygen. Then, hydrogen escapes easily into space through hydrodynamic escape driven by strong extreme ultraviolet radiation from the young Sun. The focus is on the intense impact bombardment during the terminal stage of planetary accretion as generators of a significant amount of reducing agent. The fine-grained ejecta remove the residual oxygen, the counter part of escaped hydrogen, via the oxidation of iron-bearing rocks in a hot atmosphere. Thus, hypervelocity impacts cause net desiccation of the planetary surface. I constructed a stochastic cratering model using a Monte Carlo approach to investigate the cumulative mass of nonoxidized, ejected rocks due to the intense impact bombardment. It is shown that a thick steam atmosphere with a mass equivalent to that of the terrestrial oceans would be removed. The cumulative mass of rocky ejecta released into the atmosphere reaches 1 wt% of the host planet, which is 10000 times of the current mass of the Earths atmosphere. These results strongly suggest that chemical reactions between such large amounts of ejecta and planetary atmospheres are among the key factors required to understand atmospheric mass and its composition, not only in the Solar System but also in extrasolar systems.",
+          "claimed_authors": [
+            "Kosuke Kurosawa"
+          ],
+          "claimed_title": "Impact-driven planetary desiccation: The origin of the dry Venus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1509.01357"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Impact-driven planetary desiccation: The origin of the dry Venus')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has been observed in recent works that, for several classes of linear time-invariant time-delay systems of retarded or neutral type with a single delay, if a root of its characteristic equation attains its maximal multiplicity, then this root is the rightmost spectral value, and hence it determines the exponential behavior of the system, a property usually referred to as multiplicity-induced-dominancy (MID). In this paper, we investigate the MID property for one of the simplest cases of systems with two delays, a scalar delay-differential equation of first order with two delayed terms of order zero. We discuss the standard approach based on the argument principle for establishing the MID property for single-delay systems and some of its limitations in the case of our simple system with two delays, before proposing a technique based on crossing imaginary roots that allows to conclude that the MID property holds in our setting.",
+          "claimed_authors": [
+            "Sébastien Fueyo",
+            "Guilherme Mazanti",
+            "Islam Boussaada",
+            "Yacine Chitour",
+            "Silviu-Iulian Niculescu"
+          ],
+          "claimed_title": "Insights into the multiplicity-induced-dominancy for scalar delay-differential equations with two delays",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.11348"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Insights into the multiplicity-induced-dominancy for scalar delay-differential equations with two delays')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The aim of the present work is twofold: first, we present general remarks about the application of recent procedures to compute the deflection angle in spherically symmetric and asymptotically flat spacetimes, taking into account finite distance corrections based on the Gauss-Bonnet theorem. Second, and as the main part of our work, we apply this powerful technique to compute corrections to the deflection angle produced by astrophysical configurations in the weak gravitational regime when a plasma medium is taken into account. For applications, we use these methods to introduce new general formulae for the bending angle of light rays in plasma environments in different astrophysical scenarios, generalizing previously known results. We also present new and useful formulae for the separation angle between the images of two sources when they are lensed by an astrophysical object surrounded by plasma. In particular, for the case of an homogeneous plasma we study these corrections for the case of light rays propagating near astrophysical objects described in the weak gravitational regime by a Parametrized-Post-Newtonian (PPN) metric which takes into account the mass of the objects and a possible quadrupole moment. Even when our work concentrates on finite distances corrections to the deflection angle, we also obtain as particular cases of our expressions new formulae which are valid for the more common assumption of infinite distance between receiver, lens and source. We also consider the presence of an inhomogeneous plasma media introducing as particular cases of our general results explicit expressions for particular charge number density profiles.",
+          "claimed_authors": [
+            "Gabriel Crisnejo",
+            "Emanuel Gallo",
+            "Adam Rogers"
+          ],
+          "claimed_title": "Finite distance corrections to the light deflection in a gravitational field with a plasma medium",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.00724"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Finite distance corrections to the light deflection in a gravitational field with a plasma medium')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Structured light beams with engineered topological properties offer a powerful means to control spin angular momentum (SAM) and optical chirality, key quantities shaped by spin-orbit interaction (SOI) in light. Such effects are typically regarded as emerging only through light-matter interactions. Here, we show that higher-order Poincaré modes, carrying a tunable Pancharatnam topological charge $\\ell_p$, enable precise control of SOI purely from the intrinsic topology of the light field, without requiring any material interface. In doing so, we reveal a free-space paraxial optical Hall effect, where modulation of $\\ell_p$ drives spatial separation of circular polarization states - a direct signature of SOI in a regime previously thought immune to such behaviour. Our analysis identifies two propagation-induced topological mechanisms underlying this effect: differential Gouy phase shifts between orthogonal components, and radial divergence of the beam envelope. These results overturn the common view that spin-orbit effects in free space require non-paraxial conditions, and establish a broadly tunable route to generating and controlling chirality and SAM without tight focusing. This approach provides new opportunities for optical manipulation, chiral sensing, and high-dimensional photonic information processing.",
+          "claimed_authors": [
+            "Light Mkhumbuza",
+            "Pedro Ornelas",
+            "Angela Dudley",
+            "Isaac Nape",
+            "Kayn A. Forbes"
+          ],
+          "claimed_title": "Topological Control of Chirality and Spin with Structured Light",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.08733"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Topological Control of Chirality and Spin with Structured Light')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The relativistic perihelion precession due to the three-body interaction is derived. We consider a hierarchical coplanar three-body system, such as the Sun, Jupiter and Saturn, in which both the secondary object as the largest planet corresponding to Jupiter (mass $m_2$) and the third one corresponding to Saturn (mass $m_3$) orbit around the primary object corresponding to Sun (mass $m_1 \\gg m_2 \\gg m_3$), where the mean orbital radius of the third body is larger than that of the secondary one (denoted as $\\ell$). We investigate the post-Newtonian effects on the motion of the third body (semimajor axis a, eccentricity e for the Keplerian orbital elements). Under some assumptions with a certain averaging, the relativistic perihelion precession of the third mass by the post-Newtonian three-body interaction is expressed as $6 G m_2 \\ell^2 c^{-2} a^{-3} n (1+9e^2/16) (1-e^2)^{-3} $, where G and c denote the gravitational constant and the speed of light, respectively, and the mean motion for the third body is denoted as $n = 2πa^{3/2} G^{-1/2} (m_1+m_2)^{-1/2}$. For the Sun-Jupiter-Saturn system, it is $7.8 \\times 10^{-6}$ arcsec/cy. This is larger than the Lense-Thirring effect by Sun but it cannot yet explain the recently reported value for the anomalous perihelion precession of Saturn as $-0.006 \\pm 0.002$ arcsec/cy by Iorio (2009) based on the analyses by Pitjeva with the EPM2008 ephemerides.",
+          "claimed_authors": [
+            "Kei Yamada",
+            "Hideki Asada"
+          ],
+          "claimed_title": "Three-body-interaction effects on the relativistic perihelion precession for the Sun-Jupiter-Saturn system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1105.2998"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Three-body-interaction effects on the relativistic perihelion precession for the Sun-Jupiter-Saturn system')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Among all the theories proposed to explain the 'anomalous' perihelion precession of Mercury's orbit announced in 1859 by Le Verrier, the general theory of relativity proposed by Einstein in November 1915, alone could calculate Mercury's 'anomalous' precession with a precision demanded by observational accuracy. Since Mercury's precession was a directly derived result of the full general theory, it was viewed by Einstein as the most critical test of general relativity, amongst the three tests proposed by him. With the advent of the space age, the observational accuracy level has improved further and it became possible to detect this precession for other planetary orbits of the solar system -- viz., Venus and the Earth. This conclusively proved that the phenomenon of 'anomalous' perihelion precession of planetary orbits is really a relativistic effect. Our previous papers presented the mathematical model and the computed value of the relativistic perihelion precession of Mercury's orbit using an alternate relativistic gravitational model, which is a remodeled form of Einstein's relativity theories, and which retained only experimentally proven principles and has been enriched by the benefits of almost a century-long relativity experimentation including the space age experiments. Using this model, we present in this paper the computed values of the relativistic precession of Venus and the Earth, which compare well with the predictions of general relativity and also are in agreement with the observed values within the range of uncertainty.",
+          "claimed_authors": [
+            "Abhijit Biswas",
+            "Krishnan R. S. Mani"
+          ],
+          "claimed_title": "Relativistic Perihelion Precession of Orbits of Venus and the Earth",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0802.0176"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Relativistic Perihelion Precession of Orbits of Venus and the Earth')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We derive the perihelion precession of planetary orbits using quantum field theory extending the Standard Model to include gravity. Modeling the gravitational bound state of an electron via the Dirac equation of unified gravity [Rep. Prog. Phys. 88, 057802 (2025)], and taking the classical planetary state limit, we obtain orbital dynamics exhibiting a precession in agreement with general relativity. This demonstrates that key general relativistic effects in planetary motion can emerge directly from quantum field theory without invoking the geometric framework of general relativity.",
+          "claimed_authors": [
+            "Mikko Partanen",
+            "Jukka Tulkki"
+          ],
+          "claimed_title": "Perihelion precession of planetary orbits solved from quantum field theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.14447"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Perihelion precession of planetary orbits solved from quantum field theory')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that in the Higgs model leading to a slightly massive photon there are one-loop diagrams which induce equivalence principle violations. This and other considerations implicate rather stringent constraints in the parameter space of the model.",
+          "claimed_authors": [
+            "E. Masso"
+          ],
+          "claimed_title": "Slightly Massive Photon and Equivalence Principle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1205.1956"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Exploring the Validity of the Weak Equivalence Principle with Publicly Available', candidate_title='Slightly Massive Photon and Equivalence Principle')",
+        "failed_at": "2026-07-11T12:29:13Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "James G. Williams",
+            "Dale H. Boggs",
+            "Slava G. Turyshev",
+            "J. Todd Ratcliff"
+          ],
+          "title": "Lunar Laser Ranging Science",
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "gr-qc/0411095",
+        "summary": "Analysis of Lunar Laser Ranging (LLR) data provides science results: gravitational physics and ephemeris information from the orbit, lunar science from rotation and solid-body tides, and Earth science. Sensitive tests of gravitational physics include the Equivalence Principle, limits on the time variation of the gravitational constant G, and geodetic precession. The equivalence principle test is used for an accurate determination of the parametrized post-Newtonian (PPN) parameter β. Lunar ephemerides are a product of the LLR analysis used by current and future spacecraft missions. The analysis is sensitive to astronomical parameters such as orbit, masses and obliquity. The dissipation-caused semimajor axis rate is 37.9 mm/yr and the associated acceleration in orbital longitude is -25.7 ''/cent^2, dominated by tides on Earth with a 1% lunar contribution. Lunar rotational variation has sensitivity to interior structure, physical properties, and energy dissipation. The second-degree lunar Love numbers are detected; k_2 has an accuracy of 11%. Lunar tidal dissipation is strong and its Q has a weak dependence on tidal frequency. A fluid core of about 20% the Moon's radius is indicated by the dissipation data. Evidence for the oblateness of the lunar fluid-core/solid-mantle boundary is getting stronger. This would be independent evidence for a fluid lunar core. Moon-centered coordinates of four retroreflectors are determined. Station positions and motion, Earth rotation variations, nutation, and precession are determined from analyses. Extending the data span and improving range accuracy will yield improved and new scientific results. Adding either new retroreflectors or precise active transponders on the Moon would improve the accuracy of the science results.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/gr-qc/0411095",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5455,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:29:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. Gasperini"
+          ],
+          "title": "Gravity at Finite Temperature, Equivalence Principle,and Local Lorentz Invariance",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2101.00458",
+        "summary": "In this Chapter we illustrate the close connection between the violation of the weak equivalence principle typical of gravitational interactions at finite temperature, and similar violations induced by a breaking of the local Lorentz symmetry. We also discuss the physical implications of the effective repulsive forces possibly arising in such a generalized gravitational context, by considering, for an illustrative purpose, a quasi-Riemannian model of gravity with rotational symmetry as the local gauge group in tangent space.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2101.00458",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:29:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vincenzo Mariani",
+            "Olivier Minazzoli",
+            "Agnès Fienga",
+            "Jacques Laskar",
+            "Mickaël Gastineau"
+          ],
+          "title": "Bayesian test of Brans-Dicke theories with planetary ephemerides: Investigating the strong equivalence principle",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.00719",
+        "summary": "Context: We are testing the Brans-Dicke class of scalar tensor theories with planetary ephemerides. Aims: In this work, we apply our recently proposed Bayesian methodology to the Brans-Dicke case, with an emphasis on the issue of the strong equivalence principle (SEP). Methods: We use an MCMC approach coupled to full consistent planetary ephemeris construction (from point-mass body integration to observational fit) and compare the posterior distributions obtained with and without the introduction of potential violations of the SEP. Results: We observe a shift in the confidence levels of the posteriors obtained. We interpret this shift as marginal evidence suggesting that the effect of violation of the SEP can no longer be assumed to be negligible in planetary ephemerides with the current data. We also notably report that the constraint on the Brans-Dicke parameter with planetary ephemerides is getting closer to the figure reported from the Cassini spacecraft alone, but also to the constraints from pulsars. We anticipate that data from future spacecraft missions, such as BepiColombo, will significantly enhance the constraints based on planetary ephemerides.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.00719",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:29:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Agnès Fienga",
+            "Olivier Minazzoli"
+          ],
+          "title": "Testing Theories of Gravity with Planetary Ephemerides",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.01821",
+        "summary": "We describe here how planetary ephemerides are built in the framework of General Relativity and how they can be used to test alternative theories. We focus on the definition of the reference frame (space and time) in which the planetary ephemeris is described, the equations of motion that govern the orbits of solar system bodies and {electromagnetic waves}. After a review on the existing planetary and lunar ephemerides, we summarize the results obtained considering full modifications of the ephemeris framework with direct comparisons with the observations of planetary systems, with a specific attention for the PPN formalism. We then discuss other formalisms such as Einstein-dilaton theories, the massless graviton and MOND. The paper finally concludes on some comments and recommendations regarding misinterpreted measurements of the advance of perihelia.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.01821",
+          "http_status": 200,
+          "pdf_sample_score": 0.3333,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:29:23Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "exploring the validity of the weak equivalence principle with publicly available planetary orbital data physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

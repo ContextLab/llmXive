@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.03796",
+  "judged_at": "2026-07-11T12:32:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of visual attention on recall of emotional stimuli in rapid visual sequences psychology",
+  "rationale": "The paper focuses on optimizing Brain-Computer Interface (BCI) classification accuracy using P300 signals, which is an engineering application distinct from the user's psychological inquiry into the mechanism of visual attention and emotional recall. While both involve \"rapid serial presentation,\" the candidate paper does not measure the specific dependent variable (recall of emotional stimuli) or the psychological construct (attention's impact on memory) required for the user's literature revie",
+  "relevant": false
+}

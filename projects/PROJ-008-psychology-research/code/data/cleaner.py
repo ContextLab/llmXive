@@ -5,6 +5,7 @@ This module implements the logic to filter studies based on:
 1. Age range (must include 6-12 years)
 2. ASD diagnosis presence
 3. Social skill outcome presence
+4. Multi-arm study handling (splitting control groups)
 """
 
 import logging
@@ -81,12 +82,139 @@ def _has_social_outcome(outcome_list: List[str]) -> bool:
             return True
     return False
 
+def _split_control_group(study: Dict[str, Any], n_arms: int) -> List[Dict[str, Any]]:
+    """
+    Split a multi-arm study's control group proportionally.
+    
+    When a study has multiple intervention arms sharing a single control group,
+    we split the control group's N and variance proportionally to avoid
+    double-counting in meta-analysis.
+    
+    Args:
+        study: A study dictionary containing arm information
+        n_arms: Total number of intervention arms in the study
+        
+    Returns:
+        List of modified study dictionaries, one per intervention arm,
+        with adjusted control group statistics.
+        
+    Reference: Borenstein et al. (2009) Introduction to Meta-Analysis,
+               Chapter 17: Multiple treatment arms
+    """
+    arms = study.get("arms", [])
+    if not arms:
+        logger.warning(f"Study {study.get('study_id')} has no arms defined, skipping split")
+        return [study]
+    
+    # Identify control and intervention arms
+    intervention_arms = [a for a in arms if a.get("type", "").lower() == "intervention"]
+    control_arms = [a for a in arms if a.get("type", "").lower() == "control"]
+    
+    if len(intervention_arms) == 0 or len(control_arms) == 0:
+        # No splitting needed if only one type of arm or no control
+        return [study]
+    
+    if len(intervention_arms) == 1:
+        # Only one intervention arm, no splitting needed
+        return [study]
+    
+    # Calculate split factor: 1 / number of intervention arms
+    # This distributes the control group N and variance across comparisons
+    split_factor = 1.0 / len(intervention_arms)
+    
+    split_studies = []
+    
+    for i, int_arm in enumerate(intervention_arms):
+        # Create a copy of the study for this specific comparison
+        split_study = study.copy()
+        
+        # Create a new arms list with only the current intervention arm
+        # and a modified control arm
+        new_arms = [int_arm.copy()]
+        
+        # Split each control arm proportionally
+        for ctrl_arm in control_arms:
+            split_ctrl = ctrl_arm.copy()
+            
+            # Split sample size
+            if "n" in split_ctrl and split_ctrl["n"]:
+                split_ctrl["n"] = int(round(split_ctrl["n"] * split_factor))
+                if split_ctrl["n"] < 1:
+                    split_ctrl["n"] = 1  # Ensure at least 1 participant
+            
+            # Split variance (standard deviation remains the same, 
+            # but we adjust the standard error implicitly through N)
+            # Note: For meta-analysis, we typically keep SD constant
+            # and adjust N, which affects the standard error calculation
+            
+            new_arms.append(split_ctrl)
+        
+        split_study["arms"] = new_arms
+        split_study["study_id"] = f"{study.get('study_id', '')}_arm{i+1}"
+        
+        split_studies.append(split_study)
+        logger.debug(
+            f"Split control group for {study.get('study_id')}: "
+            f"created {len(intervention_arms)} comparisons with split factor {split_factor}"
+        )
+    
+    return split_studies
+
+def handle_multi_arm_studies(studies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Process multi-arm studies by splitting control groups.
+    
+    When a study has multiple intervention arms sharing a single control group,
+    this function splits the control group proportionally to create independent
+    comparisons, preventing double-counting in meta-analysis.
+    
+    Args:
+        studies: List of study dictionaries that have already passed inclusion criteria
+        
+    Returns:
+        List of studies with multi-arm studies split into separate comparisons
+    """
+    processed_studies = []
+    multi_arm_count = 0
+    
+    for study in studies:
+        study_id = study.get("study_id", "Unknown")
+        arms = study.get("arms", [])
+        
+        if not arms:
+            # No arms defined, keep as is
+            processed_studies.append(study)
+            continue
+        
+        # Count intervention arms
+        intervention_arms = [a for a in arms if a.get("type", "").lower() == "intervention"]
+        
+        if len(intervention_arms) > 1:
+            # Multi-arm study: split control group
+            split_studies = _split_control_group(study, len(intervention_arms))
+            processed_studies.extend(split_studies)
+            multi_arm_count += 1
+            logger.info(
+                f"Split multi-arm study {study_id} into {len(split_studies)} comparisons"
+            )
+        else:
+            # Single intervention arm, no splitting needed
+            processed_studies.append(study)
+    
+    logger.info(
+        f"Processed {len(studies)} studies: "
+        f"{multi_arm_count} multi-arm studies split into {len(processed_studies)} total comparisons"
+    )
+    
+    return processed_studies
+
 def filter_included_studies(studies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Filter studies based on inclusion criteria:
     1. Age range must overlap with [6, 12]
     2. Must include ASD diagnosis
     3. Must include a social skill outcome
+    4. Handle multi-arm studies by splitting control groups
     
     Args:
         studies: List of study dictionaries with keys:
@@ -95,10 +223,12 @@ def filter_included_studies(studies: List[Dict[str, Any]]) -> List[Dict[str, Any
             - age_max
             - diagnosis (list of strings)
             - outcomes (list of strings)
+            - arms (list of arm dictionaries with type, n, mean, sd, etc.)
             - source
             
     Returns:
-        List of studies that meet all inclusion criteria
+        List of studies that meet all inclusion criteria, with multi-arm
+        studies split into separate comparisons
     """
     included = []
     excluded_count = 0
@@ -144,5 +274,9 @@ def filter_included_studies(studies: List[Dict[str, Any]]) -> List[Dict[str, Any
 
     logger.info(f"Filtered {len(studies)} studies: {len(included)} included, {excluded_count} excluded")
     logger.info(f"Exclusion breakdown: {exclusion_reasons}")
+    
+    # Handle multi-arm studies
+    if included:
+        included = handle_multi_arm_studies(included)
     
     return included

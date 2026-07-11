@@ -1,0 +1,564 @@
+{
+  "fetched_at": "2026-07-11T12:30:59Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 50.174,
+    "ended_at": "2026-07-11T12:30:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning for reaction mechanism elucidation"
+        ],
+        [
+          2,
+          "spectroscopic data driven reaction pathway prediction"
+        ],
+        [
+          3,
+          "deep learning models for chemical reaction dynamics"
+        ],
+        [
+          4,
+          "infrared and NMR spectroscopy in reaction mechanism analysis"
+        ],
+        [
+          5,
+          "automated reaction mechanism discovery using ML"
+        ],
+        [
+          6,
+          "spectral fingerprinting for organic reaction pathways"
+        ],
+        [
+          7,
+          "computational chemistry and machine learning for kinetics"
+        ],
+        [
+          8,
+          "time-resolved spectroscopy and neural networks"
+        ],
+        [
+          9,
+          "predicting transition states from spectral features"
+        ],
+        [
+          10,
+          "data-driven inference of chemical reaction networks"
+        ],
+        [
+          11,
+          "convolutional neural networks for Raman spectroscopy analysis"
+        ],
+        [
+          12,
+          "reaction coordinate prediction from experimental spectra"
+        ],
+        [
+          13,
+          "spectroscopic monitoring of catalytic cycles with AI"
+        ],
+        [
+          14,
+          "graph neural networks for reaction mechanism classification"
+        ],
+        [
+          15,
+          "kinetic modeling enhanced by spectroscopic machine learning"
+        ],
+        [
+          16,
+          "unsupervised learning for identifying reaction intermediates"
+        ],
+        [
+          17,
+          "hybrid quantum mechanics/machine learning for reaction pathways"
+        ],
+        [
+          18,
+          "spectral deconvolution for mechanistic insights"
+        ],
+        [
+          19,
+          "predicting elementary steps from UV-Vis spectroscopy"
+        ],
+        [
+          20,
+          "chemometrics and machine learning for reaction mechanism mapping"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning chemistry": 0,
+        "machine learning for reaction mechanism elucidation": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "mechanistic inference spectroscopic fingerprint deep learning",
+      "Raman infrared NMR reaction pathway classification",
+      "quantum chemical descriptors vibrational spectroscopy ML",
+      "activation energy barrier prediction spectroscopic feature extraction",
+      "reaction coordinate mapping transition state theory spectroscopy"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2201.12150"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning chemistry": 3,
+      "Raman infrared NMR reaction pathway classification": 3,
+      "activation energy barrier prediction spectroscopic feature extraction": 3,
+      "mechanistic inference spectroscopic fingerprint deep learning": 3,
+      "quantum chemical descriptors vibrational spectroscopy ML": 3,
+      "reaction coordinate mapping transition state theory spectroscopy": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on \"official statistics\" and general data source reliability in a policy context, which is an off-domain application compared to the user's specific question about predicting chemical reaction mechanisms from spectroscopic data. It does not address the chemical domain, the specific spectroscopic variables, or the machine learning mechanisms for chemical reaction prediction, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper provides general methodological recommendations for validating machine learning in biology (criterion d) but does not address the specific domain of chemistry, the task of predicting reaction mechanisms, or the use of spectroscopic data. It lacks any measurable connection to the user's specific variables, mechanisms, or empirical setting, falling under the rejection rule for papers with no connection to the user's mechanism, domain, or variables.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of chemistry, spectroscopic data, or reaction mechanism prediction. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or foundational methodology for the user's specific application, falling instead under the \"off-domain entirely\" rejection rule.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on \"learning curves\" as a meta-learning tool for algorithm selection and resource allocation, which is a distinct construct from the user's specific goal of predicting chemical reaction mechanisms from spectroscopic data. It fails to address the domain (chemistry/spectroscopy), the specific mechanism (reaction pathways), or the data modality (spectra), and thus falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (where \"learning\" re",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper proposes a general methodology for interpreting machine learning models using energy landscape concepts but does not address the specific domain of predicting chemical reaction mechanisms from spectroscopic data, nor does it measure the relevant biological/chemical variables or establish a baseline for that specific application. It fails to meet criteria (a) or (b) as it lacks the specific mechanism (reaction pathways) and data type (spectroscopy) required, and it is not the foundation",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-11T12:30:09Z",
+    "term_input": {
+      "normalized": "predicting reaction mechanisms from spectroscopic data with machine learning chemistry",
+      "raw": "Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The progress of some AI paradigms such as deep learning is said to be linked to an exponential growth in the number of parameters. There are many studies corroborating these trends, but does this translate into an exponential increase in energy consumption? In order to answer this question we focus on inference costs rather than training costs, as the former account for most of the computing effort, solely because of the multiplicative factors. Also, apart from algorithmic innovations, we account for more specific and powerful hardware (leading to higher FLOPS) that is usually accompanied with important energy efficiency optimisations. We also move the focus from the first implementation of a breakthrough paper towards the consolidated version of the techniques one or two year later. Under this distinctive and comprehensive perspective, we study relevant models in the areas of computer vision and natural language processing: for a sustained increase in performance we see a much softer growth in energy consumption than previously anticipated. The only caveat is, yet again, the multiplicative factor, as future AI increases penetration and becomes more pervasive.",
+          "claimed_authors": [
+            "Radosvet Desislavov",
+            "Fernando Martínez-Plumed",
+            "José Hernández-Orallo"
+          ],
+          "claimed_title": "Compute and Energy Consumption Trends in Deep Learning Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.05472"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='Compute and Energy Consumption Trends in Deep Learning Inference')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article I will describe how NMR techniques may be used to build simple quantum information processing devices, such as small quantum computers, and show how these techniques are related to more conventional NMR experiments.",
+          "claimed_authors": [
+            "J. A. Jones"
+          ],
+          "claimed_title": "NMR Quantum Computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "quant-ph/0009002"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='NMR Quantum Computation')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A review of progress in NMR quantum computing and a brief survey of the literature",
+          "claimed_authors": [
+            "Jonathan A. Jones"
+          ],
+          "claimed_title": "Quantum Computing with NMR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1011.1382"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='Quantum Computing with NMR')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reaction RuleML is a general, practical, compact and user-friendly XML-serialized language for the family of reaction rules. In this white paper we give a review of the history of event / action /state processing and reaction rule approaches and systems in different domains, define basic concepts and give a classification of the event, action, state processing and reasoning space as well as a discussion of relevant / related work",
+          "claimed_authors": [
+            "Adrian Paschke"
+          ],
+          "claimed_title": "The Reaction RuleML Classification of the Event / Action / State Processing and Reasoning Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cs/0611047"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='The Reaction RuleML Classification of the Event / Action / State Processing and Reasoning Space')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transient grating acoustic spectroscopy has been applied to studies on the vibrational energy relaxation process of the electronic ground state of azulene, two 1-alkylazulenes, and five bridged azulene-anthracenes in three different solvents: 1,1,1-trichloro-1,2,2-trifluoroethane, acetonitrile, and xenon. The solute molecule was vibrationally excited by the photo-excitation of the auzlenyl group to the S1 state through the fast internal conversion, and the rate of solvent thermalization due to the vibrational energy relaxation was determined. The thermalization rates for 1-alkylazulenes and bridged azulene-anthracenes were faster than that of azulene. Based on the results of the thermalization rates of 1-alkylazulenes, we concluded that the acceleration of the energy dissipation from the azulenyl group induced the faster energy dissipation from the solute to the solvent. The vibrational normal mode analysis suggests that the density of the vibrational modes and anharmonic coupling between the vibrational modes induce the faster intramolecular energy redistribution. In xenon, the solvent thermalization rates were close to the energy dissipation rates of the solute molecule reported using transient absorption spectroscopy. On the other hand, in the chlorofluorocarbon, the ratio of the thermalization rate to the dissipation rate was a dependent of the molecular species, and especially faster solvent thermalization rate of 9-(6-(azulen-1-yl)hexyl)anthracene was predicted. The vibrational characteristics of this solvent are discussed in the relation to the vibrational modes and structures of the bridged compounds.",
+          "claimed_authors": [
+            "Hiroki Fujiwara"
+          ],
+          "claimed_title": "Solvent-side observation on vibrational energy transfer by transient grating spectroscopy: Bridged azulene-anthracene",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.4164"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='Solvent-side observation on vibrational energy transfer by transient grating spectroscopy: Bridged azulene-anthracene')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vibrational coherences in ultrafast pump-probe (PP) and 2D electronic spectroscopy (2DES) provide insight into the excited state dynamics of molecules. Femtosecond coherence spectra (FCS) and 2D beat maps yield information about displacements of excited state surfaces for key vibrational modes. Half-broadband 2DES (HB2DES) uses a PP configuration with a white light continuum probe to extend the detection range and resolve vibrational coherences in the excited state absorption (ESA). However, interpretation of these spectra is difficult as they are strongly dependent on the spectrum of the pump laser and the relative displacement of the excited states along the vibrational coordinates. We demonstrate the impact of these convoluting factors for a model based upon cresyl violet. Careful consideration of the position of the pump spectrum can be a powerful tool in resolving the ESA coherences to gain insights into excited state displacements. The paper also highlights the need for caution in considering the spectral window of the pulse when interpreting these spectra.",
+          "claimed_authors": [
+            "Dale Green",
+            "Giovanni Bressan",
+            "Ismael A. Heisler",
+            "Stephen R. Meech",
+            "Garth A. Jones"
+          ],
+          "claimed_title": "Vibrational coherences in half-broadband 2D electronic spectroscopy: spectral filtering to identify excited state displacements",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.17362"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='Vibrational coherences in half-broadband 2D electronic spectroscopy: spectral filtering to identify excited state displacements')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The dynamics of excitonic energy transfer in molecular complexes triggered by interaction with laser pulses offers a unique window into the underlying physical processes. The absorbed energy moves through the network of interlinked pigments and in photosynthetic complexes reaches a reaction center. The efficiency and time-scale depend not only on the excitonic couplings, but are also affected by the dissipation of energy to vibrational modes of the molecules. An open quantum system description provides a suitable tool to describe the involved processes and connects the decoherence and relaxation dynamics to measurements of the time-dependent polarization.",
+          "claimed_authors": [
+            "Tobias Kramer"
+          ],
+          "claimed_title": "Open quantum system simulation of time and frequency resolved spectroscopy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.10192"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='Open quantum system simulation of time and frequency resolved spectroscopy')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
+          "claimed_authors": [
+            "Tomasz Kajdanowicz",
+            "Przemyslaw Kazienko",
+            "Piotr Doskocz"
+          ],
+          "claimed_title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0095"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the last several years, research on facial recognition based on Deep Neural Network has evolved with approaches like task-specific loss functions, image normalization and augmentation, network architectures, etc. However, there have been few approaches with attention to how human faces differ from person to person. Premising that inter-personal differences are found both generally and locally on the human face, I propose FusiformNet, a novel framework for feature extraction that leverages the nature of discriminative facial features. Tested on Image-Unrestricted setting of Labeled Faces in the Wild benchmark, this method achieved a state-of-the-art accuracy of 96.67% without labeled outside data, image augmentation, normalization, or special loss functions. Likewise, the method also performed on a par with previous state-of-the-arts when pre-trained on CASIA-WebFace dataset. Considering its ability to extract both general and local facial features, the utility of FusiformNet may not be limited to facial recognition but also extend to other DNN-based tasks.",
+          "claimed_authors": [
+            "Kyo Takano"
+          ],
+          "claimed_title": "FusiformNet: Extracting Discriminative Facial Features on Different Levels",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.00577"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='FusiformNet: Extracting Discriminative Facial Features on Different Levels')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A statistical-mechanical treatment of collision leads to a formal connection with transition-state theory, suggesting that collision theory and transition-state theory might be joined ultimately as a collision induced transition state theory.",
+          "claimed_authors": [
+            "Y. G. Yi"
+          ],
+          "claimed_title": "A Reconciliation of Collision Theory and Transition State Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "physics/0102027"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='A Reconciliation of Collision Theory and Transition State Theory')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an interactive version of an evidence-driven state-merging (EDSM) algorithm for learning variants of finite state automata. Learning these automata often amounts to recovering or reverse engineering the model generating the data despite noisy, incomplete, or imperfectly sampled data sources rather than optimizing a purely numeric target function. Domain expertise and human knowledge about the target domain can guide this process, and typically is captured in parameter settings. Often, domain expertise is subconscious and not expressed explicitly. Directly interacting with the learning algorithm makes it easier to utilize this knowledge effectively.",
+          "claimed_authors": [
+            "Christian A. Hammerschmidt",
+            "Radu State",
+            "Sicco Verwer"
+          ],
+          "claimed_title": "Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.09430"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning che', candidate_title='Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms')",
+        "failed_at": "2026-07-11T12:30:39Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:30:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16189",
+        "summary": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16189",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:30:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "title": "Active learning for data streams: a survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.08893",
+        "summary": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.08893",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:30:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": 0.2768,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:30:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Maximilian P Niroomand",
+            "David J Wales"
+          ],
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.02381",
+        "summary": "The ability to explain decisions made by machine learning models remains one of the most significant hurdles towards widespread adoption of AI in highly sensitive areas such as medicine, cybersecurity or autonomous driving. Great interest exists in understanding which features of the input data prompt model decision making. In this contribution, we propose a novel approach to identify relevant features of the input data, inspired by methods from the energy landscapes field, developed in the physical sciences. By identifying conserved weights within groups of minima of the loss landscapes, we can identify the drivers of model decision making. Analogues to this idea exist in the molecular sciences, where coordinate invariants or order parameters are employed to identify critical features of a molecule. However, no such approach exists for machine learning loss landscapes. We will demonstrate the applicability of energy landscape methods to machine learning models and give examples, both synthetic and from the real world, for how these methods can help to make models more interpretable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.02381",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-11T12:30:45Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting reaction mechanisms from spectroscopic data with machine learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

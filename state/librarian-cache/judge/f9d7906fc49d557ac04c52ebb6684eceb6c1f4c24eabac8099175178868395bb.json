@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "hep-ph/0204284",
+  "judged_at": "2026-07-11T12:29:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the validity of the weak equivalence principle with publicly available planetary orbital data physics",
+  "rationale": "The paper investigates the Weak Equivalence Principle using ultracold neutrons and quantum effects, which is a distinct experimental domain (subatomic particles in a lab) from the user's specific question regarding \"publicly available planetary orbital data\" (macroscopic celestial mechanics). While the core physical principle is the same, the paper fails the \"off-domain entirely\" rejection rule because it does not measure the specific variables (planetary orbits) or utilize the specific data typ",
+  "relevant": false
+}

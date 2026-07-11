@@ -3,56 +3,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
 # Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+dist/
+build/
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
+# Virtual environments
 venv/
+.venv/
 ENV/
-env/
 
 # IDE
 .idea/
@@ -60,18 +20,15 @@ env/
 *.swp
 *.swo
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# mypy
-.mypy_cache/
-
-# Data files (tracked separately if needed)
-data/raw/*.json
+# Data (large files)
 data/raw/*.csv
+data/raw/*.json
 data/processed/*.csv
 data/figures/*.png
-data/figures/*.pdf
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

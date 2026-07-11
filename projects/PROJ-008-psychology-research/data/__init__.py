@@ -1,1 +1,1 @@
-"""Data directory marker."""
+# Data directory initialization

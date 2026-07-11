@@ -1,1 +1,1 @@
-"""Contract validation tests."""
+# Contract tests (schema validation)

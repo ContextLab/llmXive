@@ -75,6 +75,10 @@
     "classified_at": "2026-07-02T19:27:45Z",
     "verdict": false
   },
+  "PROJ-088-predicting-reaction-mechanisms-from-spec::1.6.0": {
+    "classified_at": "2026-07-11T12:30:38Z",
+    "verdict": false
+  },
   "PROJ-090-evaluating-the-robustness-of-llm-generat::1.6.0": {
     "classified_at": "2026-07-03T03:33:55Z",
     "verdict": false
@@ -307,6 +311,10 @@
     "classified_at": "2026-06-27T18:30:12Z",
     "verdict": false
   },
+  "PROJ-348-exploring-the-validity-of-the-weak-equiv::1.6.0": {
+    "classified_at": "2026-07-11T12:29:12Z",
+    "verdict": false
+  },
   "PROJ-367-the-influence-of-algorithmic-recommendat::1.6.0": {
     "classified_at": "2026-07-09T16:47:42Z",
     "verdict": false
@@ -373,6 +381,10 @@
   },
   "PROJ-472-investigating-the-impact-of-network-stru::1.6.0": {
     "classified_at": "2026-06-24T14:37:54Z",
+    "verdict": false
+  },
+  "PROJ-484-the-impact-of-visual-attention-on-recall::1.6.0": {
+    "classified_at": "2026-07-11T12:32:06Z",
     "verdict": false
   },
   "PROJ-526-quantifying-the-impact-of-dataset-size-o::1.6.0": {

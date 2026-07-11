@@ -1,1 +1,1 @@
-"""Documentation output."""
+# Documentation initialization

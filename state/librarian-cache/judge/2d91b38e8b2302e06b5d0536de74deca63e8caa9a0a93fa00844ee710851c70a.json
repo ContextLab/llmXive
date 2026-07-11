@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-07-11T12:30:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting reaction mechanisms from spectroscopic data with machine learning chemistry",
+  "rationale": "The paper proposes a general methodology for interpreting machine learning models using energy landscape concepts but does not address the specific domain of predicting chemical reaction mechanisms from spectroscopic data, nor does it measure the relevant biological/chemical variables or establish a baseline for that specific application. It fails to meet criteria (a) or (b) as it lacks the specific mechanism (reaction pathways) and data type (spectroscopy) required, and it is not the foundation",
+  "relevant": false
+}

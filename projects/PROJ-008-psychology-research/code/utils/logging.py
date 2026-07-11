@@ -2,6 +2,7 @@
 Structured logging utility for the research pipeline.
 
 Provides JSON-formatted logging for reproducibility and machine-readable logs.
+Implements FR-007: Structured logging for all data processing steps.
 """
 
 import json
@@ -76,6 +77,11 @@ def get_logger(name: str, log_level: Optional[str] = None) -> logging.Logger:
     # Create file handler if LOG_FILE env var is set
     log_file = os.getenv("LOG_FILE")
     if log_file:
+        # Ensure directory exists
+        log_dir = os.path.dirname(log_file)
+        if log_dir and not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+        
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(JsonFormatter())

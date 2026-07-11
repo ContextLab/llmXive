@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1411.3489",
+  "judged_at": "2026-07-11T12:32:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of visual attention on recall of emotional stimuli in rapid visual sequences psychology",
+  "rationale": "This paper satisfies criterion (a) and (b) because it utilizes Rapid Serial Visual Presentation (RSVP) to study attention-related EEG patterns (ERPs) triggered by visual stimuli, directly measuring the mechanism of visual attention in the specific domain of rapid visual sequences requested by the user, even though the dependent variable is neural signal classification rather than behavioral recall.",
+  "relevant": true
+}

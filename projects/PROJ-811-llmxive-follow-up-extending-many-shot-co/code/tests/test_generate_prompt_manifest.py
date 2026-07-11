@@ -1,117 +1,179 @@
 """
-Tests for the prompt manifest generation script (T028).
+Unit tests for generate_prompt_manifest.py
 
-These tests verify that:
-1. The manifest generator correctly scans prompt directories
-2. Metadata is extracted from filenames and file contents
-3. The output manifest is correctly formatted
+Tests cover:
+- Directory scanning logic
+- File naming pattern parsing
+- Manifest generation and sorting
+- Edge cases (empty dir, invalid names, missing dir)
 """
+
 import json
 import tempfile
 import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
+
 import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from code.scripts.generate_prompt_manifest import scan_prompt_directory, generate_manifest
 
-from code.scripts.generate_prompt_manifest import (
-    scan_prompt_directory,
-    generate_manifest
-)
 
 @pytest.fixture
 def temp_prompt_dir():
     """Create a temporary directory with sample prompt files."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        prompt_dir = Path(tmpdir)
+        tmpdir_path = Path(tmpdir)
         
-        # Create sample prompt files
-        sample_prompts = [
-            ("prompts_seed_42_logical_ascending.json", {"seed": 42, "strategy": "logical_ascending", "prompts": ["p1", "p2", "p3"]}),
-            ("prompts_seed_42_logical_random.json", {"seed": 42, "strategy": "logical_random", "prompts": ["p1", "p2"]}),
-            ("prompts_seed_42_original_cds.json", {"seed": 42, "strategy": "original_cds", "prompts": ["p1"]}),
-            ("prompts_seed_123_logical_ascending.json", {"seed": 123, "strategy": "logical_ascending", "prompts": ["p1", "p2"]}),
+        # Create valid prompt files
+        valid_files = [
+            ("42_logical_ascending.json", '{"seed": 42, "strategy": "logical_ascending"}'),
+            ("42_logical_random.json", '{"seed": 42, "strategy": "logical_random"}'),
+            ("42_original_cds.json", '{"seed": 42, "strategy": "original_cds"}'),
+            ("128_logical_ascending.json", '{"seed": 128, "strategy": "logical_ascending"}'),
+            ("128_logical_random.json", '{"seed": 128, "strategy": "logical_random"}'),
+            ("128_original_cds.json", '{"seed": 128, "strategy": "original_cds"}'),
         ]
         
-        for filename, data in sample_prompts:
-            with open(prompt_dir / filename, 'w') as f:
-                json.dump(data, f)
+        for filename, content in valid_files:
+            (tmpdir_path / filename).write_text(content)
         
-        # Add an invalid filename that should be skipped
-        with open(prompt_dir / "invalid_filename.txt", 'w') as f:
-            f.write("should be ignored")
+        # Create invalid files (should be skipped)
+        (tmpdir_path / "invalid_name.json").write_text("{}")  # Missing seed_strategy pattern
+        (tmpdir_path / "abc_logical_ascending.json").write_text("{}")  # Non-numeric seed
+        (tmpdir_path / ".hidden_file.json").write_text("{}")  # Hidden file
         
-        yield prompt_dir
+        yield tmpdir_path
+
+
+@pytest.fixture
+def temp_manifest_file():
+    """Create a temporary file for manifest output."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        yield Path(f.name)
+    # Cleanup happens after test
+    if os.path.exists(f.name):
+        os.remove(f.name)
+
 
 def test_scan_prompt_directory_success(temp_prompt_dir):
-    """Test successful scanning of prompt directory."""
-    entries = scan_prompt_directory(temp_prompt_dir)
+    """Test successful scanning of a directory with valid prompt files."""
+    results = scan_prompt_directory(temp_prompt_dir)
     
-    assert len(entries) == 4
+    assert len(results) == 6  # 6 valid files
     
-    # Check first entry
-    first = entries[0]
-    assert first["seed"] == 42
-    assert first["strategy"] == "logical_ascending"
-    assert first["prompt_count"] == 3
-    assert first["file_path"].endswith("prompts_seed_42_logical_ascending.json")
+    # Check structure
+    for entry in results:
+        assert "seed" in entry
+        assert "strategy" in entry
+        assert "file_path" in entry
+        assert isinstance(entry["seed"], int)
+        assert isinstance(entry["strategy"], str)
+        assert Path(entry["file_path"]).exists()
+    
+    # Check specific entries
+    seeds = {e["seed"] for e in results}
+    strategies = {e["strategy"] for e in results}
+    
+    assert seeds == {42, 128}
+    assert strategies == {"logical_ascending", "logical_random", "original_cds"}
 
-def test_scan_prompt_directory_empty():
-    """Test scanning empty directory returns empty list."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        entries = scan_prompt_directory(Path(tmpdir))
-        assert len(entries) == 0
+
+def test_scan_prompt_directory_empty(temp_prompt_dir):
+    """Test scanning an empty directory."""
+    empty_dir = temp_prompt_dir / "empty_subdir"
+    empty_dir.mkdir()
+    
+    results = scan_prompt_directory(empty_dir)
+    assert len(results) == 0
+
 
 def test_scan_prompt_directory_nonexistent():
-    """Test scanning non-existent directory returns empty list."""
-    entries = scan_prompt_directory(Path("/nonexistent/path"))
-    assert len(entries) == 0
+    """Test scanning a non-existent directory."""
+    non_existent = Path("/nonexistent/path/that/does/not/exist")
+    results = scan_prompt_directory(non_existent)
+    assert len(results) == 0
+
 
 def test_scan_prompt_directory_invalid_format(temp_prompt_dir):
-    """Test that invalid filenames are skipped."""
-    entries = scan_prompt_directory(temp_prompt_dir)
+    """Test that invalid file formats are skipped."""
+    results = scan_prompt_directory(temp_prompt_dir)
     
-    # Should only have valid entries
-    for entry in entries:
-        assert entry["strategy"] in ["logical_ascending", "logical_random", "original_cds"]
-        assert entry["seed"] in [42, 123]
+    # Should only have 6 valid entries, not the 3 invalid ones
+    assert len(results) == 6
+    
+    # Verify invalid files are not included
+    file_paths = {Path(e["file_path"]).name for e in results}
+    assert "invalid_name.json" not in file_paths
+    assert "abc_logical_ascending.json" not in file_paths
+    assert ".hidden_file.json" not in file_paths
 
-def test_generate_manifest(temp_prompt_dir, temp_output_dir):
-    """Test manifest generation from prompt directory."""
-    output_path = temp_output_dir / "prompt_manifest.json"
-    
-    manifest = generate_manifest(temp_prompt_dir, output_path)
-    
-    assert manifest["total_files"] == 4
-    assert manifest["total_prompts"] == 8  # 3+2+1+2
-    assert len(manifest["entries"]) == 4
-    
-    # Verify output file exists
-    assert output_path.exists()
-    
-    # Verify JSON structure
-    with open(output_path) as f:
-        loaded = json.load(f)
-    assert loaded["total_files"] == 4
-    assert "entries" in loaded
 
-def test_generate_manifest_sorting(temp_prompt_dir, temp_output_dir):
-    """Test that manifest entries are sorted by seed then strategy."""
-    output_path = temp_output_dir / "prompt_manifest.json"
+def test_generate_manifest(temp_prompt_dir, temp_manifest_file):
+    """Test full manifest generation."""
+    manifest = generate_manifest(temp_prompt_dir, temp_manifest_file)
     
-    manifest = generate_manifest(temp_prompt_dir, output_path)
+    # Check manifest structure
+    assert "generated_from" in manifest
+    assert "total_entries" in manifest
+    assert "entries" in manifest
+    
+    assert manifest["total_entries"] == 6
+    assert len(manifest["entries"]) == 6
+    
+    # Check file was written
+    assert temp_manifest_file.exists()
+    written_content = json.loads(temp_manifest_file.read_text())
+    assert written_content == manifest
+
+
+def test_generate_manifest_sorting(temp_prompt_dir, temp_manifest_file):
+    """Test that manifest entries are sorted by seed and strategy."""
+    manifest = generate_manifest(temp_prompt_dir, temp_manifest_file)
     
     entries = manifest["entries"]
+    
+    # Check sorting: first by seed, then by strategy
     for i in range(len(entries) - 1):
         curr = entries[i]
-        next_entry = entries[i + 1]
+        next_ = entries[i + 1]
         
-        if curr["seed"] == next_entry["seed"]:
-            assert curr["strategy"] <= next_entry["strategy"]
+        if curr["seed"] == next_["seed"]:
+            assert curr["strategy"] <= next_["strategy"]
         else:
-            assert curr["seed"] <= next_entry["seed"]
+            assert curr["seed"] < next_["seed"]
+    
+    # First entry should be seed 42, logical_ascending (alphabetically first strategy)
+    assert entries[0]["seed"] == 42
+    assert entries[0]["strategy"] == "logical_ascending"
+    
+    # Last entry should be seed 128, original_cds (alphabetically last strategy)
+    assert entries[-1]["seed"] == 128
+    assert entries[-1]["strategy"] == "original_cds"
+
+
+def test_generate_manifest_empty_directory(temp_manifest_file):
+    """Test manifest generation with an empty directory."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        empty_dir = Path(tmpdir)
+        manifest = generate_manifest(empty_dir, temp_manifest_file)
+        
+        assert manifest["total_entries"] == 0
+        assert manifest["entries"] == []
+
+
+def test_generate_manifest_creates_output_dir(temp_manifest_file):
+    """Test that manifest generation creates output directory if needed."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        deep_path = Path(tmpdir) / "deep" / "nested" / "dir" / "manifest.json"
+        
+        with tempfile.TemporaryDirectory() as src_tmpdir:
+            src_dir = Path(src_tmpdir)
+            (src_dir / "42_test.json").write_text("{}")
+            
+            manifest = generate_manifest(src_dir, deep_path)
+            
+            assert deep_path.exists()
+            assert manifest["total_entries"] == 1
