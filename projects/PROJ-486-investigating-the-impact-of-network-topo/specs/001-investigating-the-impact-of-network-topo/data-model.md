@@ -1,52 +1,82 @@
-# Data Model: Pipeline Validation - Investigating the Impact of Network Topology on Neural Entrainment (Simulated Data)
+# Data Model: Investigating the Impact of Network Topology on Neural Entrainment to Rhythmic Stimuli
+
+## Overview
+
+This document defines the data entities, relationships, and schemas used in the analysis pipeline. The data flow is: **Input (CSV/Parquet) -> Validation -> Join -> Simulation Fallback (if needed) -> Graph Metrics -> Statistical Analysis -> Output (CSV/JSON/Plots)**.
 
 ## Entities
 
 ### 1. Subject
-Represents a single participant in the study.
-* `subject_id` (string): Unique identifier (e.g., "100101").
-* `source_dataset` (string): Origin of the data (e.g., "HCP", "Synthetic").
+Represents an individual participant.
+- **Primary Key**: `subject_id` (string)
+- **Attributes**:
+  - `atlas_type` (string): "Schaefer", "AAL", or "Power"
+  - `source` (string): "Real" or "Simulated"
 
 ### 2. TopologyMetric
-Network properties derived from fMRI connectivity.
-* `subject_id` (string): Foreign key to Subject.
-* `atlas` (string): Parcellation scheme used ("Schaefer", "AAL", "Power264").
-* `clustering_coefficient` (float): Global clustering coefficient.
-* `path_length` (float): Characteristic path length.
-* `vif` (float): Variance Inflation Factor (calculated across the sample).
+Network properties derived from the fMRI connectivity matrix.
+- **Foreign Key**: `subject_id`
+- **Attributes**:
+  - `clustering_coefficient` (float): Weighted clustering coefficient.
+  - `characteristic_path_length` (float): Average shortest path length.
+  - `matrix_size` (int): Dimension of the adjacency matrix (e.g., 200).
 
-### 3. EntrainmentStrength
-External metric of neural response (Synthetic or Real).
-* `subject_id` (string): Foreign key to Subject.
-* `metric_value` (float): Phase‑Locking Value or entrainment strength metric.
-* `protocol` (string): Description of the stimulation (e.g., "10Hz Rhythmic" or "Synthetic").
-* `data_source` (string): `"real"` if from a verified dataset, `"synthetic"` otherwise.
+### 3. EntrainmentMetric
+The strength of neural response to rhythmic stimuli.
+- **Foreign Key**: `subject_id`
+- **Attributes**:
+  - `entrainment_strength` (float): Phase-locking value or simulated equivalent.
+  - `ground_truth_r` (float): Only present if simulated; the target correlation used in generation.
 
-### 4. AnalysisResult
-Aggregated statistical findings.
-* `atlas` (string): Atlas used for this result.
-* `metric_type` (string): "clustering" or "path_length".
-* `correlation_r` (float): Spearman r (univariate).
-* `partial_correlation_r` (float): Partial correlation r (controlling for the other metric).
-* `p_value_raw` (float): Raw p-value (univariate).
-* `p_value_partial` (float): Raw p-value (partial correlation).
-* `p_value_adj` (float): Bonferroni‑corrected p-value (for partial correlation).
-* `is_significant` (boolean): True if `p_value_adj < 0.05`.
-* `effect_size_diff` (float): Absolute difference vs. Schaefer (null for Schaefer).
-* `collinearity_warning` (string): "Collinearity Warning: VIF > 5" if applicable, else null.
-* `power_warning` (string): "Power Warning: N < 30 (Exploratory)" if applicable, else null.
-* `data_source` (string): `"real"` or `"synthetic"` indicating the origin of the entrainment metric.
+## Data Flow Diagram
 
-## Data Flow
+```mermaid
+graph TD
+    A[Input CSV/Parquet] --> B{Validation}
+    B -- Fail --> C[Error: Invalid Entrainment Data]
+    B -- Pass --> D{Inner Join on subject_id}
+    D -- N < 30 --> E[Simulation Fallback]
+    D -- N >= 30 --> F[Real Data Path]
+    E --> G[Generate Synthetic Data]
+    F --> H[Calculate Graph Metrics]
+    G --> H
+    H --> I[MLR Analysis]
+    I --> J{VIF > 5?}
+    J -- Yes --> K[Flag Collinearity, Report Joint R2]
+    J -- No --> L[Report Coefficients + Holm-Bonferroni]
+    K --> M[Generate Outputs]
+    L --> M
+    M --> N[Final CSV + Plots]
+```
 
-1. **Ingest**: Raw HCP (Parquet) + Synthetic Entrainment → `data/raw/`.
-2. **Validate**: Check for `subject_id`, connectivity matrix, and `metric_value` column.
-3. **Process**:
-   * Compute Graph Metrics (if raw matrix provided) or load pre‑computed.
-   * Merge on `subject_id` (inner join).
-   * Record `data_source` flag.
-4. **Analyze**:
-   * Correlation → Bonferroni → **Partial Correlation**.
-   * If `N < 30`, add `power_warning`.
-   * If `VIF > 5`, flag as `collinearity_warning` but proceed with Partial Correlation.
-5. **Output**: `data/processed/results.csv`, `artifacts/plots/`.
+## Schema Definitions
+
+### Input Schema
+- **File Format**: CSV or Parquet
+- **Required Columns**: `subject_id`, `entrainment_metric` (if provided externally)
+- **Validation Rules**:
+  - `subject_id`: Non-empty string.
+  - `entrainment_metric`: Numeric (float/int).
+  - Missing values: Rows with missing `subject_id` or `entrainment_metric` are dropped.
+
+### Output Schema
+- **File Format**: CSV
+- **Columns**:
+  - `subject_id`
+  - `atlas_type`
+  - `clustering_coefficient`
+  - `characteristic_path_length`
+  - `entrainment_strength`
+  - `source`
+  - `model_r_squared`
+  - `beta_clustering`
+  - `beta_path_length`
+  - `vif_clustering`
+  - `vif_path_length`
+  - `p_value_raw_clustering`
+  - `p_value_adj_clustering`
+  - `p_value_raw_path_length`
+  - `p_value_adj_path_length`
+  - `collinearity_warning` (boolean)
+  - `power_warning` (boolean)
+  - `status` (string): "OK", "Non-informative", "Simulated"

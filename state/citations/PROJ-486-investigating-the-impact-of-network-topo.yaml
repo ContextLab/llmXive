@@ -1,4 +1,4 @@
-- artifact_hash: f64f8e1e715d7542d52b767507cd1d7463f1fadddd5e1472ad0de3ebd62ec052
+- artifact_hash: 5cfed43e6af8ed71e7fabd2fff4ea8320697968945e946da7ade3bf4fa1d5b7d
   artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,71 +7,27 @@
   kind: url
   value: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6436646268a053f73e754b9d/dcd6a82c536eb8b0a53abc91b06b231a0afafd5c6580f4ecf776ea4e32584202?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Lexica.art.parquet%3B+filename%3D%22Lexica.art.parquet%22%3B&user_id=public&Expires=1783447364&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQzNjY0NjI2OGEwNTNmNzNlNzU0YjlkL2RjZDZhODJjNTM2ZWI4YjBhNTNhYmM5MWIwNmIyMzFhMGFmYWZkNWM2NTgwZjRlY2Y3NzZlYTRlMzI1ODQyMDJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3TGV4aWNhLmFydC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyTGV4aWNhLmFydC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0NDczNjR9fX1dfQ__&Signature=MEUCIGI4QTPgWgT81aeZrr2lqrnA8ztVVPCkwCrYMD6XsZP2AiEAzAXsXoFM7chacAKeD2YynDwwwqH%7EpvSojp79OfJS9Wc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-07T17:02:44.435049Z'
-- artifact_hash: f64f8e1e715d7542d52b767507cd1d7463f1fadddd5e1472ad0de3ebd62ec052
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6436646268a053f73e754b9d/dcd6a82c536eb8b0a53abc91b06b231a0afafd5c6580f4ecf776ea4e32584202?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Lexica.art.parquet%3B+filename%3D%22Lexica.art.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783762448&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQzNjY0NjI2OGEwNTNmNzNlNzU0YjlkL2RjZDZhODJjNTM2ZWI4YjBhNTNhYmM5MWIwNmIyMzFhMGFmYWZkNWM2NTgwZjRlY2Y3NzZlYTRlMzI1ODQyMDJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3TGV4aWNhLmFydC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyTGV4aWNhLmFydC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NjI0NDh9fX1dfQ__&Signature=MEUCIBDpjHMerPcna86BVejqMmtPyv0912dvnKvfApOuD4ksAiEAkc0EEktWlaX4XKI9nsOsF3cbTqjO-%7ED7-lRltlSiLyw_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T08:34:07.997920Z'
+- artifact_hash: 5cfed43e6af8ed71e7fabd2fff4ea8320697968945e946da7ade3bf4fa1d5b7d
   artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/research.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: train.csv
+  kind: url
+  value: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/649072a47761146f34ac6d03/05d6e949c7aad1efa16a6662da5c51501c60f25f8c5c6ee7b069dc691f13bf36?response-content-type=text%2Fcsv&user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.csv%3B+filename%3D%22train.csv%22%3B&Expires=1783762449&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ5MDcyYTQ3NzYxMTQ2ZjM0YWM2ZDAzLzA1ZDZlOTQ5YzdhYWQxZWZhMTZhNjY2MmRhNWM1MTUwMWM2MGYyNWY4YzVjNmVlN2IwNjlkYzY5MWYxM2JmMzZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4uY3N2JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4uY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NjI0NDl9fX1dfQ__&Signature=MEQCIB3MIZTf7yioTYhz1bCB0o7xqKOSBlrfcGjuxxeykM9bAiA-FTtTYk3O3s2C6fuI9IiPV5l3w%7EbTQEhy-fqFiYueXg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T08:34:07.997920Z'
+- artifact_hash: 5cfed43e6af8ed71e7fabd2fff4ea8320697968945e946da7ade3bf4fa1d5b7d
+  artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/research.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: train-00000-of-00001-ecc38ed386fa0d8c.parquet
   kind: url
   value: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64c37b0b7918ee895ba1a9b4/90b53eeb7c93da7768d757270cc9f7c4c37b6cb3a9992e1e223fd2bae07a5194?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-ecc38ed386fa0d8c.parquet%3B+filename%3D%22train-00000-of-00001-ecc38ed386fa0d8c.parquet%22%3B&Expires=1783447365&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRjMzdiMGI3OTE4ZWU4OTViYTFhOWI0LzkwYjUzZWViN2M5M2RhNzc2OGQ3NTcyNzBjYzlmN2M0YzM3YjZjYjNhOTk5MmUxZTIyM2ZkMmJhZTA3YTUxOTRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtZWNjMzhlZDM4NmZhMGQ4Yy5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtZWNjMzhlZDM4NmZhMGQ4Yy5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0NDczNjV9fX1dfQ__&Signature=MEUCIQCrpE%7EXY2uSBQJ5U4JCseAOOhx-2w6f-IfhhAh6xcnh7gIgO1LOWDsinCwn7JyCYtTLt5khzFIqXHLQIZISuYq8ZUk_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-07T17:02:44.435049Z'
-- artifact_hash: f64f8e1e715d7542d52b767507cd1d7463f1fadddd5e1472ad0de3ebd62ec052
-  artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: info.json
-  kind: url
-  value: https://huggingface.co/datasets/adroitLee/eval_260112_ep50_syrg_bz50_R50_Rtn50_pjw_s12000/resolve/main/meta/info.json`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/adroitLee/eval_260112_ep50_syrg_bz50_R50_Rtn50_pjw_s12000/2833c8a9c6d73e5567c3bbf4b8f1b672e077a759/meta%2Finfo.json?%2Fdatasets%2FadroitLee%2Feval_260112_ep50_syrg_bz50_R50_Rtn50_pjw_s12000%2Fresolve%2Fmain%2Fmeta%2Finfo.json=&etag=%227dccf0fa5c83389b029b0fe6848533b1fd135b97%22
-  verified_at: '2026-07-07T17:02:44.435049Z'
-- artifact_hash: f64f8e1e715d7542d52b767507cd1d7463f1fadddd5e1472ad0de3ebd62ec052
-  artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: events.csv
-  kind: url
-  value: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/neurofusion/eeg-restingstate/fe43ac768e0e0df525c5925edb9c27c186730b3b/events.csv?%2Fdatasets%2Fneurofusion%2Feeg-restingstate%2Fresolve%2Fmain%2Fevents.csv=&etag=%2266529439ad90491c045012e98500156c632aa756%22
-  verified_at: '2026-07-07T17:02:44.435049Z'
-- artifact_hash: f64f8e1e715d7542d52b767507cd1d7463f1fadddd5e1472ad0de3ebd62ec052
-  artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/research.md
-  cite_id: c-005
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00048-3d720ad254981f90.parquet
-  kind: url
-  value: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652db96c244f88dd65151850/434776539da82c134c664eca0b123d751e66bdc65e59fb4a245eeedb12eab1f8?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00048-3d720ad254981f90.parquet%3B+filename%3D%22train-00000-of-00048-3d720ad254981f90.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1783447376&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZGI5NmMyNDRmODhkZDY1MTUxODUwLzQzNDc3NjUzOWRhODJjMTM0YzY2NGVjYTBiMTIzZDc1MWU2NmJkYzY1ZTU5ZmI0YTI0NWVlZWRiMTJlYWIxZjhcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwNDgtM2Q3MjBhZDI1NDk4MWY5MC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwNDgtM2Q3MjBhZDI1NDk4MWY5MC5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0NDczNzZ9fX1dfQ__&Signature=MEUCIEZIlI2376IUzz-FBgUHXSQqodXpu%7EOUZsPNU0wEL5uVAiEA4DX3n7xX7rCaiwC6KMNyR%7EAi2NQEbt-y-xbF7VoYn%7EI_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-07T17:02:44.435049Z'
-- artifact_hash: f64f8e1e715d7542d52b767507cd1d7463f1fadddd5e1472ad0de3ebd62ec052
-  artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/research.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: answer.jsonl
-  kind: url
-  value: https://huggingface.co/datasets/meg-tong/sycophancy-eval/resolve/main/answer.jsonl`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/meg-tong/sycophancy-eval/18f18160e9998e524bbf027c4475bfa7fdeb6949/answer.jsonl?%2Fdatasets%2Fmeg-tong%2Fsycophancy-eval%2Fresolve%2Fmain%2Fanswer.jsonl=&etag=%22fcf7f35fbdfdaf1f7fbb2b096936938906406652%22
-  verified_at: '2026-07-07T17:02:44.435049Z'
-- artifact_hash: fd2889e5299dce8972ed04c0a00b2519553c6a97c7cdeaba1c4869e3d9a941cc
-  artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: BALSA
-  kind: url
-  value: https://db.humanconnectome.org/rest/datasets/HCP_S1200_Release`
-  verification_status: pending
-  verified_against_url: https://balsa.wustl.edu
-  verified_at: '2026-07-07T17:10:24.143933Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64c37b0b7918ee895ba1a9b4/90b53eeb7c93da7768d757270cc9f7c4c37b6cb3a9992e1e223fd2bae07a5194?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-ecc38ed386fa0d8c.parquet%3B+filename%3D%22train-00000-of-00001-ecc38ed386fa0d8c.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783762450&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRjMzdiMGI3OTE4ZWU4OTViYTFhOWI0LzkwYjUzZWViN2M5M2RhNzc2OGQ3NTcyNzBjYzlmN2M0YzM3YjZjYjNhOTk5MmUxZTIyM2ZkMmJhZTA3YTUxOTRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtZWNjMzhlZDM4NmZhMGQ4Yy5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtZWNjMzhlZDM4NmZhMGQ4Yy5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3NjI0NTB9fX1dfQ__&Signature=MEYCIQD27y0U-JlHNZnXAPslxeBxr3LgTmR1wFJMZtkqjLtFDwIhAKkgfGMtQUIkn1eSKsTIlMVeoN3Nl88z0caj1Duitm9j&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T08:34:07.997920Z'

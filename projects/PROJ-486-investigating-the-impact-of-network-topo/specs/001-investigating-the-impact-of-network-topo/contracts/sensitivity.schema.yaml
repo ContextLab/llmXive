@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Analysis Output Schema"
+description: "Schema for the sensitivity analysis results comparing effect sizes across atlases."
+type: object
+properties:
+  atlas_name:
+    type: string
+    enum:
+      - "AAL"
+      - "Power"
+    description: "Name of the alternative atlas."
+  absolute_difference_r_squared:
+    type: number
+    description: "Absolute difference in R-squared compared to Schaefer baseline."
+  absolute_difference_beta_clustering:
+    type: number
+    description: "Absolute difference in beta coefficient for clustering."
+  absolute_difference_beta_path_length:
+    type: number
+    description: "Absolute difference in beta coefficient for path length."
+  direction_consistent:
+    type: boolean
+    description: "True if the sign of the correlation matches the baseline."
+required:
+  - atlas_name
+  - absolute_difference_r_squared
+  - direction_consistent
+additionalProperties: false

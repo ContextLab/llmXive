@@ -1,0 +1,9 @@
+? 'T001b [P] Create subdirectories: `code/`, `data/`, `data/raw/`, `data/processed/`,
+  `data/visualizations/`, `tests/`, `tests/unit/`, `tests/integration/`, `docs/`.'
+: 2
+T001c [P] Initialize `.gitkeep` files in all empty directories.: 2
+? 'T002a [P] Create `requirements.txt` pinning: `networkx==2.8.8`, `numpy==1.24.0`,
+  `pandas==2.0.0`, `scikit-learn==1.2.0`, `scipy==1.10.0`, `matplotlib==3.7.0`, `pyyaml==6.0`,
+  `pytest==7.3.0`.'
+: 2
+T002b [P] Create `code/__init__.py` and `tests/__init__.py`.: 2

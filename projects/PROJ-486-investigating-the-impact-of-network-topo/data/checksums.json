@@ -1,0 +1,6 @@
+{
+  "version": "1.0",
+  "description": "Optional cache for file checksums. Primary state tracking is handled by state/projects/PROJ-486-investigating-the-impact-of-network-topo.yaml.",
+  "files": {},
+  "last_updated": null
+}

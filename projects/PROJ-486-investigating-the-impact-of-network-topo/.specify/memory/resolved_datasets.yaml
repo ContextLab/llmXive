@@ -1,4 +1,4 @@
-resolved_at: '2026-07-09T16:11:59.955758+00:00'
+resolved_at: '2026-07-11T08:27:04.947449+00:00'
 datasets:
 - intent: HCP
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://illustro-iadt.figshare.com/articles/thesis/The_Relationship_between_Social_Media_Use_on_Benign_Envy_Social_Comparison_and_Self-Esteem_A_Quantitative_Study/32948123
+  - url: https://figshare.com/articles/dataset/Judokas_Data_set/32963204
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32949047
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095367
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Gait_Joint-Angle_Extraction/30456107
+  - url: https://figshare.com/articles/dataset/Biophysical_effects_of_woody_plant_encroachment_on_land_surface_temperature_are_regulated_by_climate_vegetation_cover_and_structure/32963168
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Membrane_Potential-Independent_Mitochondria-Specific_Near-Infrared_Fluorescent_Probe_via_Nanoaggregate_Formation/32949021
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_material_for_the_manuscript_b_Impact_of_b_b_s_b_b_oybean_b_b_h_b_b_ulls_b_b_on_milk_composition_b_b_nutrient_digestibility_serum_metabolites_rumen_fermentation_and_gut_microbiota_of_postpartum_dairy_cows_b_/32963186
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Novel_Approach_to_Photocatalytic_Removal_of_Linezolid_by_Advanced_Nano-Biochar_Bismuth_Oxychloride_Hybrid/26206653
+  - url: https://tandf.figshare.com/articles/journal_contribution/Kaolin-phosphoric_acid-PBI_membrane_for_wide-temperature-range_proton_exchange_membrane_fuel_cells/32963180
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -69,11 +69,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15581959
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+  - url: https://zenodo.org/records/15581959
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,233 +81,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.wwpzgmsjq
+  - url: https://zenodo.org/records/4643074
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/6hkj7-4kb59
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.941668
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/6hkj7-4kb59
+  - url: https://repository.library.noaa.gov/view/noaa/73823
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/c2622-q7q11
+  - url: https://zenodo.org/records/18653718
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/c2622-q7q11
+  - url: https://zenodo.org/records/18653718
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.3929/ethz-c-000800480
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 500'
-- intent: EEG
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
-    source: huggingface
-    format: csv
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 2963
-      parsed: true
-  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_greyscale_224x224_6secWindow/resolve/main/data/dev-00000-of-00025-6adfdc3e2ffecc56.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_Akoka_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32949053
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://illustro-iadt.figshare.com/articles/thesis/The_Relationship_between_Social_Media_Use_on_Benign_Envy_Social_Comparison_and_Self-Esteem_A_Quantitative_Study/32948123
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32949047
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Gait_Joint-Angle_Extraction/30456107
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Membrane_Potential-Independent_Mitochondria-Specific_Near-Infrared_Fluorescent_Probe_via_Nanoaggregate_Formation/32949021
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3236138
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10909103
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16906198
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds008161/versions/1.0.3
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/155486
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds008161/versions/1.0.2
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.3929/ethz-b-000020457
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 500'
-  - url: https://openneuro.org/datasets/ds008161/versions/1.0.0
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: MEG
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/Infatoshi/kernelbench-mega-traces/resolve/main/manifest.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 4011
-      parsed: true
-  - url: https://huggingface.co/datasets/LLM360/MegaMath/resolve/main/megamath-code/00000.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/madebyollin/megalith-10m/resolve/main/data/megalith-00001-of-00010.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/Infatoshi/kernelbench-mega-traces/resolve/main/manifest.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/LLM360/MegaMath/resolve/main/megamath-code/00000.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/madebyollin/megalith-10m/resolve/main/data/megalith-00001-of-00010.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/moondream/megalith-mdqa/resolve/main/data/train-00000-of-00353.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_Akoka_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32949053
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://illustro-iadt.figshare.com/articles/thesis/The_Relationship_between_Social_Media_Use_on_Benign_Envy_Social_Comparison_and_Self-Esteem_A_Quantitative_Study/32948123
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32949047
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Gait_Joint-Angle_Extraction/30456107
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Membrane_Potential-Independent_Mitochondria-Specific_Near-Infrared_Fluorescent_Probe_via_Nanoaggregate_Formation/32949021
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7410278
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.m57sd
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8365784
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/12775628
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/54754
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280688
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280688
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280680
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280680
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280676
+  - url: https://researchdata.durham.ac.uk/files/n583xt96p
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

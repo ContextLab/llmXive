@@ -1,27 +1,15 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema for Network Topology Entrainment"
-type: "object"
-description: "Schema for the merged input dataset containing topology and entrainment metrics."
+title: "Input Dataset Schema"
+description: "Schema for the input CSV/Parquet containing subject IDs and entrainment metrics."
+type: object
 properties:
   subject_id:
-    type: "string"
+    type: string
     description: "Unique identifier for the subject."
-  atlas_type:
-    type: "string"
-    description: "The parcellation atlas used (e.g., 'Schaefer', 'AAL', 'Power264')."
-  clustering_coefficient:
-    type: "number"
-    description: "Global clustering coefficient of the network."
-  path_length:
-    type: "number"
-    description: "Characteristic path length of the network."
   entrainment_metric:
-    type: "number"
-    description: "Phase-locking value or entrainment strength metric."
+    type: number
+    description: "Numeric value representing neural entrainment strength."
 required:
-  - "subject_id"
-  - "atlas_type"
-  - "clustering_coefficient"
-  - "path_length"
-  - "entrainment_metric"
-additionalProperties: false
+  - subject_id
+  - entrainment_metric
+additionalProperties: true

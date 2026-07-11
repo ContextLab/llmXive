@@ -1,58 +1,82 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Output Schema"
-type: "object"
-description: "Schema for the final correlation results and statistics."
+description: "Schema for the final analysis results CSV containing topology metrics, regression statistics, and warnings."
+type: object
 properties:
-  atlas:
-    type: "string"
-    description: "Atlas used for this analysis row."
-  metric_name:
-    type: "string"
-    description: "Name of the topology metric ('clustering_coefficient' or 'path_length')."
-  n_subjects:
-    type: "integer"
-    description: "Number of subjects included in this analysis."
-  correlation_r:
-    type: "number"
-    description: "Spearman correlation coefficient (univariate)."
-  partial_correlation_r:
-    type: "number"
-    description: "Partial correlation coefficient (controlling for the other metric)."
-  p_value_raw:
-    type: "number"
-    description: "Raw p-value from the univariate correlation test."
-  p_value_partial:
-    type: "number"
-    description: "Raw p-value from the partial correlation test."
-  p_value_adj:
-    type: "number"
-    description: "Bonferroni-corrected p-value (for partial correlation)."
-  is_significant:
-    type: "boolean"
-    description: "True if p_value_adj < 0.05."
-  vif:
-    type: "number"
-    description: "Variance Inflation Factor between the two topology metrics."
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject."
+  atlas_type:
+    type: string
+    enum:
+      - "Schaefer"
+      - "AAL"
+      - "Power"
+    description: "Parcellation scheme used."
+  clustering_coefficient:
+    type: number
+    description: "Weighted clustering coefficient."
+  characteristic_path_length:
+    type: number
+    description: "Characteristic path length."
+  entrainment_strength:
+    type: number
+    description: "Entrainment metric value."
+  source:
+    type: string
+    enum:
+      - "Real"
+      - "Simulated"
+    description: "Data source type."
+  model_r_squared:
+    type: number
+    description: "R-squared value of the Multiple Linear Regression model."
+  beta_clustering:
+    type: number
+    description: "Standardized coefficient for clustering coefficient."
+  beta_path_length:
+    type: number
+    description: "Standardized coefficient for path length."
+  vif_clustering:
+    type: number
+    description: "Variance Inflation Factor for clustering coefficient."
+  vif_path_length:
+    type: number
+    description: "Variance Inflation Factor for path length."
+  p_value_raw_clustering:
+    type: number
+    description: "Raw p-value for clustering coefficient."
+  p_value_adj_clustering:
+    type: number
+    description: "Holm-Bonferroni adjusted p-value for clustering coefficient."
+  p_value_raw_path_length:
+    type: number
+    description: "Raw p-value for path length."
+  p_value_adj_path_length:
+    type: number
+    description: "Holm-Bonferroni adjusted p-value for path length."
   collinearity_warning:
-    type: "string"
-    description: "Warning message if VIF > 5, otherwise null."
+    type: boolean
+    description: "True if VIF > 5 for any predictor."
   power_warning:
-    type: "string"
-    description: "Warning message if N < 30, otherwise null."
-  effect_size_diff:
-    type: "number"
-    description: "Absolute difference in effect size compared to Schaefer atlas (null for Schaefer)."
+    type: boolean
+    description: "True if N < 30."
+  status:
+    type: string
+    enum:
+      - "OK"
+      - "Non-informative"
+      - "Simulated"
+    description: "Status of the analysis for this row."
 required:
-  - "atlas"
-  - "metric_name"
-  - "n_subjects"
-  - "correlation_r"
-  - "partial_correlation_r"
-  - "p_value_raw"
-  - "p_value_partial"
-  - "p_value_adj"
-  - "is_significant"
-  - "vif"
-  - "collinearity_warning"
-  - "power_warning"
+  - subject_id
+  - atlas_type
+  - clustering_coefficient
+  - characteristic_path_length
+  - entrainment_strength
+  - source
+  - model_r_squared
+  - collinearity_warning
+  - power_warning
+  - status
 additionalProperties: false
