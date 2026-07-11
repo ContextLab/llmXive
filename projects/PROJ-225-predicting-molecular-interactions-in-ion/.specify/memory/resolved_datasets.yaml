@@ -1,26 +1,26 @@
-resolved_at: '2026-07-11T02:49:01.475291+00:00'
+resolved_at: '2026-07-11T03:01:12.807258+00:00'
 datasets:
 - intent: ILThermo
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
+  - url: https://figshare.com/articles/dataset/Structer/32962439
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openaccess.wgtn.ac.nz/articles/thesis/Promoting_the_Wellbeing_of_Teachers_Working_With_Students_With_Special_Needs_A_Mindfulness-Supporting_Programme/32962406
+  - url: https://figshare.com/articles/dataset/color_branches_of_a_phylogeny_timetree_according_to_branch-specific_substitution_rates/32962445
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -75,23 +75,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
+  - url: https://figshare.com/articles/dataset/Structer/32962439
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openaccess.wgtn.ac.nz/articles/thesis/Promoting_the_Wellbeing_of_Teachers_Working_With_Students_With_Special_Needs_A_Mindfulness-Supporting_Programme/32962406
+  - url: https://figshare.com/articles/dataset/color_branches_of_a_phylogeny_timetree_according_to_branch-specific_substitution_rates/32962445
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -181,23 +181,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+  - url: https://figshare.com/articles/dataset/Structer/32962439
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Atiba_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962412
+  - url: https://figshare.com/articles/dataset/color_branches_of_a_phylogeny_timetree_according_to_branch-specific_substitution_rates/32962445
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -209,11 +209,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14186325
+  - url: https://zenodo.org/records/3771172
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3771172
+  - url: https://zenodo.org/records/14186325
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -221,14 +221,19 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/20e69389-7a3f-4f87-9161-6eaf15f9c2f9
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/100482
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/0489db14-0c8a-4158-a51e-0c802af27ddb
+  - url: https://doi.org/10.24406/publica-6911
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''publica.fraunhofer.de'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.24406/publica-1033
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 502'
   - url: https://yareta.unige.ch/archives/aad79a5b-b1f6-426c-87af-1bd7272ef6b8
     source: datacite
     status: wrong_format
@@ -237,374 +242,452 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/acbacbe5-61ae-4c6f-828c-98bf0a716d0a
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: AND
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
-    source: huggingface
-    format: gzip
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 108629
-      parsed: true
-  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
-    source: huggingface
-    status: verified
-    format: gzip
-  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://link.springer.com/article/10.1007/BF01977446
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7714657
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5336216
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5336182
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5336274
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: MAE
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
-    source: huggingface
-    format: zip
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
-    source: huggingface
-    format: zip
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
-    source: huggingface
-    status: wrong_format
-    reason: HTTP 401
-  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Training_Dataset/32962415
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/PAMO_University_of_Medical_Sciences_2026_2027_Admission_07047903330_Form_Is_Out_/32962418
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13984656
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8299749
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10023439
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6068475
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21296601
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21296601
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21296535
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21296535
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/157c2ea5-aea0-4834-8571-c29de92dc766
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: MANOVA
+- intent: IonPair
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/online_resource/_i_Five_Steps_to_Prove_Your_Music_Isn_t_AI_A_Provenance_Framework_for_Independent_Musicians_i_/32962436
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Coal_City_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962442
+  - url: https://figshare.com/articles/dataset/Structer/32962439
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+  - url: https://figshare.com/articles/dataset/color_branches_of_a_phylogeny_timetree_according_to_branch-specific_substitution_rates/32962445
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20669198
+  - url: https://zenodo.org/records/6275995
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14556084
+  - url: https://zenodo.org/records/10001071
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://neobiota.pensoft.net/article/141133/element/5/32/
+  - url: https://pharmacia.pensoft.net/article/168287/element/2/15/
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://pharmacia.pensoft.net/article/190792/
+  - url: https://zenodo.org/records/5638452
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.3897/neobiota.34.10820.suppl4
+  - url: https://pharmacia.pensoft.net/article/168287/element/2/13/
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9p8cz8x0j
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.imperial.ac.uk/admin-services/ict/self-service/research-support/rcs/about/research-management-applications/hpc-repository/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dias.library.tuc.gr/handle/123456789/43623
+  - url: https://www.imperial.ac.uk/admin-services/ict/self-service/research-support/rcs/about/research-management-applications/hpc-repository/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.26192/q3941
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 405'
-  - url: https://osf.io/wgfdz/
+  - url: https://opendata.uni-halle.de//handle/1981185920/10389
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/kzs3m/
-    source: datacite
+- intent: ILThermo-derived
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
+    source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: URLs
+  - url: https://figshare.com/articles/dataset/Structer/32962439
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/color_branches_of_a_phylogeny_timetree_according_to_branch-specific_substitution_rates/32962445
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10813416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18764739
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6516331
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5915388
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6566049
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: XGBoost
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
     source: huggingface
-    format: csv
+    format: zip
     relevance: 1.0
     sample_check:
-      downloaded_bytes: 107077
+      downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 9837
-      parsed: true
-  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
     source: huggingface
     format: parquet
     relevance: 1.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 93098
+      parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+  - url: https://huggingface.co/datasets/XGBooster/github-issues/resolve/main/issues-datasets-with-comments.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
-    source: huggingface
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
+    source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+  - url: https://figshare.com/articles/dataset/Structer/32962439
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/color_branches_of_a_phylogeny_timetree_according_to_branch-specific_substitution_rates/32962445
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20667903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8400945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15009821
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14973553
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302199
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302199
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21301626
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21301626
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21301052
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: StructuralFamily
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Structer/32962439
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/color_branches_of_a_phylogeny_timetree_according_to_branch-specific_substitution_rates/32962445
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20041338
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: IonPairs
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Structer/32962439
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/color_branches_of_a_phylogeny_timetree_according_to_branch-specific_substitution_rates/32962445
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6024234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6410587
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6392399
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6400813
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5909100
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://epub.uni-regensburg.de/30011/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ANOVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16586
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
     source: huggingface
     status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/online_resource/_i_Five_Steps_to_Prove_Your_Music_Isn_t_AI_A_Provenance_Framework_for_Independent_Musicians_i_/32962436
+    format: json
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Coal_City_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962442
+  - url: https://figshare.com/articles/dataset/Structer/32962439
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Clifford_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962433
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiritan_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962430
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962421
+  - url: https://figshare.com/articles/dataset/color_branches_of_a_phylogeny_timetree_according_to_branch-specific_substitution_rates/32962445
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/50969
+  - url: https://zenodo.org/records/14242875
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8371046
+  - url: https://zenodo.org/records/10011805
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21014453
+  - url: https://zenodo.org/records/1255322
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10622995
+  - url: https://zenodo.org/records/15804920
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15573303
+  - url: https://zenodo.org/records/10437571
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21269656
+  - url: https://publica.fraunhofer.de/entities/publication/f0f16588-0fc8-42d8-9718-5d30f5c43cbd
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21269656
+  - url: https://publica.fraunhofer.de/entities/publication/b0b0a564-0ccf-430d-8294-a79f2166f73b
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21302402
+  - url: https://zenodo.org/records/21302071
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21302402
+  - url: https://zenodo.org/records/21302071
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21302400
+  - url: https://zenodo.org/records/21197756
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: BF4
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: PF6
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: XGBoost
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_bf4b9b00-531b-4985-88e7-a64f7574b2ab/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1454
+      parsed: true
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_bf4e16aa-ff14-42bf-9110-70302b9446d4/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1454
+      parsed: true
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_a8fdb604-071e-4db2-bf43-e06e836c7dc5/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1454
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_bf4b9b00-531b-4985-88e7-a64f7574b2ab/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_bf4e16aa-ff14-42bf-9110-70302b9446d4/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_a8fdb604-071e-4db2-bf43-e06e836c7dc5/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_7e28f241-4755-4445-bf4c-7bd131b81083/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_5b67de0d-f6b1-4d84-bf45-72275c5a24ca/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Komparasi_Support_Vector_Machine_dan_Gradient_Boosting_untuk_Prediksi_Penyakit_Kardiovaskular/32962472
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Deenz_Neurodiversity_Scale_DNS_Normative_Dataset_N_1_527_/32962466
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Structer/32962439
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Digital_Advertising_Brand_Valuation_Optimizing_Algorithms_and_Platform_Reengineering_for_Strategic_and_Financial_Advantage/30758204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Arthur_Javis_University_2026_2027_Admission_07047903330_Form_Is_Out_/32962451
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dl.acm.org/doi/10.1145/3387514.3405888
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/10797063
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3968290
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5789186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14653068
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/7754
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://public.yoda.uu.nl/science/UU01/YPJ3IU.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RDKit
   status: unresolved
   candidates: []
   candidates_tried: []

@@ -1,0 +1,71 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: IonPair
+description: Schema for the unified ion pair dataset used in training and validation.
+type: object
+properties:
+  cation_id:
+    type: string
+    description: Unique identifier for the cation.
+  anion_id:
+    type: string
+    description: Unique identifier for the anion.
+  cation_smiles:
+    type: string
+    description: SMILES string of the cation.
+  anion_smiles:
+    type: string
+    description: SMILES string of the anion.
+  structural_family_cation:
+    type: string
+    description: Categorical label for the cation family (e.g., "imidazolium").
+  structural_family_anion:
+    type: string
+    description: Categorical label for the anion family (e.g., "BF4").
+  electrostatic_energy:
+    type: number
+    description: Electrostatic interaction energy in kcal/mol.
+  dispersion_energy:
+    type: number
+    description: Dispersion interaction energy in kcal/mol.
+  hbond_energy:
+    type: number
+    description: Hydrogen-bonding interaction energy in kcal/mol.
+  total_energy:
+    type: number
+    description: Sum of interaction energy components.
+  tps_cation:
+    type: number
+    description: Topological Polar Surface Area of the cation.
+  tps_anion:
+    type: number
+    description: Topological Polar Surface Area of the anion.
+  molecular_surface_area:
+    type: number
+    description: Total molecular surface area.
+  h_bond_count:
+    type: integer
+    description: Total number of hydrogen bond donors and acceptors.
+  graph_embedding:
+    type: array
+    items:
+      type: number
+    description: Vector representation of the molecular graph.
+  is_synthetic:
+    type: boolean
+    description: Flag indicating if the data was generated via the synthetic protocol.
+required:
+  - cation_id
+  - anion_id
+  - cation_smiles
+  - anion_smiles
+  - electrostatic_energy
+  - dispersion_energy
+  - hbond_energy
+  - total_energy
+  - tps_cation
+  - tps_anion
+  - molecular_surface_area
+  - h_bond_count
+  - graph_embedding
+  - is_synthetic
+additionalProperties: false

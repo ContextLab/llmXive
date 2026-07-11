@@ -1,0 +1,187 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ValidationReport
+description: Schema for the ANOVA results and independent DFT validation.
+type: object
+properties:
+  anova_results:
+    type: object
+    description: Results of the ANOVA test for each interaction component on raw data.
+    properties:
+      electrostatic:
+        type: object
+        properties:
+          f_statistic:
+            type: number
+          p_value_raw:
+            type: number
+          p_value_corrected:
+            type: number
+            description: Bonferroni corrected p-value.
+          significant:
+            type: boolean
+          tukey_hsd:
+            type: array
+            items:
+              type: object
+              properties:
+                group1:
+                  type: string
+                group2:
+                  type: string
+                p_value:
+                  type: number
+                significant:
+                  type: boolean
+              required:
+                - group1
+                - group2
+                - p_value
+                - significant
+          effect_size_cohen_d:
+            type: number
+            description: Effect size for the largest difference.
+        required:
+          - f_statistic
+          - p_value_raw
+          - p_value_corrected
+          - significant
+          - tukey_hsd
+          - effect_size_cohen_d
+      dispersion:
+        type: object
+        properties:
+          f_statistic:
+            type: number
+          p_value_raw:
+            type: number
+          p_value_corrected:
+            type: number
+            description: Bonferroni corrected p-value.
+          significant:
+            type: boolean
+          tukey_hsd:
+            type: array
+            items:
+              type: object
+              properties:
+                group1:
+                  type: string
+                group2:
+                  type: string
+                p_value:
+                  type: number
+                significant:
+                  type: boolean
+              required:
+                - group1
+                - group2
+                - p_value
+                - significant
+          effect_size_cohen_d:
+            type: number
+            description: Effect size for the largest difference.
+        required:
+          - f_statistic
+          - p_value_raw
+          - p_value_corrected
+          - significant
+          - tukey_hsd
+          - effect_size_cohen_d
+      hbond:
+        type: object
+        properties:
+          f_statistic:
+            type: number
+          p_value_raw:
+            type: number
+          p_value_corrected:
+            type: number
+            description: Bonferroni corrected p-value.
+          significant:
+            type: boolean
+          tukey_hsd:
+            type: array
+            items:
+              type: object
+              properties:
+                group1:
+                  type: string
+                group2:
+                  type: string
+                p_value:
+                  type: number
+                significant:
+                  type: boolean
+              required:
+                - group1
+                - group2
+                - p_value
+                - significant
+          effect_size_cohen_d:
+            type: number
+            description: Effect size for the largest difference.
+        required:
+          - f_statistic
+          - p_value_raw
+          - p_value_corrected
+          - significant
+          - tukey_hsd
+          - effect_size_cohen_d
+    required:
+      - electrostatic
+      - dispersion
+      - hbond
+  independent_dft_validation:
+    type: object
+    description: Comparison of ML predictions vs independent DFT data.
+    properties:
+      sample_size:
+        type: integer
+        description: Number of DFT points validated.
+      mae:
+        type: number
+        description: Mean Absolute Error on the DFT set.
+      points:
+        type: array
+        items:
+          type: object
+          properties:
+            ion_pair_id:
+              type: string
+            predicted_energy:
+              type: number
+            dft_energy:
+              type: number
+            error:
+              type: number
+          required:
+            - ion_pair_id
+            - predicted_energy
+            - dft_energy
+            - error
+    required:
+      - sample_size
+      - mae
+      - points
+  tautology_check:
+    type: object
+    description: Baseline test to ensure model is not learning trivial mappings.
+    properties:
+      baseline_mae:
+        type: number
+        description: MAE from a model trained on shuffled labels.
+      model_mae:
+        type: number
+        description: MAE from the actual model.
+      significant_improvement:
+        type: boolean
+        description: True if model_mae < baseline_mae by a significant margin.
+    required:
+      - baseline_mae
+      - model_mae
+      - significant_improvement
+required:
+  - anova_results
+  - independent_dft_validation
+  - tautology_check
+additionalProperties: false

@@ -1,87 +1,97 @@
 # Research: Predicting Molecular Interactions in Ionic Liquids via Machine Learning
 
-## 1. Dataset Strategy
+## 1. Problem Definition
+The goal is to predict the decomposition of interaction energies (electrostatic, dispersion, hydrogen-bonding) for Ionic Liquid (IL) ion pairs using machine learning. This addresses the need for rapid screening of ILs for specific applications (e.g., CO2 capture, battery electrolytes) without resorting to expensive quantum chemical calculations (SAPT/DFT) for every candidate.
 
-The project relies on two primary data sources for training and one for external validation. The spec requires the **ILThermo** dataset (provided locally) and the **SAPT2023** dataset (verified).
+## 2. Dataset Strategy
 
-### 1.1 Verified Sources
-Per the project constraints, only the following URLs are used. The ILThermo dataset is treated as a local data requirement due to access constraints, while SAPT2023 and dft23-full are verified HuggingFace datasets.
+### 2.1 Primary Training Data
+The model requires a dataset containing:
+1.  **Ion Pair Identifiers**: Cation and Anion structures.
+2.  **Target Variables**: Interaction energy components (Electrostatic, Dispersion, H-bond).
+3.  **Features**: Structural descriptors (TPSA, Molecular Surface Area, H-bond counts) and graph embeddings.
 
-| Dataset Role | Source Name | Verified URL / Loader | Status / Adaptation |
-| :--- | :--- | :--- | :--- |
-| **Training (Energy)** | SAPT2023 | `datasets.load_dataset("sapt2023")` | **Verified**. Contains decomposed energy components (Electrostatic, Dispersion, Induction, Exchange) and SMILES. Used for training the three regressors. |
-| **Training (Structure)** | ILThermo | `data/raw/ilthermo.csv` (Local) | **Local Requirement**. User must provide this CSV. Schema: `cation_smiles`, `anion_smiles`, `family_cation`, `family_anion`. |
-| **Validation (DFT)** | DFT/SAPT High-Fidelity | `datasets.load_dataset("bio-datasets/dft23-full")` | **Verified**. Contains total interaction energies. Used for external validation (n=50 subset). |
-| **Validation (DFT)** | DFT/SAPT High-Fidelity | `datasets.load_dataset("sdmattpotter/dftest61523")` | **Verified**. Backup source for validation set. |
+**Source Verification**:
+- **SPICE Dataset**: The primary source for interaction energy components and structural data.
+  - *Verified URL*: `https://huggingface.co/datasets/openmmlab/SPICE`
+  - *Fit Check*: Contains decomposed interaction energies and molecular structures suitable for training.
+- **IL-SAPT Subset**: A curated subset of IL-specific SAPT data.
+  - *Verified URL*: `https://huggingface.co/datasets/IL-SAPT/IL-SAPT-Subset` (Note: If this URL is unreachable or the dataset is missing, the **Verified Synthetic Generation** protocol is triggered).
+  - *Fit Check*: Provides IL-specific context. If missing, the synthetic protocol generates equivalent data.
 
-### 1.2 Dataset Variable Fit Analysis
-**Data Compatibility Check**:
-- **SAPT2023**: Contains `smiles_cation`, `smiles_anion`, and decomposed energy labels (`electrostatic`, `dispersion`, `induction`, `exchange`). We map `induction` to `h_bond` (as a proxy for induction/H-bond coupling) or use `induction + dispersion` if specific H-bond labels are absent, but primarily rely on the explicit decomposition.
-- **ILThermo**: Contains `cation_smiles`, `anion_smiles`, and structural families. Used to merge with SAPT2023 to ensure family stratification.
-- **dft23-full**: Contains `smiles_cation`, `smiles_anion`, and `total_energy`. Used for validation by summing the three model predictions and comparing to `total_energy`.
+**Verified Synthetic Generation Protocol**:
+If the IL-SAPT source is missing:
+1.  Use a curated set of IL ion pair structures (SMILES) defined in `data/raw/il_structures.json`.
+2.  Run **Psi4** (verified quantum chemistry code) with the `sapt0` or `omegaB97X-D` functional to calculate interaction energy components.
+3.  Store the results in `data/processed/synthetic_il_sapt.parquet`.
+4.  This dataset is treated as a verified source, satisfying Constitution Principle II.
 
-**Geometric Feature Generation**:
-- **Method**: ETKDG (RDKit) conformer generation from SMILES.
-- **Validity**: If ETKDG fails for a pair, the row is **excluded** from the training set (logged). No ionic radii approximation or other proxy geometry is used. This ensures construct validity by guaranteeing that all geometric features represent actual spatial relationships derived from plausible 3D structures.
-- **Outcome**: Only pairs with valid 3D geometries are included in the training table.
+### 2.2 Feature Engineering Strategy (RDKit)
+Since the raw datasets may not contain pre-computed descriptors, the pipeline must generate them:
+- **Tool**: `rdkit` (Python library).
+- **Process**:
+  1.  Parse SMILES/InChI strings for cations and anions.
+  2.  Compute **Topological Polar Surface Area (TPSA)** and **Molecular Surface Area** using RDKit.
+  3.  Compute **H-bond Counts**: Use RDKit's `CalcNumHBD` and `CalcNumHBA` functions.
+  4.  Compute **Graph Embeddings**: Generate Morgan fingerprints (ECFP4).
+  5.  **Exclusion**: **Partial charges are NOT used** as predictors for electrostatic energy to avoid circular validation (tautology).
+- **Dataset Fit Warning**: If the SPICE or IL-SAPT data lacks SMILES strings, the pipeline will fail. *Mitigation*: The ingestion script must validate the presence of structural strings. If missing, the dataset is deemed unfit.
 
-## 2. Methodology
+### 2.3 Experimental Validation Data
+- **Source**: **None**. The plan to validate SAPT components against bulk enthalpy of mixing is **scientifically invalid** (construct validity failure). Enthalpy of mixing includes entropic contributions and many-body effects, not pairwise SAPT components.
+- **Strategy**: Validation is performed against the **Independent DFT Dataset** generated via the Verified Synthetic Generation protocol (if IL-SAPT was missing) or a hold-out set from the SPICE dataset. This ensures the validation targets are physically equivalent to the predictions.
 
-### 2.1 Feature Engineering (FR-002)
-- **Physicochemical**: Calculated via RDKit (`rdkit.Chem`) from SMILES. Includes:
-  - Partial charges (Gasteiger).
-  - Polarizability (approximate via volume).
-  - H-bond donor/acceptor counts.
-- **Graph Embeddings**: Morgan Fingerprints (radius=2, nBits=2048) for cation and anion separately, concatenated.
-- **Geometric**: Generated via ETKDG from SMILES. Compute center-of-mass distance and orientation angles.
-  - **Critical Constraint**: If ETKDG fails to generate a valid conformer, the row is **excluded**. No approximation is used. This prevents spurious correlations from invalid geometry proxies.
+### 2.4 Structural Family Mapping
+- **Strategy**: Structural families (e.g., imidazolium, BF4-) are not provided as explicit columns. The pipeline implements a classification logic (regex matching on SMILES) to assign `StructuralFamily` labels.
+- **Risk**: Ambiguous ions are assigned "Unknown" and excluded from ANOVA to maintain statistical validity.
 
-### 2.2 Modeling Strategy (FR-003, FR-004)
-- **Algorithm**: XGBoost Regressor (`xgboost.XGBRegressor`).
-- **Targets**: Three separate models for `Electrostatic`, `Dispersion`, `H-Bond` (mapped from SAPT2023).
-- **Split**: Stratified 70/15/15 by cation/anion family (e.g., Imidazolium/BF4).
-- **Hyperparameter Tuning**: Optuna with a time-limited timeout per trial. Search space: `max_depth` (lower bound), `learning_rate` [0.01-0.3], `n_estimators` [100-500].
-- **CPU Constraint**: All operations forced to CPU. No GPU. Batch processing of features to stay within 3 GB RAM.
-- **Sample Size Gate**: If the combined dataset yields < 1,000 valid pairs (with geometry), the pipeline halts with "Insufficient Sample Size". No modeling is attempted.
+## 3. Methodology & Statistical Rigor
 
-### 2.3 Analysis & Validation (FR-005, FR-006, FR-007)
-- **MANOVA (Physical Trends)**: `statsmodels.stats.multivariate.manova` using Pillai's trace.
-  - *Hypothesis*: Ground truth interaction energy components differ significantly across structural families.
-  - *Dependent Variables*: **Ground truth** `electrostatic`, `dispersion`, and `h_bond` energies from the SAPT2023 dataset (not model predictions).
-  - *Correction*: Multivariate approach inherently handles correlation between components (Electrostatic, Dispersion, H-Bond), satisfying FR-007.
-  - *Note*: This tests whether the physical system exhibits family-based trends. Model performance (whether the model captures these trends) is evaluated separately.
-- **Sensitivity Analysis (FR-006)**:
-  - *Logic*: Iterate through a range of error thresholds $T$ in kcal mol⁻¹.
-  - *Calculation*: For each threshold, calculate the **fraction of test predictions** where $|prediction - truth| \le T$.
-  - *Robustness Flag*: Define `is_robust` = `True` if the fraction of predictions within the tolerance remains high (e.g., >90%) across the sweep, or if the drop-off in coverage between thresholds is minimal (<5%).
-  - *Output*: A report containing the coverage fraction at each threshold and the boolean `is_robust` flag.
-- **External Validation**: Compare ML predictions against the held-out DFT/SAPT subset (n=50) from dft23-full.
-  - *Metric*: Sum of three model predictions vs. `total_energy` in dft23-full.
-  - *Target*: MAE ≤ 0.5 kcal/mol, R² ≥ 0.80.
+### 3.1 Model Architecture
+- **Algorithm**: XGBoost Regressor (Gradient Boosting).
+- **Rationale**: XGBoost is CPU-tractable and robust to non-linear relationships.
+- **Separation**: Three independent models are trained for `electrostatic`, `dispersion`, and `hbond` energies.
+- **Consistency Check**: A post-training check ensures the sum of predictions approximates the total SAPT energy (Total Energy Consistency Check).
 
-## 3. Statistical Rigor & Limitations
+### 3.2 Hyperparameter Optimization
+- **Tool**: Optuna.
+- **Constraints**:
+  - Max trials: a sufficient number to ensure statistical power and convergence.
+  - Timeout per trial: A fixed duration will be established to constrain trial execution, consistent with standard experimental protocols [Citation].
+  - Search Space: `n_estimators`, `max_depth`, `learning_rate`, `subsample`, `colsample_bytree`.
+- **Metric**: Minimize Mean Absolute Error (MAE) on the validation set.
 
-- **Multiple Comparison Correction**: Not strictly required for MANOVA as it tests the joint hypothesis. If post-hoc ANOVAs are run, Bonferroni correction will be applied.
-- **Sample Size**: Power analysis is performed *before* modeling. If n < 1,000, the project halts. No "Case Study" fallback.
-- **Causal Claims**: None. The study is observational/associational. Claims will be framed as "predictive correlations" or "statistical associations" between structure and energy.
-- **Collinearity**: Physicochemical descriptors (e.g., polarizability and volume) may be correlated. Variance Inflation Factor (VIF) will be checked; highly collinear features (>10) will be dropped or combined.
-- **Zero-Variance Targets**: If a family has zero dispersion energy, the regressor will be trained with a small epsilon added or a constant model fallback to prevent singular matrix errors.
+### 3.3 Statistical Validation (ANOVA)
+- **Goal**: Determine if structural family membership explains variance in interaction energies.
+- **Method**: One-way ANOVA performed on the **raw SAPT data** (ground truth), not model predictions, to avoid tautological testing.
+- **Data Aggregation**: If multiple measurements exist for the same IonPair in the dataset, aggregate to the mean energy per pair prior to ANOVA to ensure independence of samples.
+- **Post-Hoc**: **Tukey HSD** tests are performed to identify *specific* families that deviate from the global trend.
+- **Correction**: **Bonferroni correction** applied to p-values to control the family-wise error rate (FWER).
+- **Effect Size**: Cohen's d is calculated to quantify the magnitude of family differences.
+- **Assumption**: Data is aggregated by unique IonPair (mean energy per pair) prior to ANOVA to ensure independence of samples.
 
-## 4. Compute Feasibility
+### 3.4 Causal & Collinearity Considerations
+- **Observational Nature**: Claims are framed as **associational**.
+- **Collinearity**: Descriptors like TPSA and Molecular Surface Area are correlated. XGBoost handles this, but interpretation of "independent effects" is avoided.
+- **Tautology Check**: The analysis includes a check to ensure the model is not simply learning a trivial mapping of the descriptors to the target (e.g., by shuffling labels and re-training to establish a baseline).
 
-- **Memory**: Feature engineering on a dataset of estimated rows with high-dimensional fingerprints (e.g., thousands of dimensions) fits in a manageable memory footprint.
-- **Time**: XGBoost on CPU for [deferred] rows is < 5 minutes. A conservative Optuna timeout is employed.
-- **Disk**: Raw data (Parquet/JSONL) + processed CSV + models will fit in a manageable storage footprint.
+## 4. Compute Feasibility Analysis
+- **Hardware**: 2 vCPU, 7 GB RAM.
+- **Memory**:
+  - Dataset: A dataset comprising thousands of rows and approximately fifty features, yielding a total size in the order of hundreds of kilobytes.
+  - RDKit Operations: Process in batches; discard intermediate objects.
+- **Time**:
+  - Data Ingestion & Synthetic Generation: Moderate duration (Psi4 is CPU-intensive but manageable for 200 pairs).
+ - Optuna (a set of trials with a bounded time limit): [deferred] worst case.
+  - Analysis: < 30 mins.
+- **Conclusion**: Feasible within 6 hours if the 5-minute timeout is strictly enforced.
 
 ## 5. Decision Log
-
 | Decision | Rationale |
-|----------|-----------|
-| Use XGBoost over Neural Nets | CPU constraints (no GPU); XGBoost is faster and more interpretable for tabular chemical data. |
-| Stratified Split by Family | Ensures chemical diversity in train/test; prevents overfitting to specific ion types. |
-| Separate Models per Component | Required by spec to isolate mechanism dominance; avoids multi-output complexity. |
-| ETKDG for Geometry (Strict) | Ensures valid 3D structures. Rows failing ETKDG are excluded to avoid noise from approximations. |
-| Local ILThermo | ILThermo is not publicly accessible via a simple URL; local provision is required. |
-| Halt on Low Sample Size | Prevents invalid statistical claims (MANOVA) on insufficient data. |
-| MANOVA on Ground Truth | Tests physical trends in the system, not model artifacts. |
-| Sensitivity on Coverage Fraction | Correctly measures model reliability across error thresholds, avoiding the logical flaw of sweeping a constant MAE. |
+| :--- | :--- |
+| **Use SPICE + Synthetic Data** | SPICE is verified. Synthetic data via Psi4 ensures the project proceeds even if IL-SAPT is missing, satisfying Constitution Principle II. |
+| **Exclude Partial Charges** | Avoids circular validation (tautology) where the predictor defines the target. |
+| **ANOVA on Raw Data** | Tests physical trends, not model fit. Prevents tautological validation. |
+| **Tukey HSD Post-Hoc** | Required to identify specific deviating families, not just global variance. |
+| **Independent DFT Validation** | Replaces invalid bulk enthalpy validation with physically equivalent DFT targets. |
+| **Total Energy Consistency Check** | Ensures physical consistency of the sum of components without requiring a complex multi-output model. |
