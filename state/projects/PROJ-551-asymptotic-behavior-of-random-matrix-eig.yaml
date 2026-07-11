@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-12T17:34:15.485482Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: mathematics
 human_escalation_reason: null
 id: PROJ-551-asymptotic-behavior-of-random-matrix-eig
-last_run_id: 5f377b12-0685-49ca-962e-77c61ab018d8
+last_run_id: 331f46d1-9caf-47b9-920b-d4fe32e56749
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig
 title: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
-updated_at: '2026-07-05T21:36:23.147060Z'
+updated_at: '2026-07-11T23:29:13.206505Z'

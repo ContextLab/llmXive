@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EigenvalueResult
+description: Schema for the computed eigenvalues of a perturbed Wigner matrix.
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Foreign key to SimulationRun."
+  eigenvalue_index:
+    type: integer
+    minimum: 1
+    maximum: 10
+    description: "Rank of the eigenvalue (1 = largest)."
+  value:
+    type: number
+    description: "The computed eigenvalue."
+  is_outlier:
+    type: boolean
+    description: "True if eigenvalue exceeds the empirical bulk edge + tolerance."
+  theoretical_bbp:
+    type: number
+    description: "Theoretical BBP outlier location (theta + 1/theta) - Reference only."
+  deviation:
+    type: number
+    description: "Difference between computed and theoretical value."
+required:
+  - run_id
+  - eigenvalue_index
+  - value
+  - is_outlier
+  - theoretical_bbp
+  - deviation
+additionalProperties: false

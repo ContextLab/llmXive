@@ -1,0 +1,28 @@
+[tool.ruff]
+# Target Python version matching the project requirements
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+# Enable pycodestyle (E), pyflakes (F), isort (I), and specific useful rules
+select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "I",  # isort (import sorting)
+    "N",  # pep8-naming
+    "UP", # pyupgrade
+    "S",  # flake8-bandit (security)
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "W",  # pycodestyle warnings
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "S101", # Use of assert detected (often acceptable in research scripts)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow more flexibility in test files
+"tests/*" = ["S101", "N802"]
+# Allow specific ignores for main entry point if needed
+"code/main.py" = ["S101"]

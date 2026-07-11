@@ -1,0 +1,7 @@
+# Default configuration for PROJ-551
+seed: 42
+N: 1000
+theta: 2.5
+rank: 1
+sparsity_pattern: "diagonal"
+output_dir: "data/processed"

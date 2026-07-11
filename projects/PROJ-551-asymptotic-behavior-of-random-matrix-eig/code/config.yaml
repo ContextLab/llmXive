@@ -1,0 +1,41 @@
+# Project Configuration
+# This file controls simulation parameters, paths, and seeds.
+
+# Random seed for reproducibility (Constitution Principle I)
+random_seed: 42
+
+# Numerical tolerances for iterative solvers
+tolerance: 1e-10
+
+# Maximum iterations for iterative methods
+max_iterations: 1000
+
+# Default matrix dimension for simulations
+matrix_size: 1000
+
+# Number of top eigenvalues to compute
+num_eigenvalues: 10
+
+# Default perturbation norm (theta) for outlier analysis
+perturbation_norm: 2.5
+
+# Default sparsity density for perturbation matrices
+sparsity_density: 0.1
+
+# Number of Monte Carlo iterations for statistical analysis
+num_mc_iterations: 100
+
+# Output directory relative to project root
+output_dir: "data/processed"
+
+# Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+logging_level: INFO
+
+# Paths configuration (optional overrides)
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_logs: "data/logs"
+  data_figures: "data/figures"
+  state: "state"
+  figures: "figures"

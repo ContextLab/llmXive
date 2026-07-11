@@ -1,0 +1,72 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AggregatedThreshold
+description: Schema for aggregated statistics of outlier emergence across multiple runs.
+type: object
+properties:
+  config_id:
+    type: string
+    description: "Hash of the configuration (N, k, pattern, theta)."
+  N:
+    type: integer
+    minimum: 100
+    maximum: 2000
+    description: "Matrix dimension."
+  k:
+    type: integer
+    enum:
+      - 1
+      - 2
+      - 5
+    description: "Perturbation rank."
+  pattern_type:
+    type: string
+    enum:
+      - diagonal
+      - block-sparse
+      - random-sparse
+    description: "Type of sparsity pattern."
+  theta:
+    type: number
+    minimum: 1.0
+    maximum: 3.0
+    description: "Spectral norm of perturbation."
+  total_runs:
+    type: integer
+    minimum: 1
+    description: "Total number of simulations for this config."
+  outlier_count:
+    type: integer
+    minimum: 0
+    description: "Number of runs with at least one outlier."
+  outlier_probability:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Probability of outlier emergence."
+  mean_deviation:
+    type: number
+    description: "Mean deviation of outliers from theoretical BBP."
+  std_deviation:
+    type: number
+    minimum: 0.0
+    description: "Standard deviation of outliers from theoretical BBP."
+  theta_c_estimate:
+    type: number
+    description: "Estimated critical threshold from sigmoid curve fit."
+  theta_c_confidence:
+    type: number
+    description: "Confidence interval width for theta_c."
+required:
+  - config_id
+  - N
+  - k
+  - pattern_type
+  - theta
+  - total_runs
+  - outlier_count
+  - outlier_probability
+  - mean_deviation
+  - std_deviation
+  - theta_c_estimate
+  - theta_c_confidence
+additionalProperties: false

@@ -1,0 +1,62 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SimulationRun
+description: Schema for a single simulation run of the Wigner matrix perturbation study.
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique UUID for the run."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of execution."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  N:
+    type: integer
+    minimum: 100
+    maximum: 2000
+    description: "Matrix dimension."
+  k:
+    type: integer
+    enum:
+      - 1
+      - 2
+      - 5
+    description: "Perturbation rank."
+  theta:
+    type: number
+    minimum: 1.0
+    maximum: 3.0
+    description: "Spectral norm of perturbation."
+  pattern_type:
+    type: string
+    enum:
+      - diagonal
+      - block-sparse
+      - random-sparse
+    description: "Type of sparsity pattern."
+  support_density:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Support density p (null for non-random patterns)."
+  computation_time_ms:
+    type: number
+    minimum: 0.0
+    description: "Time taken for eigenvalue computation in milliseconds."
+  empirical_bulk_edge:
+    type: number
+    description: "Empirical bulk edge (99th percentile) for this run."
+required:
+  - run_id
+  - timestamp
+  - seed
+  - N
+  - k
+  - theta
+  - pattern_type
+  - computation_time_ms
+  - empirical_bulk_edge
+additionalProperties: false

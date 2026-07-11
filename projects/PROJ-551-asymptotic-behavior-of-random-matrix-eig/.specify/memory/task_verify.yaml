@@ -1,0 +1,3 @@
+T001 Create project structure per implementation plan in `projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/`: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`: 1
+T005 [P] Implement data hygiene utilities (checksums) in `code/utils/checksum.py` per Constitution III: 1
