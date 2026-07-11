@@ -9,11 +9,11 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does the latent trajectory of audio-visual generation in real-time interactive foundation models exhibit predictable, low-frequency patterns during non-critical conversational turns that can be accurately approximated by a lightweight causal estimator, thereby enabling a reduction in expensive flow-matching solver steps without perceptible degradation in interaction quality?
+How does the semantic and prosodic structure of human turn-taking correlate with the magnitude of state-space displacement in multimodal foundation models, and does this correlation reveal a fundamental "low-information manifold" in audio-visual generation that is independent of specific solver architectures?
 
 ## Motivation
 
-Real-time full-duplex agents currently face a computational bottleneck where generating every frame via complex flow-matching solvers consumes excessive resources, limiting deployment on edge devices. This research addresses the gap between the theoretical necessity of high-fidelity generation for every timestep and the practical observation that human-AI interaction often contains periods of low informational density where approximate generation might suffice, potentially enabling efficient streaming on CPU-only hardware.
+Real-time full-duplex agents currently face a computational bottleneck where generating every frame via complex flow-matching solvers consumes excessive resources, limiting deployment on edge devices. This research addresses the fundamental gap between the theoretical requirement for high-fidelity generation at every timestep and the empirical reality that conversational turns often contain periods of low informational density where latent trajectories are smooth and predictable, potentially allowing for computational shortcuts without perceptible degradation.
 
 ## Literature gap analysis
 
@@ -21,11 +21,11 @@ Real-time full-duplex agents currently face a computational bottleneck where gen
 We queried Semantic Scholar and arXiv using terms including "real-time interactive foundation models," "streaming audio-visual generation latency," "flow-matching solver optimization," and "causal state estimation for multimodal agents." The search focused on identifying existing methods for skipping generation steps or approximating latent trajectories in low-latency interactive systems.
 
 ### What is known
-- [Wan-Streamer v0.1: End-to-end Real-time Interactive Foundation Models](https://arxiv.org/abs/2606.25041) — Establishes the current state-of-the-art for end-to-end real-time interaction, achieving ~200ms latency through a unified Transformer architecture but relying on full flow-matching solvers for generation.
-- [LK Jam: System Architecture and Implementation of a Real-Time Human-AI Interactive Music Generation System using Role-Aware GRU](https://arxiv.org/abs/2606.21018) — Demonstrates the feasibility of using lightweight recurrent architectures (GRU) for real-time role-aware interaction, though focused on music rather than full audio-visual video generation.
+- [Wan-Streamer v0.1: End-to-end Real-time Interactive Foundation Models](https://arxiv.org/abs/2606.25041) — Establishes the current state-of-the-art for end-to-end real-time interaction, achieving ~200ms latency through a unified Transformer architecture but relying on full flow-matching solvers for every generation step without adaptive skipping.
+- [LK Jam: System Architecture and Implementation of a Real-Time Human-AI Interactive Music Generation System using Role-Aware GRU](https://arxiv.org/abs/2606.21018) — Demonstrates the feasibility of using lightweight recurrent architectures (GRU) for real-time role-aware interaction, though focused on music rather than full audio-visual video generation, providing a precedent for lightweight state estimation in streaming domains.
 
 ### What is NOT known
-No published work currently investigates the specific feasibility of using a lightweight "streaming state estimator" to predict latent trajectories in video/audio generators to skip flow-matching solver steps. While low-latency architectures exist, the trade-off between skipping solver iterations for non-critical frames and perceptual quality in a full-duplex audio-visual context remains unquantified.
+No published work currently investigates the specific feasibility of using a lightweight "streaming state estimator" to predict latent trajectories in video/audio generators to skip flow-matching solver steps based on conversational context. While low-latency architectures exist, the trade-off between skipping solver iterations for non-critical frames and perceptual quality in a full-duplex audio-visual context remains unquantified.
 
 ### Why this gap matters
 Bridging this gap is critical for democratizing real-time interactive agents, as it could reduce the hardware requirements from high-end GPUs to standard CPUs or edge devices, enabling broader deployment in resource-constrained environments without sacrificing the fluidity of conversation.
@@ -35,7 +35,7 @@ This project will directly measure the correlation between conversational contex
 
 ## Expected results
 
-We expect to find that a lightweight causal estimator can accurately predict latent trajectories for approximately 40-50% of frames during non-critical conversational phases, allowing the system to skip flow-matching steps while maintaining perceptual quality within a 5% degradation threshold (measured by FID and subjective MOS). This would provide evidence that full-latent generation is not strictly required for every timestep in streaming interaction, offering a concrete pathway to CPU-tractable real-time agents.
+We expect to find that conversational context significantly constrains latent trajectories during non-critical turns, allowing a lightweight estimator to predict latent deltas with sufficient accuracy to skip 40-50% of flow-matching steps. This would be confirmed if the hybrid approach maintains perceptual quality within a 5% degradation threshold (measured by FID and proxy MOS) while achieving a statistically significant reduction in inference latency compared to the full-generation baseline.
 
 ## Methodology sketch
 
@@ -57,7 +57,7 @@ We expect to find that a lightweight causal estimator can accurately predict lat
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T18:41:58Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T09:19:59Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Wan-Streamer v0.1: End-to-end Real-time Interactive Foundation Models" computer science
 **Verified citation count**: 2
@@ -66,27 +66,7 @@ We expect to find that a lightweight causal estimator can accurately predict lat
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Wan-Streamer v0.1: End-to-end Real-time Interactive Foundation Models" computer science | 0 |
-| 1 | real-time interactive foundation models | 5 |
-| 2 | streaming large language models | 0 |
-| 3 | end-to-end generative AI latency optimization | 0 |
-| 4 | incremental text generation systems | 0 |
-| 5 | low-latency LLM inference | 0 |
-| 6 | interactive conversational AI architectures | 0 |
-| 7 | streaming token generation for foundation models | 0 |
-| 8 | real-time dialogue systems with large language models | 0 |
-| 9 | efficient autoregressive decoding for streaming | 0 |
-| 10 | continuous generation in interactive AI | 0 |
-| 11 | latency reduction in generative pre-trained transformers | 0 |
-| 12 | real-time user interaction with foundation models | 0 |
-| 13 | streaming inference for large-scale neural networks | 0 |
-| 14 | interactive generative AI response times | 0 |
-| 15 | end-to-end real-time language understanding and generation | 0 |
-| 16 | low-latency natural language processing pipelines | 0 |
-| 17 | real-time adaptation of foundation models | 0 |
-| 18 | interactive streaming architectures for AI agents | 0 |
-| 19 | dynamic inference for real-time chatbots | 0 |
-| 20 | continuous learning in real-time interactive systems | 0 |
+| 0 (initial) | llmXive follow-up: extending "Wan-Streamer v0.1: End-to-end Real-time Interactive Foundation Models" computer science | 2 |
 
 ### Verified citations
 
