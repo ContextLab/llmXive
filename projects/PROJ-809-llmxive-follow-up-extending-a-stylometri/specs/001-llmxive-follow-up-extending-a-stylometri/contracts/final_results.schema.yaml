@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Final Results
+type: object
+properties:
+  ngram_accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Classification accuracy of the best n-gram model"
+  baseline_accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Classification accuracy of the function-word baseline"
+  mcnemar_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+  mcnemar_corrected_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni corrected p-value"
+  is_significant:
+    type: boolean
+    description: "True if corrected p-value < 0.05"
+  hybrid_accuracy_drop:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Drop in accuracy on hybrid abstracts"
+  best_n_order:
+    type: integer
+    enum: [4, 5, 6]
+required:
+  - ngram_accuracy
+  - baseline_accuracy
+  - mcnemar_p_value
+  - mcnemar_corrected_p_value
+  - is_significant
+  - hybrid_accuracy_drop
+  - best_n_order

@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T19:56:25.014928Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-809-llmxive-follow-up-extending-a-stylometri
-last_run_id: 8efcf7cd-59e2-4fc9-80a0-892152b61fb3
+last_run_id: f6aba81e-6221-4273-9774-90c38b8d3921
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-809-llmxive-follow-up-extending-a-stylometri/specs/001-llmxive-follow-up-extending-a-stylometri
 title: 'llmXive follow-up: extending "A Stylometric Application of Large Language
   Models"'
-updated_at: '2026-07-04T01:15:02.055075Z'
+updated_at: '2026-07-11T02:29:23.684266Z'

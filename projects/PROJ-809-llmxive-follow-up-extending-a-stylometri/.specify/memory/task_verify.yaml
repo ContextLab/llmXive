@@ -1,0 +1,7 @@
+? T001 [P] Initialize project directory structure (`projects/PROJ-809-llmxive-follow-up-extending-a-stylometri/`)
+  including `code/`, `data/` (raw, processed, hybrid), `artifacts/` (models, metrics),
+  `contracts/`, `tests/` (unit, contract, integration), and `state/`
+: 1
+T007 [P] Create base configuration loader for `contracts/` schemas and random seed management: 1
+T009 [P] [US1] Contract test for `data/processed/` schema in `tests/contract/test_corpus_schema.py`: 1
+T010 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_data_ingestion.py`: 1

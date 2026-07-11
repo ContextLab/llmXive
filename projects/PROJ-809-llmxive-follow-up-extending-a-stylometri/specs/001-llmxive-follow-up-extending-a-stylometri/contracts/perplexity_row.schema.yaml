@@ -1,0 +1,24 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Perplexity Matrix Row
+type: object
+properties:
+  test_abstract_id:
+    type: string
+  true_author:
+    type: string
+  perplexities:
+    type: object
+    additionalProperties:
+      type: number
+      minimum: 0
+      description: "Perplexity score under a specific author's model"
+  predicted_author:
+    type: string
+  is_correct:
+    type: boolean
+required:
+  - test_abstract_id
+  - true_author
+  - perplexities
+  - predicted_author
+  - is_correct

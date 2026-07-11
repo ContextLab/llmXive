@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Author Corpus
+type: object
+properties:
+  author_id:
+    type: string
+    description: "Normalized lead author name"
+  total_abstracts:
+    type: integer
+    minimum: 10
+  train_count:
+    type: integer
+    minimum: 8
+  test_count:
+    type: integer
+    minimum: 2
+  abstracts:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+        processed_text:
+          type: string
+          minLength: 10
+        char_tokens:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - processed_text
+        - char_tokens
+required:
+  - author_id
+  - total_abstracts
+  - train_count
+  - test_count
+  - abstracts
