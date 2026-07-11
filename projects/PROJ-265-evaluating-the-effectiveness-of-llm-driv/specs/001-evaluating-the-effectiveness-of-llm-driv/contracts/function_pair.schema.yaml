@@ -1,53 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "FunctionPair Schema"
-description: "Schema for function pair data (original + simplified code)"
+title: "FunctionPair"
+description: "Schema for a single original-simplified function pair."
 type: "object"
 properties:
-  id:
+  pair_id:
     type: "string"
-    description: "Unique identifier for the function pair"
+    description: "Unique identifier for the pair."
   original_code:
     type: "string"
-    description: "Original Python function code"
+    description: "Source code of the original function."
   simplified_code:
     type: "string"
-    description: "Simplified Python function code"
-  lines_original:
+    description: "Source code of the simplified function."
+  original_lines:
     type: "integer"
-    description: "Line count of original code"
-  lines_simplified:
+    description: "Line count of original code."
+  simplified_lines:
     type: "integer"
-    description: "Line count of simplified code"
+    description: "Line count of simplified code."
+  stratum:
+    type: "string"
+    enum:
+      - "0-10"
+      - "11-50"
+      - "51+"
+    description: "Stratification group based on line count."
   equivalence_status:
     type: "string"
     enum:
-      - "pass"
-      - "fail"
-      - "excluded"
-    description: "Result of functional equivalence check (test suite)"
-  equivalence_details:
-    type: "object"
-    description: "Details of equivalence check (source of tests, test results)"
-    properties:
-      test_source:
-        type: "string"
-        description: "Source of the tests used (e.g., 'extracted', 'generated')"
-      tests_run:
-        type: "integer"
-        description: "Number of tests run"
-      tests_passed:
-        type: "integer"
-        description: "Number of tests passed"
-  excluded_reason:
-    type:
-      - "string"
-      - "null"
-    description: "Reason for exclusion (if any)"
+      - "passed"
+      - "failed"
+      - "unverifiable"
+    description: "Result of the functional equivalence check."
+  exclusion_reason:
+    type: "string"
+    description: "Reason for exclusion if status is not 'passed'."
 required:
-  - "id"
-  - "original_code"
-  - "simplified_code"
-  - "lines_original"
-  - "lines_simplified"
-  - "equivalence_status"
-additionalProperties: false
+  - pair_id
+  - original_code
+  - simplified_code
+  - original_lines
+  - simplified_lines
+  - stratum
+  - equivalence_status

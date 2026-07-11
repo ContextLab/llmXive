@@ -3,95 +3,63 @@
 ## Prerequisites
 
 - Python 3.11+
+- 7 GB+ RAM
+- Internet access (for dataset download)
 - Git
-- Sufficient RAM is available.
-- Internet connection (for dataset/model download)
 
-## Setup
+## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-265-evaluating-the-effectiveness-of-llm-driv
-   ```
-
-2. **Create virtual environment**:
+1. **Clone the repository** (if applicable) or navigate to the project root.
+2. **Create a virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-
 3. **Install dependencies**:
    ```bash
    pip install -r code/requirements.txt
    ```
-
-4. **Download dataset**:
-   ```bash
-   python code/data/download.py --output data/raw
-   ```
-   *Note: This script filters for executable functions and generates test suites where missing.*
-
-5. **Validate and preprocess**:
-   ```bash
-   python code/data/preprocess.py --input data/raw --output data/processed
-   ```
+   *Note: `requirements.txt` pins `torch` (CPU version), `transformers`, `datasets`, `scikit-learn`.*
 
 ## Running the Pipeline
 
-### Full Pipeline
+The entire experiment is orchestrated via `code/main.py`.
 
+### Step 1: Download and Validate Data
 ```bash
-python code/main.py
+python code/data/download.py
+python code/data/validate.py
 ```
+*Output*: `data/raw/` and `data/processed/filtered.parquet`.
 
-This will:
-1. Download and validate functions (filtering for executability)
-2. Generate test suites for equivalence checking
-3. Simplify using CodeLlama-3B
-4. Check functional equivalence (run test suites)
-5. Benchmark performance (**exactly 100 iterations**)
-6. Run statistical analysis on **function-level means** (N=100)
-
-### Individual Steps
-
-**Simplify functions**:
+### Step 2: Simplify Code
 ```bash
-python code/models/simplify.py --input data/processed --output data/processed/simplified
+python code/models/simplify.py
 ```
+*Output*: `data/processed/simplified_pairs.parquet`.
 
-**Benchmark performance**:
+### Step 3: Run Benchmarks
 ```bash
-python code/models/benchmark.py --input data/processed/simplified --output data/results/benchmark
+python code/benchmark/runner.py
 ```
+*Output*: `data/results/benchmark_runs.parquet`.
 
-**Run statistical analysis**:
+### Step 4: Statistical Analysis
 ```bash
-python code/analysis/stats.py --input data/results/benchmark --output data/results/stats
+python code/benchmark/stats.py
 ```
+*Output*: `data/results/statistical_summary.csv`.
 
-## Expected Outputs
+## Verification
 
-- `data/processed/`: Validated and simplified function pairs (with test suites)
-- `data/results/benchmark/`: Iteration-level performance metrics (100 iterations per function)
-- `data/results/stats/`: Statistical summaries (JSON)
-- `logs/`: Execution logs, failures, and warnings
+To verify the setup, run the pilot validation (functions):
+```bash
+python code/main.py --pilot
+```
+*Expected*: Logs showing ≥10 valid pairs per stratum.
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| OOM during LLM inference | Reduce batch size; ensure 4-bit quantization is enabled |
-| Function fails to simplify | Check logs; function may be too complex or invalid |
-| Statistical test fails | Verify data integrity; check for missing values |
-| Timeout during benchmarking | Increase timeout limit (not recommended) or exclude problematic functions |
-
-## Notes
-
-- **Random seeds** are pinned for reproducibility.
-- **Model download** occurs on first run; cached in HuggingFace cache directory.
-- **Parallel processing** is enabled via `multiprocessing` for benchmarking.
-- **Logs** are written to `logs/` directory for debugging.
-- **Fixed Iterations**: The pipeline runs exactly 100 iterations per function.
-- **Universal Equivalence Check**: All functions, regardless of size, must pass test suites to be included.
-- **Unit of Analysis**: Statistical tests are performed on the 100 function-level means.
+- **OOM Error**: Reduce `batch_size` in `simplify.py` or switch to `TinyLlama-1.1B`.
+- **Timeout**: Increase `TIMEOUT_SECONDS` in `utils/sandbox.py` (not recommended for CI).
+- **ImportError**: Ensure all dependencies are installed in the virtual environment.

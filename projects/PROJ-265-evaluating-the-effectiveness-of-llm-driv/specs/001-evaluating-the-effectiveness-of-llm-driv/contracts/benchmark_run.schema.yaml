@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkRun"
+description: "Schema for a single execution benchmark result."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  pair_id:
+    type: "string"
+    description: "Foreign key to FunctionPair."
+  version:
+    type: "string"
+    enum:
+      - "original"
+      - "simplified"
+    description: "Which version of the code was executed."
+  iteration:
+    type: "integer"
+    minimum: 1
+    maximum: 100
+    description: "Iteration number (1-100)."
+  cpu_time_ms:
+    type: "number"
+    description: "CPU time in milliseconds."
+  peak_memory_mb:
+    type: "number"
+    description: "Peak memory usage in MB."
+  timeout_hit:
+    type: "boolean"
+    description: "True if execution exceeded 5s."
+  memory_limit_hit:
+    type: "boolean"
+    description: "True if execution exceeded 500MB."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "memory_error"
+      - "exception"
+    description: "Execution status."
+required:
+  - run_id
+  - pair_id
+  - version
+  - iteration
+  - cpu_time_ms
+  - peak_memory_mb
+  - status

@@ -1,75 +1,72 @@
 # Data Model: Evaluating the Effectiveness of LLM-Driven Code Simplification on Performance
 
+## Overview
+
+This document defines the data structures used for storing original functions, simplified functions, benchmark results, and statistical summaries. All data is stored in CSV or Parquet formats for reproducibility and efficient querying.
+
 ## Entities
 
-### FunctionPair
-
-Represents a pair of original and simplified Python functions.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| id | string | Unique identifier for the function pair |
-| original_code | string | Original Python function code |
-| simplified_code | string | Simplified Python function code |
-| lines_original | int | Line count of original code |
-| lines_simplified | int | Line count of simplified code |
-| equivalence_status | string | "pass", "fail", "excluded" |
-| equivalence_details | json | Details of equivalence check (source of tests, test results) |
-| excluded_reason | string | Reason for exclusion (if any) |
-
-### BenchmarkResult
-
-Stores performance metrics for a single execution.
+### 1. FunctionPair
+Represents a single unit of analysis: the original code and its simplified counterpart.
 
 | Field | Type | Description |
-|-------|------|-------------|
-| id | string | Unique identifier for the benchmark result |
-| function_pair_id | string | Reference to FunctionPair |
-| version | string | "original" or "simplified" |
-| iteration | int | Iteration number (1–100) |
-| cpu_time_ms | float | CPU time in milliseconds |
-| peak_memory_mb | float | Peak memory in megabytes |
-| timeout | bool | Whether execution timed out |
-| memory_limit_exceeded | bool | Whether memory limit was exceeded |
+| :--- | :--- | :--- |
+| `pair_id` | string | Unique identifier (e.g., `pair_001`). |
+| `original_code` | string | The source code of the original function. |
+| `simplified_code` | string | The source code of the simplified function. |
+| `original_lines` | int | Line count of original code. |
+| `simplified_lines` | int | Line count of simplified code. |
+| `stratum` | string | "0-10", "11-50", "51+". |
+| `equivalence_status` | string | "passed", "failed", "unverifiable". |
+| `exclusion_reason` | string | If excluded, reason (e.g., "syntax_error", "drift"). |
 
-### StatisticalSummary
-
-Aggregates results across the dataset.
+### 2. BenchmarkRun
+Stores the result of a single execution (one of the 100 iterations).
 
 | Field | Type | Description |
-|-------|------|-------------|
-| id | string | Unique identifier for the summary |
-| metric | string | "execution_time" or "memory_usage" |
-| mean_original | float | Mean value for original code (averaged across 100 iterations) |
-| mean_simplified | float | Mean value for simplified code (averaged across 100 iterations) |
-| mean_delta | float | Mean difference (original - simplified) |
-| std_original | float | Standard deviation for original (across multiple function means) |
-| std_simplified | float | Standard deviation for simplified (across 100 function means) |
-| normality_p_value | float | Shapiro-Wilk p-value (on a sample of function means) |
-| test_type | string | "t-test" or "wilcoxon" |
-| raw_p_value | float | Raw p-value from statistical test |
-| corrected_p_value | float | Bonferroni-corrected p-value |
-| significant | bool | Whether result is statistically significant (p < 0.05) |
+| :--- | :--- | :--- |
+| `run_id` | string | Unique identifier. |
+| `pair_id` | string | FK to FunctionPair. |
+| `version` | string | "original" or "simplified". |
+| `iteration` | int | 1 to 100. |
+| `cpu_time_ms` | float | CPU time in milliseconds. |
+| `peak_memory_mb` | float | Peak memory in MB. |
+| `timeout_hit` | boolean | True if execution exceeded 5s. |
+| `memory_limit_hit` | boolean | True if execution exceeded 500MB. |
+| `status` | string | "success", "timeout", "memory_error", "exception". |
 
-## Data Flow
+### 3. StatisticalSummary
+Aggregated results per function pair and global statistics.
 
-1. **Download**: Raw parquet files → `data/raw/`
-2. **Preprocess**: Validate, isolate, mock, **generate test suite** → `data/processed/`
-3. **Simplify**: LLM inference → `data/processed/simplified/`
-4. **Equivalence**: Run test suite → `data/processed/equivalence/`
-5. **Benchmark**: Run **100 iterations** → `data/results/benchmark/`
-6. **Analyze**: Aggregate to **function means**, run statistical tests on means → `data/results/stats/`
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `pair_id` | string | FK to FunctionPair. |
+| `mean_orig_time` | float | Mean CPU time of original (100 runs, trimmed). |
+| `mean_simp_time` | float | Mean CPU time of simplified (100 runs, trimmed). |
+| `trimmed_mean_orig_time` | float | Trimmed mean ([deferred] trim) of original. |
+| `trimmed_mean_simp_time` | float | Trimmed mean ([deferred] trim) of simplified. |
+| `delta_time` | float | `mean_simp_time - mean_orig_time`. |
+| `std_dev_orig_time` | float | Std dev of original runs. |
+| `std_dev_simp_time` | float | Std dev of simplified runs. |
+| `mean_orig_mem` | float | Mean peak memory of original. |
+| `mean_simp_mem` | float | Mean peak memory of simplified. |
+| `delta_mem` | float | `mean_simp_mem - mean_orig_mem`. |
 
-## Storage Format
+### 4. GlobalStats
+Final statistical test results.
 
-- **Raw Data**: Parquet (CodeSearchNet)
-- **Processed Data**: JSON (function pairs, equivalence results)
-- **Benchmark Results**: CSV (iteration-level metrics)
-- **Statistical Summaries**: JSON (aggregated results)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `test_type` | string | "t-test" or "wilcoxon". |
+| `metric` | string | "time" or "memory". |
+| `p_value_raw` | float | Raw p-value. |
+| `p_value_adjusted` | float | Bonferroni adjusted p-value. |
+| `significant` | boolean | True if `p_value_adjusted < 0.05`. |
+| `n_pairs` | int | Number of valid pairs (N). |
+| `normality_p` | float | Shapiro-Wilk p-value. |
 
-## Constraints
+## File Structure
 
-- **File Size**: Each processed function <10 KB
-- **Total Dataset**: <250 MB (A set of functions, each approximately 2.5 KB in size.)
-- **Iteration Logs**: <2.5 GB (A set of functions, each subjected to multiple iterations, with each operation consuming approximately 50 bytes of memory.)
-- **RAM Usage**: <7 GB during execution (model + data + overhead)
+- `data/processed/function_pairs.parquet`: Stores `FunctionPair` data.
+- `data/results/benchmark_runs.parquet`: Stores `BenchmarkRun` data (large file).
+- `data/results/statistical_summary.csv`: Stores `StatisticalSummary` and `GlobalStats`.

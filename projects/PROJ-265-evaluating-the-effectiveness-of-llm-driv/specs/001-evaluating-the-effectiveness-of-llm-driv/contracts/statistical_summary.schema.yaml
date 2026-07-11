@@ -1,61 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "StatisticalSummary Schema"
-description: "Schema for statistical summary data"
+title: "StatisticalSummary"
+description: "Schema for aggregated statistical results."
 type: "object"
 properties:
-  id:
-    type: "string"
-    description: "Unique identifier for the summary"
-  metric:
-    type: "string"
-    enum:
-      - "execution_time"
-      - "memory_usage"
-    description: "Which metric is being summarized"
-  mean_original:
-    type: "number"
-    description: "Mean value for original code (averaged across 100 iterations)"
-  mean_simplified:
-    type: "number"
-    description: "Mean value for simplified code (averaged across 100 iterations)"
-  mean_delta:
-    type: "number"
-    description: "Mean difference (original - simplified)"
-  std_original:
-    type: "number"
-    description: "Standard deviation for original (across 100 function means)"
-  std_simplified:
-    type: "number"
-    description: "Standard deviation for simplified (across 100 function means)"
-  normality_p_value:
-    type: "number"
-    description: "Shapiro-Wilk p-value (on 100 function means)"
   test_type:
     type: "string"
     enum:
       - "t-test"
       - "wilcoxon"
-    description: "Which statistical test was used"
-  raw_p_value:
+    description: "Statistical test used."
+  metric:
+    type: "string"
+    enum:
+      - "time"
+      - "memory"
+    description: "Metric being tested."
+  p_value_raw:
     type: "number"
-    description: "Raw p-value from statistical test"
-  corrected_p_value:
+    description: "Raw p-value from the test."
+  p_value_adjusted:
     type: "number"
-    description: "Bonferroni-corrected p-value"
+    description: "Bonferroni adjusted p-value."
   significant:
     type: "boolean"
-    description: "Whether result is statistically significant (p < 0.05)"
+    description: "True if adjusted p-value < 0.05."
+  n_pairs:
+    type: "integer"
+    description: "Number of valid pairs used."
+  normality_p:
+    type: "number"
+    description: "Shapiro-Wilk normality test p-value."
+  trimmed_mean_orig_time:
+    type: "number"
+ description: "Trimmed mean ([deferred] trim) of original execution time."
+  trimmed_mean_simp_time:
+    type: "number"
+ description: "Trimmed mean ([deferred] trim) of simplified execution time."
+  std_dev_orig_time:
+    type: "number"
+    description: "Standard deviation of original execution time."
+  std_dev_simp_time:
+    type: "number"
+    description: "Standard deviation of simplified execution time."
 required:
-  - "id"
-  - "metric"
-  - "mean_original"
-  - "mean_simplified"
-  - "mean_delta"
-  - "std_original"
-  - "std_simplified"
-  - "normality_p_value"
-  - "test_type"
-  - "raw_p_value"
-  - "corrected_p_value"
-  - "significant"
+  - test_type
+  - metric
+  - p_value_raw
+  - p_value_adjusted
+  - significant
+  - n_pairs
+  - normality_p
+  - trimmed_mean_orig_time
+  - trimmed_mean_simp_time
+  - std_dev_orig_time
+  - std_dev_simp_time
 additionalProperties: false

@@ -1,4 +1,4 @@
-resolved_at: '2026-07-10T19:53:33.890981+00:00'
+resolved_at: '2026-07-11T10:17:50.135219+00:00'
 datasets:
 - intent: CodeSearchNet
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Language_of_Stress_Essay_The_Alignment_Problem_Is_an_Architecture_Problem/32961533
+  - url: https://figshare.com/articles/thesis/_Ver_Claude_Fable5_Data_189_The_Structure_of_Misalignment_as_Primary_Source_Material_in_Structural_Psychology_Observational_Record_/32963480
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dual-parameter_interferometric_measurement_using_orbital_angular_momentum_beams_-_7963109_pdf/32869499
+  - url: https://figshare.com/articles/book/_3__2011_2026____Russia/32963477
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Engineering_geometrical_optical_singularities_inverse_design_of_3D_asymmetric_caustic_surfaces_-_7943919_pdf/32677044
+  - url: https://figshare.com/articles/dataset/Physical_and_Chemical_Properties_Greenhouse_Gas_Potential_and_Q10/32963483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/media/Visualization_1_gif/32033289
+  - url: https://figshare.com/articles/thesis/Paper_189_The_Structure_of_Misalignment_as_Primary_Source_Material_in_Structural_Psychology/32963474
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/media/Visualization_2_gif/32033316
+  - url: https://figshare.com/articles/software/A_Reproducible_Toolkit_for_GF_2_5_Encoding_and_Reed_Solomon_Error_Correction_of_Synthetic_Biopolymer_Data/32963456
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -134,7 +134,7 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64e7b96e6f5b10625f92a6c1/17994cc8de23e01cd26b212174a04849cfeb64c5157b3e2e37c039c178d67c70?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data-00000-of-00001.arrow%3B+filename%3D%22data-00000-of-00001.arrow%22%3B&user_id=public&Expires=1783716792&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlN2I5NmU2ZjViMTA2MjVmOTJhNmMxLzE3OTk0Y2M4ZGUyM2UwMWNkMjZiMjEyMTc0YTA0ODQ5Y2ZlYjY0YzUxNTdiM2UyZTM3YzAzOWMxNzhkNjdjNzBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS0wMDAwMC1vZi0wMDAwMS5hcnJvdyUzQitmaWxlbmFtZSUzRCUyMmRhdGEtMDAwMDAtb2YtMDAwMDEuYXJyb3clMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzcxNjc5Mn19fV19&Signature=MEUCIQC3e8Q1m0Z1ONAExPLUiXtC52~jh1F9nuH~imRnGi9XZAIgKTlLWnXPnl15VgKXbS5rpQz6kKrBw-VCoHXHkLJHK80_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64e7b96e6f5b10625f92a6c1/17994cc8de23e01cd26b212174a04849cfeb64c5157b3e2e37c039c178d67c70?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data-00000-of-00001.arrow%3B+filename%3D%22data-00000-of-00001.arrow%22%3B&Expires=1783768648&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlN2I5NmU2ZjViMTA2MjVmOTJhNmMxLzE3OTk0Y2M4ZGUyM2UwMWNkMjZiMjEyMTc0YTA0ODQ5Y2ZlYjY0YzUxNTdiM2UyZTM3YzAzOWMxNzhkNjdjNzBcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS0wMDAwMC1vZi0wMDAwMS5hcnJvdyUzQitmaWxlbmFtZSUzRCUyMmRhdGEtMDAwMDAtb2YtMDAwMDEuYXJyb3clMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzc2ODY0OH19fV19&Signature=MEYCIQDd13iLp5Jgfs903rwy-6mIkGTT4oIKpImEsLXAAupcLwIhAPgYfptMcVlANS3tLoETkSyiNf9kGco7zggHp4Cu4lff&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -150,23 +150,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Language_of_Stress_Essay_The_Alignment_Problem_Is_an_Architecture_Problem/32961533
+  - url: https://tandf.figshare.com/articles/dataset/Barriers_to_satisfactory_primary_care_contacts_for_Swedish_cancer_survivors_a_cross-sectional_survey/32963492
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dual-parameter_interferometric_measurement_using_orbital_angular_momentum_beams_-_7963109_pdf/32869499
+  - url: https://figshare.com/articles/thesis/_Ver_Claude_Fable5_Data_189_The_Structure_of_Misalignment_as_Primary_Source_Material_in_Structural_Psychology_Observational_Record_/32963480
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Engineering_geometrical_optical_singularities_inverse_design_of_3D_asymmetric_caustic_surfaces_-_7943919_pdf/32677044
+  - url: https://figshare.com/articles/book/_3__2011_2026____Russia/32963477
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/media/Visualization_1_gif/32033289
+  - url: https://figshare.com/articles/dataset/Physical_and_Chemical_Properties_Greenhouse_Gas_Potential_and_Q10/32963483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/media/Visualization_2_gif/32033316
+  - url: https://figshare.com/articles/thesis/Paper_189_The_Structure_of_Misalignment_as_Primary_Source_Material_in_Structural_Psychology/32963474
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
