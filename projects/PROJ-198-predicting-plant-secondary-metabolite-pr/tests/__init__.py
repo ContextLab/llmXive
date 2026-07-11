@@ -1,3 +1,3 @@
 """
-Test suite for the plant metabolite prediction pipeline.
+Top-level tests package initialization.
 """

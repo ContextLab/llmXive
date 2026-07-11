@@ -1,0 +1,51 @@
+# Project Configuration
+# This file manages species lists, thresholds, and data paths
+
+metadata:
+  version: "1.0.0"
+  description: "Plant Secondary Metabolite Prediction Pipeline Configuration"
+  last_updated: "2023-10-27"
+
+settings:
+  data_path: "data"
+  raw_data_path: "data/raw"
+  processed_data_path: "data/processed"
+  figures_path: "figures"
+  logs_path: "logs"
+  model_cache_path: "model_cache"
+  
+  # Thresholds
+  genome_size_limit_mb: 500
+  bgc_confidence_threshold: 0.5
+  min_species_count: 5
+  
+  # API Keys (override via environment variables in production)
+  ncbi_api_key: null
+  pmdb_api_key: null
+
+species_list:
+  - species_id: "ATH"
+    scientific_name: "Arabidopsis thaliana"
+    common_name: "Mouse-ear cress"
+    family: "Brassicaceae"
+    assembly_accession: "GCF_000001735.4"
+  - species_id: "OSR"
+    scientific_name: "Oryza sativa"
+    common_name: "Rice"
+    family: "Poaceae"
+    assembly_accession: "GCF_001433935.1"
+  - species_id: "SOL"
+    scientific_name: "Solanum lycopersicum"
+    common_name: "Tomato"
+    family: "Solanaceae"
+    assembly_accession: "GCF_000188115.5"
+  - species_id: "ZMA"
+    scientific_name: "Zea mays"
+    common_name: "Maize"
+    family: "Poaceae"
+    assembly_accession: "GCF_000005005.2"
+  - species_id: "POP"
+    scientific_name: "Populus trichocarpa"
+    common_name: "Black cottonwood"
+    family: "Salicaceae"
+    assembly_accession: "GCF_000002785.3"

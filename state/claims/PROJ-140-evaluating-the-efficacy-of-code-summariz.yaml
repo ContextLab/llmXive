@@ -1,0 +1,16 @@
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/README.md
+  attempts: 1
+  canonical: 60 stratified buggy methods fetched from Defects4J dataset
+  claim_id: c_0d4a0d20
+  context: '1. Download Defects4J dataset: python code/data_prep/download_defects4j.py
+    This will fetch and extract 60 stratified buggy methods into data/defects4j/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This will fetch and extract 60 stratified buggy methods into data/defects4j/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-11T07:28:04Z'

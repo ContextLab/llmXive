@@ -9,3 +9,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/66adfc42d75ab1624f5fe99b/dfe5914bb58098483195774b9126d7571b89b21a1add839335f707bc1fcd38be?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27adapt_defects4j.parquet%3B+filename%3D%22adapt_defects4j.parquet%22%3B&Expires=1783175908&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZhZGZjNDJkNzVhYjE2MjRmNWZlOTliL2RmZTU5MTRiYjU4MDk4NDgzMTk1Nzc0YjkxMjZkNzU3MWI4OWIyMWExYWRkODM5MzM1ZjcwN2JjMWZjZDM4YmVcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWRhcHRfZGVmZWN0czRqLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJhZGFwdF9kZWZlY3RzNGoucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMTc1OTA4fX19XX0_&Signature=MEYCIQDlJZrewe8ZEV9pzHMRLaNwoMdRGeIJCIaXQdITWyK1kwIhANwm3vmASp6zfb3WMeQfd3qpbLw7HrGefHB5fl5DhLDh&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-04T13:38:28.567426Z'
+- artifact_hash: 96ce1aea70523c7c7b142f32e439e0ec318870b2fadf3834e5579fc7d85a4037
+  artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/PROJ-140.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-140
+  verified_at: '2026-07-11T07:27:46.728599Z'

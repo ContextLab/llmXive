@@ -1,3 +1,3 @@
 """
-Model training, validation, and sensitivity analysis modules.
+Modeling package initialization.
 """

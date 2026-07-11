@@ -1,39 +1,44 @@
-# PROJ-198: Predicting Plant Secondary Metabolite Profiles from Genomic Data
+# llmXive: Predicting Plant Secondary Metabolite Profiles
 
-## Overview
-This project implements a pipeline to predict plant secondary metabolite profiles using genomic data, specifically focusing on the relationship between Biosynthetic Gene Clusters (BGCs) and metabolite abundance.
+This project implements a pipeline to predict plant secondary metabolite profiles from genomic data using machine learning and phylogenetic methods.
 
 ## Project Structure
+
 ```
-PROJ-198/
+.
 ├── code/ # Source code
-│ ├── data/ # Data loading and preprocessing
-│ ├── modeling/ # Machine learning models
-│ └── utils/ # Utilities (phylogeny, parsing)
+│ ├── data/ # Data download and preprocessing
+│ ├── models/ # Pydantic data models
+│ ├── modeling/ # ML and statistical modeling
+│ ├── utils/ # Utility functions
+│ └── scripts/ # CLI scripts
 ├── data/
 │ ├── raw/ # Raw downloaded data
-│ └── processed/ # Processed datasets
+│ ├── processed/ # Processed/aligned data
+│ └── interim/ # Intermediate data
 ├── tests/ # Test suite
-│ ├── unit/
-│ ├── integration/
-│ └── contract/
-├── requirements.txt # Dependencies
+├── requirements.txt # Python dependencies
 └── README.md
 ```
 
 ## Setup
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-2. Install dependencies:
+
+1. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Usage
-See `quickstart.md` for the end-to-end pipeline execution guide.
+2. Configure environment:
+ ```bash
+ cp.env.example.env
+ # Edit.env with your API keys
+ ```
 
-## License
-MIT
+3. Run tests:
+ ```bash
+ pytest
+ ```
+
+## Usage
+
+See `docs/` for detailed usage instructions.

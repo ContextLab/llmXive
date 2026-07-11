@@ -1,0 +1,22 @@
+? "T009 [P] Setup CI resource monitor `code/utils/resource_monitor.py` to assert \u2264\
+  7GB RAM and \u22646h runtime via in-script assertions as per FR-007's CI test procedure"
+: 1
+? 'T010 [US1] Unit test for latency calibrator in `code/tests/test_latency_calibrator.py`.
+  **Depends on T012** (Note: [P] tag removed as it depends on T012) <!-- FAILED: unspecified
+  -->'
+: 1
+? 'T011 [US1] Unit test for Defects4J download integrity in `code/tests/test_defects4j_download.py`.
+  **Depends on T013** (Note: [P] tag removed as it depends on T013) <!-- FAILED: unspecified
+  -->'
+: 1
+? T018a [P] [US1] Define API contract for participant interaction data collection
+  in `contracts/api_participant.md` (endpoints, request/response bodies, session management)
+: 1
+? T018b [US1] Implement `frontend/src/ParticipantForm.jsx` (or equivalent) based on
+  the API contract defined in T018a (`contracts/api_participant.md`) to collect interaction
+  data
+: 1
+? 'T018c [US1] Implement `backend/src/api/participant.py` (or equivalent) to handle
+  submissions, manage session state, and apply Latin-square assignment logic. **Depends
+  on T007 (Base data models)**. (Note: [P] tag removed as it depends on T007)'
+: 1

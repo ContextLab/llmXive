@@ -1,3 +1,4 @@
 """
-llmXive Project: Predicting Plant Secondary Metabolite Profiles from Genomic Data
+llmXive Project: Predicting Plant Secondary Metabolite Profiles
+Core implementation package.
 """

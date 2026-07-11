@@ -56,10 +56,10 @@
 - [X] T006 [P] Setup environment configuration management (`.env` for paths, seeds)
 - [X] T007 Create base data models (Participant, Task, Summary, AnalysisResult) in `code/utils/models.py`
 - [X] T008 Configure error handling and logging infrastructure (`code/utils/logging_utils.py`)
-- [~] T009 [P] Setup CI resource monitor `code/utils/resource_monitor.py` to assert ≤7GB RAM and ≤6h runtime via in-script assertions as per FR-007's CI test procedure
-- [~] T018a [P] [US1] Define API contract for participant interaction data collection in `contracts/api_participant.md` (endpoints, request/response bodies, session management)
-- [~] T018b [US1] Implement `frontend/src/ParticipantForm.jsx` (or equivalent) based on the API contract defined in T018a (`contracts/api_participant.md`) to collect interaction data
-- [~] T018c [US1] Implement `backend/src/api/participant.py` (or equivalent) to handle submissions, manage session state, and apply Latin-square assignment logic. **Depends on T007 (Base data models)**. (Note: [P] tag removed as it depends on T007)
+- [ ] T009 [P] Setup CI resource monitor `code/utils/resource_monitor.py` to assert ≤7GB RAM and ≤6h runtime via in-script assertions as per FR-007's CI test procedure
+- [ ] T018a [P] [US1] Define API contract for participant interaction data collection in `contracts/api_participant.md` (endpoints, request/response bodies, session management)
+- [ ] T018b [US1] Implement `frontend/src/ParticipantForm.jsx` (or equivalent) based on the API contract defined in T018a (`contracts/api_participant.md`) to collect interaction data
+- [ ] T018c [US1] Implement `backend/src/api/participant.py` (or equivalent) to handle submissions, manage session state, and apply Latin-square assignment logic. **Depends on T007 (Base data models)**. (Note: [P] tag removed as it depends on T007)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -75,8 +75,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [US1] Unit test for latency calibrator in `code/tests/test_latency_calibrator.py`. **Depends on T012** (Note: [P] tag removed as it depends on T012) <!-- FAILED: unspecified -->
-- [~] T011 [US1] Unit test for Defects4J download integrity in `code/tests/test_defects4j_download.py`. **Depends on T013** (Note: [P] tag removed as it depends on T013) <!-- FAILED: unspecified -->
+- [ ] T010 [US1] Unit test for latency calibrator in `code/tests/test_latency_calibrator.py`. **Depends on T012** (Note: [P] tag removed as it depends on T012) <!-- FAILED: unspecified -->
+- [ ] T011 [US1] Unit test for Defects4J download integrity in `code/tests/test_defects4j_download.py`. **Depends on T013** (Note: [P] tag removed as it depends on T013) <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -117,7 +117,7 @@
 - [~] T025 [US2] Define sensitivity analysis range in `code/analysis/config.py` to specify the "standard cutoffs" for the sweep. **Mandatory values**: `[0.01, 0.05, 0.10]`. **Note**: This task must be completed before T024 to ensure config exists.
 - [~] T023 [US2] Implement `code/analysis/bootstrap_utils.py` for bootstrapping (A substantial number of resamples, fixed seed) to compute confidence intervals (FR-005)
 - [~] T023a [US2] Implement `code/analysis/correction_utils.py` for multiple-comparison correction logic (Holm-Bonferroni) (FR-006)
-- [ ] T024a [US2] Implement `code/analysis/run_statistics.py` to:
+- [~] T024a [US2] Implement `code/analysis/run_statistics.py` to:
  - Load `data/interaction_logs/anonymized_logs.csv` and summary data
  - Compute **Top-K accuracy** (e.g., Top-5) and speed (time-to-decision) metrics (Complexity Tracking)
  - Run McNemar's tests for accuracy (baseline vs LLM, baseline vs Rule) (FR-004)
@@ -125,7 +125,7 @@
  - Output `data/analysis_results/results.csv` with all metrics
  - Output `data/analysis_results/sensitivity_analysis.csv` with threshold sweep results
  - Output `data/analysis_results/outlier_flags.json` with outlier detection flags
-- [ ] T024b [US2] Implement `code/analysis/run_statistics.py` (continued) to:
+- [~] T024b [US2] Implement `code/analysis/run_statistics.py` (continued) to:
  - **Import and invoke bootstrapping functions from `code/analysis/bootstrap_utils.py`**
  - Compute Odds Ratios and Cohen's d with bootstrapped CIs (FR-005)
  - **Import and invoke correction function from `code/analysis/correction_utils.py`**
@@ -144,21 +144,21 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Integration test for CI resource constraints in `.github/workflows/test_reproducibility.yml`
-- [ ] T028 [P] [US3] Test for numerical tolerance (5%) between original and rerun results in `code/tests/test_reproducibility.py`
+- [~] T027 [P] [US3] Integration test for CI resource constraints in `.github/workflows/test_reproducibility.yml`
+- [~] T028 [P] [US3] Test for numerical tolerance (5%) between original and rerun results in `code/tests/test_reproducibility.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030a [US3] Implement `code/utils/generate_baseline_results.py` to run the analysis script once, capture the output, and commit `data/analysis_results/baseline_results.json` as the ground truth for the 5% tolerance check.
-- [ ] T030 [US3] Implement `.github/workflows/test_reproducibility.yml` to:
+- [~] T030a [US3] Implement `code/utils/generate_baseline_results.py` to run the analysis script once, capture the output, and commit `data/analysis_results/baseline_results.json` as the ground truth for the 5% tolerance check.
+- [~] T030 [US3] Implement `.github/workflows/test_reproducibility.yml` to:
  - Install dependencies
  - Run `code/analysis/run_statistics.py`
  - Assert runtime ≤6h and memory ≤7GB
  - Verify numerical tolerance against `data/analysis_results/baseline_results.json` (generated by T030a) (SC-004, SC-005)
  - **Note**: T030 depends on T030a completion.
-- [ ] T029 [US3] Create `README.md` documenting how to rerun analysis on GitHub Actions free-tier (≤6h, ≤7GB RAM, NO GPU) (FR-007) - **Depends on T030**
-- [ ] T031 [US3] Generate final reproducibility package bundle `data/reproducibility_package_v1.0.tar.gz` containing scripts, `data/analysis_results/results.csv`, `data/interaction_logs/anonymized_logs.csv`, `README.md` for OSF publication (FR-007). **Exclusion**: Explicitly exclude `data/consent/` from the bundle to satisfy Constitution Principle VI.
-- [ ] T032 [US3] Update `state/projects/PROJ-140.../artifact_hashes.yaml` with final hashes of all artifacts (V)
+- [~] T029 [US3] Create `README.md` documenting how to rerun analysis on GitHub Actions free-tier (≤6h, ≤7GB RAM, NO GPU) (FR-007) - **Depends on T030**
+- [~] T031 [US3] Generate final reproducibility package bundle `data/reproducibility_package_v1.0.tar.gz` containing scripts, `data/analysis_results/results.csv`, `data/interaction_logs/anonymized_logs.csv`, `README.md` for OSF publication (FR-007). **Exclusion**: Explicitly exclude `data/consent/` from the bundle to satisfy Constitution Principle VI.
+- [~] T032 [US3] Update `state/projects/PROJ-140.../artifact_hashes.yaml` with final hashes of all artifacts (V)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -168,12 +168,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Update `README.md` with installation steps and dependencies
-- [ ] T034 [P] Update `README.md` with analysis execution steps and expected outputs
-- [ ] T035 [P] Add API documentation to `docs/api.md`
-- [ ] T036 Code cleanup: Refactor `code/utils/logging_utils.py` to remove unused imports
-- [ ] T037 Code cleanup: Refactor `code/utils/models.py` to simplify data structures
-- [ ] T038 Performance optimization: Reduce memory usage to <6GB in `code/analysis/run_statistics.py`
+- [~] T033 [P] Update `README.md` with installation steps and dependencies
+- [~] T034 [P] Update `README.md` with analysis execution steps and expected outputs
+- [~] T035 [P] Add API documentation to `docs/api.md`
+- [~] T036 Code cleanup: Refactor `code/utils/logging_utils.py` to remove unused imports
+- [~] T037 Code cleanup: Refactor `code/utils/models.py` to simplify data structures
+- [~] T038 Performance optimization: Reduce memory usage to <6GB in `code/analysis/run_statistics.py`
 - [ ] T039 Performance optimization: Reduce runtime to <5h in `code/analysis/run_statistics.py`
 - [ ] T040 [P] Add unit tests for edge cases in `code/tests/test_statistics.py`
 - [ ] T041 [P] Add unit tests for data integrity in `code/tests/test_data_integrity.py`

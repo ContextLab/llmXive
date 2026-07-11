@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T21:28:25.215091Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-059-automated-detection-of-algorithmic-bias-
-last_run_id: 37885763-1271-4b7c-a50b-1c73a1896d19
+last_run_id: c90a7926-ceb3-4f47-985d-9971cd434d92
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Automated Detection of Algorithmic Bias in Public Code Repositories
-updated_at: '2026-07-08T04:53:02.810908Z'
+updated_at: '2026-07-11T06:59:18.983358Z'

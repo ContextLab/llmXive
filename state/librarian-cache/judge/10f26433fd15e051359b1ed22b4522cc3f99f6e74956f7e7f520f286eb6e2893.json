@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1709.03221",
+  "judged_at": "2026-07-11T06:58:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "automated detection of algorithmic bias in public code repositories computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides the foundational methodology (Themis) and empirical evidence for measuring algorithmic discrimination (bias) in software systems, which is the core mechanism the user seeks to detect. Although the user specifies \"public code repositories\" and this paper tests specific deployed systems, it establishes the canonical testing framework and definitions for software fairness that any literature review on automated bias detection must cite.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cs/0407051",
+  "judged_at": "2026-07-11T06:58:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "automated detection of algorithmic bias in public code repositories computer science",
+  "rationale": "The paper focuses on \"bug shallowness\" (the ease of finding and fixing bugs) in open-source software, which is a distinct construct from \"algorithmic bias\" (systematic unfairness in algorithmic decision-making). While both relate to software quality in public repositories, the paper does not measure the same mechanism, variables, or domain required for a literature review on bias detection, and thus fails to meet any of the inclusion criteria (a-f).",
+  "relevant": false
+}

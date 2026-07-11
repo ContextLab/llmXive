@@ -1,5 +1,5 @@
 """
-Pydantic model for ModelOutput results.
+Pydantic model for Model Output results.
 """
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Dict, List, Optional, Any
@@ -7,31 +7,49 @@ from datetime import datetime
 
 class ModelOutput(BaseModel):
     """
-    Container for model training and evaluation results.
-
-    Attributes:
-        run_id: Unique identifier for this model run.
-        model_type: Type of model (e.g., 'PGLS', 'RandomForest').
-        r_squared: Coefficient of determination.
-        adjusted_r_squared: Adjusted R-squared.
-        feature_importance: Dictionary of feature names to importance scores.
-        hyperparameters: Dictionary of used hyperparameters.
-        timestamp: Timestamp of the run.
-        metadata: Additional metadata (e.g., cross-validation scores, p-values).
+    Container for model training results and predictions.
     """
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        extra="forbid"
+    )
 
-    run_id: str = Field(..., description="Unique run identifier")
-    model_type: str = Field(..., description="Model type")
-    r_squared: Optional[float] = Field(None, description="R-squared score")
-    adjusted_r_squared: Optional[float] = Field(None, description="Adjusted R-squared")
-    feature_importance: Optional[Dict[str, float]] = Field(None, description="Feature importance scores")
-    hyperparameters: Dict[str, Any] = Field(default_factory=dict, description="Model hyperparameters")
-    timestamp: datetime = Field(default_factory=datetime.now, description="Run timestamp")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
-
-    def is_significant(self, threshold: float = 0.0) -> bool:
-        """Check if R-squared is above a threshold."""
-        if self.r_squared is None:
-            return False
-        return self.r_squared > threshold
+    run_id: str = Field(..., description="Unique identifier for this model run")
+    model_type: str = Field(..., description="Type of model (e.g., 'RandomForest', 'PGLS')")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Time of execution")
+    
+    # Performance Metrics
+    r_squared: Optional[float] = Field(None, description="Coefficient of determination (R²)")
+    adjusted_r_squared: Optional[float] = Field(None, description="Adjusted R²")
+    mean_squared_error: Optional[float] = Field(None, description="Mean Squared Error")
+    root_mean_squared_error: Optional[float] = Field(None, description="Root Mean Squared Error")
+    mean_absolute_error: Optional[float] = Field(None, description="Mean Absolute Error")
+    pearson_correlation: Optional[float] = Field(None, description="Pearson correlation coefficient")
+    
+    # Data Context
+    n_samples: int = Field(..., ge=1, description="Number of samples used in training/evaluation")
+    n_features: int = Field(..., ge=1, description="Number of features used")
+    train_split_ratio: Optional[float] = Field(None, description="Ratio of training data (0.0-1.0)")
+    
+    # Feature Importance (if applicable)
+    feature_importance: Optional[Dict[str, float]] = Field(
+        default_factory=dict,
+        description="Mapping of feature names to importance scores"
+    )
+    
+    # Hyperparameters
+    hyperparameters: Optional[Dict[str, Any]] = Field(
+        default_factory=dict,
+        description="Dictionary of model hyperparameters"
+    )
+    
+    # Phylogenetic Context (if applicable)
+    phylogenetic_correction: Optional[bool] = Field(None, description="Whether phylogenetic correction was applied")
+    lambda_param: Optional[float] = Field(None, description="Pagel's lambda if phylogenetic model")
+    
+    # Raw artifacts paths
+    model_artifact_path: Optional[str] = Field(None, description="Path to saved model object")
+    metrics_path: Optional[str] = Field(None, description="Path to metrics JSON file")
+    
+    # Metadata
+    notes: Optional[str] = Field(None, description="Free-text notes about the run")

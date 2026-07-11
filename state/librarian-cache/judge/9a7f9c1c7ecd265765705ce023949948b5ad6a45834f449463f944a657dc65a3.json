@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.13386",
+  "judged_at": "2026-07-11T06:58:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "automated detection of algorithmic bias in public code repositories computer science",
+  "rationale": "This paper satisfies criterion (a) and (b) because it explicitly identifies \"bias\" as a problem arising from software bots in open-source repositories and provides a dataset and detection methodology for bot behavior in the exact domain (public code repositories) specified by the user. While the paper focuses on detecting the *source* of bias (bots) rather than the bias itself, it establishes the necessary empirical baseline and mechanism for studying algorithmic bias in this specific context.",
+  "relevant": true
+}

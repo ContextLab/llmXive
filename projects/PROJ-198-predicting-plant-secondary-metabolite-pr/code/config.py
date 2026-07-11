@@ -1,152 +1,132 @@
 """
-Configuration loader for the llmXive plant metabolite project.
-
-Manages species lists, thresholds, and data paths using a YAML configuration file.
+Configuration management module.
+Handles loading settings from YAML, environment variables, and defaults.
 """
 import os
 import yaml
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
 from pydantic import BaseModel, Field, field_validator, ValidationError
 from models.species import Species
 
+# Singleton instance
+_config_instance: Optional["Config"] = None
 
 class ConfigSettings(BaseModel):
-    """Settings derived from the configuration file."""
-    data_root: Path = Field(..., description="Root directory for data storage")
-    raw_dir: Path = Field(..., description="Directory for raw downloaded data")
-    processed_dir: Path = Field(..., description="Directory for processed data")
-    interim_dir: Path = Field(..., description="Directory for intermediate data")
-    figures_dir: Path = Field(..., description="Directory for output figures")
+    """Settings for the application."""
+    data_path: Path = Field(default=Path("data"))
+    raw_data_path: Path = Field(default=Path("data/raw"))
+    processed_data_path: Path = Field(default=Path("data/processed"))
+    figures_path: Path = Field(default=Path("figures"))
+    logs_path: Path = Field(default=Path("logs"))
+    model_cache_path: Path = Field(default=Path("model_cache"))
     
     # Thresholds
-    max_genome_size_mb: float = Field(500.0, description="Max genome size in MB to download")
-    antismash_confidence: float = Field(0.3, description="Default antiSMASH confidence threshold")
-    min_species_count: int = Field(5, description="Minimum species count for valid analysis")
+    genome_size_limit_mb: int = Field(default=500)
+    bgc_confidence_threshold: float = Field(default=0.5)
+    min_species_count: int = Field(default=5)
     
-    # Timeouts
-    download_timeout: int = Field(300, description="Timeout for network requests in seconds")
-    
-    # Paths relative to data_root
-    phylogeny_path: Path = Field(..., description="Path to phylogeny Newick file relative to data_root")
-    mibig_ontology_path: Path = Field(..., description="Path to MIBiG ontology JSON relative to data_root")
+    # API Keys (placeholders, expected to be overridden by env)
+    ncbi_api_key: Optional[str] = None
+    pmdb_api_key: Optional[str] = None
 
-    @field_validator('data_root', 'raw_dir', 'processed_dir', 'interim_dir', 'figures_dir', 'phylogeny_path', 'mibig_ontology_path')
+    @field_validator('data_path', 'raw_data_path', 'processed_data_path', 'figures_path', 'logs_path', 'model_cache_path', mode='before')
     @classmethod
-    def ensure_path(cls, v):
+    def convert_to_path(cls, v):
         if isinstance(v, str):
             return Path(v)
         return v
-    
-    @field_validator('max_genome_size_mb', 'antismash_confidence')
-    @classmethod
-    def ensure_positive(cls, v):
-        if v <= 0:
-            raise ValueError(f"{cls.__name__} requires positive values for {v}")
-        return v
-
 
 class Config(BaseModel):
     """Main configuration container."""
-    settings: ConfigSettings
-    species_list: List[Dict[str, Any]] = Field(default_factory=list)
-    
-    @property
-    def species_objects(self) -> List[Species]:
-        """Convert raw species dicts into Pydantic Species models."""
-        species = []
-        for s in self.species_list:
-            try:
-                species.append(Species(**s))
-            except ValidationError as e:
-                # Log warning but skip invalid entries if possible, or raise depending on strictness
-                print(f"Warning: Skipping invalid species entry {s}: {e}")
-        return species
+    settings: ConfigSettings = Field(default_factory=ConfigSettings)
+    species_list: List[Species] = Field(default_factory=list)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
 
-_CONFIG: Optional[Config] = None
-
-
-def load_config(config_path: Optional[str] = None) -> Config:
+def load_config(config_path: Optional[Path] = None) -> Config:
     """
     Load configuration from a YAML file.
     
     Args:
-        config_path: Path to the config file. Defaults to 'config.yaml' in project root.
+        config_path: Path to the YAML config file. Defaults to 'config.yaml' in root.
         
     Returns:
-        Config object with validated settings and species list.
-        
-    Raises:
-        FileNotFoundError: If config file does not exist.
-        ValidationError: If config contents do not match schema.
+        Config object populated with settings and species.
     """
-    global _CONFIG
+    global _config_instance
     
-    if _CONFIG is not None:
-        return _CONFIG
-        
     if config_path is None:
-        # Default to project root config.yaml
-        config_path = Path.cwd() / "config.yaml"
+        # Check common locations relative to project root
+        possible_paths = [
+            Path("config.yaml"),
+            Path("./config.yaml"),
+            Path(os.path.join(os.path.dirname(__file__), "..", "config.yaml"))
+        ]
+        for p in possible_paths:
+            if p.exists():
+                config_path = p
+                break
         
-    if not Path(config_path).exists():
-        raise FileNotFoundError(f"Configuration file not found at {config_path}")
+        if config_path is None:
+            # Return default config if file doesn't exist
+            return Config()
         
-    with open(config_path, 'r', encoding='utf-8') as f:
-        raw_data = yaml.safe_load(f)
+    if not config_path.exists():
+        return Config()
         
-    if not isinstance(raw_data, dict):
-        raise ValueError("Configuration file must be a valid YAML dictionary.")
-        
-    # Ensure directory structure exists if paths are provided
-    # We do this after validation to ensure paths are valid
-    if 'settings' in raw_data:
-        data_root = raw_data['settings'].get('data_root')
-        if data_root:
-            base = Path(data_root)
-            if not base.exists():
-                base.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
             
-            # Create subdirectories if defined
-            for subdir in ['raw', 'processed', 'interim', 'figures']:
-                path = base / subdir
-                if not path.exists():
-                    path.mkdir(parents=True, exist_ok=True)
-    
-    config = Config(**raw_data)
-    _CONFIG = config
-    return config
-
+        if data is None:
+            return Config()
+            
+        settings_data = data.get('settings', {})
+        species_data = data.get('species_list', [])
+        
+        # Parse settings
+        settings = ConfigSettings(**settings_data)
+        
+        # Parse species list
+        species_list = []
+        if species_data:
+            for sp_data in species_data:
+                if sp_data is None:
+                    continue
+                try:
+                    # Assuming Species model has enough fields to be constructed from dict
+                    species_list.append(Species(**sp_data))
+                except ValidationError as ve:
+                    # Log warning but continue loading other species
+                    print(f"Warning: Skipping invalid species entry due to validation error: {ve}")
+                    continue
+                
+        _config_instance = Config(settings=settings, species_list=species_list, metadata=data.get('metadata', {}))
+        return _config_instance
+        
+    except ValidationError as e:
+        raise ValueError(f"Configuration validation failed: {e}")
+    except yaml.YAMLError as ye:
+        raise ValueError(f"Failed to parse YAML configuration: {ye}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to load config from {config_path}: {e}")
 
 def get_config() -> Config:
-    """
-    Get the global configuration instance.
-    Raises FileNotFoundError if not yet loaded.
-    """
-    if _CONFIG is None:
-        raise RuntimeError("Configuration not loaded. Call load_config() first.")
-    return _CONFIG
-
+    """Get the current configuration instance."""
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = load_config()
+    return _config_instance
 
 def reset_config() -> None:
-    """Reset the global configuration (useful for testing)."""
-    global _CONFIG
-    _CONFIG = None
+    """Reset the configuration singleton to force reload."""
+    global _config_instance
+    _config_instance = None
 
 def get_species_list() -> List[Species]:
-    """Convenience wrapper to get the list of Species models."""
-    return get_config().species_objects
+    """Convenience function to get the list of species from config."""
+    return get_config().species_list
 
-
-def get_data_path(relative_path: str) -> Path:
-    """
-    Construct a full path relative to the configured data root.
-    
-    Args:
-        relative_path: Path relative to the data root.
-        
-    Returns:
-        Absolute Path object.
-    """
-    return get_config().settings.data_root / relative_path
+def get_data_path() -> Path:
+    """Convenience function to get the base data path."""
+    return get_config().settings.data_path

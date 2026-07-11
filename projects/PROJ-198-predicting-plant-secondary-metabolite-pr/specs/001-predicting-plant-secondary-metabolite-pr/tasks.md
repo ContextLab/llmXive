@@ -56,8 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Create Pydantic models for `Species`, `BGCFeature`, `Metabolite`, and `ModelOutput` in `code/models/`
-- [ ] T005 [P] Implement configuration loader in `code/config.py` to manage species lists, thresholds, and data paths
-- [ ] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and console handlers
+- [X] T005 [P] Implement configuration loader in `code/config.py` to manage species lists, thresholds, and data paths
+- [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and console handlers
 - [~] T007 Implement data directory structure creation and checksum verification logic in `code/data/__init__.py`
 - [~] T008 Setup environment variable management for API keys (if needed) and local paths
 
@@ -76,9 +76,9 @@
 - [~] T012 [US1] Implement `download_genomes()` in `code/data/download.py` to fetch FASTA/GFF from NCBI RefSeq/Phytozome, skipping genomes > 500MB, including retry logic, timeout handling, and graceful failure messaging for network timeouts
 - [~] T013 [US1] Implement `download_metabolites()` in `code/data/download.py` to fetch abundance tables from PMDB/MetaboLights, including retry logic, timeout handling, and graceful failure messaging for network timeouts <!-- ATOMIZE: requested -->
 - [~] T014 [US1] Implement `run_antiSMASH_wrapper()` in `code/data/preprocess.py` to execute the antiSMASH pipeline and parse JSON output to generate a binary presence matrix and a count matrix for BGC diversity
-- [ ] T016 [US1] Implement `harmonize_metabolites()` in `code/data/preprocess.py` to apply InChIKey normalization, pseudo-count +1, and log-transformation
-- [ ] T015 [US1] Implement `map_bgc_to_metabolite()` in `code/data/preprocess.py` using the MIBiG 3.0 ontology to map BGC types to metabolite classes, explicitly assigning to 'unknown' class if no match is found
-- [ ] T017 [US1] Implement `align_data()` in `code/data/align.py` to merge genomic and metabolomic data by species, filtering partial rows and logging warnings
+- [~] T016 [US1] Implement `harmonize_metabolites()` in `code/data/preprocess.py` to apply InChIKey normalization, pseudo-count +1, and log-transformation
+- [~] T015 [US1] Implement `map_bgc_to_metabolite()` in `code/data/preprocess.py` using the MIBiG 3.0 ontology to map BGC types to metabolite classes, explicitly assigning to 'unknown' class if no match is found
+- [~] T017 [US1] Implement `align_data()` in `code/data/align.py` to merge genomic and metabolomic data by species, filtering partial rows and logging warnings
 - [ ] T018 [US1] Implement `save_aligned_matrix()` in `code/data/align.py` to write the final CSV to `data/processed/aligned_matrix.csv`
 - [ ] T035a [US1] Implement `calculate_alignment_success_rate()` in `code/data/align.py` to calculate, log, and report the percentage of species with valid data (N≥5) for SC-004
 
