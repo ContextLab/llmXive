@@ -1,0 +1,482 @@
+resolved_at: '2026-07-11T10:50:15.722929+00:00'
+datasets:
+- intent: NCBI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 577
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Viewing_Models_Actions_on_Varied_Digital_Devices_Elicits_Over_Imitation_as_Strongly_as_Viewing_Actions_Live/32963516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_Search_strategy_-_Nurse-Led_Interventions_and_Care_Models_for_Endometriosis_as_a_Chronic_Condition_A_JBI_Scoping_Review_/32963351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Investigation_of_the_influence_of_aromaticity_of_oil_and_asphaltenes_resins_and_petroleum_acids_on_the_W_O_emulsions/32963504
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_uric_acid_excretion_b_b_predictive_model_additional_documents_b_/32963489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14845662
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1158314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1407162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236563
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236561
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17494165
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17494165
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/168877
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188467
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297463
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CARD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Tarotoo/tarotoo-tarot-card-meanings/resolve/main/cards.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 53258
+      parsed: true
+  - url: https://huggingface.co/datasets/chrisiyer/cardgames-sftdata-trimmed/resolve/main/blackjack/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/harpreetsahota/CarDD/resolve/main/metadata.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10901
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/chrisiyer/cardgames-sftdata-trimmed/resolve/main/blackjack/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/harpreetsahota/CarDD/resolve/main/metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Tarotoo/tarotoo-tarot-card-meanings/resolve/main/cards.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/cardiffnlp/tweet_eval/resolve/main/emoji/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f183506/35f84747eb16f251779088a818d5463ddfd4f3799f8fe121115a081587283c2d?X-Xet-Cas-Uid=public&user_id=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&Expires=1783770470&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNTA2LzM1Zjg0NzQ3ZWIxNmYyNTE3NzkwODhhODE4ZDU0NjNkZGZkNGYzNzk5ZjhmZTEyMTExNWEwODE1ODcyODNjMmRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzcwNDcwfX19XX0_&Signature=MEUCIF~XKdtuGIGFi5buqoWVmOzdXckeifOATlIHBNmEX6GbAiEA1JrsoNmPiOtb1eiHTKkyolMTlBZD93Ehtm4whZsAiJU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Whose_Art_Is_It_Publicness_and_Access_in_South_Korea_s_Artworks_for_Buildings_Policy/30295597
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Viewing_Models_Actions_on_Varied_Digital_Devices_Elicits_Over_Imitation_as_Strongly_as_Viewing_Actions_Live/32963516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_Search_strategy_-_Nurse-Led_Interventions_and_Care_Models_for_Endometriosis_as_a_Chronic_Condition_A_JBI_Scoping_Review_/32963351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Investigation_of_the_influence_of_aromaticity_of_oil_and_asphaltenes_resins_and_petroleum_acids_on_the_W_O_emulsions/32963504
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3409669
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20927317
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20816084
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S2666365119302637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.jstor.org/stable/2394089?origin=crossref
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21307351
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21307351
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20912312
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20799110
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.995145
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SNPs
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_Machine_Learning_in_geomorphometry_surface_modeling_mapping_and_dynamics_b_/32963522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Whose_Art_Is_It_Publicness_and_Access_in_South_Korea_s_Artworks_for_Buildings_Policy/30295597
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Viewing_Models_Actions_on_Varied_Digital_Devices_Elicits_Over_Imitation_as_Strongly_as_Viewing_Actions_Live/32963516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_Search_strategy_-_Nurse-Led_Interventions_and_Care_Models_for_Endometriosis_as_a_Chronic_Condition_A_JBI_Scoping_Review_/32963351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3332765
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4017836
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17375732
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7053677
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14800106
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1106623
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Genome-wide_association_studies_of_missing_metabolite_measures_from_two_population-based_studies/8588430/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Genome-wide_association_studies_of_missing_metabolite_measures_from_two_population-based_studies/8588430
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_15_of_Genome-wide_association_studies_of_missing_metabolite_measures_from_two_population-based_studies/32962773
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_13_of_Genome-wide_association_studies_of_missing_metabolite_measures_from_two_population-based_studies/32962767
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: E004
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/extralit-dev/test_import_dataset_from_hub_with_classlabel_1d364b99-e004-41de-b1cd-ef48ea13f2de/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1264
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/extralit-dev/test_import_dataset_from_hub_with_classlabel_1d364b99-e004-41de-b1cd-ef48ea13f2de/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Machine_Learning_in_geomorphometry_surface_modeling_mapping_and_dynamics_b_/32963522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Whose_Art_Is_It_Publicness_and_Access_in_South_Korea_s_Artworks_for_Buildings_Policy/30295597
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Viewing_Models_Actions_on_Varied_Digital_Devices_Elicits_Over_Imitation_as_Strongly_as_Viewing_Actions_Live/32963516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_Search_strategy_-_Nurse-Led_Interventions_and_Care_Models_for_Endometriosis_as_a_Chronic_Condition_A_JBI_Scoping_Review_/32963351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14055608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5983146
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8193926
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2609763
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://phytotaxa.mapress.com/pt/article/view/phytotaxa.659.1.8
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/5060120/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/5060060/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/6060180/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/4060110/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/5060070/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FASTA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Lifan-Z/fasta_datasets/resolve/main/natural.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 158494
+      parsed: true
+  - url: https://huggingface.co/datasets/nferruz/dataset_fastas/resolve/main/natural_fastas.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lucas-w/fa-startupschool/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nferruz/dataset_fastas/resolve/main/natural_fastas.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/Lifan-Z/fasta_datasets/resolve/main/natural.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/lucas-w/fa-startupschool/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Machine_Learning_in_geomorphometry_surface_modeling_mapping_and_dynamics_b_/32963522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Whose_Art_Is_It_Publicness_and_Access_in_South_Korea_s_Artworks_for_Buildings_Policy/30295597
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Viewing_Models_Actions_on_Varied_Digital_Devices_Elicits_Over_Imitation_as_Strongly_as_Viewing_Actions_Live/32963516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_Search_strategy_-_Nurse-Led_Interventions_and_Care_Models_for_Endometriosis_as_a_Chronic_Condition_A_JBI_Scoping_Review_/32963351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6535004
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18792915
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8067332
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13830932
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18650273
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.767433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.5hqbzkhjr
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://adattar.unideb.hu/dataset.xhtml?persistentId=doi:10.48428/ADATTAR/UUXM4D
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SMOTE
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_Machine_Learning_in_geomorphometry_surface_modeling_mapping_and_dynamics_b_/32963522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Whose_Art_Is_It_Publicness_and_Access_in_South_Korea_s_Artworks_for_Buildings_Policy/30295597
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Viewing_Models_Actions_on_Varied_Digital_Devices_Elicits_Over_Imitation_as_Strongly_as_Viewing_Actions_Live/32963516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_Search_strategy_-_Nurse-Led_Interventions_and_Care_Models_for_Endometriosis_as_a_Chronic_Condition_A_JBI_Scoping_Review_/32963351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0020025519305353
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184926
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/25002
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/41762
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://telkomnika.uad.ac.id/index.php/TELKOMNIKA/article/view/25921
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302215
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302215
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283245
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283245
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_EEG-Based_Eye_State_Detection/32946797
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Feature Matrix Schema
+description: "Schema for the processed genomic feature matrix used in modeling."
+type: object
+properties:
+  columns:
+    type: array
+    description: "List of column names in the feature matrix."
+    items:
+      type: string
+    minItems: 3
+  data_types:
+    type: object
+    description: "Mapping of column names to their expected data types."
+    additionalProperties:
+      type: string
+      enum:
+        - "string"
+        - "binary"
+        - "numeric"
+  constraints:
+    type: object
+    description: "Data integrity constraints."
+    properties:
+      no_missing_phenotype:
+        type: boolean
+        description: "Primary outcome variable must not have missing values."
+        const: true
+      unique_isolate_id:
+        type: boolean
+        description: "Isolate IDs must be unique."
+        const: true
+      vif_filtered:
+        type: boolean
+        description: "Features with VIF > 5 have been removed."
+        const: true
+required:
+  - columns
+  - data_types
+  - constraints
+additionalProperties: false

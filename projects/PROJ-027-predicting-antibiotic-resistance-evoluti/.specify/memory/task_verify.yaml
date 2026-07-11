@@ -1,0 +1,10 @@
+? T001a Create `code/01_ingest/`, `code/02_process/`, `code/03_model/`, `code/04_validate/`,
+  `code/05_viz/` directories and verify directories exist
+: 2
+T001b Create `utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/models/` directories: 2
+T001c Create `tests/contract/` and `tests/unit/` directories with `.gitkeep` files: 2
+? T002 Initialize Python 3.11 project and create `code/requirements.txt` with `scikit-learn`,
+  `pandas`, `numpy`, `matplotlib`, `seaborn`, `biopython`, `requests`, `pyyaml`, `dendropy`,
+  `statsmodels`; verify installation with `pip check`
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2

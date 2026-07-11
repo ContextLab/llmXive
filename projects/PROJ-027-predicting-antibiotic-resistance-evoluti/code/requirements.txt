@@ -1,0 +1,12 @@
+scikit-learn
+pandas
+numpy
+matplotlib
+seaborn
+biopython
+requests
+pyyaml
+dendropy
+statsmodels
+joblib
+scipy

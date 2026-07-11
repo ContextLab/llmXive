@@ -1,0 +1,25 @@
+# Configuration for Antibiotic Resistance Prediction Pipeline
+
+# Paths
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  models_dir: "data/models"
+  figures_dir: "figures"
+  logs_dir: "logs"
+
+# Data Acquisition
+bio_project_ids:
+  - "PRJNA123456" # Example: Replace with actual E. coli BioProject ID
+  - "PRJNA654321"
+
+# Limits
+max_isolates: 1000 # Limit for CI runs; can be increased for full runs
+
+# Randomness
+random_seed: 42
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

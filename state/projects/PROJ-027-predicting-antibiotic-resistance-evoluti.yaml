@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T08:56:45.172352Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-027-predicting-antibiotic-resistance-evoluti
-last_run_id: 700bba1c-270f-43a4-9614-afc0b207ea89
+last_run_id: fb522ae8-996b-4921-9d26-f28cd0d95816
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/specs/001-predicting-antibiotic-resistance-evoluti
 title: Predicting Antibiotic Resistance Evolution from Genomic Sequences
-updated_at: '2026-07-09T17:12:52.616508Z'
+updated_at: '2026-07-11T11:22:56.721707Z'
