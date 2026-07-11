@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DensityBucket"
+description: "Schema for aggregated statistics by visual density level, separated by experimental arm."
+type: "object"
+properties:
+  density_level:
+    type: "integer"
+    description: "Number of images in the bucket (0, 5, 10, 15, 20)."
+    minimum: 0
+    maximum: 20
+  arm_type:
+    type: "string"
+    description: "Experimental arm: A (Constant Text) or B (Constant Total)."
+    enum:
+      - "A"
+      - "B"
+  total_samples:
+    type: "integer"
+    description: "Total number of samples in this bucket."
+    minimum: 1
+  successful_samples:
+    type: "integer"
+    description: "Number of samples that ran successfully."
+    minimum: 0
+  correct_count:
+    type: "integer"
+    description: "Number of correct retrievals."
+    minimum: 0
+  accuracy_rate:
+    type: "number"
+    description: "Ratio of correct retrievals to successful samples."
+    minimum: 0.0
+    maximum: 1.0
+  avg_inference_time_ms:
+    type: "number"
+    description: "Average inference time for the bucket."
+    minimum: 0
+  avg_peak_memory_mb:
+    type: "number"
+    description: "Average peak memory usage for the bucket."
+    minimum: 0
+required:
+  - density_level
+  - arm_type
+  - total_samples
+  - successful_samples
+  - correct_count
+  - accuracy_rate
+  - avg_inference_time_ms
+  - avg_peak_memory_mb
+additionalProperties: false

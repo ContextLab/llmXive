@@ -1,0 +1,136 @@
+resolved_at: '2026-07-11T18:08:45.237239+00:00'
+datasets:
+- intent: MMProLong-7B-1
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Treze_de_Maio_proposta_curricular_para_Ensino_Religioso_no_ensino_fundamental_perspectivas_e_tend_ncias/32964281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/The_Impact_of_kernel_Dimensions_on_the_Generalizability_and_Efficienty_in_Neural_Drive_Estimation_from_HD-sEMG_Signal_/30392995
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M01____/32964191
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Analisis_Kinerja_Algoritma_Decision_Tree_dan_Random_Forest_untuk_Prediksi_Harga_Bawang_Merah_di_Jawa_Barat_Menggunakan_Data_Historis_Januari_2022_s_d_Februari_2026/32964272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_Identifying_the_Dimensions_Challenges_Criteria_Indicators_and_Requirements_of_the_Scholarly_Peer_Review_Process_and_Proposing_a_Framework_for_the_Evaluation_of_Scientific_Works_in_Iran_b_/32964269
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15772545
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7424324
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/39948
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17037161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18907214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ONNX
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bakks/flan-t5-onnx/resolve/main/flan-t5-base/config.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1500
+      parsed: true
+  - url: https://huggingface.co/datasets/crozierm/DEAD-text-onnx/resolve/main/config.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 782
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bakks/flan-t5-onnx/resolve/main/flan-t5-base/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/crozierm/DEAD-text-onnx/resolve/main/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/magiccodingman/stella_en_400m_v5_onnx/87ecb42bd573adab2cfca9a50fbae26fa73ad6a9/FP32_1024D%2Ftokenizer.json?%2Fdatasets%2Fmagiccodingman%2Fstella_en_400m_v5_onnx%2Fresolve%2Fmain%2FFP32_1024D%2Ftokenizer.json=&etag=%228f778e7d950e055b18b53222c75d2c54c3732df5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Treze_de_Maio_proposta_curricular_para_Ensino_Religioso_no_ensino_fundamental_perspectivas_e_tend_ncias/32964281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/The_Impact_of_kernel_Dimensions_on_the_Generalizability_and_Efficienty_in_Neural_Drive_Estimation_from_HD-sEMG_Signal_/30392995
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__M01____/32964191
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Analisis_Kinerja_Algoritma_Decision_Tree_dan_Random_Forest_untuk_Prediksi_Harga_Bawang_Merah_di_Jawa_Barat_Menggunakan_Data_Historis_Januari_2022_s_d_Februari_2026/32964272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_Identifying_the_Dimensions_Challenges_Criteria_Indicators_and_Requirements_of_the_Scholarly_Peer_Review_Process_and_Proposing_a_Framework_for_the_Evaluation_of_Scientific_Works_in_Iran_b_/32964269
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15314214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3228411
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5907059
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7543883
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15741207
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304302
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304302
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297959
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

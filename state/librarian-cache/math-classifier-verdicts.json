@@ -939,6 +939,10 @@
     "classified_at": "2026-07-03T18:58:54Z",
     "verdict": false
   },
+  "PROJ-821-llmxive-follow-up-extending-training-lon::1.6.0": {
+    "classified_at": "2026-07-11T18:03:08Z",
+    "verdict": false
+  },
   "PROJ-825-llmxive-follow-up-extending-self-distill::1.6.0": {
     "classified_at": "2026-07-11T15:29:14Z",
     "verdict": false

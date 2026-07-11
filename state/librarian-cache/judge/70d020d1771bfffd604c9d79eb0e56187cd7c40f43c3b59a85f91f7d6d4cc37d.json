@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.07011",
+  "judged_at": "2026-07-11T18:03:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"training long-context vision-language models effectively with generali\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (b) as it provides a foundational methodology (Block-Sparse Flash Attention) and empirical evidence for the core mechanism of \"long-context\" processing in LLMs, which is the central technical challenge implied by the user's question about extending training for long-context vision-language models. Even though the paper focuses on inference acceleration rather than the specific training dynamics mentioned in the user's title, it addresses the canonical comput",
+  "relevant": true
+}

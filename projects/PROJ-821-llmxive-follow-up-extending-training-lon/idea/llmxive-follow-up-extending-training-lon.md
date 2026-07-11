@@ -5,27 +5,59 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Training Long-Context Vision-Language Models Effectively with Generali"
 
-## Summary of the prior work
-The paper introduces MMProLong, a 7B Vision-Language Model extended to 128K context via continued pre-training, demonstrating that balanced long-document VQA data outperforms OCR-heavy or target-length-focused mixtures. Key findings indicate that retrieval capability is the primary bottleneck for long-context performance and that instruction-formatted long data preserves short-context abilities without requiring mixed training. The resulting model generalizes effectively to 256K and 512K contexts and various multimodal tasks like video understanding without additional supervision.
+**Field**: computer science
 
-## Proposed extension
-How does the *modality balance* within long-context VQA pairs (specifically, the ratio of text-dense vs. image-dense content) influence the model's ability to perform "needle-in-a-haystack" retrieval across 256K+ contexts without incurring catastrophic forgetting of short-context visual grounding? This question matters because the original study primarily optimized for document length and retrieval density but did not isolate whether the *visual complexity* of the long context acts as a distinct bottleneck for attention mechanisms compared to text-only retrieval.
+## Research question
+
+How does the ratio of visual-dense to text-dense content in long-context inputs (modality balance) affect the retrieval accuracy of Vision-Language Models in 256K+ token "needle-in-a-haystack" scenarios, and does high visual density induce a non-linear degradation in attention mechanisms that is distinct from text-only length scaling?
+
+## Motivation
+
+The prior work on MMProLong established that balanced long-document data improves generalization but did not isolate whether the *complexity* of the visual stream acts as an independent bottleneck for attention allocation compared to text volume. Understanding this modality-specific scaling law is critical for designing efficient training mixtures that do not inadvertently degrade retrieval performance when processing multimodal documents (e.g., technical manuals with dense diagrams) at extreme lengths.
+
+## Related work
+
+- [Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models (2026)](https://arxiv.org/abs/2601.15305) — This work addresses the computational bottleneck of attention in long-context models via sparse mechanisms, providing a theoretical baseline for how attention sparsity might interact with multimodal data density.
+- [Block Sparse Flash Attention (2025)](https://arxiv.org/abs/2512.07011) — This paper presents optimizations to mitigate the quadratic complexity of attention in long contexts, relevant for understanding the computational limits of processing high-visual-density inputs at 256K+ tokens.
+- [VLP: A Survey on Vision-Language Pre-training (2022)](https://arxiv.org/abs/2202.09061) — This survey establishes the foundational landscape of vision-language pre-training, highlighting early challenges in aligning visual and textual modalities which may be exacerbated at extreme context lengths.
+- [Object Detection with Multimodal Large Vision-Language Models: An In-depth Review (2025)](https://arxiv.org/abs/2508.19294) — This review details how LVLMs handle visual grounding and object detection, offering context on the types of visual complexity that might interfere with long-range text retrieval.
+
+## Expected results
+
+We expect to observe a non-linear performance cliff where increasing visual density (number of unique images per context) disproportionately degrades needle-in-a-haystack retrieval accuracy compared to text-only baselines of equivalent token length. This would be confirmed if retrieval accuracy drops significantly faster than the inverse of context length when visual tokens exceed a specific threshold, suggesting a modality-specific attention saturation point rather than a pure length-scaling issue.
 
 ## Methodology sketch
-We will construct a synthetic dataset of 10,000 long-context samples (avg. 128K tokens) using CPU-only text generation and static image retrieval, varying the "visual density" (number of unique images per context) while holding text length and retrieval difficulty constant. We will perform a linear probing evaluation on the existing MMProLong weights (frozen) using a CPU-tractable inference framework (e.g., `llama.cpp` or `ONNX Runtime` with quantization) to measure retrieval accuracy and short-context visual grounding metrics across different density buckets. We expect to find a non-linear performance cliff where high visual density in long contexts disproportionately degrades retrieval accuracy compared to text-dense contexts, suggesting a need for modality-specific attention scaling in future training recipes.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Construction**: Generate 10,000 synthetic long-context samples (avg. 128K–256K tokens) using CPU-based text generation and static image retrieval; systematically vary the "visual density" (images per context) from 0 to 20 while holding total token count and needle difficulty constant.
+- **Model Setup**: Load the pre-trained MMProLong weights (7B) and freeze all parameters; utilize `llama.cpp` or `ONNX Runtime` with 4-bit quantization to ensure inference fits within 7GB RAM on a 2-core CPU runner.
+- **Inference Protocol**: Perform "needle-in-a-haystack" retrieval tasks on each sample, recording the model's ability to locate a specific target token or phrase buried within the mixed modality stream.
+- **Grounding Check**: For a subset of samples, include a short-context visual grounding question (e.g., "What is in the first image?") to monitor for catastrophic forgetting of short-range visual capabilities.
+- **Statistical Analysis**: Aggregate retrieval accuracy across visual density buckets; apply a logistic regression or ANOVA to test for a significant interaction effect between *context length* and *visual density* on retrieval performance.
+- **Validation**: Ensure the evaluation metric (retrieval accuracy) is independent of the training inputs by using a held-out set of synthetic needles not present in the original MMProLong training corpus.
 
-- **Training Long-Context Vision-Language Models Effectively with Generalization Beyond 128K Context** — Zhaowei Wang, Lishu Luo, Haodong Duan, Weiwei Liu, Sijin Wu, Ji Luo, Shen Yan, Shuai Peng, Sihang Yuan, Chaoyi Huang, Yi Lin, Yangqiu Song. https://arxiv.org/abs/2605.13831.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_13831,
-  title = {Training Long-Context Vision-Language Models Effectively with Generalization Beyond 128K Context},
-  author = {Zhaowei Wang and Lishu Luo and Haodong Duan and Weiwei Liu and Sijin Wu and Ji Luo and Shen Yan and Shuai Peng and Sihang Yuan and Chaoyi Huang and Yi Lin and Yangqiu Song},
-  year = {2026},
-  eprint = {2605.13831},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.13831},
-  url = {https://arxiv.org/abs/2605.13831}
-}
-```
+- Reviewed existing ideas: VLP Survey Analysis, Long-Context Sparse Attention Benchmark, Multimodal Object Detection Review.
+- Closest match: Gated Sparse Attention (2026) (similarity sketch: both address long-context attention limits, but the proposed idea specifically isolates *visual density* as the variable, whereas the cited work focuses on architectural sparsity).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T18:03:26Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Training Long-Context Vision-Language Models Effectively with Generali" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Training Long-Context Vision-Language Models Effectively with Generali" computer science | 4 |
+
+### Verified citations
+
+1. **VLP: A Survey on Vision-Language Pre-training** (2022). Feilong Chen, Duzhen Zhang, Minglun Han, Xiuyi Chen, Jing Shi, et al.. arXiv. [2202.09061](https://arxiv.org/abs/2202.09061). PDF-sampled: No.
+2. **Object Detection with Multimodal Large Vision-Language Models: An In-depth Review** (2025). Ranjan Sapkota, Manoj Karkee. arXiv. [2508.19294](https://arxiv.org/abs/2508.19294). PDF-sampled: No.
+3. **Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models** (2026). Alfred Shen, Aaron Shen. arXiv. [2601.15305](https://arxiv.org/abs/2601.15305). PDF-sampled: No.
+4. **Block Sparse Flash Attention** (2025). Daniel Ohayon, Itay Lamprecht, Itay Hubara, Israel Cohen, Daniel Soudry, et al.. arXiv. [2512.07011](https://arxiv.org/abs/2512.07011). PDF-sampled: No.

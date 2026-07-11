@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InferenceResult"
+description: "Schema for the output of a single inference run."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Foreign key to the SyntheticSample."
+  retrieved_value:
+    type: "string"
+    description: "The value retrieved by the model."
+    nullable: true
+  is_correct:
+    type: "boolean"
+    description: "True if retrieved_value matches the needle_value."
+  inference_time_ms:
+    type: "number"
+    description: "Time taken for inference in milliseconds."
+    minimum: 0
+  peak_memory_mb:
+    type: "number"
+    description: "Peak memory usage in megabytes."
+    minimum: 0
+  status:
+    type: "string"
+    description: "Status of the inference run."
+    enum:
+      - success
+      - oom
+      - timeout
+      - error
+  error_message:
+    type: "string"
+    description: "Error details if status is not success."
+    nullable: true
+required:
+  - sample_id
+  - retrieved_value
+  - is_correct
+  - inference_time_ms
+  - peak_memory_mb
+  - status
+additionalProperties: false

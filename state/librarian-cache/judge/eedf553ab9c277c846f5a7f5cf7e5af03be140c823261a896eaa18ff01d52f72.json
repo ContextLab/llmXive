@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.09061",
+  "judged_at": "2026-07-11T18:03:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"training long-context vision-language models effectively with generali\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the \"Vision-Language\" domain and \"pre-training\" mechanisms central to the user's question about extending training for Long-Context Vision-Language Models. While it does not specifically address the \"long-context\" constraint or the specific \"llmXive\" follow-up, it provides the essential baseline literature on VLP architectures, objectives, and datasets that any review of this specific extension would r",
+  "relevant": true
+}

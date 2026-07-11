@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.19294",
+  "judged_at": "2026-07-11T18:03:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"training long-context vision-language models effectively with generali\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational review and canonical reference for the domain of Large Vision-Language Models (LVLMs), which is the core subject of the user's question regarding \"Long-Context Vision-Language Models.\" Although the paper focuses on object detection rather than the specific \"long-context\" training efficiency mechanism mentioned in the user's title, it provides the essential state-of-the-art baseline, architectural context, and training paradigm overview ",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.15305",
+  "judged_at": "2026-07-11T18:03:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"training long-context vision-language models effectively with generali\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it investigates the core mechanism of \"long-context\" training effectiveness and stability for language models, which is the central technical challenge implied by the user's question about extending training methods for long-context models. Although the user's query mentions \"Vision-Language Models\" and the paper focuses on \"Language Models,\" the proposed \"Gated Sparse Attention\" mechanism addresses the fundamental computational and stability bottlene",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.09480",
+  "judged_at": "2026-07-11T18:03:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"training long-context vision-language models effectively with generali\" computer science",
+  "rationale": "The paper is a general review of Vision-Language Models (VLMs) for object detection and segmentation, which does not address the user's specific focus on \"long-context\" training, the \"llmXive\" framework, or the specific methodology of the cited \"Training Long-Context Vision-Language Models Effectively with Generali\" paper. While it shares the broad domain of VLMs, it fails to meet criteria (a) or (b) because it does not measure the same mechanism (long-context training dynamics) or variables (lo",
+  "relevant": false
+}
