@@ -1,8 +1,5 @@
-T001 Create project structure per implementation plan (`projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/`): 2
-? T002 Initialize Python 3.11 project with `requirements.txt` (pydub, scipy, pandas,
-  statsmodels, matplotlib, seaborn, requests)
+? 'T002 Initialize Python 3.11 project by creating `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/requirements.txt`
+  with pinned versions: `librosa==0.10.1`, `pandas==2.0.3`, `statsmodels==0.14.0`,
+  `scipy==1.11.0`, `numpy==1.24.0`, `pyyaml==6.0.1`, `coqui-tts==0.23.0`'
 : 2
-T003 [P] Configure linting (ruff) and formatting (black) tools: 2
-T004 Setup `data/download.py` to fetch EVA-Bench dataset from HuggingFace/UCI with checksum validation: 2
-T005 [P] Implement `data/checksums.json` generation and verification logic: 2
-T006 [P] Setup `config.py` with paths, random seeds, and latency step constants (variable range): 2
+T002 {{claim:c_c938ab6b}}: 1

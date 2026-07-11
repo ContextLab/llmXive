@@ -1,0 +1,10 @@
+[flake8]
+max-line-length = 88
+exclude = venv
+ignore = E203, E266, W503
+per-file-ignores =
+    # Allow unused imports in __init__.py for exports
+    */__init__.py: F401
+    # Allow missing docstrings in tests
+    tests/*: D100, D101, D102, D103
+max-complexity = 10

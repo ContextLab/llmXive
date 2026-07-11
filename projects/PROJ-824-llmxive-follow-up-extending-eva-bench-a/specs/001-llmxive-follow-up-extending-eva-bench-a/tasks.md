@@ -43,9 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pydub, scipy, pandas, statsmodels, matplotlib, seaborn, requests)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan by executing: `mkdir -p projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/{data/{raw,processed},code/{injectors,evaluation,analysis,synthetic},tests/{unit,integration},specs/001-gene-regulation}` <!-- FAILED: unspecified -->
+- [ ] T002 {{claim:c_c938ab6b}}
+- [X] T003a [P] Configure Black formatting by creating `pyproject.toml` with `tool.black` section (line-length=88, target-version=['py311']).
+- [X] T003b [P] Configure Flake8 linting by creating `.flake8` with strict rules (max-line-length=88, exclude=venv).
+- [X] T003c [P] Configure import sorting by adding `tool.isort` to `pyproject.toml` (profile=black).
 
 ---
 
@@ -55,12 +57,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `data/download.py` to fetch EVA-Bench dataset from HuggingFace/UCI with checksum validation
-- [ ] T005 [P] Implement `data/checksums.json` generation and verification logic
-- [ ] T006 [P] Setup `config.py` with paths, random seeds, and latency step constants (variable range)
-- [~] T007 Create base schema validation for `contracts/dataset.schema.yaml` and `contracts/injection.schema.yaml`
-- [~] T008 Configure error handling for data corruption and download failures (fail fast)
-- [~] T009 [P] Setup environment configuration for CPU-only execution constraints, explicitly mandating the prohibition of model quantization and GPU acceleration in the pipeline logic (FR-006)
+- [X] T004 Create directory structure: `data/raw/`, `data/processed/`, `code/`, `tests/`, `specs/`
+- [~] T005 [P] Implement `code/config.py` for path configuration, random seeds, and hyperparameters (200ms-2000ms bounds)
+- [~] T006 [P] Setup logging infrastructure with file handlers and warning filters for edge cases
+- [~] T007 [P] Implement `code/synthetic/tts_engine.py` (FR-011) as a fallback for missing EVA-Bench audio using Coqui TTS with known characteristics; simultaneously document 'known characteristics' (model version, prosody settings, seed) in `docs/tts_characteristics.md` to satisfy FR-011 reproducibility constraints; Output: `code/synthetic/tts_engine.py` and `docs/tts_characteristics.md`
+- [~] T008 Create `data/checksums.json` schema and initialization script; schema must be `{"files": [{"path": "string", "sha256": "string"}]}`; script must initialize empty `{"files": []}`; Output: `data/checksums.json`
+- [~] T009 Implement `code/main.py` orchestration skeleton with argument parsing for perturbation types [UNRESOLVED-CLAIM: c_6888dec5 — status=not_enough_info]
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,20 +76,18 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [~] T010 [P] [US1] Unit test for silence insertion logic in `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/tests/test_injection.py` <!-- FAILED: unspecified -->
-- [~] T011 [P] [US1] Integration test for pipeline execution on modified audio in `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/tests/test_pipeline.py`
+- [~] T010 [P] [US1] Define unit test for `LatencyInjector` gap insertion logic in `tests/unit/test_latency.py` (Write code that asserts failure if class missing)
+- [~] T011 [P] [US1] Define unit test for chunked processing memory limits in `tests/unit/test_latency.py`
+- [~] T012 [P] [US1] Define integration test for 800ms fixed delay scenario in `tests/integration/test_latency_pipeline.py`
+- [~] T013 [P] [US1] Define integration test for ±50ms jitter variability in `tests/integration/test_latency_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `latency_injector.py` in `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/processing/` using `pydub` to insert silence at turn boundaries
-- [ ] T013 [US1] Implement `pipeline_runner.py` in `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/processing/` to re-execute EVA-Bench scoring on modified audio
-- [ ] T014 [US1] Add validation in `latency_injector.py` to ensure original speech content is bit-identical (hash check) (Part 1 of SC-001)
-- [ ] T015 [US1] Add validation in `latency_injector.py` to measure the injected silence duration against the ±10ms tolerance threshold (Part 2 of SC-001)
-- [ ] T016 [US1] Implement batch processing loop for a **smoke test** on a **10-scenario subset** with the full latency sweep (200ms-2000ms) and verify CPU tractability < 360s (US-1 Acceptance 3)
-- [ ] T017 [US1] Implement batch processing loop for the **full dataset** (213 scenarios) with the full latency sweep (200ms-2000ms) and verify CPU tractability < 6 hours (FR-007, SC-004)
-- [ ] T018 [US1] Add logging for injected delays and pipeline execution status
+- [~] T014 [US1] Implement `code/injectors/latency.py`: `LatencyInjector` class with `librosa.stream` for chunked I/O
+- [~] T015 [US1] Implement turn-boundary detection logic in `code/injectors/latency.py`; Input: `data/processed/turn_boundaries.csv`; Algorithm: If gap overlaps audio > 10ms, shift boundary to nearest silence > 50ms [UNRESOLVED-CLAIM: c_c51f6117 — status=not_enough_info]; Output: Updated turn boundaries <!-- FAILED: unspecified -->
+- [~] T016 [US1] Implement duration validation and truncation logic in `code/injectors/latency.py`; MUST enforce a strict maximum duration limit as defined in Spec Edge Cases.; truncate audio if exceeded, log warning, and record score as `null`; Output: Updated audio files and logs
+- [~] T017 [US1] Create `code/injectors/__init__.py` exports
+- [ ] T018 [US1] Add deterministic jitter generation using seeded `numpy.random`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,12 +106,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `stats_models.py` in `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/analysis/` for repeated-measures ANOVA (FR-003)
-- [ ] T022 [US2] Implement piecewise regression logic in `stats_models.py` to detect inflection points in "Conversation Progression" scores (FR-004)
-- [ ] T023 [US2] Implement logic to flag score drops ≥ 15% between adjacent latency steps
-- [ ] T024 [US2] Implement fallback to linear regression if piecewise model fails to converge; explicitly calculate and report the confidence interval for the "No distinct threshold detected" status (SC-002)
-- [ ] T025 [US2] Implement sensitivity analysis: sweep decision cutoff ±50ms around identified threshold and generate `results/sensitivity_analysis.csv` and `results/sensitivity_plot.png` (SC-005)
-- [ ] T026 [US2] Ensure full analysis completes within 45 minutes on CPU (optimize batch sizes if needed)
+- [ ] T027 [US2] Implement `code/evaluation/runner.py`: Wrapper to execute original EVA-Bench scoring on perturbed files; Requires: T014-T018, T021-T024
+- [ ] T028 [US2] Implement metric extraction logic for "Turn-Taking" and "Conversation Progression" sub-metrics
+- [ ] T029 [US2] Implement floor-effect handling (skip delta if baseline is 0) with logging
+- [ ] T029b [US2] Calculate delta (Δ) between baseline and perturbed scores for each scenario; Input: `data/processed/results.csv` containing `scenario_id` and `system_id` columns; Output: Append rows to `data/processed/results.csv` with columns `scenario_id`, `system_id`, `metric`, `baseline`, `perturbed`, `delta`; Ensures hierarchical structure for LMM; Requires: T027, T028
+- [ ] T029c [US2] Calculate and aggregate system-level deltas to ensure hierarchical structure for LMM as required by FR-003; Input: `data/processed/results.csv` (output of T029b); Output: Ensure `results.csv` includes `system_id` grouping for LMM; Requires: T029b
+- [ ] T030 [US2] Implement `code/analysis/metric_check.py`: Validate "Turn-Taking" definition for tautology risk (FR-010); Output: Write boolean flag `is_tautology` to `data/processed/metric_validation.json`
+- [ ] T030b [US2] Implement logic to adjust the analysis based on the tautology flag from T030; If `is_tautology` is true, switch to a non-tautological proxy metric or flag the result as invalid per FR-010; Output: Update `data/processed/metric_validation.json` with adjustment details; Requires: T030
+- [ ] T031 [US2] Create `data/processed/results.csv` schema and writer for aggregated scores
+- [ ] T032 [US2] Implement parallel execution logic in `code/main.py` to process 213 scenarios within 6h limit [UNRESOLVED-CLAIM: c_f42c7bc6 — status=not_enough_info]; Requires: T014-T018, T021-T024
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,12 +133,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `comparison.py` in `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/analysis/` to re-run the original EVA-Bench pipeline on the **identical scenario subset** used in the latency sweep (US1/US2) with acoustic perturbations to generate the acoustic baseline artifact (FR-005)
-- [ ] T030 [US3] Implement normalized degradation curve generation (score vs. delay) and (score vs. SNR) using the generated baseline
-- [ ] T031 [US3] Implement Area Under the Curve (AUC) calculation for both curves and difference reporting
-- [ ] T032 [US3] Perform statistical comparison (interaction test or t-test) between the latency failure point and the acoustic noise failure point to validate distinctness (FR-008)
-- [ ] T033 [US3] Generate final report with explicit "Distinct Failure Mode" conclusion based on the specific interaction test or t-test results (SC-003)
-- [ ] T034 [US3] Visualize degradation curves using `matplotlib`/`seaborn` for final paper inclusion
+- [ ] T036a [US3] Document deviation from Spec FR-005 (Segmented Regression) to Isotonic Regression; Cite Plan's Complexity Tracking rationale (sparse data); Output: `docs/method_deviation_report.md`; Requires: T036
+- [ ] T036 [US3] Implement `code/analysis/isotonic.py`: Primary threshold detection using Isotonic Regression; **Note**: This task implements Isotonic Regression *instead* of the Segmented Regression mandated by Spec FR-005, as justified in the Plan's Complexity Tracking due to sparse data; Output: `data/processed/statistical_report.json` with knee point; Requires: T038
+- [ ] T036b [US3] Derive and report 'slope ratio' equivalent from Isotonic model to satisfy SC-003; Output: Add 'slope_ratio' field to `data/processed/statistical_report.json`; Requires: T036
+- [ ] T037 [US3] Implement `code/analysis/lmm.py`: Piecewise Linear Mixed-Effects Model (PLMM) for secondary check [UNRESOLVED-CLAIM: c_dd0cb010 — status=not_enough_info]; Requires: T038
+- [ ] T038 [US3] Implement delta calculation logic ($\Delta$) between baseline and perturbed scores; Aggregate per-system deltas from `data/processed/results.csv` (output of T029c) for regression input; Requires: T029c (output file)
+- [ ] T039 [US3] Implement multiple-comparison correction (Bonferroni/Holm) for p-values
+- [ ] T040 [US3] Implement sensitivity analysis for knee point stability: Sweep the **decision cutoff** parameter of the threshold model over [750, 800, 850]ms (±50ms sweep) to verify stability as required by SC-005; Output: `data/processed/sensitivity.json`; Requires: T036
+- [ ] T041 [US3] Implement comparative analysis logic (Latency vs. Acoustic interaction effects)
+- [ ] T041b [US3] Generate final comparative report artifact (`data/processed/comparative_report.json`) satisfying FR-009 and SC-006; Requires: T029c, T041
+- [ ] T042 [US3] Generate final `data/processed/statistical_report.json` with knee points, slopes, and p-values
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -159,10 +166,11 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **User Stories (Phase 3, 4, 5, 6)**: All depend on Foundational phase completion
+ - US1 (P1) and US4 (P4) can run in parallel as they are independent data generation steps
+ - US2 (P2) depends on US1/US4 completion (needs perturbed files)
+ - US3 (P3) depends on US2 completion (needs scores)
+- **Polish (Phase 7)**: Depends on all user stories being complete
 
 ### User Story Dependencies
 
@@ -227,10 +235,12 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+ - Developer A: User Story 1 (Latency)
+ - Developer B: User Story 4 (Acoustic)
+3. Once US1/US4 done:
+ - Developer C: User Story 2 (Evaluation)
+4. Once US2 done:
+ - Developer D: User Story 3 (Analysis)
 
 ---
 
@@ -242,5 +252,6 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI (no CUDA/GPU, no 8-bit quantization)
+- **Critical Constraint**: All audio processing must use `librosa.stream` to stay within 7GB RAM limits [UNRESOLVED-CLAIM: c_7d83bbdf — status=not_enough_info].
+- **Critical Constraint**: {{claim:c_52ef3759}} (Wikidata Q5099853, https://www.wikidata.org/wiki/Q5099853).
+- **Critical Constraint**: Synthetic audio (FR-011) is a fallback only; real EVA-Bench data is preferred.

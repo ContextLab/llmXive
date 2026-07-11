@@ -5,7 +5,30 @@
   cited_title: null
   fetched_title: eva_bench_csm_airline.jsonl
   kind: url
-  value: https://huggingface.co/datasets/ServiceNow-AI/eva-bench/resolve/main/data/eva_bench_csm_airline.jsonl`
+  value: https://github.com/eva-bench/eva-bench/releases/download/v1.0.0/data.zip`
+  verification_status: mismatch
+  verified_against_url: https://github.com/eva-bench/eva-bench/releases/download/v1.0.0/data.zip
+  verified_at: '2026-07-11T20:42:43.757079Z'
+- artifact_hash: 9f42615832bfaee70ccc50f2e11da453c35c50a6f4801d781bf215a055fba610
+  artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/docs/tts_characteristics.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - coqui-ai/TTS: \U0001F438\U0001F4AC - a deep learning toolkit\
+    \ for Text-to-Speech, battle-tested in research and production \xB7 GitHub"
+  kind: url
+  value: https://github.com/coqui-ai/TTS
   verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ServiceNow-AI/eva-bench/ab189dd1d0e834d205239e1493c089d0e95f7dda/data%2Feva_bench_csm_airline.jsonl?%2Fdatasets%2FServiceNow-AI%2Feva-bench%2Fresolve%2Fmain%2Fdata%2Feva_bench_csm_airline.jsonl=&etag=%2223d52f627670782eccd6c13da6773b1cd356d9f3%22
-  verified_at: '2026-07-11T20:57:50.902795Z'
+  verified_against_url: https://github.com/coqui-ai/TTS
+  verified_at: '2026-07-11T21:39:10.751012Z'
+- artifact_hash: 3292eeb367a061a2e5e62dde02d70c8444f6c14c4201bf4dbded172a1e4f097a
+  artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: China Pharmaceutical University - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q5099853
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q5099853
+  verified_at: '2026-07-11T22:13:33.802459Z'

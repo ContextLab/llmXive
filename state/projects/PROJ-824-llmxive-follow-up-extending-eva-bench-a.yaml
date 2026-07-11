@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-824-llmxive-follow-up-extending-eva-bench-a
-last_run_id: ad3f36da-7384-44e8-a6dd-43e79f3d7a67
+last_run_id: 2a606c77-d755-4209-adf4-c5c8119bd580
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a
 title: 'llmXive follow-up: extending "EVA-Bench: A New End-to-end Framework for Evaluating
   Voice Agents"'
-updated_at: '2026-07-11T21:20:54.386026Z'
+updated_at: '2026-07-11T21:46:25.713113Z'
