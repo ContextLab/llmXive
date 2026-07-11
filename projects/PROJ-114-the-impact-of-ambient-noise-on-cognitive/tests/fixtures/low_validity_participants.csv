@@ -1,0 +1,5 @@
+participant_id,valid_hours_ratio,task_completion_rate,decibel_level,noise_sensitivity_score
+P_LOW_01,0.50,0.60,40,1
+P_LOW_02,0.75,0.85,50,3
+P_LOW_03,0.60,0.88,60,5
+P_OK_01,0.95,0.98,45,2

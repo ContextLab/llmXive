@@ -1,0 +1,11 @@
+- artifact_hash: 8742429e9f15a27bf9dbd009362926a661bbf7c89ed7b0e837eaac52d3ba7cd1
+  artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv
+  fetched_title: final_turk_with_scores.csv
+  kind: url
+  value: https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/mdcgp/mturk_scores/76502273e6b60b218492e2ea43e8ba9aaff3ce39/final_turk_with_scores.csv?%2Fdatasets%2Fmdcgp%2Fmturk_scores%2Fresolve%2Fmain%2Ffinal_turk_with_scores.csv=&etag=%22a455fafc08f8f66ec7c0d2452ccb9adfe4aad1a9%22
+  verified_at: '2026-07-11T07:47:10.737970Z'

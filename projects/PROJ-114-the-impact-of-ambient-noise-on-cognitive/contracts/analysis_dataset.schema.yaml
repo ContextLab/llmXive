@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Dataset Schema
+description: Schema for the preprocessed dataset used in statistical analysis (data/processed/analysis_dataset.parquet).
+type: object
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant.
+  avg_noise_db:
+    type: number
+    description: Average ambient noise level in decibels for the participant.
+  noise_std_db:
+    type: number
+    description: Standard deviation of ambient noise levels (variability).
+  noise_level:
+    type: string
+    enum:
+      - Low
+      - Moderate
+      - High
+    description: Categorical bin based on avg_noise_db thresholds defined in config.
+  noise_sensitivity_score:
+    type: number
+    description: Self-reported noise sensitivity score from the participant survey.
+  reaction_time_mean:
+    type: number
+    description: Mean reaction time (ms) after log-transformation and outlier removal.
+  reaction_time_std:
+    type: number
+    description: Standard deviation of reaction times (ms).
+  task_completion_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Proportion of valid task attempts completed by the participant.
+  valid_logging_hours_pct:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Percentage of logged hours that met validity criteria.
+  cognitive_flexibility_score:
+    type: number
+    description: Derived metric for cognitive flexibility (e.g., switch cost).
+required:
+  - participant_id
+  - avg_noise_db
+  - noise_std_db
+  - noise_level
+  - noise_sensitivity_score
+  - reaction_time_mean
+  - reaction_time_std
+  - task_completion_rate
+  - valid_logging_hours_pct
+  - cognitive_flexibility_score
+additionalProperties: false

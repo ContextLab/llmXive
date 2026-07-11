@@ -1,0 +1,16 @@
+participant_id,noise_level_db,task_completion_rate,valid_logging_hours,reaction_time_ms,noise_sensitivity_score,task_type
+P001,45.2,0.95,18.5,450,2.1,switch
+P001,46.1,0.95,18.5,465,2.1,repeat
+P001,52.3,0.95,18.5,480,2.1,switch
+P002,38.5,0.88,16.0,420,3.5,switch
+P002,39.0,0.88,16.0,435,3.5,repeat
+P002,65.0,0.88,16.0,510,3.5,switch
+P003,72.0,0.92,19.0,550,1.2,switch
+P003,71.5,0.92,19.0,540,1.2,repeat
+P003,73.0,0.92,19.0,560,1.2,switch
+P004,42.0,0.75,10.0,410,4.0,switch
+P004,43.0,0.75,10.0,425,4.0,repeat
+P004,44.0,0.75,10.0,430,4.0,switch
+P005,50.0,0.98,20.0,400,2.5,switch
+P005,51.0,0.98,20.0,415,2.5,repeat
+P005,50.5,0.98,20.0,1500,2.5,switch

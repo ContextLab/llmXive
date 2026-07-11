@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Dataset Schema"
+description: "Schema for the merged dataset used in the Linear Mixed-Effects Model (FR-004)."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  trial_type:
+    type: string
+    enum: ["switch", "repeat"]
+    description: "Type of trial in the task-switching battery."
+  test_time:
+    type: string
+    enum: ["baseline", "final"]
+    description: "Timepoint of the test."
+  reaction_time_ms:
+    type: number
+    description: "Raw reaction time in milliseconds."
+  normalized_rt:
+    type: number
+    description: "Log-transformed reaction time after outlier removal."
+  avg_noise_db:
+    type: number
+    description: "Average ambient noise level in dB for the participant."
+  noise_bin:
+    type: string
+    enum: ["Low", "Moderate", "High"]
+    description: "Categorized noise level: Low (≤44.9), Moderate (45.0–64.9), High (≥65.0)."
+  noise_std:
+    type: number
+    description: "Standard deviation of noise levels (hourly variability)."
+  is_excluded:
+    type: boolean
+    description: "Flag indicating if the participant was excluded due to low data quality."
+required:
+  - participant_id
+  - trial_type
+  - test_time
+  - reaction_time_ms
+  - normalized_rt
+  - avg_noise_db
+  - noise_bin
+  - noise_std
+  - is_excluded
+additionalProperties: false

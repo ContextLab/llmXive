@@ -1,0 +1,7 @@
+T001 Create project structure per implementation plan (`projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/`): 1
+? T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scikit-learn`, `statsmodels`,
+  `scipy`, `pyyaml`, `snakemake`, `pytest` dependencies in `requirements.txt`
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+T004 [P] Setup `Snakefile` workflow orchestration: 1
+'T005 [P] Create data directory structure: `data/raw/`, `data/processed/`, `data/results/`': 1

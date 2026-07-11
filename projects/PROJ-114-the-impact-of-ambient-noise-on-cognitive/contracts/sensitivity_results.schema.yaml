@@ -1,0 +1,41 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Sensitivity Results Schema
+description: Schema for the robustness and sensitivity analysis results (data/results/sensitivity_results.parquet).
+type: object
+properties:
+  analysis_type:
+    type: string
+    enum:
+      - final_score_only
+      - threshold_sweep
+      - exclude_extreme_sensitivity
+    description: Type of sensitivity analysis performed.
+  threshold_low_db:
+    type: number
+    description: Lower noise threshold used (for sweep analyses). Null for other types.
+  threshold_high_db:
+    type: number
+    description: Upper noise threshold used (for sweep analyses). Null for other types.
+  participants_excluded_count:
+    type: integer
+    description: Number of participants excluded in this specific run.
+  significance_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Proportion of runs/models where the quadratic term was significant.
+  quadratic_coeff_mean:
+    type: number
+    description: Mean value of the quadratic coefficient across the sweep.
+  quadratic_coeff_std:
+    type: number
+    description: Standard deviation of the quadratic coefficient across the sweep.
+  headline_metric:
+    type: number
+    description: Primary metric of interest for this sensitivity check (e.g., retention rate or effect size).
+required:
+  - analysis_type
+  - participants_excluded_count
+  - significance_rate
+  - headline_metric
+additionalProperties: false

@@ -1,0 +1,81 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: Schema for the output of the linear mixed-effects model analysis (data/results/model_results.parquet).
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - linear
+      - quadratic
+    description: Type of model fitted (linear vs. quadratic noise term).
+  fixed_effects:
+    type: object
+    description: Dictionary of fixed effect coefficients.
+    properties:
+      Intercept:
+        type: number
+      avg_noise_db:
+        type: number
+      avg_noise_db_sq:
+        type: number
+        description: Coefficient for the quadratic term (noise^2).
+      noise_std_db:
+        type: number
+    required:
+      - Intercept
+      - avg_noise_db
+      - avg_noise_db_sq
+      - noise_std_db
+  random_effects_variance:
+    type: number
+    description: Variance of the random intercepts for participants.
+  p_value_quadratic:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: P-value for the quadratic term significance test.
+  lrt_p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: P-value from the Likelihood Ratio Test comparing linear vs. quadratic models.
+  cohen_f_squared:
+    type: number
+    description: Effect size (Cohen's f²) for the model.
+  tukey_comparisons:
+    type: array
+    description: Array of pairwise comparisons from Tukey HSD test on noise_level bins.
+    items:
+      type: object
+      properties:
+        group1:
+          type: string
+        group2:
+          type: string
+        mean_diff:
+          type: number
+        p_adj:
+          type: number
+          description: Adjusted p-value for multiple comparisons.
+        significant:
+          type: boolean
+      required:
+        - group1
+        - group2
+        - mean_diff
+        - p_adj
+        - significant
+  convergence_status:
+    type: integer
+    description: Convergence status code from the model fitting algorithm (0 = success).
+required:
+  - model_type
+  - fixed_effects
+  - random_effects_variance
+  - p_value_quadratic
+  - lrt_p_value
+  - cohen_f_squared
+  - tukey_comparisons
+  - convergence_status
+additionalProperties: false

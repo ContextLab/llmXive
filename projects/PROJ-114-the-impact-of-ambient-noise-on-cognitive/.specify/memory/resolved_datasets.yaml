@@ -1,0 +1,77 @@
+resolved_at: '2026-07-11T07:36:55.937918+00:00'
+datasets:
+- intent: MTurk
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mdcgp/mturk_scores/resolve/main/final_turk_with_scores.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/conference_contribution/From_Availability_to_Impact_Evaluating_How_Digital_Dementia_Risk-Reduction_Education_Influences_Engagement_Interpretation_and_Behaviour_in_Unimpaired_Midlife_Adults/32963144
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplemental_information/32963117
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset/29993815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_material/29994226
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_Deep_Sinus_Automated_Segmentation_and_Multi-Label_Classification_of_Paranasal_Sinus_CT_Scans_Using_an_End-to-End_Deep_Learning_Framework_b_/32955809
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6609241
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4972373
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15040001
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2789239
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10461539
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/WTR/21151513/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/WTR/21151513
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/m2asr/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/9qcpj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/pz3t7/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

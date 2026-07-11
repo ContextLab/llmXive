@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-ambient-noise"
+version = "0.1.0"
+description = "Impact of Ambient Noise on Cognitive Flexibility in Remote Workers"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "statsmodels",
+    "scipy",
+    "pyyaml",
+    "snakemake",
+    "pytest",
+    "ruff",
+    "black",
+]
+
+[tool.ruff]
+extend = "code/ruff.toml"
+src = ["code"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

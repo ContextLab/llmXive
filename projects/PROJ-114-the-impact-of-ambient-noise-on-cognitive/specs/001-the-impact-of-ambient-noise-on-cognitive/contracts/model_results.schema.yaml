@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for the primary LMM and sensitivity analysis results (FR-004, FR-006)."
+type: object
+properties:
+  model_type:
+    type: string
+    enum: ["linear", "quadratic"]
+    description: "Type of model fitted."
+  fixed_effects:
+    type: object
+    description: "Coefficients and statistics for fixed effects."
+    properties:
+      Avg_Noise:
+        type: object
+        properties:
+          estimate: { type: number }
+          std_error: { type: number }
+          p_value: { type: number }
+          ci_lower: { type: number }
+          ci_upper: { type: number }
+      Avg_Noise_Squared:
+        type: object
+        properties:
+          estimate: { type: number }
+          std_error: { type: number }
+          p_value: { type: number }
+          ci_lower: { type: number }
+          ci_upper: { type: number }
+      Noise_Std:
+        type: object
+        properties:
+          estimate: { type: number }
+          std_error: { type: number }
+          p_value: { type: number }
+          ci_lower: { type: number }
+          ci_upper: { type: number }
+    required:
+      - Avg_Noise
+      - Noise_Std
+  random_effects:
+    type: object
+    description: "Variance components for random effects."
+    properties:
+      Participant_ID:
+        type: object
+        properties:
+          variance: { type: number }
+          std_dev: { type: number }
+  model_fit:
+    type: object
+    description: "Overall model fit statistics."
+    properties:
+      log_likelihood: { type: number }
+      aic: { type: number }
+      bic: { type: number }
+      convergence: { type: boolean }
+  post_hoc:
+    type: array
+    description: "Tukey HSD pairwise comparisons."
+    items:
+      type: object
+      properties:
+        comparison: { type: string }
+        estimate: { type: number }
+        p_value: { type: number }
+        p_value_adjusted: { type: number }
+  sensitivity_sweep:
+    type: array
+    description: "Results from the threshold sensitivity analysis (FR-006)."
+    items:
+      type: object
+      properties:
+        low_threshold: { type: number }
+        high_threshold: { type: number }
+        quadratic_significant: { type: boolean }
+        p_value_quadratic: { type: number }
+required:
+  - model_type
+  - fixed_effects
+  - random_effects
+  - model_fit
+  - convergence
+additionalProperties: false
