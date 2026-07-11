@@ -96,7 +96,7 @@ As a researcher, I need to perform phylogenetically-aware permutation testing an
 ## Assumptions
 
 - The NCBI Pathogen Detection and CARD databases contain sufficient *E. coli* isolates with paired genomic sequences and antibiotic susceptibility data to form a dataset of ≥ 1000 samples after filtering.
-- The dataset variables (SNPs, gene presence, copy numbers) are sufficient to explain the variance in resistance phenotypes; if the dataset lacks specific variables (e.g., plasmid copy number not in metadata), the analysis will be limited to available features, and a `[NEEDS CLARIFICATION]` marker will be added if a critical variable is missing.
+- The critical variables for the model are defined as chromosomal SNPs and canonical resistance gene presence. If plasmid copy number data is missing from the source metadata, the system MUST proceed with chromosomal features only and log warning W003 ("Plasmid data missing; proceeding with chromosomal features only").
 - The analysis is observational; therefore, all findings will be framed as associational rather than causal, as no random assignment of mutations is performed.
 - The free-tier GitHub Actions runner (2 CPU, 7 GB RAM) is sufficient to process ≤ 5000 isolates using scikit-learn and standard statistical tools without GPU acceleration.
 - The `Snippy` and `ARIBA` tools are available in the environment or can be installed via standard package managers without requiring proprietary licenses or heavy dependencies.
