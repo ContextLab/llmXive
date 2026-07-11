@@ -1,81 +1,139 @@
 # Implementation Plan: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
-**Branch**: `001-visual-salience-moral-judgment` | **Date**: 2024-05-21 | **Spec**: `spec.md`
+**Branch**: `001-visual-salience-moral-judgments` | **Date**: 2024-05-21 | **Spec**: [link]
+**Input**: Feature specification from `/specs/001-the-influence-of-visual-salience-on-mora/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to investigate whether increasing the visual salience of non-causal elements in morally ambiguous scenarios shifts blame judgments. The approach involves:
-1.  **Stimulus Generation**: Downloading a large subset of COCO images, applying a rigorous **Human Annotation Pipeline** to identify morally ambiguous scenarios and isolate non-causal objects, and programmatically manipulating contrast/brightness (low/medium/high) while preserving semantic content.
-2.  **Data Collection**: A **between-subjects** survey interface (Python/Flask for local testing, static HTML/JS for production deployment) to present stimuli. Each participant views only ONE salience level of a scenario to eliminate demand characteristics.
-3.  **Statistical Analysis**: **One-way ANOVA** (between-subjects) and **Generalized Linear Mixed Models (GLMM)** with ordinal link functions to test the main effect of salience on blame ratings, with Bonferroni-corrected post-hoc tests, power analysis, and effect size estimation (ηp²) using CPU-tractable libraries (`scipy`, `statsmodels`, `pingouin`).
+This project implements a computational pipeline to investigate the influence of visual salience on moral judgments. The system ingests open visual datasets, programmatically manipulates luminance contrast/brightness in target regions to create low/medium/high salience variants (preserving semantic content), and deploys a within-subject survey to collect blame ratings. 
+
+**Critical Methodological Update**: The core analysis utilizes a **Linear Mixed-Effects Model (LMM)** rather than a simple repeated-measures ANOVA. This choice is driven by the nested data structure (responses nested within scenarios and participants). An LMM with random intercepts for `Scenario` and `Participant` correctly accounts for potential variability in salience effects across different scenarios, preventing biased estimates that a standard ANOVA might produce.
+
+The implementation is strictly constrained to CPU-only execution (GitHub Actions free tier) to ensure reproducibility and feasibility.
+
+**Critical Note**: This project distinguishes between **Pipeline Validation** (verifying the code can detect effects using synthetic data) and **Scientific Validation** (testing the hypothesis using real data). The current phase focuses on establishing a robust, validated pipeline. The scientific hypothesis regarding salience and blame requires real empirical data collection (Phase 2/3), which is external to the CI validation loop.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `opencv-python`, `Pillow`, `pandas`, `numpy`, `scipy`, `statsmodels`, `pingouin`, `flask` (local testing), `pytest`  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/survey_responses`)  
-**Testing**: `pytest` (unit tests for image stats, integration tests for survey flow, **validation tests for stimulus-response linkage**)  
-**Target Platform**: GitHub Actions Free Tier (multi-core CPU, moderate RAM, CPU-only)  
-**Project Type**: Computational Psychology / Experimental Pipeline  
-**Performance Goals**: Stimulus generation < 10 mins for 50 scenarios (after human filtering); Analysis < 10 mins on full dataset.  
-**Constraints**: Must run on CPU-only CI; no GPU; memory usage < 6GB during processing; no PII storage.  
-**Scale/Scope**: A subset of initial COCO images → A sufficient number of valid scenarios × salience levels = A set of stimuli; Target N participants [deferred] for power ≥ 0.80 (assuming small effect size f=0.15).
+**Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `scipy`, `statsmodels`, `Pillow`, `requests`, `matplotlib`, `seaborn`, `statsmodels` (for LMM via `mixedlm`)  
+**Storage**: Local file system (CSV/Parquet for data, PNG/JPG for stimuli)  
+**Testing**: `pytest` (unit tests for data manipulation, integration tests for pipeline flow, sensitivity tests for analysis)  
+**Target Platform**: Linux (GitHub Actions Runner)  
+**Project Type**: Research pipeline / Computational psychology experiment  
+**Performance Goals**: Complete data processing and analysis within 6 hours on 2 CPU cores, 7 GB RAM.  
+**Constraints**: No GPU usage; no deep learning models for inference (only lightweight image processing); dataset subset to fit RAM; all random seeds pinned.  
+**Scale/Scope**: ~20 scenarios (post-verification), 3 variants each (60 stimuli), ~150 participants (pilot N=10, full study later).
 
-> Empirical specifics (exact N, effect sizes) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Compliance Strategy |
-|-----------|--------|---------------------|
-| **I. Reproducibility** | PASS | All code in `code/` with pinned `requirements.txt`. Random seeds fixed in `config.py`. External data fetched from verified HuggingFace URLs. |
-| **II. Verified Accuracy** | PASS | **Reference-Validator Agent** will run on all dataset citations before the research phase begins. All citations restricted to verified COCO URLs. |
-| **III. Data Hygiene** | PASS | Raw data (COCO) stored read-only. Manipulated stimuli written to `data/processed` with checksums. Survey responses appended to new files. |
-| **IV. Single Source of Truth** | PASS | All statistics generated by `code/analysis.py` and imported into `paper/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | PASS | **Advancement-Evaluator Agent** will update `state/` YAML `updated_at` timestamps. Artifact hashes tracked in `state/`. Content hashes used for stimulus versions. |
-| **VI. Stimulus-Control Integrity** | PASS | Manipulation scripts use explicit, versioned parameters for contrast/brightness. Pixel-level similarity (SSIM) and **Edge Discontinuity Score** enforced to ensure non-target regions are unchanged and target manipulation is natural. |
-| **VII. Behavioral Response Validation** | PASS | **Validation tests** in `tests/` explicitly verify the linkage between `user_id`, `stimulus_id`, and `blame_rating` to prevent circularity. Response data schema strictly links these fields. |
+| Principle | Status | Verification Strategy |
+|-----------|--------|----------------------|
+| **I. Reproducibility** | **PASS** | All code in `code/` will use pinned `requirements.txt` and explicit random seeds (`np.random.seed`, `random.seed`). External datasets will be fetched via verified URLs or loaders. |
+| **II. Verified Accuracy** | **PENDING** | **Block**: Must find a verified URL for the image dataset in Phase 0.1. If no verified URL exists, the project halts. |
+| **III. Data Hygiene** | **PASS** | Raw data (source images) will be checksummed. Manipulated images will be saved as new files with versioned filenames. No in-place modification. |
+| **IV. Single Source of Truth** | **PASS** | All statistical outputs (coefficients, p-values) will be generated by `code/` and written to `data/`. The paper will read from these files, not hand-type numbers. |
+| **V. Versioning Discipline** | **PASS** | Phase 0.1 includes a 'Versioning Workflow' step to update `state/` YAML with content hashes upon artifact changes. |
+| **VI. Stimulus-Control Integrity** | **PASS** | Salience manipulation will be strictly limited to luminance/contrast parameters in `code/`. Semantic preservation will be verified via object detection metrics (IoU) as per FR-001. |
+| **VII. Behavioral Response Validation** | **PASS** | Survey data schema will explicitly link `participant_id`, `stimulus_id`, `salience_level`, and `rating`. **Circularity checks** will verify predictor and predicted variables originate from distinct sources (stimulus design vs. behavioral response). |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-visual-salience-moral-judgment/
+specs/001-visual-salience-moral-judgments/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-507-the-influence-of-visual-salience-on-mora/
-├── code/
-│   ├── __init__.py
-│   ├── config.py            # Seeds, paths, constants
-│   ├── dataset_loader.py    # Fetches COCO, filters scenarios
-│   ├── annotation_pipeline.py # Human-in-the-loop curation logic
-│   ├── stimulus_gen.py      # Image manipulation (contrast/brightness)
-│   ├── survey_server.py     # Flask app for local testing
-│   └── analysis.py          # ANOVA, GLMM, power analysis, plotting
 ├── data/
-│   ├── raw/                 # Downloaded COCO metadata (checksummed)
-│   ├── processed/           # Generated stimuli (manifest + images)
-│   └── survey_responses/    # Raw CSV/JSON from participants
+│   ├── raw/                  # Source images (subset)
+│   ├── processed/            # Manipulated stimuli (low/med/high)
+│   └── survey/               # Collected response data
+├── code/
+│   ├── requirements.txt
+│   ├── data_prep.py          # Ingest, filter, manipulate (FR-001, FR-008)
+│   ├── human_coding.py       # Pilot human coding workflow (FR-008)
+│   ├── survey_sim.py         # Simulate survey data for testing (FR-002, FR-003)
+│   ├── survey_deploy.py      # Pilot survey deployment (FR-002)
+│   ├── analysis.py           # LMM, corrections, effect sizes (FR-004, FR-005, FR-006)
+│   ├── validation.py         # Check manipulation success (SC-001)
+│   └── tasks.py              # Generated task list (Phase 2 output)
 ├── tests/
-│   ├── test_stimulus_gen.py
-│   ├── test_analysis.py
-│   └── test_linkage_validation.py # Validates Principle VII
-└── requirements.txt
+│   ├── unit/
+│   └── integration/
+└── docs/
+    └── paper_draft.md
 ```
 
-**Structure Decision**: Single-project structure selected to minimize overhead. `code/` contains all logic; `data/` is strictly separated into raw (immutable) and processed (derived). This aligns with Constitution Principle III (Data Hygiene).
+**Structure Decision**: Selected Option 1 (Single project structure) adapted for a research pipeline. The `data/` directory is split into `raw`, `processed`, and `survey` to enforce the "Data Hygiene" principle (no in-place modification). The `code/` directory contains distinct scripts for each major phase (Prep, Collection, Analysis) to ensure modularity and reproducibility. `tasks.md` is now generated as `code/tasks.py` in Phase 2 to avoid structural ambiguity.
 
 ## Complexity Tracking
 
-No complexity violations identified. The single-project structure is sufficient for the scope (image manipulation + survey + stats). The shift to a between-subjects design and GLMM analysis adds statistical complexity but remains within CPU-tractable limits.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **None** | The design strictly adheres to CPU constraints and avoids unnecessary complexity (e.g., no LLM-based image generation, no complex web framework for the survey in this phase; data is simulated or stored locally for the plan). | N/A |
+
+## Implementation Phases
+
+### Phase 0.1: Dataset Verification & Ingestion (FR-001)
+- **Task**: Locate a verified URL for a dataset containing morally ambiguous scenarios (e.g., Visual Genome subset, Moral Stories).
+- **Action**: If a verified URL is found in the `# Verified datasets` block, proceed. If not, generate a "Data Gap Report" and **halt** further stimulus generation.
+- **Action**: Expand the stimulus set to N > 20 scenarios with verified moral ambiguity.
+- **Output**: `data/raw/verified_dataset_info.json` containing the verified URL and checksum.
+
+### Phase 0.5: Human Coding Pilot (FR-008)
+- **Task**: Run a small-scale (N=10) human coding session using a local annotation tool.
+- **Action**: Calculate Cohen's kappa on real human annotations to verify inter-rater reliability (≥0.8).
+- **Output**: `data/processed/human_coding_results.csv` with kappa score and ambiguity labels.
+
+### Phase 1: Data Preparation & Salience Manipulation (FR-001)
+- **Task**: Programatically manipulate luminance contrast/brightness in target regions.
+- **Action**: Generate low, medium, high salience variants.
+- **Action**: Verify semantic preservation (SSIM/IoU).
+- **Output**: `data/processed/` directory with manipulated images.
+
+### Phase 2: Survey Deployment Pilot (FR-002, FR-003)
+- **Task**: Deploy a functional survey interface to a small group of real participants (N=10).
+- **Action**: Collect blame ratings and metadata.
+- **Output**: `data/survey/pilot_responses.csv` with real human data.
+
+### Phase 3: Statistical Analysis & Pipeline Validation (FR-004, FR-005, FR-006)
+- **Task**: Perform **Linear Mixed-Effects Model (LMM)** analysis.
+    - **Model**: `Rating ~ Salience + (1 | Participant) + (1 | Scenario)`
+    - **Fixed Effect**: Salience (3 levels: Low, Medium, High).
+    - **Random Effects**: Random intercepts for `Participant` and `Scenario` to account for nested data structure and scenario-specific variability.
+- **Action**: Apply Bonferroni correction for pairwise contrasts (Low vs Med, Med vs High, Low vs High).
+- **Action**: Calculate effect sizes and confidence intervals.
+- **Validation Strategy**:
+    - **Pipeline Validation (Synthetic)**: Run the analysis on synthetic datasets with *known* injected effects (Positive Control) and *no* effects (Null Control). This validates that the **pipeline correctly detects effects** and controls Type I error. **Note**: This does not validate the scientific hypothesis itself, only the robustness of the analysis code.
+    - **Scientific Validation (Real)**: The hypothesis that salience affects blame will be tested in Phase 2/3 using real participant data.
+- **Output**: `data/analysis/results.json` and a console report.
+
+### Phase 4: Validation & Reporting
+- **Task**: Run unit tests and validation scripts.
+- **Action**: Verify pipeline sensitivity (positive control) and Type I error control (null control).
+- **Output**: `tests/validation_report.md`.
+
+## Risks & Mitigations
+
+- **Risk**: No verified image dataset URL.
+    - **Mitigation**: Halt project. Do not proceed with unverified data.
+- **Risk**: "Human coding" cannot be performed in CI.
+    - **Mitigation**: Phase 0.5 explicitly includes a real human coding pilot task.
+- **Risk**: Real survey data collection is external.
+    - **Mitigation**: Phase 2.5 explicitly includes a real survey deployment pilot task.
+- **Risk**: Pipeline validation is circular.
+    - **Mitigation**: Use **Positive Control** (injected effect) and **Null Control** (no effect) synthetic datasets to validate sensitivity and specificity. Explicitly state that this validates the *pipeline*, not the *hypothesis*.

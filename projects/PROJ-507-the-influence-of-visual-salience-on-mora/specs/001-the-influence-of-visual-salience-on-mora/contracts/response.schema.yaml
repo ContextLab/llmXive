@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Response Schema"
+description: "Schema for a single participant response to a stimulus."
+type: "object"
+properties:
+  response_id:
+    type: "string"
+    description: "Unique identifier for the response."
+  participant_id:
+    type: "string"
+    description: "Anonymized participant ID."
+  stimulus_id:
+    type: "string"
+    description: "Foreign key to the stimulus variant."
+  blame_rating:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+    description: "Blame rating on a 1-7 Likert scale."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the response."
+required:
+  - "response_id"
+  - "participant_id"
+  - "stimulus_id"
+  - "blame_rating"
+  - "timestamp"
+additionalProperties: false

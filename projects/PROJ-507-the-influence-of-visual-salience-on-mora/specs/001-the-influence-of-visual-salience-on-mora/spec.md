@@ -1,97 +1,102 @@
 # Feature Specification: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
-**Feature Branch**: `001-visual-salience-moral-judgment`  
+**Feature Branch**: `001-visual-salience-moral-judgments`  
 **Created**: 2024-05-21  
 **Status**: Draft  
-**Input**: User description: "Does increasing the visual salience of non-causal elements in morally ambiguous simulated scenarios systematically shift participants' blame and responsibility judgments toward the visually highlighted party?"
+**Input**: User description: "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Ingestion and Salience Manipulation Pipeline (Priority: P1)
+### User Story 1 - Data Preparation and Salience Manipulation (Priority: P1)
 
-The system must load a curated, human-validated list of morally ambiguous scenarios from open visual datasets (e.g., Visual Genome, COCO), and programmatically generate variants with manipulated visual salience (low, medium, high) while preserving semantic content and perceptual realism.
+The system must ingest open visual datasets (e.g., Visual Genome), identify morally ambiguous images via a two-stage process (metadata filtering + human coding), and programmatically generate manipulated variants with controlled luminance contrast/brightness levels (low, medium, high) while preserving semantic content.
 
-**Why this priority**: This is the foundational step. Without a validated dataset of manipulated stimuli that are perceptually realistic, no survey can be deployed, and no empirical data can be collected. It directly enables the core research question.
+**Why this priority**: This is the foundational data layer. Without valid, controlled stimulus generation and verified ambiguity, no experimental data can be collected, and the research question cannot be addressed. It is the MVP for the research pipeline.
 
-**Independent Test**: A script can be run to process a sample of 5 images, generate 3 salience variants each, and output a manifest file linking original images to manipulated versions with verified pixel-level statistics (mean brightness, standard deviation, and SSIM) confirming the manipulation without semantic alteration or visible artifacts.
+**Independent Test**: Can be fully tested by running the data processing pipeline on a subset of 5 raw images. The test must verify: (1) the initial metadata filter correctly identifies candidates, (2) the human coding step correctly labels ambiguity with ≥80% inter-rater reliability (See FR-008), and (3) the output images show measurable pixel-level contrast/brightness changes in target regions without altering object identity or scene semantics, as verified by a secondary validation script.
 
 **Acceptance Scenarios**:
 
-1. **Given** a source image from the Visual Genome dataset annotated as a "traffic accident" and included in the curated list, **When** the manipulation script runs with "high salience" parameters on a non-causal object (e.g., a red traffic cone), **Then** the output image must show increased contrast/brightness on the target object while the semantic content (vehicle positions, road layout) remains visually identical to the original, and the file is saved with a unique ID.
-2. **Given** a set of [deferred] identified morally ambiguous scenarios, **When** the pipeline processes them, **Then** the system must output a CSV manifest containing the appropriate number of rows (scenarios × 3 salience levels) with columns for `scenario_id`, `salience_level`, `image_path`, and `pixel_stats`, ready for survey integration.
+1. **Given** a raw image from an open visual dataset (e.g., Visual Genome) with moral annotations, **When** the salience manipulation script is executed with "high" intensity parameters, **Then** the output image exhibits a statistically significant increase in local contrast/brightness in the target region compared to the original, while the semantic content (object labels, scene layout) remains unchanged.
+2. **Given** a set of 20 identified ambiguous scenarios, **When** the batch processing pipeline runs, **Then** Multiple manipulated variants (medium and high salience) are generated for each scenario, resulting in a total of 60 stimulus images ready for survey deployment.
 
 ---
 
 ### User Story 2 - Survey Deployment and Data Collection (Priority: P2)
 
-The system must deploy a survey interface where participants view the manipulated images and provide blame ratings on a 1-7 Likert scale, capturing the data in a structured format suitable for statistical analysis.
+The system must present the manipulated images to participants in a randomized within-subject design (See FR-002), collect blame ratings on a Likert scale, and store the responses in a structured format.
 
-**Why this priority**: This enables the collection of the dependent variable (blame judgments). While the data pipeline (US-1) creates the stimuli, this story captures the human response required to test the hypothesis.
+**Why this priority**: This enables the core data collection required to test the hypothesis. While dependent on US-001 for stimuli, it is the primary interface for generating the empirical evidence.
 
-**Independent Test**: A survey link can be generated and opened in a browser; a test user can view an image, select a rating, submit, and the system must record the response in a local JSON/CSV file with the correct `scenario_id`, `salience_level`, and `user_id`.
+**Independent Test**: Can be fully tested by running a pilot survey with a small cohort of test participants, verifying that each participant sees the randomized sequence of images, provides a valid rating, and that the data is correctly logged with participant ID, image ID, salience level, and rating.
 
 **Acceptance Scenarios**:
 
-1. **Given** a participant accessing the survey URL, **When** they view an image from the "medium salience" condition and select a rating of "5" on the 1-7 scale, **Then** the submission must record the response with a timestamp and link it to the specific image ID, ensuring no other data (e.g., demographic info) blocks the submission if the user chooses to remain anonymous.
-2. **Given** a dataset of [deferred] completed responses, **When** the data export function is triggered, **Then** the output file must contain exactly the expected number of rows with no missing values in the `blame_rating` or `salience_level` columns, formatted for import into standard statistical libraries (e.g., pandas, R).
+1. **Given** a deployed survey with 60 manipulated images, **When** a participant completes the survey, **Then** the system records a unique participant ID, the specific image ID shown, the salience level (low/medium/high), and the 1-7 blame rating without data loss or truncation.
+2. **Given** a participant who has already viewed a specific scenario at "low" salience, **When** they reach the next block for that scenario, **Then** the system presents the "medium" or "high" salience variant (never the same one twice) to ensure valid within-subject comparison.
 
 ---
 
 ### User Story 3 - Statistical Analysis and Reporting (Priority: P3)
 
-The system must execute a repeated-measures ANOVA to test the effect of salience on blame ratings, perform post-hoc pairwise comparisons with Bonferroni correction, and generate a report including effect sizes, confidence intervals, and power analysis.
+The system must perform a repeated-measures ANOVA on the collected data to test for salience effects, apply Bonferroni correction for multiple comparisons, and generate a report with effect sizes and confidence intervals.
 
-**Why this priority**: This transforms raw data into scientific evidence. It directly answers the research question and fulfills the methodology requirements for validity and multiplicity control.
+**Why this priority**: This transforms raw data into scientific findings. It is the final step that answers the research question and validates the methodology.
 
-**Independent Test**: A script can be run on a synthetic dataset with known parameters (e.g., a simulated strong effect); the output must correctly identify the significant effect, report the F-statistic and p-value, and apply the Bonferroni correction to the pairwise comparisons.
+**Independent Test**: Can be fully tested by running the analysis script on a synthetic dataset with known effect sizes and verifying that the output report correctly identifies the significant effect, applies the correction, and calculates the effect size (e.g., partial eta-squared) within a 5% margin of error of the theoretical value.
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of [deferred] participants with 3 salience conditions each, **When** the analysis script runs, **Then** it must output a summary table showing the F-statistic, degrees of freedom, and p-value for the main effect of salience, explicitly stating if the result is significant after Bonferroni correction.
-2. **Given** a significant main effect in the ANOVA, **When** post-hoc tests are executed, **Then** the system must report pairwise comparisons (Low vs. Medium, Medium vs. High, Low vs. High) with adjusted p-values and 95% confidence intervals for the mean differences.
+1. **Given** a dataset of participants with complete within-subject ratings, **When** the analysis script runs, **Then** it outputs a repeated-measures ANOVA table showing the F-statistic, p-value (corrected), and partial eta-squared for the salience factor.
+2. **Given** a significant main effect of salience, **When** post-hoc pairwise comparisons are requested, **Then** the system performs Bonferroni-corrected t-tests between all salience pairs (low vs. medium, medium vs. high, low vs. high) and reports which specific contrasts drive the effect.
+
+---
 
 ### Edge Cases
 
-- What happens if the image manipulation algorithm fails to alter the pixel statistics significantly (e.g., target object is already pure white)? The system must flag the image as "invalid manipulation" and exclude it from the survey pool.
-- How does the system handle participants who fail attention checks (e.g., selecting random ratings or failing a "select the red cone" check)? The system must automatically exclude these participants from the final analysis dataset.
-- What happens if the dataset contains images where the "non-causal" element is actually ambiguous (e.g., a cone that blocks a lane)? The system must log these as "excluded due to semantic ambiguity" based on a pre-defined rule set.
-- What happens if the manipulation creates visible artifacts (e.g., haloing, unnatural lighting)? The system must flag the image as "failed realism check" and exclude it from the survey pool.
+- What happens when the image dataset contains images that cannot be successfully manipulated (e.g., target object detection fails)? The system must log these failures and exclude them from the final stimulus set, ensuring the analysis only includes valid data.
+- How does the system handle participants who provide identical ratings for all images (straight-lining)? The system must flag these responses as invalid during data cleaning and exclude them from the statistical analysis.
+- What happens if the sample size falls below the planned range? The system must still run the analysis but report the reduced power and wider confidence intervals, explicitly noting the limitation in the final report.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and parse metadata from open visual datasets (e.g., Visual Genome, COCO) to load a curated, human-validated list of [deferred] morally ambiguous scenarios, explicitly citing the source dataset for each image (See US-1).
-- **FR-002**: System MUST apply image processing algorithms (PIL/OpenCV) to enhance contrast/brightness of target non-causal objects across three distinct levels (low, medium, high) while maintaining a pixel-level similarity score of [deferred] for non-target regions and ensuring no visible artifacts are introduced (See US-1).
-- **FR-003**: System MUST deploy a survey interface that presents images in a randomized order using a Latin Square counterbalancing design and captures blame ratings on a 1-7 Likert scale for each manipulated variant (See US-2).
-- **FR-004**: System MUST store collected survey responses in a structured format (CSV/JSON) linking `user_id`, `scenario_id`, `salience_level`, and `blame_rating` without storing personally identifiable information (See US-2).
-- **FR-005**: System MUST execute a repeated-measures ANOVA to test the main effect of salience on blame ratings, followed by post-hoc pairwise comparisons with Bonferroni correction for multiple comparisons (See US-3).
-- **FR-006**: System MUST calculate and report post-hoc statistical power using a simulation-based method and 95% confidence intervals for partial eta-squared (ηp²) effect sizes, ensuring the analysis is interpretable even if the null hypothesis is not rejected (See US-3).
-- **FR-007**: System MUST include a validation step to assess perceptual realism of manipulated images (e.g., via a pre-test panel or artifact detection metric) and exclude any stimuli that appear unnatural or "photoshopped" (See US-1).
+- **FR-001**: System MUST ingest images from open visual datasets (e.g., Visual Genome) and programmatically enhance luminance contrast/brightness of target regions to create low, medium, and high salience variants while preserving semantic content (verified during development by object detection model with >95% IoU overlap) (See US-001).
+- **FR-002**: System MUST deploy a survey interface that randomizes the presentation order of salience levels for each scenario within a within-subject design (See US-002).
+- **FR-003**: System MUST collect blame ratings on a 1-7 Likert scale for each manipulated image, capturing participant ID, image ID, salience level, and timestamp (See US-002).
+- **FR-004**: System MUST perform a repeated-measures ANOVA to test the main effect of visual salience on blame ratings, ensuring the analysis accounts for the within-subject design. The system MUST check for sphericity (Mauchly's test) and apply Greenhouse-Geisser or Huynh-Feldt corrections if the assumption is violated (See US-003).
+- **FR-005**: System MUST apply Bonferroni correction to all post-hoc pairwise comparisons to control for family-wise error rate when testing multiple salience contrasts (See US-003).
+- **FR-006**: System MUST calculate and report effect sizes (partial eta-squared) and 95% confidence intervals for all significant findings (See US-003).
+- **FR-007**: System MUST implement a data cleaning routine to exclude participants who provide [deferred] identical ratings across all items (straight-lining) to ensure data validity (See US-003).
+- **FR-008**: System MUST identify morally ambiguous scenarios using a two-stage process: (1) initial filtering via open dataset metadata (e.g., Visual Genome 'social' or 'conflict' tags) to narrow the candidate pool, followed by (2) a mandatory human coding step where ≥2 independent annotators label scenarios as 'morally ambiguous' with ≥80% inter-rater reliability (Cohen's κ ≥ 0.8). Scenarios failing this consensus check are excluded (See US-001).
 
 ### Key Entities
 
-- **Scenario**: A morally ambiguous visual event (e.g., traffic accident) identified from a public dataset, characterized by `scenario_id` and `semantic_annotations`.
-- **Stimulus**: A specific image variant generated from a Scenario, characterized by `stimulus_id`, `scenario_id`, `salience_level` (low/medium/high), and `pixel_statistics`.
-- **Response**: A single data point representing a participant's judgment, characterized by `response_id`, `stimulus_id`, `user_id`, `blame_rating`, and `timestamp`.
+- **Scenario**: A morally ambiguous visual situation (e.g., traffic accident) identified from the source dataset, serving as the experimental unit.
+- **Stimulus Variant**: A specific manipulated version of a Scenario (low/medium/high salience) used as a survey item.
+- **Response**: A single data point linking a Participant to a Stimulus Variant, containing the blame rating and metadata.
+- **Participant**: An individual completing the survey, contributing multiple responses (one per stimulus variant per scenario).
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The effect of visual salience on blame ratings is measured against the null hypothesis of no difference across salience levels using repeated-measures ANOVA (See US-3).
-- **SC-002**: The false-positive rate for pairwise comparisons is measured against the Bonferroni-corrected alpha level (0.05 / number of comparisons) to ensure family-wise error control (See US-3).
-- **SC-003**: The statistical power of the study is measured against the planned sample size to ensure achieved power ≥ 0.80 for detecting the expected effect size (See US-3).
-- **SC-004**: The validity of the visual manipulation is measured against the pixel-level similarity score ([deferred] for non-target regions) and the absence of visible artifacts to ensure semantic content remains constant (See US-1).
+- **SC-001**: The pixel-level contrast/brightness change in target regions is measured against the original image to verify the manipulation was successful (See US-001).
+- **SC-002**: The effect size (partial eta-squared) of visual salience on blame ratings is measured against the null hypothesis of no effect to determine statistical significance (See US-003).
+- **SC-003**: The family-wise error rate is measured against the nominal alpha level (0.05) to verify that Bonferroni correction was correctly applied (See US-003).
+- **SC-004**: The proportion of valid participants (excluding straight-liners) is measured against the total recruited sample to ensure data quality (See US-002).
+- **SC-005**: The 95% confidence interval width for the estimated effect size is measured against a [deferred] precision threshold to assess the reliability of the estimate (See US-003).
 
 ## Assumptions
 
-- The open visual datasets (Visual Genome, COCO) contain sufficient annotations to identify a set of morally ambiguous scenarios suitable for manipulation, which will be curated by human annotators.
-- The "non-causal" elements in the identified scenarios can be isolated and manipulated without altering the semantic interpretation of the event (e.g., a red cone can be brightened without changing the perception of the accident), subject to the perceptual realism check.
-- The survey platform (Qualtrics free tier or Google Forms) supports the required randomization and data export features without cost or technical barriers.
-- The statistical analysis can be performed on a CPU-only environment (GitHub Actions free tier) using standard Python libraries (scipy, statsmodels) without requiring GPU acceleration.
-- The sample size of [deferred] participants is estimated to be sufficient to achieve a statistical power of ≥ 0.80 for a medium effect size (Cohen's f ≈ 0.25), assuming a within-subject design.
-- The Bonferroni correction is appropriate for controlling the family-wise error rate given the small number of pairwise comparisons (3 comparisons).
-- A Latin Square counterbalancing design effectively controls for order effects in the repeated-measures survey.
+- The open visual datasets (e.g., Visual Genome) contain sufficient morally ambiguous scenarios with clear target objects for salience manipulation.
+- The 1-7 Likert scale for blame ratings is a valid and reliable measure of moral judgment in this context, consistent with established psychological literature.
+- Participants recruited via the chosen platform (e.g., Prolific, university pool) will provide honest and attentive responses, and the sample size is sufficient to detect a medium effect size with [deferred] power.
+- The analysis will be conducted on CPU-only infrastructure; therefore, the dataset size and statistical methods are constrained to those tractable within 7 GB RAM and 6 hours of compute time.
+- The visual salience manipulation (luminance contrast/brightness enhancement) is the primary mechanism of attentional capture, and other visual features (color, motion) are held constant.
+- The relationship between visual salience and blame ratings is causal, as the design is a controlled experiment with within-subject manipulation of the independent variable, provided confounds are controlled.
+- The Bonferroni correction is appropriate for controlling family-wise error rate given the small number of planned pairwise comparisons.

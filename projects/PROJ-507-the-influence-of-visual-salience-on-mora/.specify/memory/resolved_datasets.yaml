@@ -1,23 +1,84 @@
-resolved_at: '2026-07-11T14:31:29.171335+00:00'
+resolved_at: '2026-07-11T14:58:00.637359+00:00'
 datasets:
-- intent: COCO
+- intent: ANOVA
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/prithivMLmods/COCO-Mini-DeepCaption-10K/resolve/main/data/train-00000-of-00004.parquet
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
     source: huggingface
-    format: parquet
+    format: json
     relevance: 1.0
     sample_check:
-      downloaded_bytes: 262144
+      downloaded_bytes: 16586
       parsed: true
-  - url: https://huggingface.co/datasets/detection-datasets/coco/resolve/main/data/train-00000-of-00040-67e35002d152155c.parquet
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
     source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/vikhyatk/coco-val/resolve/main/data/validation-00000-of-00001.parquet
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/Supplementary_Materials_for_Revealing_Nonlinear_and_Spatially_Heterogeneous_Drivers_of_Ecosystem_Health_during_Coal_Resource-Exhausted_City_Transformation_Evidence_from_Xuzhou_China/32964020
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Spread_of_i_Chlamydia_pneumoniae_i_ST16_during_the_2024_2025_outbreak_in_France/32964017
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Leveraging_Digital_Innovations_in_Tourism_Marketing_A_Study_of_Destination_Promotion_Strategies/32963942
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cilt_2-_Tarihsel_Ar_iv_Ter_rizm_1979_dan_2026_ya_Humeyni_ve_Hamenei_TR/32963981
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Exploring_thiazole_conjugates_as_cholinesterase_inhibitors_for_Alzheimer_s_disease_treatment/32964011
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/363316
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310227
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310227
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310457
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310457
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     format: parquet
     relevance: 1.0
@@ -25,84 +86,67 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/prithivMLmods/COCO-Mini-DeepCaption-10K/resolve/main/data/train-00000-of-00004.parquet
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/laion/relaion-coco/resolve/main/part-00000-df26b0e6-b461-4259-8120-323af778933f-c000.snappy.parquet
-    source: huggingface
-    status: wrong_format
-    reason: HTTP 401
-  - url: https://huggingface.co/datasets/detection-datasets/coco/resolve/main/data/train-00000-of-00040-67e35002d152155c.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/vikhyatk/coco-val/resolve/main/data/validation-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/Ultralytics/COCO8/resolve/main/labels/train/000000000009.txt
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/journal_contribution/_b_Penerapan_Model_Hybrid_ARIMA-LSTM_dengan_Penambahan_Variabel_Nilai_Tukar_USD_IDR_dalam_Prediksi_Harga_Emas_b_/32963963
+  - url: https://figshare.com/articles/dataset/Supplementary_Materials_for_Revealing_Nonlinear_and_Spatially_Heterogeneous_Drivers_of_Ecosystem_Health_during_Coal_Resource-Exhausted_City_Transformation_Evidence_from_Xuzhou_China/32964020
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Hydrogen_Plasma_Core_Transport_Systems_with_Dual_Counter-Rotating_Magnetic_Lenses_for_Cislunar_Infrastructure/32963957
+  - url: https://tandf.figshare.com/articles/journal_contribution/Spread_of_i_Chlamydia_pneumoniae_i_ST16_during_the_2024_2025_outbreak_in_France/32964017
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_How_Health_Chatbots_Influence_the_Adoption_of_AI-Generated_Health_Advice_in_Different_Populations_The_Moderation_Effects_of_Age_and_Goal_b_/32963954
+  - url: https://figshare.com/articles/preprint/Leveraging_Digital_Innovations_in_Tourism_Marketing_A_Study_of_Destination_Promotion_Strategies/32963942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Pressure_volume_loop_dataset_biventricular_EF_determinants_in_endotoxic_shock_porcine_b_/32107939
+  - url: https://figshare.com/articles/book/Cilt_2-_Tarihsel_Ar_iv_Ter_rizm_1979_dan_2026_ya_Humeyni_ve_Hamenei_TR/32963981
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/The_Breath_of_the_Cosmos_Generation_Decomposition_and_Hierarchical_Cycles/32963906
+  - url: https://tandf.figshare.com/articles/journal_contribution/Exploring_thiazole_conjugates_as_cholinesterase_inhibitors_for_Alzheimer_s_disease_treatment/32964011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13930108
+  - url: https://doi.org/10.11591/eei.v9i2.1972
     source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20573001
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19722207
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14671547
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14615263
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/169153
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.24406/publica-6987
-    source: datacite
     status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''publica.fraunhofer.de'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://ww2.nemar.org/dataset/nm000133?v=v1.0.0
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ww2.nemar.org/dataset/nm000133?v=v1.0.2
+  - url: https://zenodo.org/records/21310283
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ww2.nemar.org/dataset/nm000133
+  - url: https://zenodo.org/records/21310283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308578
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21308578
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,88 +1,103 @@
 # Research: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
-## Research Question
-Does increasing the visual salience of non-causal elements in morally ambiguous simulated scenarios systematically shift participants' blame and responsibility judgments toward the visually highlighted party?
+## 1. Problem Statement & Hypothesis
 
-## Dataset Strategy
+**Research Question**: Does increasing the visual salience (luminance contrast/brightness) of a target object in a morally ambiguous scenario increase the blame attributed to the agent associated with that object?
 
-The project relies on the **COCO (Common Objects in Context)** dataset, verified via HuggingFace. This dataset provides images with rich object annotations and segmentation masks. However, COCO lacks pre-labeled moral ambiguity or causal roles.
+**Hypothesis**: Higher visual salience of the causal agent/object will lead to higher blame ratings (1-7 Likert scale) compared to lower salience variants, controlling for semantic content.
 
-**Verified Datasets**:
-- **COCO (parquet)**:
- - `
- - `
- - `
+## 2. Dataset Strategy
 
-**Selection Rationale**:
-- **Semantic Richness**: COCO contains diverse scenes (traffic, crowds, accidents) suitable for identifying morally ambiguous scenarios.
-- **Annotation Support**: Object bounding boxes and segmentation masks allow precise targeting of objects, though role assignment is manual.
-- **Feasibility**: The dataset is available in Parquet format, which can be loaded efficiently into Pandas on CPU.
+### Source Selection
+The project relies on open visual datasets containing social or conflict scenarios.
+*   **Primary Candidate**: Visual Genome (VG) or similar dataset with moral/social tags.
+    *   **Status**: **VERIFIED SOURCE REQUIRED**.
+    *   **Action**: Phase 0.1 will search for a verified URL in the `# Verified datasets` block. If found, it will be used. If not, the project **halts** and generates a "Data Gap Report".
+    *   **Fallback**: None. The plan rejects the use of random public domain images or synthetic geometric scenes as they lack the required semantic content (moral ambiguity) to answer the research question.
 
-**Dataset Fit Verification & Feasibility**:
-- **Required Variables**:
- - *Image*: Available (via URL or local download).
- - *Object Annotations*: Available (bounding boxes, category IDs).
- - *Semantic Context*: Available (captions, scene labels).
-- **Gap Analysis**: COCO does not contain pre-labeled "moral ambiguity" or "causal role" data.
- - **Mitigation Strategy (Pre-Screening Expansion)**: To ensure a sufficient pool of valid scenarios, the pipeline will download a larger subset (N=500) of COCO images containing vehicles/accidents (based on caption keywords). A **Human Annotation Pipeline** will then filter this pool. Based on social psychology literature, we expect a non-negligible retention of truly ambiguous scenarios, yielding a sufficient set of valid scenarios for the final study.
- - **Role Assignment**: 'Non-causal' status is not automated. Human annotators will explicitly tag the coordinates of the object to be manipulated and confirm its 'non-causal' role in the specific context of the image.
+**Verified Datasets Used for Analysis**:
+*   **None**. The plan does not use external pre-computed statistics (like 'ANOVA (json)') for validation as they introduce category errors. Validation relies entirely on synthetic data with known ground truth.
 
-## Methodology
+### Data Suitability & Mismatch
+*   **Visual Genome**: Contains images but **no verified URL** in the provided block. The plan cannot rely on a direct API call to VG in the CI environment without a verified source.
+*   **Gap**: The spec requires "morally ambiguous images." The available verified datasets (if any) do not contain images.
+*   **Resolution**: The implementation will use a **verified subset** of an open dataset if found. If not, the project halts. No simulated or placeholder images will be used for the main analysis.
 
-### 1. Stimulus Generation (FR-001, FR-002, FR-007)
+## 3. Methodology
 
-#### 1.1 Human Annotation Pipeline (Construct Validity)
-- **Pre-Screening**: Filter COCO images for scenes containing vehicles/accidents using caption keywords (e.g., "accident", "crash", "conflict").
-- **Dual-Rater Annotation**: Two independent annotators review each image to:
- 1. **Label Moral Ambiguity**: Rate the scenario on a scale of 1-7 for moral ambiguity. Only images with a score ≥ 5 and **Cohen's κ ≥ 0.7** between raters proceed.
- 2. **Identify Non-Causal Object**: Select a visually distinct object (e.g., a cone, sign) that is **not** central to the causal chain.
- 3. **Causal Role Validation**: A second independent annotator verifies that the selected object is truly 'non-causal' in the specific context to prevent confounding salience with causal relevance.
-- **Exclusion**: Images failing any step are excluded.
+### Phase 0.1: Dataset Verification & Ingestion
+*   **Input**: List of potential dataset sources.
+*   **Process**:
+    1.  Check `# Verified datasets` block for a URL matching the criteria (images with social/conflict tags).
+    2.  If found, download and checksum the dataset.
+    3.  If not found, generate "Data Gap Report" and halt.
+*   **Output**: `data/raw/verified_dataset_info.json`.
 
-#### 1.2 Manipulation & Validation (Artifact Control)
-- **Manipulation**: Apply OpenCV/PIL to adjust brightness and contrast of the selected object's bounding box region.
- - *Levels*: Low (baseline), Medium (+[deferred] contrast), High (+[deferred] contrast).
-- **Validation Metrics**:
- - **SSIM**: Compute Structural Similarity Index between original and manipulated images for **non-target regions**. Must be ≥ [deferred] (e.g., 0.95).
- - **Edge Discontinuity Score**: Compute gradient magnitude differences at the boundary of the manipulated region using Sobel filters. Must be below a threshold to ensure no visible halos.
-- **Naturalness Pre-test**: A pilot study (N=20) will rate a subset of manipulated images on a 1-7 scale for "naturalness" and "photoshop artifacts". Only stimuli with a mean naturalness score ≥ 5.5 proceed to the main survey.
+### Phase 0.5: Human Coding Pilot (FR-008)
+*   **Input**: Subset of raw images (N=10).
+*   **Process**:
+    1.  Deploy a local annotation tool (e.g., Label Studio or CSV-based).
+    2.  Recruit N=2 independent annotators (real humans).
+    3.  Calculate Cohen's kappa.
+    4.  If kappa < 0.8, exclude scenarios or re-code.
+*   **Output**: `data/processed/human_coding_results.csv`.
 
-### 2. Survey Design (FR-003, FR-004)
-- **Design**: **Between-Subjects** repeated measures.
- - *Rationale*: To eliminate demand characteristics where participants notice the manipulation across trials. Each participant views **only ONE** salience level (Low, Medium, or High) for a specific scenario.
- - *Counterbalancing*: Scenarios are randomized, and participants are randomly assigned to one of the three salience conditions for each scenario.
-- **Platform**:
- - *Local Testing*: Flask application (`survey_server.py`).
- - *Production Deployment*: Static HTML/JS exported from the Flask templates and deployed to a free hosting service (e.g., Vercel, Render) to ensure data control and avoid PII.
-- **Task**: Rate "How much blame does the highlighted party deserve?" on a 1-7 Likert scale.
-- **Attention Checks**: Include 1-2 "catch" questions (e.g., "Select the red cone") to filter inattentive participants.
+### Phase 1: Data Preparation & Salience Manipulation (FR-001)
+*   **Input**: Raw images (subset).
+*   **Process**:
+    1.  **Metadata Filtering**: Filter for 'social' or 'conflict' tags (simulated for prototype, real for full study).
+    2.  **Manipulation**: Use `Pillow` to adjust `brightness` and `contrast` parameters.
+        *   Low: Original.
+        *   Medium: +[deferred] contrast/brightness in target region.
+        *   High: +[deferred] contrast/brightness in target region.
+    3.  **Validation**: Calculate pixel-wise difference and verify semantic preservation (SSIM).
+*   **Output**: 3 variants per scenario (Low, Medium, High).
 
-### 3. Statistical Analysis (FR-005, FR-006, SC-001, SC-002, SC-003)
-- **Primary Test**: **One-way ANOVA** (between-subjects) to test the main effect of Salience Level on Blame Rating.
- - *Assumption*: Homogeneity of variance (Levene's test); if violated, use Welch's ANOVA.
-- **Robustness Check**: **Generalized Linear Mixed Model (GLMM)** with an ordinal link function (cumulative logit) to account for the discrete nature of Likert data and potential ceiling/floor effects. Random intercepts for `Scenario` will be included to control for scenario-specific variance.
-- **Post-hoc**: Pairwise comparisons (Low vs. Medium, Medium vs. High, Low vs. High) with **Bonferroni correction** to control family-wise error rate (SC-002).
-- **Effect Size**: Partial eta-squared (ηp²) for ANOVA; Odds Ratios for GLMM. 95% confidence intervals will be reported for all estimates.
-- **Power Analysis**: Simulation-based power analysis (using `pingouin` or `statsmodels`) to determine N participants.
- - *Assumption*: **Small effect size (f = 0.15)** based on social psychology literature for subtle perceptual manipulations.
- - *Target*: Power ≥ 0.80 at α = 0.05. This will likely require a larger N than the initial medium-effect assumption.
-- **Handling Collinearity**: Not applicable (Salience is a manipulated categorical variable).
+### Phase 2: Survey Deployment Pilot (FR-002, FR-003)
+*   **Design**: Within-subject, randomized order.
+*   **Process**:
+    1.  Deploy a functional survey interface (e.g., local server or sandbox) to N=10 real participants.
+    2.  Collect blame ratings and metadata.
+    3.  **Data Cleaning (FR-007)**: Implement logic to detect "straight-lining" (identical ratings across all items).
+*   **Output**: `data/survey/pilot_responses.csv` with real human data.
 
-## Statistical Rigor & Assumptions
+### Phase 3: Statistical Analysis & Pipeline Validation (FR-004, FR-005, FR-006)
+*   **Model**: **Linear Mixed-Effects Model (LMM)**.
+    *   **Rationale**: A standard repeated-measures ANOVA treats 'Scenario' as a fixed effect or ignores its variability. Given the design (20 scenarios x 3 levels), the effect of salience may vary significantly by scenario. An LMM with random intercepts for `Scenario` and `Participant` properly accounts for this nested structure, preventing biased estimates and inflated Type I errors.
+    *   **Formula**: `Rating ~ Salience + (1 | Participant) + (1 | Scenario)`
+    *   **Fixed Effect**: Salience (3 levels: Low, Medium, High).
+    *   **Random Effects**: Random intercepts for `Participant` and `Scenario`.
+    *   **Dependent Variable**: Blame Rating (1-7).
+*   **Assumptions**:
+    *   **Sphericity**: Not required for LMM, but residuals will be checked for normality and homoscedasticity.
+    *   **Multiple Comparisons**: Bonferroni correction for pairwise contrasts (Low vs Med, Med vs High, Low vs High).
+*   **Effect Size**: Calculate partial eta-squared ($\eta_p^2$) or marginal R-squared and 95% Confidence Intervals.
+*   **Validation Strategy**:
+    *   **Pipeline Validation (Synthetic Data)**:
+        *   **Positive Control**: Generate synthetic data with an **injected effect** (e.g., d=0.5). The pipeline must **correctly reject** the null hypothesis, proving sensitivity.
+        *   **Null Control**: Generate synthetic data with **no effect** (Rating = Base + Noise). The pipeline must **fail to reject** the null hypothesis, proving specificity and Type I error control.
+        *   **Scope**: This phase validates the **analysis pipeline's ability to detect effects** and control error rates. It does **not** validate the scientific hypothesis (that salience affects blame) which requires real empirical data.
+*   **Output**: `data/analysis/results.json` and a console report.
 
-- **Multiple Comparisons**: Bonferroni correction applied to the 3 pairwise comparisons (adjusted α = 0.05/3 ≈ 0.0167).
-- **Sample Size**: Power analysis will be conducted *a priori* based on a small effect size (f=0.15). If the study is underpowered, this will be explicitly stated as a limitation.
-- **Causal Inference**: Since this is a controlled experiment with manipulated stimuli, causal claims about *visual salience* are justified. However, generalizability to real-world moral judgment is correlational (observational limitation).
-- **Measurement Validity**: The 1-7 Likert scale is a standard psychometric instrument. The **Naturalness Pre-test** and **Human Annotation Pipeline** ensure stimulus validity.
-- **Collinearity**: Not a concern for the main effect.
+## 4. Statistical Rigor & Feasibility
 
-## Compute Feasibility
+*   **Multiple Comparison Correction**: Bonferroni correction will be applied to the 3 pairwise contrasts (FR-005).
+*   **Power Analysis**: The plan acknowledges the limitation of the sample size (pilot). The analysis will report the achieved power or note the limitation if the sample size is small.
+*   **Causal Inference**: The design is experimental (within-subject manipulation), allowing causal claims *within the constraints of the simulation*.
+*   **Collinearity**: Not applicable (Salience levels are mutually exclusive experimental conditions).
+*   **Compute Feasibility**:
+    *   **Memory**: Image processing for ~60 images is negligible (<100 MB).
+    *   **CPU**: LMM on 150 rows is fast.
+    *   **Time**: Total runtime < 5 minutes.
+    *   **No GPU**: All operations (Pillow, statsmodels) are CPU-native.
 
-- **Hardware**: GitHub Actions Free Tier (multiple CPU, sufficient RAM).
-- **Library Constraints**:
- - `opencv-python`: CPU-only, lightweight.
- - `scipy`/`statsmodels`/`pingouin`: CPU-only, standard for stats.
- - `flask`: Lightweight web server.
- - **No GPU**: No deep learning models. All image processing is pixel-level arithmetic.
-- **Memory**: The dataset subset (500 images) is < 200MB. The research question remains to be defined. The proposed method involves analyzing computational resource requirements, drawing on foundational work in efficient algorithm design (Smith et al., 2020; arXiv:1234.5678). Processing is expected to fit within standard available memory constraints.
-- **Runtime**: Stimulus generation: moderate duration; Survey deployment: instant; Analysis: brief duration. Total < 1 hour.
+## 5. Risks & Mitigations
+
+*   **Risk**: No verified image dataset URL.
+    *   **Mitigation**: Halt project. Do not proceed with unverified data.
+*   **Risk**: "Human coding" cannot be performed in CI.
+    *   **Mitigation**: Phase 0.5 explicitly includes a real human coding pilot task.
+*   **Risk**: Real survey data collection is external.
+    *   **Mitigation**: Phase 2.5 explicitly includes a real survey deployment pilot task.
+*   **Risk**: Pipeline validation is circular.
+    *   **Mitigation**: Use **Positive Control** (injected effect) and **Null Control** (no effect) synthetic datasets to validate sensitivity and specificity. Explicitly state that this validates the *pipeline*, not the *hypothesis*.

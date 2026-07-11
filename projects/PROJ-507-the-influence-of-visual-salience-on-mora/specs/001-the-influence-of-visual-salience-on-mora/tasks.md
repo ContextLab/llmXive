@@ -1,6 +1,6 @@
 # Tasks: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
-**Input**: Design documents from `/specs/001-visual-salience-moral-judgment/`
+**Input**: Design documents from `/specs/001-visual-salience-moral-judgments/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -15,7 +15,7 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
+- **Single project**: `code/`, `tests/`, `data/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
@@ -31,9 +31,9 @@
   - Endpoints from contracts/
   
   Tasks MUST be organized by user story so each story can:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
+  - Be implemented independently
+  - Be tested independently
+  - Be delivered as an MVP increment
   
   DO NOT keep these sample tasks in the generated tasks.md file.
   ============================================================================
@@ -43,140 +43,117 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create project directory structure: `projects/PROJ-507-the-influence-of-visual-salience-on-mora/`, `code/`, `data/raw/`, `data/processed/`, `data/survey_responses/`, `tests/`
-- [X] T001b [P] Create initial project files: `README.md`, `.gitignore`
-- [X] T002a [P] Create `requirements.txt` with pinned versions: `opencv-python`, `Pillow`, `pandas`, `numpy`, `scipy`, `statsmodels`, `pingouin`, `flask`, `pytest`
-- [X] T002b [P] Initialize a Python virtual environment (`python -m venv venv`) and install dependencies (`pip install -r requirements.txt`)
-
-The research question, method, and references remain unchanged as they were not present in the original passage.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/processed/`, `data/survey/`, `tests/`)
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scipy, statsmodels, Pillow, requests, matplotlib, seaborn)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites & Data Acquisition)
+## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure, data acquisition, and curation that MUST be complete before ANY user story can be implemented.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. This phase now includes Data Acquisition (formerly Phase O) to ensure correct data flow.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004a [P] Create data directories: `data/raw`, `data/processed`, `data/survey_responses`
-- [X] T004b [P] Create code and test directories: `code`, `tests`
-- [X] T005 [P] Implement `code/config.py` with random seeds, path constants, and hyperparameters for manipulation
-- [X] T006 [P] Setup `code/__init__.py` and package structure
-- [X] T007 [P] Create base data models (Scenario, Stimulus, Response) in `code/data_models.py`
-- [X] T008 [P] Configure logging infrastructure in `code/utils/logger.py`
-- [X] T009 [P] Setup environment configuration management for local vs. CI paths
-
-### Data Acquisition & Curation (Moved from Phase O to Phase 2)
-
-- [X] T043 [P] [US1] Implement `code/dataset_loader.py` function to fetch a verified subset of COCO images from a specific HuggingFace dataset URL (e.g., `coco-2017`) and save raw metadata and images to `data/raw/coco_subset/`
-- [X] T044 [US1] Implement `code/dataset_loader.py` to process the fetched COCO metadata and curate a list of multiple morally ambiguous scenarios (sufficient for power analysis) based on predefined semantic criteria, saving the list of IDs to `data/raw/curated_scenario_ids.json`
-- [X] T045 [P] [US1] Add validation step in `code/dataset_loader.py` to verify that downloaded images exist and are readable before proceeding to manipulation
+- [ ] T004 [P] Setup random seed configuration module (`code/config.py`) to ensure reproducibility across all scripts
+- [ ] T005 [P] Create data directory structure and checksum verification script (`code/verify_data_integrity.py`)
+- [ ] T006 [P] Implement basic logging infrastructure (`code/logging_config.py`)
+- [ ] T007 [US1] Create base data models/entities in `code/models.py`: Define `Scenario` (id, image_path, ambiguity_label), `StimulusVariant` (id, scenario_id, salience_level, image_path), `Response` (id, participant_id, stimulus_id, rating, timestamp), and `Participant` (id, status) classes with explicit attributes per spec.
+- [ ] T008 [P] Setup environment variable management for dataset paths and API keys
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Salience Manipulation Pipeline (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Data Preparation and Salience Manipulation (Priority: P1) 🎯 MVP
 
-**Goal**: Load curated scenarios from open datasets and generate manipulated stimuli with verified pixel statistics.
+**Goal**: Ingest open visual datasets, identify morally ambiguous images, and generate manipulated variants with controlled luminance contrast.
 
-**Independent Test**: A script processes a sample set of images, generates multiple variants each, and outputs a manifest with pixel stats (mean brightness, SSIM) confirming manipulation without semantic alteration.
+**Independent Test**: Run pipeline on a set of raw images; verify metadata filter, human coding reliability (≥80%), and pixel-level contrast changes without semantic alteration.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementing.**
-
-- [X] T010 [P] [US1] Unit test for image loading and metadata parsing in `tests/unit/test_dataset_loader.py`
-- [X] T011 [P] [US1] Unit test for pixel-statistics validation (SSIM, brightness delta) in `tests/unit/test_stimulus_gen.py`
-- [X] T012 [P] [US1] Integration test for full pipeline (load -> manipulate -> save) in `tests/integration/test_pipeline.py`
+- [ ] T010 [P] [US1] Unit test for metadata filtering logic in `tests/unit/test_data_prep.py`
+- [ ] T011 [P] [US1] Unit test for luminance manipulation (SSIM/IoU check) in `tests/unit/test_manipulation.py`
+- [ ] T012 [P] [US1] Integration test for full data prep pipeline on sample subset in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement `code/dataset_loader.py` to load the curated list from `data/raw/curated_scenario_ids.json` and parse metadata
-- [X] T014 [US1] Implement curation logic in `code/annotation_pipeline.py` to filter the loaded COCO metadata into a final list of valid scenarios based on semantic criteria (input: `data/raw/coco_metadata.json`; output: `data/raw/curated_scenario_ids.json`), ensuring the system performs the curation itself rather than loading a pre-curated list.
-- [X] T015 [US1] Implement `code/stimulus_gen.py` to apply contrast/brightness manipulation (low/medium/high) on target objects using OpenCV/PIL, explicitly **calculating and outputting the pixel-level similarity score (SSIM) for non-target regions** using the **COCO instance segmentation masks** to derive the non-target region mask, ensuring no visible artifacts are introduced
-- [X] T016 [US1] Implement edge discontinuity and artifact detection checks in `code/stimulus_gen.py` to flag invalid manipulations and output a `valid` boolean
-- [X] T017 [US1] Implement manifest generation in `code/stimulus_gen.py` outputting `data/processed/manifest.csv` with `scenario_id`, `salience_level`, `image_path`, `pixel_stats` (including SSIM), **consuming the 'valid' flag from T016** to ensure only verified stimuli are included
-- [X] T018 [US1] Create script to run sample validation on a representative set of images and verify output stats match acceptance criteria
+- [ ] T013 [P] [US1] Implement dataset ingestion and URL verification in `code/data_prep.py` (Target: Visual Genome or verified alternative)
+- [ ] T014 [US1] Implement metadata filtering for 'social'/'conflict' tags in `code/data_prep.py`
+- [ ] T015 [US1] Implement human coding workflow script (`code/human_coding.py`) to calculate Cohen's κ from annotations, apply the ≥0.8 threshold, and **exclude** scenarios failing the threshold. Output the filtered list of valid scenarios to `data/processed/valid_scenarios.csv`.
+- [ ] T014a [US1] Orchestrate Pilot Execution: Run `code/human_coding.py` against a pilot set (N=10). **If real human annotations are unavailable, invoke `code/synthetic_data_gen.py` with a known kappa parameter to generate synthetic annotations.** Output `data/processed/human_coding_annotations.csv` and ensure the filtering logic from T015 is applied to generate the final valid scenario list.
+- [ ] T016 [US1] Implement salience manipulation function (low/med/high luminance) in `code/data_prep.py` ensuring no semantic change
+- [ ] T017 [US1] Implement semantic preservation verification (object detection/IoU) in `code/validation.py`
+- [ ] T018 [US1] Implement failure logging and exclusion logic for unmanipulatable images in `code/data_prep.py`
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Stimuli ready)
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
 ## Phase 4: User Story 2 - Survey Deployment and Data Collection (Priority: P2)
 
-**Goal**: Deploy a survey interface to collect blame ratings (Likert scale) for manipulated stimuli with **Latin Square counterbalancing** (Repeated-Measures design).
+**Goal**: Present manipulated images in a randomized within-subject design and collect blame ratings.
 
-**Independent Test**: A survey link opens in a browser, a test user views all three salience levels of a scenario in randomized order, submits ratings, and the system records the responses in a local JSON/CSV file linked to the stimulus ID and user ID.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T019 [P] [US2] Contract test for survey endpoint response schema in `tests/contract/test_survey_api.py`
-- [X] T020 [P] [US2] Integration test for full survey flow (view -> rate -> submit -> save) in `tests/integration/test_survey_flow.py`
-- [X] T021 [P] [US2] Validation test for linkage integrity (`user_id`, `stimulus_id`, `blame_rating`) in `tests/unit/test_linkage_validation.py`
+**Independent Test**: Pilot survey with small cohort; verify randomization, within-subject constraints, and correct data logging.
 
 ### Implementation for User Story 2
 
-- [X] T022 [P] [US2] Implement survey server logic in `code/survey_server.py` (Flask app) with endpoints for image serving and response submission
-- [X] T023 [US2] Implement **Latin Square counterbalancing logic** in `code/survey_server.py` to assign each user to a specific permutation of the three salience levels (low, medium, high) and present **all three conditions** to each user in the assigned order. Use **Flask sessions** for state management and a **seed-based deterministic assignment** algorithm to ensure consistent user assignments across refreshes.
-- [X] T024 [US2] Implement response storage logic in `code/survey_server.py` to append to `data/survey_responses/responses.csv` with `user_id`, `scenario_id`, `salience_level`, `blame_rating`, and timestamp. Ensure **multiple rows per user** (one per condition) are stored to support repeated-measures analysis.
-- [X] T025 [US2] Implement attention check logic (e.g., "select the red cone") and automatic exclusion flagging in `code/survey_server.py`
-- [X] T026 [US2] Create static HTML/JS frontend template for survey presentation (embedded in Flask or separate `frontend/`)
-- [X] T027 [US2] Implement data export function to generate clean CSV for statistical analysis
+- [ ] T022 [P] [US2] Implement survey randomization engine (within-subject design) in `code/survey_sim.py` to generate sequences where no scenario appears twice with the same salience level for a participant.
+- [ ] T023 [US2] Implement survey deployment interface using Streamlit in `code/survey_deploy.py`. **MUST** enforce the 'never the same one twice' constraint by implementing a `SessionState` dictionary to track `seen_scenarios` per participant. Before rendering an image, check `session_state['seen_scenarios'][participant_id]`; if the current scenario is present, skip to the next available salience level from the randomization engine (T022). Output schema: `participant_id`, `image_id`, `salience_level`, `rating`, `timestamp`.
+- [ ] T024 [US2] Implement data collection handler to log responses to `data/survey/pilot_responses.csv`
+- [ ] T026 [US2] Implement pilot data simulation script (`code/survey_sim.py`) to generate synthetic data for pipeline validation
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Data collection ready)
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T019 [P] [US2] Unit test for randomization logic (within-subject constraint) in `tests/unit/test_survey_logic.py`
+- [ ] T020 [P] [US2] Unit test for data schema validation (participant_id, image_id, salience, rating) in `tests/unit/test_data_schema.py`
+- [ ] T021 [P] [US2] Integration test for pilot data collection flow in `tests/integration/test_survey_flow.py`
+
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
 ## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
 
-**Goal**: Execute **Repeated-Measures ANOVA**, post-hoc tests, power analysis (targeting medium effect size), and generate a comprehensive report.
+**Goal**: Perform Linear Mixed-Effects Model (LMM) analysis (per plan.md update), apply corrections, and generate reports.
 
-**Independent Test**: A script runs on a synthetic dataset with known parameters, correctly identifying the effect, reporting F-statistic/p-value, and applying Bonferroni correction.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T028 [P] [US3] Unit test for Repeated-Measures ANOVA calculation on known synthetic data in `tests/unit/test_analysis_stats.py`
-- [X] T029 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_analysis_stats.py`
-- [X] T030 [P] [US3] Integration test for full analysis pipeline (load -> analyze -> report) in `tests/integration/test_analysis_pipeline.py`
+**Independent Test**: Run analysis on synthetic datasets with known effects; verify F-statistics, p-values, effect sizes, and confidence intervals.
 
 ### Implementation for User Story 3
 
-- [X] T031 [P] [US3] Implement `code/analysis.py` to load `data/survey_responses/responses.csv` and filter invalid/attention-failed participants
-- [X] T032 [US3] Implement **Repeated-Measures ANOVA** in `code/analysis.py` to test the main effect of salience on blame ratings. **Optional**: Implement GLMM with ordinal link as a robustness check. The primary output must be the Repeated-Measures ANOVA results.
-- [X] T033 [US3] Implement post-hoc pairwise comparisons with Bonferroni correction in `code/analysis.py`
-- [X] T034 [US3] Implement power analysis (simulation-based) and effect size calculation (ηp²) with 95% confidence intervals in `code/analysis.py`, **explicitly targeting a medium effect size (Cohen's f = 0.25)** to satisfy SC-003.
-- [X] T035 [US3] Implement report generation in `code/analysis.py` outputting a summary table (F-stat, df, p-value, adjusted p-values, CI) to `data/analysis_results/report.md`
-- [X] T036 [US3] Create visualization scripts for effect plots and interaction plots in `code/analysis.py`
+- [ ] T029a [US3] Document Methodological Deviation: Update `docs/paper_draft.md` under section **3.2 'Methodological Deviations'**. Explicitly document the shift from FR-004's mandated Repeated-Measures ANOVA to the Plan's Linear Mixed-Effects Model (LMM). Cite the 'Critical Methodological Update' in `plan.md` and justify the change based on the nested data structure (responses nested within scenarios/participants). **This task must be completed BEFORE any analysis implementation.**
+- [ ] T031 [US3] Implement Primary Analysis: Implement the Linear Mixed-Effects Model (`Rating ~ Salience + (1|Participant) + (1|Scenario)`) in `code/analysis.py` using `statsmodels` (per plan.md update). This is the primary analysis method.
+- [ ] T030a [US3] Implement Comparative Validation (FR-004): Implement a Repeated-Measures ANOVA (with Mauchly's test and Greenhouse-Geisser corrections) in `code/analysis.py` **solely for comparative validation purposes**. This task satisfies the verification requirement of FR-004 by running the mandated method, but the results are secondary to the primary LMM analysis.
+- [ ] T033 [US3] Implement LMM assumption checks (residual normality, homoscedasticity) in `code/analysis.py` (replacing ANOVA sphericity tests).
+- [ ] T034 [US3] Implement Bonferroni-corrected pairwise comparisons (Low vs Med, Med vs High, Low vs High) in `code/analysis.py`
+- [ ] T035 [US3] Implement effect size (partial eta-squared) and 95% CI calculation in `code/analysis.py`
+- [ ] T045 [US3] Execute Data Cleaning: Run the straight-lining detection routine on `data/survey/pilot_responses.csv` to exclude participants with identical ratings across all items; output cleaned dataset `data/processed/cleaned_responses.csv`.
+- [ ] T046 [US3] Implement Precision Threshold Derivation: Add `PRECISION_THRESHOLD` constant to `code/config.py` (default a placeholder value as a placeholder). **Crucially, implement a `derive_threshold()` function in `code/analysis.py`** that calculates the threshold based on a target power (e.g., adequate statistical power) and expected effect size (even if default values are used), satisfying the requirement to define the *method* to derive the value. Calculate 95% CI width, compare against this threshold, and log the result in `data/analysis/results.json`.
+- [ ] T036 [US3] Implement pipeline validation script (Positive Control/Negative Control) in `code/validation.py`
+- [ ] T037 [US3] Implement report generator to output `data/analysis/results.json` and console summary, explicitly documenting the LMM vs ANOVA deviation rationale and the comparative ANOVA results.
+
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T027 [P] [US3] Unit test for LMM model fitting (Positive/Negative control) in `tests/unit/test_analysis.py`
+- [ ] T028 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_corrections.py`
+- [ ] T029 [P] [US3] Unit test for effect size (partial eta-squared) calculation in `tests/unit/test_metrics.py`
+- [ ] T030 [P] [US3] Integration test for full analysis pipeline on synthetic data in `tests/integration/test_analysis_pipeline.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Validation & Edge Cases (Revision - Addresses Real Data & Edge Cases)
-
-**Purpose**: Implement robust handling for invalid manipulations, semantic ambiguity, attention checks, and the 'pre-test panel' fallback.
-
-- [X] T046 [US1] Update `code/stimulus_gen.py` to load only the images listed in `data/raw/curated_scenario_ids.json` and skip any missing files with a warning log
-- [X] T047 [US1] Implement logic in `code/stimulus_gen.py` to calculate an "Edge Discontinuity Score" for manipulated regions; if the score exceeds a threshold, mark the stimulus as invalid and exclude it from `manifest.csv`
-- [X] T048 [US1] Implement logic in `code/annotation_pipeline.py` to flag scenarios where the "non-causal" element is ambiguous (e.g., blocks a lane) based on pre-defined keyword rules in `config.py`; exclude these from the stimulus pool
-- [X] T049 [US1] Implement logic in `code/annotation_pipeline.py` to generate a **human review queue** (JSON artifact) containing stimuli that failed the automated artifact detection metric. This queue serves as the **pre-test panel** option required by FR-007, allowing manual validation if automated metrics are inconclusive.
-- [X] T050 [US2] Enhance `code/survey_server.py` to include a mandatory attention check question (e.g., "Select the color of the cone") before the final rating; if failed, mark the response as `attention_failed` in the database
-- [X] T051 [US3] Update `code/analysis.py` to automatically filter out any participants with `attention_failed` flags or `invalid_manipulation` stimuli before running the ANOVA
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T037 [P] Documentation updates in `docs/` and `README.md`
-- [X] T038 Code cleanup and refactoring
-- [X] T039 Performance optimization (ensure stimulus gen < 10 mins for 50 scenarios)
-- [X] T040 [P] Additional unit tests for edge cases (invalid manipulation, semantic ambiguity) in `tests/unit/`
-- [X] T041 Security hardening (ensure no PII storage in survey responses)
-- [X] T042 Run quickstart.md validation
+- [ ] T038 [P] Documentation updates in `docs/paper_draft.md`
+- [ ] T039 Code cleanup and refactoring
+- [ ] T050 [P] Add profiling script to measure runtime of the full pipeline (`code/profile_pipeline.py`)
+- [ ] T051 Refactor code to ensure <6h runtime on 2 CPU/7GB RAM, verified by running `code/profile_pipeline.py` on full dataset
+- [ ] T040 [P] Additional unit tests for edge cases (sample size < planned) in `tests/unit/`
+- [ ] T041 Run quickstart.md validation
 
 ---
 
@@ -185,7 +162,7 @@ The research question, method, and references remain unchanged as they were not 
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. Includes Data Acquisition (T043, T044).
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
@@ -194,8 +171,8 @@ The research question, method, and references remain unchanged as they were not 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 (needs stimuli) but should be independently testable with mock data
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US2 (needs responses) but should be independently testable with synthetic data
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for stimuli data
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 for response data
 
 ### Within Each User Story
 
@@ -220,11 +197,12 @@ The research question, method, and references remain unchanged as they were not 
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for image loading and metadata parsing in tests/unit/test_dataset_loader.py"
-Task: "Unit test for pixel-statistics validation (SSIM, brightness delta) in tests/unit/test_stimulus_gen.py"
+Task: "Unit test for metadata filtering logic in tests/unit/test_data_prep.py"
+Task: "Unit test for luminance manipulation (SSIM/IoU check) in tests/unit/test_manipulation.py"
 
 # Launch all models for User Story 1 together:
-Task: "Create base data models (Scenario, Stimulus, Response) in code/data_models.py"
+Task: "Implement dataset ingestion and URL verification in code/data_prep.py"
+Task: "Implement human coding workflow script in code/human_coding.py"
 ```
 
 ---
@@ -234,9 +212,9 @@ Task: "Create base data models (Scenario, Stimulus, Response) in code/data_model
 ### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories, includes Data Acquisition)
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (Stimuli generated and validated)
+4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -253,9 +231,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Stimuli)
-   - Developer B: User Story 2 (Survey)
-   - Developer C: User Story 3 (Analysis)
+   - Developer A: User Story 1
+   - Developer B: User Story 2
+   - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -269,7 +247,3 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All image manipulation and statistical analysis MUST run on CPU-only CI (no GPU, no 8-bit quantization). Use standard PIL/OpenCV and scipy/statsmodels.
-- **Design Note**: This project implements a **repeated-measures** design (Latin Square) as per `spec.md` (FR-003, FR-005). The Plan's previous mention of "between-subjects" was corrected to align with the Spec.
-- **Data Flow**: T043/T044 (Acquisition) → T013/T014 (Curation) → T015-T017 (Stimuli) → T022-T027 (Survey) → T031-T036 (Analysis).
-- **Test-First**: All test tasks (T010-T012, T019-T021, T028-T030) must be written and confirmed to FAIL before the corresponding implementation tasks are started.

@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stimulus Variant Schema"
+description: "Schema for a manipulated visual stimulus used in the experiment."
+type: "object"
+properties:
+  stimulus_id:
+    type: "string"
+    description: "Unique identifier for the stimulus (e.g., SCN_001_LOW)."
+  scenario_id:
+    type: "string"
+    description: "Foreign key to the parent scenario."
+  salience_level:
+    type: "string"
+    enum:
+      - "low"
+      - "medium"
+      - "high"
+    description: "The level of visual salience manipulation."
+  manipulation_params:
+    type: "object"
+    properties:
+      contrast_factor:
+        type: "number"
+        description: "Multiplier for contrast adjustment."
+      brightness_factor:
+        type: "number"
+        description: "Multiplier for brightness adjustment."
+    required:
+      - "contrast_factor"
+      - "brightness_factor"
+  image_path:
+    type: "string"
+    description: "Relative path to the image file in data/processed/."
+  semantic_preservation_score:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Score indicating semantic preservation (e.g., SSIM, IoU)."
+required:
+  - "stimulus_id"
+  - "scenario_id"
+  - "salience_level"
+  - "manipulation_params"
+  - "image_path"
+additionalProperties: false
