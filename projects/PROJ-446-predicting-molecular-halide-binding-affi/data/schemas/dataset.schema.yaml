@@ -1,0 +1,39 @@
+name: halide_binding_dataset
+version: 1.0.0
+description: Schema for experimental halide binding affinity data
+columns:
+  host_id:
+    type: string
+    required: true
+    description: Unique identifier for the host molecule
+  smiles:
+    type: string
+    required: true
+    pattern: "^[C-N-O-F-Cl-Br-I-H-\\[\\]\\(\\)\\=\\#\\@\\+\\-]+$"
+    description: SMILES string of the host molecule
+  halide_identity:
+    type: string
+    required: true
+    enum:
+    - F-
+    - Cl-
+    - Br-
+    - I-
+    description: Identity of the halide anion
+  log_k:
+    type: float
+    required: true
+    description: Logarithm of the binding constant
+  solvent:
+    type: string
+    required: true
+    description: Solvent used in the experiment
+  temperature_k:
+    type: float
+    min: 0.0
+    max: 1000.0
+    description: Temperature in Kelvin
+  source:
+    type: string
+    required: true
+    description: Source of the data (e.g., NIST, PubChem)

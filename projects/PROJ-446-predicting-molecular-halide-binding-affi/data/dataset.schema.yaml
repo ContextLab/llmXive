@@ -1,0 +1,18 @@
+type: object
+properties:
+  host_smiles:
+    type: string
+  halide_identity:
+    type: string
+  affinity_value:
+    type: number
+  unit:
+    type: string
+  solvent:
+    type: string
+  standardized_logK:
+    type: number
+required:
+- host_smiles
+- halide_identity
+- standardized_logK

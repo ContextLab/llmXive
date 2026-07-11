@@ -1,0 +1,8 @@
+scikit-learn>=1.4.0
+rdkit
+pandas
+numpy
+requests
+beautifulsoup4
+pyyaml
+pytest

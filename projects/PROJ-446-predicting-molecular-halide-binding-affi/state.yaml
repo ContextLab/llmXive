@@ -1,0 +1,32 @@
+project: PROJ-446-predicting-molecular-halide-binding-affi
+version: 1.0.0
+artifacts:
+  - path: code/01_data_ingestion.py
+    hash: null
+  - path: code/utils/config.py
+    hash: null
+  - path: code/utils/logger.py
+    hash: null
+  - path: code/utils/validators.py
+    hash: null
+  - path: data/processed/halide_binding_data.csv
+    hash: null
+hooks:
+  - name: data_ingestion
+    script: code/01_data_ingestion.py
+    function: run_data_pipeline
+    output: data/processed/halide_binding_data.csv
+  - name: model_training
+    script: code/03_model_training.py
+    function: main
+    output: data/processed/model_runs.json
+  - name: feature_analysis
+    script: code/04_feature_analysis.py
+    function: main
+    output: data/processed/feature_analysis.json
+  - name: statistical_reporting
+    script: code/05_statistical_reporting.py
+    function: main
+    output: data/processed/statistical_summary.json
+simulated_mode: false
+last_updated: 2023-10-27T10:00:00Z
