@@ -1,0 +1,180 @@
+\documentclass[]{academic_template}
+
+% 额外需要的包（模板未包含的）
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{url}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\newtheorem{definition}{Definition}
+\usepackage{nicefrac}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{makecell}
+\usepackage[most]{tcolorbox}
+\normalem
+
+\definecolor{LighterGray}{RGB}{248,248,250}
+\definecolor{DeepPurple}{RGB}{69,45,117}
+\definecolor{White}{RGB}{255,255,255}
+\definecolor{CaseOrange}{RGB}{184,83,24}
+\definecolor{CaseBlue}{RGB}{38,91,166}
+
+\newcommand{\igbenchfull}{IdeaGene-Bench}
+\newcommand{\igbench}{IG-Bench}
+\newcommand{\gene}{\igbench}
+\newcommand{\geneexam}{IG-Exam}
+\newcommand{\genearena}{IG-Arena}
+\newcommand{\ideagene}{IdeaGene}
+\newcommand{\genome}{\textit{Idea Genome}}
+\newcommand{\genomediff}{GenomeDiff}
+\newcommand{\yesmark}{\ensuremath{\textcolor{green!55!black}{\checkmark}}}
+\newcommand{\nomark}{\ensuremath{\textcolor{red!70!black}{\times}}}
+\newcommand{\flr}{\textsc{flr}}
+\newcommand{\ulr}{\textsc{ulr}}
+
+%%%%%%%%%%%%%%%%%%%%%
+% 模板配色和logo参数
+\setlogoheight{14mm}
+\setlogospacing{5mm}
+\setsjtublue
+\settitlerulethickness{3pt}
+\abstractboxon
+\setabstractframecolor{gray}
+\setabstractbgcolor{gray!10}
+\setlogotolineshift{5mm}
+\settoprulethickness{2.5pt}
+\setbottomrulethickness{1.5pt}
+
+% 放宽浮动体放置限制
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.85}
+
+%%%%%%%%%%%%%%%%%%%
+
+\title{Ideas Have Genomes:\\
+Benchmarking Scientific Lineage Reasoning\\
+and Lineage-Grounded Idea Generation}
+
+\author[1,*]{Yifan Zhou}
+\author[1,*]{Qihao Yang}
+\author[1,*]{Yan Li}
+\author[1,*]{Donggang Li}
+\author[1]{Xiru Hu}
+\author[2]{Hokin Deng}
+\author[1]{Ziyang Gong}
+\author[1]{Xuanyi Zhou}
+\author[3]{Huacan Wang}
+\author[4]{Xiangchao Yan}
+\author[1]{Wanghan Xu}
+\author[4]{Wenlong Zhang}
+\author[5]{Shaofeng Zhang}
+\author[6]{Yue Zhou}
+\author[7]{Yifan Yang}
+\author[1]{Zhihang Zhong}
+\author[1,\dagger]{Xue Yang}
+
+\affiliation[1]{Shanghai Jiao Tong University}
+\affiliation[2]{Carnegie Mellon University}
+\affiliation[3]{University of Chinese Academy of Sciences}
+\affiliation[4]{Shanghai Artificial Intelligence Laboratory}
+\affiliation[5]{University of Science and Technology of China}
+\affiliation[6]{East China Normal University}
+\affiliation[7]{Microsoft Corporation}
+
+\contribution[*]{Equal contribution}
+\contribution[\dagger]{Corresponding Author}
+
+\abstract{
+Scientific ideas rarely start from a blank page. They inherit mechanisms, repair known limitations, and recombine pieces of earlier work, much like biological genomes. Current benchmarks still say little about whether AI systems can follow this inheritance structure. We present \textbf{\igbenchfull{} (\igbench{})}, a benchmark for scientific lineage reasoning and lineage-grounded idea generation. \igbench{} is organized around the \ideagene{} framework: each paper or proposal is represented as a set of minimal, typed, evidence-grounded \genome{} objects, and a \genomediff{} aligns these objects to record inheritance, mutation, loss, external import, and novel insertion under six operational evolutionary dynamics. The benchmark contains 1,961 golden lineage traces, 1,085 curated \genome{} objects, and 920 pairwise \genomediff{} records across 10 scientific domains. It supports two evaluations. \geneexam{} (42 task types, 1,029 instances) tests closed-form lineage reasoning across \genome{} abstraction, inheritance tracing, evolutionary reasoning, and lineage verification. \genearena{} evaluates generation with a lineage-conditioned Population-Evolution Score (PES), asking whether a proposal can be inserted as a coherent descendant of a given lineage population: it should inherit the right \genome{} objects, vary meaningfully from nearby work, and offer selection value for future research. Experiments on 14 LLM-based scientists expose a compositional bottleneck. The strongest system reaches only 27.3\% exact accuracy on lineage reasoning, and structured lineage context reshuffles system rankings rather than helping every participant uniformly.
+}
+
+\date{\today}
+\correspondence{\email{yangxue-2019-sjtu@sjtu.edu.cn}}
+\checkdata[Project Page]{\url{https://visionxlab.github.io/IdeasHaveGenomes/}}
+\hypersetup{
+  pdftitle={Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Lineage-Grounded Idea Generation},
+  pdfauthor={Yifan Zhou, Qihao Yang, Yan Li, Donggang Li, Xiru Hu, Hokin Deng, Ziyang Gong, Xuanyi Zhou, Huacan Wang, Xiangchao Yan, Wanghan Xu, Wenlong Zhang, Shaofeng Zhang, Yue Zhou, Yifan Yang, Zhihang Zhong, Xue Yang},
+  pdfsubject={Scientific lineage reasoning and lineage-grounded idea generation},
+  pdfkeywords={scientific lineage, idea generation, benchmark, LLM evaluation}
+}
+
+\begin{document}
+\maketitle
+\vspace{-6mm}
+\enlargethispage{1.5cm}
+\begin{center}
+\begin{tcolorbox}[
+  colback=blue!3, colframe=blue!25,
+  arc=6pt, boxrule=0.8pt,
+  left=14pt, right=14pt, top=6pt, bottom=6pt,
+  width=\textwidth
+]
+\itshape ``Descent with modification.'' \\[1pt]
+\raggedleft \upshape --- Charles Darwin, \textit{On the Origin of Species} (1859)
+\end{tcolorbox}
+\end{center}
+\vspace{-2pt}
+
+%=============================================================================
+\section{Introduction}
+\label{sec:intro}
+%=============================================================================
+
+\input{sections/intro}
+
+%=============================================================================
+\section{Related Work}
+\label{sec:related}
+%=============================================================================
+
+\input{sections/related}
+
+%=============================================================================
+\section{IdeaGene Framework}
+\label{sec:framework}
+%=============================================================================
+
+\input{sections/framework}
+
+%=============================================================================
+\section{\gene{}: Dataset and Evaluation Artifact}
+\label{sec:benchmark}
+%=============================================================================
+
+\input{sections/benchmark}
+
+%=============================================================================
+\section{Experiments}
+\label{sec:results}
+%=============================================================================
+
+\input{sections/results}
+
+%=============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%=============================================================================
+
+\input{sections/conclusion}
+
+%=============================================================================
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+%=============================================================================
+
+\clearpage
+\beginappendix
+
+\input{sections/appendix}
+
+\end{document}

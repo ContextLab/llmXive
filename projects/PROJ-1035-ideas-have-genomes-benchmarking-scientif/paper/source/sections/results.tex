@@ -1,0 +1,89 @@
+\subsection{Evaluation Setup}
+
+% \paragraph{Scope and systems.}
+% \geneexam{} uses the 42-task, 1,029-instance main-challenge profile after removing calibration diagnostics that reached ceiling performance in pilot runs. \genearena{} covers 30 frontier tasks across 10 domains, yielding 1,260 generated proposals from 14 LLM-based scientists under Question, Library, and Lineage settings. Participants include eight direct LLMs, two GPT-5.5-based research agents, and four CLI harnesses that wrap GPT-5.5 or Claude Opus 4.7 in Codex or Claude Code workflows.
+
+\paragraph{Systems and settings.}
+\geneexam{} uses the 42-task, 1,029-instance main-challenge profile after removing calibration diagnostics that reached ceiling performance in pilot runs. \genearena{} covers 30 frontier tasks across 10 domains, yielding 1,260 generated proposals from 14 LLM-based scientists under Question, Library, and Lineage settings. Participants include eight direct LLMs, two GPT-5.5-based research agents, and four CLI harnesses that wrap GPT-5.5 or Claude Opus 4.7 in Codex or Claude Code workflows. This split lets us separate backbone ability, retrieval-heavy agent workflows, and lightweight tool-using scaffolds.
+
+\paragraph{Metrics.}
+\geneexam{} reports exact accuracy, so all required fields must be correct simultaneously. \genearena{} reports PES (Eq.~\ref{eq:pes}) as the primary lineage-conditioned population-insertion metric and ELO as a preference diagnostic. The three information settings form a controlled ablation: Question tests parametric ideation, Library tests paper-level context, and Lineage tests ordered \genome{} objects and \genomediff{} records.
+
+%% ─── 5.2  IG-EXAM ───────────────────────────────────────────────
+\subsection{\geneexam{} Results}
+
+\input{tables/gene_bench_main}
+
+\textbf{Lineage reasoning is compositionally hard.}
+The strongest direct LLM, GPT-5.5, reaches 23.1\% exact accuracy; the best harness, GPT-5.5 + Claude Code, reaches 27.3\% (Table~\ref{tab:gene-bench-main}; Appendix~\ref{fig:exam_bottleneck_app}). Errors are rarely simple misses. A model may identify the parent paper but assign the wrong dynamics label, or infer the driver \genome{} but misclassify its fate. Exact scoring exposes the consistency failures that matter for downstream generation.
+
+\textbf{Capability-axis breakdown.}
+Performance falls from T1 Genome Abstraction (single-genome reading, best: 34.4\%) through T2 Inheritance Tracing (multi-genome tracing, best: 37.9\%) and T3 Evolutionary Reasoning (best: 25.3\%) to T4 Lineage Verification (best: 17.4\%). The T1$\to$T4 gradient tracks the added compositional burden. T1 requires reading one \genome{}; T4 requires parent identity, \genome{} compatibility, driver consistency, and evidence validity to hold together. T4 is also the capability closest to generation: a system that cannot verify lineage claims cannot reliably generate coherent descendants.
+
+\textbf{Tool scaffolding helps retrieval more than consistency.}
+CLI harnesses improve most on T2 Inheritance Tracing (GPT-5.5: 25.7\% $\rightarrow$ 37.9\% with Claude Code), where iterative tool use can retrieve and compare extracted \genome{} objects across papers. The gains shrink on T3 Evolutionary Reasoning and nearly vanish on T4 Lineage Verification. Current scaffolds therefore help information gathering more than compositional consistency checking. Research agents (AI Scientist v2 and CoI-Agent in the main ranking) stay close to direct GPT-5.5 on most axes, suggesting that retrieval-heavy workflows alone do not add lineage-reasoning capability.
+
+\FloatBarrier
+
+%% ─── 5.3  IG-ARENA ──────────────────────────────────────────────
+\subsection{\genearena{} Results}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}[t]{0.56\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/pes_lineage_gain.pdf}
+\caption{PES across information settings.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.42\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/dynamics_pes_elo_mechanism_a_only.pdf}
+\caption{PES decomposition by dynamics mode.}
+\end{subfigure}
+\caption{\textbf{\genearena{} PES analysis.} (a)~Question--Library--Lineage trajectories show that structured lineage context improves generation quality unevenly across systems. (b)~PES decomposed by setting--dynamics group, sorted by PES ascending. Only groups with $n{\ge}15$ are shown: Question produces four dynamics modes while Library and Lineage concentrate on Hybridization (${\ge}97$\%). Variation and Selection are nearly constant across all rows, while Heredity alone explains the PES gap---from 61.9 (Question|Mutation) to 84.2 (Lineage|Hybrid).}
+\label{fig:pes_analysis}
+\end{figure}
+
+\textbf{Lineage context separates systems.}
+The gain from Question to Lineage varies by system (Figure~\ref{fig:pes_analysis}a). GPT-5.5 already performs well under Question-only prompts (PES 85.2) and gains only +2.3 from lineage context. Weaker systems such as Kimi-K2-Thinking gain more (+6.9). The median gain is +4.4, so lineage context helps on average, but its main effect is diagnostic: it separates systems that can use \genome{} structure from those that cannot.
+
+\textbf{The PES gain is Heredity-driven.}
+Figure~\ref{fig:pes_analysis}b decomposes PES by setting--dynamics group. Variation and Selection stay nearly constant across rows (82.7--84.7 and 79.7--82.2), while Heredity explains the gap. Question-only Mutation---parametric invention without a valid parent mechanism---scores Heredity 61.9 and PES 69.2. Lineage-setting Hybridization---recombination anchored to explicit parent \genome{} objects---reaches Heredity 84.2 and PES 83.6. The Q$\to$Lineage improvement is therefore not about generating more novelty; Variation is already high. It is about grounding the proposal in the correct parent mechanism (Heredity $+$5.4 from Question|Hybrid to Lineage|Hybrid). Per-system H/V/S breakdowns (Appendix~\ref{fig:pes_dim_app}) show the same Variation-over-Heredity gap across all 14 participants.
+
+\textbf{Dynamics labels only become meaningful when grounded in a lineage.}
+Post-hoc dynamics classification shows that Question-only prompts produce a broad mixture of Mutation, Adaptive Radiation, and Hybridization, while Library and Lineage prompts concentrate around Hybridization (Appendix~\ref{fig:arena_dynamics_dist_app}). The label itself is not a quality score. Question-only Mutation has low PES because it invents a local modification without a valid parent mechanism. Lineage-setting Hybridization has high PES because the recombination is anchored to explicit parent \genome{} objects and \genomediff{} evidence. The dynamics label explains \emph{how} a proposal moves; PES asks whether that move is a coherent population insertion.
+
+\textbf{PES versus ELO divergence.}
+ELO rankings partially diverge from PES rankings (Spearman $\rho = 0.82$). The divergence appears most clearly when a fluent but lineage-incoherent proposal wins pairwise battles against a less polished but better-grounded one. This motivates PES as the primary metric: pairwise preference captures surface appeal, while PES measures lineage-grounded population insertion.
+
+%% ─── 5.4  KEY FINDINGS ──────────────────────────────────────────
+\subsection{Key Findings}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}[t]{0.42\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/radar_agent_cli_profile.pdf}
+\caption{Five capability dimensions.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.56\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/verification_generation_bridge_half.pdf}
+\caption{Understanding--generation bridge.}
+\end{subfigure}
+\caption{\textbf{Capability profile and understanding--generation bridge.} (a)~Radar plot over five capability dimensions for five GPT-5.5-backbone systems---the direct LLM, two research agents (AI Scientist v2, CoI-Agent), and two CLI harnesses (Codex, Claude Code)---reducing backbone confounds. Agents nearly overlap with the direct LLM, while CLI harnesses redistribute strengths rather than uniformly improving every capability. (b)~Systems with stronger closed-form lineage understanding tend to preserve lineage-setting heredity better during generation; the moderate correlation shows the two evaluations remain complementary.}
+\label{fig:capability_bridge}
+\end{figure}
+
+\textbf{Finding 1: Paper-level evidence is not enough.}
+Library context provides more information than Question-only, but unordered paper summaries do not say which \genome{} objects are inherited, mutated, lost, or externally imported. The Lineage setting isolates that added structure. Its gain in lineage-conditioned PES, especially Heredity, shows that \genomediff{} structure carries signal beyond paper summaries.
+
+\textbf{Finding 2: Verification bridges understanding and generation.}
+The hardest \geneexam{} tasks are T4 Lineage Verification tasks, and \genearena{} needs the same checks: a proposal must identify a parent, inherit compatible \genome{} objects, repair a real limitation, and avoid invalid recombination. Figure~\ref{fig:capability_bridge}b plots each system's \geneexam{} exact accuracy against its Lineage-setting \genearena{} Heredity. The moderate positive association suggests that closed-form lineage understanding and open-ended generation quality are related, but not redundant.
+
+\textbf{Finding 3: The backbone-controlled profile separates retrieval help from lineage competence.} Figure~\ref{fig:capability_bridge}a compares five GPT-5.5-backbone systems across five capability dimensions. Research agents (AI Scientist v2, CoI-Agent) nearly overlap with the direct LLM, so their retrieval-heavy workflows do not add much lineage-reasoning capability. CLI harnesses (Codex, Claude Code) substantially improve T2 Inheritance Tracing and maintain T1 Genome Abstraction, but show little gain on T3 Evolutionary Reasoning and even decrease T4 Lineage Verification accuracy. Agents also score lower on Generation (PES) than the direct LLM, suggesting that multi-step pipelines can hurt generation coherence. Tool scaffolds therefore amplify retrieval-dependent capabilities while leaving compositional reasoning largely unchanged---the bottleneck already visible in Table~\ref{tab:gene-bench-main}.
+
+\textbf{Finding 4: Systems overproduce plausibility relative to lineage coherence.}
+Generated ideas often sound useful before they preserve the exact parent mechanism or limitation-delta relation. The PES dynamics decomposition (Figure~\ref{fig:pes_analysis}b) shows why: Variation stays high across settings and dynamics modes, while Heredity drives the PES gap. Ungrounded combination can be high-variation but low-heredity; genome-grounded recombination can be novel and coherent at the same time.
+
+\FloatBarrier

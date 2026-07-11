@@ -1,0 +1,93 @@
+
+\section{UniClawbench}
+\label{sec:benchmark}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{Figures/three_role_strategy.pdf}
+    \caption{\textbf{Three-role Closed-loop Evaluation Strategy.} A task is executed by an agent (Executor) within a real-world environment using only public inputs (e.g., tools, files, and web access). The resulting observable trajectory and produced artifacts are assessed by a hidden Supervisor, which applies fine-grained checkpoint-based rubrics and private references to compute a structured evaluation state (e.g., pass / fail / continue) and score. To prevent leakage of evaluation criteria, only a coarse progress signal is exposed through an information firewall to a User Simulator, which generates natural-language feedback based solely on visible evidence. The sanitized feedback is returned to the executor for iterative refinement, forming a multi-turn closed loop. The example illustrates a multimodal task (Beef Wellington cooking with fridge grounding), where the agent must produce screenshots and grounded outputs,
+    emphasizing strict evidence-based evaluation.}
+    \label{fig:three_role_strategy}
+\end{figure}
+
+This section presents the architectural framework of UniClawBench. We first establish a capability-oriented task taxonomy and detail the benchmark composition, including task categorization, the hierarchical task-package structure, and comprehensive data statistics (\S\ref{sec:taxonomy}). Subsequently, we articulate the three-role closed-loop evaluation strategy, which decouples the evaluated executor, hidden supervisor agent, and public user simulator agent to support multi-turn feedback without leaking private grading information (\S\ref{sec:three_role}). Finally, we elaborate on the execution and evaluation system, including the docker-based runtime, task-resource injection, artifact collection, and supervisor-driven scoring pipeline (\S\ref{sec:eval-system}).
+
+\subsection{Capability-Oriented Task Taxonomy and Benchmark Composition}
+\label{sec:taxonomy}
+Existing benchmarks typically organize tasks by application domain (e.g., shopping or travel) or by interaction surface (e.g., web and desktop environments). These taxonomies are useful for comparing performance across settings, but they provide limited diagnostic evidence about which capability causes an agent to fail. A failure in a domain-level task may reflect many different bottlenecks, such as incorrect tool use, insufficient exploration, weak visual grounding, poor long-context reasoning, or failure to coordinate across applications.
+In realistic personal workflows, a capable proactive agent must invoke specialized tools, investigate unfamiliar or underspecified environments, maintain consistency over long evidence chains, ground its actions in non-textual signals, and coordinate state across multiple applications. These requirements motivate UniClawBench's capability-oriented taxonomy, which categorizes tasks into five core dimensions: Skill Usage, Exploration, Long-Context Reasoning, Multimodal Understanding, and Cross-Platform Coordination. Each task is assigned to the category that best captures its primary capability bottleneck, i.e., the capability whose absence would prevent successful completion.
+
+\textbf{Skill-usage tasks.}
+Skill-usage tasks evaluate an agent's proficiency in selecting, inspecting, and operating task-specific tools or APIs. The task package incorporates explicit skills, local services, fixture data, or required command-line workflows. The key bottleneck is therefore not discovering where information may exist, but correctly choosing, understanding, and executing the provided tool interface to produce a verifiable artifact. Representative tasks include OCR of boarding-pass scans, spreadsheet and CSV reconciliation, access-log analysis, audio transcription, Mermaid or diagram generation, SQLite querying, Git or Docker audits, document conversion, and API-backed workflows. These tasks are designed so that prior knowledge or a plausible final answer is insufficient: the agent must actually consult the
+declared skill or tool interface, apply it to the provided data, and save structured outputs such as JSON, CSV, reports, logs, or converted files.
+
+\textbf{Exploration tasks.}
+Exploration tasks characterize an agent's capacity for open-ended investigation in the presence of incomplete, noisy, or potentially misleading information. 
+Agents are required to reverse-engineer undocumented web APIs and their real fields to pull data instead of scraping HTML, audit shell or infrastructure configurations and reconcile silent conflicts, select a single best option from a fixed candidate set under quantitative constraints, trace images or data points back to their authoritative source, validate tool behavior inside local fixtures, or solve single-position puzzles and board games. Unlike skill-usage tasks, where the relevant tool interface is usually explicit, exploration tasks require the agent to determine which sources, files, services, logs, or hypotheses are
+relevant before it can complete the task. These tasks emphasize the process of exploration itself: agents must
+examine candidate sources, reject incorrect alternatives, document negative evidence, and leave a trace that distinguishes real investigation from a guessed conclusion. The expected outputs usually include both a final artifact and supporting audit records, such as logs, JSON notes, command transcripts, screenshots, hashes, or source comparisons.
+
+\textbf{Long-context Reasoning tasks.}
+Long-context tasks evaluate whether agents can aggregate and maintain evidence across heterogeneous sources, long documents, or extended interaction traces.  The defining difficulty is not the length of any single document, but the need to preserve constraints, reconcile conflicting evidence, and produce a globally consistent synthesis across many pieces of context. These
+tasks necessitate synthesizing information from multiple web pages, videos, PDFs, reviews, emails, logs, or research materials before producing a coherent final answer. Examples include comparing headphone recommendations across Bilibili and YouTube and then checking product prices and specifications, planning subscriptions or
+travel under many constraints, synthesizing reading packs into reports or slides, monitoring event streams, auditing long email or fraud records, and solving tasks that require sustained state tracking such as games or multi-step investigations. The main difficulty is not retrieving isolated facts but maintaining global consistency across scattered evidence, resolving conflicts, and
+producing an auditable synthesis.
+
+\textbf{Multimodal Understanding tasks.}
+Multimodal tasks require agents to extract, interpret, and generate information grounded in images, videos, and audio. A task is assigned to this category only when the correctness of the final output depends on evidence that must be obtained from non-textual content, rather than from metadata, filenames, or
+plausible textual inference alone. The tasks are constructed around realistic
+content rather than synthetic visual questions. For example, agents may need to locate a specific figure in an academic paper and recreate it, reconstruct visual diagrams or SVG-like objects, inspect food or product photos, extract evidence from YouTube videos, generate subtitles or lyrics, or organize local image collections. These tasks typically require agents to combine visual perception with tool use and content generation: a successful run must not only identify the right visual content, but also save verifiable outputs such as reproduced plots, screenshots, scripts, captions, or structured summaries.
+
+\textbf{Cross-platform Coordination tasks.}
+Cross-platform tasks require agents to synchronize and orchestrate information across heterogeneous applications and interfaces. We treat cross-platform coordination as a capability rather than an environment label: the agent must preserve state, transfer information, and verify side effects across application
+boundaries.
+Unlike tasks that can be completed entirely in a browser or terminal, these tasks may involve moving
+information among web pages, desktop GUI applications, local files, calendars,
+spreadsheets, note-taking tools, citation managers, PDF readers, and
+communication platforms. For example, an agent may need to read a PDF, create
+a Zotero record, export a BibTeX citation, write an Obsidian literature note,
+and save screenshots proving that the real desktop applications were used.
+Other tasks involve travel planning across official websites and map services,
+receipt reconciliation through GUI tools, calendar/event creation, or multi-
+application research workflows. Success depends on preserving state and
+evidence across platforms, not merely producing a textual answer.
+
+Overall, UniClawBench contains 400 bilingual real world tasks, with 40 English and 40 Chinese tasks for each capability. All tasks are meticulously manually constructed based on genuine, day-to-day scenarios encountered by everyday users. We intentionally constrain and design each scenario so that its completion primarily bottlenecks on a single model capability, while allowing auxiliary operations to appear naturally when needed. Each task is designed as a complete task package, rather than a standalone prompt-answer pair.  A task package includes the user instruction, task-specific context, input files or web resources, tools and services, skills, expected outputs, and hidden evaluation references. A representative task example is illustrated in Figure~\ref{fig:three_role_strategy}.
+
+To ensure a comprehensive and realistic evaluation, UniClawBench encompasses a highly diverse set of task formats and scenarios. As detailed in the Figure~\ref{fig:heatmap}, our benchmark spans a broad spectrum of application domains, ensuring that the evaluation of each foundational capability is not biased toward any specific domain. Furthermore, to faithfully reflect the heterogeneous nature of real-world tasks, the tasks incorporate a rich variety of input and output modalities. Rather than relying exclusively on standard text or JSON, agents are required to process complex inputs, such as live web pages, code repositories, videos, and databases, and successfully produce diverse, actionable outputs, including calendar files, office documents, diagrams, and GUI application states.
+
+
+
+
+
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/statistics_heatmaps_combined.pdf}
+    \caption{Diversity and composition statistics of UniClawBench. The heatmaps detail (a) the broad application-domain coverage designed to prevent scenario bias, as well as the diverse (b) input and (c) output formats. These distributions reflect the multimodal and heterogeneous nature of real-world agent tasks. Each value denotes the within-category percentage.}
+    \label{fig:heatmap}
+    \vspace{-15pt}
+\end{figure}
+
+\vspace{-10pt}
+\subsection{Three-role Closed-loop Evaluation Strategy}
+\vspace{-5pt}
+\label{sec:three_role}
+Unlike single-turn assistants, proactive agents are typically used through multi-turn user-agent interaction. A user may inspect an intermediate result, point out missing requirements, ask for refinement, or provide additional constraints. Therefore, evaluating only the first response does not fully capture whether an agent can recover from partial progress and continue a task under user feedback. UniClawBench introduces a closed-loop evaluation design that models this interaction while preserving controlled and reproducible grading. The central challenge is to provide useful follow-up feedback without exposing the hidden evaluation criteria.
+
+Our design involves three roles. The \textbf{executor} is the agent being evaluated. It receives only the public task instruction and the permitted task package, including available files, tools, services, and runtime resources. The \textbf{supervisor} is a hidden evaluator agent. It observes the full execution trajectory and the produced artifacts, autonomously analyzes them against task-specific hidden references and evaluation rubrics, and gives out judgments.
+The \textbf{user simulator} is also an agent.
+It analyzes the visible execution trajectory and outputs to generate natural feedback that the executor can act on in each round. Unlike the supervisor, the user simulator is designed to emulate the behavior of a typical end user: it focuses on visible progress, result quality, and apparent issues, rather than relying on predefined references or detailed technical inspection. 
+
+
+This design introduces a risk of information leakage: if the user simulator observes hidden rubrics or ground-truth answers, its feedback may reveal privileged hints to the executor. UniClawBench therefore isolates the supervisor from the user simulator. Although the supervisor has access to the exact grading criteria, it only forwards a limited high-level status signal, such as whether the attempt has passed, failed, or remains recoverable. Relying only on this status signal and the agent's visible trajectory, the user simulator generates natural feedback without access to hidden references or supervisor rationales. A feedback rewriter further sanitizes this feedback before it is delivered to the executor. This workflow
+mimics realistic human-agent interaction while keeping the hidden evaluation criteria separated from the agent-facing dialogue. An illustration is shown in Figure~\ref{fig:three_role_strategy}.
+\vspace{-5pt}
+\subsection{Evaluation System}
+\label{sec:eval-system}
+
+
+
+
+UniClawBench implements the closed-loop evaluation through a host-supervised, container-executed runtime. For each task, the executor is launched in a fresh Docker environment containing the public instruction, input sources, tools, skills and relevant services. Hidden references and grading rubrics are never exposed to the executor. The executor runs inside the container using one of the supported agent systems, such as OpenClaw, Nanobot, or EDICT. It can interact with the browser, command line, GUI applications, local files, and injected services, and is instructed to save useful evidence and final outputs to a designated result directory. After each executor turn, the runner collects the observable trajectory, including transcripts, tool-use records, runtime states, and saved artifacts. These materials are then provided to the hidden supervisor together with the task-specific evaluation references. The supervisor works in a separate workspace and it scores the executor's performance using checkpoint-based rubrics and returns a structured evaluation state: pass, fail, or continue. A pass indicates that the task has been successfully completed, while a fail denotes a fundamental, irrecoverable error where the objective can no longer be achieved. A continue signifies that the agent's current progress is flawed or incomplete, but the task remains recoverable in subsequent turns. Alongside this status, the supervisor outputs a detailed justification, mapping the collected evidence to the rubrics to substantiate its decision. If the attempt is incomplete but recoverable, the public user simulator receives only the visible trajectory and the high-level status signal. It generates natural follow-up feedback, which is sanitized before being sent back to the executor as the next user message. The loop continues until the task passes, fails irrecoverably, reaches the follow-up budget, or encounters a timeout limit. This system preserves realistic multi-turn interaction while keeping grading information isolated from the evaluated agent.

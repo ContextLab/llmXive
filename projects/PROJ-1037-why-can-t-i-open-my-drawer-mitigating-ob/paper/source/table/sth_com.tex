@@ -1,0 +1,42 @@
+\begin{table*}[t]
+\centering
+\vspace{-1em}
+\caption{\textbf{Sth-com~\cite{li2024c2c} results.} 
+    We show the top-1 verb, object, and composition classification accuracy (\%). 
+    We report performance on both seen and unseen compositions, along with their harmonic mean (H.M.).
+}
+\vspace{-.5em}
+\def\arraystretch{1.2}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{ll ccc c ccc c ccc}
+\toprule
+\multirow{3}{*}{Backbone} & \multirow{3}{*}{Method} 
+& \multicolumn{3}{c}{Verb} && \multicolumn{3}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{3-5} \cline{7-9} \cline{11-13} 
+&& \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{Seen (\cg{}$\uparrow$)} & \multirow{2}{*}{Unseen (\cg{}$\uparrow$)} & \multirow{2}{*}{H.M.} \\
+\\
+\midrule
+\multirow{4}{*}{CLIP} & AIM~\cite{yang2023aim} & 54.99 & 39.19 & 45.76 && 67.19 & 53.43 & 59.53 && 40.24 (+3.29) & 18.50 ($-$2.44) & 25.35 \\
+& C2C~\cite{li2024c2c} & 63.60 & 54.36 & 58.62 && 67.72 & 56.10 & \textbf{61.36} && 46.31 (+3.24) & 30.08 ($-$0.42) & 36.47 \\
+& Jung et al.~\cite{jung2025crr} & 66.57 & 53.55 & 59.35 && 66.56 & 50.90 & 57.69 && \textbf{48.41} (+4.10) & 25.25 ($-$2.01) & 33.19 \\
+& \ours{} & 65.73 & 59.00 & \textbf{62.18} && 64.79 & 56.34 & 60.27 && 44.99 (+2.40) & \textbf{33.90} (+0.66) & \textbf{38.67} \\
+
+\midrule
+\multirow{3}{*}{\shortstack{InternVideo2}} & LoRA~\cite{hu2022lora} & 48.83 & 36.50 & 41.78 && 64.79 & 58.61 & 61.55 && 32.83 (+1.19) & 19.71 ($-$1.68) & 24.63 \\
+& C2C~\cite{li2024c2c} & 70.35 & 63.29 & 66.63 && 70.03 & 63.44 &\textbf{66.58} && \textbf{51.50} (+2.24) & 39.53 ($-$0.63) & 44.73 \\
+& \ours{} & 71.65 & 66.65 & \textbf{69.06} && 67.96 & 64.56 & 66.22 && 50.20 (+1.51) & \textbf{43.98} (+0.95) & \textbf{46.88} \\
+\bottomrule
+\end{tabular}
+}
+
+
+
+
+
+
+
+
+
+
+\label{tab:sth_com_results}
+\end{table*}

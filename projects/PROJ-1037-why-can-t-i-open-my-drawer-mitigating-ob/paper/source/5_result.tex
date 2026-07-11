@@ -1,0 +1,167 @@
+\section{Experimental Results}
+\label{sec:results}
+
+
+Building on our diagnosis, we evaluate whether \ours{} reduces shortcut reliance and improves compositional generalization.
+We first describe the experimental setup (\secref{exp_setup}), then present diagnostic analyses (\secref{validation}), followed by quantitative comparisons (\secref{main_results}), and finally ablation studies (\secref{ablation}).
+
+
+\subsection{Experimental setup}
+\label{sec:exp_setup}
+
+\topic{Limitations of conventional evaluation.}
+Existing ZS-CAR works \cite{li2024c2c, jiang2025dhd, jung2025crr} rely on the \emph{closed-world} protocol, where inference is restricted to compositions that appear in the validation/test split.  
+This protocol hides a model’s tendency to over-predict seen compositions and obscures co-occurrence-driven behaviors.
+More critically, \emph{test-set–tuned} bias calibration selects a bias term using test labels, inflating unseen accuracy and undermining fair comparison.
+
+\topic{Our evaluation setup.}
+To expose genuine generalization, we adopt an \emph{open-world, unbiased} protocol by default:
+(i) inference spans the full space $\mathbb{Y}^V \times \mathbb{Y}^O$, and  
+(ii) no test labels are used to tune biases.  
+We also report closed-world H.M. and AUC for comparison with existing methods.
+We show open-world biased results using a validation set-tuned bias in \tabref{biased_sth_results}.
+
+
+
+\topic{Datasets.}
+We evaluate on two ZS-CAR benchmarks: Sth-com~\cite{li2024c2c} and our curated EK100-com.  
+Sth-com is derived from Something-Something V2~\cite{goyal2017something} and Something-Else~\cite{mat2020sthelse},  
+containing 79K videos with 161 verbs and 248 objects.  
+Following prior work~\cite{yun2022time,laura2021temporal}, we also evaluate on the \emph{Temporal} subset consisting of verbs requiring temporal reasoning.
+We additionally introduce the \textbf{EPIC-KITCHENS-100-composition (EK100-com)} dataset, constructed by repurposing EK100~\cite{damen2022ek100} following the Sth-com protocol.  
+EK100-com includes 71K egocentric videos, 81 verbs, and 216 objects.  
+Due to the long-tailed label distribution of EK100, it exhibits \emph{severe compositional sparsity}.
+Its label coverage ratio
+is only $7.5\%$, which is considerably lower than the $12.8\%$ observed in Sth-com~\cite{li2024c2c}.
+Full details are in \secref{ek100-com}.
+
+
+\input{figure/fig_validation}
+
+
+
+\topic{Evaluation metrics.}
+We report top-1 composition, verb and object accuracies.
+Verb and object accuracies are conditioned on the \emph{seen/unseen composition}: \emph{verb@seen-comp} and \emph{object@seen-comp} are computed on samples with $\y^C \in \mathbb{Y}_{\text{seen}}$, while \emph{verb@unseen-comp} and \emph{object@unseen-comp} are computed on samples with $\y^C \in \mathbb{Y}_{\text{unseen}}$.
+We report the corresponding harmonic mean (H.M.) between seen-comp and unseen-comp accuracies for composition, verb, and object.
+We also report the compositional gap $\Dcg$~\eqnref{cg}.
+For a detailed illustration of our evaluation setting, please refer to \secref{zscar_setting}.
+
+
+
+
+
+
+\topic{Baselines.}
+We use two encoder-based VLMs, CLIP-B/16~\cite{radford2021clip} and InternVideo2-CLIP-B/14~\cite{wang2024iv2}, as backbones for ZS-CAR methods.
+We also report the InternVi-deo2-1B\cite{wang2024iv2} backbone results in \secref{iv2_1b_results}.
+We primarily compare \ours{} against the current SOTA, C2C~\cite{li2024c2c} and Jung et al.~\cite{jung2025crr}; since the code for the latter's CLIP variant is not publicly available, we report our re-implementation that reproduces its closed-world performance.
+We also compare against LogicCAR~\cite{ye2025logic}, a recent ZS-CAR method, in the closed-world setting only, as its code is not publicly available.
+Since it builds on C2C~(enhance)~\cite{li2024c2c}, a variant of C2C~\cite{li2024c2c} with additional training constraints,  we apply \ours{} to the same enhanced backbone (denoted as \ours{}~(enhance)) and report its results for a fair comparison.
+To isolate the effect of conditional learning, we further evaluate independent modeling baselines, `AIM'~\cite{yang2023aim} (for CLIP) and `LoRA'~\cite{hu2022lora} (for InternVideo2), named after their respective adapter tuning methods.
+
+
+\subsection{Analysis}
+\label{sec:validation}
+
+We empirically show that \ours{} reduces reliance on co-occurrence priors and mitigates object-driven shortcuts in verb learning, yielding more robust compositional behavior than the baseline~\cite{li2024c2c}.
+
+
+
+\input{figure/fig_confusion}
+\topic{\ours{} less relies on co-occurrence prior.}
+In \figref{validation} (a), we present the False Seen Prediction (FSP) and False Co-occurrence Prediction (FCP) curves of \ours{} and the baseline~\cite{li2024c2c} on Sth-com. 
+While the baseline’s FSP and FCP increase substantially during training (53\% $\rightarrow$ 63\% and 26\% $\rightarrow$ 29\%), those of \ours{} remain consistently lower and even decrease (47\% $\rightarrow$ 44\% and 23\% $\rightarrow$ 23\%), indicating markedly less dependence on co-occurrence statistics.
+
+\topic{Improved unseen generalization.}
+In \figref{validation} (b), we present the learning curve of our \ours{} and the baseline~\cite{li2024c2c} on Sth-com. 
+\ours{} significantly improves unseen composition accuracy upon the baseline (34\% vs. 30\%), and reduces the seen--unseen accuracy gap (9 points vs. 17 points).
+
+
+
+
+
+
+
+
+
+\topic{The learned verb representations are indeed effective.}
+Inspired by prior work~\cite{yun2022time}, we evaluate models on the \emph{Temporal} subset of Sth-com~\cite{li2024c2c}.
+Specifically, to measure a model’s dependence on static cues, we compare its performance when using temporally shuffled verb features $\f^V_{\text{shuffled}}$ versus the original features $\f^V$.
+As shown in \figref{validation} (c), across both seen and unseen compositions, \ours{} exhibits a substantially larger performance gap between original and shuffled features. 
+This demonstrates that its verb representations are effectively grounded in temporal dynamics.
+In \figref{confusion}, we visualize verb confusion matrices on \emph{unseen} compositions of the Sth-com test set.
+Unlike C2C~\cite{li2024c2c}, which frequently confuses opposite verbs (\eg, `unfolding' vs.\ `folding'), \ours{} discriminates them well, demonstrating that it effectively mitigates object-driven shortcuts in verb learning.
+
+
+
+
+
+
+
+
+\subsection{Comparisons with State-of-the-Art}
+\label{sec:main_results}
+\input{table/sth_com}
+
+\topic{Sth-com.} As shown in \tabref{sth_com_results}, \ours{} achieves clear gains on Sth-com~\cite{li2024c2c} under a rigorous open-world setting. 
+Compared to the C2C~\cite{li2024c2c} baseline, \ours{} improves the verb@unseen-comp by 4.6 points and the unseen composition accuracy by 3.8 points with the CLIP~\cite{radford2021clip} backbone, and by 3.4 points and 4.5 points with InternVideo2 (IV2)~\cite{wang2024iv2} backbone, respectively.
+These gains are consistent with stronger verb recognition observed in our analysis (\secref{validation}).
+\vspace{-1.2em}
+\input{table/sth_com_close} 
+
+\noindent Notably, \ours{} yields a positive compositional gap (\cg{}) on unseen compositions, whereas all baselines remain negative, indicating improved compositional behavior on unseen pairs.
+Jung et al.~\cite{jung2025crr} yields the lowest unseen composition accuracy among the CLIP baselines while showing the highest seen composition accuracy. Compared to C2C~\cite{li2024c2c}, it improves seen composition accuracy by 2.1 points but degrades unseen composition accuracy by 4.8 points, reflecting a strong bias toward seen compositions and limited open-world generalization.
+In \tabref{sth_com_close}, \ours{} achieves the highest H.M. and AUC within each backbone group under the closed-world, test-set-tuned protocol used in prior work~\cite{li2024c2c, jung2025crr, ye2025logic}.
+
+
+
+
+\topic{EK100-com.}
+Despite the strong co-occurrence prior in the EK100-com training compositions, \ours{} achieves higher unseen composition accuracy and the best H.M.
+As shown in \tabref{ek100_com_results}, compared to C2C~\cite{li2024c2c}, \ours{} substantially improves unseen composition accuracy---by 6.9 points with the CLIP~\cite{radford2021clip} backbone and 7.0 points with the IV2~\cite{wang2024iv2} backbone---despite a decrease in seen composition accuracy.
+This pattern reflects reduced reliance on co-occurrence statistics and improved recognition of unseen compositions.
+Moreover, \ours{} yields a positive \cg{} on unseen compositions (+1.32 with CLIP and +3.83 with IV2), which is consistent with improved compositional behavior under highly sparse supervision.
+In the case of Jung et al.~\cite{jung2025crr}, the model yields lower composition accuracy than C2C~\cite{li2024c2c} on both seen ($-$3.2 points) and unseen ($-$4.6 points) compositions with the CLIP~\cite{radford2021clip} backbone, suggesting that its benefit may be limited under the highly sparse compositional supervision of EK100-com.
+
+
+
+
+
+
+
+
+\input{table/epic_com}
+
+\subsection{Ablation Studies}
+\label{sec:ablation}
+
+\topic{Effects of \ours{} components.}
+In \tabref{ablation_ours} (a),
+using \torc{} alone yields the largest gain in verb generalization, improving \textit{verb@unseen-comp} by 3.5 points, and gain in unseen composition accuracy by 3.8 points, compared to the baseline without CPR and TORC (C2C~\cite{li2024c2c}).
+Using \cpr{} alone primarily improves unseen composition accuracy by 3.1 points, while reducing seen composition accuracy 4.2 points, indicating a seen--unseen trade-off.
+Combining \cpr{} and \torc{} achieves the best overall results, improving unseen composition accuracy by +5.0 points and composition H.M. by +2.7 points, suggesting complementary benefits of mitigating co-occurrence bias and enforcing temporal sensitivity.
+
+
+
+\topic{Effects of \torc{} components.}
+\tabref{ablation_torc} (b) evaluates the roles of $L_{\cos}$, which enforces discrimination of opposite temporal semantics, and $L_\text{ent}$, which prevents reliance on static cues.
+Each term individually improves performance, while using both terms yields the largest gains in the verb@unseen-comp (+3.5 points) and unseen composition accuracy (+3.8 points).
+
+\input{table/ablation}
+
+
+\topic{Effects of label space in \cpr{}.}
+In \tabref{ablation_label_cpr} (c), we validate the batch-adaptive label space expansion in \cpr{}.
+Compared to closed-world training over $\mathbb{Y}_{\text{seen}}$, our batch-adaptive label space improves unseen composition accuracy (+2.3 points) and H.M. by injecting supervision for synthesized compositions while avoiding unstable optimization.
+In contrast, naively optimizing cross-entropy over the full $\mathbb{Y}^V \times \mathbb{Y}^O$ space severely hurts unseen composition accuracy by treating most unseen compositions as negatives throughout training.
+
+
+
+
+\topic{Effects of penalty set in \cpr{}.}
+In \tabref{ablation_penalty_cpr} (d), we study the effect of the penalty set $\mathbb{Y}_{\text{pen}}$.
+Compared to disabling $L_{\text{CPR}}$, penalizing \emph{frequent} hard negatives ($\mathbb{Y}_{\text{hard}}\cap\mathbb{Y}_{\text{freq}}^\text{CPR}$) yields the best trade-off, improving unseen composition accuracy and achieving the highest H.M. of 37.7\%.
+In contrast, penalizing all hard negatives degrades object prediction and hurts overall composition performance, suggesting that restricting penalties to frequent confounders is critical.
+
+

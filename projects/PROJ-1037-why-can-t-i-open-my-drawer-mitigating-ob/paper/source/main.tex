@@ -1,0 +1,77 @@
+\documentclass[runningheads]{llncs}
+
+ 
+\usepackage{eccv}
+
+
+\input{setup/package}
+\input{setup/macros}
+\input{setup/symbols}
+\input{setup/graphicspath}
+
+
+\usepackage{eccvabbrv}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+\usepackage[accsupp]{axessibility}  %
+
+
+
+
+\usepackage{hyperref}
+
+\usepackage{orcidlink}
+
+
+\begin{document}
+
+\title{Why Can’t I Open My Drawer? \\
+Mitigating Object-Driven Shortcuts in Zero-Shot Compositional Action Recognition} 
+
+\titlerunning{Why Can’t I Open My Drawer?}
+
+\author{
+Geo Ahn${}^{1}{}^{*}$\orcidlink{0009-0005-7792-2374} \and
+Inwoong Lee${}^{2}$\orcidlink{0000-0003-4356-7616} \and
+Taeoh Kim${}^{2}$\orcidlink{0000-0001-7252-5525} \and
+Minho Shim${}^{2}$\orcidlink{0000-0002-9637-4909} \and
+Dongyoon Wee${}^{2}$\orcidlink{0000-0003-0359-146X} \and
+Jinwoo Choi${}^{1}{}^{\dagger}$\orcidlink{0000-0001-7043-0610}
+}
+
+\authorrunning{G. Ahn et al.}
+
+\institute{%
+${}^{1}$Kyung Hee University \quad ${}^{2}$NAVER Cloud \\
+\email{\{ahngeo11, jinwoochoi\}@khu.ac.kr}\\
+\email{\{inwoong.lee, taeoh.kim, minho.shim, dongyoon.wee\}@navercorp.com}
+}
+
+\maketitle
+\let\thefootnote\relax\footnote{
+${}^{*}$This work was done during an internship at NAVER Cloud.}
+\let\thefootnote\relax\footnote{
+${}^{\dagger}$Corresponding author.}
+\input{0_abstract}
+\input{1_introduction}
+\input{2_prior}
+\input{3_preliminaries}
+\input{4_method}
+\input{5_result}
+\input{6_conclusion}
+
+
+\section*{Acknowledgements}
+This work was supported by the NAVER Cloud Corporation and partly supported by the Institute of Information \& Communications Technology Planning \& Evaluation(IITP) grant funded by the Korea Government(MSIT) under grant RS-2024-00353131 (25\%) and Information \& Communications Technology Planning \& Evaluation(IITP)-ITRC(Information Technology Research Center) grant funded by the Korea government(MSIT) (IITP-2025-RS-2023-00259004, 25\%).
+Additionally, it was supported by the National Research Foundation of Korea (NRF) grant funded by the Korea government(MSIT) (RS-2025-02216217, 50\%).
+
+\bibliographystyle{splncs04}
+\bibliography{main}
+
+\clearpage
+\input{99_supple_camera}
+
+
+\end{document}

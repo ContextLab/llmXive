@@ -1,0 +1,49 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Top-10 failure cases of the existing ZS-CAR model on unseen compositions of the Sth-com test set.} We employ C2C~\cite{li2024c2c} trained on Sth-com~\cite{li2024c2c} as baseline for analysis. We use `sth' instead of `something' to shorten. We report the results with unbiased open-world inference scores. 
+`Prediction Rate' denotes the proportion of mispredictions classified as the specific composition. 
+`Verb/Object-side' indicates the most frequently co-occurring counterpart for each mispredicted component in the training set, along with its co-occurrence ratio.
+The top-10 cases listed below account for 9.5\% of the total mispredictions on unseen compositions.
+}
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{l l l l l l l}
+\toprule
+\multirow{2}{*}{Rank} & \multirow{2}{*}{Ground Truth (Verb, Object)} & Error & \multirow{2}{*}{Top-2 Misprediction (seen/unseen)} & Prediction & \multicolumn{2}{l}{Most Frequent Co-occurring Component During Training} \\ 
+\cline{6-7}
+&& Count / Rate (\%) && Count / Rate (\%) & Verb-side & Object-side \\
+\toprule
+\multirow{2}{*}{1} & \multirow{2}{*}{(`Pretending to be tearing [sth that is not tearable]', `Paper')} & \multirow{2}{*}{192 / 99.0\%} & (`Tearing [sth] just a little bit', `Paper') (seen) & 116 / 60.4\% & w/ `Paper' (71.6\%) & w/ `Tearing [sth] just a little bit' (26.7\%) \\
+&&& (`Folding [sth]', `Paper') (seen) & 47 / 24.5\% & w/ `Paper' (43.9\%) & w/ `Tearing [sth] just a little bit' (26.7\%) \\
+\midrule
+\multirow{2}{*}{2} & \multirow{2}{*}{(`Unfolding [sth]', `Paper')} & \multirow{2}{*}{140 / 44.7\%} & (`Folding [sth]', `Paper') (seen) & 80 / 57.1\% & w/ `Paper' (43.9\%) & w/ `Tearing [sth] just a little bit' (26.7\%) \\
+&&& (`Tearing [sth] into two pieces', `Paper') (unseen) & 12 / 8.6\% & w/ `Envelope' (17.4\%) & w/ `Tearing [sth] just a little bit' (26.7\%) \\
+\midrule
+\multirow{2}{*}{3} & \multirow{2}{*}{(`Opening [sth]', `Box')} & \multirow{2}{*}{106 / 82.8\%} & (`Showing that [sth] is inside [sth]', `Box') (seen) & 27 / 25.5\% & w/ `Box' (22.7\%) & w/ `Showing that [sth] is empty' (10.1\%) \\
+&&& (`Showing that [sth] is empty', `Box') (seen) & 23 / 21.7\% & w/ `Cup' (30.8\%) & w/ `Showing that [sth] is empty' (10.1\%) \\
+\midrule
+\multirow{2}{*}{4} & \multirow{2}{*}{(`Squeezing [sth]', `Plastic bag')} & \multirow{2}{*}{94 / 40.9\%} & (`Squeezing [sth]', `Bag') (seen) & 77 / 81.9\% & w/ `Sponge' (11.0\%) & w/ `Stuffing [sth] into [sth]' (15.4\%) \\
+&&& (`Folding [sth]', `Plastic bag') (unseen) & 13 / 13.8\% & w/ `Paper' (43.9\%) & w/ `[sth] falling like a feather or paper' (57.4\%) \\
+\midrule
+\multirow{2}{*}{5} & \multirow{2}{*}{(`Putting [sth] into [sth]', `Box')} & \multirow{2}{*}{88 / 60.3\%} & (`Stuffing [sth] into [sth]', `Box') (seen) & 10 / 11.4\% & w/ `Box' (19.2\%) & w/ `Showing that [sth] is empty' (10.1\%) \\
+&&& (`Putting [sth] into [sth]', `Plastic box') (seen) & 8 / 9.1\% & w/ `Bowl' (12.4\%) & w/ `Closing [sth]' (25.9\%) \\
+\midrule
+\multirow{2}{*}{6} & \multirow{2}{*}{(`Lifting up one end of [sth], then letting it drop down', `Card')} & \multirow{2}{*}{79 / 54.1\%} & (`Lifting [sth] up completely without letting it drop down', `Card') (unseen) & 20 / 25.3\% & w/ `Crayon' (26.8\%) & w/ `Uncovering [sth]' (19.8\%) \\
+&&& (`Lifting up one end of [sth], then letting it drop down', `Pencil') (unseen) & 19 / 24.1\% & w/ `Crayon' (26.8\%) & w/ `Uncovering [sth]' (13.7\%) \\
+\midrule
+\multirow{2}{*}{7} & \multirow{2}{*}{(`Putting [sth] on a surface', `Bottle')} & \multirow{2}{*}{77 / 68.1\%} & (`Putting [sth] upright on the table', `Bottle') (seen) & 33 / 42.9\% & w/ `Bottle' (42.1\%) & w/ `Turning [sth] upside down' (5.3\%) \\
+&&& (`Hitting [sth] with [sth]', `Bottle') (seen) & 15 / 19.5\% & w/ `Bottle' (14.8\%) & w/ `Turning [sth] upside down' (5.3\%) \\
+\midrule
+\multirow{2}{*}{8} & \multirow{2}{*}{(`Showing that [sth] is empty', `Bottle')} & \multirow{2}{*}{70 / 85.4\%} & (`Turning [sth] upside down', `Bottle') (seen) & 13 / 18.6\% & w/ `Bottle' (21.7\%) & w/ `Turning [sth] upside down' (5.3\%) \\
+&&& (`Pretending to turn [sth] upside down', `Bottle') (seen) & 8 / 11.4\% & w/ `Bottle' (30.6\%) & w/ `Turning [sth] upside down' (5.3\%) \\
+\midrule
+\multirow{2}{*}{9} & \multirow{2}{*}{(`Throwing [sth]', `Book')} & \multirow{2}{*}{69 / 84.2\%} & (`[sth] falling like a rock', `Book') (seen) & 16 / 23.2\% & w/ `Bottle' (13.0\%) & w/ `Pushing [sth] from left to right' (4.9\%) \\
+&&& (`Throwing [sth]', `Hat') (seen) & 9 / 13.0\% & w/ `Tissue' (7.7\%) & w/ `Throwing [sth]' (35.0\%) \\
+\midrule
+\multirow{2}{*}{10} & \multirow{2}{*}{(`Closing [sth]', `Drawer')} & \multirow{2}{*}{60 / 69.0\%} & (`Opening [sth]', `Drawer') (seen) & 31 / 51.7\% & w/ `Door' (18.9\%) & w/ `Opening [sth]' (36.8\%) \\
+&&& (`Stuffing [sth] into [sth]', `Drawer') (seen) & 6 / 10.0\% & w/ `Box' (19.2\%) & w/ `Opening [sth]' (36.8\%) \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:failure_mode_sth_com}
+\end{table*}

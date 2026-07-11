@@ -1,0 +1,31 @@
+\begin{table}[t]
+\centering
+\caption{\textbf{Hyperparameters used for training \ours{} on each dataset.} We denote InternVideo2~\cite{wang2024iv2} as `IV2'.
+    }
+\resizebox{.7\linewidth}{!}{
+\begin{tabular}{l cc c cc}
+\toprule
+\multirow{2}{*}{Config} & \multicolumn{2}{c}{Sth-com~\cite{li2024c2c}} && \multicolumn{2}{c}{EK100-com} \\
+\cline{2-3} \cline{5-6}
+& CLIP~\cite{radford2021clip} & IV2~\cite{wang2024iv2} && CLIP~\cite{radford2021clip} & IV2~\cite{wang2024iv2} \\
+\midrule
+Optimizer &  \multicolumn{5}{c}{AdamW~\cite{adamw}} \\
+Base learning rate (visual) & 5e-4 & 5e-5 && 1e-4 & 5e-5 \\
+Base learning rate (text) & 1e-4 & 5e-5 && 1e-5 & 5e-5 \\
+Weight decay (visual) & \multicolumn{5}{c}{1e-4}  \\
+Weight decay (text) & \multicolumn{5}{c}{1e-5}  \\
+Optimizer momentum &   \multicolumn{5}{c}{{$\beta_1, \beta_2 = 0.9, 0.999$}} \\
+Per GPU batch size & \multicolumn{5}{c}{16} \\
+Warmup epochs & \multicolumn{5}{c}{3} \\
+$\alpha,\beta,\gamma,\delta$ & \multicolumn{5}{c}{0.2, 1.0, 1.0, 0.1} \\
+$p_\text{CPR}$ & 0.95 & 0.8 && 0.95 & 0.8 \\
+(start, end) epoch for scaling $\gamma$ & \multicolumn{5}{c}{(5, 10)} \\
+(start, end) epoch for scaling $\delta$ & (15, 15) & (30, 35) && (35, 40) & (30, 35) \\
+Scale factor for $\lambda$ in \cpr{} & \multicolumn{5}{c}{0.5} \\
+Softmax temperature & \multicolumn{5}{c}{0.07} \\
+Training epochs & 40 & 50 && 40 & 40 \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:hyperparam}
+\end{table}

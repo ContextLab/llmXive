@@ -1,0 +1,38 @@
+\gene{} sits between several evaluation traditions. Scientific lineage needs both a representation layer and a benchmark: paper-level relevance alone is too coarse, while generation-only preference is too unconstrained.
+
+\textbf{Scientific retrieval and QA.}
+Scientific retrieval and representation benchmarks such as LitSearch and SciRepEval~\citep{litsearch,scirepeval} test whether systems can find or embed relevant papers; sentence and document embeddings~\citep{reimers2019sentence,wang2022e5} and multi-document scientific summarization~\citep{lu2020survey} add complementary representation tasks. Scientific QA, reasoning, general-intelligence, and end-to-end autonomous-research suites~\citep{scieval,sgibench,scievalkit,researchclawbench,sciq,arb} test factual, workflow, and problem-solving competence. \gene{} asks a different question: once the relevant work is available, can a system identify which idea structures are actually transmitted across papers?
+
+\textbf{Automated research and ideation.}
+Recent systems automate literature search, hypothesis generation, experimentation, and paper drafting~\citep{aiscientist,aiscientistv2,airesearcher,agentlab,coiagent}. Other work studies novelty-aware generation~\citep{scimon,nova,deepideation}, iterative ideation from literature~\citep{researchagent,si2024}, retrieval-augmented synthesis~\citep{openscholar,storm}, and multi-agent or fully autonomous scientific collaboration~\citep{sciagents,autoresearchclaw}. These systems make lineage-grounded evaluation more urgent. A proposal can be fluent and literature-aware, yet still fail to inherit the parent mechanism or repair the stated limitation of the work it claims to extend.
+
+\textbf{Science of science and citation structure.}
+Science-of-science work maps fields through citations, communities, and paradigm shifts~\citep{fortunato2018science,jurgens2018,kuhn1962}. Citation-intent classification~\citep{cohan2019} moves closer to functional roles, but still works at the paper or sentence level rather than at \genome{} alignment. Recent method-evolution infrastructure such as Intern-Atlas~\citep{internatlas} also moves beyond document-level citation topology by representing method-level entities and lineage relations. The evolutionary metaphor has deep roots~\citep{darwin1859}, yet computational uses often remain informal. \gene{} treats citation and time as candidate evidence, while making the evaluative object the \genomediff{} alignment itself.
+
+% \textbf{LLM evaluation methodology.}
+% \genearena{} uses model judges and ELO rankings, building on LLM-as-judge~\citep{zheng2024judging} and Chatbot Arena~\citep{chiang2024chatbotarena} techniques. Known biases such as position preference~\citep{wang2023fair} and length preference~\citep{dubois2024length} inform our judge-panel design and PES decomposition; unlike context-free preference scoring, PES conditions each judgment on a genome-centric lineage packet and the neighboring population. Holistic evaluation frameworks~\citep{liang2023helm,lin2024wildbench} motivate multi-dimensional scoring rather than single-number rankings. Separately, agent benchmarks such as SWE-bench~\citep{swebench}, GAIA~\citep{gaia}, and $\tau$-bench~\citep{tbench} evaluate tool-using capabilities but not scientific lineage competence.
+
+\textbf{LLM evaluation methodology.}
+LLM-as-judge~\citep{zheng2024judging} and Chatbot Arena~\citep{chiang2024chatbotarena} make model-judge and ELO protocols scalable. Work on position preference~\citep{wang2023fair} and length preference~\citep{dubois2024length} shows why judge design must be controlled, and holistic frameworks~\citep{liang2023helm,lin2024wildbench} motivate multi-dimensional scoring. Agent benchmarks such as SWE-bench~\citep{swebench}, GAIA~\citep{gaia}, and $\tau$-bench~\citep{tbench} evaluate tool use, but not scientific lineage competence. \genearena{} builds on this methodology while conditioning judgments on genome-centric lineage packets and neighboring populations.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Positioning of \gene{} relative to adjacent evaluation paradigms.}
+\label{tab:related_positioning}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{2.4cm}c c c c@{}}
+\toprule
+\textbf{Paradigm} & \textbf{Unit} & \textbf{Genome?} & \textbf{Diff?} & \textbf{Understand?} & \textbf{Generate?} \\
+\midrule
+Paper retrieval / QA & Paper or passage & \nomark & \nomark & Factual & \nomark \\
+Scientific embeddings & Paper vector & \nomark & \nomark & Similarity & \nomark \\
+Citation graph analysis & Citation edge & \nomark & Partial & Structural & \nomark \\
+Literature-grounded ideation & Paper summary & Partial & Implicit & Weak & \yesmark \\
+Automated research agents & Workflow trace & No fixed unit & \nomark & Indirect & \yesmark \\
+\textbf{\gene{}} & \genome{} & \yesmark & \yesmark & \yesmark & \yesmark \\
+\bottomrule
+\end{tabular*}
+\begin{flushleft}
+\footnotesize Automated research agents include AI Scientist-v2, AI-Researcher, Agent Laboratory, CoI-Agent, SciAgents, and AutoResearchClaw.
+\end{flushleft}
+\end{table}

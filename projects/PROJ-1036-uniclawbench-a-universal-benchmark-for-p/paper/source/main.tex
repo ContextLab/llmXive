@@ -1,0 +1,77 @@
+\documentclass{article}
+
+\PassOptionsToPackage{numbers, compress}{natbib}
+
+\usepackage[preprint]{neurips_2026}
+
+
+
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{natbib}
+\input{Sections/appendix/appendix-preamble}
+
+\title{UniClawBench: A Universal Benchmark for Proactive Agents on Real-World Tasks}
+
+
+
+\renewcommand{\baselinestretch}{0.96}
+\author{%
+  \bf Zhekai Chen\textsuperscript{1$\ast$}
+  ~ \bf Chengqi Duan\textsuperscript{1}\thanks{Equal contribution, listed alphabetically}
+  ~~ \bf Kaiyue Sun\textsuperscript{1$\ast$}
+  ~~ \bf Bohao Li\textsuperscript{1}
+  ~~ \bf Yuqing Wang\textsuperscript{1} \\
+  ~~ \bf Manyuan Zhang\textsuperscript{2}\thanks{Corresponding Author}
+  ~~ \bf Xihui Liu\textsuperscript{1$\dagger$}
+  \\
+  \textsuperscript{1}HKU MMLab ~~~
+  \textsuperscript{2}Meituan  ~~~
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+\begin{figure}[h]
+    \vspace{-20pt}
+    \centering
+    \includegraphics[width=\textwidth]{Figures/teaser.pdf}
+    \caption{\textbf{Overview of UniClawBench.} UniClawBench consists of 400  bilingual real-world tasks spanning 5 core capabilities: multimodal, long-context, skill usage, exploration, and cross-platform. We propose a three-role closed-loop evaluation framework, where an executor agent performs tasks in real environments, a supervisor evaluates trajectories and artifacts using hidden rubrics, and a user simulator provides natural feedback based on executor's performance and supervisor's signal, enabling multi-turn interaction. We conduct two sets of experiments to evaluate cross-model and cross-framework performance. The capability-level results reveal that framework choice exerts a stronger influence than model choice.}
+    \label{fig:teaser}
+\end{figure}
+
+\begin{abstract}
+The rapid development of large language models and multimodal large language models has accelerated the emergence of proactive agents capable of operating everyday tools and assisting users in real-world environments. However, existing benchmarks struggle to evaluate such agents effectively, as they often rely on sandboxed environments and single-turn evaluation paradigms. Moreover, their scenario-based task taxonomies mix multiple model capabilities within the same task category, making it difficult to identify the root causes of agent failures. To address these limitations, we introduce UniClawBench, the first capability-driven benchmark designed to evaluate proactive agents in dynamic, real-world settings. UniClawBench is built around five foundational model capabilities: Skill Usage, Exploration, Long-Context Reasoning, Multimodal Understanding, and Cross-Platform Coordination. Based on these capabilities, we design 400 bilingual real-world tasks. Unlike previous benchmarks that rely on static, pre-recorded answers, our benchmark evaluates agents in live Docker containers using fine-grained, step-by-step completion checkpoints. Furthermore, we design a closed-loop evaluation strategy comprising an executor agent, a hidden supervisor agent, and a user agent to simulate realistic multi-turn human feedback without leaking grading criteria. To disentangle base model capabilities from framework-level design choices, we evaluate state-of-the-art models under multiple agent frameworks. Through comprehensive comparisons across both models and frameworks, we show how base model capabilities and agent framework designs jointly shape performance in real-world environments. To facilitate future research, we make our benchmark and code publicly available at \url{https://github.com/HKU-MMLab/UniClawBench}.
+\end{abstract}
+
+\input{Sections/1_introduction}
+\input{Sections/2_relatedwork}
+\input{Sections/3_benchmark}
+\input{Sections/4_experiments}
+\input{Sections/5_conclusion}
+
+
+\bibliography{main}
+\bibliographystyle{plainnat}
+
+
+\newpage
+\appendix
+\input{Sections/appendix/appendix}
+
+
+\end{document}

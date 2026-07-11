@@ -1,0 +1,57 @@
+{
+  "arxiv_id": "2607.08768",
+  "arxiv_url": "https://arxiv.org/abs/2607.08768",
+  "title": "UniClawBench: A Universal Benchmark for Proactive Agents on Real-World Tasks",
+  "authors": [
+    "Zhekai Chen",
+    "Chengqi Duan",
+    "Kaiyue Sun",
+    "Bohao Li",
+    "Yuqing Wang",
+    "Manyuan Zhang",
+    "Xihui Liu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "The rapid development of large language models and multimodal large language models has accelerated the emergence of proactive agents capable of operating everyday tools and assisting users in real-world environments. However, existing benchmarks struggle to evaluate such agents effectively, as they often rely on sandboxed environments and single-turn evaluation paradigms. Moreover, their scenario-based task taxonomies mix multiple model capabilities within the same task category, making it difficult to identify the root causes of agent failures. To address these limitations, we introduce UniClawBench, the first capability-driven benchmark designed to evaluate proactive agents in dynamic, real-world settings. UniClawBench is built around five foundational model capabilities: Skill Usage, Exploration, Long-Context Reasoning, Multimodal Understanding, and Cross-Platform Coordination. Based on these capabilities, we design 400 bilingual real-world tasks. Unlike previous benchmarks that rely on static, pre-recorded answers, our benchmark evaluates agents in live Docker containers using fine-grained, step-by-step completion checkpoints. Furthermore, we design a closed-loop evaluation strategy comprising an executor agent, a hidden supervisor agent, and a user agent to simulate realistic multi-turn human feedback without leaking grading criteria. To disentangle base model capabilities from framework-level design choices, we evaluate state-of-the-art models under multiple agent frameworks. Through comprehensive comparisons across both models and frameworks, we show how base model capabilities and agent framework designs jointly shape performance in real-world environments. To facilitate future research, we make our benchmark and code publicly available at https://github.com/HKU-MMLab/UniClawBench.",
+  "submitted_via": "llmXive dashboard, GitHub issue #897",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/HKU-MMLab/UniClawBench"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "Figures",
+    "Figures/token_and_user.pdf",
+    "Figures/three_role_strategy.pdf",
+    "Figures/teaser.pdf",
+    "Figures/statistics_heatmaps_combined.pdf",
+    "main.bib",
+    "main.tex",
+    "neurips_2026.sty",
+    "Sections",
+    "Sections/3_benchmark.tex",
+    "Sections/4_experiments.tex",
+    "Sections/2_relatedwork.tex",
+    "Sections/5_conclusion.tex",
+    "Sections/appendix",
+    "Sections/appendix/appendix-preamble.tex",
+    "Sections/appendix/A_task_format.tex",
+    "Sections/appendix/B_suite_examples.tex",
+    "Sections/appendix/C_prompts.tex",
+    "Sections/appendix/appendix.tex",
+    "Sections/appendix/D_case_study.tex",
+    "Sections/1_introduction.tex",
+    "Tables",
+    "Tables/3_benchmark_model_zh.tex",
+    "Tables/2_benchmark_framework.tex",
+    "Tables/4_benchmark_framework_zh.tex",
+    "Tables/5_benchmark_model_avg.tex",
+    "Tables/1_benchmark_model.tex",
+    "Tables/6_benchmark_framework_avg.tex"
+  ]
+}

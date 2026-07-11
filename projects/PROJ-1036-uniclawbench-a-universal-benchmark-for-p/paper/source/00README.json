@@ -1,0 +1,45 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Sections/appendix/A_task_format.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Sections/appendix/B_suite_examples.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Sections/appendix/C_prompts.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Sections/appendix/D_case_study.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Tables/1_benchmark_model.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Tables/2_benchmark_framework.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Tables/3_benchmark_model_zh.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Tables/4_benchmark_framework_zh.tex"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

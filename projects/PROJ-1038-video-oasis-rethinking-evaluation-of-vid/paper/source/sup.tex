@@ -1,0 +1,842 @@
+\title{Video-Oasis: Rethinking Evaluation of \\ Video Understanding \\ (Supplementary Material)} 
+\author{}
+\institute{}
+\titlerunning{Video-Oasis: Rethinking Evaluation of Video Understanding}
+\authorrunning{G. Lim et al.}
+\maketitle
+\vspace{-6mm}
+
+The supplementary material is organized as follows:
+
+\begin{itemize}[topsep=2pt,itemsep=1pt]
+\item \Cref{sec:a}: robustness analysis of Video-Oasis under alternative diagnostic model configurations.
+\item \Cref{sec:b}: benchmark-wise evaluation results, including shortcut filtering outcomes and diagnostic test results across benchmarks.
+\item \Cref{sec:c}: implementation details of Video-Oasis.
+\item \Cref{sec:d}: statistics, qualitative examples, and annotation prompts for the distilled video-native challenges.
+\item \Cref{sec:e}: additional experimental results related to reproducibility.
+
+\end{itemize} \vspace{-4mm}
+
+\section{Robustness of Video-Oasis} \label{sec:a}
+
+    We perform an ablation study with alternative models in the diagnostic suite.
+    For the visual dependency tests (Blind, Audio, and Summary), we replace the Video-LLMs with language-only LLMs~\cite{llama3,mistral,qwen3}, and for the Center-Frame and Frame Shuffling tests, we use different backbones (InternVL-3.5~\cite{internvl35}, Video-R1~\cite{videor1}, VideoLLaMA3~\cite{videollama}, MiMo-VL-SFT~\cite{mimo}, and LLaVA-Video~\cite{zhang2024llava}). 
+    \Cref{tab:multi_voting_6_tables} reports the diagnostic test results under these alternative model configurations.
+    Following the main paper, we define a shortcut sample only when all three models correctly answer the question.
+    As shown in \Cref{tab:robustness_overlap}, the resulting shortcut sets remain highly consistent with those obtained under the main diagnostic model configuration.
+    All overlaps exceed 87\%, indicating robustness to model selection.
+            
+    \begin{table}[h]
+        \centering
+        \footnotesize 
+        \setlength{\tabcolsep}{5pt} 
+        % --- First Row ---
+        \begin{subtable}[t]{0.31\textwidth}
+            \centering
+            \begin{tabular}{lc}
+                \toprule
+                \rowcolor[gray]{0.9} \textbf{LLM} & \textbf{Acc.} \\
+                \midrule
+                Mistral & 29.3 \\
+                Qwen3 & 33.1 \\
+                Llama 3.1 & 31.6 \\
+                \bottomrule
+            \end{tabular}
+            \caption{Blind Test}
+        \end{subtable}
+        \hfill
+        \begin{subtable}[t]{0.31\textwidth}
+            \centering
+            \begin{tabular}{lc}
+                \toprule
+                \rowcolor[gray]{0.9} \textbf{LLM} & \textbf{Acc.} \\
+                \midrule
+                Mistral & 37.5 \\
+                Qwen3 & 39.7 \\
+                Llama 3.1 & 41.2 \\
+                \bottomrule
+            \end{tabular}
+            \caption{Audio}
+        \end{subtable}
+        \hfill
+        \begin{subtable}[t]{0.31\textwidth}
+            \centering
+            \begin{tabular}{lc}
+                \toprule
+                \rowcolor[gray]{0.9} \textbf{LLM} & \textbf{Acc.} \\
+                \midrule
+                Mistral & 38.5 \\
+                Qwen3 & 42.6 \\
+                Llama 3.1 & 40.5 \\
+                \bottomrule
+            \end{tabular}
+            \caption{Summary}
+        \end{subtable}
+    
+        \vspace{0.2em} 
+    
+        % --- Second Row ---
+
+        \begin{subtable}[t]{0.31\textwidth}
+            \centering
+            \begin{tabular}{lc}
+                \toprule
+                \rowcolor[gray]{0.9} \textbf{VLM} & \textbf{Acc.} \\
+                \midrule
+                $\text{CLIP}$ & 31.4 \\
+                $\text{Long-CLIP}$ & 32.8 \\
+                $\text{EVA-CLIP}$ & 32.7 \\
+                \bottomrule
+            \end{tabular}
+            \caption{Bag-of-Frames}
+        \end{subtable}
+        \hfill
+        \begin{subtable}[t]{0.31\textwidth}
+            \centering
+            \begin{tabular}{lc}
+                \toprule
+                \rowcolor[gray]{0.9} \textbf{Video-LLM} & \textbf{Acc.} \\
+                \midrule
+                Eagle2.5 & 42.2 \\
+                Video-R1 & 38.6 \\
+                InternVL-3.5 & 39.2 \\
+                MiMo-VL-SFT & 38.6 \\
+                LLaVA-Video & 39.2 \\
+                VideoLLaMA3 & 42.2 \\
+
+                \bottomrule
+            \end{tabular}
+            \caption{Center-Frame}
+        \end{subtable}
+        \hfill
+        \begin{subtable}[t]{0.31\textwidth}
+            \centering
+            \begin{tabular}{lc}
+                \toprule
+                \rowcolor[gray]{0.9} \textbf{Video-LLM} & \textbf{Acc.} \\
+                \midrule
+                Eagle2.5 & 52.2 \\
+                Video-R1 & 46.3 \\
+                InternVL-3.5 & 49.8 \\
+                MiMo-VL-SFT & 46.1 \\
+                LLaVA-Video & 47.4 \\
+                VideoLLaMA3 & 48.4 \\
+                \bottomrule
+            \end{tabular}
+            \caption{Frame Shuffling}
+        \end{subtable}
+        \caption{Quantitative results of Video-Oasis under different diagnostic models.} \vspace{-12mm}
+        \label{tab:multi_voting_6_tables}
+    \end{table}
+
+    \begin{table}[h]
+    \centering
+    \scriptsize
+    \caption{Overlap of shortcut sets under alternative diagnostic model combinations.}
+    \label{tab:robustness_overlap}
+    \resizebox{0.95\columnwidth}{!}{%
+    \begin{tabular}{l l l | c}
+    \toprule
+    \textbf{Model 1} & \textbf{Model 2} & \textbf{Model 3} & \textbf{Overlap} \\
+    \midrule
+    Eagle2.5 (8B) & InternVL-3.5 (8B) & Video-R1 (8B) & 90.0\% \\
+    InternVL-3.5 (8B) & VideoLLaMA3 (8B) & MiMo-VL-SFT (8B) & 88.6\% \\
+    InternVL-3.5 (8B) & VideoLLaMA3 (8B) & LLaVA-Video (8B) & 87.5\% \\
+    VideoLLaMA3 (8B) & MiMo-VL-SFT (8B) & LLaVA-Video (8B) & 87.8\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+    \end{table}
+    
+\section{Benchmark-wise Evaluation} \label{sec:b}
+
+    This section presents additional benchmark-wise analyses that were not included in the main paper. 
+    \Cref{sec:b.1} reports the proportion of shortcut samples identified for each benchmark, and \Cref{sec:b.2} presents the diagnostic test results.
+    
+    \subsection{Filtering Results of Video-Oasis} \label{sec:b.1}
+
+        \Cref{tab:supp_benchmark_stats} summarizes the per-benchmark filtering results. 
+        For each benchmark, we report the number of QA samples before filtering (original) and after applying Video-Oasis (remaining), where the filtering ratio denotes the proportion of removed samples. 
+        We also evaluate Qwen2.5-VL (7B)~\cite{qwen25vl} on both sets and report the absolute performance gap.
+        The relationship between the filtering ratio and the performance gap is not uniform across benchmarks. 
+        If Video-Oasis simply selected difficult questions, benchmarks with higher original accuracy would be expected to exhibit both higher filtering ratios and larger performance gaps, while those with lower original accuracy would show the opposite trend.
+        However, the results do not follow such a monotonic trend. 
+        For example, MVBench~\cite{mvbench} achieves a higher original accuracy (71.2) than EgoSchema~\cite{egoschema} (62.4), yet EgoSchema exhibits both a higher filtering ratio (76.4 vs. 66.9) and a substantially larger performance gap (40.5 vs. 20.7). If Video-Oasis merely selected difficult questions, the opposite pattern would be expected.
+        These observations suggest that Video-Oasis does not simply collect difficult questions but instead identifies shortcut-prone problems that fail to enforce video understanding. 
+        \vspace{-4mm}
+
+        \begin{table}[h]
+        \centering
+        \caption{Per-benchmark statistics before and after Video-Oasis filtering.}
+        \label{tab:supp_benchmark_stats}
+        
+        \setlength{\tabcolsep}{4pt}
+        \renewcommand{\arraystretch}{1.05}
+        
+        \resizebox{\linewidth}{!}{
+        \begin{tabular}{llrr}
+        \toprule
+        \multirow{3}{*}{\textbf{Group}} &
+        \multirow{3}{*}{\textbf{Benchmark}} &
+        \multicolumn{1}{c}{\textbf{Question Samples}} &
+        \multicolumn{1}{c}{\textbf{Accuracy (\%) on}} \\
+         & & \multicolumn{1}{c}{\textbf{remaining/original}} &
+             \multicolumn{1}{c}{\textbf{remaining/original}} \\
+         & & \multicolumn{1}{c}{(filtering ratio)} &
+             \multicolumn{1}{c}{(performance gap)} \\
+        \midrule
+        \textbf{Spatial}
+        & EgoSchema~\cite{egoschema}           & 118/500 (76.4\%)     & 21.9/62.4 (40.5\%) \\
+        & ImplicitQA~\cite{implicitqa}         & 356/766 (53.5\%)     & 24.5/48.6 (24.1\%) \\
+        & VSI-Bench~\cite{vsibench}            & 1,550/2,490 (37.8\%) & 30.3/37.7 (7.40\%) \\
+        \midrule
+        \textbf{Temporal}
+        & TVBench~\cite{tvbench}               & 1,174/2,205 (46.8\%) & 38.3/50.4 (12.1\%) \\
+        & VCR-Bench~\cite{vcrbench}            & 255/511 (50.1\%)     & 34.0/53.8 (19.8\%) \\
+        & RTV-Bench~\cite{rtvbench}            & 1,920/4,608 (58.3\%) & 22.5/45.5 (23.0\%) \\
+        \midrule
+        \textbf{Reasoning}
+        & Video-Holmes~\cite{videoholmes}      & 958/1,837 (47.8\%)   & 24.1/43.6 (19.5\%) \\
+        & MINERVA~\cite{minerva}               & 901/1,358 (33.7\%)   & 22.9/35.7 (12.8\%) \\
+        & MMR-V~\cite{mmrv}                    & 658/1,257 (47.7\%)   & 17.8/45.9 (28.1\%) \\
+        \midrule
+        \textbf{General}
+        & VideoMME~\cite{videomme}            & 633/2,700 (76.6\%)   & 32.5/65.3 (32.8\%) \\
+        & MVBench~\cite{mvbench}               & 994/3,000 (66.9\%) & 50.5/71.2 (20.7\%) \\
+        & LVBench~\cite{lvbench}               & 740/1,345 (45.0\%)   & 24.3/41.7 (17.4\%) \\
+        & LongVideoBench~\cite{longvideobench} & 545/1,337 (59.2\%)   & 30.4/59.7 (29.3\%) \\
+        & MLVU~\cite{mlvu}                     & 231/502 (54.0\%)     & 27.3/53.6 (26.3\%) \\
+        \midrule
+        \rowcolor{gray!10}
+        \textbf{Total} & & \textbf{11,033/24,416 (54.8\%)} & \textbf{29.2/51.2 (22.0\%)} \\
+        \bottomrule
+        \end{tabular}}
+        \vspace{-8mm}
+        \end{table}
+
+    \subsection{Diagnostic Test Results} \label{sec:b.2}
+        We report benchmark-wise results for each diagnostic test to provide a detailed breakdown across datasets. 
+        The results are summarized in \Cref{tab:blind,tab:audio,tab:narrative,tab:center,tab:shuffling,tab:bof}, which report the model accuracy under the proposed diagnostic configurations.
+        For the Audio Test, as shown in \Cref{tab:audio}, certain benchmarks are excluded from evaluation because their videos do not contain encoded audio tracks, the audio tracks are unavailable on YouTube, or the videos contain no speech. 
+        Consequently, we evaluate only the subset of samples for which audio-based evaluation is feasible.    
+                
+        \begin{table}[h]
+        \centering
+        \caption{Benchmark-wise results (\%) for the Blind Test, where the model answers without visual input or auxiliary context, relying only on linguistic priors.}
+        \footnotesize
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{lcccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Benchmark}} & \multicolumn{4}{c}{\scriptsize \textbf{Blind}} \\
+        \cmidrule(lr){2-5}
+         & {\scriptsize \textbf{Eagle2.5~\cite{eagle25}}} & {\scriptsize \textbf{Qwen2.5-VL}~\cite{qwen25vl}} & {\scriptsize \textbf{Qwen3-VL}~\cite{qwem3_vl}} & {\scriptsize \textbf{Random}} \\
+        \midrule
+        Egoschema~\cite{egoschema} & 30.6 & 29.1 & 35.0 & 20.0 \\
+        ImplicitQA~\cite{implicitqa} & 39.0 & 38.1 & 40.3 & 29.3 \\
+        MINERVA~\cite{minerva} & 24.2 & 20.0 & 23.6 & 20.0 \\
+        RTV-Bench~\cite{rtvbench} & 37.1 & 34.6 & 35.5 & 30.4 \\
+        VSI-Bench~\cite{vsibench} & 25.0 & 29.6 & 31.5 & 28.7 \\
+        MVBench~\cite{mvbench} & 37.5 & 42.6 & 38.9 & 29.7 \\
+        LongVideoBench~\cite{longvideobench} & 46.2 & 42.1 & 43.6 & 21.3 \\
+        LVBench~\cite{lvbench} & 28.5 & 23.5 & 26.8 & 25.0 \\
+        MLVU~\cite{mlvu} & 24.4 & 27.3 & 25.6 & 16.7 \\
+        MMR-V~\cite{mmrv} & 35.7 & 30.3 & 34.4 & 9.6 \\
+        TVBench~\cite{tvbench} & 37.0 & 34.7 & 40.9 & 33.7 \\
+        VCR-Bench~\cite{vcrbench} & 42.0 & 37.8 & 39.7 & 24.1 \\
+        Video-Holmes~\cite{videoholmes} & 36.6 & 32.5 & 35.9 & 16.7 \\
+        VideoMME~\cite{videomme} & 43.4 & 38.2 & 43.9 & 25.0 \\
+        \midrule
+        \textbf{Total} & \textbf{35.6} & \textbf{33.5} & \textbf{36.2} & \textbf{25.6} \\
+        \bottomrule
+        \end{tabular}
+        \label{tab:blind}
+        \end{table}
+
+        \begin{table}[h]
+        \centering
+        \caption{Benchmark-wise results (\%) for the Audio Test, where the model answers using only the speech transcript from the video's audio.}
+        \footnotesize
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{lcccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Benchmark}} & \multicolumn{4}{c}{\scriptsize \textbf{Audio}} \\
+        \cmidrule(lr){2-5}
+         & {\scriptsize \textbf{Eagle2.5~\cite{eagle25}}} & {\scriptsize \textbf{Qwen2.5-VL}~\cite{qwen25vl}} & {\scriptsize \textbf{Qwen3-VL}~\cite{qwem3_vl}} & {\scriptsize \textbf{Random}} \\
+        \midrule
+        EgoSchema~\cite{egoschema} & - & - & - & - \\
+        ImplicitQA~\cite{implicitqa} & - & - & - & - \\
+        MINERVA~\cite{minerva} & - & - & - & - \\
+        RTV-Bench~\cite{rtvbench} & 37.5 & 37.3 & 37.0 & 30.2 \\
+        VSI-Bench~\cite{vsibench} & - & - & - & - \\
+        MVBench~\cite{mvbench} & 40.3 & 38.0 & 34.5 & 28.9 \\
+        LongVideoBench~\cite{longvideobench} & 50.5 & 54.3 & 45.7 & 20.8 \\
+        LVBench~\cite{lvbench} & - & - & - & - \\
+        MLVU~\cite{mlvu} & 42.5 & 52.1 & 46.2 & 16.7 \\
+        MMR-V~\cite{mmrv} & 32.0 & 31.0 & 35.6 & 9.5 \\
+        TVBench~\cite{tvbench} & 43.3 & 37.4 & 38.6 & 35.7 \\
+        VCR-Bench~\cite{vcrbench} & 48.6 & 46.5 & 42.7 & 25.0 \\
+        Video-Holmes~\cite{videoholmes} & 37.8 & 38.2 & 39.9 & 16.7 \\
+        VideoMME~\cite{videomme} & 65.4 & 64.0 & 64.5 & 25.0 \\
+        \midrule
+        \textbf{Total} & \textbf{47.6} & \textbf{46.8} & \textbf{45.9} & \textbf{24.9} \\
+        \bottomrule
+        \end{tabular}
+        \label{tab:audio}
+        \end{table}
+
+        \begin{table}[h]
+        \centering
+        \caption{Benchmark-wise results (\%) for the Summary Test, where the model answers using concatenated video captions as textual context.}
+        \footnotesize
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{lcccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Benchmark}} & \multicolumn{4}{c}{\scriptsize \textbf{Summary}} \\
+        \cmidrule(lr){2-5}
+         & {\scriptsize \textbf{Eagle2.5~\cite{eagle25}}} & {\scriptsize \textbf{Qwen2.5-VL}~\cite{qwen25vl}} & {\scriptsize \textbf{Qwen3-VL}~\cite{qwem3_vl}} & {\scriptsize \textbf{Random}} \\
+        \midrule
+        EgoSchema~\cite{egoschema} & 69.8 & 65.9 & 70.5 & 20.0 \\
+        ImplicitQA~\cite{implicitqa} & 41.8 & 40.6 & 40.3 & 29.3 \\
+        MINERVA~\cite{minerva} & 27.8 & 25.6 & 27.9 & 20.0 \\
+        RTV-Bench~\cite{rtvbench} & 41.9 & 41.0 & 42.2 & 30.4 \\
+        VSI-Bench~\cite{vsibench} & 33.1 & 37.1 & 41.3 & 28.7 \\
+        MVBench~\cite{mvbench} & 55.7 & 54.5 & 54.6 & 29.7 \\
+        LongVideoBench~\cite{longvideobench} & 49.6 & 48.4 & 50.4 & 21.3 \\
+        LVBench~\cite{lvbench} & 35.1 & 32.8 & 33.4 & 25.0 \\
+        MLVU~\cite{mlvu} & 46.0 & 42.7 & 47.5 & 16.7 \\
+        MMR-V~\cite{mmrv} & 39.1 & 34.6 & 38.2 & 9.6 \\
+        TVBench~\cite{tvbench} & 43.9 & 42.8 & 42.4 & 33.7 \\
+        VCR-Bench~\cite{vcrbench} & 45.7 & 46.6 & 50.2 & 24.1 \\
+        Video-Holmes~\cite{videoholmes} & 39.3 & 35.5 & 41.0 & 16.7 \\
+        VideoMME~\cite{videomme} & 54.8 & 52.4 & 57.6 & 25.0 \\
+        \midrule
+        \textbf{Total} & \textbf{44.0} & \textbf{42.6} & \textbf{45.0} & \textbf{25.6} \\
+        \bottomrule
+        \end{tabular}
+        \label{tab:narrative}
+        \end{table}
+
+        \begin{table}[h]
+        \centering
+        \caption{Benchmark-wise results (\%) for the Center-Frame Test, where the model answers using only the center frame of the video.}
+        \footnotesize
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{lcccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Benchmark}} & \multicolumn{4}{c}{\scriptsize \textbf{Center-Frame}} \\
+        \cmidrule(lr){2-5}
+         & {\scriptsize \textbf{Eagle2.5~\cite{eagle25}}} & {\scriptsize \textbf{Qwen3-VL}~\cite{qwem3_vl}} & {\scriptsize \textbf{VideoAuto-R1}~\cite{videoautor1}} & {\scriptsize \textbf{Random}} \\
+        \midrule
+        EgoSchema~\cite{egoschema} & 49.8 & 58.1 & 58.4 & 20.0 \\
+        ImplicitQA~\cite{implicitqa} & 39.8 & 38.0 & 41.8 & 29.3 \\
+        MINERVA~\cite{minerva} & 27.3 & 23.3 & 25.2 & 20.0 \\
+        RTV-Bench~\cite{rtvbench} & 40.7 & 40.8 & 41.7 & 30.4 \\
+        VSI-Bench~\cite{vsibench} & 29.6 & 34.6 & 35.3 & 28.7 \\
+        MVBench~\cite{mvbench} & 54.3 & 50.9 & 54.4 & 30.3 \\
+        LongVideoBench~\cite{longvideobench} & 49.1 & 43.5 & 48.2 & 21.3 \\
+        LVBench~\cite{lvbench} & 35.9 & 30.4 & 31.2 & 25.0 \\
+        MLVU~\cite{mlvu} & 38.3 & 33.1 & 36.7 & 16.7 \\
+        MMR-V~\cite{mmrv} & 47.6 & 41.0 & 46.0 & 9.6 \\
+        TVBench~\cite{tvbench} & 39.9 & 38.5 & 43.4 & 33.4 \\
+        VCR-Bench~\cite{vcrbench} & 40.9 & 37.6 & 40.9 & 24.1 \\
+        Video-Holmes~\cite{videoholmes} & 42.0 & 35.9 & 42.3 & 16.7 \\
+        VideoMME~\cite{videomme} & 50.7 & 47.5 & 50.4 & 25.0 \\
+        \midrule
+        \textbf{Total} & \textbf{42.2} & \textbf{40.2} & \textbf{43.0} & \textbf{25.6} \\
+        \bottomrule
+        \end{tabular}
+        \label{tab:center}
+        \end{table}
+
+        \begin{table}[h]
+        \centering
+        \caption{Benchmark-wise results (\%) for the Frame Shuffling Test, where the temporal order of video frames is randomly permuted.}
+        \footnotesize
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{lcccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Benchmark}} & \multicolumn{4}{c}{\scriptsize \textbf{Frame Shuffling}} \\
+        \cmidrule(lr){2-5}
+         & {\scriptsize \textbf{Eagle2.5~\cite{eagle25}}} & {\scriptsize \textbf{Qwen3-VL}~\cite{qwem3_vl}} & {\scriptsize \textbf{VideoAuto-R1}~\cite{videoautor1}} & {\scriptsize \textbf{Random}} \\
+        \midrule
+        EgoSchema~\cite{egoschema} & 69.4 & 70.4 & 70.8 & 20.0 \\
+        ImplicitQA~\cite{implicitqa} & 50.0 & 44.1 & 46.7 & 29.3 \\
+        MINERVA~\cite{minerva} & 39.2 & 35.4 & 36.2 & 20.0 \\
+        RTV-Bench~\cite{rtvbench} & 46.8 & 47.2 & 47.1 & 30.4 \\
+        VSI-Bench~\cite{vsibench} & 35.5 & 46.4 & 45.8 & 28.7 \\
+        MVBench~\cite{mvbench} & 69.1 & 64.7 & 66.2 & 30.3 \\
+        LongVideoBench~\cite{longvideobench} & 63.7 & 59.4 & 60.6 & 21.3 \\
+        LVBench~\cite{lvbench} & 49.4 & 43.4 & 42.8 & 25.0 \\
+        MLVU~\cite{mlvu} & 54.6 & 52.6 & 51.8 & 16.7 \\
+        MMR-V~\cite{mmrv} & 55.1 & 45.1 & 55.1 & 9.6 \\
+        TVBench~\cite{tvbench} & 42.6 & 40.8 & 45.9 & 33.4 \\
+        VCR-Bench~\cite{vcrbench} & 51.7 & 50.5 & 52.8 & 24.1 \\
+        Video-Holmes~\cite{videoholmes} & 46.5 & 44.4 & 48.5 & 16.7 \\
+        VideoMME~\cite{videomme} & 67.5 & 65.1 & 65.9 & 25.0 \\
+        \midrule
+        \textbf{Total} & \textbf{52.2} & \textbf{50.7} & \textbf{52.4} & \textbf{25.6} \\
+        \bottomrule
+        \end{tabular}
+        \label{tab:shuffling}
+        \end{table}
+
+        
+        \begin{table}[h]
+        \centering
+        \caption{Benchmark-wise results (\%) for the Bag-of-Frames Test, where frames are processed independently without modeling temporal relations.}
+        \footnotesize
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{lcccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Benchmark}} & \multicolumn{4}{c}{\scriptsize \textbf{Bag-of-Frames}} \\
+        \cmidrule(lr){2-5}
+         & {\scriptsize \textbf{CLIP~\cite{clip}}} & {\scriptsize \textbf{Long-CLIP}~\cite{longclip}} & {\scriptsize \textbf{EVA-CLIP}~\cite{evaclip}} & {\scriptsize \textbf{Random}} \\
+        \midrule
+        EgoSchema~\cite{egoschema} & 39.6 & 52.4 & 36.2 & 20.0 \\
+        ImplicitQA~\cite{implicitqa} & 30.3 & 31.7 & 30.0 & 29.3 \\
+        MINERVA~\cite{minerva} & 20.3 & 22.2 & 21.1 & 20.0 \\
+        RTV-Bench~\cite{rtvbench} & 33.4 & 35.9 & 37.3 & 30.4 \\
+        VSI-Bench~\cite{vsibench} & 33.1 & 28.3 & 34.3 & 28.7 \\
+        MVBench~\cite{mvbench} & 41.0 & 42.2 & 41.4 & 30.3 \\
+        LongVideoBench~\cite{longvideobench} & 31.3 & 32.2 & 34.3 & 21.3 \\
+        LVBench~\cite{lvbench} & 30.0 & 31.5 & 29.4 & 25.0 \\
+        MLVU~\cite{mlvu} & 29.7 & 33.7 & 27.3 & 16.7 \\
+        MMR-V~\cite{mmrv} & 18.4 & 19.1 & 19.6 & 9.6 \\
+        TVBench~\cite{tvbench} & 33.3 & 37.4 & 35.4 & 33.4 \\
+        VCR-Bench~\cite{vcrbench} & 29.6 & 31.0 & 26.9 & 24.1 \\
+        Video-Holmes~\cite{videoholmes} & 20.2 & 20.4 & 20.3 & 16.7 \\
+        VideoMME~\cite{videomme} & 33.8 & 34.9 & 35.3 & 25.0 \\
+        \midrule
+        \textbf{Total} & \textbf{31.4} & \textbf{32.7} & \textbf{32.8} & \textbf{25.6} \\
+        \bottomrule
+        \end{tabular}
+        \label{tab:bof}
+        \end{table}
+    \clearpage
+
+
+\section{Implementation Details of Video-Oasis} \label{sec:c}
+
+    \subsection{Visual Dependency Tests}
+        In this setting, visual input is removed, and the model ($\mathcal{M}$) is evaluated based solely on textual context. 
+        \begin{equation}
+            \text{Response} = \mathcal{M}\left( \mathcal{V}, \mathcal{P}_{diag}(\mathcal{C}_{type}, \mathcal{Q}, \mathcal{O}) \right),
+        \end{equation}
+        
+        \noindent where $\mathcal{V}$ denotes the visual input and $\mathcal{P}_{diag}$ is a system prompt (\Cref{tab:prompt}) that formats the context $\mathcal{C}_{type}$ together with the question $\mathcal{Q}$ and options $\mathcal{O}$. For all tests, we set $\mathcal{V} = \emptyset$ to remove the influence of visual context.
+        
+        \paragraph{\textbf{Blind Test ($\mathcal{C}_{blind} = \emptyset$)}}
+        In this configuration, all auxiliary inputs are removed. 
+        The model must rely solely on linguistic priors and internal world knowledge.
+        
+        \paragraph{\textbf{Audio Test ($\mathcal{C}_{audio} = \mathcal{T}_{whisper}$)}} 
+        Here, the context is replaced by a text transcript $\mathcal{T}$ generated from the video's audio track. 
+        We use Whisper-v3 (large)~\cite{whisper} to extract speech. 
+        This setup identifies questions that can be solved solely from the speech transcript, indicating that they primarily require textual understanding rather than visual reasoning.
+        
+        \paragraph{\textbf{Summary Test ($\mathcal{C}_{summary} = \mathcal{S}_{concat}$)}} 
+        The video is uniformly partitioned into 8 temporal chunks (16 frames each), where a single caption is extracted per chunk via CARE~\cite{care} and concatenated chronologically to form $\mathcal{S}_{concat}$. 
+        Since our setup relies on simple caption concatenation without sophisticated summarization, success in this test suggests that the task may rely more on text-based reasoning, such as pattern matching or attribute recognition, than on grounded visual perception from the raw video.
+
+        \begin{table}[h!] \centering \begin{tcolorbox}[colback=gray!5, colframe=gray!50, arc=2mm, boxrule=0.5pt, left=2mm, right=2mm, top=2mm, bottom=2mm] \footnotesize \textbf{System Prompt:} \\ You are a helpful assistant. Select the best answer to the following multiple-choice question based on the provided context and options. \\ \textbf{Question ($\mathcal{Q}$):} \{question\} \\ \textbf{Context ($\mathcal{C}_{type}$):} \textit{\{Empty / Audio Transcript / Summary\}} \\ \textbf{Options ($\mathcal{O}$):} \{options\} \\ \textbf{Output Constraint:} \\ Respond with only the letter (A, B, C, D...) of the correct option. \end{tcolorbox} \caption{Prompt template for visual dependency tests with different contexts.} \label{tab:prompt} \vspace{-8mm} \end{table}
+        
+    \subsection{Temporal Dependency Tests}
+    
+        In this setting, the intrinsic temporal structure of the video is disrupted by varying both the frame sampling strategy and the model perspective.
+        \begin{equation}
+            \text{Response} = \mathcal{M}\left( \mathcal{S}(\mathcal{V}), \mathcal{P}_{diag}(\mathcal{Q}, \mathcal{O}) \right),
+        \end{equation}
+        
+        \noindent where $\mathcal{S}(\mathcal{V})$ denotes a subset of the video and $\mathcal{M}$ denotes the model.
+    
+        \paragraph{\textbf{Temporal Context Strategy ($\mathcal{S}$)}}
+        We vary the frame selection strategy $\mathcal{S}$ to examine how models respond under different conditions.
+        \begin{itemize}
+            \item \textbf{Center Frame ($\mathcal{S}_{\text{center}}$):} Returns a single frame from the temporal center of $\mathcal{V}$. 
+            This test identifies whether the task can be solved using spatial cues alone, often due to redundancy in video frames.
+            
+            \item \textbf{Frame Shuffling ($\mathcal{S}_{\text{shuffle}}$):} Returns a randomly permuted subset of 128 uniformly sampled frames from $\mathcal{V}$. 
+            This process disrupts the chronological order of the video.
+            
+            \item \textbf{Top-$k$ Matching ($\mathcal{S}_{\text{topk}}$):} Returns a subset of $k$ frames ($k=32$) exhibiting the highest cosine similarity with the query $\mathcal{Q}$ in the VLM embedding space.
+        \end{itemize}
+    
+        \paragraph{\textbf{Model Perspective ($\mathcal{M}$)}}
+        We categorize the models into two types based on how they process the configured temporal subset $\mathcal{S}(\mathcal{V})$:
+        
+        \begin{itemize}
+            \item \textbf{MLLM ($\mathcal{M}_{\text{MLLM}}$):} Multimodal large language models~\cite{eagle25,qwem3_vl,videoautor1}, pretrained to reason over temporal dynamics in video data. 
+            We evaluate the model responses under temporal disruption (\eg, center-frame ($\mathcal{S}_{\text{center}}$) or shuffling ($\mathcal{S}_{\text{shuffle}}$)) to assess whether the question relies on temporal context.
+        
+            \item \textbf{VLM ($\mathcal{M}_{\text{VLM}}$):} Vision-language models pretrained on static image-text pairs (\textit{e.g.}, CLIP~\cite{clip,evaclip,longclip}), which process frames independently. 
+            We evaluate them via top-$k$ cosine-similarity matching ($\mathcal{S}_{\text{topk}}$) between frame embeddings and answer candidates. This setup is temporal-agnostic, as the model processes frames independently without modeling temporal relations.
+        \end{itemize}
+    
+        These tests diagnose whether the question depends on temporal context by systematically disrupting the temporal structure of the input video. The overall diagnostic procedure for the temporal dependency tests is summarized in \Cref{alg:diagnostic}.
+    
+        \begin{algorithm}[t]
+        \caption{Temporal Dependency Diagnostic Procedure}
+        \label{alg:diagnostic}
+        \begin{algorithmic}[1]
+        \State \textbf{Input:} Video $\mathcal{V}$, Question $\mathcal{Q}$, Options $\mathcal{O}$, Cosine similarity function $\text{sim}(\cdot, \cdot)$
+        \State \textbf{Output:} Set of Diagnostic Responses $\{R_{\mathcal{S}}\}$
+        
+        \For{each sampling strategy $\mathcal{S} \in \{\mathcal{S}_{\text{center}}, \mathcal{S}_{\text{shuffle}}, \mathcal{S}_{\text{topk}}\}$}
+            \If{$\mathcal{S} = \mathcal{S}_{\text{topk}}$}
+                \State $\mathcal{V}_{\text{subset}} \gets \text{Top-K}(\mathcal{V}, \mathcal{Q})$ \Comment{retrieve frames most similar to $\mathcal{Q}$}
+                \State $R_{\mathcal{S}} \gets \arg\max_{o \in \mathcal{O}} \sum_{f \in \mathcal{V}_{\text{subset}}} \text{sim}(\mathcal{M}_{\text{VLM}}(f), \mathcal{M}_{\text{VLM}}(o))$ \Comment{BoF Matching}
+            \Else
+                \State $\mathcal{V}_{\text{subset}} \gets \mathcal{S}(\mathcal{V})$ \Comment{Center-frame or random shuffling}
+                \State $R_{\mathcal{S}} \gets \mathcal{M}_{\text{MLLM}}(\mathcal{V}_{\text{subset}}, \mathcal{P}_{diag}(\mathcal{Q}, \mathcal{O}))$ \Comment{Temporal disruption test}
+            \EndIf
+        \EndFor
+        
+        \State \Return $\mathcal{R} = \{R_{\mathcal{S}_{\text{center}}}, R_{\mathcal{S}_{\text{shuffle}}}, R_{\mathcal{S}_{\text{topk}}}\}$
+        \end{algorithmic}
+        \end{algorithm} 
+
+    \clearpage
+
+    \subsection{Ambiguity Tests}
+    
+        In this setting, we introduce diagnostic tests to identify potential annotation issues arising during dataset construction:
+        \begin{itemize}
+            \item \textbf{Consistency Test.} We employ five different models~\cite{eagle25,qwem3_vl,internvl35,videoautor1,videor1} and identify samples where all models produce different predictions. 
+            Such strong disagreement suggests that the question may admit multiple plausible interpretations, indicating potential annotation ambiguity.
+        
+            \item \textbf{Redundancy Test.} Using Eagle2.5~\cite{eagle25}, we divide each video into 8 temporal chunks (16 frames each) and evaluate the model on each chunk independently. If all chunks lead to the correct answer, the question may not rely on specific temporal evidence and can be answered from multiple segments, indicating that the annotation may be weakly constrained.
+
+            \item \textbf{Sensitivity Test.} We manually inspect samples that are answered correctly even after frame shuffling. If the question still requires temporal ordering despite the shuffled-input success, the sample is restored to avoid false positives from the temporal perturbation test.
+            
+        \end{itemize}
+        
+
+\section{Video-Native Challenge: Statistics and Examples} \label{sec:d}
+    
+    \subsection{Video-Native Challenges Statistics} \label{sec:d.1}
+    
+        \Cref{tab:statistics}(a) presents the distribution of the identified video-native challenge categories. 
+        Temporal dynamics and tracking constitute the largest portion (51.0\%) of the identified challenges, while the remaining categories also contain sufficient samples to enable comprehensive evaluation. 
+        \Cref{tab:statistics}(b) shows the distribution of video durations. The suite spans a broad range from short clips under 15 seconds (19.5\%) to long videos exceeding 10 minutes (18.9\%), confirming that Video-Oasis preserves diversity in temporal scale.
+        
+        \begin{table}[h]
+            \centering
+            \caption{Statistics of the identified video-native challenges: (a) category distribution and (b) video duration statistics.}
+            \label{tab:statistics}
+            \begin{minipage}[t]{0.55\linewidth}
+            \centering
+            \small
+            \vspace{0pt}
+            (a) Challenge Categories \\[4pt]
+            \resizebox{\linewidth}{!}{%
+            \begin{tabular}{l r r}
+            \toprule
+            \textbf{Category} & \textbf{\# Samples} & \textbf{Ratio} \\
+            \midrule
+            Fine-Grained Perception        & 1,107 & 10.0 \\
+            Spatial World Understanding    & 1,789 & 16.2 \\
+            Temporal Dynamics \& Tracking  & 5,631 & 51.0 \\
+            Causality \& Logical Reasoning & 1,414 & 12.8 \\
+            Global Narrative               & 1,092 &  9.9 \\
+            \midrule
+            \rowcolor{gray!10}
+            \textbf{Total}       & \textbf{11,033} & \\
+            \bottomrule
+            \end{tabular}}
+            \end{minipage}
+            \hfill
+            \begin{minipage}[t]{0.35\linewidth}
+            \centering
+            \small
+            \vspace{0pt}
+            (b) Video Duration \\[4pt]
+            \resizebox{\linewidth}{!}{%
+            \begin{tabular}{l r r}
+            \toprule
+            \textbf{Duration} & \textbf{\# Videos} & \textbf{Ratio} \\
+            \midrule
+            $\sim$15s            & 969 & 19.6 \\
+            $\sim$1min           & 1,160 & 23.5 \\
+            $\sim$10min          & 1,887 & 38.2 \\
+            10min+               & 922 & 18.7 \\
+            \midrule
+            \rowcolor{gray!10}
+            \textbf{Total}       & \textbf{4,938} & \\
+            \bottomrule
+            \end{tabular}}
+            \end{minipage}
+        \end{table}
+
+        \clearpage
+
+        \Cref{tab:supp_answer_dist} examines the answer option distribution. While most categories exhibit a mild bias toward option A (26--31\%), the overall distribution remains reasonably balanced across A--D. A notable exception is Global Narrative, where 44.8\% of answers fall outside the standard A--D options, as the contributing benchmarks (\eg, MMR-V~\cite{mmrv}) employ up to 12 answer choices. 
+        
+        \begin{table}[h]
+        \centering
+        \caption{Multiple-choice answer distribution across categories.}
+        \label{tab:supp_answer_dist}
+        \scalebox{0.85}{%
+        \begin{tabular}{l rrrr r}
+        \toprule
+        \textbf{Category} & \textbf{A (\%)} & \textbf{B (\%)} & \textbf{C (\%)} & \textbf{D (\%)} & \textbf{Others (\%)} \\
+        \midrule
+          Fine-Grained Perception        & 30.7 & 23.5 & 23.6 & 18.3 & 3.9 \\
+          Spatial World Understanding       & 26.2 & 28.6 & 27.7 & 17.0 & 0.4 \\
+          Temporal Dynamics \& Tracking      & 28.1 & 23.6 & 22.2 & 19.1 & 7.0 \\
+          Causality \& Logical Reasoning       & 25.7 & 21.8 & 19.6 & 16.3 & 16.6 \\
+          Global Narrative       & 16.9 & 13.6 & 11.9 & 12.7 & 44.8 \\
+          % Others       & 26.3 & 18.2 & 21.2 & 17.2 & 17.2 \\
+        \midrule
+          \rowcolor{gray!10}
+          \textbf{Overall} & 26.6 & 23.2 & 21.9 & 17.7 & 10.6 \\
+        \bottomrule
+        \end{tabular}}% end scalebox
+        \end{table}
+
+        \Cref{tab:supp_benchmark_category} shows the relationship between benchmark characteristics and challenge categories. 
+        While some benchmarks are dominated by temporal reasoning (\eg, TVBench~\cite{tvbench}), others emphasize spatial reasoning (\eg, VSI-Bench~\cite{vsibench}) or narrative reasoning (\eg, Video-Holmes~\cite{videoholmes} and MMR-V~\cite{mmrv}).
+        This cross-benchmark analysis suggests that Video-Oasis aggregates complementary challenges from diverse benchmarks into a unified evaluation framework.
+
+        \begin{table}[h]
+        \centering
+        \footnotesize
+        \setlength{\tabcolsep}{3pt}
+        \renewcommand{\arraystretch}{1.0}
+        
+        \caption{Per-benchmark distribution of samples across video-native challenges.}
+        \label{tab:supp_benchmark_category}
+        \begin{tabular}{lrrrrrr}
+        \toprule
+        \textbf{Benchmark} &
+        \makecell{\textbf{Fine}\\\textbf{Percep.}} &
+        \makecell{\textbf{Spatial}\\\textbf{World}} &
+        \makecell{\textbf{Temporal}\\\textbf{Dynamics}} &
+        \makecell{\textbf{Causal}\\\textbf{Reason.}} &
+        \makecell{\textbf{Global}\\\textbf{Narrat.}} &
+        \textbf{Total} \\
+        \midrule
+        EgoSchema~\cite{egoschema}          & 0 & 1 & 40 & 25 & 52 & 118 \\
+        ImplicitQA~\cite{implicitqa}        & 17 & 270 & 39 & 25 & 5 & 356 \\
+        VSI-Bench~\cite{vsibench}           & 0 & 1,151 & 399 & 0 & 0 & 1,550 \\
+        \midrule
+        TVBench~\cite{tvbench}              & 0 & 111 & 1,063 & 0 & 0 & 1,174 \\
+        VCR-Bench~\cite{vcrbench}           & 2 & 6 & 197 & 45 & 5 & 255 \\
+        RTV-Bench~\cite{rtvbench}           & 741 & 143 & 679 & 357 & 0 & 1,920 \\
+        \midrule
+        Video-Holmes~\cite{videoholmes}     & 1 & 0 & 132 & 412 & 413 & 958 \\
+        MINERVA~\cite{minerva}              & 65 & 30 & 715 & 83 & 8 & 901 \\
+        MMR-V~\cite{mmrv}                   & 16 & 1 & 66 & 119 & 456 & 658 \\
+        \midrule
+        VideoMME~\cite{videomme}           & 62 & 12 & 399 & 60 & 100 & 633 \\
+        MVBench~\cite{mvbench}              & 6 & 49 & 740 & 199 & 0 & 994 \\
+        LVBench~\cite{lvbench}              & 97 & 10 & 513 & 72 & 48 & 740 \\
+        LongVideoBench~\cite{longvideobench}& 78 & 2 & 458 & 5 & 2 & 545 \\
+        MLVU~\cite{mlvu}                    & 22 & 3 & 191 & 12 & 3 & 231 \\
+        \midrule
+        \rowcolor{gray!10}
+        \textbf{Total} & \textbf{1,107} & \textbf{1,789} & \textbf{5,631} & \textbf{1,414} & \textbf{1,092} & \textbf{11,033} \\
+        \bottomrule
+        \end{tabular}
+        \end{table}
+                
+        \subsection{Extended Qualitative Examples: Video-Native Challenges} \label{sec:d.2}
+        \label{subsec:supp_qualitative_examples}
+        \noindent\textbf{Fine-Grained Perception} requires recognizing subtle visual cues that must be integrated across space and time.
+        In the upper example of \Cref{fig:fig_sup_perception}, sofas are only partially visible from different viewpoints, requiring the model to combine fragmented evidence to infer the correct count.
+        In the lower example, the model must distinguish non-white background colors in visually cluttered scenes. \vspace{-4mm}
+
+        \begin{figure*}[ht!]
+          \centering
+          \includegraphics[width=0.9\linewidth]{figure/fig_sup_perception.pdf}
+          \caption{Qualitative examples of Fine-Grained Perception Challenges.} \vspace{-4mm}
+          \label{fig:fig_sup_perception}
+        \end{figure*}
+
+        \noindent\textbf{Spatial World Understanding} requires integrating multi-view evidence across frames to infer spatial relations such as relative position, geometry, and motion. 
+        In the upper example of \Cref{fig:fig_sup_spatial}, the task requires the model to infer the crocodile’s direction relative to the green ducks by linking spatial relations through the brown ducks. 
+        In the lower example, reasoning necessitates navigation using the robot’s orientation and nearby landmarks.\vspace{-4mm}
+    
+        \begin{figure*}[ht!]
+          \centering
+          \includegraphics[width=0.9\linewidth]{figure/fig_sup_spatial.pdf}
+          \caption{Qualitative examples of Spatial World Understanding Challenges.} \vspace{-4mm}
+          \label{fig:fig_sup_spatial}
+        \end{figure*}
+
+        \noindent\textbf{Temporal Dynamics \& Tracking} requires reasoning over temporally ordered evidence, where the answer depends on chronological sequence rather than isolated frame matching. 
+        In the upper example of \Cref{fig:fig_sup_temporal}, the model must reconstruct the trajectory of the fish across distinct positions in the correct temporal order. 
+        In the lower example, solving the question requires establishing the correct temporal ordering of the protagonist's actions to identify the action following the bike ride. \vspace{-4mm}
+        
+        \begin{figure*}[ht!]
+          \centering
+          \includegraphics[width=0.9\linewidth]{figure/fig_sup_temporal.pdf}
+          \caption{Qualitative examples of Temporal Dynamics \& Tracking Challenges.} \vspace{-4mm}
+          \label{fig:fig_sup_temporal}
+        \end{figure*}
+
+        \noindent\textbf{Causality \& Logical Reasoning} requires inferring why events occur, rather than merely describing what happens, by reasoning about hidden causes and unobserved intentions. 
+        In the upper example of \Cref{fig:fig_sup_causal}, the model needs to identify the tickling action as the cause of the sneeze, rather than simply noting their temporal sequence. 
+        In the lower example, solving the question requires attributing the helicopter crash to abnormal driver operation by reasoning over the preceding events. \vspace{-4mm}
+        
+        \begin{figure*}[ht!]
+          \centering
+          \includegraphics[width=0.9\linewidth]{figure/fig_sup_causal.pdf}
+          \caption{Qualitative examples of Causality \& Logical Reasoning Challenges.} 
+          \label{fig:fig_sup_causal}
+        \end{figure*}
+
+        \noindent\textbf{Global Narrative} requires aggregating dispersed events across the full timeline to capture narrative developments that only become clear over the course of the video. In the upper example of \Cref{fig:fig_sup_global}, the model must connect the snow leopard shown as a child at the beginning to the adult character at the end. In the lower example, it must infer the man's emotional shift from calmness to irritability by integrating behavioral and contextual cues across scenes. \vspace{-4mm}
+
+        \begin{figure*}[ht!]
+          \centering
+          \includegraphics[width=0.9\linewidth]{figure/fig_sup_global.pdf}
+          \caption{Qualitative examples of Global Narrative Challenges.} \vspace{-6mm}
+          \label{fig:fig_sup_global}
+        \end{figure*}
+
+    \subsection{Video-Native Challenge Annotation} \label{sec:d.3}
+        For taxonomy construction, we use Gemini-2.5-Pro~\cite{gemini25} to derive candidate challenge clusters from source-benchmark metadata; the prompt template is shown in \Cref{tab:prompt_taxonomy}.
+        For category assignment, we use an ensemble of five proprietary LLMs: OpenAI o3, OpenAI o4-mini, GPT-4o, GPT-5-mini, and GPT-5~\cite{o4mini,gpt4o,gpt5}.
+        Each model receives the question, answer options, and category definitions, and predicts a single category label; the prompt template is shown in \Cref{tab:prompt_categorization}.
+        We further examine whether the annotation results are robust to the choice of labeling models.
+        While the main ensemble is based on OpenAI models, we additionally evaluate alternative ensembles that combine other closed-source models with open-source Video-LLMs.
+        As shown in \Cref{tab:relabel_overlap}, these alternative ensembles produce highly consistent labels with the main ensemble, with overlaps above 93\%.
+        This supports the robustness of the majority-voting procedure for category annotation.
+        
+        \begin{table}[h]
+            \centering
+            \scriptsize
+            \caption{Robustness of category labeling under alternative model ensembles.}
+            \label{tab:relabel_overlap}
+            \resizebox{\columnwidth}{!}{%
+            \begin{tabular}{l l l l l | c}
+            \toprule
+            \textbf{Model 1} & \textbf{Model 2} & \textbf{Model 3} & \textbf{Model 4} & \textbf{Model 5} & \textbf{Overlap} \\
+            \midrule
+            GPT-5-mini & OpenAI o3 & OpenAI o4-mini & Gemini-2.5-flash & Gemini-3-Flash & 95.8\% \\
+            GPT-5-mini & OpenAI o3 & Gemini-3-flash & Claude Haiku 4.5 & Kimi-K2.0 & 93.7\% \\
+            InternVL-3.5-8B & Eagle2.5-8B & OpenAI o3 & Claude Haiku 4.5 & Kimi-K2.0 & 93.2\% \\
+            \bottomrule
+            \end{tabular}%
+            }
+        \end{table}
+    
+        \begin{table}[t!] \centering
+        \begin{tcolorbox}[colback=gray!5, colframe=gray!50, arc=2mm, boxrule=0.5pt, left=1.5mm, right=1.5mm, top=1mm, bottom=1mm] \footnotesize
+        \textbf{System Prompt:} \\
+        \vspace{1mm}
+        We are currently conducting a meta-analysis of evaluation metrics from various video understanding benchmarks to construct a new integrated category taxonomy that can measure the pure `spatiotemporal understanding' of VLMs (Video Large Language Models). Below, we provide a list of dozens of sub-tasks used by these 14 existing benchmarks. Based on this data, please derive a classification criteria according to the following conditions. \\
+        
+        \textbf{[Input Data]} \\
+        \textit{(A list of evaluation categories and sub-tasks associated with the surviving QA pairs from 14 benchmarks, which have already passed our rigorous shortcut-filtering process:)}
+        \begin{itemize}[leftmargin=*, nosep]
+            \item \textbf{ImplicitQA}: \texttt{Relative Depth and Proximity}, \texttt{Inferred Counting}, \texttt{Causal and Motivational Reasoning}, \dots
+            \item \textbf{MVBench}: \texttt{Action Sequence}, \texttt{object interaction}, \texttt{counterfactual inference}, \dots
+            \item \textit{\dots (Remaining task categories from 11 other benchmarks omitted for brevity)}
+        \end{itemize}
+        \vspace{1mm}
+        
+        \textbf{[Constraints \& Guidelines]}
+        \begin{enumerate}[leftmargin=*, nosep]
+            \item \textbf{Shortcut Filtering}: Analyze the provided list of existing sub-tasks and first isolate the tasks that can be solved via unintended shortcuts---such as relying on a single static frame (e.g., static object recognition, simple OCR) or pure linguistic priors. Set these aside to clearly delineate the boundary of true video understanding.
+            \item \textbf{Taxonomy for Video Understanding}: Focusing solely on the remaining tasks that strictly mandate spatiotemporal dependencies and dynamic reasoning, group them based on the cognitive abilities they require. By abstracting these surviving tasks, establish a new, definitive category taxonomy that a ``genuine video understanding benchmark'' must possess.
+        \end{enumerate}
+        \vspace{1mm}
+        
+        \textbf{[Output Constraints]}
+        \begin{itemize}[leftmargin=*, nosep]
+            \item \textbf{STRICT FORMATTING}: Do not output any preambles, introductory text, postambles, or explanations of your filtering process (e.g., do not show ``Phase 1: Shortcut Filtering Analysis'').
+            \item \textbf{NO EXTRA DETAILS}: Do not list the mapped sub-tasks, core abilities, or add any extra bullet points.
+            \item \textbf{LENGTH LIMIT}: The definition must be highly concise, limited to a maximum of 3 sentences.
+        \end{itemize}
+        \vspace{1mm}
+        
+        \textbf{[Output Format]} \\
+        Provide only the resulting N categories. You must strictly follow the exact structure below and output nothing else: \\
+        
+        \texttt{< Category Name >} \\
+        \texttt{< Definition > : A clear academic definition of the category. Maximum 3 sentences.}
+        \end{tcolorbox}
+        \caption{Prompt template used to derive candidate video-native challenge clusters from source-benchmark metadata.}
+        \label{tab:prompt_taxonomy}
+        \vspace{-5mm}
+        \end{table}
+
+        \begin{table}[t!] \centering
+        \begin{tcolorbox}[colback=gray!5, colframe=gray!50, arc=2mm, boxrule=0.5pt, left=2mm, right=2mm, top=2mm, bottom=2mm] \footnotesize
+        \textbf{System Prompt:} \\
+        You are an expert data annotator for a highly rigorous Long Video Understanding (LVU) dataset. \\
+        
+        \textbf{[Core Philosophy of Video-Oasis]} \\
+        Existing long video benchmarks often include flawed questions solvable via a single frame or text alone (question \& options only / summaries), failing to evaluate genuine video understanding. To address this, our work rigorously filters out questions that can be answered using several frames, audio-only (STT), or text-only reasoning. Consequently, we retain only strictly video-dependent questions that mandate direct observation and synthesis of spatiotemporal context and temporal flow, thereby restoring the true essence of video capability evaluation. \\
+        
+        \textbf{[Task]} \\
+        Guided by the philosophy above, your task is to classify a given [Question] and its [Options] into one of the predefined [Categories]. \\
+        You must evaluate the fundamental cognitive mechanism and the level of visual and temporal context required to answer the question, always ensuring that the classification reflects the true video-dependent nature of the problem. You must deduce this solely from the text, as no actual video is provided. \\
+        
+        \textbf{[Question]} \\
+        \{question\} \\
+        
+        \textbf{[Options]} \\
+        \{options\} \\
+        
+        \textbf{[Categories]} \\
+        \{categories\} \\
+        
+        \textbf{[Instruction]} \\
+        Analyze the question and options, and assign it to the single most appropriate category. \\
+        Output ONLY the single uppercase letter corresponding to your chosen category. \\
+        Do not include any explanations, punctuation, or additional text. Your output must be exactly one character: `A', `B', `C', `D', `E', 
+        \dots
+        \end{tcolorbox}
+        \caption{Prompt template used to assign each surviving QA pair to one of the defined video-native challenge categories.}
+        \label{tab:prompt_categorization}
+        \vspace{-8mm}
+        \end{table}
+
+        \clearpage
+
+
+\section{Reproduction Results} \label{sec:e}
+
+    Various methods are evaluated using Video-Oasis or under the video-native challenge setting. 
+    To ensure experimental reliability, we provide a validation by comparing official benchmark scores with our reproduced results.
+    For Video-LLMs, we fix the frame sampling protocol to a maximum of 128 frames at 1 fps for consistency across models.
+    Although this differs from the official benchmark settings~\cite{eagle25,qwem3_vl,longvilar1}, which typically use more frames (\eg 512 or 2048 frames), the reproduced results remain within a reasonable margin of the reported scores.
+    For agentic methods, we replace the reasoning models used in VideoTree~\cite{videotree} and STAR~\cite{videotool} with a more recent model, GPT-5-mini~\cite{gpt5}.
+    Under this setting, the reproduced results achieve performance comparable to or higher than the reported results, as shown in \Cref{tab:reproduce}.
+
+    \begin{table}[h]
+    \centering
+    \caption{Reproduction results on LongVideoBench and VideoMME. For each comparison, higher scores are highlighted in \textbf{bold}, while lower scores are \underline{underlined}.}
+    \label{tab:reproduce}
+    \small
+    \begin{tabular}{lcccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Model}} & \multicolumn{2}{c}{\textbf{LongVideoBench}~\cite{longvideobench}} & \multicolumn{2}{c}{\textbf{VideoMME}~\cite{videomme}} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+     & Official & Reproduced & Official & Reproduced \\
+    \midrule
+    \rowcolor[gray]{0.9} \multicolumn{5}{l}{\textit{Open-Source Video-LLMs}} \\
+    Qwen2.5-VL (7B)~\cite{qwen25vl} & - & 59.7 & \underline{65.1} & \textbf{65.3} \\
+    Eagle2.5 (8B)~\cite{eagle25} & - & 68.0 & \textbf{72.5} & \underline{71.0} \\
+    $\text{Qwen3-VL}_\text{Instruct}$ (8B)~\cite{qwem3_vl} & - & 64.7 & \textbf{71.4} & \underline{69.7} \\
+    $\text{Qwen3-VL}_\text{Thinking}$ (8B)~\cite{qwem3_vl} & - & 63.2 & \textbf{71.8} & \underline{68.4} \\
+    $\text{VideoAuto-R1}_\text{Qwen2.5}$ (7B)~\cite{videoautor1} & - & 61.2 & \textbf{67.3} & \underline{67.0} \\
+    $\text{VideoAuto-R1}_\text{Qwen3}$ (8B)~\cite{videoautor1} & - & 65.4 & \textbf{71.7} & \underline{69.4} \\
+    InternVL-3 (8B)~\cite{internvl3} & \underline{58.8} & \textbf{59.5} & \textbf{66.3} & \underline{65.4} \\
+    InternVL-3.5 (8B)~\cite{internvl35} & \textbf{62.1} & \underline{59.2} & \textbf{66.0} & \underline{63.9} \\
+    Video-R1 (7B)~\cite{videor1} & - & 60.0 & \underline{61.4} & \textbf{62.4} \\
+    LongViLA-R1 (7B)~\cite{longvilar1} & \underline{58.0} & \textbf{59.0} & \textbf{65.1} & \underline{64.0} \\ \hline
+    \rowcolor[gray]{0.9} \multicolumn{5}{l}{\textit{Agentic Methods}} \\
+    VideoTree ($\text{GPT-5}_\text{{mini}}$)~\cite{videotree} & - & 56.1 & \underline{54.2} & \textbf{62.7} \\
+    STAR ($\text{GPT-5}_\text{{mini}}$)~\cite{videotool} & \underline{57.2} & \textbf{63.0} & \underline{70.0} & \textbf{71.3} \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+
+
+% \bibliographystyle{splncs04}
+% \bibliography{ref}
+
+% \end{document}

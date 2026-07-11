@@ -1,0 +1,47 @@
+\section{Related Work}
+\label{sec:related}
+
+
+
+\topic{Compositional Action Recognition (CAR).}
+CAR aims to recognize actions by factoring them into verbs and objects.
+A recurring challenge is learning verb representations that are robust to static cues (\eg, objects/scenes) and capture temporal dynamics~\cite{mat2020sthelse, sun2021cdn, chatterjee2023oap,liu2025knowledgedriven}.
+Prior work addresses this by modeling object-level interactions~\cite{mat2020sthelse, sun2021cdn} or by training verb representations to be less sensitive to object appearance~\cite{chatterjee2023oap}.
+Related directions include \emph{open-vocabulary} CAR, which expands the action label space beyond a fixed taxonomy (often via text-driven semantics)~\cite{luo2022dark, chatterjee2023oap}.
+In this work, we study Zero-Shot Compositional Action Recognition (ZS-CAR) under a fixed verb/object vocabulary, where verb and object label sets are shared across splits but some verb--object \emph{pairs are held out} for testing~\cite{li2024c2c, jiang2025dhd, jung2025crr, ye2025logic}.
+In ZS-CAR, conditional learning~\cite{li2024c2c, jiang2025dhd} and disentanglement-oriented designs~\cite{jung2025crr} improve joint modeling, yet our study highlights that these models can still exhibit \emph{object-driven shortcut} behavior under sparse and skewed compositional supervision (see \secref{preliminaries}, \secref{validation}).
+
+ 
+
+
+
+
+
+\topic{Compositional Zero-Shot Learning (CZSL) for image understanding.}
+In the image domain, CZSL focuses on recognizing novel compositions of seen primitives (\eg, attribute–object) under sparse compositional supervision~\cite{misra2017red, naeem2021czsl, mancini2021compcos, kim2023hierarchical,wu2025cond, nayak2023csp}.
+Representative approaches include feature disentanglement~\cite{saini2022disen, zhang2024disen}, modular factorization~\cite{purushwalkam2019taskdriven}, and CLIP-based prompt learning~\cite{nayak2023csp, li2024context}.
+Compared to image CZSL, ZS-CAR additionally requires temporal grounding of verbs, which changes both the failure modes and the regularization opportunities.
+In contrast, we reveal how sparse compositional supervision and the higher learning difficulty of verbs jointly amplify shortcut reliance in videos, and propose training-time regularizers tailored to ZS-CAR.
+
+
+
+
+
+
+\topic{Shortcut learning.}
+Models can learn \emph{shortcuts} by exploiting spurious correlations that are easier to fit than the intended evidence~\cite{geirhos2018cuecon,ilyas2019adversarial,nam2020lff,scimeca2022shortcut}.
+Such shortcuts are closely tied to skewed training distributions and co-occurrence statistics, which can induce reliance on dataset priors~\cite{agrawal2018dont,singh2020dont}.
+In compositional settings, prior work reweights rare combinations to mitigate co-occurrence bias~\cite{kim2023hierarchical}.
+In video understanding, several works report reliance on static cues such as scenes~\cite{whycantchoi, wang2021be, ding2022fame, bae2024devias} and objects~\cite{bahng2019rebias, chatterjee2023oap} instead of motion-sensitive evidence.
+Building on these observations, we study a ZS-CAR-specific manifestation: \emph{object-driven shortcuts} where object cues dominate verb prediction under sparse verb--object supervision, and we quantify this behavior with dedicated diagnostics.
+
+
+
+
+\topic{Vision-Language Model (VLM).}
+Recent VLMs broadly follow two paradigms: encoder-based models (\eg, CLIP~\cite{radford2021clip} and its video extensions~\cite{ma2022xclip,li2023unmasked,zhao2024videoprism,wang2024iv2}) 
+and decoder-based models (\eg, LLaVA~\cite{liu2023llava}, Qwen-VL~\cite{bai2025qwen25vl}).
+In ZS-CAR, however, inference and evaluation operate over a \emph{fixed} verb--object label space with \emph{explicit compositional scores} (\ie, logits over $\mathbb{Y}^V \times \mathbb{Y}^O$), which provides a controlled interface for diagnosis and for designing training-time regularizers that are \emph{transferable across backbones}.
+Such decoder-based VLM interfaces often do not expose, in a standardized and reproducible way, explicit scores over the fixed label space, as they primarily provide language outputs at inference time.
+Therefore, we focus on encoder-based VLMs in this controlled setting, and show that object-driven shortcuts persist even with a video-pretrained backbone~\cite{wang2024iv2}. 
+

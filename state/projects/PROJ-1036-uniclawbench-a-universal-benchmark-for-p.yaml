@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-07-11T01:38:33.963601Z'
+current_stage: paper_ingested
+failed_stage: null
+field: linguistics
+human_escalation_reason: null
+id: PROJ-1036-uniclawbench-a-universal-benchmark-for-p
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 'UniClawBench: A Universal Benchmark for Proactive Agents on Real-World Tasks'
+updated_at: '2026-07-11T01:38:34.351538Z'

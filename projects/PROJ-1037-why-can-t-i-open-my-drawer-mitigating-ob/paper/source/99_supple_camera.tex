@@ -1,0 +1,342 @@
+% \setcounter{table}{0}
+% \renewcommand{\thetable}{S\arabic{table}}
+% \setcounter{figure}{0}
+% \renewcommand{\thefigure}{S\arabic{figure}}
+% \setcounter{section}{0}
+% \renewcommand\thesection{S\arabic{section}}
+
+% \renewcommand{\figurename}{Figure}
+% \captionsetup{labelsep=period}
+
+
+\appendix
+\renewcommand{\theHsection}{appendix.\Alph{section}}
+\phantomsection
+\section*{\Large \bf Appendix}
+
+In this appendix, we provide comprehensive evaluation-protocol/
+dataset/implementation details and additional results to complement the main paper. 
+We organize the appendix as follows:
+
+\begin{enumerate}
+    \item Overview of our evaluation setting (\secref{zscar_setting}).
+    \item Details on EK100-com dataset (\secref{ek100-com}).
+    \item Complete implementation details (\secref{imple_detail}).
+    \item Additional evidence of object-driven shortcuts (\secref{additional_evidence}).
+    \item Additional results (\secref{additional_results}).
+\end{enumerate}
+
+
+
+\section{Overview of our evaluation setting}
+\label{sec:zscar_setting}
+In \figref{setting} and \figref{setting_metrics}, we briefly describe our evaluation setting.
+In Zero-Shot Compositional Action Recognition (ZS-CAR), the compositional label space spans the Cartesian product of the verb and object primitives ($|\mathbb{Y}^V| \times |\mathbb{Y}^O|$). 
+At test time, samples are categorized into \textit{seen} and \textit{unseen} compositions depending on whether they were observed during training, as shown in \figref{setting} (a). 
+Under the \textit{closed-world} evaluation setting, the evaluation is restricted to compositions present within the dataset (i.e., the union of the training and test sets). 
+Consequently, the model computes compositional logits exclusively for these predefined closed-world pairs, as shown in \figref{setting} (b).
+
+However, this \textit{closed-world} setting suffers from the impractical assumption of requiring prior knowledge of the test set's ground-truth labels. 
+Therefore, we adopt the \textit{open-world} evaluation setting as our primary protocol. 
+By evaluating across the entire compositional space and computing logits for all possible combinations, as shown in \figref{setting} (b), the open-world setting enables the evaluation of various possible-but-unseen compositions encountered in real-world applications, where the test distribution is unknown.
+
+\input{figure/fig_setting}
+As shown in \figref{setting_metrics}, we measure verb, object, and composition accuracies across seen and unseen splits to evaluate not only the model's compositional recognition capability, but also how primitive recognition degrades on unseen compositions. 
+Specifically, based on the model's composition predictions, we verify whether the composition, verb, or object is predicted correctly, yielding three sets of metrics: (1) seen/unseen composition accuracy, (2) verb@seen/unseen-comp, and (3) object@seen/unseen-comp.
+
+\input{figure/fig_setting_metrics}
+
+
+
+\section{Details on EK100-com dataset}
+\label{sec:ek100-com}
+
+In this section, we provide details about our curated ZS-CAR benchmark, EPIC-KITCHENS-100-composition (EK100-com).
+We construct EK100-com by repurposing EPIC-KITCHENS-100 (EK100)~\cite{damen2022ek100} following the same protocol of constructing Sth-com~\cite{li2024c2c}.
+In particular, we use the original training (67,217 samples) and validation (9,668 samples) split of EK100~\cite{damen2022ek100} and split them as follows: 
+(1) we filter the data to include only compositions with more than five samples each.
+(2) we ensure that all compositions present in the validation set also exist in the training set.
+After initial filtering, the training set comprises 62,790 samples with 1,331 unique compositions and the validation set contains 8,657 samples, which consist of 833 seen compositions and 3 unseen compositions.
+(3) we randomly select half of the compositions from both the training and validation sets and swap these subsets.
+(4) Finally, we split the validation and test set with a ratio of $3:4$.
+We provide the statistics of EK100-com in \tabref{ek100-com_setting} and \figref{ekcom_frequent_pairs}, and some seen/unseen composition examples of EK100-com in \figref{ekcom_example}.
+
+Beyond expanding the pool of publicly available ZS-CAR benchmarks, our repurposed EK100-com exhibits two key properties that make it a compelling ZS-CAR benchmark.
+First, unlike Something-Something V2~\cite{goyal2017something}, where videos may involve multiple objects associated with a verb, videos in EK100~\cite{damen2022ek100} depict actions consisting of a single verb and a single object. 
+Therefore, the training data of EK100-com provides explicit object supervision for the models.
+Second, since EK100~\cite{damen2022ek100} has long-tailed distribution, the label coverage ratio---defined as the number of unique verb--object pairs present in the dataset relative to all possible combinations—--of EK100-com is 7.5\%, which is much lower than that of Sth-com~\cite{li2024c2c} (12.8\%).
+This makes EK100-com a challenging benchmark, suitable for evaluating whether a model can overcome the risk of shortcut learning induced by data sparsity.
+
+\input{table/ek100_com_setting}
+\input{figure/fig_ekcom_frequent_pairs}
+\input{figure/fig_ekcom_example}
+
+
+\section{Complete Implementation Details}
+
+\label{sec:imple_detail}
+
+\subsection{Implementation details on our diagnosis}
+In this section, we provide comprehensive details of experimental setup and implementation details of our diagnosis for ZS-CAR in Section 3 in the main paper.
+All notations used in this appendix are consistent with those defined in the main paper.
+As mentioned in the main paper, we adopt the state-of-the-art model, C2C~\cite{li2024c2c}, as the existing ZS-CAR baseline for diagnosis. 
+
+
+\topic{Details about our diagnosis in Figure 2 (a).}
+In Figure 2 (a) in the main paper, we empirically demonstrate the asymmetric learning difficulty between verbs and objects.
+We train a randomly initialized ViT~\cite{dosovitskiy202vit} with joint Spatio-Temporal (ST) attention on our selected subset of the Sth-com~\cite{li2024c2c} dataset. 
+We aim to select a dense subset that eliminates sparsity by ensuring samples exist for every pair, maximizing the number of samples while maintaining a sufficient number of distinct labels.
+As a result, the selected subset is composed of 10 verb classes: `Moving sth and sth away from each other', `Moving sth and sth closer to each other', `Moving sth away from sth', `Moving sth closer to sth', `Moving sth down', `Moving sth up', `Pushing sth from left to right', `Pushing sth from right to left', `Pushing sth so that it falls off the table', and `Pushing sth so that it slightly moves'; and 10 object classes: `Ball', `Battery', `Book', `Bottle', `Coin', `Glass', `Knife', `Paper', `Remote', and `Spoon'.
+We construct the training set consisting of 2,555 samples from the original Sth-Com~\cite{li2024c2c} training and validation samples, while the validation set comprises 260 samples from the original Sth-Com~\cite{li2024c2c} test set.
+For training, we employ a multi-task learning approach using separate linear classifiers for verbs and objects, taking the ViT's CLS token as input. 
+
+\input{figure/fig_shortcuts_vit}
+
+\topic{Details about our diagnosis in Figure 2 (b).}
+To precisely control the sample counts for each verb-object pair, we select a $4 \times 4$ toy set from the Sth-Com~\cite{li2024c2c} dataset.
+This set contains four verb labels (`Moving sth down', `Moving sth up', `Pushing sth from left to right', and `Pushing sth from right to left') and four object labels (Book, Remote, Glass, Bottle). 
+As shown in Figure 2 in the main paper and \figref{shortcuts_vit}, the training set consists of the four diagonal pairs with 40 samples per pair. 
+The test set comprises two distinct splits: seen compositions (25 samples per pair) and unseen compositions (30 samples per pair).
+We use 8 frames for input videos.
+In \figref{shortcuts_vit}, we demonstrate that the object-driven verb shortcut learning observed with CLIP~\cite{radford2021clip} in the main paper emerges identically even in a randomly initialized model. 
+This indicates that this phenomenon is not a side effect of pre-trained knowledge, but rather a structural issue inherent to ZS-CAR.
+
+
+
+\topic{Details about our diagnosis in Figure 3.}
+In Figure 3 in the main paper, we present the learning curves of the baseline model~\cite{li2024c2c} trained on the Sth-com~\cite{li2024c2c}.
+We further present diagnostic results for both the baseline and \ours{} on EK100-com in \figref{ekcom_observation}.
+We define two misclassification ratios, False Seen Prediction (FSP) and False Co-occurrence Prediction (FCP).
+We first collect the misclassified unseen composition samples into the set
+\begin{align}
+\mathcal{E}_{\mathrm{unseen}}
+&= \{i \mid \y_i^C\in\mathbb{Y}_{\mathrm{unseen}},\ \hat{\y}_i^C\neq \y_i^C\}.
+\end{align}
+FSP measures the proportion of unseen composition validation samples incorrectly classified as seen compositions:
+\begin{align}
+\vspace{-3em}
+\textit{False Seen Prediction}=\frac{1}{|\mathcal{E}_{\mathrm{unseen}}|}
+{\sum_{i\in\mathcal{E}_{\mathrm{unseen}}}
+\mathbb{I}(\hat{\y}^C_i \in \mathbb{Y}_{\text{seen}})},
+\vspace{-.5em}
+\end{align}
+where $\mathbb{I}(\cdot)$ is the indicator function.
+FCP further quantifies, over the same set of misclassified unseen-composition samples, the fraction whose predictions fall into the frequently co-occurring verb–object pairs $\mathbb{Y}_\text{freq}$ in the training data:
+\begin{align}
+\vspace{-1em}
+\textit{False Co-oc. Prediction}=\frac{1}{|\mathcal{E}_{\mathrm{unseen}}|}{\sum_{i\in\mathcal{E}_{\mathrm{unseen}}} \mathbb{I}(\hat{\y}^C_i \in \mathbb{Y}_{\text{freq}})}.
+\vspace{-1em}
+\end{align}
+We further break down these misclassification ratios into the three cases: (i) Verb-collapse, where the predicted object is correct but the verb is incorrect; (ii) Object-collapse, where the predicted verb is correct but the object is incorrect; and (iii) Dual-collapse, where both verb and object are incorrect.
+We define them in FSP as follows:
+\begin{align}
+\textit{Verb-collapse}&=\frac{\sum_{i \in \mathcal{E}_{\mathrm{unseen}}} \mathbb{I}(\hat{\y}^C_i \in \mathbb{Y}_{\text{seen}}) \cdot \mathbb{I}(\hat{\y}^V_i \neq \y^V_i \land \hat{\y}^O_i = \y^O_i)}{\sum_{i \in \mathcal{E}_{\mathrm{unseen}}} \mathbb{I}(\hat{\y}^C_i \in \mathbb{Y}_{\text{seen}})}\\
+\textit{Object-collapse}&=\frac{\sum_{i \in \mathcal{E}_{\mathrm{unseen}}} \mathbb{I}(\hat{\y}^C_i \in \mathbb{Y}_{\text{seen}}) \cdot \mathbb{I}(\hat{\y}^V_i = \y^V_i \land \hat{\y}^O_i \neq \y^O_i)}{\sum_{i \in \mathcal{E}_{\mathrm{unseen}}} \mathbb{I}(\hat{\y}^C_i \in \mathbb{Y}_{\text{seen}})}\\
+\textit{Dual-collapse}&=\frac{\sum_{i \in \mathcal{E}_{\mathrm{unseen}}} \mathbb{I}(\hat{\y}^C_i \in \mathbb{Y}_{\text{seen}}) \cdot \mathbb{I}(\hat{\y}^V_i \neq \y^V_i \land \hat{\y}^O_i \neq \y^O_i)}{\sum_{i \in \mathcal{E}_{\mathrm{unseen}}} \mathbb{I}(\hat{\y}^C_i \in \mathbb{Y}_{\text{seen}})},
+\end{align}
+where $\y^C_i=(\y^V_i,\y^O_i)$.
+We apply the identical formulation for FCP as well.
+
+\input{figure/fig_ekcom_observation}
+
+
+
+\subsection{Implementation details on \ours{}}
+\label{sec:imple_detail_ours}
+
+\input{table/hyperparam}
+
+
+\topic{Experimental Setup.} 
+We implement our method using PyTorch and conduct all experiments on 8 NVIDIA Tesla V100 GPUs.
+For video preprocessing, we uniformly sample frames from each video to generate clips of size $3 \times 16 \times 224 \times 224$ (channels $\times$ frames $\times$ height $\times$ width) for the CLIP~\cite{radford2021clip} backbone and $3 \times 8 \times 224 \times 224$ for the InternVideo2~\cite{wang2024iv2} backbone.
+
+\topic{Model Architecture.}
+We utilize CLIP-B/16~\cite{radford2021clip} as our visual/text backbone. 
+Following prior work~\cite{li2024c2c}, we adopt AIM~\cite{yang2023aim}, a parameter-efficient spatio-temporal adapter for CLIP~\cite{radford2021clip}, as the video encoder.
+We also employ InternVideo2-CLIP-B/14~\cite{wang2024iv2} as our modern video-pretrained VLM backbone and utilize LoRA~\cite{hu2022lora} for parameter-efficient fine-tuning.
+We use CoOp-style~\cite{zhou2022coop} learnable text prompts for all models.
+We also construct the verb encoder with two temporal convolution layers with ReLU activations, while the object encoder employs temporal average pooling followed by a two-layer MLP with ReLU activations.
+
+To extract $T$ frame-level features with the InternVideo2~\cite{wang2024iv2} backbone, we modify its attention pooling mechanism.
+Originally, the model concatenates a CLS token with video tokens in $\mathbb{R}^{NT \times D}$, where $N$ is the number of spatial patches and $D$ is the feature dimension, and applies attention pooling to produce a single video-level representation in $\mathbb{R}^{1 \times D}$.
+In our approach, we adapt this to operate at the frame level. Specifically, for each frame, we concatenate the CLS token with the corresponding spatial tokens in $\mathbb{R}^{N \times D}$.
+This creates $T$ separate feature sets, each in $\mathbb{R}^{(N + 1) \times D}$.
+Finally, we apply attention pooling independently to each of these sets, resulting in the frame-level video features in $\mathbb{R}^{T \times D}$.
+
+
+
+\topic{Training Strategy.} 
+We train all models, including the baselines and \ours{}, following the hyperparameters detailed in \tabref{hyperparam}, using a total batch size of 128.
+For \cpr{}, we employ the unsupervised foreground estimation algorithm FAME~\cite{ding2022fame} to identify high-motion regions. 
+FAME~\cite{ding2022fame} isolates the moving foreground from background regions based on frame differences and color statistics. 
+To generate the mixed samples, we first sample the mixing coefficient from a $\text{Beta}(2.0, 2.0)$ distribution, following prior work~\cite{yun2019cutmix, zhang2018mixup}.
+We then scale it by 0.5 to obtain the final blending coefficient $\lambda$.
+We apply this \cpr{}'s augmentation to the samples within a batch with a probability of $p_{\text{aug}}$.
+For the frequent verb-object pairs to apply the $L_\text{CPR}$ loss term, we select pairs that possess a strong co-occurrence prior from both verb and object perspectives as the frequent pairs $\mathbb{Y}_\text{freq}^\text{CPR}$, which is defined as $\mathbb{Y}_\text{freq}^\text{CPR} = \mathbb{Y}_\text{freq}^{O \mid V} \cap \mathbb{Y}_\text{freq}^{V \mid O}$.
+$\mathbb{Y}_\text{freq}^{O \mid V}$ is the set of pairs where the conditional probability of an object given a verb in the training data is greater than $\mu + \sigma$. 
+Here, $\mu$ and $\sigma$ represent the mean and standard deviation of the conditional probabilities calculated on the training set. 
+The $\mathbb{Y}_\text{freq}^{V \mid O}$ is defined similarly for the conditional probability of a verb given an object.
+$(\mu_{O|V} + \sigma_{O|V}, \mu_{V|O} + \sigma_{V|O})$ are calculated as $(0.13, 0.19)$ for the Sth-com~\cite{li2024c2c} dataset and $(0.23, 0.40)$ for EK100-com.
+
+
+\topic{Loss configuration.} 
+For the total loss, we set the weights for the verb and object components to $\alpha = 0.2$ and for the composition loss to $\beta = 1.0$, following prior work~\cite{li2024c2c}. 
+As demonstrated in \tabref{supple_additional_ablation} (d), we empirically find it beneficial to linearly warm up the weights for the \torc{} loss: $\gamma$ is increased from 0.0 to 1.0 over 5 epoch to 10 epoch.
+We use $\delta$, the loss scale of $L_\text{CPR}$, differently depending on the dataset and backbone, as detailed in \tabref{hyperparam}.
+
+\topic{Inference.}
+During inference, we adopt a single-view, single-crop protocol. 
+To select the best model during training and for bias calibration, we use the harmonic mean of the accuracies for seen and unseen compositions as the model selection criterion.
+
+
+
+\input{table/failure_mode_sth_com}
+\input{table/failure_mode_epic_com}
+
+\section{Additional evidence of object-driven shortcuts}
+\label{sec:additional_evidence}
+In this section, we provide further evidence demonstrating that existing ZS-CAR learning approaches are susceptible to object-driven shortcut learning.
+
+\topic{Failure case analysis of the existing ZS-CAR model.}
+In \tabref{failure_mode_sth_com} and \tabref{failure_mode_epic_com}, we investigate top-10 failure cases of the model trained with the state-of-the-art method~\cite{li2024c2c}. 
+The top-10 failure cases shown in the \tabref{failure_mode_sth_com} constitute 9.5\% of the misclassifications on unseen compositions for Sth-com~\cite{li2024c2c}, compared to 39\% for EK100-com as shown in \tabref{failure_mode_epic_com}.
+For the analysis of Sth-com~\cite{li2024c2c}, we exclude ambiguous cases arising from annotation issues to obtain meaningful results. 
+A prime example is the top-1 failure case, (`Covering [something] with [something]', `Paper'), where 66\% of the errors are misclassified as `Pencil'. 
+Upon visual inspection, we confirm that nearly all these videos actually depict the action of covering a pencil with paper.
+In \tabref{failure_mode_sth_com} and \tabref{failure_mode_epic_com}, we observe a common tendency across both datasets: the model frequently misclassifies verbs as their temporally reversed or opposing counterparts. 
+Specifically, we demonstrate that these mispredictions stem from the model's reliance on co-occurrence statistics.
+For instance, the model misclassifies unseen `(Closing, Drawer)' samples as `(Opening, Drawer)', which accounts for 36\% of the errors.
+Notably, `Opening' is the verb most frequently paired with `Drawer' in the training set. 
+These findings suggest that the model has failed to learn robust verb representations that generalize to unseen compositions, largely due to object-driven shortcut learning.
+
+\input{figure/fig_cosine_sim}
+
+\topic{Similarity analysis of verb features.}
+In \figref{cosine_sim}, we track the cosine similarity between the original verb features $\f^V$ and the reversed verb features $\f^V_{\text{rev}}$ for the baseline~\cite{li2024c2c} over the course of training.
+The baseline~\cite{li2024c2c} maintains a high cosine similarity ($+0.92$), revealing its reliance on object-driven shortcuts rather than temporally grounded verb representations.
+Additionally, we plot the similarity of \ours{} in \figref{cosine_sim}.
+\ours{} drives this similarity to a strongly negative value ($-0.79$), indicating that the model successfully distinguishes opposite temporal semantics, \eg `opening' \vs `closing'.
+
+
+\section{Additional Results}
+\label{sec:additional_results}
+\input{table/macro_cg}
+
+\subsection{Macro Compositional Gap}
+In this section, we define Macro Compositional Gap (\mcg{}).
+\mcg{} is the macro version of Compositional Gap (\cg{}),  which averages \cg{} per composition class, ensuring robustness to class imbalance.
+Let $\mathbb{Y}_{\text{test}}^{C} \subseteq \mathbb{Y}^V \times \mathbb{Y}^O$ denote the set of \emph{unique} composition labels that appear in the test split.
+For each $\y^C=(\y^V,\y^O) \in \mathbb{Y}_{\text{test}}^{C}$, let $\Acc^C_{\y^C}$ be the top-1 composition accuracy restricted to samples of $\y^C$, and let $\Acc^V_{\y^C}$ and $\Acc^O_{\y^C}$ be the corresponding verb/object accuracies on the same samples of $\y^C$, computed from the joint top-1 composition predictions.
+Then we define
+\begin{equation}
+\Delta_{\text{CG}}^{\text{macro}} = \frac{1}{|\mathbb{Y}^C_{\text{test}}|} \sum_{\y^C \in \mathbb{Y}^C_{\text{test}}} \left[ \text{Acc}^C_{\y^C} - \left( \text{Acc}^V_{\y^C} \times \text{Acc}^O_{\y^C} \right) \right].
+\label{eq:mcg}
+\end{equation}
+In \tabref{macro_cg}, we report \mcg{} performances of baselines and \ours{} on the Sth-com~\cite{li2024c2c} and EK100-com datasets.
+\ours{} consistently achieves the highest \mcg{} on unseen compositions across different backbones and datasets, demonstrating its robust compositional reasoning capabilities.
+
+
+\subsection{Shortcut diagnosis on another ZS-CAR method}
+\input{figure/fig_crr_learning_curve}
+We apply the FSP/FCP diagnosis to another recent ZS-CAR method, Jung et al.~\cite{jung2025crr}, to test whether shortcut reliance is specific to C2C~\cite{li2024c2c} or generalizes across ZS-CAR methods.
+As shown in \figref{crr_learning_curve}, even with an enhanced disentangling training strategy, Jung et al.~\cite{jung2025crr} with the CLIP backbone~\cite{radford2021clip} also suffers from severe overfitting to co-occurrence statistics: the seen--unseen accuracy gap grows together with FSP/FCP, exhibiting the same trend observed for C2C~\cite{li2024c2c}.
+This indicates that shortcut reliance is not specific to a single baseline but is a common failure mode across ZS-CAR methods.
+
+
+
+
+\subsection{Additional ablation results}
+In \tabref{supple_additional_ablation}, we provide the comprehensive ablation study results to examine each design choice of \ours{}, using the Sth-com~\cite{li2024c2c} dataset. 
+
+\topic{Effects of \torc{} with different temporal aggregation methods.}
+In \tabref{supple_additional_ablation} (a), we demonstrate that the weak temporal order modeling caused by object-driven shortcut learning cannot be resolved merely by employing more sophisticated temporal aggregation methods. 
+We compare the baseline's temporal average pooling with attention pooling (Attn. pool). In attention pooling, a linear layer computes frame-wise attention weights from the input verb feature sequences, aggregating them via a weighted sum to obtain the final verb feature for classification. 
+While attention pooling yields a slight improvement in verb accuracy, it fails to reduce the compositional gap ($\Delta_{CG}$) on unseen compositions. 
+In contrast, our \torc{} achieves significant improvements in harmonic mean (H.M.) with both aggregation methods. 
+Notably, the combination of temporal average pooling and \torc{} enables the model to overcome the negative compositional gap.
+\input{table/supple_ablation_full}
+
+
+\topic{Effects of input samples in \cpr{}.}
+In \tabref{supple_additional_ablation} (b), we validate the effects of input sample types in \cpr{}.
+We argue that conventional image-based augmentations are insufficient for representing newly created unseen composition labels. 
+For example, Mixup~\cite{zhang2018mixup} blends verbs and objects concurrently, failing to preserve the temporal difference information that is essential for verb recognition.
+As a result, these methods yield a lower verb@unseen-comp than the baseline (52.6\% vs. 53.0\%).
+In contrast, our \cpr{} adopts a static frame mixing strategy, aiming to generate novel compositions by mixing only object information while preserving the verbs, shows modest performance gains over the baseline for both verb  and object accuracy on unseen compositions, resulting in the best H.M. 
+Furthermore, we observe that mixing a static frame into the estimated foreground region shows additional  performance boost (+1.2 points in the H.M.) over applying it to the entire background, as it creates more realistic samples.
+We denote the latter as `\cpr{} w/o F.E.', indicating `without foreground estimation'.
+
+
+
+\input{table/supple_ablation_ekcom}
+
+
+
+
+\topic{Effects of hyperparameters of \ours{}.}
+In \tabref{supple_additional_ablation} (c), we show the effect of $p_\text{CPR}$, the per-batch probability for CPR application, revealing a trade-off between seen and unseen composition accuracies. 
+Decreasing $p_\text{CPR}$ slightly from 1.0 (\eg 0.95 or 0.9) yields optimal unseen accuracy improvements with minimal drops in seen performance, whereas lowering it further (\eg $p_\text{CPR} = 0.8$) degrades the gains on unseen pairs. 
+Consequently, we tune $p_\text{CPR}$ for each dataset and backbone based on the best validation H.M. of seen and unseen accuracies, as shown in \tabref{hyperparam}.
+In \tabref{supple_additional_ablation} (d), we observe that introducing the explicit temporal order modeling task via \torc{} starting from 5 epoch, after initial training, is effective.
+In particular, the strategy of linearly increasing the loss weight from epoch 5 to 10 is the most effective. %
+Finally, in \tabref{supple_additional_ablation} (e), we analyze the impact of the loss weights of $L_\text{CPR}$ in \cpr{}. Increasing the margin $m$ or loss weight $\delta$ degrades performance, suggesting that excessive training penalties are detrimental. 
+We find $m=0.5$ and $\delta=0.1$ to be optimal. Contrary to the results in \tabref{supple_additional_ablation} (d), maintaining a constant low loss weight ($\delta=0.1$) for $L_\text{CPR}$ yields better performance than applying progressive weight scaling.
+
+
+\subsection{Ablation studies on EK100-com}
+In \tabref{ek100_ablation_component}, we provide the ablation study results conducted on the EK100-com dataset, complementing the results discussed with the Sth-com~\cite{li2024c2c} dataset in the main paper. 
+In \tabref{ek100_ablation_component} (a), we demonstrate that while \cpr{} and \torc{} are individually effective, integrating both components yields the best performance on EK100-com, outperforming the baseline in H.M. by 3.2 points.
+In \tabref{ek100_ablation_component} (b), using only $L_\text{cos}$ in \torc{} yields the highest H.M. on EK100-com.
+In \tabref{ek100_ablation_component} (c), surpressing co-occurrence priors with $L_\text{CPR}$ improves H.M. by 0.3 points, consistent with the results on Sth-com~\cite{li2024c2c}.
+
+
+
+
+
+
+
+\subsection{Results with validation-set-tuned bias calibration}
+\input{table/biased_results}
+In this section, we provide the open-world biased results with validation-set-tuned calibration.
+\textit{Bias calibration} is a standard technique in compositional zero-shot learning~\cite{purushwalkam2019taskdriven,mancini2021compcos,kim2023hierarchical,nayak2023csp, wu2025cond, li2024context} and ZS-CAR~\cite{li2024c2c,jiang2025dhd,jung2025crr,ye2025logic}. 
+It compensates for the inherent issue where logits for unseen compositions---not optimized during training---are naturally lower than those for seen compositions. 
+Specifically, it adds a scalar bias term exclusively to the unseen composition logits. 
+Previous ZS-CAR works~\cite{li2024c2c,jiang2025dhd,jung2025crr,ye2025logic} often tuned this bias using test-set ground truth under a closed-world setting to report the `best' seen and unseen accuracies. 
+We argue that this approach is highly unrealistic.
+
+Instead, we adopt an open-world \textit{validation-set-tuned} bias calibration. 
+We tune the bias on the validation set using open-world logits and then apply it to the test set. 
+This approach remains applicable to real-world scenarios while effectively improving unseen composition performance as a post-processing step.
+
+In \tabref{biased_sth_results}, we present the calibrated results of the baselines and \ours{} on the Sth-com~\cite{li2024c2c} dataset. 
+Notably, the calibrated performance of \ours{} is \textit{identical} to its original unbiased performance. 
+This indicates that our training label space expansion strategy via our proposed \cpr{} is effective.
+Unlike baseline methods that overfit solely to seen compositions, it successfully provides meaningful supervision for unseen compositions during training.
+Furthermore, the \textit{unbiased} performance of \ours{} consistently outperforms the best calibrated performance of all baselines. 
+This demonstrates that \ours{} is highly suitable for real-world applications, delivering strong ZS-CAR performance without the need for any post-processing.
+
+
+\subsection{Results with large video-pretrained VLM backbone}
+\label{sec:iv2_1b_results}
+\input{table/iv2_1b_results}
+\input{figure/fig_temporal_subset_full}
+We compare \ours{} and the baseline (C2C~\cite{li2024c2c}) on Sth-com~\cite{li2024c2c} and EK100-com using the InternVideo2-1B~\cite{wang2024iv2} backbone, whose 1B-parameter vision encoder is approximately $11\times$ larger than the 87M-parameter vision encoders used in the main paper.
+In \tabref{iv2_1b_sth_results}, \ours{} yields consistent improvements over the baseline on Sth-com~\cite{li2024c2c} and EK100-com, boosting unseen composition accuracy (+3.4p., +2.1p.), unseen \cg{} (+0.8p., +1.1p.), and H.M. (+1.5p., +0.4p.), respectively.
+These results demonstrate that its powerful representation learning capability is not constrained by the backbone's parameter size.
+
+
+\subsection{Temporal/Static split of Sth-com}
+We present extended results corresponding to the experiment shown in Figure 5 (c) of the main paper, including all versions of the Temporal/Static split. 
+Inspired by prior work~\cite{laura2021temporal, yun2022time}, we rigorously evaluate the temporal modeling capabilities by partitioning the Sth-com~\cite{li2024c2c} dataset into Temporal and Static splits, as shown in \figref{temporal_static_full}.
+We evaluate both the baseline (C2C~\cite{li2024c2c}) and \ours{} on the two types of splits, (i) our reconstructed splits and (ii) the splits proposed by Sevilla et al.~\cite{laura2021temporal}.
+In all cases, \ours{} exhibits lower performance on shuffled inputs but outperforms the baseline on original inputs. 
+This indicates that \ours{} predicts verbs without relying on static cues, leading to robust improvements in verb performance regardless of the split.
+
+In this paragraph, we describe the differences between two Temporal/Static splits.
+Sevilla et al.~\cite{laura2021temporal} originally defined these splits based on cognitive science experiments on Something-Something V2~\cite{goyal2017something} verb classes: a Temporal split (18 verbs) where temporal information matters, and a Static split (18 verbs) where such information is redundant. 
+However, noting that this Static split includes verbs requiring complex temporal reasoning such as `Folding', we reconfigure the splits based on verb semantics. 
+Specifically, we categorized verbs based on this criterion: those requiring temporal information for discrimination are assigned to the Temporal split (62 verbs), while verbs distinguishable by momentary keyframes are assigned to the Static split (80 verbs).
+The indices of the verbs in the Temporal split are as follows: 0, 1, 5, 6, 14, 25, 26, 29, 30, 32, 33, 34, 35, 38, 39, 40, 41, 42, 43, 44, 45, 46, 58, 59, 60, 61, 65, 66, 67, 68, 72, 73, 74, 75, 76, 78, 79, 85, 86, 90, 91, 92, 98, 100, 103, 109, 122, 123, 131, 134, 136, 137, 139, 140, 145, 146, 147, 148, 149, 150, 153, 154.
+The indices of the verbs in the Static split are as follows: 2, 3, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 27, 28, 31, 36, 37, 47, 48, 49, 50, 51, 52, 53, 54, 55, 77, 80, 81, 87, 88, 93, 94, 95, 96, 97, 99, 101, 102, 104, 105, 106, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 126, 127, 128, 129, 130, 132, 133, 135, 138, 141, 142, 143, 151, 152, 155, 156, 157, 158, 159, 160.
+To balance the sample sizes between the Temporal and Static splits, we excluded a few verbs with the fewest samples from the Temporal split.

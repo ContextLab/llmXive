@@ -1,0 +1,81 @@
+\section{Introduction}
+\label{sec:intro}
+
+
+Many human actions can be decomposed into two semantic primitives—verbs and objects—and robust video understanding requires recognizing each component and reasoning over their interaction as a composition~\cite{goyal2017something, mat2020sthelse, damen2022ek100, diba2020hvu, bae2024devias}.
+Zero-Shot Compositional Action Recognition (ZS-CAR) formalizes this goal: a model must recognize unseen verb–object pairs while keeping the verb and object vocabularies shared across splits~\cite{li2024c2c, jiang2025dhd, jung2025crr, ye2025logic}.
+
+
+
+\input{figure/fig_teaser}
+
+
+
+
+
+
+
+
+In this setting, a key failure mode emerges: models often predict verbs via \emph{object-driven shortcuts} rather than temporal evidence.
+Throughout, \emph{object} refers to the \emph{labeled noun class} in the verb--object vocabulary (not unlabeled background entities).
+We argue that object-driven shortcuts arise from two issues inherent to ZS-CAR.
+First, \textbf{compositional supervision is sparse and skewed}.
+As illustrated in \figref{teaser} (a), datasets cover only a small fraction of the combinatorial verb--object space, and training labels concentrate on a limited set of frequent pairs~\cite{mat2020sthelse, damen2022ek100}.
+This skew induces a strong \emph{co-occurrence prior} in the \emph{training data}—the empirical dominance of frequent verb–object pairs—which can be amplified into a \emph{model shortcut} at training time.
+Under such skewed supervision, predictions for unseen compositions tend to drift toward \emph{seen} (especially frequent) pairs.
+Second, \textbf{verbs are harder to learn than objects}.
+As shown in \figref{teaser} (b), an object often becomes recognizable from a single frame, whereas a verb typically requires multi-frame temporal reasoning.
+Prior work on shortcut learning suggests that models tend to rely on easier-to-learn cues rather than the intended evidence~\cite{nam2020lff,li2018resound,singh2020dont,geirhos2018cuecon,scimeca2022shortcut}.
+In ZS-CAR, this verb--object difficulty gap makes object cues an especially attractive shortcut for verb prediction.
+
+
+
+
+In this work, we posit that these two intertwined issues in verb-object compositional learning promote \emph{object-driven shortcuts}, which we diagnose as the key factor hindering ZS-CAR.
+As \figref{teaser} (c) illustrates, a model can match a verb once it recognizes its frequently co-occurring object during training, without modeling the temporal dynamics essential to correctly recognize the verb.
+This behavior weakens generalization to unseen compositions because it ties verb prediction to object-dependent priors rather than temporally grounded evidence.
+We observe that models~\cite{li2024c2c}, even with a modern video-pretrained backbone~\cite{wang2024iv2}, indeed confuse verbs with opposite temporal order (\eg, opening \vs closing) on unseen compositions (see \secref{validation}).
+
+
+
+
+
+
+
+
+
+To dissect how object-driven shortcuts hinder unseen generalization, we perform a comprehensive quantitative diagnosis. 
+First, through controlled experiments, we show that the asymmetric learning difficulty between verbs and objects, together with skewed co-occurrence priors, promotes verb shortcut learning driven by object cues.
+Next, we \emph{quantify} shortcut-driven failures in existing ZS-CAR models by two diagnostic ratios: False Seen Prediction (FSP) and False Co-occurrence Prediction (FCP), which measure how often an unseen input collapses to a seen—and especially frequent—training composition.
+Using FSP/FCP, we show that a strong ZS-CAR baseline~\cite{li2024c2c} remains heavily biased toward seen compositions, resulting in poor generalization to unseen compositions.
+
+Driven by the diagnosis, we propose Robust COmpositional REpresentations (\ours{}), targeting the two root causes of object-driven shortcuts.
+First, Co-occurrence Prior Regularization (\cpr{}) expands supervision over originally absent compositions and suppresses the dominance of frequently seen pairs by treating them as hard negatives.
+Second, Temporal Order Regularization for Composition (\torc{}) enforces temporal-order sensitivity so that the model learns temporally grounded verb representations instead of relying on static cues.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+We validate \ours{} on Sth-com~\cite{li2024c2c} under a realistic open-world evaluation protocol that evaluates all possible verb-object pairs, without requiring test-set ground truth labels. 
+We also introduce EK100-com, a ZS-CAR dataset repurposed from EPIC-KITCHENS-100~\cite{damen2022ek100}, which exhibits more severe compositional sparsity than Sth-com~\cite{li2024c2c}.
+Across datasets and backbones, \ours{} reduces shortcut diagnostics (FSP/FCP) and improves unseen compositional generalization.
+
+
+In this work, we make the following major contributions:
+\begin{itemize}
+    \item \textbf{Shortcut Diagnosis:} We provide a diagnostic view of \emph{object-driven shortcuts} in ZS-CAR. We empirically identify strong co-occurrence priors and asymmetric learning difficulty as the root causes of the shortcuts. Furthermore, we expose the limitations of baselines by quantifying how unseen inputs collapse into seen-especially frequent-training pairs, using FSP/FCP.
+    \item \textbf{Diagnosis-Driven Framework:} We propose \ours{} comprising \cpr{} to suppress co-occurrence priors by expanding supervision over originally absent compositions and \torc{} to promote temporally grounded verb learning.
+    \item \textbf{Effectiveness \& Robustness:} We demonstrate that \ours{} is effective, achieving superior performance on unseen compositions over baselines on Sth-com and EK100-com datasets, with multiple VLM backbones. 
+    Moreover, through extensive quantitative analyses, we prove that our approach mitigates co-occurrence biases and learns temporally grounded verb features.
+\end{itemize}

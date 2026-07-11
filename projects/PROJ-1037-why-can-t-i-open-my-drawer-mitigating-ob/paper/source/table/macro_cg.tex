@@ -1,0 +1,31 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Macro Compositional Gap results.} 
+    We show Macro Compositional Gap (\mcg{}) results of C2C~\cite{li2024c2c} and \ours{} on the Sth-com~\cite{li2024c2c} and EK100-com datasets. 
+    The \textbf{best} numbers are highlighted.
+}
+\def\arraystretch{1.2}
+\resizebox{.5\linewidth}{!}{
+\begin{tabular}{ll cc c cc}
+\toprule
+\multirow{2}{*}{Backbone} & \multirow{2}{*}{Method} & \multicolumn{2}{c}{Sth-com} && \multicolumn{2}{c}{EK100-com} \\ 
+\cline{3-4} \cline{6-7} 
+&& {Seen} & {Unseen} && {Seen} & {Unseen} \\
+\midrule
+\multirow{3}{*}{CLIP} 
+& AIM~\cite{yang2023aim} & \textbf{+1.18} & $-$0.47 && +0.95 & $-$1.10 \\
+& C2C~\cite{li2024c2c} & +0.78 & +0.16 && \textbf{+1.56} & $-$0.38 \\
+& \ours{} & +0.53 & \textbf{+0.64} && $-$0.03 & \textbf{+0.11} \\
+\midrule
+\multirow{3}{*}{\shortstack{InternVideo2}} 
+& LoRA~\cite{hu2022lora} & \ 0.00 & $-$0.16 && +0.60 & $-$0.53 \\
+& C2C~\cite{li2024c2c} & \textbf{+0.59} & +0.14 && \textbf{+0.83} & $-$0.38 \\
+& \ours{} & $-$0.33 & \textbf{+0.76} && +0.02 & \textbf{+0.85} \\
+\bottomrule
+\end{tabular}
+\label{tab:macro_cg}
+}
+\end{table*}
+
+
+

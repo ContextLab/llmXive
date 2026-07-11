@@ -1,0 +1,108 @@
+ \section{Diagnosis: Why ZS-CAR Models Fail?}
+\label{sec:preliminaries}
+
+
+\subsection{Zero-Shot Compositional Action Recognition}
+
+We study Zero-Shot Compositional Action Recognition (ZS-CAR)~\cite{li2024c2c}, where the goal is to recognize \emph{unseen verb--object compositions} that are held out from the training set, while the verb and object vocabularies are \emph{fixed} and shared across train/validation/test splits.
+Thus, unlike open-set or open-vocabulary settings, ZS-CAR does not introduce unseen \emph{verbs} or \emph{objects} at test time---only unseen \emph{compositions} (verb--object pairs).
+Let $\mathbb{Y}^V$ and $\mathbb{Y}^O$ denote the sets of verb and object labels, and let each composition label be a pair $\y^C=(\y^V,\y^O) \in \mathbb{Y}^V \times \mathbb{Y}^O$.
+The training set is $\mathbb{D}_{\text{train}}=\{(\X_i,\y^C_i)\}_{i=1}^N$, and its set of observed (seen) compositions is
+$\mathbb{Y}_{\text{seen}}=\{\y^C_i \mid (\X_i,\y^C_i)\in\mathbb{D}_{\text{train}}\}$.
+The space of unseen compositions is
+$\mathbb{Y}_{\text{unseen}} = (\mathbb{Y}^V \times \mathbb{Y}^O)\setminus \mathbb{Y}_{\text{seen}}$.
+The validation and test sets contain both seen and unseen compositions, enabling evaluation of compositional generalization.  
+
+\input{figure/fig_diagnosis_shortcuts}
+
+\subsection{Diagnostic Metrics}
+
+To better understand ZS-CAR model behavior, we introduce two diagnostics:
+(1) \emph{training-bias} metrics that quantify over-reliance on training co-occurrence statistics, and
+(2) the \emph{Compositional Gap} that measures the benefit of modeling verb--object dependence beyond independent recognition.
+
+
+
+
+\topic{Training-bias metrics.}
+To quantify reliance on co-occurrence priors, we define two misclassification ratios on the \emph{unseen} subset of an evaluation split $\mathbb{Y}_{\text{unseen}}$.
+\emph{False Seen Prediction (FSP)} is the fraction of misclassified unseen composition samples whose predictions $\hat{\y}^C$ fall into the seen composition categories $\mathbb{Y}_{\text{seen}}$.
+\emph{False Co-occurrence Prediction (FCP)} is the fraction of misclassified unseen composition samples whose prediction $\hat{\y}^C$ falls into the frequent compositions $\mathbb{Y}_{\text{freq}}$.
+Let $f(\y^C)$ denote the training frequency of a seen composition $\y^C \in \mathbb{Y}_{\text{seen}}$.
+We define the set of frequent seen compositions $\mathbb{Y}_{\text{freq}}$ as
+\begin{equation}
+    \mathbb{Y}_{\text{freq}}=\{\y^C \in\mathbb{Y}_{\text{seen}} \mid f(\y^C) > \mu_f + \sigma_f\},    
+    \label{eq:freq}
+\end{equation}
+where $\mu_f$ and $\sigma_f$ are the mean and standard deviation of $\{f(\y^C)\}_{\y^C\in\mathbb{Y}_{\text{seen}}}$.
+
+To further analyze shortcut patterns, we decompose FSP/FCP into three component-wise cases based on prediction errors:
+(i) Verb-collapse, where the predicted object is correct but the verb is incorrect;
+(ii) Object-collapse, where the predicted verb is correct but the object is incorrect; and
+(iii) Dual-collapse, where both verb and object are incorrect.
+Using the metrics, we can identify whether co-occurrence bias primarily harms verb or object learning.
+
+
+
+\topic{Compositional Gap.}
+We introduce \textit{Compositional Gap} (\cg{}) to examine whether a model benefits from predicting the joint verb--object composition beyond getting the two components correct independently.
+Given joint logits over $\mathbb{Y}^V \times \mathbb{Y}^O$, we obtain the predicted composition $\hat{\y}^C =(\hat{\y}^V,\hat{\y}^O)$ by selecting the top-1 composition label.
+We then compute top-1 accuracies $\Acc^{V}$, $\Acc^{O}$, and $\Acc^{C}$ respectively.
+Then we define \cg{} as
+\begin{equation}
+    \Delta_{\text{CG}} = \Acc^{C} - (\Acc^{V} \times \Acc^{O}).
+    \label{eq:cg}
+\end{equation}
+We report \cg{} alongside FSP/FCP and unseen composition accuracy as a \emph{diagnostic} metric, rather than interpreting it as a standalone evaluation criterion.
+
+
+
+
+
+
+\input{figure/fig_diagnosis_baseline}
+
+\subsection{Empirical Diagnosis of Object-driven Shortcuts in ZS-CAR}
+
+In this section, we empirically diagnose object-driven shortcut behavior in ZS-CAR and analyze how it correlates with weak verb learning and poor generalization to unseen compositions.
+We show that this behavior persists even with a modern video-pretrained VLM backbone~\cite{wang2024iv2}, and provide additional evidence in \secref{results} and \secref{additional_evidence}.
+
+
+
+
+\topic{Objects are easier to learn than verbs.}
+To compare the learning difficulty of verbs and objects, we train a randomly initialized ViT~\cite{dosovitskiy202vit} on a controlled subset of Sth-com~\cite{li2024c2c}.
+Specifically, we construct a balanced $10\times10$ subset containing all 100 verb--object pairs to isolate learning dynamics from compositional sparsity.
+Based on prior observations that models tend to fit easier cues earlier under limited supervision~\cite{nam2020lff, scimeca2022shortcut}, we compare the learning curves of verb \vs object prediction.
+In \figref{diagnosis_shortcut} (a), the model learns objects faster and reaches higher accuracy than verbs under this controlled setting, suggesting that object prediction is easier than verb prediction in our ZS-CAR setup.
+
+
+
+
+\topic{Object-driven shortcuts indeed exist in ZS-CAR.}
+Under skewed co-occurrence statistics, models may rely on easier cues as shortcuts instead of learning the intended evidence~\cite{nam2020lff, scimeca2022shortcut, geirhos2018cuecon, bahng2019rebias, li2018resound, whycantchoi}.
+We test whether CLIP exhibits such object-driven shortcuts by constructing a \emph{bias-controlled} training split where each verb is strongly correlated with a particular object (see construction details in \secref{imple_detail}), and evaluating on two splits:
+(i) \emph{bias-aligned} seen compositions and (ii) \emph{bias-conflict} unseen compositions.
+As shown in \figref{diagnosis_shortcut} (b), CLIP achieves high object accuracy \emph{on unseen compositions} while verb accuracy \emph{on unseen compositions} drops below the uniform-chance level ($1/|\mathbb{Y}^V|$), indicating that object cues dominate verb prediction under this biased supervision.
+In \figref{shortcuts_vit}, we observe this trend even with random initialization, implying shortcuts stem from the training distribution and objective, not just pretraining.
+
+
+
+
+
+\topic{Shortcut reliance correlates with poor unseen generalization.}
+Next, we test whether shortcut reliance correlates with weak unseen generalization in a standard SOTA pipeline.
+\figref{diagnosis_baseline} plots validation accuracies together with FSP/FCP for C2C~\cite{li2024c2c} on Sth-com~\cite{li2024c2c}.
+As shown in \figref{diagnosis_baseline} (a), with a CLIP backbone~\cite{radford2021clip}, increasing FSP/FCP accompanies a widening seen--unseen gap, consistent with growing reliance on co-occurrence statistics.
+Our error breakdown in \figref{diagnosis_baseline} (c) further shows that, among unseen samples that collapse to seen pairs, a large fraction corresponds to \emph{verb-collapse}, supporting the presence of object-driven shortcut behavior.
+As shown in \figref{diagnosis_baseline} (b) and (c), with an InternVideo2~\cite{wang2024iv2} backbone, the trends are more stable; however, FSP remains high, and the FCP breakdown still exhibits substantial verb-collapse, suggesting that stronger video pre-training alone is insufficient to eliminate the tendency to overfit to seen pairs via co-occurrence-driven shortcuts.
+
+
+\input{table/diagnosis_cg}
+
+
+\topic{\cg{} indicates degraded compositional behavior on unseen compositions.}
+We report \cg{} of C2C~\cite{li2024c2c} with CLIP~\cite{radford2021clip} and InternVideo2~\cite{wang2024iv2} backbones.
+As shown in \tabref{cg_table}, the model exhibits negative \cg{} on unseen compositions even with the video-pretrained backbone, indicating that $\Acc^{C}$ falls below the independent reference $\Acc^{V}\times\Acc^{O}$.
+Together with the training-bias metrics (FSP/FCP), these results support that shortcut reliance is closely associated with weak unseen compositional generalization in current ZS-CAR pipelines.
+

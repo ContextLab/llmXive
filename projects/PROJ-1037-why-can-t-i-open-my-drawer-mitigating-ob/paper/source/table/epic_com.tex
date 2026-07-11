@@ -1,0 +1,43 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{EK100-com results.} 
+    We show the top-1 verb, object, and composition classification accuracy (\%). 
+    We report performance on both seen and unseen compositions, along with their harmonic mean (H.M.).
+}
+\vspace{-1em}
+
+
+\def\arraystretch{1.2}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{ll ccc c ccc c ccc}
+\toprule
+\multirow{3}{*}{Backbone} & \multirow{3}{*}{Method} 
+& \multicolumn{3}{c}{Verb} && \multicolumn{3}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{3-5} \cline{7-9} \cline{11-13} 
+&& \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{Seen (\cg{}$\uparrow$)} & \multirow{2}{*}{Unseen (\cg{}$\uparrow$)} & \multirow{2}{*}{H.M.} \\
+\\
+\midrule
+\multirow{4}{*}{CLIP} &  %
+AIM~\cite{yang2023aim} & 59.97 & 39.99 & 47.98 && 56.23 & 46.76 & 51.06 && 38.58 (+4.86) & 14.98 ($-$3.71) & 21.58 \\
+& C2C~\cite{li2024c2c} & 65.52 & 49.57 & 56.44 && 56.54 & 46.99 & 51.32 && \textbf{42.70} (+5.65) & 21.56 ($-$1.73) & 28.65 \\
+& Jung et al.~\cite{jung2025crr} & 63.38 & 47.63 & 54.39 && 55.85 & 42.12 & 48.02 && 39.50 (+4.10) & 16.96 ($-$3.10) & 23.73 \\
+& \ours{} & 66.19 & 54.31 & \textbf{59.66} && 54.35 & 49.88 & \textbf{52.02} && 39.70 (+3.73) & \textbf{28.41} (+1.32) & \textbf{33.12} \\
+\midrule
+\multirow{3}{*}{InternVideo2} & LoRA~\cite{hu2022lora} & 59.73 & 32.99 & 42.51 && 51.08 & 39.34 & 44.45 && 36.43 (+5.92) & 5.63 ($-$7.35) & 9.75\\
+& C2C~\cite{li2024c2c} & 68.95 & 57.01 & 62.41 && 60.54 & 52.31 & 56.12 && \textbf{47.30} (+5.55) & 30.33 (+0.51) & 36.96 \\
+& \ours{} & 67.76 & 59.78 & \textbf{63.52} && 56.28 & 56.00 & \textbf{56.14} && 41.03 (+2.89) & \textbf{37.31} (+3.83) & \textbf{39.08} \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:ek100_com_results}
+\end{table*}
+
+
+
+
+
+
+
+
+
+

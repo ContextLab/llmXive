@@ -1,0 +1,90 @@
+\usepackage{tcolorbox}
+\usepackage{makecell}
+\tcbuselibrary{listings, breakable, skins}
+
+\newtcblisting{clawcode}[1][]{%
+  listing only,
+  breakable,
+  enhanced,
+  colback=black!2,
+  colframe=black!55,
+  boxrule=0.4pt,
+  arc=2pt,
+  outer arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries\small,
+  coltitle=black,
+  attach boxed title to top left={xshift=4pt, yshift=-3pt},
+  boxed title style={%
+    colback=white,
+    colframe=black!55,
+    sharp corners=northwest,
+    arc=0pt,
+    boxrule=0.3pt,
+    top=1pt, bottom=1pt, left=4pt, right=4pt,
+  },
+  listing options={%
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=true,
+    breakautoindent=false,
+    breakindent=0pt,
+    prebreak={},
+    postbreak={},
+    columns=fullflexible,
+    keepspaces=true,
+    upquote=true,
+    showstringspaces=false,
+    aboveskip=4pt, belowskip=4pt,
+  },
+  #1
+}
+
+\newtcblisting{clawsnippet}{%
+  listing only,
+  breakable,
+  enhanced,
+  colback=black!2,
+  colframe=black!40,
+  boxrule=0.3pt,
+  arc=1.5pt,
+  left=5pt, right=5pt, top=3pt, bottom=3pt,
+  listing options={%
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
+    upquote=true,
+    showstringspaces=false,
+  },
+}
+
+\newtcolorbox{clawschema}[1][]{%
+  breakable,
+  enhanced,
+  colback=black!2,
+  colframe=black!55,
+  boxrule=0.4pt,
+  arc=2pt,
+  outer arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries\small,
+  coltitle=black,
+  attach boxed title to top left={xshift=4pt, yshift=-3pt},
+  boxed title style={%
+    colback=white,
+    colframe=black!55,
+    sharp corners=northwest,
+    arc=0pt,
+    boxrule=0.3pt,
+    top=1pt, bottom=1pt, left=4pt, right=4pt,
+  },
+  #1
+}
+
+\newcommand{\schemaitem}[2]{%
+  \par\smallskip
+  \noindent\texttt{\bfseries\#\# #1}\par
+  \nopagebreak
+  \noindent{\itshape\color{black!60}\small #2}\par
+}

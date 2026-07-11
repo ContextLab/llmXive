@@ -1,0 +1,116 @@
+\documentclass[]{lab}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{amsmath,amssymb}  %
+\usepackage{charter}
+
+\usepackage[toc,page,header]{appendix}
+
+
+\usepackage{minitoc}
+\usepackage{cleveref} 
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{xcolor}
+\usepackage{CJKutf8}
+\usetikzlibrary{patterns}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{bm}
+\usepackage{makecell} % in preamble
+% \usepackage[dvipsnames]{xcolor}
+\usepackage{colortbl}
+
+
+\usepackage{soul} %
+\usepackage{algorithm}      %
+\usepackage{algpseudocode}  %
+\usepackage{parskip}
+
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\definecolor{fallbackgreen}{rgb}{130, 180, 102}
+\definecolor{stopred}{rgb}{251, 225, 224}
+
+\newcommand{\textbl}[1]{\textcolor{blue}{#1}}
+\newcommand{\textor}[1]{\textcolor{orange}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+
+\ifdefined\final
+\usepackage[disable]{todonotes}
+\else
+\usepackage[textsize=tiny]{todonotes}
+\fi
+\newcommand{\todoyfz}[2][]{\todo[size=\scriptsize,color=blue!20!white,#1]{YFZ: #2}} 
+
+\newcommand{\ours}{\texttt{Vidu S1}\xspace}
+\newcommand{\commenter}[3]{%
+    \textcolor{#2}{\textbf{[#1]: #3}}%
+}
+\newcommand{\jintao}[1]{\commenter{Jintao}{blue}{#1}}
+
+\input{macro}
+
+\renewcommand{\thefootnote}{}
+
+\newtcolorbox{promptbox}[1][]{
+  enhanced,
+  breakable,
+  colback=promptboxlightgray,
+  colframe=promptboxblue!30,
+  arc=8pt,
+  boxrule=0.5pt,
+  left=12pt,
+  right=12pt,
+  top=8pt,
+  bottom=8pt,
+  fonttitle=\bfseries,
+  fontupper=\linespread{1.2}\selectfont,
+  title=#1
+}
+
+\title{Vidu S1: A Real-Time Interactive Video Generation Model}
+
+\author{{\fontsize{11}{11}\selectfont Jintao Zhang$^{*\dagger}$, Kai Jiang$^{*}$, Jintao Chen$^{*}$, Xu Wang$^{*}$, Yang Luo$^{*}$, Yuji Wang$^{*}$, Dechuang Chen$^{*}$, Jungang Li$^{*}$, Chengyang Ye, Marco Chen, Hongzhou Zhu, Min Zhao, Yuxuan Jiang, Zhengkun Huang, Chendong Xiang, Kaiwen Zheng, Haoxu Wang, Xiaohang Wang, Qi Jia, Xin Chen, Yimin Chen, Youhe Jiang, Fangcheng Fu, Zhijie Deng$^{\ddagger}$, Fan Bao$^{\ddagger}$, Jianfei Chen$^{\ddagger}$, Jun Zhu$^{\ddagger}$}}
+
+\affiliation{Tsinghua University, Shengshu Technology\\\url{https://vidu.com/vidu-stream}}
+
+\vspace{-10pt}
+\abstract{
+We introduce \ours, a real-time interactive video generation model supporting voice control of digital characters. Users can control video generation content at any moment through voice instructions. \ours supports infinite-length real-time video generation without blurring, drift, or visual distortion. Built with TurboDiffusion and TurboServe, \ours outputs 540p real-time videos at up to 42 FPS on regular consumer GPUs. Users can upload custom images of real people, anime, and pets, and choose different voice tones for personalized experiences. Experiments show that \ours achieves the best performance across all test metrics while fully meeting real-time inference requirements. A playable online demo is available at \url{https://vidu.com/vidu-stream}.
+}
+\begin{document}
+
+\maketitle
+
+\renewcommand{\thefootnote}{}
+\footnotetext{*Core contributors, co-first authorship. $^\dagger$Project lead. $^\ddagger$Advisors.}
+
+\renewcommand{\thefootnote}{\arabic{footnote}}
+
+\begin{figure}[H]
+    \vspace{-20pt}
+    \centering
+    \includegraphics[width=\linewidth]{./src/figs/Overview_final.pdf}
+    \caption{Overview of \ours. \ours supports speech-guided future control, efficient infinite-duration inference, and diverse customized characters for real-time interactive video generation.}
+    \label{fig:teaser}
+\end{figure}
+
+\input{src/1-Introduction.tex}
+\input{src/2-Method.tex}
+\input{src/3-Experiment.tex}
+\input{src/4-Conclusion.tex}
+
+
+
+% \clearpage
+
+\bibliographystyle{unsrt}
+\bibliography{main}
+
+
+\end{document}

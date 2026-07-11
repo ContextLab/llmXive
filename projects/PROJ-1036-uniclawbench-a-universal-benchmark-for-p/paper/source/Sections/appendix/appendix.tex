@@ -1,0 +1,34 @@
+
+\providecommand{\appendixDir}{Sections/appendix}
+
+\makeatletter
+\@ifundefined{clawcode}{%
+  \GenericError{}{%
+    UniClawBench appendix: the `clawcode' environment is undefined.\MessageBreak
+    Add the following line to your main paper preamble (above\MessageBreak
+    \string\begin{document}):\MessageBreak
+    \space\space\string\input{Sections/appendix/appendix-preamble}%
+  }{%
+    The preamble file loads tcolorbox and defines the boxed-listing\MessageBreak
+    environments used by sections A--D. See appendix/README.md.%
+  }{}%
+  \endinput
+}{}
+\makeatother
+
+
+\section{Task Definition Format}\label{app:format}
+\input{\appendixDir/A_task_format}
+
+\section{Task Examples}\label{app:examples}
+\input{\appendixDir/B_suite_examples}
+
+\section{Role Prompts}\label{app:prompts}
+\input{\appendixDir/C_prompts}
+
+\section{End-to-End Case Study}\label{app:case-study}
+\input{\appendixDir/D_case_study}
+
+\section{Societal Impacts}
+This work can have positive societal impact by enabling more realistic and rigorous evaluation of AI agents in real-world environments, improving their reliability, transparency, and safety before deployment. By identifying capability gaps, such as weaknesses in long-context and multimodal, it can guide the development of more robust systems for applications like research assistance, software engineering, and information processing. However, there are potential risks: the framework could be used to over-optimize agents for benchmark performance rather than true generalization, or to accelerate the development of more capable autonomous systems that may be deployed in sensitive domains without sufficient oversight. Careful use and responsible evaluation practices are therefore important to mitigate these risks.
+

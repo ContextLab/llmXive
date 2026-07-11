@@ -1,0 +1,113 @@
+\begin{table*}[t]
+\centering
+
+\caption{\textbf{Additional ablation study of \ours{} on Sth-com.} 
+    We provide the additional ablation study results on Sth-com~\cite{li2024c2c}.
+    In every experiment, we use C2C~\cite{li2024c2c} with CLIP-B/16~\cite{radford2021clip} as our baseline. 
+    We report performance on both seen and unseen compositions, along with their harmonic mean (H.M.).
+    The \textbf{best} numbers are highlighted.
+}
+
+\mpage{0.55}{\scriptsize(a) Effects of \torc{} with different\\temporal aggregation.}
+\mpage{0.42}{\scriptsize(b) Effects of input samples in \cpr{}.}
+\\
+\mpage{0.55}{
+    \resizebox{\linewidth}{!}{
+        \begin{tabular}{l c cc c cc c ccc}
+        \toprule
+        \multirow{2}{*}{Method} &
+        \multirow{2}{*}{\torc} & \multicolumn{2}{c}{Verb} && \multicolumn{2}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+        \cline{3-4} \cline{6-7} \cline{9-11} 
+        && V@S & V@U && O@S & O@U && Seen ($\Dcg$) & Unseen ($\Dcg$) & H.M. \\
+        \midrule
+        Average & $\times$ & 63.60 & 54.36 && 67.72 & 56.10 && 46.31 (+3.24) & 30.08 (-0.42) & 36.47 \\
+        Attn. pool & $\times$ & 64.28 & 54.76 && 67.50 & 55.73 && 47.11 (+3.72) & 30.09 (-0.43) & 36.72 \\
+        Average & \checkmark & 65.65 & 56.80 && 68.59 & 55.19 && 48.65 (+3.62) & 31.35 (-0.00) & \textbf{38.13} \\
+        Attn. pool & \checkmark & 65.51 & 56.50 && 67.80 & 55.00 && 48.07 (+3.65) & 30.78 (-0.30) & 37.53 \\
+        \bottomrule
+        \end{tabular}
+    }
+}
+\hfill
+\mpage{0.42}{
+\resizebox{\linewidth}{!}{
+\begin{tabular}{l cc cc ccc}
+\toprule
+\multirow{2}{*}{Inputs} & \multicolumn{2}{c}{Verb} & \multicolumn{2}{c}{Object} & \multicolumn{3}{c}{Composition} \\
+\cline{2-3} \cline{4-5} \cline{6-8}
+& V@S & V@U & O@S & O@U & Seen & Unseen & H.M. \\
+\midrule
+Original & 62.54 & 52.97 & 56.90 & 57.05 & 37.43 & 31.41 & 34.16 \\
+Mixup~\cite{zhang2018mixup} & 62.37 & 52.56 & 63.50 & 59.20 & 41.62 & 31.45 & 35.83 \\
+\cpr{} w/o F.E.~\cite{ding2022fame} & 63.23 & 54.29 & 65.15 & 56.49 & 43.57 & 30.86 & 36.13 \\
+\cpr{} w/ F.E.~\cite{ding2022fame} & 64.17 & 54.55 & 63.60 & 58.70 & 42.74 & 33.05 & \textbf{37.28} \\
+\bottomrule
+\end{tabular}
+\label{tab:ablation_input_cpr}
+}
+}
+\\
+\vspace{.2em}
+\mpage{0.42}{
+{\scriptsize(c) Effects of hyperparameters of \cpr{}.}
+\centering
+\resizebox{.9\linewidth}{!}{
+\begin{tabular}{l cc c cc c ccc}
+\toprule
+
+\multirow{2}{*}{$p_\text{CPR}$} 
+& \multicolumn{2}{c}{Verb} && \multicolumn{2}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{2-3} \cline{5-6} \cline{8-10} 
+& V@S & V@U && O@S & O@U && Seen & Unseen & H.M. \\
+\midrule
+0.8 & 64.66 & 52.89 && 65.06 & 58.77 && 45.20 & 31.14 & 36.88 \\
+0.9 & 64.70 & 55.50 && 64.73 & 57.69 && 44.75 & 32.60 & \textbf{37.72} \\
+0.95 & 63.95 & 54.05 && 63.97 & 59.52 && 43.09 & 33.22 & 37.51 \\
+1.0 & 64.95 & 55.50 && 61.49 & 57.20 && 41.82 & 32.84 & 36.79 \\
+\bottomrule
+\end{tabular}
+}
+}
+\mpage{0.55}{
+{\scriptsize(d) Effects of hyperparameters of \torc{}.}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{l cc cc c cc c ccc}
+\toprule
+
+\multirow{2}{*}{$\gamma$} & scaling & scaling & \multicolumn{2}{c}{Verb} && \multicolumn{2}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{4-5} \cline{7-8} \cline{10-12} 
+& start epoch & end epoch & V@S & V@U && O@S & O@U && Seen & Unseen & H.M. \\
+\midrule
+0.5 & 1 & 1 & 65.59 & 55.63 && 68.49 & 54.80 && 48.33 & 30.19 & 37.17 \\
+1.0 & 1 & 1 & 64.88 & 55.81 && 67.21 & 55.12 && 47.06 & 30.69 & 37.15 \\
+1.0 & 5 & 5 & 64.93 & 56.03 && 67.67 & 55.81 && 47.20 & 31.38 & 37.70 \\
+1.0 & 5 & 10 & 65.65 & 56.80 && 68.59 & 55.19 && 48.65 & 31.35 & \textbf{38.13} \\
+\bottomrule
+\end{tabular}
+}
+\\
+\vspace{.5em}
+}
+\mpage{0.6}{
+{\scriptsize(e) Effects of hyperparameters of $L_\text{CPR}$.}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{cc cc cc c cc c ccc}
+\toprule
+
+\multirow{2}{*}{$m$} & \multirow{2}{*}{$\delta$} & scaling & scaling & \multicolumn{2}{c}{Verb} && \multicolumn{2}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{5-6} \cline{8-9} \cline{11-13} 
+&& start epoch & end epoch & V@S & V@U && O@S & O@U && Seen & Unseen & H.M. \\
+\midrule
+0.5 & 0.1 & 15 & 15 & 67.06 & 58.13 && 63.67 & 58.66 && 45.00 & 35.16 & \textbf{39.48} \\
+0.5 & 0.1 & 15 & 20 & 66.16 & 58.78 && 63.75 & 57.96 && 44.65 & 34.89 & 39.17 \\
+0.5 & 0.5 & 15 & 15 & 66.16 & 57.03 && 62.75 & 57.56 && 43.55 & 33.77 & 38.04 \\
+0.5 & 0.5 & 15 & 20 & 67.04 & 56.77 && 61.74 & 57.56 && 43.37 & 34.30 & 38.31 \\
+1.0 & 0.1 & 15 & 15 & 66.31 & 58.56 && 63.77 & 57.99 && 44.47 & 34.64 & 38.94 \\
+1.0 & 0.1 & 15 & 20 & 66.88 & 58.24 && 63.88 & 57.01 && 44.90 & 34.21 & 38.83 \\
+\bottomrule
+\end{tabular}
+}
+}
+
+\label{tab:supple_additional_ablation}
+\end{table*}

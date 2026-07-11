@@ -1,0 +1,163 @@
+\section{\ours{}}
+\label{sec:method}
+
+
+We introduce \ours{}, a diagnosis-driven learning framework that mitigates \emph{object-driven shortcuts} in ZS-CAR.  
+\ours{} improves compositional generalization by strengthening verb–object representations under sparse supervision through two complementary components:  
+(i) Co-occurrence Prior Regularization (\cpr{}) expands supervision over novel compositions and leverages frequently seen pairs as hard negatives to suppress co-occurrence priors, and  
+(ii) Temporal Order Regularization for Composition (\torc{}) loss promotes temporally grounded verb learning over static object cues.
+Following prior work~\cite{li2024c2c, jung2025crr}, we employ an adapter-based tuning, 
+AIM~\cite{yang2023aim} for CLIP~\cite{radford2021clip} and LoRA~\cite{hu2022lora} for InternVideo2~\cite{wang2024iv2}, as our backbone.  
+\figref{overview} (a) gives an overview of \ours{}.
+
+
+
+\topic{Feature extraction.} 
+Given a video $\X$ with $T$ frames, the backbone encoder outputs frame-level features $\F \in \mathbb{R}^{T \times D}$.  
+We transform them into verb features $\F^V \in \mathbb{R}^{T \times D}$ and object features $\f^O \in \mathbb{R}^D$ using dedicated encoders.  
+We obtain text embeddings for verbs and objects, $\E^V \in \mathbb{R}^{|\mathbb{Y}^V| \times D}$ and $\E^O \in \mathbb{R}^{|\mathbb{Y}^O| \times D}$, by feeding class-specific prompts 
+into the text encoder.
+\vspace{-1.0em}
+
+
+
+\subsection{CPR: Co-occurrence Prior Regularization}
+\label{sec:cpr}
+
+To mitigate object-driven shortcuts under sparse and skewed compositional supervision, we propose \cpr{}, a training strategy that injects supervision for \emph{synthesized} verb--object pairs while preserving the stability of closed-world optimization.
+\cpr{} combines (i) synthesized composition supervision, (ii) a margin-based regularizer that down-weights \emph{frequently} seen hard negatives, and (iii) a batch-adaptive expansion of the composition label space to make these new pairs trainable without optimizing over the full $\mathbb{Y}^V \times \mathbb{Y}^O$ space.
+
+\input{figure/fig_overview}
+
+
+\topic{Synthesized composition supervision.}
+To provide explicit supervision for compositions absent from the training set, we first synthesize videos that represent new \emph{composition} labels.
+Given a training sample $\X_i$ with composition label $\y_i^C=(\y_i^V,\y_i^O)$, we construct a new video $\tilde{\X}_i$ by injecting the static object cue from another video $\X_j$ (with $\y_j^O \neq \y_i^O$) into the high-motion regions of $\X_i$, as shown in \figref{overview} (b).
+Specifically, for each frame $k\in\{1,\ldots,T\}$ we obtain
+\begin{align}
+\tilde{\X}_i^{k}
+&= \bigl(\mathbf{1}-\lambda\,\M_i^{k} \bigr)\odot \X_i^{k}
+\;+\;
+\bigl(\lambda\,\M_i^{k}\bigr)\odot \X_j^{\lfloor T/2 \rfloor},
+\label{eq:voca}
+\end{align}
+where $\lambda\in[0,1]$ controls the injection strength and $\M_i^{(k)}\in\{0,1\}^{H\times W}$ is the high-motion region mask for frame $k$, extracted by a learning-free estimator~\cite{ding2022fame}.
+The operator $\odot$ denotes element-wise multiplication, with $\M_i^{k}$ broadcast across channels.
+Accordingly, we use soft labels for the synthesized video as follows:
+\begin{align}
+\tilde{\y}^O_i &= (1-\lambda)\,\y_i^O + \lambda\,\y_j^O, \\
+\tilde{\y}^C_i &= (1-\lambda)\,\phi(\y_i^V,\y_i^O) + \lambda\,\phi(\y_i^V,\y_j^O),
+\label{eq:voca_label}
+\end{align}
+where $\phi:\mathbb{Y}^V \times \mathbb{Y}^O \rightarrow \{0,1\}^{|\mathbb{Y}^V \times \mathbb{Y}^O|}$ maps a composition $(\y^V,\y^O)$ to its one-hot vector in the flattened joint label space.
+
+
+
+\topic{Co-occurrence prior regularization loss.}
+Even after adding supervision for synthesized compositions, skewed co-occurrence statistics can still make the model over-score a small set of \emph{frequently} seen pairs.
+To counter this score collapse, we enforce a margin constraint that makes the \emph{target synthesized} composition
+$\y^C_{i,\text{new}}=(\y_i^V,\y_j^O)$
+outrank \emph{frequent seen hard negatives} by at least $m$.
+We define the hard-negative label set for $\y^C_{i,\text{new}}$ as follows:
+\begin{align}
+\mathbb{Y}_{\text{hard},i}
+=
+\left\{
+(\y^V,\y^O)~\middle|~\big[(\y^V=\y_i^V)\oplus(\y^O=\y_j^O)\big] \land (\y^V,\y^O)\neq(\y_i^V,\y_i^O)
+\right\},
+\label{eq:hard}
+\end{align}
+where $\oplus$ denotes the exclusive or operator.
+Let $\mathbb{Y}_{\text{freq}}^\text{CPR} \subset \mathbb{Y}_{\text{seen}}$ be the set of frequently seen compositions 
+(see \secref{imple_detail_ours} for the exact criterion).
+Then we define the CPR loss with margin $m$ over the penalty set $\mathbb{Y}_{\text{pen}}=\mathbb{Y}_{\text{hard},i} \cap \mathbb{Y}_{\text{freq}}^\text{CPR}$ as:\\
+\begin{align}
+L_{\text{CPR}}
+= \sum_{\y^C \in \mathbb{Y}_{\text{pen}}}
+\max\Big(0,\; s(\y^C) - s(\y^C_{i,\text{new}}) + m\Big),
+\label{eq:cpr_margin}
+\end{align}
+\\
+where $s(\y^C)$ denotes the logit assigned to the composition label $\y^C$.
+
+
+
+
+\topic{Batch-adaptive label-space expansion.}
+Conventional ZS-CAR pipelines optimize classification only over \emph{seen} compositions $\mathbb{Y}_{\text{seen}}$ (closed-world over compositions), which makes it non-trivial to directly supervise \emph{novel} verb--object pairs during training.
+On the other hand, naively applying cross-entropy over the full $\mathbb{Y}^V \times \mathbb{Y}^O$ space can harm unseen accuracy by treating most unseen compositions as negatives throughout training (see \secref{ablation}).
+To provide an effective supervision for novel compositions, we introduce a \emph{batch-adaptive label space expansion} strategy.
+For each mini-batch, we construct an expanded label set as $\mathbb{Y}_{\text{exp}} = \mathbb{Y}_{\text{seen}} \cup \mathbb{Y}_{\text{new}}$, where $\mathbb{Y}_{\text{new}}$ denotes the label set for the newly synthesized videos.
+We compute cross-entropy only over $\mathbb{Y}_{\text{exp}}$.
+This preserves the optimization stability of closed-world training while progressively injecting supervision for new compositions.
+
+
+
+
+
+
+
+\subsection{TORC: Temporal Order Regularization for Composition}
+
+To counter object-driven shortcuts in verb learning, we introduce \torc{}, a temporal \emph{order-sensitivity} regularizer.
+While \cpr{} expands supervision over compositions, verb recognition can still collapse to static object cues due to the asymmetric learning difficulty between verbs and objects.
+As shown in \figref{overview} (c), \torc{} directly regularizes the verb representation to depend on temporal structure: it (i) discourages invariance to temporal reversal by separating forward and reversed features, and (ii) penalizes over-confident verb predictions when temporal order is disrupted by encouraging high-entropy outputs.
+Together, these constraints reduce reliance on static cues and promote temporally grounded verb representations.
+
+
+
+\topic{Temporal perturbation for regularization.}
+Given frame-level features $\F = (\f_1,\dots,\f_T)$, we form two regularization views:  
+(i) a reversed sequence $\F_{\text{rev}} = (\f_T,\dots,\f_1)$, and  
+(ii) a temporally shuffled sequence $\F_{\text{shuffled}} = \pi(\F)$, where $\pi$ is a random permutation sampled from $\mathcal{P}$.  
+We then feed $\F_{\text{rev}}$ and $\F_{\text{shuffled}}$ into the verb encoder to obtain perturbed verb features $\f^V_\text{rev}\in \mathbb{R}^{D}$ and $\f^V_\text{shuffled} \in \mathbb{R}^{D}$. 
+
+
+
+\topic{\torc{} loss.}
+We first push the model to distinguish forward and reversed temporal semantics.  
+We minimize the cosine similarity between the original verb $\f^V$ and the reversed feature vectors $\f^V_{\text{rev}}$: $L_{\cos} = \frac{\mathbf{f^V}^\top\f^V_{\text{rev}}}{\|\f^V\|\|\f^V_{\text{rev}}\|}$.
+Temporal reversal often flips action meaning (\eg, opening \vs closing), yet the state-of-the-art model~\cite{li2024c2c} yields a high cosine similarity ($0.92$; see \figref{cosine_sim}), indicating weak temporal discrimination.
+
+
+
+
+Next, we regularize the model to avoid confident verb predictions when temporal structure is disrupted.  
+Given the verb text embeddings $\mathbf{E}^V = \{\e^V_m\}_{m=1}^{|\mathbb{Y}^V|}$, we define the negative entropy loss $L_\text{ent} = \sum_{m=1}^{|\mathbb{Y}^V|} p_m \log p_m$ with the predicted probability $p_m$ of the $m$-th verb class based on the cosine similarity between visual and textual features as:
+\begin{align}
+    p_m &= \frac{\exp(\cos(\f^V_\text{shuffled}, \e^V_m) / \tau)}{\sum_{n=1}^{|\mathbb{Y}^V|} \exp(\cos(\f^V_\text{shuffled}, \e^V_n) / \tau)},
+\label{eq:ent}
+\end{align}
+where $\tau$ is a temperature parameter.
+Maximizing entropy prevents the model from inferring verbs from static spatial cues alone, enforcing reliance on temporal evidence.
+We define the \torc{} loss as: $L_{\text{TORC}} = L_{\cos} + L_{\text{ent}}$.
+
+
+\subsection{Training}
+\label{sec:training_loss}
+
+\noindent\textbf{Component loss.}
+We compute verb logits $\mathbf{S}_V \in \mathbb{R}^{|\mathbb{Y}^V|}$ and object logits $\mathbf{S}_O \in \mathbb{R}^{|\mathbb{Y}^O|}$ based on the cosine similarity scores.  
+We apply standard cross-entropy losses for verb and object prediction: $L_{\text{com}} = L_V + L_O$.
+
+
+
+\noindent\textbf{Composition loss.}
+Following prior work~\cite{li2024c2c}, we obtain the composition logits $\mathbf{S}_C \in \mathbb{R}^{|\mathbb{Y}^V \times \mathbb{Y}^O|}$ by aggregating factorized logits: $\mathbf{S}_C = \mathbf{S}_V \boxplus \mathbf{S}_{O|V} + \mathbf{S}_O \boxplus \mathbf{S}_{V|O}$, where $\mathbf{S}_{O|V}$ and $\mathbf{S}_{V|O}$ represent the conditional logits and $\boxplus$ denotes broadcasted addition into the joint verb--object space.
+Then we employ the cross-entropy loss integrated with our batch-adaptive label space expansion (\secref{cpr}). 
+Given $\s_c \in \mathbf{S}_C$, the final composition loss utilizing the dynamically constructed denominator $\mathbb{Y}_{\text{exp}}$ is formulated as: $L_{\text{comp}}
+= - \log (\exp(\hat{s}_{c})/\sum_{c=1}^{|\mathbb{Y}_{\text{exp}}|} \exp(s_c))$.
+
+
+
+
+
+\noindent\textbf{Total loss.}
+We train \ours{} with the combined objective $L_{\text{total}}$ defined as
+$L_{\text{total}}
+= \alpha L_{\text{com}}
++ \beta L_{\text{comp}}
++ \gamma L_{\text{TORC}}
++ \delta L_{\text{CPR}},$
+where $\alpha$, $\beta$, $\gamma$ and $\delta$ are hyperparameters.
+

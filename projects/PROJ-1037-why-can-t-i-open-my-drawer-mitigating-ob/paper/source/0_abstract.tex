@@ -1,0 +1,24 @@
+\begin{abstract}
+
+
+
+
+
+
+
+
+Zero-Shot Compositional Action Recognition (ZS-CAR) requires recognizing novel verb--object combinations composed of previously observed primitives.
+In this work, we tackle a key failure mode: models predict verbs via \emph{object-driven shortcuts} (\ie, relying on the labeled object class) rather than temporal evidence.
+We argue that sparse compositional supervision and verb--object learning asymmetry can promote object-driven shortcut learning.
+Our 
+analysis with proposed diagnostic metrics
+shows that existing methods overfit to training co-occurrence patterns and underuse temporal verb cues, resulting in weak generalization to unseen compositions.
+To address object-driven shortcuts, we propose Robust COmpositional REpresentations (\ours{}) with two components.
+Co-occurrence Prior Regularization (CPR) adds explicit supervision for unseen compositions and regularizes the model against frequent co-occurrence priors by treating them as hard negatives.
+Temporal Order Regularization for Composition (TORC) enforces temporal-order sensitivity to learn temporally grounded verb representations.
+Across Sth-com and EK100-com, 
+\ours{} reduces shortcut diagnostics and consequently improves compositional generalization.
+The code is available at \href{https://github.com/KHU-VLL/RCORE}{https://github.com/KHU-VLL/RCORE}.
+\keywords{Zero-shot compositional action recognition \and Compositional generalization \and Video representation learning}
+
+\end{abstract}

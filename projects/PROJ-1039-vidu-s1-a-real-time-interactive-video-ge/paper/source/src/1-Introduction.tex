@@ -1,0 +1,40 @@
+\section{Introduction}
+
+\paragraph{Background and Demand.}
+Recent video generation models, such as Sora, Veo, Wan, and Seedance~\citep{videoworldsimulators2024,veo,wan2025wan,seedance2026seedance}, have shown strong ability in generating high-quality videos. However, most of them still follow an offline, one-shot generation paradigm: a user enters a prompt, waits for minutes or even tens of minutes, and receives the complete video only after generation finishes. 
+During this process, the user can only passively wait to receive information and cannot actively initiate any interaction.
+This limitation comes from the offline diffusion paradigm, where the model denoises the entire video synchronously over many steps and only produces an entire clean video at the end. Such a paradigm works well for offline content creation, but human visual entertainment is not limited to pre-generated videos. People also enjoy face-to-face communication, live streaming, games, talking with someone, and other interactive visual experiences, where content must respond immediately to the user. From a demand perspective, suppose that each user has an average demand of $\alpha \in [0,1]$ for real-time interactive visual content, e.g., $\alpha = 0.5$. Then the total demand scales with $\alpha \times N$, where $N$ is the number of users. In contrast, suppose that each user has an average demand of $\beta \in [0,1]$ for offline-generated visual content, e.g., $\beta = 0.5$. Since offline-generated videos can be replayed and shared, their generation demand scales more like $\beta \times N / m$, where $m$ is the average number of views per generated video. If we assume $\alpha \approx \beta$ and $m > 100$, then the demand for real-time interactive video generation is much greater than that for offline-generated videos.
+
+
+\begin{center}
+\textbf{Real-time interactive video generation is one of the most important future directions for industry.}
+\end{center}
+\vspace{-6pt}
+
+\paragraph{Limitation.}
+Despite the importance of this direction, existing autoregressive video generation models still have several key limitations. (1) Many methods~\citep{DF,kim2024fifo,henschel2025streamingt2v,song2025history} only change the generation process from offline generation to autoregressive generation, but they still do not support real-time user interaction during generation. (2) Most methods~\citep{liu2025rolling,sun2025ar,xie2025progressive,feng2025streamdiffusionv2} do not use speech as a direct and explicit control signal for future video content, making it difficult for users to control the generation process through natural spoken instructions. (3) Long-horizon video generation remains challenging because small errors can accumulate over time, causing drift, instability, and eventually visual collapse~\citep{yin2025slow,huang2026self}. As a result, many models~\citep{huang2026self,liu2025rolling,yin2025slow,zhu2026causal,zhao2026causal,yang2025longlive,teng2025magi,chen2025skyreels,zhang2025packing,gao2025wan} can only generate videos within a limited duration and cannot maintain stable generation over an open-ended stream. (4) Real-time video generation is not only a modeling problem. It also requires strong inference kernels, serving systems, scheduling strategies, and large-scale deployment infrastructure. Without such infrastructure, even a capable model may be too slow or too expensive for practical use.
+
+\vspace{-1pt}
+\paragraph{Vidu S1.}
+To address these limitations, we introduce \ours, a real-time interactive video generation model designed for continuous user interaction. 
+(1)\ours allows users to actively interact with the generation process at any moment, intervening in real time instead of merely specifying all controls before generation begins.
+(2) \ours treats user speech as a direct and explicit control signal, so spoken instructions can continuously guide what the video should generate next.
+(3) \ours supports stable long-horizon real-time generation by mitigating error accumulation during streaming generation, allowing the video to continue indefinitely without rapid drift or collapse.
+(4) It is also built together with an efficient inference and serving stack, including TurboDiffusion~\citep{zhang2025turbodiffusion} and TurboServe~\citep{jiang2026turboserve}, which enables low-cost real-time inference on commodity GPUs at 540p resolution and 42 FPS. 
+
+\vspace{-3pt}
+\paragraph{Contribution.}
+We summarize our contributions as follows.
+
+\begin{enumerate}
+\item We introduce \ours, a real-time interactive video generation model that supports continuous user interaction and enables explicit speech control over future video content during generation.
+
+\item \ours supports indefinitely long video generation with high quality and consistency. By mitigating error accumulation during streaming, it allows video streams to run without drift or collapse.
+
+\item \ours achieves real-time video generation at 540p resolution and 42 FPS. With an efficient inference and serving stack, \ours makes high-quality real-time generation practical on low-cost GPUs.
+
+\item Experiments on Vidu-StreamBench and HDTF demonstrate that \ours combines leading quality and real-time interactivity, achieving the best CSIM (0.9192), Sync-D (7.847), and DOVER (0.5660), strong human preference while supporting speech-guided control and stable long-horizon streaming.
+
+\end{enumerate}
+
+

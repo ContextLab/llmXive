@@ -1,0 +1,43 @@
+
+
+
+
+\section{Related Work}
+
+\textbf{Large language models as autonomous agents.}
+Recent progress in large language models has enabled autonomous agents
+that interleave reasoning, action, observation, and tool use~\citep{chen2022program,duan2026codeplot,paranjape2023art,parisi2022talm,wei2022chain,yang2023mm}.
+ReAct~\citep{yao2022react} established a representative
+reasoning--acting loop, while Toolformer~\citep{schick2023toolformer}
+showed that language models can learn to invoke external tools.
+Subsequent systems extended this paradigm toward richer orchestration and
+longer-horizon problem solving: HuggingGPT~\citep{shen2023hugginggpt}
+uses an LLM as a controller over specialized models, ToolLLM~\citep{qin2023toolllm}
+studies large-scale API selection and invocation, and
+Reflexion~\citep{shinn2023reflexion} improves agents through verbal
+feedback and memory. Beyond text-only interaction, GUI and computer-use
+agents such as CogAgent~\citep{hong2024cogagent} and
+AppAgent~\citep{zhang2025appagent} extend the paradigm to screens and
+mobile interfaces. These works establish the basic agent loop and tool-use
+patterns, but they mainly target generic autonomy rather than persistent
+personal assistance.
+
+\textbf{Proactive agent systems.}
+Proactive agents, distinct from reactive agents, initiate actions and pursue goals autonomously, a concept formalized by~\cite{wooldridge1995intelligent}. This foundational work underpins modern long-running assistants that leverage persistent memory, reusable skills, and local tool access. OpenClaw~\citep{openclaw} offers a robust hub-and-spoke architecture for multi-platform integration. Nanobot~\citep{nanobot} emphasizes an ultra-lightweight, extensible core for research and easy modification. Hermes Agent~\citep{hermesagent2026} features a built-in learning loop for autonomous skill creation and continuous self-improvement, building a deeper user model across sessions. These systems collectively highlight a shared design space for individualized assistance through advanced memory, skills, and tool management.
+
+\textbf{Benchmark for AI Agents.}
+Earlier benchmarks evaluate LLM agents across web, OS, mobile,
+and enterprise environments~\citep{chezelles2024browsergym,drouin2024workarena,koh2024visualwebarena,liu2023agentbench,ma2024agentboard,mialon2023gaia,rawles2024androidworld,xie2024osworld,xu2024theagentcompany,yao2024tau,zhou2023webarena},
+but they target isolated task execution rather than proactive personal
+assistance. More recent benchmarks instead targets proactive
+agent systems and falls into three groups. 
+The first group measures end-to-end task completion in real environments. For instance, ClawBench \citep{zhang2026clawbench} evaluates write-heavy actions on live production websites to expose the gap between sandbox and real-world performance, while related efforts tackle harder OpenClaw tasks and desktop applications \citep{long2026liveclawbench,pinchbench2026,macagentbench2026}.
+The second group studies skill use and adaptation. This is exemplified by SkillsBench \citep{li2026skillsbench}, which contrasts curated and self-generated skills to quantify their marginal effects, as well as subsequent research on continual skill learning \citep{xia2026metaclaw,ma2026skillclaw}.
+The third group emphasizes trustworthiness and dynamic environments: ClawMark \citep{meng2026clawmark} models multi-day coworker scenarios with evolving backends, while other works formalize adversarial attacks and trajectory-aware evaluation \citep{wang2026assistant,ye2026claw}.
+Despite this progress toward live execution, evaluating agents in real-world environments introduces critical instability, yet these recent benchmarks still rely on static ground-truth answers or single-turn evaluation. Furthermore, they organize tasks by scenario and lack analysis on agent frameworks. In contrast, UniClawBench tackles dynamic environments via hidden checkpoint rubrics and a closed-loop multi-turn evaluation strategy. Moreover, its capability-oriented taxonomy and cross-framework evaluation (OpenClaw, Nanobot, EDICT) explicitly disentangle intrinsic model competence from framework-level design choices.
+
+
+
+
+
+

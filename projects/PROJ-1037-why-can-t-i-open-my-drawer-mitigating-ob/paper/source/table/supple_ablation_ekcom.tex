@@ -1,0 +1,68 @@
+\begin{table*}[t]
+\centering
+
+\caption{\textbf{Ablation study on EK100-com.} 
+    We provide the results of the ablation study on EK100-com presented in the main paper.
+    In every experiment, we use C2C~\cite{li2024c2c} with CLIP-B/16~\cite{radford2021clip} as our baseline. 
+    We report performance on both seen and unseen compositions, along with their harmonic mean (H.M.).
+}
+\mpage{0.48}{\scriptsize
+(a) Effects of \cpr{} and TORC.
+\resizebox{\linewidth}{!}{
+\begin{tabular}{cc cc c cc c ccc}
+\toprule
+
+\multirow{2}{*}{\cpr{}} & \multirow{2}{*}{\torc{}} 
+& \multicolumn{2}{c}{Verb} && \multicolumn{2}{c}{Object} && \multicolumn{3}{c}{Composition)} \\ 
+\cline{3-4} \cline{6-7} \cline{9-11} 
+&& V@S & V@U && O@S & O@U && Seen & Unseen & H.M. \\
+\midrule
+&& 66.19 & 49.71 && 56.61 & 47.48 && 42.72 & 22.38 & 29.38 \\
+\checkmark & & 66.06 & 51.28 && 54.23 & 50.56 && 38.93 & 27.10 & 31.96 \\
+& \checkmark & 65.90 & 52.31 && 57.28 & 46.74 && 43.48 & 23.67 & 30.65 \\
+\checkmark & \checkmark & 67.52 & 54.08 && 54.00 & 49.04 && 40.13 & 27.40 & \textbf{32.56} \\
+\bottomrule
+\end{tabular}
+\label{tab:ek100_ablation_component}
+}
+}
+\mpage{0.48}{\scriptsize
+(b) Effects of each \torc{} loss term.
+\resizebox{\linewidth}{!}{
+\begin{tabular}{cc cc c cc c ccc}
+\toprule
+
+\multirow{2}{*}{$L_{\cos}$} & \multirow{2}{*}{$L_\text{ent}$} 
+& \multicolumn{2}{c}{Verb} && \multicolumn{2}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{3-4} \cline{6-7} \cline{9-11} 
+&& V@S & V@U && O@S & O@U && Seen & Unseen & H.M. \\
+\midrule
+&& 66.19 & 49.71 && 56.61 & 47.48 && 42.72 & 22.38 & 29.38 \\
+\checkmark & & 65.43 & 52.11 && 56.54 & 47.44 && 42.67 & 24.24 & \textbf{30.92} \\
+& \checkmark & 66.00 & 51.06 && 56.64 & 47.37 && 42.82 & 22.53 & 29.53 \\
+\checkmark & \checkmark & 65.90 & 52.31 && 57.28 & 46.74 && 43.48 & 23.67 & 30.65 \\
+\bottomrule
+\end{tabular}
+}
+}
+\mpage{0.48}{
+\scriptsize (c) Effects of $L_{\text{CPR}}$ in \cpr{}.
+\resizebox{\linewidth}{!}{
+\begin{tabular}{c cc c cc c ccc}
+\toprule
+
+\multirow{2}{*}{$L_\text{CPR}$}
+& \multicolumn{2}{c}{Verb} && \multicolumn{2}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{2-3} \cline{5-6} \cline{8-10} 
+& V@S & V@U && O@S & O@U && Seen & Unseen & H.M. \\
+\midrule
+& 66.35 & 50.79 && 54.72 & 50.16 && 39.25 & 26.60 & 31.71 \\
+\checkmark & 66.06 & 51.28 && 54.23 & 50.56 && 38.93 & 27.10 & \textbf{31.96} \\
+\bottomrule
+\end{tabular}
+}
+}
+\label{tab:ek100_ablation_torc}
+\end{table*}
+
+

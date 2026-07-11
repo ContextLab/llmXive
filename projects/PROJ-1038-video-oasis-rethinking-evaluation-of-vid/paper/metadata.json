@@ -1,0 +1,47 @@
+{
+  "arxiv_id": "2603.29616",
+  "arxiv_url": "https://arxiv.org/abs/2603.29616",
+  "title": "Video-Oasis: Rethinking Evaluation of Video Understanding",
+  "authors": [
+    "Geuntaek Lim",
+    "Sungjune Park",
+    "Jaeyun Lee",
+    "Inwoong Lee",
+    "Taeoh Kim",
+    "Dongyoon Wee",
+    "Minho Shim",
+    "Yukyung Choi"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "The inherent complexity of video understanding makes it difficult to determine whether Video-LLM benchmark performance stems from visual perception, linguistic reasoning, or knowledge priors. While many benchmarks have emerged to assess high-level reasoning, shared criteria for evaluating video understanding remain largely overlooked. Instead of introducing yet another benchmark, we take a step back to re-examine the criteria for evaluating video understanding. In this work, we introduce Video-Oasis, a sustainable diagnostic suite for systematically auditing existing video understanding benchmarks. This audit reveals that 55\\% of existing benchmark samples are solvable without visual input or temporal context. After filtering these shortcuts, the remaining video-native challenges expose a substantial capability gap: state-of-the-art models perform only marginally above random guessing. Building on these findings, we use the distilled challenges as a testbed to investigate which algorithmic design choices contribute to robust video understanding. We hope our work provides a practical foundation for constructing rigorous video benchmarks and evaluating future Video-LLMs. Code is available at https://github.com/sejong-rcv/Video-Oasis.",
+  "submitted_via": "llmXive dashboard, GitHub issue #895",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/sejong-rcv/Video-Oasis"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "eccvabbrv.sty",
+    "eccv.sty",
+    "figure",
+    "figure/fig1_intro.pdf",
+    "figure/fig2_test.pdf",
+    "figure/fig3_ambiguity.pdf",
+    "figure/fig4_qual.pdf",
+    "figure/fig_sup_causal.pdf",
+    "figure/fig_sup_global.pdf",
+    "figure/fig_sup_perception.pdf",
+    "figure/fig_sup_spatial.pdf",
+    "figure/fig_sup_temporal.pdf",
+    "llncs.cls",
+    "main.tex",
+    "ref.bib",
+    "splncs04.bst",
+    "sup.tex"
+  ]
+}

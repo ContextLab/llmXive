@@ -1,0 +1,35 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Sth-com results with bias calibration.} 
+    We show the top-1 verb, object, and composition classification accuracies (\%) on the Sth-com~\cite{li2024c2c} test set. 
+    We tune the bias term for unseen composition predictions on the validation set and apply the selected bias (`Best Bias') to the test set. 
+    We report performance on both seen and unseen compositions, along with their harmonic mean (H.M.).
+    The \textbf{best} numbers are highlighted.
+}
+\def\arraystretch{1.2}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{ll cc ccc c ccc c ccc}
+\toprule
+\multirow{3}{*}{Backbone} & \multirow{3}{*}{Method} & \cellcolor{gray!15}
+&& \multicolumn{3}{c}{Verb} && \multicolumn{3}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{5-7} \cline{9-11} \cline{13-15} 
+&& \cellcolor{gray!15} && \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{Seen (\cg{})} & \multirow{2}{*}{Unseen (\cg{})} & \multirow{2}{*}{H.M.} \\
+&& \cellcolor{gray!15}\multirow{-3}{*}{\shortstack{Best\\Bias}}
+\\
+\midrule
+\multirow{3}{*}{CLIP} & AIM~\cite{yang2023aim} & \cellcolor{gray!15}+0.01 && 50.32 & 43.19 & 46.48 && 64.02 & 54.78 & 59.04 && 33.40 (+1.19) & 24.60 (+0.94) & 28.33 \\
+& C2C~\cite{li2024c2c} & \cellcolor{gray!15}+0.07 && 60.97 & 56.62 & 58.71 && 65.05 & 56.98 & 60.75 && 42.06 (+2.40) & 33.98 (+1.72) & 37.59 \\
+& \ours{} & \cellcolor{gray!15}\ \ 0.00 && 65.73 & 59.00 & \textbf{62.18} && 64.79 & 56.34 & 60.27 && \textbf{44.99 (+2.40)} & \textbf{33.90 (+0.66)} & \textbf{38.67} \\
+\midrule
+\multirow{3}{*}{\shortstack{InternVideo2}} & LoRA~\cite{hu2022lora} & \cellcolor{gray!15}+0.02 && 42.02 & 40.74 & 41.37 && 64.04 & 59.75 & 61.82 && 26.00 ($-$0.91) & 25.09 (+0.75) & 25.54 \\
+& C2C~\cite{li2024c2c} & \cellcolor{gray!15}+0.03 && 68.54 & 65.27 & 66.87 && 68.58 & 64.58 & \textbf{66.52} && 48.42 (+1.41) & 42.66 (+0.51) & 45.36 \\
+& \ours{} & \cellcolor{gray!15}\ \ 0.00 && 71.65 & 66.65 & \textbf{69.06} && 67.96 & 64.56 & 66.22 && \textbf{50.20 (+1.51)} & \textbf{43.98 (+0.95)} & \textbf{46.88} \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:biased_sth_results}
+\end{table*}
+
+
+
+\vspace{-.5em}

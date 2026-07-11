@@ -1,0 +1,27 @@
+\begin{wraptable}{r}{0.3\textwidth}
+\centering
+\vspace{-2em}
+\caption{\textbf{Closed-world results on Sth-com\cite{li2024c2c}.} 
+}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{l c cc}
+\toprule
+\multirow{2}{*}{Method} 
+&& \multicolumn{2}{c}{Closed-world} \\
+\cline{3-4}
+&& H.M. & AUC \\
+\midrule
+C2C~\cite{li2024c2c} && 42.8 & 23.8 \\
+Jung et al.~\cite{jung2025crr} && 42.6 & 23.5 \\
+\ours{} && \textbf{43.2} & \textbf{25.3} \\
+\midrule
+C2C~(enhance)~\cite{li2024c2c} && 44.5 & 26.0 \\
+LogicCAR~\cite{ye2025logic} && 45.2 & 27.0 \\
+\ours{}~(enhance) && \textbf{46.1} & \textbf{27.5} \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-2.5em}
+\label{tab:sth_com_close}
+\end{wraptable}
+

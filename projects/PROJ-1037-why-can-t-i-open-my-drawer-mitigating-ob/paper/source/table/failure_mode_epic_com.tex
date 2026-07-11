@@ -1,0 +1,50 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Top-10 failure cases of the existing ZS-CAR model on unseen compositions of the EK100-com test set.} We employ C2C~\cite{li2024c2c} trained on EK100-com as baseline for analysis. We report the results with unbiased open-world inference scores. 
+`Prediction Rate' denotes the proportion of mispredictions classified as the specific composition. 
+`Verb/Object-side' indicates the most frequently co-occurring counterpart for each mispredicted component in the training set, along with its co-occurrence ratio.
+The top-10 cases listed below account for $\sim$ 39\% of the total mispredictions on unseen compositions.
+}
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{l l l l l l l}
+\toprule
+\multirow{2}{*}{Rank} & \multirow{2}{*}{Ground Truth (Verb, Object)} & Error & \multirow{2}{*}{Top-2 Misprediction (seen/unseen)} & Prediction & \multicolumn{2}{l}{Most Frequent Co-occurring Component} \\ 
+\cline{6-7}
+&& Count / Rate (\%) && Count / Rate (\%) & Verb-side & Object-side \\
+\toprule
+\multirow{2}{*}{1} & \multirow{2}{*}{(`put', `knife')} & \multirow{2}{*}{340 / 80.8\%} & (`take', `knife') (seen) & 81 / 23.8\% & w/ `spoon' (6.8\%) & w/ `take' (56.2\%) \\
+&&& (`put', `fork') (seen) & 41 / 12.1\% & w/ `spoon' (8.6\%) & w/ `take' (40.3\%) \\
+\midrule
+\multirow{2}{*}{2} & \multirow{2}{*}{(`put', `lid')} & \multirow{2}{*}{303 / 76.7\%} & (`take', `lid') (seen) & 44 / 14.5\% & w/ `spoon' (6.8\%) & w/ `take' (45.4\%) \\
+&&& (`remove', `lid') (seen) & 22 / 7.3\% & w/ `lid' (16.1\%) & w/ `take' (45.4\%) \\
+\midrule
+\multirow{2}{*}{3} & \multirow{2}{*}{(`take', `plate')} & \multirow{2}{*}{259 / 46.7\%} & (`put', `plate') (seen) & 70 / 27.0\% & w/ `spoon' (8.6\%) & w/ `put' (52.1\%) \\
+&&& (`take', `bowl') (seen) & 32 / 12.4\% & w/ `spoon' (6.8\%) & w/ `take' (32.6\%) \\
+\midrule
+\multirow{2}{*}{4} & \multirow{2}{*}{(`wash', `sink')} & \multirow{2}{*}{143 / 100\%} & (`wash', `top') (seen) & 68 / 47.6\% & w/ `hand' (12.7\%) & w/ `wash' (89.2\%) \\
+&&& (`wash', `cloth') (seen) & 14 / 9.8\% & w/ `hand' (12.7\%) & w/ `take' (35.2\%) \\
+\midrule
+\multirow{2}{*}{5} & \multirow{2}{*}{(`put', `spatula')} & \multirow{2}{*}{131 / 69.0\%} & (`take', `spatula') (seen) & 42 / 32.1\% & w/ `spoon' (6.8\%) & w/ `take' (58.2\%) \\
+&&& (`put', `spoon') (seen) & 18 / 13.7\% & w/ `spoon' (6.8\%) & w/ `take' (36.9\%) \\
+\midrule
+\multirow{2}{*}{6} & \multirow{2}{*}{(`put', `cup')} & \multirow{2}{*}{115 / 56.1\%} & (`take', `cup') (seen) & 25 / 21.7\% & w/ `spoon' (6.8\%) & w/ `take' (48.8\%) \\
+&&& (`put', `glass') (seen) & 11 / 9.6\% & w/ `spoon' (8.6\%) & w/ `take' (36.4\%) \\
+\midrule
+\multirow{2}{*}{7} & \multirow{2}{*}{(`shake', `hand')} & \multirow{2}{*}{94 / 97.9\%} & (`turn-off', `tap') (seen) & 38 / 40.4\% & w/ `tap' (93.6\%) & w/ `turn-on' (49.5\%) \\
+&&& (`wash', `hand') (seen) & 18 / 19.1\% & w/ `hand' (12.7\%) & w/ `wash' (59.8\%) \\
+\midrule
+\multirow{2}{*}{8} & \multirow{2}{*}{(`put', `board or chopping')} & \multirow{2}{*}{89 / 56.0\%} & (`take', `board or chopping') (seen) & 11 / 12.4\% & w/ `spoon' (6.8\%) & w/ `take' (45.1\%) \\
+&&& (`put', `knife') (unseen) & 9 / 10.1\% & w/ `spoon' (8.6\%) & w/ `take' (56.2\%) \\
+\midrule
+\multirow{2}{*}{9} & \multirow{2}{*}{(`wash', `hob')} & \multirow{2}{*}{83 / 70.9\%} & (`wash', `top') (seen) & 38 / 45.8\% & w/ `hand' (12.7\%) & w/ `wash' (89.2\%) \\
+&&& (`wash', `oven') (seen) & 7 / 10.3\% & w/ `hand' (12.7\%) & w/ `open' (35.9\%) \\
+\midrule
+\multirow{2}{*}{10} & \multirow{2}{*}{(`take', `salt')} & \multirow{2}{*}{74 / 70.5\%} & (`put', `salt') (seen) & 9 / 12.2\% & w/ `spoon' (8.6\%) & w/ `put' (38.0\%) \\
+&&& (`pour', `salt') (seen) & 7 / 9.5\% & w/ `water' (25.2\%) & w/ `put' (37.9\%) \\
+
+\bottomrule
+\end{tabular}
+}
+\label{tab:failure_mode_epic_com}
+\end{table*}

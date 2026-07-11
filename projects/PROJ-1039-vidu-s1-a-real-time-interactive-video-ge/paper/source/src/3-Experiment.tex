@@ -1,0 +1,172 @@
+\begin{table*}[t]
+\centering
+\small
+\caption{
+Quantitative comparison of different audio-driven avatar generation methods. 
+Best results are highlighted in \textbf{bold}. 
+Resolution and FPS/throughput are reported when publicly specified or measured in our test environment; otherwise marked as ``--''.
+}
+\label{tab:avatar_benchmark}
+\setlength{\tabcolsep}{5.1pt}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Model} &
+\makecell{\textbf{Instruction}\\\textbf{Following}} &
+\textbf{Real-Time} &
+\textbf{Resolution} &
+\makecell{\textbf{FPS /}\\\textbf{Throughput}} &
+\textbf{CSIM} $\uparrow$ &
+\textbf{Sync-D} $\downarrow$ &
+\textbf{DOVER} $\uparrow$ \\
+\midrule
+
+OmniAvatar
+& $\times$
+& $\times$
+& 480p
+& --
+& 0.8062
+& 9.242
+& 0.5476 \\
+
+StableAvatar-1.3B
+& $\times$
+& $\times$
+& 480p
+& --
+& 0.8358
+& 11.18
+& 0.5560 \\
+
+Hallo3
+& $\times$
+& $\times$
+& 480$\times$720
+& --
+& 0.7698
+& 8.660
+& 0.5313 \\
+
+Wan2.2-S2V-14B
+& $\times$
+& $\times$
+& 480p/720p
+& --
+& 0.7936
+& 8.255
+& 0.5510 \\
+
+LiveAvatar
+& $\times$
+& \checkmark
+& --
+& --
+& 0.8127
+& 8.447
+& 0.5639 \\
+
+LemonSlice
+& $\times$
+& \checkmark
+& 368$\times$560
+& --
+& 0.8407
+& 7.921
+& 0.5196 \\
+
+HeyGen
+& $\times$
+& \checkmark
+& --
+& 25 FPS
+& 0.9191
+& 8.037
+& 0.4864 \\
+
+Kling Avatar 2.0
+& \checkmark
+& $\times$
+& --
+& --
+& 0.8688
+& 8.158
+& 0.5406 \\
+
+\midrule
+\rowcolor[HTML]{F0F8FF}
+\ours
+& \checkmark
+& \checkmark
+& 540p (960$\times$540)
+& \textbf{42 FPS}
+& \textbf{0.9192}
+& \textbf{7.8470}
+& \textbf{0.5660} \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+
+\section{Evaluations}
+
+\subsection{Setup}
+
+
+Standard public benchmarks such as HDTF~\cite{zhang2021flow} evaluate audio-driven avatar generation under controlled settings, but they do not fully capture whether a model can follow action instructions and produce natural motion in real-time interaction. We therefore introduce Vidu-StreamBench, an in-house benchmark for real-time interactive avatar generation, while also reporting HDTF results as a standard public reference. We further measure inference efficiency on RTX 5090 GPUs to verify the real-time capability of \ours.
+
+
+
+\paragraph{Benchmarks.}
+Vidu-StreamBench contains 500 samples, each composed of an action instruction, a reference first frame, and an audio clip. The benchmark covers diverse action commands, reference image styles, speaker attributes, emotions, and application scenarios. It is designed to test whether a model can generate avatars that move naturally, remain stable over time, preserve identity, follow user instructions, and maintain coherent audio-video behavior in realistic streaming settings. We conduct pairwise A/B preference tests against three leading commercial systems: HeyGen~\cite{heygen2026avatar}, LemonSlice~\cite{lemonslice2026studio}, and Kling Avatar 2.0~\cite{klingteam2025klingavatar}.
+
+For public benchmark evaluation, we use HDTF and compare \ours with the same commercial systems, as well as recent open-source models, including Wan2.2-S2V-14B~\cite{gao2025wan}, LiveAvatar~\cite{huang2025live}, OmniAvatar-1.3B~\cite{gan2025omniavatar}, Hallo3~\cite{cui2025hallo3}, and StableAvatar-1.3B~\cite{tu2025stableavatar}. In detail, we report CSIM~\cite{deng2019arcface}, Sync-D~\cite{prajwal2020lip}, and DOVER~\cite{wu2023exploring} to measure identity preservation, audio-visual synchronization, and perceptual video quality.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{./src/figs/preference_comparison_styled.pdf}
+\caption{
+Human preference evaluation of \ours versus HeyGen, LemonSlice, and Kling-Avatar-2.0 on Vidu-StreamBench.
+}
+\label{fig:streambench_human_eval}
+\end{figure}
+
+
+\subsection{Results}
+
+\subsubsection{Benchmark Evaluation}
+
+
+\paragraph{Analysis.}
+Figure~\ref{fig:streambench_human_eval} summarizes the pairwise preference results on Vidu-StreamBench. 
+Across comparisons with leading commercial avatar systems, \ours is consistently preferred overall.
+These results suggest that \ours is more effective at translating interactive user instructions into visible avatar behavior, including natural body motion, gestures, head movement, and controllable action execution, rather than only producing passive speech-driven facial animation.
+
+The advantage is especially evident in subject controllability, where \ours achieves a 100\% preference rate against HeyGen and LemonSlice. This indicates that human raters favored \ours when the task required the avatar to follow explicit action instructions. \ours also shows consistent gains in motion dynamics and audio-video synchronization, further supporting its suitability for real-time interactive avatar applications.
+
+\paragraph{Visualization.}
+Figure~\ref{fig:visual_compare} compares \ours with Kling Avatar 2.0 on Vidu-StreamBench. Given the same reference image, audio, and action instruction, \ours demonstrates stronger visual stability and instruction following, leading to more engaging interactive behavior and better suitability for long-horizon use.
+
+Table~\ref{tab:avatar_benchmark} reports complementary quantitative results on HDTF. \ours achieves leading performance across identity preservation, audio-visual synchronization, and perceptual quality, while also supporting real-time generation and instruction following. 
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{./src/figs/visual_compare1.pdf}
+\caption{
+Qualitative comparison of instruction following and visual consistency.
+\textcolor[rgb]{0.55,0.0,0.0}{
+Red boxes} highlight failure cases from the compared method: in Prompt 1, the subject does not raise the head and noticeable background artifacts appear; in Prompt 2, the thumbs-up gesture is not correctly performed.
+\textcolor[rgb]{0.0,0.45,0.2}{
+Green boxes} highlight the results of \ours: in Prompt 1, the model correctly follows the instruction by raising the head and adopting a thoughtful pose; in Prompt 2, it successfully performs the thumbs-up gesture.
+}
+\label{fig:visual_compare}
+\end{figure*}
+
+\subsubsection{Real-Time Interactive Generation Capability}
+
+Beyond benchmark quality, real-time interactive video generation requires low-latency inference, continuous user control, and stable streaming behavior. \ours is designed for this setting: it supports online prompt-level interaction and uses speech as an explicit control signal, allowing users to control the generated video during the generation process rather than specifying all conditions beforehand.
+
+As shown in Table~\ref{tab:avatar_benchmark}, \ours generates 540p video with a 3-step configuration and reaches an average throughput of 42 FPS on RTX 5090 GPUs. This exceeds the 30-FPS real-time playback threshold, demonstrating the practical feasibility of \ours for latency-sensitive applications such as live conversation, virtual hosts, entertainment avatars, and educational agents. Importantly, this inference efficiency is achieved while preserving the strong identity consistency, audio-visual synchronization, and perceptual quality demonstrated on HDTF, showing that \ours delivers real-time performance without sacrificing avatar generation quality.

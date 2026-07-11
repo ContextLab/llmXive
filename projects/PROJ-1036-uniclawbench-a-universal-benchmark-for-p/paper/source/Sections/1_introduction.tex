@@ -1,0 +1,35 @@
+\section{Introduction}
+Large language models and multimodal large language models have evolved
+from text-centric assistants into autonomous agents capable of executing
+complex, multi-step tasks in real-world
+environments~\citep{yao2022react,schick2023toolformer}.
+This evolution has given rise to proactive
+agents, which assist user by directly control everyday tools like browsers and terminals.
+Representative platforms such as OpenClaw~\citep{openclaw}
+and Nanobot~\citep{nanobot} have moved beyond isolated task execution toward
+24-7 personal assistance, effectively serving as digital coworkers
+that handle the full spectrum of daily work. These agents are tasked with navigating complex, real-world scenarios that span multiple modalities and platforms. This rapid evolution raises a pressing question: How can we systematically measure their true capabilities in real-world settings?
+
+Significant efforts have been devoted to building agent benchmarks~\cite{liu2023agentbench,mialon2023gaia}. However, we identify three structural limitations that prevent them from adequately evaluating modern proactive agents. First, existing benchmarks struggle to capture real-world complexity. They often rely on self-hosted website mirrors (e.g., WebArena~\cite{zhou2023webarena}) or cached pages within virtual machines (e.g., OSWorld~\cite{xie2024osworld}), creating a profound gap between sandboxed performance and actual real-world capabilities. Second, they mostly leverage a single-turn evaluation paradigm, completely ignoring the closed-loop nature of human-agent interaction where users frequently provide iterative feedback. Finally, and most critically, existing benchmarks organize tasks by application scenario (e.g., ``office'', ``research''). This approach conflates fundamentally different abilities. When a model fails an ``office'' task, it is unclear whether the bottleneck lies in visual perception, long-context reasoning, or tool usage. Consequently, a capability-driven benchmark is urgently needed to pinpoint the precise source of failure. 
+
+However, building a benchmark that operates in real-world environments and incorporates closed-loop user interaction introduces two fundamental challenges. The first is the lack of a stable ground truth. The expected outputs in sandboxed benchmarks are fixed when the benchmark is created, but this assumption becomes fragile in unpredictable real-world scenarios. For example, an Amazon product page may list the same product at \$199 today and \$179 tomorrow, making a pre-recorded answer quickly outdated. The second challenge lies in faithfully simulating user interaction without compromising evaluation reliability. To create a faithful closed-loop environment, an automated user simulator must dynamically provide natural corrections based on the agent's intermediate outputs. However, if this simulator is granted access to the underlying ground truth or grading criteria to guide the agent, it risks inadvertently leaking the solution or evaluation rules to the agent under test. Balancing natural, multi-turn human feedback with strict information isolation to prevent data contamination remains a significant technical challenge. 
+
+In this paper, we introduce UniClawBench, the first capability-driven benchmark designed to evaluate proactive agents in dynamic real-world environments. UniClawBench systematically decomposes tasks along five foundational capability dimensions: Skill Usage, Exploration, Long Context, Multimodal, and Cross-Platform. To ensure comprehensive coverage, we manually design 400 bilingual tasks (English and Chinese) that encompass a wide range of authentic daily usage scenarios. All tasks run inside Docker containers equipped with real software, live browsers and local file systems. UniClawBench introduces two novel assessment mechanisms. First, to address the dynamic nature of live environments where stable ground truth is absent, we abandon pre-recorded answers. Instead, we design fine-grained, step-by-step completion checkpoints for each task. This empowers an automated supervisor with hidden evaluation criteria, ensuring it knows precisely which intermediate reasoning and execution evidence to assess at each step. Second, to solve the information-isolation paradox, UniClawBench implements a strict three-role closed-loop evaluation that acts as an information firewall. A hidden supervisor privately checks the agent's progress, while a user simulator responds only to the visible trajectory and a coarse progress signal. This setup lets UniClawBench capture realistic multi-turn interactions without revealing the underlying answers or grading criteria.
+
+
+
+
+
+
+
+We conduct two groups of experiments to benchmark cross-model and cross-framework performance. First, we evaluate a wide range of state-of-the-art models under OpenClaw framework, which allows us to isolate differences in base model capabilities. Second, we evaluate representative models across three agent frameworks: OpenClaw~\cite{openclaw}, EDICT~\cite{edict} and Nanobot~\cite{nanobot}. This allows us to study how framework design affect performance on different tasks. Together, these comparisons reveal not only which models are more capable, but also how different agent architectures amplify or limit these capabilities in complex real-world tasks.
+
+In summary, our main contributions are as follows:
+\begin{itemize}
+    \item We introduce \textbf{UniClawBench}, the first capability-driven benchmark that evaluates proactive agents in dynamic real-world environments. UniClawBench is built around five foundational capabilities, based on which we manually design 400 bilingual tasks to diagnose the root causes of agent failures.
+    
+    \item We propose a closed-loop evaluation strategy that better reflects real-world user-agent interaction. It introduces a three-role design with an executor agent, a hidden supervisor agent, and a user simulator agent, enabling multi-turn feedback while preventing answer or grading-criteria leakage.
+    
+    \item We evaluate state-of-the-art models across multiple agent frameworks. This joint analysis reveals how base model capabilities and framework designs each contribute to agent performance across different capability dimensions.
+
+\end{itemize}

@@ -1,0 +1,52 @@
+
+  
+
+  
+
+  
+
+
+
+\begin{table*}[t]
+  \centering
+  \caption{Cross-framework performance analysis on UniClawBench. We evaluate three representative models across OpenClaw, EDICT, and Nanobot frameworks. Results are presented as Pass Rate (PR), Average Score (AS), and average executor-side
+  input/output token (Token$_{I}$ \& Token$_{O}$) usage per task. Input tokens are reported in millions and output tokens in thousands.}
+  \label{tab:cross_framework}
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{ll cc cc cc cc cc cccc}
+  \toprule
+  \multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{Framework}} & \multicolumn{2}{c}{\textbf{Skill Usage}} & \multicolumn{2}{c}{\textbf{Exploration}} & \multicolumn{2}{c}{\textbf{Long Context}} & \multicolumn{2}{c}{\textbf{Multimodal}} &
+  \multicolumn{2}{c}{\textbf{Cross Platform}} & \multicolumn{4}{c}{\textbf{Overall}} \\
+  \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12} \cmidrule(lr){13-16}
+  & & PR & AS & PR & AS & PR & AS & PR & AS & PR & AS & PR & AS & Token$_{I}$ & Token$_{O}$ \\
+  \midrule
+
+  \multirow{3}{*}{GPT-5.4~\cite{GPT-5.4}}
+  & OpenClaw~\cite{openclaw} & \textbf{0.500} & \textbf{0.835} & \textbf{0.725} & 0.872 & \textbf{0.250} & \textbf{0.706} & \textbf{0.175} & \textbf{0.611} & \textbf{0.350} & 0.800 & \textbf{0.400} & \textbf{0.765} & 1.22 & 10.4 \\
+  & EDICT~\cite{edict}    & 0.450 & 0.820 & 0.675 & \textbf{0.873} & 0.200 & 0.673 & 0.100 & 0.572 & 0.275 & \textbf{0.802} & 0.340 & 0.748 & 1.44 & 19.2 \\
+  & Nanobot~\cite{nanobot}  & 0.375 & 0.703 & \textbf{0.725} & 0.828 & 0.100 & 0.505 & 0.075 & 0.516 & 0.225 & 0.609 & 0.300 & 0.632 & 0.34 & 6.3 \\
+  
+  \midrule
+
+  \multirow{3}{*}{Claude Opus-4.8~\cite{claude-opus-4.8}}
+  & OpenClaw~\cite{openclaw} & 0.600 & 0.805 & 0.800 & 0.911 & 0.450 & 0.575 & 0.150 & 0.457 & 0.350 & 0.641 & 0.470 & 0.678 & 0.57 & 14.5 \\
+  & EDICT~\cite{edict}    & \textbf{0.650} & \textbf{0.887} & \textbf{0.825} & \textbf{0.932} & \textbf{0.475} & \textbf{0.632} & \textbf{0.275} & \textbf{0.621} & \textbf{0.450} & \textbf{0.756} & \textbf{0.535} & \textbf{0.765} & 1.92 & 46.1 \\
+  & Nanobot~\cite{nanobot}  & 0.550 & 0.777 & 0.775 & 0.855 & 0.400 & 0.557 & 0.050 & 0.271 & 0.225 & 0.511 & 0.400 & 0.594 & 0.27 & 11.7 \\
+  
+  \midrule
+
+  \multirow{3}{*}{Kimi-2.6~\cite{kimi26}}
+  & OpenClaw~\cite{openclaw} & \textbf{0.425} & \textbf{0.822} & \textbf{0.750} & 0.872 & 0.250 & \textbf{0.669} & 0.100 & 0.501 & \textbf{0.250} & \textbf{0.710} & \textbf{0.355} & \textbf{0.715} & 1.28 & 24.1 \\
+  & EDICT~\cite{edict}    & 0.400 & 0.808 & \textbf{0.750} & \textbf{0.879} & \textbf{0.275} & 0.627 & \textbf{0.150} & \textbf{0.531} & 0.200 & 0.684 & \textbf{0.355} & 0.706 & 1.74 & 56.1 \\
+  & Nanobot~\cite{nanobot}  & 0.275 & 0.661 & \textbf{0.750} & 0.863 & 0.200 & 0.460 & 0.075 & 0.277 & 0.125 & 0.508 & 0.285 & 0.554 & 0.59 & 15.7 \\
+  
+
+  \bottomrule
+  \end{tabular} }
+  \end{table*}
+\vspace{-8pt}
+
+
+
+
+

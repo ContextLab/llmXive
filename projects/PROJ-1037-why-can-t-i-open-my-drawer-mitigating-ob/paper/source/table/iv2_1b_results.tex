@@ -1,0 +1,48 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Sth-com results with InternVideo2-1B.} 
+    We show the top-1 verb, object, and composition classification accuracies (\%) on the Sth-com~\cite{li2024c2c} and EK100-com datasets with the InternVideo2-1B~\cite{wang2024iv2} backbone. 
+    The \textbf{best} numbers are highlighted.
+}
+\vspace{-1em}
+{\scriptsize Sth-com~\cite{li2024c2c} results}
+\\
+\vspace{.5em}
+\def\arraystretch{1.2}
+\resizebox{.85\linewidth}{!}{
+\begin{tabular}{l c ccc c ccc c ccc}
+\toprule
+\multirow{3}{*}{Method}
+&& \multicolumn{3}{c}{Verb} && \multicolumn{3}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{3-5} \cline{7-9} \cline{11-13} 
+&& \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{Seen (\cg{})} & \multirow{2}{*}{Unseen (\cg{})} & \multirow{2}{*}{H.M.} \\
+\\
+\midrule
+C2C~\cite{li2024c2c} && 67.50 & 58.21 & 62.51 && 70.58 & 61.62 & 65.80 && 50.23 (+2.59) & 34.96 ($-$0.91) & 41.23 \\
+\ours{} && 67.49 & 60.47 & 63.79 && 68.83 & 63.63 & 66.13 && 48.27 (+1.82) & 38.35 ($-$0.13) & \textbf{42.74} \\
+\bottomrule
+\end{tabular}
+\label{tab:iv2_1b_sth_results}
+}
+\vspace{.5em}
+\\
+{\scriptsize EK100-com results}
+\\
+\vspace{.5em}
+\def\arraystretch{1.2}
+\resizebox{.85\linewidth}{!}{
+\begin{tabular}{l c ccc c ccc c ccc}
+\toprule
+\multirow{3}{*}{Method}
+&& \multicolumn{3}{c}{Verb} && \multicolumn{3}{c}{Object} && \multicolumn{3}{c}{Composition} \\ 
+\cline{3-5} \cline{7-9} \cline{11-13} 
+&& \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Seen\\Comp}} & \multirow{2}{*}{\shortstack{\rule{0pt}{2.8ex}@Unseen\\Comp}} & \multirow{2}{*}{H.M.} && \multirow{2}{*}{Seen (\cg{})} & \multirow{2}{*}{Unseen (\cg{})} & \multirow{2}{*}{H.M.} \\
+\\
+\midrule
+C2C~\cite{li2024c2c} && 66.95 & 52.22 & 58.67 && 60.57 & 50.81 & 55.26 && 45.91 (+5.36) & 26.66 (+0.13) & 33.73 \\
+\ours{} && 66.36 & 52.88 & 58.86 && 56.83 & 52.10 & 54.36 && 41.86 (+4.16) & 28.79 (+1.24) & \textbf{34.12} \\
+\bottomrule
+\end{tabular}
+\label{tab:iv2_1b_results}
+}
+\end{table*}

@@ -1,0 +1,17 @@
+\begin{figure}[t!]
+\centering
+\includegraphics[width=.7\linewidth]{figure/supple_src/setting_a__.pdf} \\
+{(a) Closed-world and open-world evaluation settings} \\
+\vspace{.8em}
+\includegraphics[width=.8\linewidth]{figure/supple_src/setting_b_1.pdf} \\
+{(b) An example of closed/open-world evaluation} \\
+\figcaption{Closed-world and open-world evaluation protocols in ZS-CAR}{
+(a) (Left) Primitives are learned from a subset of training compositions (\textit{Train Pairs}). 
+(Middle) Closed-world evaluation restricts inference to dataset-present pairs (\textit{Train Pairs} and \textit{Test Seen/Unseen Pairs}), explicitly ignoring others as \textit{Masked Pairs}. 
+(Right) Open-world evaluation spans the entire compositional space, requiring the model to navigate all \textit{Possible Unseen Pairs} without artificial masking.
+(b) In the closed-world setting, the \textit{Possible Unseen Pair}---not appearing in the dataset---(\textit{Close}, \textit{Window}) becomes a \textit{Masked Pair}, and its logit is ignored.
+Consequently, the next valid class (\textit{Open}, \textit{Drawer}) is selected as the top-1 prediction. 
+This closed-world setting constrains the evaluation of numerous possible-but-unseen compositions. However, in the open-world setting, the model treats all pairs as valid, thus predicting (\textit{Close}, \textit{Window}) as the top-1 prediction.
+}
+\label{fig:setting}
+\end{figure}

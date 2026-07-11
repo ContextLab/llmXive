@@ -1,0 +1,66 @@
+The evolutionary analogy gives lineage evaluation a useful vocabulary~\citep{darwin1859}, but \igbench{} does not require a broad biological ontology of science. It uses a smaller operational layer: \genome{} objects, genome extraction, and \genomediff{} alignments. These three pieces make inheritance explicit enough to evaluate.
+
+\subsection{Scientific Lineage Competence}
+\label{sec:lineage_competence}
+
+\emph{Scientific lineage competence} is the ability to identify, verify, and extend the mechanism-level inheritance structure behind scientific work. A lineage-competent system should abstract a paper into heritable \genome{} objects, trace which objects persist or change across papers, explain the dominant dynamics of a transition, reject merely topical links, and generate a proposal that can enter an existing lineage as a plausible descendant.
+
+\subsection{Idea Genome}
+\label{sec:formalism}
+
+Within \ideagene{}, an \textbf{\genome{}} is the minimal auditable structure used for lineage evaluation: a typed, evidence-grounded, lineage-relevant idea object extracted from a paper or proposal. We represent a paper or proposal as a set of \genome{} objects:
+\begin{equation}
+G(p)=\{g_i=(t_i,z_i,e_i,c_i)\}_{i=1}^{m_p}.
+\label{eq:idea-genome}
+\end{equation}
+Each \genome{} object $g_i$ has a role type $t_i \in \{\texttt{niche}, \texttt{mechanism}, \texttt{observation}, \texttt{limitation}, \texttt{delta}, \texttt{claim}\}$, a content description $z_i$, an evidence pointer $e_i$, and optional constraints $c_i$. The role type states what the object does in lineage reasoning: \texttt{niche} marks the problem environment, \texttt{mechanism} marks an inheritable method or design, \texttt{observation} marks a motivating empirical pattern, \texttt{limitation} marks a defect or bottleneck, \texttt{delta} marks the repair or design change relative to prior work, and \texttt{claim} marks the asserted outcome.
+
+\subsection{Genome Extraction}
+\label{sec:genome_extraction}
+
+Genome extraction is the abstraction operator $\mathcal{E}: p \mapsto G(p)$ that converts a paper or proposal into auditable \genome{} objects. The operator is narrower than general summarization: it keeps the objects that will later support \genomediff{} alignment and lineage verification. A valid \genome{} satisfies four constraints:
+
+\begin{itemize}[noitemsep,topsep=2pt,leftmargin=1.2em]
+\item \textbf{Typed.} Each \genome{} has a functional role such as \texttt{mechanism}, \texttt{limitation}, or \texttt{delta}. This keeps the representation from becoming an unstructured summary and lets later alignments distinguish inherited mechanisms from repaired limitations.
+\item \textbf{Evidence-grounded.} Each \genome{} points to textual or structural evidence in the source paper or proposal, such as a section, paragraph, sentence span, figure, table, or equation. Light abstraction is allowed; unsupported background knowledge or annotator inference is not.
+\item \textbf{Minimally self-contained.} Each \genome{} is small enough to be inherited, mutated, lost, or recombined independently, but complete enough to express one functional idea. If two components can disappear or transfer independently in later work, they should be split; if one is unintelligible without the other, they should remain together.
+\item \textbf{Lineage-relevant.} Each \genome{} must matter for a lineage judgment. We extract a detail only if inheriting, losing, changing, or importing it would change whether a successor is a coherent descendant. Otherwise it remains metadata.
+\end{itemize}
+
+\subsection{\genomediff{}}
+\label{sec:genomediff}
+
+Given a predecessor $p_s$ and successor $p_t$, a \textbf{\genomediff{}} $\Delta_{s\to t}$ aligns \genome{} objects in $G(p_s)$ to \genome{} objects in $G(p_t)$ by type and semantic role. Source objects are marked \textsc{Inherited}, \textsc{Mutated}, or \textsc{Lost}; unaligned target objects are \textsc{Novel} or \textsc{External}. Each \genomediff{} record also stores the primary transition driver, the relation to the surrounding task or domain setting, and an evidence-backed rationale. We construct these records through LLM-assisted extraction followed by expert audit.
+
+\paragraph{Lineage versus co-location.}
+The surrounding task, benchmark, dataset convention, and community form an \emph{EcologyContext}: they explain why papers occupy the same research environment, but they do not by themselves establish descent. Genome continuity is what makes a lineage claim. Shared setting without driver inheritance is treated as niche competition; inherited mechanisms moving into a new setting are treated as adaptive radiation.
+
+\subsection{Evolutionary Dynamics}
+\label{sec:dynamics}
+
+Evolutionary dynamics classify \genomediff{} patterns into operational categories. The first check is driver inheritance. Without evidence for it, the relation is co-located rather than lineage.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Evolutionary dynamics as operational GenomeDiff criteria. Each dynamics type corresponds to a specific alignment pattern between two \genome{} objects.}
+\label{tab:dynamics}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}%
+                >{\raggedright\arraybackslash}p{2.25cm}%
+                >{\centering\arraybackslash}p{1.45cm}%
+                >{\raggedright\arraybackslash}p{4.75cm}%
+                >{\raggedright\arraybackslash}p{5.05cm}@{}}
+\toprule
+\textbf{Dynamics} & \textbf{Lineage?} & \textbf{GenomeDiff criterion} & \textbf{Canonical example} \\
+\midrule
+Mutation & Yes & Driver mechanism is inherited or locally mutated; niche remains same or nearby. & YOLO~\citep{redmon2016yolo} $\rightarrow$ YOLOv2~\citep{redmon2017yolov2}: one-stage detection persists; anchors, batch normalization, and multi-scale training repair local limits. \\
+Adaptive Radiation & Yes & Driver mechanism persists, but moves into a new task, domain, or evaluation ecology. & Transformer~\citep{attention2017} $\rightarrow$ ViT~\citep{vit2020}: self-attention is inherited, but moved from token sequences to image patches. \\
+Hybridization & Yes & Successor imports driver objects from two or more distinct lineages. & CLIP-style visual encoder~\citep{clip2021} + instruction-tuned LLM $\rightarrow$ LLaVA~\citep{llava}: visual alignment and chat behavior are imported from two lineages. \\
+Speciation & Yes & Same or nearby niche, but the predecessor's driver mechanism is replaced by a new lineage-forming mechanism. & Faster R-CNN~\citep{ren2015faster} $\rightarrow$ DETR~\citep{carion2020detr}: CNN region proposals are replaced by Transformer set prediction for detection. \\
+Niche Competition & No & Same ecology or problem niche, but no driver inheritance. & Faster R-CNN~\citep{ren2015faster} vs. YOLO~\citep{redmon2016yolo}: both solve object detection, but region proposals and one-stage regression are competing mechanisms. \\
+Isolation & No & Neither shared ecology nor driver inheritance. & BERT~\citep{devlin2019bert} vs. YOLO~\citep{redmon2016yolo}: language understanding and object detection share neither task ecology nor driver mechanism. \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+Ambiguous cases use a fixed priority rule: Hybridization before Speciation, Speciation before Niche Competition when lineage evidence exists, and Adaptive Radiation before Mutation when the setting shift is the driver. These evolutionary dynamics are operational categories for consistent evaluation; they do not claim to exhaust every possible pattern of scientific development.

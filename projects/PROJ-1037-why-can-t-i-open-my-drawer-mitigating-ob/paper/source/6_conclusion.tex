@@ -1,0 +1,12 @@
+\section{Conclusions}
+\label{sec:conclusions}
+
+
+
+In this work, we revisit zero-shot compositional action recognition and identify \emph{object-driven shortcuts} as a key failure mode.
+We attribute this behavior to compositional sparsity and asymmetric verb–object learning difficulty.
+Using our diagnostic metrics, we show that existing models overfit to co-occurrence priors, which degrades verb learning and thereby harms generalization to unseen compositions.
+We propose \ours{} comprising two components: \cpr{}, which expands supervision to synthesized compositions,
+and \torc{}, which enforces temporal-order sensitivity.
+Across two benchmarks under an open-world evaluation protocol without test-tuned bias calibration, \ours{} consistently improves performance on unseen compositions, 
+moving ZS-CAR toward more reliable verb--object compositional reasoning.

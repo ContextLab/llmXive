@@ -1,0 +1,117 @@
+
+\renewcommand{\baselinestretch}{1}       %
+
+\usepackage{algorithm}
+\definecolor{hcolor}{RGB}{238, 221, 240}
+\usepackage{multirow}
+
+\def\etal{et~al.~}			  %
+\def\eg{e.g.,~}               %
+\def\ie{i.e.,~}               %
+\def\etc{etc}                 %
+\def\cf{cf.~}                 %
+\def\viz{viz.~}               %
+\def\vs{vs.~}                 %
+
+
+\DeclareMathOperator*{\argmin}{\arg\!\min} 
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+
+\newlength\paramarginsize
+\newlength\figmarginsize
+\newlength\secmarginsize
+\newlength\figcapmarginsize
+\newlength\tabcapmarginsize
+
+\setlength{\textfloatsep}{5pt}
+
+\setlength{\secmarginsize}{0.0em}
+\setlength{\paramarginsize}{0.0em}
+\setlength{\figmarginsize}{0.0em}
+\setlength{\figcapmarginsize}{0.0em}
+\setlength{\tabcapmarginsize}{0.0em}
+
+\newcommand{\secmargin}{\vspace{\secmarginsize}}
+\newcommand{\paramargin}{\vspace{\paramarginsize}}
+\newcommand{\figmargin}{\vspace{\figmarginsize}}
+\newcommand{\figcapmargin}{\vspace{\figcapmarginsize}}
+\newcommand{\tabcapmargin}{\vspace{\tabcapmarginsize}}
+
+\newcommand{\red}{\textcolor{red}}
+\newcommand{\blue}{\textcolor{blue}}
+\newcommand{\cyan}{\textcolor{cyan}}
+\newcommand{\white}{\textcolor{white}}
+
+\newcommand{\mpage}[2]
+{
+\begin{minipage}{#1\linewidth}\centering
+#2
+\end{minipage}
+}
+
+\newcommand{\mfigure}[2]
+{
+\parbox[t]{#1}{
+\includegraphics[width=#1\linewidth]{#2}
+}
+}
+
+\newcommand{\topic}[1]
+{
+\paramargin\noindent \textbf{#1}
+}
+
+\newcommand{\figcaption}[2]
+{
+\caption{
+\textbf{#1.}  %
+#2            %
+}
+}
+
+\setlength{\fboxsep}{0pt}
+
+\newcommand{\secref}[1]{Section~\ref{sec:#1}}
+\newcommand{\figref}[1]{Figure~\ref{fig:#1}} 
+\newcommand{\tabref}[1]{Table~\ref{tab:#1}}
+\newcommand{\eqnref}[1]{\eqref{eq:#1}}
+\newcommand{\thmref}[1]{Theorem~\ref{#1}}
+\newcommand{\prgref}[1]{Program~\ref{#1}}
+\newcommand{\algref}[1]{Algorithm~\ref{#1}}
+\newcommand{\clmref}[1]{Claim~\ref{#1}}
+\newcommand{\lemref}[1]{Lemma~\ref{#1}}
+\newcommand{\ptyref}[1]{Property~\ref{#1}}
+
+\long\def\ignorethis#1{}
+\newcommand {\jw}[1]{{\color{red}\textbf{Jinwoo: }#1}\normalfont}
+\newcommand {\geo}[1]{{\color{blue}\textbf{Geo: }#1}\normalfont}
+\newcommand {\iw}[1]{{\color{magenta}\textbf{Co-author B: }#1}\normalfont}
+\newcommand {\coauthorB}[1]{{\color{magenta}\textbf{Co-author B: }#1}\normalfont}
+\newcommand {\todo}{{\textbf{\color{red}[TO-DO]}}}
+\def\newtext#1{\textcolor{blue}{#1}}
+\def\modtext#1{\textcolor{red}{#1}}
+
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+
+\newcommand{\jbox}[2]{
+  \fbox{%
+  	\begin{minipage}{#1}%
+  		\hfill\vspace{#2}%
+  	\end{minipage}%
+  }}
+
+\newcommand{\jblock}[2]{%
+	\begin{minipage}[t]{#1}\vspace{0cm}\centering%
+	#2%
+	\end{minipage}%
+}
+
+\def\ours{{\texttt{RCORE}}}
+\def\cpr{{CPR}}
+\def\torc{{TORC}}
+
+\def\ctci{{C2C w/o conditioning}}
+\def\cg{{$\Delta_{\text{CG}}$}}
+\def\mcg{{$\Delta_{\text{CG}}^{\text{macro}}$}}
+

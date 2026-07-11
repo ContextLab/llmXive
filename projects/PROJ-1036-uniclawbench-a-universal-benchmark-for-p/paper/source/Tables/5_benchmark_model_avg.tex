@@ -1,0 +1,28 @@
+\vspace{-10pt}
+\begin{table*}[htbp]
+    \centering
+    \caption{Average quantitative evaluation across English and Chinese subsets of UniClawBench. To isolate inherent model capabilities from framework-level design choices, all 10 models are evaluated as the executor under the same OpenClaw framework. Performance is measured by Pass Rate (PR) and checkpoint-based Average Score (AS) across the five foundational capability categories.}
+    \label{tab:openclaw_benchmark_avg}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{l c c c c c c c c c c c c}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multicolumn{2}{c}{\textbf{Skill Usage}} & \multicolumn{2}{c}{\textbf{Exploration}} & \multicolumn{2}{c}{\textbf{Long Context}} & \multicolumn{2}{c}{\textbf{Multimodal}} & \multicolumn{2}{c}{\textbf{Cross Platform}} & \multicolumn{2}{c}{\textbf{Overall}} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13}
+        & PR & AS & PR & AS & PR & AS & PR & AS & PR & AS & PR & AS \\
+        \midrule
+        Kimi-2.6~\cite{kimi26} & 0.438 & 0.834 & 0.775 & 0.884 & 0.287 & 0.655 & 0.075 & 0.494 & 0.237 & 0.679 & 0.362 & 0.709 \\
+        Qwen-3.5-Plus~\cite{team2026qwen3} & 0.300 & 0.771 & 0.787 & 0.915 & 0.200 & 0.648 & 0.075 & 0.583 & 0.225 & 0.737 & 0.318 & 0.731 \\
+        GPT-4.1~\cite{GPT-4.1} & 0.075 & 0.492 & 0.512 & 0.769 & 0.075 & 0.338 & 0.075 & 0.418 & 0.025 & 0.425 & 0.152 & 0.488 \\
+        GPT-5.4-Mini~\cite{GPT-5.4-mini} & 0.188 & 0.681 & 0.688 & 0.834 & 0.100 & 0.498 & 0.062 & 0.454 & 0.037 & 0.615 & 0.215 & 0.616 \\
+        Gemini-3.0-Flash~\cite{Gemini-3.0-flash} & 0.287 & 0.750 & 0.800 & 0.899 & 0.163 & 0.621 & 0.087 & 0.544 & 0.075 & 0.678 & 0.282 & 0.698 \\
+        Gemini-3.1-Flash-Lite~\cite{Gemini-3.1-flash-lite} & 0.050 & 0.569 & 0.600 & 0.835 & 0.062 & 0.374 & 0.037 & 0.409 & 0.025 & 0.530 & 0.155 & 0.543 \\
+        Claude Sonnet-4.6~\cite{claude-sonnet-4.6} & 0.512 & \textbf{0.873} & 0.812 & 0.913 & 0.400 & 0.649 & \textbf{0.212} & \textbf{0.626} & 0.338 & 0.753 & 0.455 & 0.763 \\
+        Gemini-3.1-Pro~\cite{Gemini-3.1-pro} & 0.300 & 0.769 & \textbf{0.850} & \textbf{0.947} & 0.188 & 0.646 & 0.163 & 0.583 & 0.125 & 0.690 & 0.325 & 0.727 \\
+        GPT-5.4~\cite{GPT-5.4} & 0.512 & 0.845 & 0.775 & 0.897 & 0.225 & \textbf{0.705} & 0.175 & 0.617 & 0.350 & \textbf{0.804} & 0.407 & \textbf{0.774} \\
+        Claude Opus-4.8~\cite{claude-opus-4.6} & \textbf{0.550} & 0.829 & 0.825 & 0.928 & \textbf{0.438} & 0.576 & 0.175 & 0.493 & \textbf{0.388} & 0.686 & \textbf{0.475} & 0.702 \\
+
+        \bottomrule
+    \end{tabular}%
+    }
+    \vspace{-10pt}
+\end{table*}
