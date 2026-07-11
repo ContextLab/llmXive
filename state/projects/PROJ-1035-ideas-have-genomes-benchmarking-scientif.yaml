@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-11T01:38:31.298447Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1035-ideas-have-genomes-benchmarking-scientif
-last_run_id: null
+last_run_id: f36e85ef-2c86-4980-a862-e440b5f053b9
 last_run_status: null
 points_paper: {}
 points_research: {}

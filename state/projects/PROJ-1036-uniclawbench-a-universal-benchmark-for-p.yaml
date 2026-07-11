@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-11T01:38:33.963601Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-1036-uniclawbench-a-universal-benchmark-for-p
-last_run_id: null
+last_run_id: 159834ed-d1bc-468b-8388-38642b04618d
 last_run_status: null
 points_paper: {}
 points_research: {}
