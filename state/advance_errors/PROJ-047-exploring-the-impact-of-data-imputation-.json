@@ -2,6 +2,6 @@
   "project_id": "PROJ-047-exploring-the-impact-of-data-imputation-",
   "stage": "planned",
   "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation/tasks.md.\n  Rules fired: unfilled_bracket_density=7 bracket markers; sample=['[Requires: T029a]', '[Requires: T029b]', '[Requires: T029b]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
-  "last_seen": "2026-07-11T16:27:35.378652+00:00",
-  "count": 7
+  "last_seen": "2026-07-11T16:34:55.252286+00:00",
+  "count": 8
 }
