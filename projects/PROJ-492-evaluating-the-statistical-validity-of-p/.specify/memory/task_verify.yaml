@@ -453,6 +453,17 @@
   \ contain \u2265\u202F10\u202F000 records [UNRESOLVED-CLAIM: c_66e0b998 \u2014 status=not_enough_info]).\
   \ **DEPENDS ON:** T006\u2011T012."
 : 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
+  \ ** (constraint\u2011preservation\u20112958f04c) (verify files are created and\
+  \ contain \u2265\u202F10\u202F000 records [UNRESOLVED-CLAIM: c_e124d0f5 \u2014 status=not_enough_info]).\
+  \ **DEPENDS ON:** T006\u2011T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
+  \ ** (constraint\u2011preservation\u20112958f04c) (verify files are created and\
+  \ contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011T012."
+: 1
 ? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM:\
   \ c_071edb63 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
@@ -557,13 +568,6 @@
   \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
   preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
   \ condition). **DEPENDS ON:** T010."
-: 2
-? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
-  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
-  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
-  \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
-  preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
-  \ condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->"
 : 2
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
