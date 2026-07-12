@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.10819",
+  "judged_at": "2026-07-12T04:08:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video2gui: synthesizing large-scale interaction trajectories for gener\" linguistics",
+  "rationale": "This paper satisfies criteria (b) and (e) as it provides the canonical dataset and empirical baseline for the specific domain of \"video-based GUI interaction trajectories\" and \"multimodal GUI understanding\" that the user's question targets. Although the user's query includes the term \"linguistics,\" the core mechanism of interest (synthesizing interaction trajectories from video for GUI agents) is directly addressed by this work's focus on temporal GUI content and video LLM agents, making it esse",
+  "relevant": true
+}

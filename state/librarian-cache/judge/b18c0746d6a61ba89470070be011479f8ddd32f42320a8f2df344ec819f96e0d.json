@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.05032",
+  "judged_at": "2026-07-12T04:08:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video2gui: synthesizing large-scale interaction trajectories for gener\" linguistics",
+  "rationale": "The paper focuses on general techniques for improving human-like conversational behavior and emotional intelligence in LLMs, which does not address the specific mechanism of synthesizing interaction trajectories from video data (Video2GUI) or the specific linguistic analysis of such trajectories requested by the user. It fails to meet any inclusion criteria (a-f) as it lacks the specific domain (video-to-GUI trajectory synthesis), the specific mechanism (trajectory generation from visual input),",
+  "relevant": false
+}

@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkTask"
+description: "Schema for a single synthetic GUI benchmark task"
+type: "object"
+required:
+  - "task_id"
+  - "type"
+  - "goal"
+  - "initial_state"
+  - "taxonomy_reference"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task"
+  type:
+    type: "string"
+    enum:
+      - "linear"
+      - "non-linear"
+    description: "Whether the task contains error states"
+  goal:
+    type: "string"
+    description: "Description of the target state"
+  initial_state:
+    type: "object"
+    description: "JSON representation of the initial GUI state"
+    additionalProperties: true
+  error_injection:
+    type: "object"
+    description: "Details of the injected error (only for non-linear tasks)"
+    required:
+      - "type"
+      - "trigger"
+    properties:
+      type:
+        type: "string"
+        description: "Type of error (e.g., 'modal', 'invalid_input')"
+      trigger:
+        type: "string"
+        description: "Action that triggers the error"
+      recovery_actions:
+        type: "array"
+        items:
+          type: "string"
+        description: "Sequence of actions to recover"
+  taxonomy_reference:
+    type: "string"
+    description: "Citation or link to the error taxonomy source"
+  metadata:
+    type: "object"
+    description: "Additional metadata"
+    additionalProperties: true
+additionalProperties: false

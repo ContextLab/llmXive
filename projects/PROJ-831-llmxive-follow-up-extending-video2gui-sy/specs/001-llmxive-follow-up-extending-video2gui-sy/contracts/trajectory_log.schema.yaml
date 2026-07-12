@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrajectoryLog"
+description: "Schema for a single agent execution trajectory"
+type: "object"
+required:
+  - "task_id"
+  - "agent_variant"
+  - "steps"
+  - "outcome"
+  - "step_count"
+  - "timestamp"
+properties:
+  task_id:
+    type: "string"
+    description: "Reference to the BenchmarkTask"
+  agent_variant:
+    type: "string"
+    enum:
+      - "baseline"
+      - "wildgui"
+      - "hybrid"
+    description: "Which agent variant was used"
+  steps:
+    type: "array"
+    description: "Sequence of actions and states"
+    items:
+      type: "object"
+      required:
+        - "step_number"
+        - "state"
+        - "action"
+        - "result"
+      properties:
+        step_number:
+          type: "integer"
+          minimum: 1
+        state:
+          type: "object"
+          description: "GUI state at this step"
+          additionalProperties: true
+        action:
+          type: "string"
+          description: "Action taken by the agent"
+        result:
+          type: "string"
+          enum:
+            - "success"
+            - "error"
+            - "timeout"
+            - "simulation_error"
+          description: "Outcome of the action"
+  outcome:
+    type: "string"
+    enum:
+      - "success"
+      - "failure"
+      - "timeout"
+      - "simulation_error"
+    description: "Final outcome of the task"
+  step_count:
+    type: "integer"
+    maximum: 50
+    description: "Total number of steps taken"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of completion"
+  error_details:
+    type: "string"
+    description: "Optional details if outcome is failure/error"
+additionalProperties: false

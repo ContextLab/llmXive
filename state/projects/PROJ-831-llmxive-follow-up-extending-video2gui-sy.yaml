@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T02:13:08.439759Z'
-current_stage: brainstormed
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-831-llmxive-follow-up-extending-video2gui-sy
-last_run_id: null
+last_run_id: e30ffc82-26aa-4689-9e3e-5e0aaa0f35b2
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-831-llmxive-follow-up-extending-video2gui-sy/specs/001-llmxive-follow-up-extending-video2gui-sy
 title: 'llmXive follow-up: extending "Video2GUI: Synthesizing Large-Scale Interaction
   Trajectories for Gener"'
-updated_at: '2026-07-02T02:13:08.439759Z'
+updated_at: '2026-07-12T04:51:35.620211Z'

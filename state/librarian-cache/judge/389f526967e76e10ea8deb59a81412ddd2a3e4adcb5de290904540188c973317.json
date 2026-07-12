@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.14679",
+  "judged_at": "2026-07-12T04:08:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video2gui: synthesizing large-scale interaction trajectories for gener\" linguistics",
+  "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's question regarding \"Video2GUI\" (synthesizing interaction trajectories from video) and its linguistic aspects. There is no overlap in the specific mechanism (video-to-GUI synthesis), the domain (GUI interaction trajectories), or the variables being studied, and the paper does not serve as a foundational method or empirical baseline for the user's specific topic.",
+  "relevant": false
+}

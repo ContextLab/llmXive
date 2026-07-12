@@ -1,0 +1,234 @@
+resolved_at: '2026-07-12T04:13:24.973872+00:00'
+datasets:
+- intent: Video2GUI
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/PREDIKSI_TINGKAT_KEPADATAN_PENUMPANG_TRANSJAKARTA/32967737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dominican_University_2026_2027_APPLICATION_07047903330_FORM_CONFIRMED_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Chauncey_2026_2027_application_window_for_University_is_officially_open_Apply_HERE_ONLY_Get_in_touch_wit/32967776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Legacy_University_Okija_2026_2027_APPLICATION_07047903330_FORM_CONFIRMED_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Chauncey_2026_2027_application_window_for_University_is_officially_open_Apply_HERE_ONLY_Get_in_touch_/32967770
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Sirt2_delays_aging_in_b_b_i_Apis_cerana_i_b_b_by_remodeling_mitochondrial_network_and_activating_mitophagy_b_/31627888
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Arthur_Javis_University_2026_2027_APPLICATION_07047903330_FORM_CONFIRMED_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Chauncey_2026_2027_application_window_for_University_is_officially_open_Apply_HERE_ONLY_Get_in_touch_/32967767
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.14747
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GUI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/UI-MOPD/Uni-GUI-OpenMobile/resolve/main/split1_1004_ExpenseAddMultipleFromGallery/result.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 57135
+      parsed: true
+  - url: https://huggingface.co/datasets/leeroy-jankins/Federal-Trust-Fund-Accounting-Guide/resolve/main/Federal
+      Trust Fund Accounting Guide.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39045
+      parsed: true
+  - url: https://huggingface.co/datasets/nlp-guild/medical-data/resolve/main/medical.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/saelyne/GuideBench/resolve/main/videos/segment_urls.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/leeroy-jankins/Federal-Trust-Fund-Accounting-Guide/resolve/main/Federal
+      Trust Fund Accounting Guide.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/UI-MOPD/Uni-GUI-OpenMobile/resolve/main/split1_1004_ExpenseAddMultipleFromGallery/result.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/nlp-guild/medical-data/resolve/main/medical.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/epfl-llm/guidelines/resolve/main/open_guidelines.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/online_resource/Anchor_University_Lagos_2026_2027_APPLICATION_07047903330_FORM_CONFIRMED_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Chauncey_2026_2027_application_window_for_University_is_officially_open_Apply_HERE_ONLY_Get_in_touch_/32967779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/PREDIKSI_TINGKAT_KEPADATAN_PENUMPANG_TRANSJAKARTA/32967737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dominican_University_2026_2027_APPLICATION_07047903330_FORM_CONFIRMED_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Chauncey_2026_2027_application_window_for_University_is_officially_open_Apply_HERE_ONLY_Get_in_touch_wit/32967776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Legacy_University_Okija_2026_2027_APPLICATION_07047903330_FORM_CONFIRMED_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Chauncey_2026_2027_application_window_for_University_is_officially_open_Apply_HERE_ONLY_Get_in_touch_/32967770
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Sirt2_delays_aging_in_b_b_i_Apis_cerana_i_b_b_by_remodeling_mitochondrial_network_and_activating_mitophagy_b_/31627888
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.69p8cz8zw
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15055202
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7329531
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5435230
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/45649
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315961
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315961
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315867
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315674
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/b76ea208-be70-427e-8a67-281774e04e07
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VL-Chat
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_JosephusCheung__Qwen-VL-LLaMAfied-7B-Chat/resolve/main/2023-10-10T07-39-47.100914/details_harness|arc:challenge|25_2023-10-10T07-39-47.100914.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_JosephusCheung__Pwen-VL-Chat-20_30/resolve/main/2023-10-10T08-17-20.929764/details_harness|arc:challenge|25_2023-10-10T08-17-20.929764.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Yobitel/qwen-qwen2-vl-7b-instruct__llm-inference-chatbot-short__019e3b85e34e/resolve/main/envelope.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 8209
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_JosephusCheung__Qwen-VL-LLaMAfied-7B-Chat/resolve/main/2023-10-10T07-39-47.100914/details_harness|arc:challenge|25_2023-10-10T07-39-47.100914.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_JosephusCheung__Pwen-VL-Chat-20_30/resolve/main/2023-10-10T08-17-20.929764/details_harness|arc:challenge|25_2023-10-10T08-17-20.929764.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Yobitel/qwen-qwen2-vl-7b-instruct__llm-inference-chatbot-short__019e3b85e34e/resolve/main/envelope.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/online_resource/Anchor_University_Lagos_2026_2027_APPLICATION_07047903330_FORM_CONFIRMED_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Chauncey_2026_2027_application_window_for_University_is_officially_open_Apply_HERE_ONLY_Get_in_touch_/32967779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/PREDIKSI_TINGKAT_KEPADATAN_PENUMPANG_TRANSJAKARTA/32967737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dominican_University_2026_2027_APPLICATION_07047903330_FORM_CONFIRMED_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Chauncey_2026_2027_application_window_for_University_is_officially_open_Apply_HERE_ONLY_Get_in_touch_wit/32967776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Legacy_University_Okija_2026_2027_APPLICATION_07047903330_FORM_CONFIRMED_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Chauncey_2026_2027_application_window_for_University_is_officially_open_Apply_HERE_ONLY_Get_in_touch_/32967770
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Sirt2_delays_aging_in_b_b_i_Apis_cerana_i_b_b_by_remodeling_mitochondrial_network_and_activating_mitophagy_b_/31627888
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19744324
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7809232
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13769230
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5817147
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3819447
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313794
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313794
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20065555
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20065555
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20675896
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

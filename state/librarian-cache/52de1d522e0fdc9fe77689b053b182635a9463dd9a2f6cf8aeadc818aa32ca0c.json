@@ -1,0 +1,665 @@
+{
+  "fetched_at": "2026-07-12T04:08:51Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Gener\"",
+      "target_n": 5
+    },
+    "duration_seconds": 80.01,
+    "ended_at": "2026-07-12T04:08:51Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "synthesizing GUI interaction trajectories from video"
+        ],
+        [
+          2,
+          "video-to-GUI task mapping using large language models"
+        ],
+        [
+          3,
+          "large-scale generation of human-computer interaction sequences"
+        ],
+        [
+          4,
+          "visual instruction tuning for graphical user interfaces"
+        ],
+        [
+          5,
+          "multimodal learning for UI interaction prediction"
+        ],
+        [
+          6,
+          "generating synthetic interaction data from screen recordings"
+        ],
+        [
+          7,
+          "automated UI task planning via video analysis"
+        ],
+        [
+          8,
+          "vision-language models for interface navigation"
+        ],
+        [
+          9,
+          "trajectory synthesis for generative GUI agents"
+        ],
+        [
+          10,
+          "cross-modal alignment of video and UI state"
+        ],
+        [
+          11,
+          "learning interaction policies from video demonstrations"
+        ],
+        [
+          12,
+          "automated generation of GUI interaction datasets"
+        ],
+        [
+          13,
+          "vision-based GUI understanding and action generation"
+        ],
+        [
+          14,
+          "large-scale synthetic data for UI interaction models"
+        ],
+        [
+          15,
+          "multimodal trajectory generation for software interfaces"
+        ],
+        [
+          16,
+          "video-driven GUI automation using generative models"
+        ],
+        [
+          17,
+          "semantic parsing of video into GUI interaction commands"
+        ],
+        [
+          18,
+          "data augmentation for UI interaction learning via video"
+        ],
+        [
+          19,
+          "generative modeling of human-computer interaction paths"
+        ],
+        [
+          20,
+          "visual grounding of language models in GUI environments"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Gener\" linguistics": 0,
+        "synthesizing GUI interaction trajectories from video": 4,
+        "video-to-GUI task mapping using large language models": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "screen reading multimodal instruction following",
+      "GUI navigation dataset Android interaction traces",
+      "visual grounding screen element detection",
+      "action sequence generation evaluation metrics",
+      "embodied language learning screen interface"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2406.10819"
+      ]
+    },
+    "per_query_hit_count": {
+      "GUI navigation dataset Android interaction traces": 3,
+      "action sequence generation evaluation metrics": 3,
+      "embodied language learning screen interface": 3,
+      "llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Gener\" linguistics": 3,
+      "screen reading multimodal instruction following": 3,
+      "visual grounding screen element detection": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2207.10357",
+          "rationale": "The paper focuses on computer vision and light-field video reconstruction from monocular inputs, which is a distinct technical domain from the user's question regarding synthesizing GUI interaction trajectories for large language models (LLMs). There is no overlap in the biological, algorithmic, or social mechanisms, variables, or empirical populations described in the user's query and the candidate paper, failing all inclusion criteria (a-f) and constituting an off-domain rejection.",
+          "title": "Synthesizing Light Field Video from Monocular Video"
+        },
+        {
+          "primary_pointer": "2507.10610",
+          "rationale": "The paper focuses on security vulnerabilities (pop-up attacks) and defense mechanisms for GUI agents, which is a distinct construct from the user's question regarding \"linguistics\" and the extension of a video-to-GUI trajectory synthesis framework. While both involve GUI agents, the candidate paper does not address the linguistic analysis, trajectory generation methodology, or the specific \"Video2GUI\" mechanism the user is investigating, failing to meet the criteria for same-mechanism evidence o",
+          "title": "LaSM: Layer-wise Scaling Mechanism for Defending Pop-up Attack on GUI Agents"
+        },
+        {
+          "primary_pointer": "2603.21389",
+          "rationale": "The paper focuses on computational efficiency and performance trade-offs between small and large language models, which is unrelated to the user's specific question about extending a video-to-GUI trajectory synthesis framework using linguistics. It fails to address the core mechanism (video-to-GUI synthesis), the domain (interaction trajectories), or the specific linguistic angle requested, satisfying none of the inclusion criteria (a-f).",
+          "title": "Task-Specific Efficiency Analysis: When Small Language Models Outperform Large Language Models"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving human-like conversational behavior and emotional intelligence in LLMs, which does not address the specific mechanism of synthesizing interaction trajectories from video data (Video2GUI) or the specific linguistic analysis of such trajectories requested by the user. It fails to meet any inclusion criteria (a-f) as it lacks the specific domain (video-to-GUI trajectory synthesis), the specific mechanism (trajectory generation from visual input),",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a specific linguistic limitation of LLMs (character composition understanding) but does not address the user's question regarding \"Video2GUI,\" interaction trajectory synthesis, or the specific follow-up context of extending that framework. It fails to meet criteria (a) or (b) as it measures a different mechanism (morphological awareness vs. GUI interaction generation) and does not provide a baseline or methodology for the user's specific domain of video-to-GUI trajectory s",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's question regarding \"Video2GUI\" (synthesizing interaction trajectories from video) and its linguistic aspects. There is no overlap in the specific mechanism (video-to-GUI synthesis), the domain (GUI interaction trajectories), or the variables being studied, and the paper does not serve as a foundational method or empirical baseline for the user's specific topic.",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2512.06483",
+          "rationale": "The paper focuses on using LLMs to classify German language proficiency levels (CEFR), which is a distinct application from the user's question regarding the extension of \"Video2GUI\" for synthesizing interaction trajectories in a GUI context. While both involve LLMs, the paper does not address the specific mechanism of video-to-GUI trajectory synthesis, the GUI domain, or the \"linguistics\" aspect of interaction data generation implied by the user's query, failing to meet any of the inclusion cri",
+          "title": "Classifying German Language Proficiency Levels Using Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T04:07:31Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"video2gui: synthesizing large-scale interaction trajectories for gener\" linguistics",
+      "raw": "llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Trajectories for Gener\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the advent of Large Language Models, single-task and token-based multi-task models have evolved into instruction-based systems that infer task and target language implicitly from natural language prompts. This trend is reflected in IWSLT's Instruction Following Track, which this year introduced new tasks including an unknown surprise task, posing a genuine challenge against overfitting to known tasks. We present KIT's submission to the Long and Short Instruction Following tracks in the unconstrained setting. Our approach combines a general data augmentation pipeline that converts short-form corpora into long-form training data through segment concatenation, LLM-based label generation, and cross-lingual translation, yielding over 1M instances across six tasks and four languages. We further show that likelihood-based re-ranking, while highly effective for ASR, systematically degrades semantic tasks by spuriously selecting candidates generated from segmented audio processing rather than holistic long-form inference, a failure mode resolved by combining likelihood with Minimum Bayes Risk decoding.",
+          "claimed_authors": [
+            "Enes Yavuz Ugan",
+            "Maike Züfle",
+            "Yuka Ko",
+            "Supriti Sinhamahapatra",
+            "Fabian Retkowski",
+            "Seymanur Akti",
+            "Jan Niehues",
+            "Alexander Waibel"
+          ],
+          "claimed_title": "Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.04730"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title=\"Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026\")",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite widespread deployment of Large Language Models, systematic evaluation of instruction-following capabilities remains challenging. While comprehensive benchmarks exist, focused assessments that quickly diagnose specific instruction adherence patterns are valuable. As newer models may be trained on existing benchmarks, novel evaluation approaches are needed to assess genuine capabilities rather than memorized performance. This paper presents a streamlined evaluation framework using twenty carefully designed prompts to assess LLM instruction-following across diverse task categories. We demonstrate this framework through a large-scale empirical study conducted on October 14, 2025, testing 256 verified working models from 331 available via OpenRouter. To ensure methodological rigor and prevent selection bias, we first verified each model's basic functionality before inclusion. Unlike large-scale benchmarks requiring extensive computational resources, our approach offers a practical diagnostic tool researchers and practitioners can readily apply. Our methodology builds upon verifiable instructions while introducing a compact test suite balancing comprehensiveness with efficiency. Each prompt targets distinct aspects of instruction following, including format compliance, content constraints, logical sequencing, and multi-step task execution. We evaluate models from major providers (OpenAI, Anthropic, Google, Meta, Mistral) and emerging implementations (Qwen, DeepSeek, community models), providing comparative performance analysis. Our findings reveal consistent failure modes and identify specific instruction types posing particular challenges. This work contributes both a practical evaluation tool and one of the most comprehensive empirical analyses of instruction-following capabilities across the contemporary LLM landscape.",
+          "claimed_authors": [
+            "Richard J. Young",
+            "Brandon Gillins",
+            "Alice M. Matthews"
+          ],
+          "claimed_title": "When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18892"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title=\"When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs\")",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Autonomous Graphical User Interface (GUI) navigation agents can enhance user experience in communication, entertainment, and productivity by streamlining workflows and reducing manual intervention. However, prior GUI agents often trained with datasets comprising tasks that can be completed within a single app, leading to poor performance in cross-app navigation. To address this problem, we present GUIOdyssey, a comprehensive dataset for cross-app mobile GUI navigation. GUIOdyssey comprises 8,334 episodes with an average of 15.3 steps per episode, covering 6 mobile devices, 212 distinct apps, and 1,357 app combinations. Each step is enriched with detailed semantic reasoning annotations, which aid the model in building cognitive processes and enhancing its reasoning abilities for complex cross-app tasks. Building on GUIOdyssey, we develop OdysseyAgent, an exploratory multimodal agent for long-step cross-app navigation equipped with a history resampler module that efficiently attends to historical screenshot tokens, balancing performance and inference speed. Extensive experiments conducted in both in-domain and out-of-domain scenarios validate the effectiveness of our approach. Moreover, we demonstrate that historial information involving actions, screenshots and context in our dataset can significantly enhances OdysseyAgent's performance on complex cross-app tasks.",
+          "claimed_authors": [
+            "Quanfeng Lu",
+            "Wenqi Shao",
+            "Zitao Liu",
+            "Lingxiao Du",
+            "Fanqing Meng",
+            "Boxuan Li",
+            "Botong Chen",
+            "Siyuan Huang",
+            "Kaipeng Zhang",
+            "Ping Luo"
+          ],
+          "claimed_title": "GUIOdyssey: A Comprehensive Dataset for Cross-App GUI Navigation on Mobile Devices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.08451"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='GUIOdyssey: A Comprehensive Dataset for Cross-App GUI Navigation on Mobile Devices')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, Multimodal Large Language Models (MLLMs) have been used as agents to control keyboard and mouse inputs by directly perceiving the Graphical User Interface (GUI) and generating corresponding commands. However, current agents primarily demonstrate strong understanding capabilities in static environments and are mainly applied to relatively simple domains, such as Web or mobile interfaces. We argue that a robust GUI agent should be capable of perceiving temporal information on the GUI, including dynamic Web content and multi-step tasks. Additionally, it should possess a comprehensive understanding of various GUI scenarios, including desktop software and multi-window interactions. To this end, this paper introduces a new dataset, termed GUI-World, which features meticulously crafted Human-MLLM annotations, extensively covering six GUI scenarios and eight types of GUI-oriented questions in three formats. We evaluate the capabilities of current state-of-the-art MLLMs, including Image LLMs and Video LLMs, in understanding various types of GUI content, especially dynamic and sequential content. Our findings reveal that current models struggle with dynamic GUI content without manually annotated keyframes or operation history. On the other hand, Video LLMs fall short in all GUI-oriented tasks given the sparse GUI video dataset. Therefore, we take the initial step of leveraging a fine-tuned Video LLM, GUI-Vid, as a GUI-oriented assistant, demonstrating an improved understanding of various GUI tasks. However, due to the limitations in the performance of base LLMs, we conclude that using video LLMs as GUI agents remains a significant challenge. We believe our work provides valuable insights for future research in dynamic GUI content understanding. All the dataset and code are publicly available at: https://gui-world.github.io.",
+          "claimed_authors": [
+            "Dongping Chen",
+            "Yue Huang",
+            "Siyuan Wu",
+            "Jingyu Tang",
+            "Liuyi Chen",
+            "Yilin Bai",
+            "Zhigang He",
+            "Chenlong Wang",
+            "Huichi Zhou",
+            "Yiqiang Li",
+            "Tianshuo Zhou",
+            "Yue Yu",
+            "Chujie Gao",
+            "Qihui Zhang",
+            "Yi Gui",
+            "Zhen Li",
+            "Yao Wan",
+            "Pan Zhou",
+            "Jianfeng Gao",
+            "Lichao Sun"
+          ],
+          "claimed_title": "GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.10819"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A core task in embodied intelligence is ego-centric 3D visual grounding. Existing methods typically adopt two-stage, heterogeneous pipelines that pair a detector with a separate grounding model. Incompatible decoders and box heads hinder the transfer of object-level priors, and the split training causes redundant re-optimization. To overcome these limitations, we present DEGround, a straight, elegant, and effective framework that centers on object-level sharing over detection and grounding. It employs a set of queries that serves as the common object representation for both detection and grounding, which is decoded by a shared transformer and bounding box head. Building on this homogeneous framework, we further introduce two task-specific plug-in modules to enhance fine-grained instruction grounding. The Regional Activation Grounding module improves spatial-textual alignment by highlighting instruction-relevant regions, while the Query-wise Modulation module applies sentence-conditioned affine modulation to generate instruction-aware queries at initialization. Extensive experiments demonstrate that DEGround achieves the best performance on multiple benchmarks. Remarkably, it significantly outperforms previous methods by 7.52% at overall precision on the EmbodiedScan dataset.",
+          "claimed_authors": [
+            "Yani Zhang",
+            "Dongming Wu",
+            "Hao Shi",
+            "Yingfei Liu",
+            "Tiancai Wang",
+            "Xingping Dong"
+          ],
+          "claimed_title": "DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05199"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual Grounding, also known as Referring Expression Comprehension and Phrase Grounding, aims to ground the specific region(s) within the image(s) based on the given expression text. This task simulates the common referential relationships between visual and linguistic modalities, enabling machines to develop human-like multimodal comprehension capabilities. Consequently, it has extensive applications in various domains. However, since 2021, visual grounding has witnessed significant advancements, with emerging new concepts such as grounded pre-training, grounding multimodal LLMs, generalized visual grounding, and giga-pixel grounding, which have brought numerous new challenges. In this survey, we first examine the developmental history of visual grounding and provide an overview of essential background knowledge. We systematically track and summarize the advancements, and then meticulously define and organize the various settings to standardize future research and ensure a fair comparison. Additionally, we delve into numerous related datasets and applications, and highlight several advanced topics. Finally, we outline the challenges confronting visual grounding and propose valuable directions for future research, which may serve as inspiration for subsequent researchers. By extracting common technical details, this survey encompasses the representative work in each subtopic over the past decade. To the best of our knowledge, this paper represents the most comprehensive overview currently available in the field of visual grounding. This survey is designed to be suitable for both beginners and experienced researchers, serving as an invaluable resource for understanding key concepts and tracking the latest research developments. We keep tracing related work at https://github.com/linhuixiao/Awesome-Visual-Grounding.",
+          "claimed_authors": [
+            "Linhui Xiao",
+            "Xiaoshan Yang",
+            "Xiangyuan Lan",
+            "Yaowei Wang",
+            "Changsheng Xu"
+          ],
+          "claimed_title": "Towards Visual Grounding: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.20206"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='Towards Visual Grounding: A Survey')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing Visual Question Answering (VQA) methods tend to exploit dataset biases and spurious statistical correlations, instead of producing right answers for the right reasons. To address this issue, recent bias mitigation methods for VQA propose to incorporate visual cues (e.g., human attention maps) to better ground the VQA models, showcasing impressive gains. However, we show that the performance improvements are not a result of improved visual grounding, but a regularization effect which prevents over-fitting to linguistic priors. For instance, we find that it is not actually necessary to provide proper, human-based cues; random, insensible cues also result in similar improvements. Based on this observation, we propose a simpler regularization scheme that does not require any external annotations and yet achieves near state-of-the-art performance on VQA-CPv2.",
+          "claimed_authors": [
+            "Robik Shrestha",
+            "Kushal Kafle",
+            "Christopher Kanan"
+          ],
+          "claimed_title": "Visual Grounding Methods for VQA are Working for the Wrong Reasons!",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.05704"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='Visual Grounding Methods for VQA are Working for the Wrong Reasons!')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While large language models (LLMs) afford new possibilities for user modeling and approximation of human behaviors, they often fail to capture the multidimensional nuances of individual users. In this work, we introduce PersonaTwin, a multi-tier prompt conditioning framework that builds adaptive digital twins by integrating demographic, behavioral, and psychometric data. Using a comprehensive data set in the healthcare context of more than 8,500 individuals, we systematically benchmark PersonaTwin against standard LLM outputs, and our rigorous evaluation unites state-of-the-art text similarity metrics with dedicated demographic parity assessments, ensuring that generated responses remain accurate and unbiased. Experimental results show that our framework produces simulation fidelity on par with oracle settings. Moreover, downstream models trained on persona-twins approximate models trained on individuals in terms of prediction and fairness metrics across both GPT-4o-based and Llama-based models. Together, these findings underscore the potential for LLM digital twin-based approaches in producing realistic and emotionally nuanced user simulations, offering a powerful tool for personalized digital user modeling and behavior analysis.",
+          "claimed_authors": [
+            "Sihan Chen",
+            "John P. Lalor",
+            "Yi Yang",
+            "Ahmed Abbasi"
+          ],
+          "claimed_title": "PersonaTwin: A Multi-Tier Prompt Conditioning Framework for Generating and Evaluating Personalized Digital Twins",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.10906"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='PersonaTwin: A Multi-Tier Prompt Conditioning Framework for Generating and Evaluating Personalized Digital Twins')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimizing language models for use in conversational agents requires large quantities of example dialogues. Increasingly, these dialogues are synthetically generated by using powerful large language models (LLMs), especially in domains where obtaining authentic human data is challenging. One such domain is human resources (HR). In this context, we compare two LLM-based dialogue generation methods for producing HR job interviews, and assess which method generates higher-quality dialogues, i.e., those more difficult to distinguish from genuine human discourse. The first method uses a single prompt to generate the complete interview dialogue. The second method uses two agents that converse with each other. To evaluate dialogue quality under each method, we ask a judge LLM to determine whether AI was used for interview generation, using pairwise interview comparisons. We empirically find that, at the expense of a sixfold increase in token count, interviews generated with the dual-prompt method achieve a win rate 2 to 10 times higher than those generated with the single-prompt method. This difference remains consistent regardless of whether GPT-4o or Llama 3.3 70B is used for either interview generation or quality judging.",
+          "claimed_authors": [
+            "Joachim De Baer",
+            "A. Seza Doğruöz",
+            "Thomas Demeester",
+            "Chris Develder"
+          ],
+          "claimed_title": "Single- vs. Dual-Prompt Dialogue Generation with LLMs for Job Interviews in Human Resources",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.18650"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='Single- vs. Dual-Prompt Dialogue Generation with LLMs for Job Interviews in Human Resources')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans' experience of the world is profoundly multimodal from the beginning, so why do existing state-of-the-art language models only use text as a modality to learn and represent semantic meaning? In this paper we review the literature on the role of embodiment and emotion in the interactive setting of spoken dialogue as necessary prerequisites for language learning for human children, including how words in child vocabularies are largely concrete, then shift to become more abstract as the children get older. We sketch a model of semantics that leverages current transformer-based models and a word-level grounded model, then explain the robot-dialogue system that will make use of our semantic model, the setting for the system to learn language, and existing benchmarks for evaluation.",
+          "claimed_authors": [
+            "Casey Kennington"
+          ],
+          "claimed_title": "Language Acquisition is Embodied, Interactive, Emotive: a Research Proposal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04633"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='Language Acquisition is Embodied, Interactive, Emotive: a Research Proposal')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+          "claimed_authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "claimed_title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21676"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title='How do language models learn facts? Dynamics, curricula and hallucinations')",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language learning is thought to be a highly complex process. One of the hurdles in learning a language is to learn the rules of syntax of the language. Rules of syntax are often ordered in that before one rule can applied one must apply another. It has been thought that to learn the order of n rules one must go through all n! permutations. Thus to learn the order of 27 rules would require 27! steps or 1.08889x10^{28} steps. This number is much greater than the number of seconds since the beginning of the universe! In an insightful analysis the linguist Block ([Block 86], pp. 62-63, p.238) showed that with the assumption of transitivity this vast number of learning steps reduces to a mere 377 steps. We present a mathematical analysis of the complexity of Block's algorithm. The algorithm has a complexity of order n^2 given n rules. In addition, we improve Block's results exponentially, by introducing an algorithm that has complexity of order less than n log n.",
+          "claimed_authors": [
+            "Eric Werner"
+          ],
+          "claimed_title": "On the complexity of learning a language: An improvement of Block's algorithm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.2390"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Video2GUI: Synthesizing Large-Scale Interaction Tr', candidate_title=\"On the complexity of learning a language: An improvement of Block's algorithm\")",
+        "failed_at": "2026-07-12T04:08:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dongping Chen",
+            "Yue Huang",
+            "Siyuan Wu",
+            "Jingyu Tang",
+            "Liuyi Chen",
+            "Yilin Bai",
+            "Zhigang He",
+            "Chenlong Wang",
+            "Huichi Zhou",
+            "Yiqiang Li",
+            "Tianshuo Zhou",
+            "Yue Yu",
+            "Chujie Gao",
+            "Qihui Zhang",
+            "Yi Gui",
+            "Zhen Li",
+            "Yao Wan",
+            "Pan Zhou",
+            "Jianfeng Gao",
+            "Lichao Sun"
+          ],
+          "title": "GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.10819",
+        "summary": "Recently, Multimodal Large Language Models (MLLMs) have been used as agents to control keyboard and mouse inputs by directly perceiving the Graphical User Interface (GUI) and generating corresponding commands. However, current agents primarily demonstrate strong understanding capabilities in static environments and are mainly applied to relatively simple domains, such as Web or mobile interfaces. We argue that a robust GUI agent should be capable of perceiving temporal information on the GUI, including dynamic Web content and multi-step tasks. Additionally, it should possess a comprehensive understanding of various GUI scenarios, including desktop software and multi-window interactions. To this end, this paper introduces a new dataset, termed GUI-World, which features meticulously crafted Human-MLLM annotations, extensively covering six GUI scenarios and eight types of GUI-oriented questions in three formats. We evaluate the capabilities of current state-of-the-art MLLMs, including Image LLMs and Video LLMs, in understanding various types of GUI content, especially dynamic and sequential content. Our findings reveal that current models struggle with dynamic GUI content without manually annotated keyframes or operation history. On the other hand, Video LLMs fall short in all GUI-oriented tasks given the sparse GUI video dataset. Therefore, we take the initial step of leveraging a fine-tuned Video LLM, GUI-Vid, as a GUI-oriented assistant, demonstrating an improved understanding of various GUI tasks. However, due to the limitations in the performance of base LLMs, we conclude that using video LLMs as GUI agents remains a significant challenge. We believe our work provides valuable insights for future research in dynamic GUI content understanding. All the dataset and code are publicly available at: https://gui-world.github.io.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.10819",
+          "http_status": 200,
+          "pdf_sample_score": 0.3439,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T04:08:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Enhao Zhang",
+            "Maureen Daum",
+            "Dong He",
+            "Brandon Haynes",
+            "Ranjay Krishna",
+            "Magdalena Balazinska"
+          ],
+          "title": "EQUI-VOCAL: Synthesizing Queries for Compositional Video Events from Limited User Interactions [Technical Report]",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.00929",
+        "summary": "We introduce EQUI-VOCAL: a new system that automatically synthesizes queries over videos from limited user interactions. The user only provides a handful of positive and negative examples of what they are looking for. EQUI-VOCAL utilizes these initial examples and additional ones collected through active learning to efficiently synthesize complex user queries. Our approach enables users to find events without database expertise, with limited labeling effort, and without declarative specifications or sketches. Core to EQUI-VOCAL's design is the use of spatio-temporal scene graphs in its data model and query language and a novel query synthesis approach that works on large and noisy video data. Our system outperforms two baseline systems -- in terms of F1 score, synthesis time, and robustness to noise -- and can flexibly synthesize complex queries that the baselines do not support.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.00929",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T04:08:12Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"video2gui: synthesizing large-scale interaction trajectories for gener\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

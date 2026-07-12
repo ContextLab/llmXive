@@ -1,0 +1,13 @@
+? T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/benchmarks/`,
+  `data/results/`, `tests/`)
+: 1
+? 'T002 Initialize Python 3.11 project with `pyproject.toml` and `requirements.txt`
+  (dependencies: `transformers`, `torch[cpu]`, `accelerate`, `scikit-learn`, `pandas`,
+  `pytest`, `jsonschema`, `datasets`, `playwright`, `jinja2`, `llama-cpp-python`)'
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T004 [P] Initialize Git hooks for pre-commit checks (schema validation, PII scan): 1
+? T005 Create `code/config.py` with deterministic random seeds, paths, and hardware
+  constraints (CPU-only, 7GB RAM limit, **50-step hard limit** as per FR-006)
+: 1
+T006 Define and implement `benchmark_task.schema.yaml` for FR-001 (JSON Schema for synthetic tasks): 1

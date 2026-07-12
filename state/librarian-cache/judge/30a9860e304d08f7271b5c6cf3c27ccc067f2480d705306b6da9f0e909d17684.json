@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.21389",
+  "judged_at": "2026-07-12T04:08:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video2gui: synthesizing large-scale interaction trajectories for gener\" linguistics",
+  "rationale": "The paper focuses on computational efficiency and performance trade-offs between small and large language models, which is unrelated to the user's specific question about extending a video-to-GUI trajectory synthesis framework using linguistics. It fails to address the core mechanism (video-to-GUI synthesis), the domain (interaction trajectories), or the specific linguistic angle requested, satisfying none of the inclusion criteria (a-f).",
+  "relevant": false
+}

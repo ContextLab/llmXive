@@ -1,0 +1,106 @@
+- artifact_path: projects/PROJ-831-llmxive-follow-up-extending-video2gui-sy/specs/001-llmxive-follow-up-extending-video2gui-sy/tasks.md
+  attempts: 1
+  canonical: benchmark generator produces 500 tasks with error injection
+  claim_id: c_a94a30d4
+  context: 'Independent Test: Running `code/generators/benchmark_generator.py` produces
+    `data/benchmarks/benchmark_.json` with exactly 500 tasks, each containing an error
+    injection point and a recovery path.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Running `code/generators/benchmark_generator.py` produces `data/benchmarks/benchmark_.json`
+    with exactly 500 tasks, each containing an error injection point and a recovery
+    path.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:46:39Z'
+- artifact_path: projects/PROJ-831-llmxive-follow-up-extending-video2gui-sy/specs/001-llmxive-follow-up-extending-video2gui-sy/tasks.md
+  attempts: 1
+  canonical: benchmark_generator produces 500 tasks with error injection and recovery
+    paths
+  claim_id: c_8fb01db5
+  context: 'Independent Test: Running code/generators/benchmark_generator.py produces
+    data/benchmarks/benchmark_.json with exactly 500 tasks, each containing an error
+    injection point and a recovery path.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Running code/generators/benchmark_generator.py produces data/benchmarks/benchmark_.json
+    with exactly 500 tasks, each containing an error injection point and a recovery
+    path.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:46:55Z'
+- artifact_path: projects/PROJ-831-llmxive-follow-up-extending-video2gui-sy/specs/001-llmxive-follow-up-extending-video2gui-sy/tasks.md
+  attempts: 1
+  canonical: memory usage stays below 7GB and step count below 50 during long-running
+    task
+  claim_id: c_0002dce9
+  context: 'T019 [P] [US2] Resource test: Verify memory usage stays <7GB and step
+    count <50 during a long-running task in tests/integration/test_resource_limits.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify memory usage stays <7GB and step count <50 during a long-running
+    task
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:46:55Z'
+- artifact_path: projects/PROJ-831-llmxive-follow-up-extending-video2gui-sy/specs/001-llmxive-follow-up-extending-video2gui-sy/tasks.md
+  attempts: 1
+  canonical: success rate variance is below 5 percent
+  claim_id: c_4035bc50
+  context: "T030b [US3] Execute the \xB110% threshold variation runs using the logic\
+    \ from T030a, generate data/results/sensitivity_analysis.json, and verify success\
+    \ rate variance < 5% (SC-005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify success rate variance < 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:46:55Z'
+- artifact_path: projects/PROJ-831-llmxive-follow-up-extending-video2gui-sy/specs/001-llmxive-follow-up-extending-video2gui-sy/tasks.md
+  attempts: 1
+  canonical: pytest coverage exceeds 80 percent on code/analysis and code/generators
+  claim_id: c_2303a65d
+  context: T036 Run pytest with coverage and ensure >80% coverage on code/analysis
+    and code/generators
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure >80% coverage on code/analysis and code/generators
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:46:55Z'
+- artifact_path: projects/PROJ-831-llmxive-follow-up-extending-video2gui-sy/specs/001-llmxive-follow-up-extending-video2gui-sy/tasks.md
+  attempts: 1
+  canonical: GUI Error Taxonomy version 1.0
+  claim_id: c_9997147a
+  context: T014.4 [US1] Download and stage the 'GUI Error Taxonomy v1.0' file from
+    the verified source (T009) to data/config/gui_error_taxonomy.yaml
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GUI Error Taxonomy v1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:47:39Z'

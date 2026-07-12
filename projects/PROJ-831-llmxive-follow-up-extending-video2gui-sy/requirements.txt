@@ -1,0 +1,12 @@
+transformers
+torch[cpu]
+accelerate
+scikit-learn
+pandas
+pytest
+jsonschema
+datasets
+playwright
+jinja2
+llama-cpp-python
+psutil>=5.9.0

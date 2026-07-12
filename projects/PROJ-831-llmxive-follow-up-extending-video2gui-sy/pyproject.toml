@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-video2gui-sy"
+version = "0.1.0"
+description = "Automated science pipeline for Video2GUI tutorial bias analysis"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Project", email = "noreply@llmxive.research"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "transformers>=4.40.0",
+    "torch[cpu]>=2.2.0",
+    "accelerate>=0.28.0",
+    "scikit-learn>=1.4.0",
+    "pandas>=2.2.0",
+    "pytest>=8.0.0",
+    "jsonschema>=4.20.0",
+    "datasets>=2.18.0",
+    "playwright>=1.42.0",
+    "jinja2>=3.1.0",
+    "llama-cpp-python>=0.2.60",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest-cov>=4.1.0",
+    "ruff>=0.3.0",
+    "black>=24.3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["code*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[project.scripts]
+# Placeholder for future entry points
+# llmxive-benchmark = "code.generators.benchmark_generator:main"

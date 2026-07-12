@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.00929",
+  "judged_at": "2026-07-12T04:08:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video2gui: synthesizing large-scale interaction trajectories for gener\" linguistics",
+  "rationale": "This paper satisfies criterion (b) as it measures the same dependent variable (synthesizing queries/interaction trajectories from limited user interactions) on the same domain (video data), providing a canonical alternative approach to the mechanism described in the user's question. It also aligns with criterion (f) by representing the \"query synthesis from limited interactions\" cluster, which is the methodological alternative to the \"Video2GUI\" trajectory synthesis approach the user is investig",
+  "relevant": true
+}
