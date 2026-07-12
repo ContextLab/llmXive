@@ -2,81 +2,114 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Access to Wan-Streamer v0.1 training logs (local directory) OR internet access to load `carnival13/video_conversation_v1`.
-- Sufficient RAM available (for CI runner simulation).
+*   Python 3.11+
+*   GB+ RAM (Free Tier CI compatible)
+*   Access to HuggingFace (for VoxCeleb2) or local Wan-Streamer logs.
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project directory).
-2.  **Create a virtual environment**:
+1.  **Clone and Setup**:
     ```bash
+    cd projects/PROJ-964-llmxive-follow-up-extending-wan-streamer
     python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    source venv/bin/activate
+    pip install -r code/requirements.txt
     ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins `torch` to a CPU-only version to ensure compatibility with the CI runner.*
 
-## Data Preparation
+2.  **Verify Datasets**:
+    Ensure you have access to the data source.
+    *   **Option A (Local Logs)**: Place Wan-Streamer v0.1 logs in `data/raw/`. **If these are missing, the system will exit with "Data Unavailable" (FR-022).**
+    *   **Option B (Proxy)**: The system can use VoxCeleb2 for turn-taking labels *only if* the Wan-Streamer logs are present to provide latent trajectories.
 
-1.  **Place Wan-Streamer v0.1 logs** in `data/raw/`.
-    - Ensure logs contain latent vectors, semantic/prosodic features, and turn-taking metadata.
-2.  **Run the extraction script**:
-    ```bash
-    python code/data/extract_logs.py --input data/raw/ --output data/processed/extracted_latents.parquet
-    ```
-    - This script filters for interruptions/pauses, samples the data (stratified), and outputs a Parquet file.
-3.  **Validate the data against contracts**:
-    ```bash
-    python code/data/validate_logs.py --input data/processed/extracted_latents.parquet --schema contracts/latents.schema.yaml
-    ```
-    - Checks for schema compliance and non-null values against the defined contract.
+## Execution Workflow
 
-## Training the Estimator
+The pipeline is executed sequentially via the `code/tasks/` modules.
 
-1.  **Run the training script**:
-    ```bash
-    python code/models/train_estimator.py --data data/processed/extracted_latents.parquet --output data/checkpoints/gru_estimator.pth
-    ```
-    - Trains a lightweight GRU on CPU.
-    - Logs MSE and correlation metrics to the console.
-2.  **Update State**:
-    ```bash
-    python code/data/update_state.py --artifact data/checkpoints/gru_estimator.pth
-    ```
-    - Computes hash and updates `state.yaml` (Task T050).
+### Step 1: Data Extraction
+Extracts turn-taking events and latent deltas.
+```bash
+python code/tasks/extract_data.py --output data/processed/turn_events.parquet
+```
+*   *Output*: `turn_events.parquet` (sampled, ≤1 GB).
+*   *Validation*: Checks for a substantial number of interruption/pause events. Handles "Data Unavailable" (FR-022).
 
-## Running the Hybrid Simulation
+### Step 2: Validate Sampling Distribution
+Verifies that stratified sampling preserves the distribution of turn-taking events (FR-015).
+```bash
+python code/tasks/validate_sampling_distribution.py --input data/processed/turn_events.parquet
+```
 
-1.  **Run the hybrid inference pipeline**:
-    ```bash
-    python code/inference/hybrid_pipeline.py --model data/checkpoints/gru_estimator.pth --data data/processed/extracted_latents.parquet --output data/processed/hybrid_predictions.parquet
-    ```
-    - Simulates skipping flow-matching steps based on predictions.
-    - Falls back to full solver for high uncertainty.
+### Step 3: Estimator Training
+Trains the lightweight RNN/Transformer.
+```bash
+python code/tasks/train_estimator.py \
+  --input data/processed/turn_events.parquet \
+  --output data/processed/estimator_checkpoint.pt \
+  --max-ram [appropriate system limit]
+```
+*   *Output*: `estimator_checkpoint.pt`.
+*   *Monitoring*: Logs RAM usage and training time. Handles "Power Limitation" (FR-023).
 
-## Evaluation & Statistical Testing
+### Step 4: Hybrid Inference Simulation
+Runs the simulation with randomized counterfactuals.
+```bash
+python code/tasks/simulate_inference.py \
+  --estimator data/processed/estimator_checkpoint.pt \
+  --input data/processed/turn_events.parquet \
+  --output data/processed/hybrid_metrics.parquet
+```
+*   *Output*: `hybrid_metrics.parquet` (includes FID, latency, skip decisions).
 
-1.  **Compute metrics**:
-    ```bash
-    python code/inference/metrics.py --predictions data/processed/hybrid_predictions.parquet --output data/processed/hybrid_metrics.parquet
-    ```
-2.  **Run statistical tests**:
-    ```bash
-    python code/stats/significance_test.py --metrics data/processed/hybrid_metrics.parquet
-    python code/stats/equivalence_test.py --metrics data/processed/hybrid_metrics.parquet
-    ```
-    - Outputs p-values for latency reduction (stratified bootstrap) and quality equivalence (TOST).
-3.  **Update State**:
-    ```bash
-    python code/data/update_state.py --artifact data/processed/hybrid_metrics.parquet
-    ```
+### Step 5: Execute Fallback (Counterfactual Re-run)
+For the randomized subset, re-runs the full solver to generate ground truth (FR-009, FR-017).
+```bash
+python code/tasks/execute_fallback.py \
+  --input data/processed/hybrid_metrics.parquet \
+  --output data/processed/counterfactual_full.parquet
+```
+
+### Step 6: Calculate FID Stability Correlation
+Calculates the correlation between predicted delta and observed FID degradation (FR-011).
+```bash
+python code/tasks/calculate_fid_stability_corr.py \
+  --input data/processed/counterfactual_full.parquet \
+  --output data/processed/fid_stability_corr.yaml
+```
+
+### Step 7: Statistical Analysis
+Performs TOST, propensity-score matching, and correlation checks.
+```bash
+python code/tasks/analyze_latency_bias.py \
+  --input data/processed/counterfactual_full.parquet \
+  --output results/statistical_report.yaml
+```
+*   *Output*: `statistical_report.yaml` (contains p-values, correlation coefficients).
+
+### Step 8: Validate Proxy MOS
+Validates proxy MOS or logs "Assumption Validated" (FR-013, FR-024).
+```bash
+python code/tasks/validate_proxy_mos.py \
+  --input data/processed/hybrid_metrics.parquet \
+  --output results/mos_validation.yaml
+```
+
+### Step 9: Update State
+Updates the project state with artifact hashes (FR-020).
+```bash
+python code/tasks/update_state_yaml.py
+```
+
+## Verification
+
+Run the contract tests to ensure data integrity:
+```bash
+pytest tests/contract/ -v
+```
+This validates that `turn_events.parquet` matches `contracts/dataset.schema.yaml` and that `statistical_report.yaml` matches `contracts/metrics.schema.yaml`. **Note**: Ensure `contracts/dataset.schema.yaml`, `contracts/estimator_output.schema.yaml`, and `contracts/metrics.schema.yaml` are the only active schemas (FR-021).
 
 ## Troubleshooting
 
-- **Memory Error**: If `RuntimeError: CUDA out of memory` appears, ensure `torch` is installed in CPU-only mode and no GPU flags are passed.
-- **Data Missing**: If the extraction script fails, verify that `data/raw/` contains the expected log files. If missing, the script will automatically load the fallback dataset `carnival13/video_conversation_v1`.
-- **Statistical Failure**: If TOST fails to reject the null hypothesis, the quality degradation may exceed the predefined threshold. Check the `fid_degradation_pct` in the metrics.
+*   **"Power Limitation" Error**: If training exceeds a predetermined duration threshold, the script will automatically reduce the sample size. If it fails at the minimum size, check `code/config.py` for `MIN_SAMPLE_SIZE`.
+*   **"Data Unavailable" Error**: If local logs are missing, the system exits gracefully. **No fallback to re-generation is attempted.**
+*   **"No Human Data" Log**: If `validate_proxy_mos` logs "Assumption Validated (No Human Data Available)", this is expected if the MOS dataset does not contain human ratings for this specific domain.
+*   **Schema Mismatch**: Ensure `data/processed/` files are not manually edited. Re-run `extract_data.py` if corruption is suspected.

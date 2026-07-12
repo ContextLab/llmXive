@@ -1,78 +1,78 @@
 # Data Model: llmXive follow-up: extending "Wan-Streamer v0.1"
 
-## Overview
+## 1. Overview
 
-This document defines the data schemas for the research pipeline. All data is stored in Parquet format for efficient columnar access and compression.
+This document defines the data structures used throughout the `001-llmxive-streamer-optimization` feature. All data flows from `raw` (logs) to `processed` (Parquet) to `artifacts` (model checkpoints, metrics logs).
 
-## Entities
+**Canonical Schemas**: The system validates against exactly three schema files in `contracts/`:
+1. `dataset.schema.yaml`
+2. `estimator_output.schema.yaml`
+3. `metrics.schema.yaml`
+All other schema files in `contracts/` are deprecated and must be ignored.
 
-### 1. `LatentTrajectory`
-Time-series record of audio-visual latent vectors.
-- **Source**: Extracted from Wan-Streamer v0.1 logs.
-- **Granularity**: Per-frame.
+## 2. Data Flow
 
-### 2. `TurnTakingEvent`
-Labeled segment of interaction.
-- **Source**: Derived from semantic/prosodic features.
-- **Granularity**: Per-frame (with event type label).
+```mermaid
+graph TD
+    A[Raw Source: Wan-Streamer Logs] -->|FR-001, FR-019, FR-022| B(Extract Data Task)
+    B -->|Output: processed/turn_events.parquet| C[Data Model: TurnEvent]
+    C -->|FR-002| D[Train Estimator Task]
+    D -->|Output: processed/estimator_checkpoint.pt| E[Estimator Model]
+    E -->|FR-003, FR-008| F[Simulate Inference Task]
+    F -->|Output: processed/hybrid_metrics.parquet| G[Data Model: HybridMetrics]
+    G -->|FR-005, FR-010| H[Analyze Latency Bias Task]
+    H -->|Output: results/statistical_report.yaml| I[Final Artifacts]
+    F -->|FR-008, FR-009| J[Execute Fallback Task (Counterfactual Re-run)]
+    J -->|Output: processed/counterfactual_full.parquet| K[Counterfactual Ground Truth]
+    K -->|FR-010| H
+```
 
-### 3. `EstimatorPrediction`
-Output of the lightweight GRU model.
-- **Source**: Inference pipeline.
-- **Granularity**: Per-frame.
+## 3. Entity Definitions
 
-### 4. `HybridOutputMetrics`
-Aggregated metrics for the hybrid inference run.
-- **Source**: Metrics computation script.
-- **Granularity**: Per-segment / Per-run.
+### 3.1 TurnEvent (Input/Processed)
+Represents a single frame or short segment with turn-taking context.
+*   **Source**: Extracted from `raw` logs.
+*   **Schema**: See `contracts/dataset.schema.yaml`.
+*   **Key Fields**:
+    *   `timestamp`: Float (seconds from start).
+    *   `turn_label`: String (`"interruption"`, `"pause"`, `"normal"`).
+    *   `semantic_feature`: Float vector (embedded text).
+    *   `prosodic_feature`: Float vector (energy, pitch).
+    *   `latent_delta_magnitude`: Float (ground truth $||\Delta z||$).
+    *   `is_randomized_skip`: Boolean (set by FR-008).
 
-## Schema Definitions
+### 3.2 EstimatorOutput (Intermediate)
+Output of the lightweight model during inference.
+*   **Source**: `code/tasks/train_estimator.py` (training) / `simulate_inference.py` (inference).
+*   **Schema**: See `contracts/estimator_output.schema.yaml`.
+*   **Key Fields**:
+    *   `predicted_delta`: Float (predicted magnitude).
+    *   `uncertainty_score`: Float (0.0 to 1.0).
+    *   `action`: String (`"skip"`, `"full_solver"`).
 
-### Table: `extracted_latents`
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| `timestamp` | `int64` | Unix timestamp of the frame. | Non-null, unique per segment. |
-| `segment_id` | `string` | Identifier for the conversation segment. | Non-null. |
-| `semantic_feature` | `float32` | Semantic embedding vector (flattened or PCA reduced). | Non-null. |
-| `prosodic_feature` | `float32` | Prosodic features (energy, pitch, duration). | Non-null. |
-| `latent_delta_magnitude` | `float32` | Magnitude of the latent vector displacement ($||z_t - z_{t-1}||$). | Non-null, $\ge 0$. |
-| `turn_label` | `string` | Label: "interruption", "pause", "normal". | Non-null, enum. |
-| `is_high_priority` | `boolean` | Derived: True if "interruption" or `latent_delta` > threshold. | Non-null. |
+### 3.3 HybridMetrics (Output)
+Aggregated metrics for the hybrid pipeline.
+*   **Source**: `code/tasks/analyze_latency_bias.py`.
+*   **Schema**: See `contracts/metrics.schema.yaml`.
+*   **Key Fields**:
+    *   `fid_baseline`: Float.
+    *   `fid_hybrid`: Float.
+    *   `latency_baseline_ms`: Float.
+    *   `latency_hybrid_ms`: Float.
+    *   `tost_p_value`: Float.
+    *   `correlation_r`: Float.
 
-### Table: `estimator_predictions`
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| `timestamp` | `int64` | Frame timestamp. | Non-null. |
-| `segment_id` | `string` | Segment identifier. | Non-null. |
-| `predicted_delta` | `float32` | Predicted magnitude of the next latent delta. | Non-null. |
-| `uncertainty_score` | `float32` | Confidence score (0.0 to 1.0). | Non-null, range [0, 1]. |
-| `action` | `string` | "skip" or "solve". | Non-null, enum. |
-| `actual_delta` | `float32` | Ground truth delta (for validation). | Non-null. |
+## 4. File Formats
 
-### Table: `hybrid_metrics`
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| `run_id` | `string` | Unique identifier for the simulation run. | Non-null. |
-| `baseline_latency_ms` | `float32` | Latency of full flow-matching baseline. | Non-null. |
-| `hybrid_latency_ms` | `float32` | Latency of hybrid pipeline. | Non-null. |
-| `latency_reduction_pct` | `float32` | Percentage reduction. | Non-null. |
-| `baseline_fid` | `float32` | FID of baseline generation. | Non-null. |
-| `hybrid_fid` | `float32` | FID of hybrid generation. | Non-null. |
-| `fid_degradation_pct` | `float32` | Percentage degradation. | Non-null. |
-| `proxy_mos` | `float32` | Proxy Mean Opinion Score. | Non-null. |
-| `tost_p_value` | `float32` | P-value from TOST equivalence test. | Non-null. |
-| `bootstrap_p_value` | `float32` | P-value from stratified bootstrap. | Non-null. |
+*   **Input/Intermediate**: Parquet (optimized for CPU read/write, columnar).
+*   **Model Checkpoints**: `.pt` (PyTorch CPU).
+*   **Reports**: YAML (structured, human-readable).
+*   **Checksums**: `sha256sum` format in `data/checksums.txt`.
 
-## Data Flow
+## 5. Constraints & Validation
 
-1.  **Raw Logs** (`data/raw/`) → `extract_logs.py` → `extracted_latents.parquet`
-2.  `extracted_latents.parquet` → `train_estimator.py` → `estimator_model.pth`
-3.  `extracted_latents.parquet` + `estimator_model.pth` → `hybrid_pipeline.py` → `estimator_predictions.parquet`
-4.  `estimator_predictions.parquet` + `baseline_output` → `metrics.py` → `hybrid_metrics.parquet`
-
-## Constraints & Validations
-
-- **Turn Label Consistency**: `turn_label` must be one of: "interruption", "pause", "normal".
-- **Uncertainty Range**: `uncertainty_score` must be in $[0.0, 1.0]$.
-- **Delta Non-Negative**: `latent_delta_magnitude` and `predicted_delta` must be $\ge 0$.
-- **No PII**: No personally identifiable information is stored in `extracted_latents`.
+*   **Immutability**: Raw data is never modified. Derivations create new files.
+*   **Size Limit**: `processed` data ≤ 1 GB.
+*   **Schema Enforcement**: All Parquet files must pass validation against `contracts/dataset.schema.yaml`, `contracts/estimator_output.schema.yaml`, and `contracts/metrics.schema.yaml` (the **canonical** schemas) before being consumed by the next task.
+*   **Missing Data**: If `human_mos` is missing, the `validate_proxy_mos` task logs the specific assumption string (FR-024).
+*   **Contract Linking**: This document and `quickstart.md` explicitly link to the canonical schemas in `contracts/` as per FR-021.

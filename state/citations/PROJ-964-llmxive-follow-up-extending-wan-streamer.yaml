@@ -1,44 +1,11 @@
-- artifact_hash: 5411c3608d72e27e16f8caf345a88dad22d436b525859ceb352099159fce9df6
-  artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/kinetics-400`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/kinetics-400/datasets
-  verified_at: '2026-07-11T18:52:52.202035Z'
-- artifact_hash: 5411c3608d72e27e16f8caf345a88dad22d436b525859ceb352099159fce9df6
-  artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/ucf101`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/ucf101/datasets
-  verified_at: '2026-07-11T18:52:52.202035Z'
-- artifact_hash: cd904b4c1e2f7a7565770b72dd5090942a12951c33557eaa087fc7dcf3613595
+- artifact_hash: 3cc4a8d0e4d059ed392558996334486115abf752821a5d630cdc3343c48953f3
   artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: train-00000-of-00215.parquet
   kind: url
-  value: https://huggingface.co/datasets/kinetics-400`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/kinetics-400/datasets
-  verified_at: '2026-07-11T18:53:08.673250Z'
-- artifact_hash: cd904b4c1e2f7a7565770b72dd5090942a12951c33557eaa087fc7dcf3613595
-  artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/ucf101`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/ucf101/datasets
-  verified_at: '2026-07-11T18:53:08.673250Z'
+  value: https://huggingface.co/datasets/acul3/voxceleb2/resolve/main/data/train-00000-of-00215.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/66f169ce4cec7856894ea42c/749017e8fe8ec77fcf68450f00ce8a95c46935c590cbeb2d08a815aba4f9da39?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00215.parquet%3B+filename%3D%22train-00000-of-00215.parquet%22%3B&user_id=public&Expires=1783866726&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZmMTY5Y2U0Y2VjNzg1Njg5NGVhNDJjLzc0OTAxN2U4ZmU4ZWM3N2ZjZjY4NDUwZjAwY2U4YTk1YzQ2OTM1YzU5MGNiZWIyZDA4YTgxNWFiYTRmOWRhMzlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAyMTUucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMjE1LnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzg2NjcyNn19fV19&Signature=MEUCIB6ipdtCStwN2ItNdXZGc4dOCJNzgrDlljXj%7EqKteEMZAiEAkfRpdtpK%7EaHRTx3WNU0IFMxdkIYM04lIBaJLkKX81RA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-12T13:32:06.253355Z'

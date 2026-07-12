@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Estimator Output Schema"
+description: "Schema for the output of the lightweight estimator model."
+type: object
+required:
+  - predicted_delta
+  - uncertainty_score
+  - action
+properties:
+  predicted_delta:
+    type: number
+    description: "Predicted magnitude of the latent vector delta."
+  uncertainty_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence score; values > 0.8 trigger fallback to full solver."
+  action:
+    type: string
+    enum:
+      - "skip"
+      - "full_solver"
+    description: "The decision made by the hybrid pipeline."
+  fallback_reason:
+    type: string
+    enum:
+      - "high_uncertainty"
+      - "randomized_intervention"
+      - "normal_skip"
+    description: "Reason for the action taken."

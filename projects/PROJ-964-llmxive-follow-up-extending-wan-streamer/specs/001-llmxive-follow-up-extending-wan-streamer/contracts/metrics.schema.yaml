@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Hybrid Metrics Schema"
+description: "Schema for the statistical analysis and performance metrics."
+type: object
+required:
+  - fid_baseline
+  - fid_hybrid
+  - latency_baseline_ms
+  - latency_hybrid_ms
+  - tost_p_value
+  - correlation_r
+properties:
+  fid_baseline:
+    type: number
+    description: "FID score of the full flow-matching baseline."
+  fid_hybrid:
+    type: number
+    description: "FID score of the hybrid inference pipeline."
+  fid_degradation_ratio:
+    type: number
+    description: "Calculated as (FID_hybrid - FID_baseline) / FID_baseline."
+  latency_baseline_ms:
+    type: number
+    description: "Average inference time per frame for the baseline."
+  latency_hybrid_ms:
+    type: number
+    description: "Average inference time per frame for the hybrid pipeline."
+  latency_reduction_pct:
+    type: number
+    description: "Percentage reduction in latency."
+  tost_p_value:
+    type: number
+    description: "P-value from the Two One-Sided Tests (TOST) for equivalence."
+  correlation_r:
+    type: number
+    description: "Pearson correlation between predicted delta and FID stability."
+  proxy_mos_validated:
+    type: boolean
+    description: "True if proxy MOS correlation was validated, or 'Assumption Validated' logged."
+  assumption_validated_log:
+    type: string
+    description: "Log message if no human data was available (e.g., 'Assumption Validated (No Human Data Available)')."
