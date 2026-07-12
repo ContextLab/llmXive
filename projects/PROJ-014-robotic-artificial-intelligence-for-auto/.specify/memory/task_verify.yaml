@@ -1,0 +1,9 @@
+? 'T001 Create project structure per implementation plan: `mkdir -p code/src/{environment,data,agents,analysis,utils}
+  code/scripts code/tests code/data code/results`'
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
+T004 [P] Setup `pytest` configuration and test discovery: 2
+? 'T006 Implement `code/src/utils/logger.py` for RAM/CPU logging (FR-006) with `log_metrics()`
+  function, JSON format, and -second interval sampling <!-- SKIPPED: YAML+regex parse
+  failed (while scanning for the next token'
+: 2

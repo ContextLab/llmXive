@@ -1,0 +1,55 @@
+- artifact_path: projects/PROJ-014-robotic-artificial-intelligence-for-auto/specs/001-robotic-artificial-intelligence-for-auto/tasks.md
+  attempts: 1
+  canonical: Pure Pursuit baseline success rate expected to be at least 80% and stochastic
+    baseline at most 10%
+  claim_id: c_af04f9d1
+  context: 'Phase 3: User Story 1 - Baseline Environment & Classical/Stochastic Planner
+    Execution'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pure_Pursuit_baseline_success_rate_expected_to_be_at_least_8
+  kind: magnitude
+  raw_text: "Independent Test: Run scripts/run_baselines.py; verify Pure Pursuit completes\
+    \ \u226580% episodes, stochastic \u226410%, and logs optimality ratios."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T18:22:19Z'
+- artifact_path: projects/PROJ-014-robotic-artificial-intelligence-for-auto/specs/001-robotic-artificial-intelligence-for-auto/tasks.md
+  attempts: 1
+  canonical: DQN agents utilize MobileNetV2 backbone with fewer than 1 million parameters
+  claim_id: c_800f771b
+  context: 'Phase 5: User Story 3 - DRL Training & Statistical Analysis'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DQN_agents_utilize_MobileNetV2_backbone_with_fewer_than_1_mi
+  kind: magnitude
+  raw_text: 'Goal: Train lightweight DQN agents (MobileNetV2 backbone, <1M params)
+    for each modality under a fixed computational time budget'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T18:23:09Z'
+- artifact_path: projects/PROJ-014-robotic-artificial-intelligence-for-auto/specs/001-robotic-artificial-intelligence-for-auto/tasks.md
+  attempts: 1
+  canonical: Training and analysis script execution time limited to 6 hours and RAM
+    usage limited to 7GB
+  claim_id: c_62f8fa1b
+  context: 'Phase 5: User Story 3 - DRL Training & Statistical Analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Independent Test: Run scripts/train_and_analyze.py; verify completion\
+    \ \u22646h, RAM \u22647GB, and output results/statistical_report.json with p-values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T18:23:09Z'

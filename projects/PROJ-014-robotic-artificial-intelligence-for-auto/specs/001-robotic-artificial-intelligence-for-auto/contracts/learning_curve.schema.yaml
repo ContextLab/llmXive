@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LearningCurve"
+description: "Schema for a time-series record of training performance, including censored data handling."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+    description: "Foreign key to the TrainingRun."
+  step:
+    type: "integer"
+    minimum: 0
+    description: "Training step index."
+  success_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Rolling success rate at this step."
+  reward:
+    type: "number"
+    description: "Cumulative or average reward at this step."
+  epsilon:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Exploration rate (epsilon) at this step."
+  is_converged:
+    type: "boolean"
+    description: "True if success_rate >= 0.9 sustained over 10 consecutive episodes."
+  steps_to_best:
+    type: "integer"
+    minimum: 0
+    description: "Step index where the highest success_rate was observed. Used for censored data analysis."
+required:
+  - run_id
+  - step
+  - success_rate
+  - reward
+  - epsilon
+  - is_converged
+  - steps_to_best
+additionalProperties: false

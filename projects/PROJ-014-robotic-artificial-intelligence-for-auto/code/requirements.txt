@@ -1,0 +1,8 @@
+torch==2.0.1+cpu
+gymnasium==0.29.1
+stable-baselines3==2.1.0
+opencv-python==4.8.1.78
+scikit-learn==1.3.2
+pandas==2.1.4
+numpy==1.26.2
+psutil==5.9.6

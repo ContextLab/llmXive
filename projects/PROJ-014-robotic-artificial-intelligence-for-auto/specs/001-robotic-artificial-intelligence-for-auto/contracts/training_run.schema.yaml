@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingRun"
+description: "Schema for a single DQN training session record."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique identifier for the training run."
+  modality:
+    type: "string"
+    enum: ["RGB", "DEPTH", "OCCUPANCY_GRID"]
+    description: "The sensory modality used for this run."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility (distinct environment realization)."
+  hyperparameters:
+    type: "object"
+    description: "Dictionary of hyperparameters used."
+  total_steps:
+    type: "integer"
+    minimum: 0
+    description: "Total number of training steps executed."
+  wall_clock_time:
+    type: "number"
+    minimum: 0
+    description: "Total wall-clock time in seconds."
+  peak_ram_gb:
+    type: "number"
+    minimum: 0
+    maximum: 7.0
+    description: "Peak RAM usage in GB. Must be ≤ 7.0."
+  checkpoint_path:
+    type: "string"
+    description: "Relative path to the model checkpoint."
+  status:
+    type: "string"
+    enum: ["completed", "time_limited", "crashed"]
+    description: "Final status of the training run."
+required:
+  - run_id
+  - modality
+  - seed
+  - total_steps
+  - wall_clock_time
+  - peak_ram_gb
+  - status
+additionalProperties: false
