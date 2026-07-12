@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Metrics Output Schema"
+description: "Schema for computed graph-theoretical metrics per participant."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  path_length:
+    type: ["number", "null"]
+    description: "Characteristic path length; null if low signal quality."
+  clustering_coeff:
+    type: ["number", "null"]
+    description: "Clustering coefficient; null if low signal quality."
+  global_efficiency:
+    type: ["number", "null"]
+    description: "Global efficiency; null if low signal quality."
+  local_efficiency:
+    type: ["number", "null"]
+    description: "Local efficiency; null if low signal quality."
+  modularity:
+    type: ["number", "null"]
+    description: "Modularity score; null if low signal quality."
+  density_threshold:
+    type: "number"
+    description: "Density threshold used (0.05, 0.1, 0.15)."
+  coherence_band:
+    type: "string"
+    description: "Frequency band used (e.g., 'alpha')."
+required:
+  - participant_id
+  - density_threshold
+  - coherence_band
+additionalProperties: false

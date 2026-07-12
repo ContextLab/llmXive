@@ -1,0 +1,294 @@
+resolved_at: '2026-07-12T22:16:34.817795+00:00'
+datasets:
+- intent: EEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2963
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_greyscale_224x224_6secWindow/resolve/main/data/dev-00000-of-00025-6adfdc3e2ffecc56.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Spiritan_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330/32969432
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Sa_eta_digitalna_gramatika_klasi_nog_latinskog_jezika/32969441
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Pulled_From_the_Trough_Slop_Images_in_Academic_Journals/30913832
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Accompanying_Dataset_for_Physicochemical_Factors_and_Urban_Land-Use_Characteristics_Associated_with_Resistance_to_Precipitation_in_Estuaries_Vary_Across_Scales/25050197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Kiezmachen_Beziehungen_nicht_Adressen_Recovery-orientierte_Sozialraummoderation_zur_Inklusion_von_Menschen_mit_psychischen_Erkrankungen/32969420
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10909103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16906198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21327761
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21327761
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/dyjc8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21326822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21326822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PhysioNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/JasiekKaczmarczyk/physionet-preprocessed/resolve/main/data/train-00000-of-00001-f9e59a1e6cd4938c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/miguellmartins/circor-digiscope-physionet22/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/JasiekKaczmarczyk/physionet-preprocessed/resolve/main/data/train-00000-of-00001-f9e59a1e6cd4938c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kushalps/physionet_6class/resolve/main/data/test-00000-of-00001-1136cf313a280725.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/miguellmartins/circor-digiscope-physionet22/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Clifford_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32969447
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Spiritan_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330/32969432
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Sa_eta_digitalna_gramatika_klasi_nog_latinskog_jezika/32969441
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Pulled_From_the_Trough_Slop_Images_in_Academic_Journals/30913832
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Accompanying_Dataset_for_Physicochemical_Factors_and_Urban_Land-Use_Characteristics_Associated_with_Resistance_to_Precipitation_in_Estuaries_Vary_Across_Scales/25050197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3401708
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10117296
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20076996
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10117230
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13670212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21327196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21327196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21326738
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18652306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18652306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/rufernan/MMSense/resolve/main/gt_20mpp/Chlorophyll/_timestamps.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1408
+      parsed: true
+  - url: https://huggingface.co/datasets/jyjyjyjy/MMS-e/resolve/main/test/Fixed_Patch_QA/fix12/annotations/action_recognition.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 44738
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/rufernan/MMSense/resolve/main/gt_20mpp/Chlorophyll/_timestamps.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jyjyjyjy/MMS-e/resolve/main/test/Fixed_Patch_QA/fix12/annotations/action_recognition.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/media/Clifford_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32969447
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Spiritan_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330/32969432
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Sa_eta_digitalna_gramatika_klasi_nog_latinskog_jezika/32969441
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Pulled_From_the_Trough_Slop_Images_in_Academic_Journals/30913832
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Accompanying_Dataset_for_Physicochemical_Factors_and_Urban_Land-Use_Characteristics_Associated_with_Resistance_to_Precipitation_in_Estuaries_Vary_Across_Scales/25050197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1134/S2079057021030036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7223594
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/26179
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17283433
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7644087
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/53373
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4pjcv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6zhkc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/105912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

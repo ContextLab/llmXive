@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Dataset Schema"
+description: "Schema for validated EEG dataset containing participant metadata and signal quality flags."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  age:
+    type: "integer"
+    description: "Age in years."
+    minimum: 18
+    maximum: 100
+  sex:
+    type: "string"
+    enum: ["M", "F"]
+    description: "Biological sex."
+  education_years:
+    type: "integer"
+    description: "Years of formal education."
+    minimum: 0
+  cognitive_score:
+    type: ["number", "null"]
+    description: "MMSE or MoCA score; null if missing."
+  cognitive_instrument:
+    type: ["string", "null"]
+    description: "Instrument used (e.g., 'MMSE', 'MoCA'); null if missing."
+  signal_quality_flag:
+    type: "string"
+    enum: ["Valid", "Low SNR", "Excessive Artifact", "Excluded"]
+    description: "Quality flag from preprocessing."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if flagged as Excluded."
+required:
+  - participant_id
+  - age
+  - sex
+  - education_years
+  - signal_quality_flag
+additionalProperties: false
