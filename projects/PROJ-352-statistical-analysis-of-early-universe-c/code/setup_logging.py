@@ -1,79 +1,69 @@
-"""
-Logging configuration for the project.
-
-This module provides utilities for setting up logging with
-appropriate formatting and file output.
-"""
-
 import logging
 import os
 import sys
 from pathlib import Path
 from datetime import datetime
 
-def setup_logging(log_dir: Path = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logging(log_level: str = "INFO", log_dir: str = "data/logs") -> None:
     """
-    Set up logging configuration.
-
+    Configure the logging infrastructure for the project.
+    
+    Creates a logs directory and sets up:
+    - Console logging (stdout) with color/clean formatting
+    - File logging (rotating file handler) for persistent records
+    
     Args:
-        log_dir: Directory for log files. Defaults to output/logs.
-        level: Logging level. Defaults to INFO.
-
-    Returns:
-        Configured logger instance.
+        log_level: The logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        log_dir: Relative path to the logs directory from project root
     """
-    if log_dir is None:
-        project_root = Path(__file__).resolve().parent.parent
-        log_dir = project_root / "output" / "logs"
-
-    # Ensure log directory exists
-    log_dir.mkdir(parents=True, exist_ok=True)
-
-    # Create logger
-    logger = logging.getLogger("cmb_analysis")
-    logger.setLevel(level)
-
-    # Clear existing handlers
-    logger.handlers.clear()
-
+    # Get the project root (assuming code/ is at root level)
+    current_dir = Path(__file__).parent
+    project_root = current_dir.parent
+    
+    # Ensure logs directory exists
+    logs_dir = project_root / log_dir
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Generate timestamped log filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = logs_dir / f"pipeline_{timestamp}.log"
+    
     # Create formatter
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-
-    # Console handler
+    
+    # Setup console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
     console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    # File handler with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = log_dir / f"analysis_{timestamp}.log"
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(level)
+    console_handler.setLevel(log_level)
+    
+    # Setup file handler (rotating to avoid huge files)
+    file_handler = logging.RotatingFileHandler(
+        log_file,
+        maxBytes=10*1024*1024,  # 10 MB
+        backupCount=5
+    )
     file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    file_handler.setLevel(log_level)
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+    root_logger.addHandler(console_handler)
+    root_logger.addHandler(file_handler)
+    
+    logging.info(f"Logging infrastructure initialized. Log file: {log_file}")
 
-    return logger
-
-def get_logger(name: str = "cmb_analysis") -> logging.Logger:
+def get_logger(name: str = None) -> logging.Logger:
     """
-    Get a logger instance.
-
+    Get a logger instance with the specified name.
+    
     Args:
-        name: Logger name. Defaults to "cmb_analysis".
-
+        name: Name for the logger. If None, uses the module name.
+        
     Returns:
-        Logger instance.
+        A configured logger instance.
     """
     return logging.getLogger(name)
-
-if __name__ == "__main__":
-    # Example usage
-    logger = setup_logging()
-    logger.info("Logging setup complete.")
-    logger.debug("This is a debug message.")
-    logger.warning("This is a warning message.")
-    logger.error("This is an error message.")

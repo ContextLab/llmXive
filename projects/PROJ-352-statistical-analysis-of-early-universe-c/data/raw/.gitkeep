@@ -1,0 +1,2 @@
+# This directory is for raw data downloads (e.g., Planck CMB maps)
+# Do not commit actual data files, only .gitkeep to preserve directory structure

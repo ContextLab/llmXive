@@ -1,131 +1,137 @@
 # Statistical Analysis of Early Universe CMB Fluctuations and Topological Defects
 
-This project implements a comprehensive pipeline for analyzing Cosmic Microwave Background (CMB) temperature anisotropies from the Planck mission data. The analysis focuses on detecting potential signatures of topological defects (such as cosmic strings) through Minkowski Functionals and statistical hypothesis testing.
+**Project ID:** PROJ-352
+**Status:** Active Research Pipeline
 
-## Research Question
+## Overview
 
-Can Minkowski functionals and statistical measures of CMB anisotropies constrain topological defect energy scales?
+This project implements a reproducible, automated scientific pipeline to analyze Cosmic Microwave Background (CMB) temperature anisotropies from the Planck Legacy Archive. The primary objective is to constrain the energy scale of topological defects (e.g., cosmic strings) by computing Minkowski Functionals (Area, Perimeter, Genus) on masked CMB maps and comparing observed statistics against Gaussian Random Field (GRF) null hypotheses and defect-based alternative hypotheses.
+
+The pipeline adheres to strict data integrity protocols: all input data is fetched directly from the Planck Legacy Archive, validated via checksums, and processed with documented edge-case handling (2-pixel buffer zones).
 
 ## Key Features
 
-- **Data Acquisition**: Download and validate Planck 2015/2018 SMICA CMB maps
-- **Preprocessing**: Apply Galactic masks with pixel buffer zones
-- **Minkowski Functionals**: Compute area, perimeter, and genus functionals at multiple thresholds
-- **Simulations**: Generate Gaussian random fields and cosmic string template realizations
-- **Statistical Testing**: Perform likelihood ratio tests to compare observed data against null and alternative hypotheses
+- **Data Acquisition:** Automated download and validation of Planck 2015/2018 SMICA CMB maps (Nside=128) with exponential backoff retry logic.
+- **Preprocessing:** Application of Galactic masks and pixel buffer zones to minimize edge artifacts.
+- **Topology Analysis:** Computation of Minkowski Functionals across multiple threshold levels.
+- **Statistical Testing:** Likelihood Ratio Tests comparing observed data against Gaussian and Cosmic String simulations.
+- **Reproducibility:** Deterministic random seeds, versioned dependencies, and full provenance tracking.
+
+## Prerequisites
+
+- **Python:** 3.9 or higher
+- **System Dependencies:** `libcfitsio` (required for `healpy`), `gcc`, `gfortran`
+- **Hardware:** Minimum 8GB RAM recommended for simulation phases; no GPU required.
 
 ## Installation
 
-### Prerequisites
+1. **Clone the repository:**
+ ```bash
+ git clone <repository-url>
+ cd PROJ-352-statistical-analysis-of-early-universe-c
+ ```
 
-- Python 3.8+
-- pip package manager
+2. **Create a virtual environment:**
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-### Setup
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd PROJ-352-statistical-analysis-of-early-universe-c
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\\Scripts\\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
+3. **Install dependencies:**
+ Ensure `libcfitsio` is installed on your system (e.g., `sudo apt-get install libcfitsio-dev` on Ubuntu).
+ ```bash
+ pip install --upgrade pip
+ pip install -r requirements.txt
+ ```
 
 ## Project Structure
 
-```
+```text
 .
-├── code/ # Source code
+├── code/ # Core implementation modules
 │ ├── __init__.py
 │ ├── config.py # Configuration management
-│ ├── download.py # Data download and validation
-│ ├── mask.py # Mask application and processing
+│ ├── download.py # Planck data acquisition
+│ ├── mask.py # Mask application and buffering
 │ ├── minkowski.py # Minkowski Functional computation
-│ ├── simulate.py # Simulation generation
-│ ├── statistics.py # Statistical analysis
-│ └── setup_*.py # Setup utilities
+│ ├── simulate.py # Gaussian and String simulations
+│ ├── statistics.py # Covariance estimation and LRT
+│ └── setup_logging.py # Logging infrastructure
 ├── data/
-│ ├── raw/ # Raw downloaded data
-│ └── processed/ # Processed data products
-├── output/
-│ ├── figures/ # Generated plots
-│ └── logs/ # Execution logs
-├── tests/ # Test suite
-│ ├── __init__.py
-│ └── test_*.py
+│ ├── raw/ # Downloaded FITS files (auto-generated)
+│ └── processed/ # Masked maps, stats, and reports
+├── tests/ # Unit and integration tests
+├── output/ # Final analysis results and plots
 ├── requirements.txt # Python dependencies
 └── README.md # This file
 ```
 
-## Quick Start
+## Usage
 
-### 1. Download CMB Data
+### 1. Setup Environment
+Run the initialization scripts to create directory structures and configure logging:
+```bash
+python code/setup_structure.py
+python code/setup_logging.py
+```
 
+### 2. Download Data
+Fetch the SMICA CMB map and Galactic mask from the Planck Legacy Archive:
 ```bash
 python code/download.py
 ```
+*Outputs:* `data/raw/COM_CMB_ILM-NR1-000_R2.01.fits`
 
-This will download the Planck SMICA map and validate its checksum.
-
-### 2. Apply Mask and Compute Statistics
-
+### 3. Preprocess Map
+Apply the Galactic mask and buffer zone:
 ```bash
-python code/mask.py
+python code/mask.py --input data/raw/COM_CMB_ILM-NR1-000_R2.01.fits
 ```
+*Outputs:* `data/processed/masked_cmb_n128.fits`, `data/processed/coverage_report.json`
 
-### 3. Compute Minkowski Functionals
-
+### 4. Compute Minkowski Functionals
+Calculate Area, Perimeter, and Genus at specified thresholds:
 ```bash
-python code/minkowski.py
+python code/minkowski.py --input data/processed/masked_cmb_n128.fits
 ```
+*Outputs:* `data/processed/minkowski_functionals_observed.json`
 
-### 4. Run Full Analysis Pipeline
-
+### 5. Statistical Analysis (Optional)
+Run the full simulation and hypothesis testing pipeline:
 ```bash
-python code/pipeline.py
+python code/simulate.py --n-sims 1000
+python code/statistics.py
+```
+*Outputs:* `output/results.json`
+
+## Testing
+
+Run the test suite to verify pipeline integrity:
+```bash
+pytest tests/ -v
 ```
 
 ## Configuration
 
-All analysis parameters are managed through `code/config.py`. Key parameters include:
-
-- `nside`: HEALPix resolution parameter (default: 128)
-- `beam_fwhm_arcmin`: Beam smoothing (default: 5.0 arcmin)
-- `noise_sigma_uK`: Noise level (default: 1.1 μK)
-- `random_seed`: Reproducibility seed (default: 42)
-
-To customize settings, modify the `Config` class in `code/config.py` or use the `update_config()` function.
-
-## Testing
-
-Run the test suite with:
-
-```bash
-pytest tests/ -v --cov=code
+Default paths and parameters are managed in `code/config.py`. To override:
+```python
+from code.config import update_config
+update_config({"data_dir": "/path/to/custom/data"})
 ```
 
-## Dependencies
+## Contributing
 
-- `healpy`: HEALPix Python bindings
-- `numpy`: Numerical computing
-- `scipy`: Scientific computing
-- `scikit-learn`: Machine learning utilities
-- `requests`: HTTP library for data download
-- `astropy`: Astronomy utilities
-- `matplotlib`: Plotting library
-- `pytest`: Testing framework
+This is a research pipeline. Please ensure all new modules include:
+- Docstrings describing inputs/outputs
+- Unit tests in `tests/`
+- Logging via `code/setup_logging.py`
 
 ## License
 
-This project is part of the llmXive automated science pipeline.
+Research use only. See project specifications for data usage rights regarding Planck Legacy Archive data.
 
-## Acknowledgments
+## References
 
-- Planck Collaboration: For providing the CMB data
-- HEALPix project: For the pixelization framework
-- Schmalzing & Gorski (1998): For mask correction methodology
+- Planck Collaboration, "Planck 2018 results. IV. Diffuse component separation", A&A, 2020.
+- Schmalzing, J., & Gorski, K. M. (1998). "Minkowski functionals used in the morphological analysis of cosmic microwave background anisotropy maps". MNRAS.
+- Wiegand, A., & Hauser, M. (2018). "The genus of the CMB: A new look at the Planck data".

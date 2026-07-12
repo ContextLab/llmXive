@@ -1,32 +1,29 @@
-"""
-Setup script for creating project data directories.
-
-This script ensures that the required directory structure for
-raw and processed data exists.
-"""
-
 import os
 from pathlib import Path
 
 def main():
-    """Create data directory structure."""
-    project_root = Path(__file__).resolve().parent.parent
+    """
+    Setup the required data directory structure for the project.
+    Creates:
+      - data/raw/
+      - data/processed/
+    Ensures these directories exist relative to the project root.
+    """
+    # Determine project root (assuming code/ is at root level)
+    current_dir = Path(__file__).parent
+    project_root = current_dir.parent
 
-    # Define directories
-    directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "output",
-        project_root / "output" / "figures",
-        project_root / "output" / "logs",
-    ]
+    data_dir = project_root / "data"
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
 
-    # Create directories
-    for dir_path in directories:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    # Create directories if they don't exist
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    print("✓ Data directory structure ready.")
+    print(f"Created data directory structure:")
+    print(f"  - {raw_dir}")
+    print(f"  - {processed_dir}")
 
 if __name__ == "__main__":
     main()

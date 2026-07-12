@@ -1,0 +1,2 @@
+# This directory is for processed data (e.g., masked maps, statistics)
+# Do not commit actual data files, only .gitkeep to preserve directory structure

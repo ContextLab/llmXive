@@ -1,2 +1,12 @@
-T006 Implement `code/utils/provenance.py` for machine-readable YAML sidecar generation: 2
-T007 Create base configuration loader for dataset IDs (ds000246, ds004738) and ROI coordinates (AAL, Harvard-Oxford): 2
+? T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to fetch ds000246
+  (Exclusion) and ds004738 (Reward) separately with BIDS validation. **Do not** attempt
+  to merge here.
+: 1
+? 'T010b [US1] Implement `code/data_download/harmonize_datasets.py` to execute the
+  ''Merged Dataset Strategy'': map participant IDs across datasets, align condition
+  labels, and apply confound controls (e.g., adding ''Dataset ID'' as a covariate
+  tag) to prepare for analysis. (Addresses FR-001 and Plan''s Critical Design Pivot).'
+: 1
+? T011 [P] [US1] Implement `code/manipulation/generate_condition_labels.py` to extract
+  exclusion/inclusion labels from `participants.tsv` or task JSON for each dataset.
+: 1

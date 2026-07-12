@@ -61,7 +61,7 @@ specs/001-predicting-solubility-in-mixed-solvents/
 code/
 ├── 01_data_ingestion.py       # Ingests MoleculeNet/EPA, filters MW, handles missing data
 ├── 02_feature_engineering.py  # RDKit descriptors, composition-weighted solvent props, interaction terms
-├── 03_model_training.py       # XGBoost, RF, Abraham baseline, 5-fold CV
+├── model_training.py       # XGBoost, RF, Abraham baseline, 5-fold CV
 ├── 04_evaluation.py           # Metrics, t-test, SHAP analysis, sensitivity analysis
 ├── utils/
 │   ├── constants.py           # Seeds, thresholds, file paths

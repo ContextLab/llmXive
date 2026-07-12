@@ -1,9 +1,3 @@
-"""
-Bootstrapped Confidence Interval Calculation for Change Scores.
-
-Implements primary bootstrapped CI calculation (10,000 resamples) as per FR-006.
-Calculates mean change, 95% CI, and detects convergence failures for fallback.
-"""
 import os
 import json
 import csv
@@ -11,221 +5,204 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 import numpy as np
-
-from utils.random_seed import get_seed, set_global_seed, get_rng
-from analysis.change_scores import load_merged_data, get_metric_mapping
-
+from utils.random_seed import get_rng, set_global_seed
 
 @dataclass
 class BootstrapResult:
-    """Result of a bootstrap CI calculation for a single metric."""
     metric: str
     mean_change: float
     ci_lower: float
     ci_upper: float
+    p_value: float
     n_resamples: int
-    convergence_failed: bool = False
-    bootstrap_distribution: Optional[List[float]] = None
-
+    convergence: bool
 
 def calculate_bootstrap_ci(
-    values: List[float],
+    baseline_values: List[float],
+    post_values: List[float],
     n_resamples: int = 10000,
     confidence_level: float = 0.95,
     seed: Optional[int] = None
-) -> Tuple[float, float, float, bool]:
+) -> BootstrapResult:
     """
-    Calculate bootstrapped confidence interval for the mean of a list of values.
-
+    Calculate bootstrapped confidence interval for the mean difference.
+    
+    Uses vectorized operations for performance optimization.
+    
     Args:
-        values: List of numeric values (change scores).
-        n_resamples: Number of bootstrap resamples (default 10,000).
-        confidence_level: Confidence level for CI (default 0.95).
-        seed: Random seed for reproducibility.
-
+        baseline_values: List of baseline measurements
+        post_values: List of post-intervention measurements
+        n_resamples: Number of bootstrap resamples (default 10,000)
+        confidence_level: Confidence level for CI (default 0.95)
+        seed: Random seed for reproducibility
+        
     Returns:
-        Tuple of (mean, ci_lower, ci_upper, convergence_failed).
-        convergence_failed is True if resampling failed (e.g., empty data).
+        BootstrapResult with mean change, CI bounds, and p-value
     """
-    if not values or len(values) == 0:
-        return 0.0, 0.0, 0.0, True
-
-    if seed is None:
-        seed = get_seed()
-    set_global_seed(seed)
+    if len(baseline_values) != len(post_values):
+        raise ValueError("Baseline and post values must have the same length")
+    
+    if len(baseline_values) == 0:
+        raise ValueError("Input lists cannot be empty")
+        
+    if seed is not None:
+        set_global_seed(seed)
     rng = get_rng()
-
-    n = len(values)
-    mean_original = np.mean(values)
-
-    # Check for singular data (all same values)
-    if np.std(values) == 0:
-        return mean_original, mean_original, mean_original, False
-
-    try:
-        # Bootstrap resampling
-        bootstrap_means = []
-        for _ in range(n_resamples):
-            # Resample with replacement
-            resample = rng.choice(values, size=n, replace=True)
-            bootstrap_means.append(np.mean(resample))
-
-        bootstrap_means = np.array(bootstrap_means)
-
-        # Calculate confidence interval
-        alpha = 1 - confidence_level
-        ci_lower = np.percentile(bootstrap_means, 100 * (alpha / 2))
-        ci_upper = np.percentile(bootstrap_means, 100 * (1 - alpha / 2))
-
-        return mean_original, ci_lower, ci_upper, False
-
-    except Exception as e:
-        # Convergence failure detection
-        return 0.0, 0.0, 0.0, True
-
+    
+    # Convert to numpy arrays for vectorized operations
+    baseline_arr = np.array(baseline_values)
+    post_arr = np.array(post_values)
+    
+    # Calculate observed mean difference
+    observed_diff = np.mean(post_arr) - np.mean(baseline_arr)
+    
+    # Vectorized bootstrap resampling
+    n = len(baseline_arr)
+    
+    # Generate all resample indices at once (n_resamples x n)
+    # This is the key optimization: avoid Python loop
+    resample_indices = rng.integers(0, n, size=(n_resamples, n))
+    
+    # Vectorized resampling: (n_resamples, n) x (n,) -> (n_resamples, n)
+    # Use advanced indexing to select values for each resample
+    resampled_baseline = baseline_arr[resample_indices]
+    resampled_post = post_arr[resample_indices]
+    
+    # Calculate mean difference for all resamples at once
+    resampled_diffs = np.mean(resampled_post, axis=1) - np.mean(resampled_baseline, axis=1)
+    
+    # Calculate confidence interval using percentiles
+    alpha = 1 - confidence_level
+    ci_lower = np.percentile(resampled_diffs, 100 * alpha / 2)
+    ci_upper = np.percentile(resampled_diffs, 100 * (1 - alpha / 2))
+    
+    # Calculate two-tailed p-value
+    # Count how many resampled diffs are as extreme or more extreme than observed
+    # under the null hypothesis that mean difference is 0
+    # We use the observed mean difference as the reference
+    mean_resampled_diff = np.mean(resampled_diffs)
+    centered_diffs = resampled_diffs - mean_resampled_diff
+    
+    # Two-tailed p-value: proportion of resampled diffs with |diff| >= |observed_diff - mean_resampled|
+    extreme_count = np.sum(np.abs(centered_diffs) >= np.abs(observed_diff - mean_resampled_diff))
+    p_value = extreme_count / n_resamples
+    
+    # Check for convergence (all resamples should have finite values)
+    convergence = np.all(np.isfinite(resampled_diffs))
+    
+    return BootstrapResult(
+        metric="",  # Will be set by caller
+        mean_change=observed_diff,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        p_value=p_value,
+        n_resamples=n_resamples,
+        convergence=convergence
+    )
 
 def run_bootstrap_analysis(
-    input_path: str,
-    output_path: str,
+    data: Dict[str, List[float]],
     n_resamples: int = 10000,
     confidence_level: float = 0.95,
-    metrics: Optional[List[str]] = None
-) -> List[Dict[str, Any]]:
+    seed: Optional[int] = None
+) -> Dict[str, BootstrapResult]:
     """
-    Run bootstrap CI analysis on merged baseline/post-intervention data.
-
+    Run bootstrap analysis for multiple metrics.
+    
     Args:
-        input_path: Path to merged data CSV.
-        output_path: Path to output JSON results.
-        n_resamples: Number of bootstrap resamples.
-        confidence_level: Confidence level for CIs.
-        metrics: List of metrics to analyze (default: all available).
-
+        data: Dictionary mapping metric names to dict with 'baseline' and 'post' lists
+        n_resamples: Number of bootstrap resamples
+        confidence_level: Confidence level for CI
+        seed: Random seed
+        
     Returns:
-        List of BootstrapResult objects as dictionaries.
+        Dictionary mapping metric names to BootstrapResult
     """
-    seed = get_seed()
-    set_global_seed(seed)
-
-    # Load merged data
-    merged_data = load_merged_data(input_path)
-
-    if not merged_data:
-        raise ValueError(f"No data found in {input_path}")
-
-    # Get available metrics
-    metric_mapping = get_metric_mapping(merged_data)
-
-    if metrics is None:
-        metrics = list(metric_mapping.keys())
-
-    results = []
-
-    for metric_name in metrics:
-        if metric_name not in metric_mapping:
-            print(f"Warning: Metric '{metric_name}' not found in data, skipping.")
-            continue
-
-        # Get change scores for this metric
-        change_scores = []
-        for participant_id, scores in metric_mapping[metric_name].items():
-            if 'change' in scores and scores['change'] is not None:
-                change_scores.append(scores['change'])
-
-        if not change_scores:
-            print(f"Warning: No change scores for '{metric_name}', skipping.")
-            continue
-
-        # Calculate bootstrap CI
-        mean_change, ci_lower, ci_upper, convergence_failed = calculate_bootstrap_ci(
-            values=change_scores,
+    results = {}
+    
+    for metric, values in data.items():
+        if 'baseline' not in values or 'post' not in values:
+            raise ValueError(f"Metric {metric} must have 'baseline' and 'post' keys")
+            
+        result = calculate_bootstrap_ci(
+            baseline_values=values['baseline'],
+            post_values=values['post'],
             n_resamples=n_resamples,
             confidence_level=confidence_level,
             seed=seed
         )
-
-        result = BootstrapResult(
-            metric=metric_name,
-            mean_change=mean_change,
-            ci_lower=ci_lower,
-            ci_upper=ci_upper,
-            n_resamples=n_resamples,
-            convergence_failed=convergence_failed
-        )
-        results.append(asdict(result))
-
-        print(f"Metric: {metric_name}")
-        print(f"  Mean Change: {mean_change:.4f}")
-        print(f"  95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
-        print(f"  Convergence Failed: {convergence_failed}")
-        print()
-
-    # Write results to output file
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w') as f:
-        json.dump({
-            'seed': seed,
-            'n_resamples': n_resamples,
-            'confidence_level': confidence_level,
-            'results': results
-        }, f, indent=2)
-
-    print(f"Bootstrap analysis results written to: {output_path}")
-
+        result.metric = metric
+        results[metric] = result
+        
     return results
 
-
 def main():
-    """Main entry point for bootstrap CI analysis."""
-    import argparse
+    """
+    Main entry point for bootstrap analysis.
+    Reads merged data, calculates bootstrap CIs, and writes results to JSON.
+    """
+    # Set up paths
+    project_root = Path(__file__).resolve().parent.parent.parent
+    data_dir = project_root / "data" / "processed"
+    results_dir = project_root / "results"
+    
+    # Ensure results directory exists
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load merged data
+    merged_data_path = data_dir / "merged_baseline_post.csv"
+    if not merged_data_path.exists():
+        print(f"Error: Merged data file not found at {merged_data_path}")
+        return
+        
+    # Read merged data
+    metrics_data = {}
+    with open(merged_data_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        
+    # Group by metric
+    for row in rows:
+        metric = row['metric']
+        if metric not in metrics_data:
+            metrics_data[metric] = {'baseline': [], 'post': []}
+        
+        if row['phase'] == 'baseline':
+            metrics_data[metric]['baseline'].append(float(row['value']))
+        elif row['phase'] == 'post':
+            metrics_data[metric]['post'].append(float(row['value']))
+    
+    # Run bootstrap analysis
+    results = run_bootstrap_analysis(
+        data=metrics_data,
+        n_resamples=10000,
+        confidence_level=0.95,
+        seed=42
+    )
+    
+    # Write results to JSON
+    output_path = results_dir / "bootstrap_results.json"
+    with open(output_path, 'w') as f:
+        json_results = {
+            metric: {
+                'mean_change': result.mean_change,
+                'ci_lower': result.ci_lower,
+                'ci_upper': result.ci_upper,
+                'p_value': result.p_value,
+                'n_resamples': result.n_resamples,
+                'convergence': result.convergence
+            }
+            for metric, result in results.items()
+        }
+        json.dump(json_results, f, indent=2)
+        
+    print(f"Bootstrap analysis complete. Results written to {output_path}")
+    
+    # Print summary
+    for metric, result in results.items():
+        print(f"{metric}: mean_change={result.mean_change:.4f}, "
+              f"95% CI=[{result.ci_lower:.4f}, {result.ci_upper:.4f}], "
+              f"p={result.p_value:.4f}")
 
-    parser = argparse.ArgumentParser(
-        description='Calculate bootstrapped confidence intervals for change scores.'
-    )
-    parser.add_argument(
-        '--input',
-        type=str,
-        default='data/processed/merged_baseline_post.csv',
-        help='Path to merged data CSV file'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default='results/bootstrap_ci_results.json',
-        help='Path to output JSON results file'
-    )
-    parser.add_argument(
-        '--n-resamples',
-        type=int,
-        default=10000,
-        help='Number of bootstrap resamples (default: 10000)'
-    )
-    parser.add_argument(
-        '--confidence-level',
-        type=float,
-        default=0.95,
-        help='Confidence level for CI (default: 0.95)'
-    )
-    parser.add_argument(
-        '--metrics',
-        type=str,
-        nargs='+',
-        default=None,
-        help='Specific metrics to analyze (default: all available)'
-    )
-
-    args = parser.parse_args()
-
-    run_bootstrap_analysis(
-        input_path=args.input,
-        output_path=args.output,
-        n_resamples=args.n_resamples,
-        confidence_level=args.confidence_level,
-        metrics=args.metrics
-    )
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

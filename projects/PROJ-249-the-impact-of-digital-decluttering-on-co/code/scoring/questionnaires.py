@@ -1,230 +1,220 @@
 """
-Scoring functions for PSS-10 and PANAS questionnaires.
+Questionnaire scoring functions for PSS-10 and PANAS.
 
-Implements scoring logic for:
-- PSS-10: Perceived Stress Scale (10 items)
-- PANAS: Positive and Negative Affect Schedule (20 items)
-
-Adheres to data-model.md schema and FR-009 validation requirements.
+This module implements scoring logic for:
+- Perceived Stress Scale (PSS-10)
+- Positive and Negative Affect Schedule (PANAS)
 """
 
 from typing import List, Dict, Any, Union, Optional
 import numpy as np
 
 
-def score_pss10_session(
-    responses: Dict[str, Union[int, float, str]],
-    reverse_items: Optional[List[str]] = None
-) -> Dict[str, float]:
-    """
-    Score a PSS-10 session from raw responses.
+# PSS-10 Reverse Scoring Map
+# PSS-10 items 1, 2, 4, 5, 6, 7, 9, 10 are positive (direct scoring)
+# PSS-10 items 3, 8 are negative (reverse scoring: 0->4, 1->3, 2->2, 3->1, 4->0)
+# Note: Responses are typically 0-4 (Never, Almost Never, Sometimes, Fairly Often, Very Often)
+PSS10_REVERSE_ITEMS = {2, 7}  # 0-indexed: items 3 and 8 in 1-indexed notation
 
-    The PSS-10 consists of 10 items rated 0-4 (Never, Almost Never, Sometimes,
-    Fairly Often, Very Often). Items 4, 5, 7, and 8 are reverse-scored.
+# PANAS Scales
+# Positive Affect items: 1, 3, 5, 9, 10, 12, 14, 16, 17, 18
+# Negative Affect items: 2, 4, 6, 7, 8, 11, 13, 15
+# 0-indexed:
+PANAS_POSITIVE_ITEMS = {0, 2, 4, 8, 9, 11, 13, 15, 16, 17}
+PANAS_NEGATIVE_ITEMS = {1, 3, 5, 6, 7, 10, 12, 14}
+
+
+def score_pss10_session(
+    responses: Union[List[int], Dict[str, int]]
+) -> Dict[str, Any]:
+    """
+    Score a PSS-10 (Perceived Stress Scale) session.
 
     Args:
-        responses: Dictionary mapping item keys (e.g., 'pss_1' to 'pss_10') to
-                   raw integer responses (0-4).
-        reverse_items: List of keys to reverse-score. Defaults to standard PSS-10
-                       reverse items: ['pss_4', 'pss_5', 'pss_7', 'pss_8'].
+        responses: A list of 10 integer responses (0-4) or a dict mapping
+                   item names to values. If a list, items are assumed to be
+                   ordered 1 through 10.
 
     Returns:
-        Dictionary with:
+        A dictionary with:
             - 'total_score': Sum of all item scores (0-40)
-            - 'mean_score': Mean of all item scores (0-4)
-            - 'n_items': Number of valid items scored
-            - 'valid': Boolean indicating if all 10 items were present
+            - 'item_scores': List of individual item scores (after reverse scoring)
+            - 'num_items': Number of items scored (should be 10)
+            - 'mean_score': Mean item score
 
     Raises:
-        ValueError: If response values are outside valid range (0-4)
-        KeyError: If required item keys are missing
+        ValueError: If responses are not 0-4 or count is not 10.
     """
-    if reverse_items is None:
-        reverse_items = ['pss_4', 'pss_5', 'pss_7', 'pss_8']
+    # Normalize input to list
+    if isinstance(responses, dict):
+        # Expect keys like 'item_1' to 'item_10' or '1' to '10'
+        if len(responses) != 10:
+            raise ValueError(f"PSS-10 requires exactly 10 items, got {len(responses)}")
+        
+        # Extract values in order
+        # Try to sort by integer key if possible
+        try:
+            sorted_items = sorted(responses.items(), key=lambda x: int(x[0].replace('item_', '')))
+            values = [v for _, v in sorted_items]
+        except (ValueError, KeyError):
+            # Fallback: assume order of dict (Python 3.7+) or sort by key string
+            values = [responses[k] for k in sorted(responses.keys())]
+    else:
+        values = list(responses)
 
-    expected_items = [f'pss_{i}' for i in range(1, 11)]
-    missing_items = [item for item in expected_items if item not in responses]
+    if len(values) != 10:
+        raise ValueError(f"PSS-10 requires exactly 10 items, got {len(values)}")
 
-    if missing_items:
-        raise KeyError(f"Missing required PSS-10 items: {missing_items}")
+    # Validate range
+    for i, v in enumerate(values):
+        if not isinstance(v, (int, float)) or v < 0 or v > 4:
+            raise ValueError(f"Item {i+1} value {v} is not in valid range [0, 4]")
 
-    total = 0.0
-    valid_count = 0
+    # Apply reverse scoring for items 3 and 8 (indices 2 and 7)
+    scored_items = []
+    for i, v in enumerate(values):
+        if i in PSS10_REVERSE_ITEMS:
+            # Reverse: 0->4, 1->3, 2->2, 3->1, 4->0
+            scored = 4 - int(v)
+        else:
+            scored = int(v)
+        scored_items.append(scored)
 
-    for item_key in expected_items:
-        raw_value = responses[item_key]
-
-        # Validate range
-        if not isinstance(raw_value, (int, float)):
-            raise ValueError(f"Invalid response type for {item_key}: {type(raw_value)}")
-        if raw_value < 0 or raw_value > 4:
-            raise ValueError(f"Invalid PSS-10 response for {item_key}: {raw_value}. Must be 0-4.")
-
-        score = float(raw_value)
-
-        # Reverse score if needed
-        if item_key in reverse_items:
-            score = 4.0 - score
-
-        total += score
-        valid_count += 1
-
-    mean_score = total / valid_count if valid_count > 0 else 0.0
-    is_valid = valid_count == 10
+    total = sum(scored_items)
+    mean_val = total / len(scored_items)
 
     return {
         'total_score': total,
-        'mean_score': mean_score,
-        'n_items': valid_count,
-        'valid': is_valid
+        'item_scores': scored_items,
+        'num_items': len(scored_items),
+        'mean_score': mean_val,
+        'scale': 'PSS-10'
     }
 
 
 def score_panas_session(
-    responses: Dict[str, Union[int, float, str]],
-    time_frame: str = 'past_week'
-) -> Dict[str, float]:
+    responses: Union[List[int], Dict[str, int]],
+    scale_type: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Score a PANAS session from raw responses.
+    Score a PANAS (Positive and Negative Affect Schedule) session.
 
-    PANAS consists of 20 items (10 positive affect, 10 negative affect)
-    rated 1-5 (Very slightly or not at all to Extremely).
-
-    Positive items: 1, 2, 3, 5, 9, 10, 12, 13, 14, 17
-    Negative items: 4, 6, 7, 8, 11, 15, 16, 18, 19, 20
+    PANAS consists of 20 items: 10 Positive Affect (PA) and 10 Negative Affect (NA).
+    Responses are typically on a 1-5 scale (1 = Very slightly or not at all, 5 = Extremely).
 
     Args:
-        responses: Dictionary mapping item keys (e.g., 'panas_1' to 'panas_20')
-                   to raw integer responses (1-5).
-        time_frame: Time frame context for the score (e.g., 'past_week', 'today').
-                   Used for metadata, does not affect calculation.
+        responses: A list of 20 integer responses (1-5) or a dict mapping
+                   item names to values. If a list, items are assumed to be
+                   ordered 1 through 20.
+        scale_type: Optional. If 'positive', only return PA score. If 'negative',
+                    only return NA score. If None, return both.
 
     Returns:
-        Dictionary with:
-            - 'positive_affect': Sum of positive items (10-50)
-            - 'negative_affect': Sum of negative items (10-50)
-            - 'total_affect': Sum of both (20-100)
-            - 'mean_positive': Mean of positive items (1-5)
-            - 'mean_negative': Mean of negative items (1-5)
-            - 'n_positive': Number of valid positive items
-            - 'n_negative': Number of valid negative items
-            - 'valid': Boolean indicating if all 20 items were present
+        A dictionary with:
+            - 'positive_affect': Sum of PA items (10-50)
+            - 'negative_affect': Sum of NA items (10-50)
+            - 'total_affect': Sum of both (20-100) - only if scale_type is None
+            - 'item_scores': List of all 20 item scores
+            - 'num_items': Number of items scored (should be 20)
+            - 'positive_mean': Mean of PA items
+            - 'negative_mean': Mean of NA items
 
     Raises:
-        ValueError: If response values are outside valid range (1-5)
-        KeyError: If required item keys are missing
+        ValueError: If responses are not 1-5 or count is not 20.
     """
-    positive_items = [f'panas_{i}' for i in [1, 2, 3, 5, 9, 10, 12, 13, 14, 17]]
-    negative_items = [f'panas_{i}' for i in [4, 6, 7, 8, 11, 15, 16, 18, 19, 20]]
-    all_items = positive_items + negative_items
+    # Normalize input to list
+    if isinstance(responses, dict):
+        if len(responses) != 20:
+            raise ValueError(f"PANAS requires exactly 20 items, got {len(responses)}")
+        
+        # Extract values in order
+        try:
+            sorted_items = sorted(responses.items(), key=lambda x: int(x[0].replace('item_', '')))
+            values = [v for _, v in sorted_items]
+        except (ValueError, KeyError):
+            values = [responses[k] for k in sorted(responses.keys())]
+    else:
+        values = list(responses)
 
-    missing_items = [item for item in all_items if item not in responses]
-    if missing_items:
-        raise KeyError(f"Missing required PANAS items: {missing_items}")
+    if len(values) != 20:
+        raise ValueError(f"PANAS requires exactly 20 items, got {len(values)}")
 
-    pos_total = 0.0
-    neg_total = 0.0
-    valid_pos = 0
-    valid_neg = 0
+    # Validate range
+    for i, v in enumerate(values):
+        if not isinstance(v, (int, float)) or v < 1 or v > 5:
+            raise ValueError(f"Item {i+1} value {v} is not in valid range [1, 5]")
 
-    for item_key in positive_items:
-        raw_value = responses[item_key]
-        if not isinstance(raw_value, (int, float)):
-            raise ValueError(f"Invalid response type for {item_key}: {type(raw_value)}")
-        if raw_value < 1 or raw_value > 5:
-            raise ValueError(f"Invalid PANAS response for {item_key}: {raw_value}. Must be 1-5.")
+    int_values = [int(v) for v in values]
 
-        pos_total += float(raw_value)
-        valid_pos += 1
+    # Calculate Positive Affect
+    pa_items = [int_values[i] for i in PANAS_POSITIVE_ITEMS]
+    pa_score = sum(pa_items)
+    pa_mean = pa_score / len(pa_items)
 
-    for item_key in negative_items:
-        raw_value = responses[item_key]
-        if not isinstance(raw_value, (int, float)):
-            raise ValueError(f"Invalid response type for {item_key}: {type(raw_value)}")
-        if raw_value < 1 or raw_value > 5:
-            raise ValueError(f"Invalid PANAS response for {item_key}: {raw_value}. Must be 1-5.")
+    # Calculate Negative Affect
+    na_items = [int_values[i] for i in PANAS_NEGATIVE_ITEMS]
+    na_score = sum(na_items)
+    na_mean = na_score / len(na_items)
 
-        neg_total += float(raw_value)
-        valid_neg += 1
-
-    mean_pos = pos_total / valid_pos if valid_pos > 0 else 0.0
-    mean_neg = neg_total / valid_neg if valid_neg > 0 else 0.0
-    is_valid = valid_pos == 10 and valid_neg == 10
-
-    return {
-        'positive_affect': pos_total,
-        'negative_affect': neg_total,
-        'total_affect': pos_total + neg_total,
-        'mean_positive': mean_pos,
-        'mean_negative': mean_neg,
-        'n_positive': valid_pos,
-        'n_negative': valid_neg,
-        'valid': is_valid,
-        'time_frame': time_frame
+    result: Dict[str, Any] = {
+        'positive_affect': pa_score,
+        'negative_affect': na_score,
+        'item_scores': int_values,
+        'num_items': len(int_values),
+        'positive_mean': pa_mean,
+        'negative_mean': na_mean,
+        'scale': 'PANAS'
     }
+
+    if scale_type is None:
+        result['total_affect'] = pa_score + na_score
+        result['total_mean'] = result['total_affect'] / len(int_values)
+
+    return result
 
 
 def score_questionnaires_batch(
-    batch_responses: List[Dict[str, Any]],
-    questionnaire_types: Optional[List[str]] = None
+    batch_data: List[Dict[str, Any]],
+    pss10_key: str = 'pss10_responses',
+    panas_key: str = 'panas_responses'
 ) -> List[Dict[str, Any]]:
     """
-    Score multiple questionnaire sessions in a batch.
+    Score a batch of questionnaire responses.
 
     Args:
-        batch_responses: List of dictionaries, each containing responses for
-                         either PSS-10, PANAS, or both.
-        questionnaire_types: List of questionnaire types to score ('pss10', 'panas').
-                             Defaults to both if not specified.
+        batch_data: List of dictionaries, each containing participant data.
+                    Expected keys: 'participant_id', 'pss10_responses', 'panas_responses'
+        pss10_key: Key name for PSS-10 responses in input dict
+        panas_key: Key name for PANAS responses in input dict
 
     Returns:
-        List of scoring results, one per input record, containing original data
-        plus computed scores.
+        List of dictionaries with scoring results for each participant.
     """
-    if questionnaire_types is None:
-        questionnaire_types = ['pss10', 'panas']
-
     results = []
+    for entry in batch_data:
+        participant_id = entry.get('participant_id', 'unknown')
+        result_entry = {'participant_id': participant_id}
 
-    for idx, record in enumerate(batch_responses):
-        result = {'record_index': idx, 'original_data': record.copy()}
+        # Score PSS-10
+        if pss10_key in entry:
+            try:
+                pss_result = score_pss10_session(entry[pss10_key])
+                result_entry.update({
+                    f'pss10_{k}': v for k, v in pss_result.items()
+                })
+            except ValueError as e:
+                result_entry['pss10_error'] = str(e)
 
-        # Extract participant ID if present
-        if 'participant_id' in record:
-            result['participant_id'] = record['participant_id']
+        # Score PANAS
+        if panas_key in entry:
+            try:
+                panas_result = score_panas_session(entry[panas_key])
+                result_entry.update({
+                    f'panas_{k}': v for k, v in panas_result.items()
+                })
+            except ValueError as e:
+                result_entry['panas_error'] = str(e)
 
-        # Score PSS-10 if present and requested
-        if 'pss10' in questionnaire_types:
-            # Look for PSS items in the record
-            pss_items = {k: v for k, v in record.items() if k.startswith('pss_')}
-            if pss_items:
-                try:
-                    result['pss10_scores'] = score_pss10_session(pss_items)
-                except (KeyError, ValueError) as e:
-                    result['pss10_scores'] = None
-                    result['pss10_error'] = str(e)
-            else:
-                result['pss10_scores'] = None
-
-        # Score PANAS if present and requested
-        if 'panas' in questionnaire_types:
-            panas_items = {k: v for k, v in record.items() if k.startswith('panas_')}
-            if panas_items:
-                try:
-                    result['panas_scores'] = score_panas_session(panas_items)
-                except (KeyError, ValueError) as e:
-                    result['panas_scores'] = None
-                    result['panas_error'] = str(e)
-            else:
-                result['panas_scores'] = None
-
-        results.append(result)
+        results.append(result_entry)
 
     return results
-
-# Export public API
-__all__ = [
-    'score_pss10_session',
-    'score_panas_session',
-    'score_questionnaires_batch'
-]

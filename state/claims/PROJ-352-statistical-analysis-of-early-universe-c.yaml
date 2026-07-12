@@ -1954,3 +1954,439 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T19:35:43Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: "Generate 500 Gaussian realizations with FWHM 5.0 arcmin and noise 1.1\
+    \ \u03BCK squared"
+  claim_id: c_7231b387
+  context: "Implement code/simulate.py: Generate N=500 Gaussian random field realizations\
+    \ with beam smoothing (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=500 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:13:25Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Fetch COM_CMB_ILM-NR1-000_R2.01.fits SMICA Nside=128 from Planck Legacy
+    Archive
+  claim_id: c_cc8e934c
+  context: 'Implement code/download.py: Fetch COM_CMB_ILM-NR1-000_R2.01.fits (SMICA
+    Nside=128) from Planck Legacy Archive with retry logic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch COM_CMB_ILM-NR1-000_R2.01.fits (SMICA Nside=128) from Planck Legacy
+    Archive
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:16:08Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Apply Schmalzing and Gorski 1998 analytical correction as secondary verification
+  claim_id: c_d77dccff
+  context: 'Implement code/mask.py: Apply Schmalzing & Gorski (1998) analytical correction
+    as SECONDARY verification step; compare T015 output against analytical expectations
+    and log comparison'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Schmalzing & Gorski (1998) analytical correction as SECONDARY verification
+    step
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:16:36Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Load theoretical LCDM power spectrum Planck 2018 TT TE EE
+  claim_id: c_e4467bb0
+  context: 'Implement code/simulate.py: Load theoretical LCDM power spectrum (Planck
+    2018 TT, TE, EE)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load theoretical LCDM power spectrum (Planck 2018 TT, TE, EE)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:17:55Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Target RMS deviation less than or equal to 1 percent between observed
+    MFs and theoretical genus curve
+  claim_id: c_bba0765e
+  context: "Compute RMS deviation between observed MFs (from T025) and theoretical\
+    \ genus curve (from T024a). This measures physics deviation (signal vs null hypothesis).\
+    \ Target: \u22641% (SC-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_RMS_deviation_less_than_or_equal_to_1_percent_between
+  kind: magnitude
+  raw_text: "Target: \u22641% RMS deviation between observed MFs and theoretical genus\
+    \ curve"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:18:37Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Generate 500 Gaussian random field realizations with 5.0 arcmin beam
+    smoothing and 1.1 microKelvin squared noise
+  claim_id: c_cee14250
+  context: "Implement code/simulate.py: Generate N=500 Gaussian random field realizations\
+    \ with beam smoothing (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=500 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:20:41Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Total runtime for 1000 simulations (500 Gaussian and 500 String) is less
+    than 6 hours on GitHub Actions free-tier
+  claim_id: c_92dd7851
+  context: 'Implement code/simulate.py: Verify total runtime for N=1000 (500 Gaussian
+    + 500 String) < 6h on GitHub Actions free-tier. Abort if exceeded.'
+  evidence:
+    candidates:
+    - - Total runtime for
+      - 1000.0
+    - - Gaussian and
+      - 500.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_for_1000_simulations_(500_Gaussian_and_500_Str
+  kind: magnitude
+  raw_text: Verify total runtime for N=1000 (500 Gaussian + 500 String) < 6h on GitHub
+    Actions free-tier
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-12T01:21:07Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Compute Minkowski Functionals at thresholds plus or minus 0.5 sigma,
+    plus or minus 1 sigma, and 0 sigma
+  claim_id: c_af8aa203
+  context: "Compute functionals at thresholds {\xB10.5\u03C3, \xB11\u03C3, 0\u03C3\
+    }"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute Minkowski Functionals at thresholds {\xB10.5\u03C3, \xB11\u03C3\
+    , 0\u03C3}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:21:42Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Total simulations count is 1000 comprising 500 Gaussian and 500 Cosmic
+    String
+  claim_id: c_95be95c4
+  context: "Simulation Count: Total simulations = N=1,000 (500 Gaussian + 500 Cosmic\
+    \ String) to strictly adhere to FR-007 and SC-004 (\u22646h runtime)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total simulations = N=1,000 (500 Gaussian + 500 Cosmic String)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:22:47Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Verify numerical precision of at least 6 decimal places and reproducibility
+    within 0.001 percent tolerance
+  claim_id: c_31ee06d1
+  context: "Verify numerical precision (\u22656 decimal places) and reproducibility\
+    \ (\xB10.001% tolerance) using synthetic Gaussian map (seed=42)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_numerical_precision_of_at_least_6_decimal_places_and
+  kind: magnitude
+  raw_text: "Verify numerical precision (\u22656 decimal places) and reproducibility\
+    \ (\xB10.001% tolerance)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:23:26Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Target RMS deviation between observed Minkowski Functionals and theoretical
+    genus curve is less than or equal to 1 percent
+  claim_id: c_fa535ec6
+  context: "Compute RMS deviation between observed MFs (from T025) and theoretical\
+    \ genus curve (from T024a). This measures physics deviation (signal vs null hypothesis).\
+    \ Target: \u22641% (SC-002)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_RMS_deviation_between_observed_Minkowski_Functionals
+  kind: magnitude
+  raw_text: "Target RMS deviation between observed MFs and theoretical genus curve\
+    \ is \u22641%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:23:31Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Apply pixel buffer zone by setting pixels within distance 2 of mask edge
+    to 0
+  claim_id: c_a5739b10
+  context: 'Apply a pixel buffer zone as PRIMARY method per Spec Edge Cases by setting
+    pixels within N=2 of mask edge to 0. Algorithm: For each pixel, if distance to
+    nearest masked pixel <= 2, set value to 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply pixel buffer zone by setting pixels within N=2 of mask edge to 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:24:29Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Download Planck 2015 or 2018 SMICA CMB temperature map at Nside 128
+  claim_id: c_0e0b636b
+  context: 'Goal: Download Planck 2015/2018 SMICA CMB temperature map at Nside=128,
+    validate integrity, apply Galactic mask, and verify pixel counts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download Planck 2015/2018 SMICA CMB temperature map at Nside=128
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:25:36Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Execute download pipeline stress-test loop with 10 attempts to measure
+    success rate
+  claim_id: c_be8dd21f
+  context: 'Execute download pipeline stress-test loop (N=10) to empirically measure
+    success rate. Success = (HTTP 200 AND checksum match). Metric: success_count /
+    total_attempts * 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute download pipeline stress-test loop (N=10) to empirically measure
+    success rate
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:26:07Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Profile memory usage of simulation loop and optimize to ensure peak usage
+    is less than 6.5 GB
+  claim_id: c_cbf68a92
+  context: 'Profile memory usage of simulation loop and optimize to ensure < 6.5GB
+    peak (Strategy: Implement streaming generator, delete maps after MF computation)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Profile_memory_usage_of_simulation_loop_and_optimize_to_ensu
+  kind: magnitude
+  raw_text: Profile memory usage of simulation loop and optimize to ensure < 6.5GB
+    peak
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:26:35Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Output final results with at least 6 decimal precision
+  claim_id: c_8871f480
+  context: "Output final results to output/results.json with \u22656 decimal precision\
+    \ (p-value, G\u03BC upper bounds, and deviation status)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_final_results_with_at_least_6_decimal_precision
+  kind: magnitude
+  raw_text: "Output final results with \u22656 decimal precision"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:27:21Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Fetch COM_CMB_ILM-NR1-000_R2.01.fits SMICA Nside 128 file from Planck
+    Legacy Archive
+  claim_id: c_e821ad4c
+  context: 'Implement code/download.py: Fetch COM_CMB_ILM-NR1-000_R2.01.fits (SMICA
+    Nside=128) from Planck Legacy Archive with retry logic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch COM_CMB_ILM-NR1-000_R2.01.fits (SMICA Nside=128) from Planck Legacy
+    Archive
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:27:21Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Compute sky coverage using formula valid pixels divided by 12 times 128
+    squared
+  claim_id: c_bb817f4b
+  context: 'using formula: sky_coverage = valid_pixels / (12 * 128^2). Save verification
+    result to data/processed/coverage_report.json'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute sky coverage using formula valid_pixels / (12 * 128^2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:28:03Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Use synthetic Gaussian map with seed 42 for reproducibility verification
+  claim_id: c_a83d416e
+  context: "Verify numerical precision (\u22656 decimal places) and reproducibility\
+    \ (\xB10.001% tolerance) using synthetic Gaussian map (seed=42)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use synthetic Gaussian map with seed=42 for reproducibility verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:28:37Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Use Ledoit-Wolf shrinkage estimator for sample covariance matrix across
+    1000 simulations
+  claim_id: c_348cea4e
+  context: 'Implement code/statistics.py: Compute sample covariance matrix of MFs
+    across N=1,000 simulations using Ledoit-Wolf shrinkage estimator'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Ledoit-Wolf shrinkage estimator for sample covariance matrix of MFs
+    across N=1,000 simulations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:29:18Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Load theoretical LCDM power spectrum from Planck 2018 TT TE and EE
+  claim_id: c_3b8e686f
+  context: 'Implement code/simulate.py: Load theoretical LCDM power spectrum (Planck
+    2018 TT, TE, EE)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load theoretical LCDM power spectrum from Planck 2018 TT, TE, EE
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:30:42Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Unit tests for code download py must have coverage greater than 80 percent
+  claim_id: c_7cd317d5
+  context: Add unit tests for code/download.py (coverage > 80%)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_for_code_download_py_must_have_coverage_greater_t
+  kind: magnitude
+  raw_text: Unit tests for code/download.py must have coverage > 80%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:31:48Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Unit tests for code mask py must have coverage greater than 80 percent
+  claim_id: c_f178a914
+  context: Add unit tests for code/mask.py (coverage > 80%)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_for_code_mask_py_must_have_coverage_greater_than
+  kind: magnitude
+  raw_text: Unit tests for code/mask.py must have coverage > 80%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:32:40Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Unit tests for code minkowski py must have coverage greater than 80 percent
+  claim_id: c_9e29e3d2
+  context: Add unit tests for code/minkowski.py (coverage > 80%)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_for_code_minkowski_py_must_have_coverage_greater
+  kind: magnitude
+  raw_text: Unit tests for code/minkowski.py must have coverage > 80%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T01:33:20Z'

@@ -4,8 +4,7 @@ Synthetic Baseline Data Generator.
 Generates synthetic baseline data for validation purposes.
 Outputs to data/raw/synthetic_baseline.csv.
 
-This script is required by T010 (Contract Test) to ensure the schema is valid.
-It implements the distributions described in T017:
+This script implements the distributions described in T017:
 - SART errors ~ N(10, 3)
 - PSS-10 ~ N(20, 5)
 - Ospan ~ N(15, 3)
@@ -32,6 +31,7 @@ SEED = 42
 
 # Metric distributions (mean, std_dev)
 # Based on typical psychometric ranges
+# Keys must match the exact strings expected by downstream validators
 METRIC_CONFIG = {
     "SART": {"mean": 10.0, "std": 3.0, "min": 0, "max": 50},
     "Ospan": {"mean": 15.0, "std": 3.0, "min": 0, "max": 25},
@@ -54,6 +54,7 @@ def generate_synthetic_data(rng: np.random.Generator) -> list:
 
     for i in range(1, NUM_PARTICIPANTS + 1):
         pid = generate_participant_id(i)
+        # Offset timestamp slightly per participant to ensure uniqueness
         timestamp = base_time + timedelta(hours=i)
 
         for metric_name, config in METRIC_CONFIG.items():

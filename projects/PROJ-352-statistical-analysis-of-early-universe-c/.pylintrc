@@ -1,0 +1,35 @@
+[MASTER]
+load-plugins=
+ignore=.git,build,dist,.eggs,__pycache__
+extension-pkg-whitelist=
+
+[MESSAGES CONTROL]
+disable=
+    C0111,
+    C0103,
+    R0903,
+    R0902,
+    R0913,
+    R0914,
+    W0511,
+    W0613,
+    R0901,
+    R0915
+
+[FORMAT]
+max-line-length=88
+max-module-lines=1000
+
+[DESIGN]
+max-args=10
+max-locals=20
+max-returns=6
+max-branches=15
+max-statements=60
+max-attributes=10
+max-public-methods=20
+
+[SIMILARITIES]
+min-similarity-lines=6
+ignore-comments=yes
+ignore-docstrings=yes

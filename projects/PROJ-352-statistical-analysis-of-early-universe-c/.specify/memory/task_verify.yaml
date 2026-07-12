@@ -1,3 +1,4 @@
-T001d [P] Create `README.md` with project overview and setup instructions: 2
-T002 [P] Configure linting (flake8/pylint) and formatting (black) tools: 1
-T004 Setup data directory structure (`data/raw/`, `data/processed/`) and logging infrastructure: 1
+T002 [P] Configure linting (flake8/pylint) and formatting (black) tools: 2
+T004 Setup data directory structure (`data/raw/`, `data/processed/`) and logging infrastructure: 2
+T005 Implement `code/download.py` with exponential backoff retry logic for Planck Legacy Archive access: 1
+T006 Implement checksum validation logic for downloaded FITS files in `code/download.py`: 1

@@ -59,10 +59,10 @@
 
 - [X] T004 Setup directory structure: `data/raw-fmri`, `data/processed-fmri`, `data/behavioral`, `data/results`, `code/manipulation`, `code/utils`
 - [X] T005 Implement `code/utils/checksums.py` for data integrity verification
-- [ ] T006 Implement `code/utils/provenance.py` for machine-readable YAML sidecar generation
-- [ ] T007 Create base configuration loader for dataset IDs (ds000246, ds004738) and ROI coordinates (AAL, Harvard-Oxford)
+- [X] T006 Implement `code/utils/provenance.py` for machine-readable YAML sidecar generation
+- [X] T007 Create base configuration loader for dataset IDs (ds000246, ds004738) and ROI coordinates (AAL, Harvard-Oxford)
 - [X] T008 Setup `code/pipeline/run_pipeline.py` orchestration skeleton with error handling and logging
-- [~] T009 Implement `code/utils/framing_validator.py` to scan reports for causal verbs (satisfying FR-009)
+- [X] T009 Implement `code/utils/framing_validator.py` to scan reports for causal verbs (satisfying FR-009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,9 +76,9 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to fetch ds000246 (Exclusion) and ds004738 (Reward) separately with BIDS validation. **Do not** attempt to merge here.
-- [~] T010b [US1] Implement `code/data_download/harmonize_datasets.py` to execute the 'Merged Dataset Strategy': map participant IDs across datasets, align condition labels, and apply confound controls (e.g., adding 'Dataset ID' as a covariate tag) to prepare for analysis. (Addresses FR-001 and Plan's Critical Design Pivot).
-- [~] T011 [P] [US1] Implement `code/manipulation/generate_condition_labels.py` to extract exclusion/inclusion labels from `participants.tsv` or task JSON for each dataset.
+- [ ] T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to fetch ds000246 (Exclusion) and ds004738 (Reward) separately with BIDS validation. **Do not** attempt to merge here.
+- [ ] T010b [US1] Implement `code/data_download/harmonize_datasets.py` to execute the 'Merged Dataset Strategy': map participant IDs across datasets, align condition labels, and apply confound controls (e.g., adding 'Dataset ID' as a covariate tag) to prepare for analysis. (Addresses FR-001 and Plan's Critical Design Pivot).
+- [ ] T011 [P] [US1] Implement `code/manipulation/generate_condition_labels.py` to extract exclusion/inclusion labels from `participants.tsv` or task JSON for each dataset.
 - [~] T012 [US1] Implement `code/preprocess/cpu_fmriprep_wrapper.py` invoking fMRIPrep (docker: `nipreps/fmriprep:latest`) with a configurable thread count suitable for CPU-only execution. **Note**: This task creates the wrapper script; `fmriprep` is not installed via pip.
 - [~] T013 [US1] Implement `code/preprocess/run_preprocessing.py` to handle chunked processing (batches of subjects) and generate preprocessed NIfTI images (slice-timing corrected, realigned, normalized to MNI, smoothed with an appropriate spatial kernel) with failure logging.
 - [~] T014 [US1] Implement logic to harmonize and label data from merged exclusion and reward datasets: create a unified metadata file linking participants to their exclusion/inclusion group and task run type (BLOCKING DEPENDENCY FOR T018).
@@ -104,8 +104,8 @@
 - [~] T021 [US2] Implement `code/analysis/group_analysis.py` to perform two-sample t-test between excluded vs. included groups (PRIMARY METHOD per FR-005).
 - [~] T022 [US2] Implement Bonferroni correction logic for 4 hypothesis tests (2 ROIs × 2 events) at α=0.05.
 - [~] T023a [US2] Implement the primary two-sample t-test logic in `code/analysis/group_analysis.py` to compare groups, satisfying FR-005 and SC-001.
-- [ ] T023b [US2] Implement a secondary MixedLM model (using `statsmodels`) including 'Dataset ID' as a random effect to assess robustness of the merged dataset approach (Plan's design pivot), distinct from the primary t-test.
-- [ ] T024 [US2] Generate summary statistics: mean activation, SD, t-statistic, Cohen's d, and Bonferroni-corrected p-values for each ROI/Event combination (from T023a).
+- [~] T023b [US2] Implement a secondary MixedLM model (using `statsmodels`) including 'Dataset ID' as a random effect to assess robustness of the merged dataset approach (Plan's design pivot), distinct from the primary t-test.
+- [~] T024 [US2] Generate summary statistics: mean activation, SD, t-statistic, Cohen's d, and Bonferroni-corrected p-values for each ROI/Event combination (from T023a).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Data processed and statistical results generated).
 
@@ -119,11 +119,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement `code/visualization/plot_results.py` to generate ROI bar plots with mean ± SEM error bars and p-value annotations (*p<0.05, **p<0.01) (DEPENDS ON T021/T024).
-- [ ] T026 [US3] Implement SPM overlay generation: overlay significant clusters on MNI template brain with coordinates (x,y,z) and peak t-values (DEPENDS ON T021/T024).
-- [ ] T027 [US3] Implement report compilation: generate `data/results/summary_report.md` including sample size, ROI means, t-stats, effect sizes, and corrected p-values.
-- [ ] T028 [US3] Integrate `code/utils/framing_validator.py` to scan the summary report for causal verbs (lexicon: 'causes', 'leads to', 'results in', 'induces', 'forces') and enforce associational language (e.g., "association between" vs "causes").
-- [ ] T029 [US3] Implement power limitation check: if N < 20 per group, flag as exploratory and append recommendation for future studies (≥30 participants) to the report.
+- [~] T025 [US3] Implement `code/visualization/plot_results.py` to generate ROI bar plots with mean ± SEM error bars and p-value annotations (*p<0.05, **p<0.01) (DEPENDS ON T021/T024).
+- [~] T026 [US3] Implement SPM overlay generation: overlay significant clusters on MNI template brain with coordinates (x,y,z) and peak t-values (DEPENDS ON T021/T024).
+- [~] T027 [US3] Implement report compilation: generate `data/results/summary_report.md` including sample size, ROI means, t-stats, effect sizes, and corrected p-values.
+- [~] T028 [US3] Integrate `code/utils/framing_validator.py` to scan the summary report for causal verbs (lexicon: 'causes', 'leads to', 'results in', 'induces', 'forces') and enforce associational language (e.g., "association between" vs "causes").
+- [~] T029 [US3] Implement power limitation check: if N < 20 per group, flag as exploratory and append recommendation for future studies (≥30 participants) to the report.
 
 **Checkpoint**: All user stories should now be independently functional (Analysis complete, visualized, and reported).
 
@@ -137,7 +137,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T030 [P] [US4] Implement `code/analysis/sensitivity_analysis.py` to iterate over smoothing kernels across a range of FWHM values.
+- [~] T030 [P] [US4] Implement `code/analysis/sensitivity_analysis.py` to iterate over smoothing kernels across a range of FWHM values.
 - [ ] T030b [P] [US4] Implement logic to iterate over ROI mask probability thresholds [low, high] and generate corresponding masks for sensitivity analysis. (Satisfies FR-008 with concrete values).
 - [ ] T031 [US4] Re-run ROI extraction and group analysis via a parameterized analysis wrapper function for each smoothing kernel and mask probability combination (DEPENDS ON Phase 4 completion).
 - [ ] T032 [US4] Generate a consistency table in `data/results/sensitivity_analysis.csv` showing beta values and t-statistics across threshold combinations.
