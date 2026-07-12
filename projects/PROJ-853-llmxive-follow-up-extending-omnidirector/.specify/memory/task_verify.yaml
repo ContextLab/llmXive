@@ -1,0 +1,21 @@
+? 'T001 Create project structure per ''Project Structure'' section in plan.md: create
+  `code/`, `code/data/`, `code/geometry/`, `code/analysis/`, `code/tests/`, `code/tests/unit/`,
+  `code/tests/integration/`, `data/raw/`, `data/processed/`. <!-- FAILED: unspecified
+  -->'
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`.: 2
+T005 [P] Implement configuration loader in `code/config.py` to manage paths and constants.: 2
+T006 [P] Create base data models for `GridFrame`, `CameraPose`, and `ReconstructedBox` in `code/data/models.py`.: 2
+? 'T006b [P] Design memory-efficient processing strategy: Define chunked data loading
+  and streaming logic in `code/config.py` to ensure <6GB memory footprint before implementation
+  begins.'
+: 1
+? 'T007 Attempt to fetch the real OmniDirector dataset from the canonical source (e.g.,
+  HuggingFace or GitHub release). If fetch fails, generate a deterministic synthetic
+  dataset locally that mimics the real schema. **Output Schema**: `data/processed/filtered_sequences.csv`
+  must contain columns: `sequence_id`, `frame_id`, `radial_motion_deg`, `z_velocity`,
+  `grid_points_2d` (list of pixel coords), `R_matrix`, `t_vector`, `randomized_depth`
+  (boolean). For synthetic data, set `randomized_depth=True` for [deferred] of sequences.
+  Output to `data/raw/omnidirector.zip` (real) or `data/raw/synthetic_omnidirector.zip`
+  (fallback).'
+: 1

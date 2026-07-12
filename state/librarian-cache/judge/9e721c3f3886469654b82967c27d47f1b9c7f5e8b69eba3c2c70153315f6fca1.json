@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.21391",
+  "judged_at": "2026-07-12T19:42:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omnidirector: general multi-shot camera cloning without cross-paired d\" computer science",
+  "rationale": "The paper focuses on remote sensing data augmentation and layout-to-image generation, which is an off-domain application compared to the user's question about \"multi-shot camera cloning\" in general computer vision. While both involve generative models, the specific mechanism of \"camera cloning\" (likely referring to view synthesis or pose transfer) and the domain of general photography are distinct from the paper's focus on geographical spatial constraints and remote sensing imagery, failing the ",
+  "relevant": false
+}

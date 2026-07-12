@@ -1,0 +1,129 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reconstruction Results Schema"
+description: "Schema for the output of the geometric solver and statistical analysis."
+type: object
+properties:
+  analysis_metadata:
+    type: object
+    properties:
+      solver_method:
+        type: string
+        description: "Method used for pose estimation (e.g., 'cv2.solvePnP')"
+      timestamp:
+        type: string
+        format: date-time
+      total_processed:
+        type: integer
+      scale_anchored:
+        type: boolean
+        description: "Whether a canonical scale was applied to resolve ambiguity"
+    required:
+      - solver_method
+      - timestamp
+      - total_processed
+      - scale_anchored
+  results:
+    type: array
+    items:
+      type: object
+      properties:
+        sequence_id:
+          type: string
+        reconstructed_dimensions:
+          type: object
+          properties:
+            height:
+              type: number
+            width:
+              type: number
+            depth:
+              type: number
+          required:
+            - height
+            - width
+            - depth
+        ground_truth_dimensions:
+          type: object
+          properties:
+            height:
+              type: number
+            width:
+              type: number
+            depth:
+              type: number
+          required:
+            - height
+            - width
+            - depth
+        error_metrics:
+          type: object
+          properties:
+            height_error:
+              type: number
+            width_error:
+              type: number
+            depth_error:
+              type: number
+            aspect_ratio_error:
+              type: number
+              description: "Absolute difference in aspect ratio (scale-invariant)"
+            mean_absolute_error:
+              type: number
+          required:
+            - height_error
+            - width_error
+            - depth_error
+            - aspect_ratio_error
+            - mean_absolute_error
+        complexity_metrics:
+          type: object
+          properties:
+            radial_motion_deg:
+              type: number
+            z_velocity_avg:
+              type: number
+            motion_type:
+              type: string
+          required:
+            - radial_motion_deg
+            - z_velocity_avg
+            - motion_type
+        validation:
+          type: object
+          properties:
+            aspect_ratio_valid:
+              type: boolean
+            aspect_ratio_tolerance:
+              type: number
+            scale_anchored:
+              type: boolean
+          required:
+            - aspect_ratio_valid
+            - aspect_ratio_tolerance
+            - scale_anchored
+      required:
+        - sequence_id
+        - reconstructed_dimensions
+        - ground_truth_dimensions
+        - error_metrics
+        - complexity_metrics
+        - validation
+  summary_statistics:
+    type: object
+    properties:
+      pearson_correlation:
+        type: number
+        description: "Correlation between complexity and aspect_ratio_error"
+      mean_error_overall:
+        type: number
+      synthetic_control_error_rate:
+        type: number
+        description: "Error rate on synthetic control (should be > 50% if hypothesis holds)"
+    required:
+      - pearson_correlation
+      - mean_error_overall
+      - synthetic_control_error_rate
+required:
+  - analysis_metadata
+  - results
+  - summary_statistics

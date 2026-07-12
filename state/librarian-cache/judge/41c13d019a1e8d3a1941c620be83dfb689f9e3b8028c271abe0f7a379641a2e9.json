@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.02330",
+  "judged_at": "2026-07-12T19:42:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omnidirector: general multi-shot camera cloning without cross-paired d\" computer science",
+  "rationale": "The paper focuses on 3D human pose estimation from multi-view images, which is a distinct computer vision task from the user's question about \"camera cloning\" (generating novel views or camera trajectories) in generative AI. While both involve multi-view data, the candidate paper addresses geometric reconstruction and instance association rather than the generative mechanism of cloning camera perspectives without cross-paired data, failing to satisfy the same-mechanism or variable overlap criter",
+  "relevant": false
+}

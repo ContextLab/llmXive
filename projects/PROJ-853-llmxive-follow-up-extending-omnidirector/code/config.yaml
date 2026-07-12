@@ -1,0 +1,10 @@
+# llmXive Configuration File
+# Override defaults here. Use environment variables (LLMXIVE_*) for runtime overrides.
+
+# paths:
+#   data_raw: /custom/path/to/raw
+#   data_processed: /custom/path/to/processed
+
+# constants:
+#   RADIAL_MOTION_THRESHOLD_DEG: 20.0
+#   Z_VELOCITY_THRESHOLD: 0.2

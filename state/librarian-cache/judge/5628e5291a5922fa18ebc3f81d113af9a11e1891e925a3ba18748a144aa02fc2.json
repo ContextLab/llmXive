@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.15616",
+  "judged_at": "2026-07-12T19:42:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omnidirector: general multi-shot camera cloning without cross-paired d\" computer science",
+  "rationale": "The paper focuses on 3D human pose estimation and camera calibration using depth sensors, which is a distinct computer vision task from the user's question about \"camera cloning\" (a generative AI technique for synthesizing multi-shot views) and the specific \"OmniDirector\" framework. There is no overlap in the core mechanism (generative synthesis vs. geometric reconstruction), variables, or empirical domain, failing to meet any of the inclusion criteria (a-f) and falling under the \"distinct const",
+  "relevant": false
+}

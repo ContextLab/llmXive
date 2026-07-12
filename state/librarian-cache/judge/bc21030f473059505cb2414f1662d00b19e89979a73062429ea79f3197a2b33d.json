@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1803.04775",
+  "judged_at": "2026-07-12T19:42:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omnidirector: general multi-shot camera cloning without cross-paired d\" computer science",
+  "rationale": "The paper focuses on 3D human pose estimation and multi-view consistency for motion capture, which is a distinct computer vision task from the user's question about \"camera cloning\" (generating novel views or camera trajectories) in the context of generative models. While both involve cameras and multi-view data, the underlying mechanism (pose estimation vs. view synthesis/cloning) and the specific research gap addressed are unrelated, failing the \"same-mechanism\" or \"same-domain variable\" crite",
+  "relevant": false
+}

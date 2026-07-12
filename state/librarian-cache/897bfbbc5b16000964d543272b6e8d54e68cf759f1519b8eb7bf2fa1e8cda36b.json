@@ -1,0 +1,579 @@
+{
+  "fetched_at": "2026-07-12T19:42:52Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired D\"",
+      "target_n": 5
+    },
+    "duration_seconds": 63.167,
+    "ended_at": "2026-07-12T19:42:52Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multi-shot camera cloning without paired data"
+        ],
+        [
+          2,
+          "unsupervised multi-view camera pose estimation"
+        ],
+        [
+          3,
+          "cross-paired data free view synthesis"
+        ],
+        [
+          4,
+          "generalizable camera cloning algorithms"
+        ],
+        [
+          5,
+          "zero-shot camera pose transfer"
+        ],
+        [
+          6,
+          "multi-view consistency without supervision"
+        ],
+        [
+          7,
+          "camera pose estimation via neural rendering"
+        ],
+        [
+          8,
+          "view synthesis without ground truth alignment"
+        ],
+        [
+          9,
+          "cross-domain camera cloning techniques"
+        ],
+        [
+          10,
+          "unsupervised neural radiance fields for camera pose"
+        ],
+        [
+          11,
+          "generalizable 3D reconstruction from sparse views"
+        ],
+        [
+          12,
+          "camera pose transfer in unpaired datasets"
+        ],
+        [
+          13,
+          "multi-shot generative camera control"
+        ],
+        [
+          14,
+          "data-efficient camera cloning for video generation"
+        ],
+        [
+          15,
+          "cross-view correspondence without paired supervision"
+        ],
+        [
+          16,
+          "unsupervised monocular camera pose estimation"
+        ],
+        [
+          17,
+          "neural camera cloning for general scenes"
+        ],
+        [
+          18,
+          "multi-shot view synthesis without explicit pairing"
+        ],
+        [
+          19,
+          "generalizable pose estimation for camera cloning"
+        ],
+        [
+          20,
+          "unsupervised multi-view geometry learning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired D\" computer science": 0,
+        "multi-shot camera cloning without paired data": 2,
+        "unsupervised multi-view camera pose estimation": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "video view synthesis camera cloning",
+      "OmniDirector generalizable novel view synthesis",
+      "cross-paired data absence few-shot rendering",
+      "multi-view consistency video generation evaluation",
+      "implicit neural representations camera pose generalization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.13432"
+      ]
+    },
+    "per_query_hit_count": {
+      "OmniDirector generalizable novel view synthesis": 3,
+      "cross-paired data absence few-shot rendering": 3,
+      "implicit neural representations camera pose generalization": 3,
+      "llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired D\" computer science": 3,
+      "multi-view consistency video generation evaluation": 3,
+      "video view synthesis camera cloning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2510.21391",
+          "rationale": "The paper focuses on remote sensing data augmentation and layout-to-image generation, which is an off-domain application compared to the user's question about \"multi-shot camera cloning\" in general computer vision. While both involve generative models, the specific mechanism of \"camera cloning\" (likely referring to view synthesis or pose transfer) and the domain of general photography are distinct from the paper's focus on geographical spatial constraints and remote sensing imagery, failing the ",
+          "title": "TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation"
+        },
+        {
+          "primary_pointer": "2110.02330",
+          "rationale": "The paper focuses on 3D human pose estimation from multi-view images, which is a distinct computer vision task from the user's question about \"camera cloning\" (generating novel views or camera trajectories) in generative AI. While both involve multi-view data, the candidate paper addresses geometric reconstruction and instance association rather than the generative mechanism of cloning camera perspectives without cross-paired data, failing to satisfy the same-mechanism or variable overlap criter",
+          "title": "Shape-aware Multi-Person Pose Estimation from Multi-View Images"
+        },
+        {
+          "primary_pointer": "1803.04775",
+          "rationale": "The paper focuses on 3D human pose estimation and multi-view consistency for motion capture, which is a distinct computer vision task from the user's question about \"camera cloning\" (generating novel views or camera trajectories) in the context of generative models. While both involve cameras and multi-view data, the underlying mechanism (pose estimation vs. view synthesis/cloning) and the specific research gap addressed are unrelated, failing the \"same-mechanism\" or \"same-domain variable\" crite",
+          "title": "Learning Monocular 3D Human Pose Estimation from Multi-view Images"
+        },
+        {
+          "primary_pointer": "2307.13756",
+          "rationale": "The candidate paper focuses on 3D planar reconstruction and camera pose estimation using a unified Transformer framework, which is a distinct computer vision task from the user's question regarding \"Multi-Shot Camera Cloning\" (a generative AI task for synthesizing consistent multi-view images). While both involve \"camera\" and \"multi-shot/multi-view\" concepts, the underlying mechanisms (geometric reconstruction vs. generative image synthesis) and objectives are entirely different, failing the \"di",
+          "title": "PlaneRecTR++: Unified Query Learning for Joint 3D Planar Reconstruction and Pose Estimation"
+        },
+        {
+          "primary_pointer": "1911.09245",
+          "rationale": "The paper focuses on 3D human pose estimation and multi-view geometry optimization, which is a distinct computer vision task from the user's question regarding \"camera cloning\" (a generative AI technique for synthesizing consistent multi-shot video sequences). While both involve cameras and multi-view concepts, the paper does not measure the same mechanism (generative cloning vs. pose regression), address the same variables, or provide a foundational method for the specific domain of video gener",
+          "title": "Consensus-based Optimization for 3D Human Pose Estimation in Camera Coordinates"
+        },
+        {
+          "primary_pointer": "2401.15616",
+          "rationale": "The paper focuses on 3D human pose estimation and camera calibration using depth sensors, which is a distinct computer vision task from the user's question about \"camera cloning\" (a generative AI technique for synthesizing multi-shot views) and the specific \"OmniDirector\" framework. There is no overlap in the core mechanism (generative synthesis vs. geometric reconstruction), variables, or empirical domain, failing to meet any of the inclusion criteria (a-f) and falling under the \"distinct const",
+          "title": "Multi-Person 3D Pose Estimation from Multi-View Uncalibrated Depth Cameras"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T19:41:48Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"omnidirector: general multi-shot camera cloning without cross-paired d\" computer science",
+      "raw": "llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired D\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T19:42:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T19:42:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T19:42:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Behavioural cloning, where a computer is taught to perform a task based on demonstrations, has been successfully applied to various video games and robotics tasks, with and without reinforcement learning. This also includes end-to-end approaches, where a computer plays a video game like humans do: by looking at the image displayed on the screen, and sending keystrokes to the game. As a general approach to playing video games, this has many inviting properties: no need for specialized modifications to the game, no lengthy training sessions and the ability to re-use the same tools across different games. However, related work includes game-specific engineering to achieve the results. We take a step towards a general approach and study the general applicability of behavioural cloning on twelve video games, including six modern video games (published after 2010), by using human demonstrations as training data. Our results show that these agents cannot match humans in raw performance but do learn basic dynamics and rules. We also demonstrate how the quality of the data matters, and how recording data from humans is subject to a state-action mismatch, due to human reflexes.",
+          "claimed_authors": [
+            "Anssi Kanervisto",
+            "Joonas Pussinen",
+            "Ville Hautamäki"
+          ],
+          "claimed_title": "Benchmarking End-to-End Behavioural Cloning on Video Games",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.00981"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Benchmarking End-to-End Behavioural Cloning on Video Games')",
+        "failed_at": "2026-07-12T19:42:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, breakthroughs in video modeling have allowed for controllable camera trajectories in generated videos. However, these methods cannot be directly applied to user-provided videos that are not generated by a video model. In this paper, we present ReCapture, a method for generating new videos with novel camera trajectories from a single user-provided video. Our method allows us to re-generate the reference video, with all its existing scene motion, from vastly different angles and with cinematic camera motion. Notably, using our method we can also plausibly hallucinate parts of the scene that were not observable in the reference video. Our method works by (1) generating a noisy anchor video with a new camera trajectory using multiview diffusion models or depth-based point cloud rendering and then (2) regenerating the anchor video into a clean and temporally consistent reangled video using our proposed masked video fine-tuning technique.",
+          "claimed_authors": [
+            "David Junhao Zhang",
+            "Roni Paiss",
+            "Shiran Zada",
+            "Nikhil Karnad",
+            "David E. Jacobs",
+            "Yael Pritch",
+            "Inbar Mosseri",
+            "Mike Zheng Shou",
+            "Neal Wadhwa",
+            "Nataniel Ruiz"
+          ],
+          "claimed_title": "ReCapture: Generative Video Camera Controls for User-Provided Videos using Masked Video Fine-Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.05003"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='ReCapture: Generative Video Camera Controls for User-Provided Videos using Masked Video Fine-Tuning')",
+        "failed_at": "2026-07-12T19:42:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Rendering scenes observed in a monocular video from novel viewpoints is a challenging problem. For static scenes the community has studied both scene-specific optimization techniques, which optimize on every test scene, and generalized techniques, which only run a deep net forward pass on a test scene. In contrast, for dynamic scenes, scene-specific optimization techniques exist, but, to our best knowledge, there is currently no generalized method for dynamic novel view synthesis from a given monocular video. To answer whether generalized dynamic novel view synthesis from monocular videos is possible today, we establish an analysis framework based on existing techniques and work toward the generalized approach. We find a pseudo-generalized process without scene-specific appearance optimization is possible, but geometrically and temporally consistent depth estimates are needed. Despite no scene-specific appearance optimization, the pseudo-generalized approach improves upon some scene-specific methods.",
+          "claimed_authors": [
+            "Xiaoming Zhao",
+            "Alex Colburn",
+            "Fangchang Ma",
+            "Miguel Angel Bautista",
+            "Joshua M. Susskind",
+            "Alexander G. Schwing"
+          ],
+          "claimed_title": "Pseudo-Generalized Dynamic View Synthesis from a Video",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.08587"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Pseudo-Generalized Dynamic View Synthesis from a Video')",
+        "failed_at": "2026-07-12T19:42:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose DENSER, a Depth-guided ENSemble with Staged EFA-GS Reconstruction for soccer novel view synthesis. DENSER extends EFA-GS with three key contributions: (1) camera-height-based loss weighting that prioritises ground-level broadcast views, (2) monocular depth supervision from Depth-Anything-V2 to regularise geometry in textureless regions, and (3) a three-model pixel-average ensemble whose members diverge from a shared base checkpoint by varying training length and Gaussian scale clamping. On five held-out challenge scenes we achieve a mean PSNR of 29.89 dB, SSIM of 0.791, and LPIPS of 0.366.",
+          "claimed_authors": [
+            "Parthsarthi Rawat"
+          ],
+          "claimed_title": "DENSER: Depth-Guided Ensemble with Staged EFA-GS Reconstruction for Soccer Novel View Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.01419"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='DENSER: Depth-Guided Ensemble with Staged EFA-GS Reconstruction for Soccer Novel View Synthesis')",
+        "failed_at": "2026-07-12T19:42:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a new task, novel view synthesis for LiDAR sensors. While traditional model-based LiDAR simulators with style-transfer neural networks can be applied to render novel views, they fall short of producing accurate and realistic LiDAR patterns because the renderers rely on explicit 3D reconstruction and exploit game engines, that ignore important attributes of LiDAR points. We address this challenge by formulating, to the best of our knowledge, the first differentiable end-to-end LiDAR rendering framework, LiDAR-NeRF, leveraging a neural radiance field (NeRF) to facilitate the joint learning of geometry and the attributes of 3D points. However, simply employing NeRF cannot achieve satisfactory results, as it only focuses on learning individual pixels while ignoring local information, especially at low texture areas, resulting in poor geometry. To this end, we have taken steps to address this issue by introducing a structural regularization method to preserve local structural details. To evaluate the effectiveness of our approach, we establish an object-centric multi-view LiDAR dataset, dubbed NeRF-MVL. It contains observations of objects from 9 categories seen from 360-degree viewpoints captured with multiple LiDAR sensors. Our extensive experiments on the scene-level KITTI-360 dataset, and on our object-level NeRF-MVL show that our LiDAR-NeRF surpasses the model-based algorithms significantly.",
+          "claimed_authors": [
+            "Tang Tao",
+            "Longfei Gao",
+            "Guangrun Wang",
+            "Yixing Lao",
+            "Peng Chen",
+            "Hengshuang Zhao",
+            "Dayang Hao",
+            "Xiaodan Liang",
+            "Mathieu Salzmann",
+            "Kaicheng Yu"
+          ],
+          "claimed_title": "LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.10406"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields')",
+        "failed_at": "2026-07-12T19:42:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-12T19:42:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-12T19:42:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The few-shot learning ability of vision transformers (ViTs) is rarely investigated though heavily desired. In this work, we empirically find that with the same few-shot learning frameworks, \\eg~Meta-Baseline, replacing the widely used CNN feature extractor with a ViT model often severely impairs few-shot classification performance. Moreover, our empirical study shows that in the absence of inductive bias, ViTs often learn the low-qualified token dependencies under few-shot learning regime where only a few labeled training data are available, which largely contributes to the above performance degradation. To alleviate this issue, for the first time, we propose a simple yet effective few-shot training framework for ViTs, namely Self-promoted sUpervisioN (SUN). Specifically, besides the conventional global supervision for global semantic learning SUN further pretrains the ViT on the few-shot learning dataset and then uses it to generate individual location-specific supervision for guiding each patch token. This location-specific supervision tells the ViT which patch tokens are similar or dissimilar and thus accelerates token dependency learning. Moreover, it models the local semantics in each patch token to improve the object grounding and recognition capability which helps learn generalizable patterns. To improve the quality of location-specific supervision, we further propose two techniques:~1) background patch filtration to filtrate background patches out and assign them into an extra background class; and 2) spatial-consistent augmentation to introduce sufficient diversity for data augmentation while keeping the accuracy of the generated local supervisions. Experimental results show that SUN using ViTs significantly surpasses other few-shot learning frameworks with ViTs and is the first one that achieves higher performance than those CNN state-of-the-arts.",
+          "claimed_authors": [
+            "Bowen Dong",
+            "Pan Zhou",
+            "Shuicheng Yan",
+            "Wangmeng Zuo"
+          ],
+          "claimed_title": "Self-Promoted Supervision for Few-Shot Transformer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.07057"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Self-Promoted Supervision for Few-Shot Transformer')",
+        "failed_at": "2026-07-12T19:42:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "View-conditioned 3D generators such as SAM 3D, TRELLIS, and Hunyuan3D produce high-quality object reconstructions from a single view, but real-world visual observation often arrives as long monocular streams. Naively applying these generators to each streaming frame independently leads to severe temporal inconsistency in the generated results. To address this problem, we propose Stream3D, the first training-free streaming mechanism that turns a frozen view-conditioned 3D generator into a streaming generator with constant cross-chunk memory. Stream3D achieves this by maintaining a compact evidential memory, which selectively caches the most informative historical frames based on a proposed evidence score mechanism. As the stream progresses, the memory dynamically updates to retain a fixed number of informative frames, preventing the memory footprint from growing linearly with sequence length. This also prevents degradation over long sequences and keeps the underlying generator completely unchanged without retraining, architectural modifications, or auxiliary losses. Evaluated on both realistic and synthetic streaming benchmarks, Stream3D outperforms latent-transport baselines, including KV-cache reuse and flow-based feature editing, across both photometric and geometric metrics. More details can be found at: https://stream-3d.github.io/stream3d.github.io/.",
+          "claimed_authors": [
+            "Kaichen Zhou",
+            "Zeyang Bai",
+            "Xinhai Chang",
+            "Mengyu Wang",
+            "Paul Liang",
+            "Fangneng Zhan"
+          ],
+          "claimed_title": "Stream3D: Sequential Multi-View 3D Generation via Evidential Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.21472"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Stream3D: Sequential Multi-View 3D Generation via Evidential Memory')",
+        "failed_at": "2026-07-12T19:42:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a novel deep framework for dense 3D reconstruction from multiple image frames, leveraging a sparse set of depth measurements gathered jointly with image acquisition. Given a deep multi-view stereo network, our framework uses sparse depth hints to guide the neural network by modulating the plane-sweep cost volume built during the forward step, enabling us to infer constantly much more accurate depth maps. Moreover, since multiple viewpoints can provide additional depth measurements, we propose a multi-view guidance strategy that increases the density of the sparse points used to guide the network, thus leading to even more accurate results. We evaluate our Multi-View Guided framework within a variety of state-of-the-art deep multi-view stereo networks, demonstrating its effectiveness at improving the results achieved by each of them on BlendedMVG and DTU datasets.",
+          "claimed_authors": [
+            "Matteo Poggi",
+            "Andrea Conti",
+            "Stefano Mattoccia"
+          ],
+          "claimed_title": "Multi-View Guided Multi-View Stereo",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.11467"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Multi-View Guided Multi-View Stereo')",
+        "failed_at": "2026-07-12T19:42:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Applying an image processing algorithm independently to each video frame often leads to temporal inconsistency in the resulting video. To address this issue, we present a novel and general approach for blind video temporal consistency. Our method is only trained on a pair of original and processed videos directly instead of a large dataset. Unlike most previous methods that enforce temporal consistency with optical flow, we show that temporal consistency can be achieved by training a convolutional neural network on a video with Deep Video Prior (DVP). Moreover, a carefully designed iteratively reweighted training strategy is proposed to address the challenging multimodal inconsistency problem. We demonstrate the effectiveness of our approach on 7 computer vision tasks on videos. Extensive quantitative and perceptual experiments show that our approach obtains superior performance than state-of-the-art methods on blind video temporal consistency. We further extend DVP to video propagation and demonstrate its effectiveness in propagating three different types of information (color, artistic style, and object segmentation). A progressive propagation strategy with pseudo labels is also proposed to enhance DVP's performance on video propagation. Our source codes are publicly available at https://github.com/ChenyangLEI/deep-video-prior.",
+          "claimed_authors": [
+            "Chenyang Lei",
+            "Yazhou Xing",
+            "Hao Ouyang",
+            "Qifeng Chen"
+          ],
+          "claimed_title": "Deep Video Prior for Video Consistency and Propagation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.11632"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Deep Video Prior for Video Consistency and Propagation')",
+        "failed_at": "2026-07-12T19:42:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the problem of tracking the 6D pose of a moving RGB-D camera in a neural scene representation. Different such representations have recently emerged, and we investigate the suitability of them for the task of camera tracking. In particular, we propose to track an RGB-D camera using a signed distance field-based representation and show that compared to density-based representations, tracking can be sped up, which enables more robust and accurate pose estimates when computation time is limited.",
+          "claimed_authors": [
+            "Leonard Bruns",
+            "Fereidoon Zangeneh",
+            "Patric Jensfelt"
+          ],
+          "claimed_title": "SDF-based RGB-D Camera Tracking in Neural Scene Representations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.02079"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='SDF-based RGB-D Camera Tracking in Neural Scene Representations')",
+        "failed_at": "2026-07-12T19:42:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we showcase the effectiveness of optimizing monocular camera poses as a continuous function of time. The camera poses are represented using an implicit neural function which maps the given time to the corresponding camera pose. The mapped camera poses are then used for the downstream tasks where joint camera pose optimization is also required. While doing so, the network parameters -- that implicitly represent camera poses -- are optimized. We exploit the proposed method in four diverse experimental settings, namely, (1) NeRF from noisy poses; (2) NeRF from asynchronous Events; (3) Visual Simultaneous Localization and Mapping (vSLAM); and (4) vSLAM with IMUs. In all four settings, the proposed method performs significantly better than the compared baselines and the state-of-the-art methods. Additionally, using the assumption of continuous motion, changes in pose may actually live in a manifold that has lower than 6 degrees of freedom (DOF) is also realized. We call this low DOF motion representation as the \\emph{intrinsic motion} and use the approach in vSLAM settings, showing impressive camera tracking performance.",
+          "claimed_authors": [
+            "Qi Ma",
+            "Danda Pani Paudel",
+            "Ajad Chhatkuli",
+            "Luc Van Gool"
+          ],
+          "claimed_title": "Continuous Pose for Monocular Cameras in Neural Implicit Representation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17119"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Continuous Pose for Monocular Cameras in Neural Implicit Representation')",
+        "failed_at": "2026-07-12T19:42:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Animals' internal states reflect variables like their position in space, orientation, decisions, and motor actions -- but how should these internal states be arranged? Internal states which frequently transition between one another should be close enough that transitions can happen quickly, but not so close that neural noise significantly impacts the stability of those states, and how reliably they can be encoded and decoded. In this paper, we study the problem of striking a balance between these two concerns, which we call an `optimal packing' problem since it resembles mathematical problems like sphere packing. While this problem is generally extremely difficult, we show that symmetries in environmental transition statistics imply certain symmetries of the optimal neural representations, which allows us in some cases to exactly solve for the optimal state arrangement. We focus on two toy cases: uniform transition statistics, and cyclic transition statistics. Code is available at https://github.com/john-vastola/optimal-packing-neurreps23 .",
+          "claimed_authors": [
+            "John J. Vastola"
+          ],
+          "claimed_title": "Optimal packing of attractor states in neural representations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.12429"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniDirector: General Multi-Shot Camera Cloning wi', candidate_title='Optimal packing of attractor states in neural representations')",
+        "failed_at": "2026-07-12T19:42:19Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wei Cheng",
+            "Su Xu",
+            "Jingtan Piao",
+            "Chen Qian",
+            "Wayne Wu",
+            "Kwan-Yee Lin",
+            "Hongsheng Li"
+          ],
+          "title": "Generalizable Neural Performer: Learning Robust Radiance Fields for Human Novel View Synthesis",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2204.11798",
+        "summary": "This work targets at using a general deep learning framework to synthesize free-viewpoint images of arbitrary human performers, only requiring a sparse number of camera views as inputs and skirting per-case fine-tuning. The large variation of geometry and appearance, caused by articulated body poses, shapes and clothing types, are the key bottlenecks of this task. To overcome these challenges, we present a simple yet powerful framework, named Generalizable Neural Performer (GNR), that learns a generalizable and robust neural body representation over various geometry and appearance. Specifically, we compress the light fields for novel view human rendering as conditional implicit neural radiance fields from both geometry and appearance aspects. We first introduce an Implicit Geometric Body Embedding strategy to enhance the robustness based on both parametric 3D human body model and multi-view images hints. We further propose a Screen-Space Occlusion-Aware Appearance Blending technique to preserve the high-quality appearance, through interpolating source view appearance to the radiance fields with a relax but approximate geometric guidance.\n  To evaluate our method, we present our ongoing effort of constructing a dataset with remarkable complexity and diversity. The dataset GeneBody-1.0, includes over 360M frames of 370 subjects under multi-view cameras capturing, performing a large variety of pose actions, along with diverse body shapes, clothing, accessories and hairdos. Experiments on GeneBody-1.0 and ZJU-Mocap show better robustness of our methods than recent state-of-the-art generalizable methods among all cross-dataset, unseen subjects and unseen poses settings. We also demonstrate the competitiveness of our model compared with cutting-edge case-specific ones. Dataset, code and model will be made publicly available.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2204.11798",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T19:42:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiwen Liu",
+            "Shujuan Li",
+            "Zhixue Fang",
+            "Xiaohan Li",
+            "Yan Zhou",
+            "Zijie Meng",
+            "Zhimin Zhang",
+            "Yawen Luo",
+            "Guoxin Zhang",
+            "Yu-Shen Liu",
+            "Pengfei Wan"
+          ],
+          "title": "OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired Data",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.13432",
+        "summary": "Cloning camera motion from reference videos is an important task in video generation, as videos provide intuitive and precise control. Existing methods either directly use parametric representations that fail to handle multi-shot generation or synthesize cross-paired data, which suffer from data scarcity, resulting in poor performance in complicated camera motion cloning. To address these issues, we introduce a general camera motion representation that encodes cameras as grid motion videos. This camera grid represents the camera parameters visually and supports the integration of diverse trajectories for multi-shot video generation. Building upon this, we propose OmniDirector, a unified framework trained on a million-scale camera grid-video pairs that coordinates characters, actions, and cameras to provide director-level control for multimodal diffusion transformers. Furthermore, we design a novel hierarchical prompt expansion agent that harmoniously integrates different control signals by systematically describing camera motion and visual content through understanding signal relationships. Extensive experiments demonstrate the superior performance and outstanding controllability of our framework. Project page: https://ymlinfeng.github.io/OmniDirector.github.io/",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.13432",
+          "http_status": 200,
+          "pdf_sample_score": 0.204,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T19:42:23Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"omnidirector: general multi-shot camera cloning without cross-paired d\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

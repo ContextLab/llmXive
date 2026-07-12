@@ -1,0 +1,8 @@
+opencv-python
+numpy
+pandas
+scipy
+pytest
+pyyaml
+requests
+huggingface_hub

@@ -1,0 +1,58 @@
+resolved_at: '2026-07-12T19:48:24.130409+00:00'
+datasets:
+- intent: OmniDirector
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Validaci_n_funcional_de_la_aplicaci_n_m_vil_a_interfaz_principal_b_carga_de_imagen_y_c_visualizaci_n_del_resultado_de_detecci_n/32969267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/_Proximity_logistics_Characterizing_the_development_of_logistics_facilities_in_dense_mixed-use_urban_areas_around_the_world/32608839
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Arquitectura_funcional_de_la_aplicaci_n_m_vil/32969258
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/Pilot_of_interactive_texting_for_diabetes_self-management_education_and_support/32620281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Ejemplos_de_detecci_n_y_segmentaci_n_de_defectos_f_sicos_en_granos_verdes_de_caf_/32969252
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.13432
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GridFrame
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Validaci_n_funcional_de_la_aplicaci_n_m_vil_a_interfaz_principal_b_carga_de_imagen_y_c_visualizaci_n_del_resultado_de_detecci_n/32969267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/_Proximity_logistics_Characterizing_the_development_of_logistics_facilities_in_dense_mixed-use_urban_areas_around_the_world/32608839
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Arquitectura_funcional_de_la_aplicaci_n_m_vil/32969258
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/Pilot_of_interactive_texting_for_diabetes_self-management_education_and_support/32620281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Ejemplos_de_detecci_n_y_segmentaci_n_de_defectos_f_sicos_en_granos_verdes_de_caf_/32969252
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15409495
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content

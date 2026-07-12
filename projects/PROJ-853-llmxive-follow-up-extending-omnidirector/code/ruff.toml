@@ -1,0 +1,37 @@
+[tool.ruff]
+# Target Python 3.11 as per project requirements
+target-version = "py311"
+
+# Line length matching Black's default
+line-length = 88
+
+# Exclude generated code and data directories
+extend-exclude = [
+    "__pycache__",
+    "data",
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+]
+
+[tool.ruff.lint]
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+
+# Ignore specific rules that conflict with project style or are too noisy
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B904", # Within an `except` clause, raise exceptions with `raise ... from err` (optional)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow imports in __init__.py for API surface exposure
+"__init__.py" = ["F401"]

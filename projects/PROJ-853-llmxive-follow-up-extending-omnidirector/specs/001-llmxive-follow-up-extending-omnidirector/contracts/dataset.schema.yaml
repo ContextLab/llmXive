@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OmniDirector Filtered Dataset Schema"
+description: "Schema for the filtered dataset of grid-video pairs with defined spatial volumes."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Source of the dataset (e.g., 'OmniDirector Local')"
+      filter_criteria:
+        type: string
+        description: "Heuristic used for filtering (e.g., 'radial > 15° OR Z-velocity > 0.1')"
+      total_sequences:
+        type: integer
+        description: "Total number of sequences in the filtered set"
+    required:
+      - source
+      - filter_criteria
+      - total_sequences
+  sequences:
+    type: array
+    items:
+      type: object
+      properties:
+        sequence_id:
+          type: string
+          description: "Unique identifier for the sequence"
+        frame_count:
+          type: integer
+          description: "Number of frames in the sequence"
+        camera_intrinsics:
+          type: array
+          description: "3x3 camera matrix flattened"
+          items:
+            type: number
+          minItems: 9
+          maxItems: 9
+        ground_truth_pose:
+          type: object
+          description: "Ground truth camera poses for each frame"
+          properties:
+            rotation:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+            translation:
+              type: array
+              items:
+                type: number
+          required:
+            - rotation
+            - translation
+        grid_frames:
+          type: array
+          description: "List of grid frame file paths"
+          items:
+            type: string
+      required:
+        - sequence_id
+        - frame_count
+        - camera_intrinsics
+        - ground_truth_pose
+        - grid_frames
+required:
+  - metadata
+  - sequences

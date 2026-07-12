@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.09245",
+  "judged_at": "2026-07-12T19:42:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omnidirector: general multi-shot camera cloning without cross-paired d\" computer science",
+  "rationale": "The paper focuses on 3D human pose estimation and multi-view geometry optimization, which is a distinct computer vision task from the user's question regarding \"camera cloning\" (a generative AI technique for synthesizing consistent multi-shot video sequences). While both involve cameras and multi-view concepts, the paper does not measure the same mechanism (generative cloning vs. pose regression), address the same variables, or provide a foundational method for the specific domain of video gener",
+  "relevant": false
+}
