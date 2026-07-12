@@ -1,4 +1,3 @@
-# Project Dependencies
 requests
 beautifulsoup4
 pandas
@@ -9,9 +8,5 @@ tqdm
 pyyaml
 jsonschema
 psutil
-pytest
-ruff
-black
-pre-commit
 pydantic
-matplotlib
+pytest
