@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ExecutionMetric
+description: >-
+  Represents the outcome of a single query execution attempt under CPU constraints.
+  Captures latency, errors, and timeout states.
+type: object
+properties:
+  query_id:
+    type: string
+    description: "Foreign key to the Query Instance."
+  latency_ms:
+    type: number
+    description: "End-to-end time in milliseconds (real measurement + complexity-proportional delay)."
+    minimum: 0
+  translation_error:
+    type: boolean
+    description: "True if generated plan != ground truth."
+  timeout_flag:
+    type: boolean
+    description: "True if execution exceeded 60s."
+  engine_type:
+    type: string
+    description: "The simulated engine used."
+    enum:
+      - text
+      - sql
+      - graph
+  cpu_time_limit:
+    type: number
+    description: "The enforced CPU limit in seconds."
+    minimum: 0.1
+  cpu_burner_ms:
+    type: number
+    description: "Time spent in the deterministic CPU-burner loop (baseline + complexity scaling)."
+    minimum: 0
+required:
+  - query_id
+  - latency_ms
+  - translation_error
+  - timeout_flag
+  - engine_type
+  - cpu_time_limit
+  - cpu_burner_ms
+additionalProperties: false

@@ -1,0 +1,212 @@
+resolved_at: '2026-07-12T09:04:38.199257+00:00'
+datasets:
+- intent: MARCO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/microsoft/ms_marco/resolve/main/v1.1/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nlpconnect/ms_marco_subset_v2.1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 636
+      parsed: true
+  - url: https://huggingface.co/datasets/webis/ms-marco-anchor-text/resolve/main/ms-marco-v1/anchor-text-concatenated/common-crawl-2016-07-to-ms-marco-v1.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/marcodsn/arxiv-markdown/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/microsoft/ms_marco/resolve/main/v1.1/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nlpconnect/ms_marco_subset_v2.1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/webis/ms-marco-anchor-text/resolve/main/ms-marco-v1/anchor-text-concatenated/common-crawl-2016-07-to-ms-marco-v1.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/preprint/3D_Spatially_Embedded_Networks_Verifying_Coordinate_Backpropagation_on_a_Single_Neuron/29580674
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/PENGEMBANGAN_APLIKASI_REMINDER_DENGAN_ALGORITMA_WEIGHTED_EARLIEST_DEADLINE_FIRST_UNTUK_PRIORITASI_TUGAS/32967992
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_Ver_Claude_Fable5_Data_190_The_Structure_of_Advocacy_by_Placement_in_Structural_Psychology_Observational_Record_/32968022
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_Neural_basis_of_auditory_implicit_memory_revealed_by_an_indirect_recognition_procedure/32968019
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Global_C4_vegetation_map_in_percentage_of_the_vegetated_area/30879470
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4483256
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3338256
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16757815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pubs.aip.org/app/article/7/2/026106/2835109/Orthogonalization-of-far-field-detection-in
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/4585959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.48577/jpl.84pbsk
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''dataverse.jpl.nasa.gov'',
+      port=80): Max retries exceeded with url: /citation?persistentId=doi:10.48577/jpl.84PBSK
+      (Caused by ConnectTimeoutError(<HTTPConnection(host=''dataverse.jpl.nasa.gov'',
+      port=80) at 0x7f9672cdfad0>, ''Connection to dataverse.jpl.nasa.gov timed out.
+      (connect timeout=20.0)''))'
+  - url: https://juser.fz-juelich.de/record/1058939
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unitn.it/handle/11572/185950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unitn.it/handle/11572/221445
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unitn.it/handle/11572/192247
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DBpedia
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/fancyzhx/dbpedia_14/resolve/main/dbpedia_14/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/BeIR/dbpedia-entity/resolve/main/corpus/corpus-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/BeIR/dbpedia-entity-qrels/resolve/main/dev.tsv
+    source: huggingface
+    format: tsv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/fancyzhx/dbpedia_14/resolve/main/dbpedia_14/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BeIR/dbpedia-entity/resolve/main/corpus/corpus-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BeIR/dbpedia-entity-qrels/resolve/main/dev.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/BeIR/dbpedia-entity-generated-queries/resolve/main/train.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/preprint/3D_Spatially_Embedded_Networks_Verifying_Coordinate_Backpropagation_on_a_Single_Neuron/29580674
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/PENGEMBANGAN_APLIKASI_REMINDER_DENGAN_ALGORITMA_WEIGHTED_EARLIEST_DEADLINE_FIRST_UNTUK_PRIORITASI_TUGAS/32967992
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_Ver_Claude_Fable5_Data_190_The_Structure_of_Advocacy_by_Placement_in_Structural_Psychology_Observational_Record_/32968022
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_Neural_basis_of_auditory_implicit_memory_revealed_by_an_indirect_recognition_procedure/32968019
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Global_C4_vegetation_map_in_percentage_of_the_vegetated_area/30879470
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4922769
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5540716
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6641891
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1451797
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2507.02364
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/cjdp8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/a8dch/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xeuga/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/PRISM_benchmarks/32867597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.openml.org/data/get_csv/22121379/DBPedia.csv
+    source: openml
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'

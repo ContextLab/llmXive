@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-12T09:06:38.429094+00:00",
+    "project": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/spider/resolve/main/dev.json",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/gretelai/synthetic_text_to_sql/resolve/main/synthetic_text_to_sql_test.snappy.parquet",
+        "intent": "spider subset Relational via datasets loader Synthetic query generation SQL based multi join tasks ; schema metadata used for plan depth control."
+      }
+    ]
+  }
+]

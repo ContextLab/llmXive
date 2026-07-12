@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for validating the Linear Mixed-Effects Model (LMM) and Jonckheere-Terpstra trend test results."
+type: "object"
+properties:
+  cutoff:
+    type: "integer"
+    description: "The complexity threshold used for the sensitivity analysis."
+  spike_point:
+    type: "number"
+    description: "Estimated complexity threshold where latency spikes."
+  slope_change:
+    type: "number"
+    description: "Change in latency slope before and after the spike."
+  linear_slope_interaction_p:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the interaction term (complexity * source_type) in the LMM."
+  jonckheere_p:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the monotonic trend test across complexity levels."
+  confidence_interval:
+    type: "object"
+    properties:
+      lower:
+        type: "number"
+      upper:
+        type: "number"
+    required:
+      - "lower"
+      - "upper"
+    description: "95% confidence interval for the interaction term."
+  is_significant:
+    type: "boolean"
+    description: "True if p-value < 0.05."
+required:
+  - "cutoff"
+  - "spike_point"
+  - "slope_change"
+  - "linear_slope_interaction_p"
+  - "jonckheere_p"
+  - "confidence_interval"
+  - "is_significant"
+additionalProperties: false
