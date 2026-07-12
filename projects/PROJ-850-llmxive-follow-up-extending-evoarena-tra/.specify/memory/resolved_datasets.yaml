@@ -1,0 +1,98 @@
+resolved_at: '2026-07-12T19:17:34.473847+00:00'
+datasets:
+- intent: EvoMem
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Too_hot_to_slow_down_Extreme_heat_working_hours_and_constrained_adaptation_in_Punjab_Pakistan/32969210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_Dual-Aspect_Monism_Under_the_Dimensional_Phase_Transition_Framework_Structural_Isomorphism_Between_Physical_and_Experiential_Order_b_/32969219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Networks_of_localized_weapon_production_International_arms_trade_and_the_diffusion_of_military_technology/32969213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Impact_assessment_of_corporate_social_responsibility_A_special_context_of_third_party/32071857
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_b_b_30_June_2025_Malwina_G_balska_NCN_Poland_b_/32801889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.13681
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.01912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Too_hot_to_slow_down_Extreme_heat_working_hours_and_constrained_adaptation_in_Punjab_Pakistan/32969210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_Dual-Aspect_Monism_Under_the_Dimensional_Phase_Transition_Framework_Structural_Isomorphism_Between_Physical_and_Experiential_Order_b_/32969219
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Networks_of_localized_weapon_production_International_arms_trade_and_the_diffusion_of_military_technology/32969213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Impact_assessment_of_corporate_social_responsibility_A_special_context_of_third_party/32071857
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_b_b_30_June_2025_Malwina_G_balska_NCN_Poland_b_/32801889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.01764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

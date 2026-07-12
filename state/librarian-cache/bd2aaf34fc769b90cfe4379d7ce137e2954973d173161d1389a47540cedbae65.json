@@ -1,0 +1,631 @@
+{
+  "fetched_at": "2026-07-12T18:41:33Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic E\"",
+      "target_n": 5
+    },
+    "duration_seconds": 54.136,
+    "ended_at": "2026-07-12T18:41:33Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "long-term memory mechanisms in LLM agents"
+        ],
+        [
+          2,
+          "memory evolution tracking for autonomous agents"
+        ],
+        [
+          3,
+          "dynamic context management in large language models"
+        ],
+        [
+          4,
+          "episodic memory integration for LLM reasoning"
+        ],
+        [
+          5,
+          "persistent state maintenance in generative AI agents"
+        ],
+        [
+          6,
+          "cognitive architecture for evolving LLM agents"
+        ],
+        [
+          7,
+          "memory consolidation in dynamic environments for AI"
+        ],
+        [
+          8,
+          "robustness of LLM agents under memory constraints"
+        ],
+        [
+          9,
+          "longitudinal analysis of agent memory states"
+        ],
+        [
+          10,
+          "adaptive memory retrieval in language models"
+        ],
+        [
+          11,
+          "iterative memory updates for conversational agents"
+        ],
+        [
+          12,
+          "memory decay and retention in LLM agents"
+        ],
+        [
+          13,
+          "context window optimization for long-horizon tasks"
+        ],
+        [
+          14,
+          "meta-learning for agent memory evolution"
+        ],
+        [
+          15,
+          "external memory augmentation for language models"
+        ],
+        [
+          16,
+          "temporal consistency in LLM agent behavior"
+        ],
+        [
+          17,
+          "narrative continuity in multi-turn agent interactions"
+        ],
+        [
+          18,
+          "self-reflection mechanisms for memory refinement in AI"
+        ],
+        [
+          19,
+          "dynamic knowledge graph updates for LLM agents"
+        ],
+        [
+          20,
+          "evaluating memory fidelity in evolving AI systems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic E\" linguistics": 0,
+        "long-term memory mechanisms in LLM agents": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "LLM agent memory contamination data leakage",
+      "dynamic environment LLM agent linguistic benchmark",
+      "context window forgetting catastrophic interference retrieval",
+      "agent trajectory evaluation robustness linguistic task",
+      "long-term memory consolidation language model adaptation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.09720"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM agent memory contamination data leakage": 3,
+      "agent trajectory evaluation robustness linguistic task": 3,
+      "context window forgetting catastrophic interference retrieval": 3,
+      "dynamic environment LLM agent linguistic benchmark": 3,
+      "llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic E\" linguistics": 3,
+      "long-term memory consolidation language model adaptation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2605.18805",
+          "rationale": "The paper focuses on evaluation benchmarks for LLM recommendation agents in e-commerce, measuring utility, diversity, and semantic plausibility, which does not align with the user's specific interest in \"memory evolution\" or \"linguistics\" within dynamic environments. While both involve LLM agents, the candidate paper addresses a distinct construct (recommendation quality) rather than the mechanism of memory tracking or the linguistic domain specified in the query, failing to meet the criteria fo",
+          "title": "RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T18:40:39Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"evoarena: tracking memory evolution for robust llm agents in dynamic e\" linguistics",
+      "raw": "llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic E\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Membership inference attacks (MIAs) test whether a target data record belongs to a system's private data, and have become a standard tool to measure privacy leakage in machine learning systems. Prior work has primarily focused on training corpora or retrieval databases. However, MIAs against agent memory have received less attention, even though such memory can contain sensitive user-agent interactions, retrieved facts, and user preferences. Therefore, in this work, we focus on chat agent memory MIAs, where an adversary infers whether a candidate memory unit belongs to the chat agent's memory store. We propose Multi-Recall Memory MIA (MRMMIA), a unified attack that utilizes multiple recall probes to the agent to extract the membership signal across black-box, gray-box, and white-box settings. Our experiments demonstrate that MRMMIA consistently outperforms baselines. Our results expose the privacy risk in agents and provide an initial evaluation framework for membership leakage in chat-agent memory systems.",
+          "claimed_authors": [
+            "Kai Chen",
+            "Yan Pang",
+            "Tianhao Wang"
+          ],
+          "claimed_title": "MRMMIA: Membership Inference Attacks on Memory in Chat Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27825"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='MRMMIA: Membership Inference Attacks on Memory in Chat Agents')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We read twelve well-known LLM agent benchmark papers and recorded, dimension by dimension, what each paper actually says about how its evaluation was run. The motivation came from a familiar frustration: two papers will report results on the same benchmark with the same model name and disagree, and you cannot tell why -- the scaffold, the sampling settings, the subset, or the evaluator version. In many cases the published artifact does not let you answer. This paper is an implementation report on the attempt. We designed a small audit schema (five fields: benchmark identity, harness specification, inference settings, cost reporting, failure breakdown), wrote a scoring codebook with the boundary cases we hit during pilot scoring, applied it to twelve canonical papers (eight agent, four classical static), and recorded what we saw. We score the disclosure of an agent run, not its correctness, and make no claim that disclosure implies a trustworthy result. The mean audit score across the eight agent-benchmark papers is 0.38 (out of 1.0), and across the four classical static benchmarks 0.66; the largest gap is on cost (none of the eight agent benchmark papers disclose inference cost in any form) and on harness specification (none fully disclose a content-addressed container image of the evaluation environment). We release the schema as a JSON Schema file, the codebook as a Markdown document, and the raw scoring sheet as a CSV. The scoring was performed by a single auditor in one pass; a multi-rater audit is the natural next step, and we discuss what we think it would change.",
+          "claimed_authors": [
+            "Mahdi Naser Moghadasi",
+            "Faezeh Ghaderi"
+          ],
+          "claimed_title": "What Twelve LLM Agent Benchmark Papers Disclose About Themselves: A Pilot Audit and an Open Scoring Schema",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.21404"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='What Twelve LLM Agent Benchmark Papers Disclose About Themselves: A Pilot Audit and an Open Scoring Schema')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_authors": [
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
+          ],
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01907"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Integrating large language models (LLMs) into personal assistants, like Xiao Ai and Blue Heart V, effectively enhances their ability to interact with humans, solve complex tasks, and manage IoT devices. Such assistants are also termed LLM-driven agents. Upon receiving user requests, the LLM-driven agent generates plans using an LLM, executes these plans through various tools, and then returns the response to the user. During this process, the latency for generating a plan with an LLM can reach tens of seconds, significantly degrading user experience. Real-world dataset analysis shows that about 30% of the requests received by LLM-driven agents are identical or similar, which allows the reuse of previously generated plans to reduce latency. However, it is difficult to accurately define the similarity between the request texts received by the LLM-driven agent through directly evaluating the original request texts. Moreover, the diverse expressions of natural language and the unstructured format of plan texts make implementing plan reuse challenging. To address these issues, we present and implement a plan reuse mechanism for LLM-driven agents called AgentReuse. AgentReuse leverages the similarities and differences among requests' semantics and uses intent classification to evaluate the similarities between requests and enable the reuse of plans. Experimental results based on a real-world dataset demonstrate that AgentReuse achieves a 93% effective plan reuse rate, an F1 score of 0.9718, and an accuracy of 0.9459 in evaluating request similarities, reducing latency by 93.12% compared with baselines without using the reuse mechanism.",
+          "claimed_authors": [
+            "Guopeng Li",
+            "Ruiqi Wu",
+            "Haisheng Tan"
+          ],
+          "claimed_title": "A Plan Reuse Mechanism for LLM-Driven Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.21309"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='A Plan Reuse Mechanism for LLM-Driven Agent')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_authors": [
+            "Giang Nguyen"
+          ],
+          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Catastrophic forgetting remains a severe hindrance to the broad application of artificial neural networks (ANNs), however, it continues to be a poorly understood phenomenon. Despite the extensive amount of work on catastrophic forgetting, we argue that it is still unclear how exactly the phenomenon should be quantified, and, moreover, to what degree all of the choices we make when designing learning systems affect the amount of catastrophic forgetting. We use various testbeds from the reinforcement learning and supervised learning literature to (1) provide evidence that the choice of which modern gradient-based optimization algorithm is used to train an ANN has a significant impact on the amount of catastrophic forgetting and show that-surprisingly-in many instances classical algorithms such as vanilla SGD experience less catastrophic forgetting than the more modern algorithms such as Adam. We empirically compare four different existing metrics for quantifying catastrophic forgetting and (2) show that the degree to which the learning systems experience catastrophic forgetting is sufficiently sensitive to the metric used that a change from one principled metric to another is enough to change the conclusions of a study dramatically. Our results suggest that a much more rigorous experimental methodology is required when looking at catastrophic forgetting. Based on our results, we recommend inter-task forgetting in supervised learning must be measured with both retention and relearning metrics concurrently, and intra-task forgetting in reinforcement learning must-at the very least-be measured with pairwise interference.",
+          "claimed_authors": [
+            "Dylan R. Ashley",
+            "Sina Ghiassian",
+            "Richard S. Sutton"
+          ],
+          "claimed_title": "Does the Adam Optimizer Exacerbate Catastrophic Forgetting?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.07686"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Does the Adam Optimizer Exacerbate Catastrophic Forgetting?')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual learning (CL) is a setting in which an agent has to learn from an incoming stream of data during its entire lifetime. Although major advances have been made in the field, one recurring problem which remains unsolved is that of Catastrophic Forgetting (CF). While the issue has been extensively studied empirically, little attention has been paid from a theoretical angle. In this paper, we show that the impact of CF increases as two tasks increasingly align. We introduce a measure of task similarity called the NTK overlap matrix which is at the core of CF. We analyze common projected gradient algorithms and demonstrate how they mitigate forgetting. Then, we propose a variant of Orthogonal Gradient Descent (OGD) which leverages structure of the data through Principal Component Analysis (PCA). Experiments support our theoretical findings and show how our method can help reduce CF on classical CL datasets.",
+          "claimed_authors": [
+            "Thang Doan",
+            "Mehdi Bennani",
+            "Bogdan Mazoure",
+            "Guillaume Rabusseau",
+            "Pierre Alquier"
+          ],
+          "claimed_title": "A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.04003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Training agentic models for terminal-based tasks critically depends on high-quality terminal trajectories that capture realistic long-horizon interactions across diverse domains. However, constructing such data at scale remains challenging due to two key requirements: \\textbf{\\emph{Executability}}, since each instance requires a suitable and often distinct Docker environment; and \\textbf{\\emph{Verifiability}}, because heterogeneous task outputs preclude unified, standardized verification. To address these challenges, we propose \\textbf{TerminalTraj}, a scalable pipeline that (i) filters high-quality repositories to construct Dockerized execution environments, (ii) generates Docker-aligned task instances, and (iii) synthesizes agent trajectories with executable validation code. Using TerminalTraj, we curate 32K Docker images and generate 50,733 verified terminal trajectories across eight domains. Models trained on this data with the Qwen2.5-Coder backbone achieve consistent performance improvements on TerminalBench (TB), with gains of up to 20\\% on TB~1.0 and 10\\% on TB~2.0 over their respective backbones. Notably, \\textbf{TerminalTraj-32B} achieves strong performance among models with fewer than 100B parameters, reaching 35.30\\% on TB~1.0 and 22.00\\% on TB~2.0, and demonstrates improved test-time scaling behavior. All code and data are available at https://github.com/Wusiwei0410/TerminalTraj.",
+          "claimed_authors": [
+            "Siwei Wu",
+            "Yizhi Li",
+            "Yuyang Song",
+            "Wei Zhang",
+            "Yang Wang",
+            "Riza Batista-Navarro",
+            "Xian Yang",
+            "Mingjie Tang",
+            "Bryan Dai",
+            "Jian Yang",
+            "Chenghua Lin"
+          ],
+          "claimed_title": "Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.01244"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in visual generative models have enabled high-quality image and video generation, opening diverse applications. However, evaluating these models often demands sampling hundreds or thousands of images or videos, making the process computationally expensive, especially for diffusion-based models with inherently slow sampling. Moreover, existing evaluation methods rely on rigid pipelines that overlook specific user needs and provide numerical results without clear explanations. In contrast, humans can quickly form impressions of a model's capabilities by observing only a few samples. To mimic this, we propose the Evaluation Agent framework, which employs human-like strategies for efficient, dynamic, multi-round evaluations using only a few samples per round, while offering detailed, user-tailored analyses. It offers four key advantages: 1) efficiency, 2) promptable evaluation tailored to diverse user needs, 3) explainability beyond single numerical scores, and 4) scalability across various models and tools. Experiments show that Evaluation Agent reduces evaluation time to 10% of traditional methods while delivering comparable results. The Evaluation Agent framework is fully open-sourced to advance research in visual generative models and their efficient evaluation.",
+          "claimed_authors": [
+            "Fan Zhang",
+            "Shulin Tian",
+            "Ziqi Huang",
+            "Yu Qiao",
+            "Ziwei Liu"
+          ],
+          "claimed_title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.09645"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent evaluations of Large Language Models (LLMs) have centered around testing their zero-shot/few-shot capabilities for basic natural language tasks and their ability to translate instructions into tool APIs. However, the evaluation of LLMs utilizing complex tools to finish multi-turn, multi-modal instructions in a complex multi-modal environment has not been investigated. To address this gap, we introduce the PowerPoint Task Completion (PPTC) benchmark to assess LLMs' ability to create and edit PPT files based on user instructions. It contains 279 multi-turn sessions covering diverse topics and hundreds of instructions involving multi-modal operations. We also propose the PPTX-Match Evaluation System that evaluates if LLMs finish the instruction based on the prediction file rather than the label API sequence, thus it supports various LLM-generated API sequences. We measure 3 closed LLMs and 6 open-source LLMs. The results show that GPT-4 outperforms other LLMs with 75.1\\% accuracy in single-turn dialogue testing but faces challenges in completing entire sessions, achieving just 6\\% session accuracy. We find three main error causes in our benchmark: error accumulation in the multi-turn session, long PPT template processing, and multi-modality perception. These pose great challenges for future LLM and agent systems. We release the data, code, and evaluation system of PPTC at \\url{https://github.com/gydpku/PPTC}.",
+          "claimed_authors": [
+            "Yiduo Guo",
+            "Zekai Zhang",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01767"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing large language models (LLMs) can only afford fix-sized inputs due to the input length limit, preventing them from utilizing rich long-context information from past inputs. To address this, we propose a framework, Language Models Augmented with Long-Term Memory (LongMem), which enables LLMs to memorize long history. We design a novel decoupled network architecture with the original backbone LLM frozen as a memory encoder and an adaptive residual side-network as a memory retriever and reader. Such a decoupled memory design can easily cache and update long-term past contexts for memory retrieval without suffering from memory staleness. Enhanced with memory-augmented adaptation training, LongMem can thus memorize long past context and use long-term memory for language modeling. The proposed memory retrieval module can handle unlimited-length context in its memory bank to benefit various downstream tasks. Typically, LongMem can enlarge the long-form memory to 65k tokens and thus cache many-shot extra demonstration examples as long-form memory for in-context learning. Experiments show that our method outperforms strong long-context models on ChapterBreak, a challenging long-context modeling benchmark, and achieves remarkable improvements on memory-augmented in-context learning over LLMs. The results demonstrate that the proposed method is effective in helping language models to memorize and utilize long-form contents. Our code is open-sourced at https://aka.ms/LongMem.",
+          "claimed_authors": [
+            "Weizhi Wang",
+            "Li Dong",
+            "Hao Cheng",
+            "Xiaodong Liu",
+            "Xifeng Yan",
+            "Jianfeng Gao",
+            "Furu Wei"
+          ],
+          "claimed_title": "Augmenting Language Models with Long-Term Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.07174"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Augmenting Language Models with Long-Term Memory')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM agents increasingly rely on persistent long-term memory, which creates a critical vulnerability that we study here: memory poisoning. An adversary can store untrusted content in one session that later steers a consequential action, such as a payment, a setting change, or data exfiltration, in a future session. Existing defenses base a memory item's authority to act on either its content (detection or trust-scoring) or its derivation history (lineage). We show that both signals are malleable. An attacker can launder an untrusted origin through three channels specific to LLM agents: the agent's own summarization, a trusted-tool echo, and manufactured corroboration. Each makes the content look benign and breaks or flips its derivation edge to ``trusted.'' We formalize malleability for the memory write-retrieve-act pipeline and prove a machine-checked separation theorem. No content- or lineage-based defense is sound under laundering (T1), write-time origin binding is necessary (T2), and non-malleable origin-bound authority with Sybil-resistant corroboration-gated elevation is sufficient (T3). Our construction, TMA-NM (Tamper-evident Memory Authority, Non-Malleable), instantiates non-malleable information-flow control (IFC) for LLM-agent memory. A cross-defense, cross-attack, and cross-model benchmark over eight frontier models shows that existing defenses fail exactly where the theory predicts (up to 68% laundering attack-success), while TMA-NM reaches 0% attack success on both direct and laundering attacks across all models and channels, at full legitimate utility. We release the benchmark, harness, and machine-checked TLA+ models to support reproducibility.",
+          "claimed_authors": [
+            "Yedidel Louck"
+          ],
+          "claimed_title": "Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.24322"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Test-time adaptation (TTA) of vision-language models (VLMs) is essential for their robust deployment in dynamic, real-world environments. However, existing TTA methods often adapt locally without accumulating knowledge over time, or operating within a single modality without exploiting VLMs' inherently multi-modal nature. Inspired by the \\textbf{Com}plementary \\textbf{Mem}ory systems of the biological brain, we propose \\textbf{ComMem}, an innovative approach that mimics the distinct but cooperative roles of the hippocampus and neocortex to enable effective TTA for VLMs. ComMem consists of two key components: a fast-adapting detailed memory, akin to the hippocampus, that forms a dynamic visual cache from high-confidence test samples; and a slow-integrating abstract memory, akin to the neocortex, that continually refines global textual prototypes. For each test instance, ComMem jointly optimizes both memory systems to ensure cross-modal consistency. Extensive experiments on 15 benchmark datasets show that ComMem significantly outperforms state-of-the-art methods under both natural distribution shifts and cross-dataset generalization, offering a promising direction for enhancing VLMs' practical adaptability.",
+          "claimed_authors": [
+            "Guanglong Sun",
+            "Shuang Cui",
+            "Bo Lei",
+            "Liyuan Wang",
+            "Zihan Zhai",
+            "Hongwei Yan",
+            "Hang Su",
+            "Jun Zhu",
+            "Yi Zhong"
+          ],
+          "claimed_title": "ComMem: Complementary Memory Systems for Test-Time Adaptation of Vision-Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.28719"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"EvoArena: Tracking Memory Evolution for Robust LLM', candidate_title='ComMem: Complementary Memory Systems for Test-Time Adaptation of Vision-Language Models')",
+        "failed_at": "2026-07-12T18:41:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yedidel Louck"
+          ],
+          "title": "Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.24322",
+        "summary": "LLM agents increasingly rely on persistent long-term memory, which creates a critical vulnerability that we study here: memory poisoning. An adversary can store untrusted content in one session that later steers a consequential action, such as a payment, a setting change, or data exfiltration, in a future session. Existing defenses base a memory item's authority to act on either its content (detection or trust-scoring) or its derivation history (lineage). We show that both signals are malleable. An attacker can launder an untrusted origin through three channels specific to LLM agents: the agent's own summarization, a trusted-tool echo, and manufactured corroboration. Each makes the content look benign and breaks or flips its derivation edge to ``trusted.'' We formalize malleability for the memory write-retrieve-act pipeline and prove a machine-checked separation theorem. No content- or lineage-based defense is sound under laundering (T1), write-time origin binding is necessary (T2), and non-malleable origin-bound authority with Sybil-resistant corroboration-gated elevation is sufficient (T3). Our construction, TMA-NM (Tamper-evident Memory Authority, Non-Malleable), instantiates non-malleable information-flow control (IFC) for LLM-agent memory. A cross-defense, cross-attack, and cross-model benchmark over eight frontier models shows that existing defenses fail exactly where the theory predicts (up to 68% laundering attack-success), while TMA-NM reaches 0% attack success on both direct and laundering attacks across all models and channels, at full legitimate utility. We release the benchmark, harness, and machine-checked TLA+ models to support reproducibility.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.24322",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T18:41:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chenyu Zhou",
+            "Huacan Chai",
+            "Wenteng Chen",
+            "Zihan Guo",
+            "Rong Shan",
+            "Yuanyi Song",
+            "Tianyi Xu",
+            "Yingxuan Yang",
+            "Aofan Yu",
+            "Weiming Zhang",
+            "Congming Zheng",
+            "Jiachen Zhu",
+            "Zeyu Zheng",
+            "Zhuosheng Zhang",
+            "Xingyu Lou",
+            "Changwang Zhang",
+            "Zhihui Fu",
+            "Jun Wang",
+            "Weiwen Liu",
+            "Jianghao Lin",
+            "Weinan Zhang"
+          ],
+          "title": "Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.08224",
+        "summary": "Large language model (LLM) agents are increasingly built less by changing model weights than by reorganizing the runtime around them. Capabilities that earlier systems expected the model to recover internally are now externalized into memory stores, reusable skills, interaction protocols, and the surrounding harness that makes these modules reliable in practice. This paper reviews that shift through the lens of externalization. Drawing on the idea of cognitive artifacts, we argue that agent infrastructure matters not merely because it adds auxiliary components, but because it transforms hard cognitive burdens into forms that the model can solve more reliably. Under this view, memory externalizes state across time, skills externalize procedural expertise, protocols externalize interaction structure, and harness engineering serves as the unification layer that coordinates them into governed execution. We trace a historical progression from weights to context to harness, analyze memory, skills, and protocols as three distinct but coupled forms of externalization, and examine how they interact inside a larger agent system. We further discuss the trade-off between parametric and externalized capability, identify emerging directions such as self-evolving harnesses and shared agent infrastructure, and discuss open challenges in evaluation, governance, and the long-term co-evolution of models and external infrastructure. The result is a systems-level framework for explaining why practical agent progress increasingly depends not only on stronger models, but on better external cognitive infrastructure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.08224",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T18:41:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haoran Sun",
+            "Zekun Zhang",
+            "Shaoning Zeng"
+          ],
+          "title": "Preference-Aware Memory Update for Long-Term LLM Agents",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.09720",
+        "summary": "One of the key factors influencing the reasoning capabilities of LLM-based agents is their ability to leverage long-term memory. Integrating long-term memory mechanisms allows agents to make informed decisions grounded in historical interactions. While recent advances have significantly improved the storage and retrieval components, by encoding memory into dense vectors for similarity search or organizing memory as structured knowledge graphs most existing approaches fall short in memory updating. In particular, they lack mechanisms for dynamically refining preference memory representations in response to evolving user behaviors and contexts. To address this gap, we propose a Preference-Aware Memory Update Mechanism (PAMU) that enables dynamic and personalized memory refinement. By integrating sliding window averages (SW) with exponential moving averages (EMA), PAMU constructs a fused preference-aware representation that captures both short-term fluctuations and long-term user tendencies. We conduct experiments on five task scenarios of the LoCoMo dataset, and the results show that our mechanism can significantly improve the output quality of LLM in five baselines, validating its effectiveness in long-term conversations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.09720",
+          "http_status": 200,
+          "pdf_sample_score": 0.2312,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T18:41:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mathis Pink",
+            "Qinyuan Wu",
+            "Vy Ai Vo",
+            "Javier Turek",
+            "Jianing Mu",
+            "Alexander Huth",
+            "Mariya Toneva"
+          ],
+          "title": "Position: Episodic Memory is the Missing Piece for Long-Term LLM Agents",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.06975",
+        "summary": "As Large Language Models (LLMs) evolve from text-completion tools into fully fledged agents operating in dynamic environments, they must address the challenge of continually learning and retaining long-term knowledge. Many biological systems solve these challenges with episodic memory, which supports single-shot learning of instance-specific contexts. Inspired by this, we present an episodic memory framework for LLM agents, centered around five key properties of episodic memory that underlie adaptive and context-sensitive behavior. With various research efforts already partially covering these properties, this position paper argues that now is the right time for an explicit, integrated focus on episodic memory to catalyze the development of long-term agents. To this end, we outline a roadmap that unites several research directions under the goal to support all five properties of episodic memory for more efficient long-term LLM agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.06975",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T18:41:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"evoarena: tracking memory evolution for robust llm agents in dynamic e\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

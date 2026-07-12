@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.24322",
+  "judged_at": "2026-07-12T18:41:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"evoarena: tracking memory evolution for robust llm agents in dynamic e\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by investigating the same core mechanism of \"memory evolution\" and \"long-term memory\" in LLM agents, specifically focusing on the robustness and integrity of that memory against adversarial manipulation (poisoning), which is a critical aspect of tracking memory evolution in dynamic environments. It also meets criterion (b) by providing empirical benchmarks on the \"robustness\" of LLM agents' memory systems, a key dependent variable in the user's query about robu",
+  "relevant": true
+}

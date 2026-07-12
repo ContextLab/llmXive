@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Log Schema"
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Reference to the task instance."
+  agent_variant:
+    type: "string"
+    enum:
+      - "EvoMem-All"
+      - "EvoMem-Conflict"
+    description: "The agent variant used for execution."
+  step_id:
+    type: "integer"
+    description: "Step number within the task."
+  retrieved_patches:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of patch IDs retrieved for this step."
+  context_tokens:
+    type: "integer"
+    description: "Total tokens in the context window."
+  inference_time:
+    type: "number"
+    description: "Time taken for inference in seconds."
+  success_status:
+    type: "boolean"
+    description: "True if the step succeeded."
+  hallucination_flag:
+    type: "boolean"
+    description: "True if a hallucination was detected."
+required:
+  - task_id
+  - agent_variant
+  - step_id
+  - retrieved_patches
+  - context_tokens
+  - inference_time
+  - success_status
+  - hallucination_flag
