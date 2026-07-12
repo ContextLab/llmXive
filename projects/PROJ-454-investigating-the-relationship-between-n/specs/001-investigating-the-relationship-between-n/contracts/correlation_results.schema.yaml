@@ -1,57 +1,91 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Regression Results Schema"
-type: "object"
-properties:
-  frequency_band:
-    type: "string"
-    description: "Frequency band"
-    enum:
-      - "delta"
-      - "theta"
-      - "alpha"
-      - "beta"
-      - "gamma"
-  entropy_type:
-    type: "string"
-    description: "Entropy measure (Sample or Approximate)"
-    enum:
-      - "sample"
-      - "approximate"
-  partial_r:
-    type: "number"
-    description: "Partial correlation coefficient (derived from OLS)"
-  p_value:
-    type: "number"
-    description: "Raw p-value"
-  p_value_fdr:
-    type: "number"
-    description: "Benjamini-Hochberg FDR corrected p-value"
-  significant:
-    type: "boolean"
-    description: "Whether result is significant after FDR correction"
-  effect_size_class:
-    type: "string"
-    description: "Classification of effect size"
-    enum:
-      - "negligible"
-      - "small"
-      - "medium"
-      - "large"
-      - "clinically_meaningful"
-  vif:
-    type: "number"
-    description: "Variance Inflation Factor for this predictor"
-  collinearity_flag:
-    type: "boolean"
-    description: "True if VIF > 5"
+$schema: http://json-schema.org/draft-07/schema#
+title: Correlation Results Schema
+description: |
+  Schema for the output of the Multiple Linear Regression (OLS) analysis.
+  Includes OLS coefficients, p-values, FDR-corrected p-values, and effect sizes.
+type: object
 required:
-  - frequency_band
-  - entropy_type
-  - partial_r
+  - predictor_variable
+  - outcome_variable
+  - model_type
+  - coefficient
+  - std_error
+  - t_statistic
   - p_value
   - p_value_fdr
-  - significant
+  - partial_r
   - effect_size_class
-  - vif
-  - collinearity_flag
-additionalProperties: false
+  - vif_score
+properties:
+  predictor_variable:
+    type: string
+    description: Name of the independent variable (e.g., delta_sample_entropy)
+  outcome_variable:
+    type: string
+    description: Name of the dependent variable (e.g., wcst_perseverative_errors)
+  model_type:
+    type: string
+    enum:
+      - OLS
+      - OLS_FDR
+    description: Type of statistical model used
+  coefficient:
+    type: number
+    description: Regression coefficient (beta)
+  std_error:
+    type: number
+    description: Standard error of the coefficient
+  t_statistic:
+    type: number
+    description: T-statistic for the coefficient
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Raw p-value from the regression
+  p_value_fdr:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Benjamini-Hochberg FDR corrected p-value
+  p_value_bonferroni:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Bonferroni corrected p-value (historical tracking only)
+  partial_r:
+    type: number
+    description: Partial correlation coefficient
+  effect_size_class:
+    type: string
+    enum:
+      - negligible
+      - small
+      - medium
+      - large
+    description: Classification of effect size based on partial_r
+  vif_score:
+    type: number
+    minimum: 1
+    description: Variance Inflation Factor for the predictor
+  n_observations:
+    type: integer
+    minimum: 1
+    description: Number of observations used in the model
+  r_squared:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: R-squared value of the full model
+  adj_r_squared:
+    type: number
+    description: Adjusted R-squared value
+  covariates_used:
+    type: array
+    description: List of covariates included in the model
+    items:
+      type: string
+  timestamp:
+    type: string
+    format: date-time
+    description: Timestamp of the analysis run

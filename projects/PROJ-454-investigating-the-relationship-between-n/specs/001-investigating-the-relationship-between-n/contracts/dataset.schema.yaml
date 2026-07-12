@@ -1,52 +1,67 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "EEG Dataset Schema"
-description: "Schema for the verified OpenNeuro/NeuroFusion dataset structure. Must contain EEG channels and behavioral metrics."
-type: "object"
-properties:
-  participant_id:
-    type: "string"
-    description: "Unique identifier for the participant."
-  age:
-    type: "integer"
-    minimum: 50
-    description: "Participant age in years."
-  education_years:
-    type: "integer"
-    description: "Years of education."
-  neurological_condition:
-    type: "boolean"
-    description: "Flag for known neurological conditions."
-  medication_use:
-    type: "string"
-    description: "Description of medication affecting EEG."
-  eeg_data:
-    type: "object"
-    description: "Nested object for EEG time-series or pre-processed features."
-    required:
-      - "sampling_rate"
-      - "channels"
-    properties:
-      sampling_rate:
-        type: "number"
-        minimum: 100
-      channels:
-        type: "array"
-        items:
-          type: "string"
-      duration_seconds:
-        type: "number"
-        minimum: 60
-  wcst_perseverative_errors:
-    type: "integer"
-    description: "Number of perseverative errors on WCST. REQUIRED for analysis."
-  task_accuracy:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Accuracy from a separate attention task."
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Metadata Schema
+description: |
+  Schema for validating raw dataset metadata downloaded from OpenNeuro.
+  Ensures required fields for variable fit verification (WCST, Age) are present.
+type: object
 required:
-  - "participant_id"
-  - "age"
-  - "eeg_data"
-  - "wcst_perseverative_errors"
-additionalProperties: true
+  - dataset_id
+  - source_url
+  - download_timestamp
+  - checksums
+  - behavioral_columns
+properties:
+  dataset_id:
+    type: string
+    description: OpenNeuro dataset identifier (e.g., ds003104)
+  source_url:
+    type: string
+    format: uri
+    description: URL from which the dataset was fetched
+  download_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the download
+  checksums:
+    type: object
+    description: MD5 checksums for integrity verification of downloaded files
+    additionalProperties:
+      type: string
+  behavioral_columns:
+    type: array
+    description: List of column names found in the behavioral data file
+    items:
+      type: string
+    minItems: 1
+  participant_count:
+    type: integer
+    minimum: 0
+    description: Total number of participants in the raw dataset
+  age_range:
+    type: object
+    description: Range of ages in the dataset
+    required:
+      - min
+      - max
+    properties:
+      min:
+        type: integer
+        minimum: 0
+      max:
+        type: integer
+        minimum: 0
+  variable_fit_status:
+    type: string
+    enum:
+      - PASS
+      - FAIL
+      - PENDING
+    description: Result of the verify_variable_fit check
+  missing_variables:
+    type: array
+    description: List of required variables missing from the dataset
+    items:
+      type: string
+  raw_data_path:
+    type: string
+    description: Relative path to the raw data directory under data/raw/

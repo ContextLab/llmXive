@@ -1,35 +1,61 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Entropy Output Schema"
-type: "object"
-properties:
-  participant_id:
-    type: "string"
-    description: "Participant ID"
-  frequency_band:
-    type: "string"
-    description: "Frequency band name"
-    enum:
-      - "delta"
-      - "theta"
-      - "alpha"
-      - "beta"
-      - "gamma"
-  entropy_type:
-    type: "string"
-    description: "Type of entropy"
-    enum:
-      - "sample"
-      - "approximate"
-  value:
-    type: "number"
-    description: "Computed entropy value"
-  valid:
-    type: "boolean"
-    description: "Whether the computation was successful"
+$schema: http://json-schema.org/draft-07/schema#
+title: Entropy Output Schema
+description: |
+  Schema for the computed entropy metrics (Sample and Approximate) across frequency bands.
+  Used to validate `data/processed/entropy_metrics.csv` structure.
+type: object
 required:
   - participant_id
   - frequency_band
-  - entropy_type
-  - value
-  - valid
-additionalProperties: false
+  - sample_entropy
+  - approximate_entropy
+  - snr_db
+  - processing_timestamp
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant
+  frequency_band:
+    type: string
+    enum:
+      - delta
+      - theta
+      - alpha
+      - beta
+      - gamma
+    description: EEG frequency band name
+  sample_entropy:
+    type: number
+    description: Computed Sample Entropy value (SampEn)
+    exclusiveMinimum: -1
+  approximate_entropy:
+    type: number
+    description: Computed Approximate Entropy value (ApEn)
+    exclusiveMinimum: -1
+  snr_db:
+    type: number
+    description: Signal-to-Noise Ratio in decibels for this segment
+  epoch_count:
+    type: integer
+    minimum: 1
+    description: Number of valid epochs used for calculation
+  artifact_percentage:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: Percentage of data removed due to artifacts
+  processing_timestamp:
+    type: string
+    format: date-time
+    description: Timestamp when entropy was computed
+  quality_flag:
+    type: string
+    enum:
+      - PASS
+      - WARN
+      - FAIL
+    description: Quality check result for this calculation
+  exclusion_reason:
+    type: string
+    nullable: true
+    description: Reason for exclusion if quality_flag is FAIL

@@ -1,75 +1,72 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Output Schema"
-description: "Schema for the final correlation results and sensitivity analysis outputs."
-type: "object"
-properties:
-  analysis_metadata:
-    type: "object"
-    properties:
-      dataset_source:
-        type: "string"
-      participants_included:
-        type: "integer"
-      participants_excluded:
-        type: "integer"
-      fdr_threshold:
-        type: "number"
-        const: 0.05
-  correlations:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        frequency_band:
-          type: "string"
-          enum: ["delta", "theta", "alpha", "beta", "gamma"]
-        entropy_type:
-          type: "string"
-          enum: ["sampen", "apen"]
-        partial_r:
-          type: "number"
-        p_value_raw:
-          type: "number"
-        p_value_fdr:
-          type: "number"
-        significant:
-          type: "boolean"
-        vif:
-          type: "number"
-      required:
-        - "frequency_band"
-        - "entropy_type"
-        - "partial_r"
-        - "p_value_raw"
-        - "p_value_fdr"
-        - "significant"
-        - "vif"
-  sensitivity_analysis:
-    type: "object"
-    properties:
-      exclusion_scenario:
-        type: "string"
-        description: "Description of the exclusion criteria applied."
-      correlation_change:
-        type: "number"
-        description: "Difference in partial r compared to main analysis."
-      p_value_change:
-        type: "number"
-        description: "Difference in p-value compared to main analysis."
-      cv_threshold:
-        type: "number"
-        description: "Coefficient of Variation threshold used (0.1)."
-      is_unstable:
-        type: "boolean"
-        description: "True if CV > 0.1."
-    required:
-      - "exclusion_scenario"
-      - "correlation_change"
-      - "p_value_change"
-      - "cv_threshold"
-      - "is_unstable"
+$schema: http://json-schema.org/draft-07/schema#
+title: General Output Schema
+description: |
+  Generic schema for aggregated output files, sensitivity reports, and final summaries.
+  Used to validate `data/processed/sensitivity_report.json` and similar artifacts.
+type: object
 required:
-  - "analysis_metadata"
-  - "correlations"
-  - "sensitivity_analysis"
-additionalProperties: false
+  - report_type
+  - generated_at
+  - version
+  - data
+properties:
+  report_type:
+    type: string
+    enum:
+      - sensitivity_analysis
+      - final_report
+      - exclusion_log
+      - methodology_notes
+    description: Type of the generated report
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of report generation
+  version:
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+    description: Semantic version of the report format
+  pipeline_run_id:
+    type: string
+    description: Unique identifier for the pipeline execution
+  data:
+    type: object
+    description: Flexible payload containing the actual report data
+    additionalProperties: true
+  summary:
+    type: object
+    description: High-level summary of findings
+    properties:
+      total_participants:
+        type: integer
+      excluded_participants:
+        type: integer
+      significant_correlations:
+        type: integer
+      methodology:
+        type: string
+  metadata:
+    type: object
+    description: Additional metadata about the run
+    properties:
+      python_version:
+        type: string
+      dependencies:
+        type: object
+        additionalProperties:
+          type: string
+      config_hash:
+        type: string
+        description: Hash of the configuration used to generate this report
+  validation_status:
+    type: string
+    enum:
+      - VALID
+      - INVALID
+      - UNKNOWN
+    description: Result of schema validation against this file
+  warnings:
+    type: array
+    items:
+      type: string
+    description: List of warnings generated during report generation

@@ -1,0 +1,20 @@
+T009 Setup environment configuration management for dataset URLs and thresholds: 1
+T010 [P] [US1] Contract test for `dataset.schema.yaml` validation in `tests/contract/test_dataset_schema.py`: 1
+T011 [P] [US1] Unit test for entropy calculation stability (no NaN/Inf) in `tests/unit/test_entropy.py`: 1
+? 'T012 [US1] Implement `code/01_download_data.py`: Fetch OpenNeuro datasets (ds,
+  ds003104). **Verify variable fit**: Check metadata for ''wcst_perseverative_errors''
+  column and ''age >= 50''. **Input**: OpenNeuro API. **Output**: `data/raw/` parquet
+  files with checksums. (FR-001, FR-010, FR-011)'
+: 1
+? 'T012b [US1] Extract and convert behavioral scores from `data/raw/` parquet files
+  to `data/processed/behavioral_scores.csv`. **Critical**: Must explicitly **verify
+  WCST column existence** (referencing T012''s variable-fit check) before extraction.
+  **If missing, halt with ''DATASET_VARIABLE_MISMATCH'' error**. **Input**: `data/raw/`
+  (after T012 variable-fit check). **Output**: `data/processed/behavioral_scores.csv`.
+  (Ordering Fix: T012b depends on T012 variable-fit check)'
+: 1
+? 'T013 [US1] Implement the preprocessing script for EEG data: Bandpass (1-45 Hz),
+  Notch (50/60Hz), Bad channel interpolation, ICA artifact removal, 2s non-overlapping
+  epochs. **Input**: `data/raw/`. **Output**: `data/processed/` epoched data. (FR-002,
+  US-1)'
+: 1

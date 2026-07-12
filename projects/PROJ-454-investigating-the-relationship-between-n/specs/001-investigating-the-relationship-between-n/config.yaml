@@ -1,0 +1,54 @@
+# Environment Configuration for Neural Entropy and Cognitive Flexibility Study
+# This file contains all external data sources and analysis thresholds
+# to ensure reproducibility and easy configuration management.
+
+datasets:
+  openneuro:
+    base_url: "https://api.openneuro.org"
+    datasets:
+      - id: "ds003104"
+        description: "Neural entropy and cognitive flexibility in aging dataset"
+        required_variables:
+          - "wcst_perseverative_errors"
+          - "age"
+        min_age: 50
+
+thresholds:
+  # Signal-to-Noise Ratio threshold (dB)
+  snr_min_db: 5.0
+  
+  # Data quality exclusion criteria
+  max_corrupted_segments_pct: 20.0
+  min_valid_eeg_seconds: 60
+  
+  # Artifact rejection threshold (percentage of amplitude deviation)
+  artifact_rejection_threshold_pct: 20.0
+  
+  # Multicollinearity detection threshold
+  vif_threshold: 5.0
+  
+  # Clinically meaningful effect size threshold
+  effect_size_meaningful: 0.3
+
+bands:
+  # Frequency bands for entropy computation (Hz)
+  delta: [0.5, 4.0]
+  theta: [4.0, 8.0]
+  alpha: [8.0, 13.0]
+  beta: [13.0, 30.0]
+  gamma: [30.0, 45.0]
+
+filters:
+  # EEG preprocessing filter settings
+  bandpass_low: 1.0
+  bandpass_high: 45.0
+  notch_frequencies:
+    - 50
+    - 60
+
+paths:
+  # Relative paths from project root
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  logs: "logs"
+  reports: "reports"

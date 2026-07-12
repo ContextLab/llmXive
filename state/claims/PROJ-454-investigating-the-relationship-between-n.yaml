@@ -1,0 +1,453 @@
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Multiple Linear Regression (OLS) between Entropy metrics and WCST errors
+    controlling for Age, Education, Task Accuracy, Neurological Condition, Medication
+  claim_id: c_4634e0a3
+  context: 'Phase 4: User Story 2 - Implement code/04_regression_analysis.py: Perform
+    Multiple Linear Regression (OLS) between Entropy metrics and WCST errors. This
+    is the primary and only statistical test per Plan deviation (replaces Partial
+    Pearson). Controls: Age, Education, Task Accuracy, Neurological Condition, Medication.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple_Linear_Regression_(OLS)_between_Entropy_metrics_and
+  kind: entity_fact
+  raw_text: Task T020a performs Multiple Linear Regression (OLS) between Entropy metrics
+    and WCST errors, controlling for Age, Education, Task Accuracy, Neurological Condition,
+    and Medication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:05:50Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds003104 targeted for data download
+  claim_id: c_9ff09aba
+  context: 'Phase 3: User Story 1 - Implement code/01_download_data.py: Fetch OpenNeuro
+    datasets (ds, ds003104).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds003104_targeted_for_data_download
+  kind: entity_fact
+  raw_text: The project targets the OpenNeuro dataset ds003104.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:06:09Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: exclude participants with less than 60 seconds valid EEG more than 20
+    percent corrupted segments or SNR less than 5dB
+  claim_id: c_ec693acd
+  context: 'Add data quality checks to code/02_preprocess_eeg.py: Exclude participants
+    with <60s valid EEG, >20% corrupted segments, OR SNR < 5dB (consuming T014 output).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_less_than_60_seconds_valid_EEG_mor
+  kind: magnitude
+  raw_text: Exclude participants with <60s valid EEG, >20% corrupted segments, OR
+    SNR < 5dB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:09:25Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: drop approximate entropy if VIF greater than 5 and re-run OLS
+  claim_id: c_bea214e7
+  context: 'Logic: 1. Calculate VIF for all predictors in OLS model first. 2. If VIF
+    > 5, drop Approximate Entropy (ApEn) and re-run OLS.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_approximate_entropy_if_VIF_greater_than_5_and_re-run_OL
+  kind: magnitude
+  raw_text: If VIF > 5, drop Approximate Entropy (ApEn) and re-run OLS
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:09:42Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: artifact rejection threshold range from 15 percent to 25 percent amplitude
+    deviation
+  claim_id: c_684cd639
+  context: 'Cutoffs to sweep: 1. Artifact rejection threshold (range: 15% to 25% amplitude
+    deviation).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Artifact rejection threshold range is 15% to 25% amplitude deviation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:09:42Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: SNR threshold sweep range from dB to 7 dB
+  claim_id: c_9f2d0b05
+  context: 'SNR threshold (range: dB to 7 dB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SNR threshold sweep range is dB to 7 dB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:09:55Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: sweep values 0.0 0.05 0.1 absolute difference from baseline
+  claim_id: c_bdb1cf2a
+  context: 'Sweep values: {0.0, 0.05, 0.1} absolute difference from baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep values are {0.0, 0.05, 0.1} absolute difference from baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:10:46Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: reduce peak memory in code/02_preprocess_eeg.py to less than 6GB
+  claim_id: c_ffc37f30
+  context: Reduce peak memory in code/02_preprocess_eeg.py to <6GB via chunked loading
+    verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_peak_memory_in_code/02_preprocess_eeg.py_to_less_than
+  kind: magnitude
+  raw_text: Reduce peak memory in code/02_preprocess_eeg.py to <6GB via chunked loading
+    verification
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:11:20Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: ensure full pipeline completes within 6 hours on CI
+  claim_id: c_f4f870db
+  context: Run quickstart.md validation to ensure full pipeline completes within 6
+    hours on CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full pipeline completes within 6 hours on CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:11:24Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: enforce less than 7GB RAM and less than 14GB Disk limits
+  claim_id: c_51cd15be
+  context: Setup utils/resource_monitor.py to log RAM/Disk usage and enforce <7GB
+    RAM / <14GB Disk limits
+  evidence:
+    candidates:
+    - - Enforce less than 7GB RAM and less than
+      - 14.0
+    - - Create account Log in Enforce less than
+      - 7.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Enforce_less_than_7GB_RAM_and_less_than_14GB_Disk_limits
+  kind: magnitude
+  raw_text: Enforce <7GB RAM / <14GB Disk limits
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-12T21:11:31Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: verify variable fit for age greater than or equal to 50
+  claim_id: c_4138ddd3
+  context: 'Verify variable fit: Check metadata for ''wcst_perseverative_errors''
+    column and ''age >= 50''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_variable_fit_for_age_greater_than_or_equal_to_50
+  kind: magnitude
+  raw_text: Verify variable fit for 'age >= 50'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:11:41Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds003104 used in study
+  claim_id: c_3aa9ac7e
+  context: 'Implement `code/01_download_data.py`: Fetch OpenNeuro datasets (ds, ds003104).
+    **Verify variable fit**: Check metadata for ''wcst_perseverative_errors'' column
+    and ''age >= 50''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds003104_used_in_study
+  kind: entity_fact
+  raw_text: Fetch OpenNeuro datasets (ds, ds003104).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:15:47Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Participants excluded if valid EEG < 60s, corrupted segments > 20%, or
+    SNR < 5dB
+  claim_id: c_53b1a888
+  context: 'Add data quality checks to `code/02_preprocess_eeg.py`: Exclude participants
+    with <60s valid EEG, >20% corrupted segments, **OR SNR < 5dB** (consuming T014
+    output).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants with <60s valid EEG, >20% corrupted segments, OR
+    SNR < 5dB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:15:47Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Sample Entropy and Approximate Entropy computed for Delta, Theta, Alpha,
+    Beta, Gamma bands
+  claim_id: c_885cdaeb
+  context: 'Implement `code/compute_entropy.py`: Compute **both** Sample Entropy and
+    Approximate Entropy for Delta, Theta, Alpha, Beta, Gamma bands. **Include both
+    in primary output**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_Entropy_and_Approximate_Entropy_computed_for_Delta,_T
+  kind: entity_fact
+  raw_text: Compute both Sample Entropy and Approximate Entropy for Delta, Theta,
+    Alpha, Beta, Gamma bands.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:16:20Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Multiple Linear Regression (OLS) performed between Entropy metrics and
+    WCST errors
+  claim_id: c_08524fb2
+  context: 'Implement `code/04_regression_analysis.py`: Perform **Multiple Linear
+    Regression (OLS)** between Entropy metrics and WCST errors. **This is the primary
+    and only statistical test** per Plan deviation (replaces Partial Pearson).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple_Linear_Regression_(OLS)_performed_between_Entropy_m
+  kind: entity_fact
+  raw_text: Perform Multiple Linear Regression (OLS) between Entropy metrics and WCST
+    errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:16:47Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: OLS regression controlled for Age, Education, Task Accuracy, Neurological
+    Condition, and Medication
+  claim_id: c_dcd44ca8
+  context: 'Controls: Age, Education, Task Accuracy, Neurological Condition, Medication.
+    **Input**: `data/processed/entropy_metrics.csv`, `data/processed/behavioral_scores.csv`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OLS_regression_controlled_for_Age,_Education,_Task_Accuracy,
+  kind: entity_fact
+  raw_text: Controls for Multiple Linear Regression include Age, Education, Task Accuracy,
+    Neurological Condition, and Medication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:17:18Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Approximate Entropy dropped and OLS re-run if VIF > 5
+  claim_id: c_1558926a
+  context: 'Logic: 1. **Calculate VIF for all predictors in OLS model first**. 2.
+    **If VIF > 5, drop Approximate Entropy (ApEn) and re-run OLS**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, drop Approximate Entropy (ApEn) and re-run OLS.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:17:18Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Partial r effect size classified as clinically meaningful if >= 0.3
+  claim_id: c_7d553569
+  context: "Calculate effect sizes (partial r) and classify (\u2265 0.3 = clinically\
+    \ meaningful) in `code/04_regression_analysis.py`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Effect sizes (partial r) are classified as clinically meaningful if \u2265\
+    \ 0.3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:17:18Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Artifact rejection threshold sensitivity sweep range 15% to 25%
+  claim_id: c_5496b956
+  context: 'Implement threshold sensitivity sweep in `code/04_regression_analysis.py`.
+    **Cutoffs to sweep**: 1. **Artifact rejection threshold** (range: 15% to 25% amplitude
+    deviation).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Artifact rejection threshold sensitivity sweep range is 15% to 25% amplitude
+    deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:17:19Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: SNR threshold sensitivity sweep range up to 7 dB
+  claim_id: c_3e20932c
+  context: '2. **SNR threshold** (range: dB to 7 dB). **Sweep values**: {0.0, 0.05,
+    0.1} absolute difference from baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SNR threshold sensitivity sweep range is dB to 7 dB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:17:36Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time limit 6 hours on CI
+  claim_id: c_1a15b6db
+  context: Run `quickstart.md` validation to ensure full pipeline completes within
+    6 hours on CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours on CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:17:54Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Pinned versions used for mne, statsmodels, numpy, pandas, pyyaml, requests,
+    scikit-learn, numba, jsonschema
+  claim_id: c_c4147a02
+  context: Create `code/requirements.txt` with **pinned versions** (e.g., `mne==1.6.0`,
+    `statsmodels==0.14.0`) for mne, statsmodels, numpy, pandas, pyyaml, requests,
+    scikit-learn, numba, jsonschema to satisfy Constitution Principle I (Reproducibility)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pinned_versions_used_for_mne,_statsmodels,_numpy,_pandas,_py
+  kind: entity_fact
+  raw_text: Project uses pinned versions for mne, statsmodels, numpy, pandas, pyyaml,
+    requests, scikit-learn, numba, jsonschema.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:18:19Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: RAM usage limit < 7 GB
+  claim_id: c_842f3eae
+  context: Setup `utils/resource_monitor.py` to log RAM/Disk usage and enforce <7GB
+    RAM / <14GB Disk limits
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM limit enforced is <7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:18:19Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Disk usage limit < 14 GB
+  claim_id: c_9aa3c902
+  context: Setup `utils/resource_monitor.py` to log RAM/Disk usage and enforce <7GB
+    RAM / <14GB Disk limits
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Disk limit enforced is <14GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:18:19Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Peak memory in preprocess_eeg.py reduced to < 6 GB
+  claim_id: c_017a06d3
+  context: Reduce peak memory in `code/02_preprocess_eeg.py` to <6GB via chunked loading
+    verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Peak memory in preprocess_eeg.py reduced to <6GB via chunked loading verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T21:18:19Z'
