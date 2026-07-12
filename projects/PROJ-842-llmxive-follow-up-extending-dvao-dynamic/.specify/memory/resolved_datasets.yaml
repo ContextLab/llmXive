@@ -1,0 +1,26 @@
+resolved_at: '2026-07-12T13:24:19.518171+00:00'
+datasets:
+- intent: 10.1000/example
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

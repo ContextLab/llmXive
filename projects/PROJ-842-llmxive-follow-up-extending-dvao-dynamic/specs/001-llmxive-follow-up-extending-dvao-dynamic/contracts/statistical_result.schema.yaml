@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: StatisticalResult
+description: Schema for aggregated statistical analysis results.
+type: object
+required:
+  - config_id
+  - num_objectives
+  - window_ratio
+  - p_value
+  - mean_bias
+  - pareto_distance
+  - convergence_status
+  - noise_distribution_type
+properties:
+  config_id:
+    type: string
+    description: "Unique identifier for the configuration run."
+  num_objectives:
+    type: integer
+    description: "Number of objectives (N) for this run."
+    minimum: 1
+  window_ratio:
+    type: number
+    description: "The ratio k / rollout_size used."
+    minimum: 0.0
+    maximum: 1.0
+  p_value:
+    type: number
+    description: "P-value from the paired t-test comparing Heuristic vs. Full-Batch Empirical Variance."
+    minimum: 0.0
+    maximum: 1.0
+  mean_bias:
+    type: number
+    description: "Mean difference (Heuristic - Full-Batch) variance."
+  pareto_distance:
+    type: number
+    description: "Distance of the final policy from the theoretical Pareto frontier."
+    minimum: 0.0
+  convergence_status:
+    type: string
+    enum:
+      - "stable"
+      - "unstable"
+      - "failed"
+    description: "Status of the heuristic convergence."
+  false_positive_rate:
+    type: number
+    description: "Rate of false positives in stability detection."
+    minimum: 0.0
+    maximum: 1.0
+  noise_distribution_type:
+    type: string
+    enum:
+      - "gaussian"
+      - "laplace"
+    description: "Type of noise distribution used in the simulation."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO8601 timestamp of analysis."
+additionalProperties: false

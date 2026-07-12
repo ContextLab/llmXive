@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1909.11939",
+  "judged_at": "2026-07-12T13:17:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dvao: dynamic variance-adaptive advantage optimization for multi-rewar\" linguistics",
+  "rationale": "This paper satisfies criterion (a) and (b) as it proposes a reinforcement learning framework (MERL) that explicitly utilizes a variance-based metric ($\\mathcal{V}^{ex}$, fraction of variance explained) to optimize policy gradients, which directly addresses the \"Dynamic Variance-adaptive\" mechanism and \"Multi-reward\" optimization context of the user's question, even though the specific application domain (general RL benchmarks) differs from the user's \"linguistics\" focus.",
+  "relevant": true
+}

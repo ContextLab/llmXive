@@ -1039,6 +1039,10 @@
     "classified_at": "2026-07-07T16:02:47Z",
     "verdict": false
   },
+  "PROJ-842-llmxive-follow-up-extending-dvao-dynamic::1.6.0": {
+    "classified_at": "2026-07-12T13:17:09Z",
+    "verdict": false
+  },
   "PROJ-846-llmxive-follow-up-extending-guava-an-eff::1.6.0": {
     "classified_at": "2026-07-11T18:31:38Z",
     "verdict": false

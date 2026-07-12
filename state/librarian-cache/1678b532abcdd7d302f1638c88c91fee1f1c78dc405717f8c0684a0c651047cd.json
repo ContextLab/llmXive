@@ -1,0 +1,565 @@
+{
+  "fetched_at": "2026-07-12T13:17:40Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-rewar\"",
+      "target_n": 5
+    },
+    "duration_seconds": 62.378,
+    "ended_at": "2026-07-12T13:17:40Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Dynamic Variance-adaptive Advantage Optimization"
+        ],
+        [
+          2,
+          "multi-reward reinforcement learning for language models"
+        ],
+        [
+          3,
+          "variance-adaptive policy optimization in NLP"
+        ],
+        [
+          4,
+          "dynamic reward shaping for large language models"
+        ],
+        [
+          5,
+          "advantage estimation with variance adaptation"
+        ],
+        [
+          6,
+          "multi-objective reinforcement learning for linguistic generation"
+        ],
+        [
+          7,
+          "adaptive advantage functions in transformer fine-tuning"
+        ],
+        [
+          8,
+          "reward variance normalization in RLHF"
+        ],
+        [
+          9,
+          "dynamic reward weighting for language model alignment"
+        ],
+        [
+          10,
+          "variance-aware policy gradient methods for text generation"
+        ],
+        [
+          11,
+          "multi-reward optimization in conversational AI"
+        ],
+        [
+          12,
+          "stochastic advantage optimization for LLMs"
+        ],
+        [
+          13,
+          "adaptive reward scaling in natural language processing"
+        ],
+        [
+          14,
+          "variance reduction techniques for language model training"
+        ],
+        [
+          15,
+          "dynamic reward adaptation in generative language models"
+        ],
+        [
+          16,
+          "multi-reward signal integration for linguistic tasks"
+        ],
+        [
+          17,
+          "adaptive variance control in reinforcement learning from human feedback"
+        ],
+        [
+          18,
+          "policy optimization with dynamic variance constraints"
+        ],
+        [
+          19,
+          "reward function adaptation for multi-dimensional linguistic goals"
+        ],
+        [
+          20,
+          "variance-sensitive advantage estimation in language modeling"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Dynamic Variance-adaptive Advantage Optimization": 2,
+        "llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-rewar\" linguistics": 0,
+        "multi-reward reinforcement learning for language models": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "dynamic variance adaptive advantage optimization reward shaping",
+      "DVAO multi-reward reinforcement learning natural language generation",
+      "reward model variance policy gradient language models",
+      "training stability multi-objective reward optimization linguistic tasks",
+      "advantage function estimation reward noise linguistic evaluation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2007.09774"
+      ]
+    },
+    "per_query_hit_count": {
+      "DVAO multi-reward reinforcement learning natural language generation": 2,
+      "advantage function estimation reward noise linguistic evaluation": 2,
+      "dynamic variance adaptive advantage optimization reward shaping": 3,
+      "llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-rewar\" linguistics": 3,
+      "reward model variance policy gradient language models": 3,
+      "training stability multi-objective reward optimization linguistic tasks": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2410.05787",
+          "rationale": "The paper focuses on dynamic multi-objective optimization within evolutionary algorithms and does not address the specific domain of Large Language Models (LLMs), linguistic applications, or the \"DVAO\" framework mentioned in the user's query. While both involve \"dynamic\" and \"optimization,\" the paper studies a distinct construct (evolutionary algorithm benchmarking) with no measurable connection to the user's mechanism, variables, or empirical setting, falling under the \"Distinct construct shari",
+          "title": "An accelerate Prediction Strategy for Dynamic Multi-Objective Optimization"
+        },
+        {
+          "primary_pointer": "2211.10168",
+          "rationale": "The paper focuses on robotic instruction-following and action correction via reinforcement learning, which is a distinct application domain from the user's question about extending a specific multi-reward optimization algorithm (DVAO) within the field of linguistics. While both involve reinforcement learning, the paper does not measure the same algorithmic mechanism, establish a baseline for the specific DVAO method, or study the linguistic population required to address the user's specific tech",
+          "title": "Language-Conditioned Reinforcement Learning to Solve Misunderstandings with Action Corrections"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T13:16:38Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"dvao: dynamic variance-adaptive advantage optimization for multi-rewar\" linguistics",
+      "raw": "llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-rewar\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
+          "claimed_authors": [
+            "Xiefeng Wu"
+          ],
+          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) consistently benefit from scaled Chain-of-Thought (CoT) reasoning, but also suffer from heavy computational overhead. To address this issue, efficient reasoning aims to incentivize short yet accurate thinking trajectories, typically through reward shaping with Reinforcement Learning (RL). In this paper, we systematically investigate the mechanics of efficient reasoning for LLMs. For comprehensive evaluation, we advocate for more fine-grained metrics, including length distribution conditioned on correctness and performance across a wide spectrum of token budgets ranging from 2k to 32k. First, we reveal that the training process follows a two-stage paradigm: length adaptation and reasoning refinement. Through extensive experiments (about 0.2 million GPU hours) in a unified protocol, we deconstruct training prompts and rollouts, reward shaping, and optimization strategies. A central finding is to maintain a sufficient density of positive reward signals and avoid the short-is-correct trap. Moreover, the learned length bias generalizes across domains and difficulty levels. We distill these findings into valuable insights and practical guidelines, and validate them across the Qwen3 models ranging from 0.6B to 30B, demonstrating the robustness and generalization. Weights are available at https://wutaiqiang.github.io/project/Art",
+          "claimed_authors": [
+            "Taiqiang Wu",
+            "Zenan Xu",
+            "Bo Zhou",
+            "Ngai Wong"
+          ],
+          "claimed_title": "The Art of Efficient Reasoning: Data, Reward, and Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.20945"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='The Art of Efficient Reasoning: Data, Reward, and Optimization')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A suitable state representation is a fundamental part of the learning process in Reinforcement Learning. In various tasks, the state can either be described by natural language or be natural language itself. This survey outlines the strategies used in the literature to build natural language state representations. We appeal for more linguistically interpretable and grounded representations, careful justification of design decisions and evaluation of the effectiveness of different approaches.",
+          "claimed_authors": [
+            "Brielen Madureira",
+            "David Schlangen"
+          ],
+          "claimed_title": "An Overview of Natural Language State Representation for Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.09774"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='An Overview of Natural Language State Representation for Reinforcement Learning')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.06371"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating the value of a hypothetical target policy with only a logged dataset is important but challenging. On the one hand, it brings opportunities for safe policy improvement under high-stakes scenarios like clinical guidelines. On the other hand, such opportunities raise a need for precise off-policy evaluation (OPE). While previous work on OPE focused on improving the algorithm in value estimation, in this work, we emphasize the importance of the offline dataset, hence putting forward a data-centric framework for evaluating OPE problems. We propose DataCOPE, a data-centric framework for evaluating OPE, that answers the questions of whether and to what extent we can evaluate a target policy given a dataset. DataCOPE (1) forecasts the overall performance of OPE algorithms without access to the environment, which is especially useful before real-world deployment where evaluating OPE is impossible; (2) identifies the sub-group in the dataset where OPE can be inaccurate; (3) permits evaluations of datasets or data-collection strategies for OPE problems. Our empirical analysis of DataCOPE in the logged contextual bandit settings using healthcare datasets confirms its ability to evaluate both machine-learning and human expert policies like clinical guidelines. Finally, we apply DataCOPE to the task of reward modeling in Large Language Model alignment to demonstrate its scalability in real-world applications.",
+          "claimed_authors": [
+            "Hao Sun",
+            "Alex J. Chan",
+            "Nabeel Seedat",
+            "Alihan Hüyük",
+            "Mihaela van der Schaar"
+          ],
+          "claimed_title": "When is Off-Policy Evaluation (Reward Modeling) Useful in Contextual Bandits? A Data-Centric Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.14110"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='When is Off-Policy Evaluation (Reward Modeling) Useful in Contextual Bandits? A Data-Centric Perspective')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In natural human-to-human conversations, participants often receive feedback signals from one another based on their follow-up reactions. These reactions can include verbal responses, facial expressions, changes in emotional state, and other non-verbal cues. Similarly, in human-machine interactions, the machine can leverage the user's follow-up utterances as feedback signals to assess whether it has appropriately addressed the user's request. Therefore, we propose using the likelihood of follow-up utterances as rewards to differentiate preferred responses from less favored ones, without relying on human or commercial LLM-based preference annotations. Our proposed reward mechanism, ``Follow-up Likelihood as Reward\" (FLR), matches the performance of strong reward models trained on large-scale human or GPT-4 annotated data on 8 pairwise-preference and 4 rating-based benchmarks. Building upon the FLR mechanism, we propose to automatically mine preference data from the online generations of a base policy model. The preference data are subsequently used to boost the helpfulness of the base model through direct alignment from preference (DAP) methods, such as direct preference optimization (DPO). Lastly, we demonstrate that fine-tuning the language model that provides follow-up likelihood with natural language feedback significantly enhances FLR's performance on reward modeling benchmarks and effectiveness in aligning the base policy model's helpfulness.",
+          "claimed_authors": [
+            "Chen Zhang",
+            "Dading Chong",
+            "Feng Jiang",
+            "Chengguang Tang",
+            "Anningzhe Gao",
+            "Guohua Tang",
+            "Haizhou Li"
+          ],
+          "claimed_title": "Aligning Language Models Using Follow-up Likelihood as Reward Signal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.13948"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='Aligning Language Models Using Follow-up Likelihood as Reward Signal')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reward models are used throughout the post-training of language models to capture nuanced signals from preference data and provide a training target for optimization across instruction following, reasoning, safety, and more domains. The community has begun establishing best practices for evaluating reward models, from the development of benchmarks that test capabilities in specific skill areas to others that test agreement with human preferences. At the same time, progress in evaluation has not been mirrored by the effectiveness of reward models in downstream tasks -- simpler direct alignment algorithms are reported to work better in many cases. This paper introduces RewardBench 2, a new multi-skill reward modeling benchmark designed to bring new, challenging data for accuracy-based reward model evaluation -- models score about 20 points on average lower on RewardBench 2 compared to the first RewardBench -- while being highly correlated with downstream performance. Compared to most other benchmarks, RewardBench 2 sources new human prompts instead of existing prompts from downstream evaluations, facilitating more rigorous evaluation practices. In this paper, we describe our benchmark construction process and report how existing models perform on it, while quantifying how performance on the benchmark correlates with downstream use of the models in both inference-time scaling algorithms, like best-of-N sampling, and RLHF training algorithms like proximal policy optimization.",
+          "claimed_authors": [
+            "Saumya Malik",
+            "Valentina Pyatkin",
+            "Sander Land",
+            "Jacob Morrison",
+            "Noah A. Smith",
+            "Hannaneh Hajishirzi",
+            "Nathan Lambert"
+          ],
+          "claimed_title": "RewardBench 2: Advancing Reward Model Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.01937"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='RewardBench 2: Advancing Reward Model Evaluation')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This document briefly describes the Black-Box Multi-Objective Optimization Benchmarking (BMOBench) platform. It presents the test problems, evaluation procedure, and experimental setup. To this end, the BMOBench is demonstrated by comparing recent multi-objective solvers from the literature, namely SMS-EMOA, DMS, and MO-SOO.",
+          "claimed_authors": [
+            "Abdullah Al-Dujaili",
+            "S. Suresh"
+          ],
+          "claimed_title": "BMOBench: Black-Box Multi-Objective Optimization Benchmarking Platform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1605.07009"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='BMOBench: Black-Box Multi-Objective Optimization Benchmarking Platform')",
+        "failed_at": "2026-07-12T13:17:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The aim of this literature is to illustrate the application of multi-objective optimization routines through a case study of face milling operation. For this purpose, the face milling operation is designed as a multi-objective optimization problem and then solved to obtain optimum values for the machining parameters - cutting speed (Vc), feed rate (fz) and depth of cut (t) using the optimization routines. The formulated problem of face milling operation includes two conflicting objectives - to maximize Material Removal Rate (MRR) and to minimize surface roughness (Ra). Among various multi-objective optimization routines, five of them namely Global Criterion Method, Lexicographic Method, Weighted Sum Method, Epsilon Constraint Method and Genetic Algorithm are used in this literature. The outcomes of these multi-objective optimization routines are then compared to reflect their relative attractiveness.",
+          "claimed_authors": [
+            "Nazmul Hasan"
+          ],
+          "claimed_title": "Multi-objective Optimization: A Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.09166"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='Multi-objective Optimization: A Case Study')",
+        "failed_at": "2026-07-12T13:17:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In many real-world applications, the reward function is too complex to be manually specified. In such cases, reward functions must instead be learned from human feedback. Since the learned reward may fail to represent user preferences, it is important to be able to validate the learned reward function prior to deployment. One promising approach is to apply interpretability tools to the reward function to spot potential deviations from the user's intention. Existing work has applied general-purpose interpretability tools to understand learned reward functions. We propose exploiting the intrinsic structure of reward functions by first preprocessing them into simpler but equivalent reward functions, which are then visualized. We introduce a general framework for such reward preprocessing and propose concrete preprocessing algorithms. Our empirical evaluation shows that preprocessed rewards are often significantly easier to understand than the original reward.",
+          "claimed_authors": [
+            "Erik Jenner",
+            "Adam Gleave"
+          ],
+          "claimed_title": "Preprocessing Reward Functions for Interpretability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.13553"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='Preprocessing Reward Functions for Interpretability')",
+        "failed_at": "2026-07-12T13:17:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This Note investigates the bias of the sampling importance resampling (SIR) filter in estimation of the state transition noise in the state space model. The SIR filter may suffer from sample impoverishment that is caused by the resampling and therefore will benefit from a sampling proposal that has a heavier tail, e.g. the state transition noise simulated for particle preparation is bigger than the true noise involved with the state dynamics. This is because a comparably big transition noise used for particle propagation can spread overlapped particles to counteract impoverishment, giving better approximation of the posterior. As such, the SIR filter tends to yield a biased (bigger-than-the-truth) estimate of the transition noise if it is unknown and needs to be estimated, at least, in the forward-only filtering estimation. The bias is elaborated via the direct roughening approach by means of both qualitative logical deduction and quantitative numerical simulation.",
+          "claimed_authors": [
+            "Tiancheng Li"
+          ],
+          "claimed_title": "Bias of the SIR filter in estimation of the state transition noise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1308.2426"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DVAO: Dynamic Variance-adaptive Advantage Optimiza', candidate_title='Bias of the SIR filter in estimation of the state transition noise')",
+        "failed_at": "2026-07-12T13:17:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guochao Jiang",
+            "Jingyi Song",
+            "Guofeng Quan",
+            "Chuzhan Hao",
+            "Guohua Liu",
+            "Yuewei Zhang"
+          ],
+          "title": "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.25604",
+        "summary": "Reinforcement Learning has become a standard paradigm for aligning Large Language Models with human intent and task requirements. While Group Relative Policy Optimization offers an efficient, value-model-free alternative to Proximal Policy Optimization, adapting it to real-world multi-reward settings remains challenging. Standard scalarization practices, such as Reward Combination and Advantage Combination, suffer from significant drawbacks: Reward Combination frequently generates advantages with excessively large squared magnitudes that lead to training instability, while Advantage Combination relies on static hyperparameters and ignores cross-objective correlations. To address these limitations, we propose Dynamic Variance-adaptive Advantage Optimization (DVAO), which dynamically adjusts combination weights based on the empirical reward variance of each objective within a rollout group, effectively up-weighting objectives with a stronger learning signal while suppressing noisy ones. We mathematically prove that DVAO maintains bounded advantage magnitudes for stable training and introduces a self-adaptive cross-objective regularization mechanism. Extensive experiments on mathematical reasoning and tool-use benchmarks using Qwen3 and Qwen2.5 models demonstrate that DVAO significantly outperforms baseline methods, achieving a superior multi-objective Pareto frontier and robust training stability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.25604",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5833,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T13:17:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Keliang Liu",
+            "Dingkang Yang",
+            "Ziyun Qian",
+            "Weijie Yin",
+            "Yuchi Wang",
+            "Hongsheng Li",
+            "Jun Liu",
+            "Peng Zhai",
+            "Yang Liu",
+            "Lihua Zhang"
+          ],
+          "title": "Reinforcement Learning Meets Large Language Models: A Survey of Advancements and Applications Across the LLM Lifecycle",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.16679",
+        "summary": "In recent years, training methods centered on Reinforcement Learning (RL) have markedly enhanced the reasoning and alignment performance of Large Language Models (LLMs), particularly in understanding human intents, following user instructions, and bolstering inferential strength. Although existing surveys offer overviews of RL augmented LLMs, their scope is often limited, failing to provide a comprehensive summary of how RL operates across the full lifecycle of LLMs. We systematically review the theoretical and practical advancements whereby RL empowers LLMs, especially Reinforcement Learning with Verifiable Rewards (RLVR). First, we briefly introduce the basic theory of RL. Second, we thoroughly detail application strategies for RL across various phases of the LLM lifecycle, including pre-training, alignment fine-tuning, and reinforced reasoning. In particular, we emphasize that RL methods in the reinforced reasoning phase serve as a pivotal driving force for advancing model reasoning to its limits. Next, we collate existing datasets and evaluation benchmarks currently used for RL fine-tuning, spanning human-annotated datasets, AI-assisted preference data, and program-verification-style corpora. Subsequently, we review the mainstream open-source tools and training frameworks available, providing clear practical references for subsequent research. Finally, we analyse the future challenges and trends in the field of RL-enhanced LLMs. This survey aims to present researchers and practitioners with the latest developments and frontier trends at the intersection of RL and LLMs, with the goal of fostering the evolution of LLMs that are more intelligent, generalizable, and secure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.16679",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T13:17:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12375",
+        "summary": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12375",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T13:17:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Brielen Madureira",
+            "David Schlangen"
+          ],
+          "title": "An Overview of Natural Language State Representation for Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.09774",
+        "summary": "A suitable state representation is a fundamental part of the learning process in Reinforcement Learning. In various tasks, the state can either be described by natural language or be natural language itself. This survey outlines the strategies used in the literature to build natural language state representations. We appeal for more linguistically interpretable and grounded representations, careful justification of design decisions and evaluation of the effectiveness of different approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2007.09774",
+          "http_status": 200,
+          "pdf_sample_score": 0.1087,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T13:17:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yannis Flet-Berliac",
+            "Philippe Preux"
+          ],
+          "title": "MERL: Multi-Head Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1909.11939",
+        "summary": "A common challenge in reinforcement learning is how to convert the agent's interactions with an environment into fast and robust learning. For instance, earlier work makes use of domain knowledge to improve existing reinforcement learning algorithms in complex tasks. While promising, previously acquired knowledge is often costly and challenging to scale up. Instead, we decide to consider problem knowledge with signals from quantities relevant to solve any task, e.g., self-performance assessment and accurate expectations. $\\mathcal{V}^{ex}$ is such a quantity. It is the fraction of variance explained by the value function $V$ and measures the discrepancy between $V$ and the returns. Taking advantage of $\\mathcal{V}^{ex}$, we propose MERL, a general framework for structuring reinforcement learning by injecting problem knowledge into policy gradient updates. As a result, the agent is not only optimized for a reward but learns using problem-focused quantities provided by MERL, applicable out-of-the-box to any task. In this paper: (a) We introduce and define MERL, the multi-head reinforcement learning framework we use throughout this work. (b) We conduct experiments across a variety of standard benchmark environments, including 9 continuous control tasks, where results show improved performance. (c) We demonstrate that MERL also improves transfer learning on a set of challenging pixel-based tasks. (d) We ponder how MERL tackles the problem of reward sparsity and better conditions the feature space of reinforcement learning agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1909.11939",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T13:17:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"dvao: dynamic variance-adaptive advantage optimization for multi-rewar\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
