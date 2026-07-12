@@ -20,14 +20,3 @@
   verification_status: verified
   verified_against_url: https://api.openalex.org
   verified_at: '2026-07-12T20:51:54.847563Z'
-- artifact_hash: ed36b942810bb713c702c9ff252bd8964f1b8f0e38750737fe075f7480097fa8
-  artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: api.openalex.org
-  kind: url
-  value: https://api.openalex.org`
-  verification_status: verified
-  verified_against_url: https://api.openalex.org
-  verified_at: '2026-07-12T20:52:02.627192Z'

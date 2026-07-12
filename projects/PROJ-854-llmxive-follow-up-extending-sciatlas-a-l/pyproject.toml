@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-sciatlas-a-l"
+version = "0.1.0"
+description = "Interdisciplinary Bridging Coefficient Analysis"
+requires-python = ">=3.11"
+dependencies = [
+    "networkx>=3.0",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scikit-learn>=1.3",
+    "scipy>=1.11",
+    "pyalex>=0.10",
+    "sentence-transformers>=2.2",
+    "memory-profiler>=0.61",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+select = ["E402", "F401", "I001"]
+ignore = []
+line-length = 88
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"

@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-bridging-coefficient"
+version = "0.1.0"
+description = "Interdisciplinary Bridging Coefficient Analysis"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "networkx>=3.0.0",
+    "pyalex>=0.10.0",
+    "scikit-learn>=1.3.0",
+    "scipy>=1.11.0",
+    "sentence-transformers>=2.2.0",
+    "memory-profiler>=0.61.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+select = ['E402', 'F401', 'I001']
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
