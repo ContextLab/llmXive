@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkQuery Schema"
+description: "Schema for a single iterative sub-task from the Eywa benchmark or synthetic generator."
+type: "object"
+properties:
+  query_id:
+    type: "string"
+    description: "Unique identifier (UUID) for the query."
+  prompt:
+    type: "string"
+    description: "The input text for the scientific hypothesis test."
+  domain:
+    type: "string"
+    description: "Scientific domain (e.g., chemistry, physics)."
+    enum:
+      - chemistry
+      - physics
+      - biology
+      - climate
+  expected_output:
+    type: "number"
+    description: "The ground-truth numerical outcome."
+  metadata:
+    type: "object"
+    description: "Additional context for the query."
+    properties:
+      step:
+        type: "integer"
+        description: "Step number in the iterative process."
+    required:
+      - step
+required:
+  - query_id
+  - prompt
+  - domain
+  - expected_output
+  - metadata
+additionalProperties: false

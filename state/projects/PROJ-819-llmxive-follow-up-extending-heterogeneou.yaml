@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T20:29:42.030185Z'
-current_stage: specified
+current_stage: analyzed
 failed_stage: null
 field: other
 human_escalation_reason: null
 id: PROJ-819-llmxive-follow-up-extending-heterogeneou
-last_run_id: 6b28c566-5e6b-48f2-a303-fa4f1181c880
+last_run_id: 06d9c160-e685-44a2-a80b-35bb731a2fea
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou
 title: 'llmXive follow-up: extending "Heterogeneous Scientific Foundation Model Collaboration"'
-updated_at: '2026-07-11T16:29:18.732257Z'
+updated_at: '2026-07-12T20:27:27.827677Z'

@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExecutionRun Schema"
+description: "Schema for aggregated metrics of a single pipeline execution run."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  mode:
+    type: "string"
+    description: "Execution mode."
+    enum:
+      - baseline
+      - cached
+  threshold:
+    type: "number"
+    description: "Cosine similarity threshold used (0.0 for baseline)."
+    minimum: 0.0
+    maximum: 1.0
+  total_queries:
+    type: "integer"
+    description: "Total number of queries processed."
+    minimum: 0
+  cache_hits:
+    type: "integer"
+    description: "Number of cache hits."
+    minimum: 0
+  cache_misses:
+    type: "integer"
+    description: "Number of cache misses."
+    minimum: 0
+  hit_rate:
+    type: "number"
+    description: "Ratio of cache hits to total queries."
+    minimum: 0.0
+    maximum: 1.0
+  total_runtime_seconds:
+    type: "number"
+    description: "Wall-clock time for the run in seconds."
+    minimum: 0.0
+  model_invocations:
+    type: "integer"
+    description: "Number of times the EywaOrchestra pipeline was called."
+    minimum: 0
+  accuracy:
+    type: "number"
+    description: "Percentage of correct predictions (0.0 to 100.0)."
+    minimum: 0.0
+    maximum: 100.0
+  accuracy_deviation:
+    type: "number"
+    description: "Absolute difference in accuracy compared to baseline."
+    minimum: 0.0
+  similarity_scores:
+    type: "array"
+    description: "List of cosine similarity scores for every query in the run. Empty for baseline."
+    items:
+      type: "number"
+    minItems: 0
+required:
+  - run_id
+  - mode
+  - threshold
+  - total_queries
+  - cache_hits
+  - cache_misses
+  - hit_rate
+  - total_runtime_seconds
+  - model_invocations
+  - accuracy
+  - accuracy_deviation
+  - similarity_scores
+additionalProperties: false

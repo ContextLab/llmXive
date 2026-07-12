@@ -1,0 +1,54 @@
+resolved_at: '2026-07-12T19:57:52.610904+00:00'
+datasets:
+- intent: EywaOrchestra
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://indigo.uic.edu/articles/journal_contribution/A_Branch-and-Price_Algorithm_for_the_Location-Routing_Problem_with_District-Delimited_Demand/32526609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/Performing_Group_Difference_Testing_on_Graph_Structured_Data_From_GANs_Analysis_and_Applications_in_Neuroimaging/32561706
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/Logistics_of_Zoning_Zoning_for_Logistics_Toward_Healthy_and_Equitable_Development_for_Urban_Freight/32608830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Validaci_n_funcional_de_la_aplicaci_n_m_vil_a_interfaz_principal_b_carga_de_imagen_y_c_visualizaci_n_del_resultado_de_detecci_n/32969267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/_Proximity_logistics_Characterizing_the_development_of_logistics_facilities_in_dense_mixed-use_urban_areas_around_the_world/32608839
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.27351
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BenchmarkQuery
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://indigo.uic.edu/articles/journal_contribution/A_Branch-and-Price_Algorithm_for_the_Location-Routing_Problem_with_District-Delimited_Demand/32526609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/Performing_Group_Difference_Testing_on_Graph_Structured_Data_From_GANs_Analysis_and_Applications_in_Neuroimaging/32561706
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/Logistics_of_Zoning_Zoning_for_Logistics_Toward_Healthy_and_Equitable_Development_for_Urban_Freight/32608830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Validaci_n_funcional_de_la_aplicaci_n_m_vil_a_interfaz_principal_b_carga_de_imagen_y_c_visualizaci_n_del_resultado_de_detecci_n/32969267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://indigo.uic.edu/articles/journal_contribution/_Proximity_logistics_Characterizing_the_development_of_logistics_facilities_in_dense_mixed-use_urban_areas_around_the_world/32608839
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
