@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticImage Annotation"
+description: "Schema for the JSON annotation file generated for each synthetic image."
+type: "object"
+required:
+  - "image_id"
+  - "region_count"
+  - "bounding_boxes"
+  - "ground_truth_relations"
+properties:
+  image_id:
+    type: "string"
+    description: "Unique identifier for the synthetic image."
+  region_count:
+    type: "integer"
+    minimum: 20
+    maximum: 50
+    description: "Number of bounding boxes in this image."
+  bounding_boxes:
+    type: "array"
+    description: "List of bounding box coordinates."
+    items:
+      type: "object"
+      required:
+        - "id"
+        - "x"
+        - "y"
+        - "width"
+        - "height"
+      properties:
+        id:
+          type: "string"
+          description: "Unique ID for the box (e.g., 'box_0')."
+        x:
+          type: "number"
+          description: "X coordinate of the top-left corner."
+        y:
+          type: "number"
+          description: "Y coordinate of the top-left corner."
+        width:
+          type: "number"
+          description: "Width of the box."
+        height:
+          type: "number"
+          description: "Height of the box."
+  ground_truth_relations:
+    type: "array"
+    description: "List of spatial relations derived from geometry."
+    items:
+      type: "object"
+      required:
+        - "box_a_id"
+        - "box_b_id"
+        - "relation"
+      properties:
+        box_a_id:
+          type: "string"
+          description: "ID of the first box."
+        box_b_id:
+          type: "string"
+          description: "ID of the second box."
+        relation:
+          type: "string"
+          description: "Spatial relation (e.g., 'left_of', 'above')."
+          enum:
+            - "left_of"
+            - "right_of"
+            - "above"
+            - "below"
+            - "inside"
+            - "overlapping"

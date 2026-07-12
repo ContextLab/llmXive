@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.13369",
+  "judged_at": "2026-07-12T06:29:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"perceptiondlm: parallel region perception with multimodal diffusion la\" computer science",
+  "rationale": "The paper focuses on automated deception detection using facial affect and multimodal fusion, which is a distinct application domain from the user's question regarding \"Parallel Region Perception\" with \"Multimodal Diffusion\" models. While both involve multimodal AI, the candidate paper does not address the specific mechanism of parallel region perception, diffusion-based generation, or the architectural extensions implied by the user's query, failing to meet the criteria for same-mechanism evide",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.17585",
+  "judged_at": "2026-07-12T06:29:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"perceptiondlm: parallel region perception with multimodal diffusion la\" computer science",
+  "rationale": "The paper satisfies criteria (a) and (b) as it investigates the same core mechanism (integrating diffusion models with state-space models for multimodal perception) and domain (multimodal dense prediction/salient object detection) referenced in the user's question about extending \"PerceptionDLM,\" providing essential prior work on the specific architectural fusion the user is exploring.",
+  "relevant": true
+}
