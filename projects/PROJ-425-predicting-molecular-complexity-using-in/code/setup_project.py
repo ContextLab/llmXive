@@ -4,54 +4,47 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the required project directory structure for the llmXive pipeline.
-    Implements T001: Create project structure per implementation plan.
-    
+    Creates the required project directory structure for PROJ-425.
     Directories created:
-    - code/
-    - data/raw/
-    - data/processed/
-    - reports/figures/
-    - tests/unit/
-    - tests/contract/
+      - code/
+      - data/raw/
+      - data/processed/
+      - tests/unit
+      - tests/integration
     """
-    project_root = Path(".")
+    # Define the project root (assuming this script is in code/ or project root)
+    # We use the current working directory as the project root for flexibility
+    project_root = Path.cwd()
     
     directories = [
         "code",
         "data/raw",
         "data/processed",
-        "reports/figures",
         "tests/unit",
-        "tests/contract"
+        "tests/integration"
     ]
     
-    created_count = 0
+    created_dirs = []
     for dir_path in directories:
         full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(full_path))
             print(f"Created directory: {full_path}")
-            created_count += 1
         else:
             print(f"Directory already exists: {full_path}")
     
-    print(f"\nProject structure initialization complete. Created {created_count} new directories.")
-    return True
+    return created_dirs
 
 def main():
-    """Entry point for script execution."""
-    try:
-        success = create_directories()
-        if success:
-            print("T001: Project structure created successfully.")
-            sys.exit(0)
-        else:
-            print("T001: Failed to create project structure.")
-            sys.exit(1)
-    except Exception as e:
-        print(f"Error during directory creation: {e}")
-        sys.exit(1)
+    """Entry point for directory creation."""
+    print("Initializing project structure for molecular complexity analysis...")
+    created = create_directories()
+    if created:
+        print(f"Successfully created {len(created)} new directories.")
+    else:
+        print("All directories already existed.")
+    print("Project structure ready.")
 
 if __name__ == "__main__":
     main()

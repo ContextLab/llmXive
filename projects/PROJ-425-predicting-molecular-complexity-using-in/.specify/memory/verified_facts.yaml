@@ -1,0 +1,6 @@
+'|bootstrap dataset row size stability subsampled':
+  quote: sizes b = 5000, 10000 for BLB and SDB. We allow each method to run for 60
+    seconds
+  source_id: '1508.01126'
+  url: https://arxiv.org/abs/1508.01126
+  value: '5000'

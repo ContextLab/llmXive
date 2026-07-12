@@ -1,51 +1,45 @@
+"""
+Linting and Formatting Setup Script.
+
+This module provides functions to install linting/formatter dependencies
+and create configuration files for ruff and black.
+"""
 import os
 import subprocess
 import sys
 from pathlib import Path
 
+
 def install_dependencies():
     """
-    Installs ruff and black using pip.
-    These are the tools required for linting and formatting.
+    Install ruff and black using pip.
+    Returns True if successful, False otherwise.
     """
-    print("Installing linting and formatting tools...")
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "ruff", "black"])
-        print("Successfully installed ruff and black.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing dependencies: {e}")
-        sys.exit(1)
+    tools = ["ruff", "black"]
+    for tool in tools:
+        try:
+            print(f"Installing {tool}...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", tool])
+            print(f"{tool} installed successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install {tool}: {e}")
+            return False
+    return True
+
 
 def create_config_files():
     """
-    Creates configuration files for ruff and black.
-    - pyproject.toml (for black and ruff settings)
+    Create configuration files for ruff and black.
+    - ruff.toml (or .ruff.toml) for linting rules
+    - pyproject.toml [tool.black] section for formatting
     """
     project_root = Path(__file__).parent.parent
+    ruff_config_path = project_root / "ruff.toml"
     pyproject_path = project_root / "pyproject.toml"
 
-    if pyproject_path.exists():
-        print("pyproject.toml already exists. Skipping creation.")
-        # We could update it, but for this task we assume creation is sufficient
-        # or that the user will merge. To be safe, we create a backup or skip.
-        # Given the task is "Configure", creating the file if missing is the primary goal.
-        return
-
-    config_content = """[tool.black]
-line-length = 88
-target-version = ['py311']
-include = 'code/'
-extend-exclude = '''
-# A regex to exclude files
-(
-    __pycache__
-    | .git
-)
-'''
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
+    # Create ruff.toml
+    ruff_content = """# Ruff Configuration for PROJ-425
+[lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -55,28 +49,73 @@ select = [
     "C4", # flake8-comprehensions
 ]
 ignore = [
-    "E501", # Line too long (black handles this)
-    "B008", # Do not perform function call in argument defaults (common in ML)
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data loading)
 ]
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+[lint.per-file-ignores]
+"__init__.py" = ["F401"] # Ignore unused imports in __init__.py
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+# Indent with spaces
+indent-style = "space"
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+# Line length matching black's default
+line-length = 88
 """
-    try:
-        pyproject_path.write_text(config_content)
-        print(f"Created configuration at {pyproject_path}")
-    except IOError as e:
-        print(f"Error writing configuration file: {e}")
-        sys.exit(1)
+
+    with open(ruff_config_path, "w", encoding="utf-8") as f:
+        f.write(ruff_content)
+    print(f"Created {ruff_config_path}")
+
+    # Create/Update pyproject.toml for Black
+    black_section = """
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\\.pyi?$'
+extend-exclude = '''
+/(
+    # The following are specific to Black, you probably don't want those.
+    | build
+    | dist
+    | .eggs
+)/
+'''
+"""
+
+    if pyproject_path.exists():
+        # Append to existing file
+        with open(pyproject_path, "a", encoding="utf-8") as f:
+            f.write(black_section)
+        print(f"Appended Black config to {pyproject_path}")
+    else:
+        # Create new file with minimal header
+        with open(pyproject_path, "w", encoding="utf-8") as f:
+            f.write(f"[project]\nname = 'proj-425'\nversion = '0.1.0'\n{black_section}")
+        print(f"Created {pyproject_path} with Black config")
+
+    return True
+
 
 def main():
-    """
-    Main entry point to configure linting and formatting tools.
-    """
-    print("Starting linting and formatting configuration...")
-    install_dependencies()
-    create_config_files()
-    print("Configuration complete. You can now run 'ruff check .' and 'black .' to lint and format.")
+    """Main entry point for linting setup."""
+    print("Starting Linting and Formatting Setup...")
+    
+    if not install_dependencies():
+        print("Error: Failed to install dependencies.")
+        sys.exit(1)
+    
+    if not create_config_files():
+        print("Error: Failed to create configuration files.")
+        sys.exit(1)
+    
+    print("Linting and Formatting setup complete.")
+    print("Run 'ruff check .' to lint and 'black .' to format.")
+
 
 if __name__ == "__main__":
     main()

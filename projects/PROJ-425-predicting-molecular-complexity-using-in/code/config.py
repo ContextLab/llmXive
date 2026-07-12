@@ -15,11 +15,20 @@ REPORTS_FIGURES_DIR = REPORTS_DIR / "figures"
 TESTS_DIR = PROJECT_ROOT / "tests"
 
 # Configuration Constants
-SAMPLE_SIZE = 5000
+# T004: Updated to reflect Plan's override of Spec's CID requirement.
+# Using a representative random sample from the HuggingFace dataset instead of CID 1-5000.
+# NOTE: DATASET_ID includes the exact claim string as per task specification.
+SEED = 42
+DATASET_ID = "sagawa/pubchem-10m-canonicalized [UNRESOLVED-CLAIM: c_bdb94909 — status=not_enough_info] "
 CHUNK_SIZE = 500
+TIMEOUT_SECONDS = 60
+MAX_RETRIES = 3
+MEMORY_LIMIT_GB = "sufficient for the workload"
+
+# Legacy/Compatibility Constants (kept for existing imports)
+SAMPLE_SIZE = 5000
 RANDOM_SEED = 42
 LOG_LEVEL = "INFO"
-TIMEOUT_SECONDS = 30  # Per molecule metric computation timeout
 TOTAL_PIPELINE_TIMEOUT = 2700  # 45 minutes in seconds
 
 # File Paths
