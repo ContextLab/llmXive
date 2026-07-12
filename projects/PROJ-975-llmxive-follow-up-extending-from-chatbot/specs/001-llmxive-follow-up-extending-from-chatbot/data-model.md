@@ -2,82 +2,61 @@
 
 ## Overview
 
-This document defines the data structures for the synthetic task generation, skill library, execution logs, and analysis results. All data is stored in local CSV/JSON files under `data/`.
+This document defines the data structures used in the synthetic experiment. The data model is designed to be lightweight, JSON-native, and strictly typed to support contract testing.
 
-## Entities
+## Entity Definitions
 
-### 1. Task (Synthetic)
+### 1. Skill
+A Python function with an associated embedding vector and metadata.
 
-Represents a single multi-step instruction.
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `skill_id` | string | Unique identifier (e.g., "skill_001") | Unique, non-empty |
+| `code_snippet` | string | The Python function code | Valid Python syntax |
+| `embedding` | list[float] | Vector representation | Length 384 (for MiniLM) |
+| `semantic_group` | string | Category for overlap control | Low, Medium, High |
+| `usage_count` | integer | Number of times used in experiment | >= 0 |
 
-| Field | Type | Description | Source |
-|-------|------|-------------|--------|
-| `task_id` | str | Unique identifier (e.g., `task_0001`) | Generator |
-| `prompt` | str | The natural language instruction (semantically obfuscated) | Generator |
-| `required_actions` | list[str] | Ordered list of deterministic actions (e.g., `["read", "parse", "write"]`) | Generator |
-| `required_skill_ids` | list[str] | IDs of skills strictly required to solve this task | Generator (Synthetic Oracle) |
-| `complexity_score` | int | Number of required actions (3-5) | Generator |
-| `seed` | int | Random seed used for generation (for reproducibility) | Config |
+### 2. Task
+A synthetic multi-step problem requiring specific skills.
 
-### 2. Skill (Synthetic)
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `task_id` | string | Unique identifier (e.g., "task_001") | Unique, non-empty |
+| `description` | string | Natural language description | Non-empty |
+| `ground_truth_path` | list[string] | Ordered list of skill_ids required | Length 3-5, all exist in library |
+| `complexity` | integer | Number of steps | 3, 4, or 5 |
 
-Represents a Python function capability.
+### 3. ExperimentLog
+A record of a single task execution within a specific configuration.
 
-| Field | Type | Description | Source |
-|-------|------|-------------|--------|
-| `skill_id` | str | Unique identifier (e.g., `skill_0001`) | Generator |
-| `function_name` | str | Name of the Python function | Generator |
-| `code` | str | The actual Python source code | Generator |
-| `embedding` | list[float] | 384-dim vector from `all-MiniLM-L6-v2` | Generator |
-| `semantic_cluster` | str | Cluster ID for grouping similar skills | Generator |
-| `usage_count` | int | Number of times used in execution (mutable) | Executor |
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `run_id` | string | Unique run identifier | Unique |
+| `task_id` | string | Reference to task | Exists in dataset |
+| `library_size` | integer | Size of active library | 10, 30, 50, or 100 |
+| `pruning_enabled` | boolean | Whether pruning was active | True/False |
+| `execution_success` | boolean | Did retrieved code run and match output? | True/False |
+| `retrieval_precision` | float | Jaccard similarity (retrieved vs ground truth) | 0.0 to 1.0 |
+| `retrieval_diversity` | float | Inverse variance of similarities | >= 0 |
+| `pruning_risk_count` | integer | Number of high-risk skills pruned | >= 0 |
+| `latency_ms` | float | Execution time | >= 0 |
+| `token_usage` | integer | Tokens consumed | >= 0 |
 
-### 3. ExecutionLog
+## File Formats
 
-Record of a single task attempt.
+- **`data/raw/skills.json`**: Array of `Skill` objects.
+- **`data/raw/tasks.json`**: Array of `Task` objects.
+- **`data/results/experiment_log.csv`**: CSV representation of `ExperimentLog` (flattened for analysis).
 
-| Field | Type | Description | Source |
-|-------|------|-------------|--------|
-| `log_id` | str | Unique log ID | System |
-| `task_id` | str | FK to Task | Executor |
-| `library_size` | int | Number of active skills in this run (10, 30, 50, 100) | Config |
-| `pruning_enabled` | bool | Whether pruning was active | Config |
-| `success` | bool | Did the task complete? | Executor |
-| `failure_reason` | str | "timeout", "missing_skill", "false_prune", "logic_error" | Executor |
-| `token_usage` | int | Total tokens consumed | Executor |
-| `latency_ms` | float | Time to completion in ms | Executor |
-| `retrieved_skill_ids` | list[str] | IDs of top-k skills retrieved | Retriever |
-| `timestamp` | str | ISO 8601 timestamp | System |
+**Metric Mapping**:
+- `execution_success`: Primary outcome metric (Execution Fidelity).
+- `retrieval_precision`: Secondary diagnostic metric (Retrieval Fidelity).
+- `retrieval_diversity`: Diagnostic metric for noise collapse.
+- `pruning_risk_count`: Diagnostic metric for pruning intervention safety.
 
-### 4. MetricAggregation
+## Relationships
 
-Aggregated results for analysis.
-
-| Field | Type | Description | Source |
-|-------|------|-------------|--------|
-| `library_size` | int | Grouping key | Analysis |
-| `pruning_enabled` | bool | Grouping key | Analysis |
-| `total_tasks` | int | Count of tasks in group | Analysis |
-| `success_rate` | float | Mean success (0.0 - 1.0) | Analysis |
-| `avg_latency_ms` | float | Mean latency | Analysis |
-| `precision_at_5` | float | Mean retrieval precision | Analysis |
-| `false_prune_count` | int | Count of false prune events | Analysis |
-| `breakpoint_estimate` | float | Estimated library size threshold (from Piecewise Regression) | Analysis |
-
-### 5. ValidationLabel (Ground Truth)
-
-Labels for the 50-task validation subset, generated by the Oracle and validated by the LLM-as-a-Judge.
-
-| Field | Type | Description | Source |
-|-------|------|-------------|--------|
-| `task_id` | str | FK to Task | System |
-| `oracle_label` | list[str] | Skills required by the deterministic generator (Oracle) | Synthetic Oracle |
-| `judge_label` | list[str] | Skills deemed relevant by the independent LLM judge | LLM-as-a-Judge |
-| `relevance_score` | float | Average relevance score (0.0 - 1.0) | Analysis |
-
-## Data Flow
-
-1.  **Generation**: `code/generators/` produces `data/raw/tasks.csv`, `data/raw/skills.json`.
-2.  **Validation**: `code/validation/judge.py` produces `data/raw/validation_labels.csv` (Oracle + Judge output).
-3.  **Execution**: `code/main.py` reads raw data, runs simulations, writes `data/raw/execution_logs.csv`.
-4.  **Analysis**: `code/analysis/` reads logs, computes aggregates, writes `data/processed/metrics.csv`.
+- **Task -> Skills**: Many-to-Many (via `ground_truth_path`).
+- **ExperimentLog -> Task**: Many-to-One.
+- **ExperimentLog -> Configuration**: Many-to-One (implied by `library_size` and `pruning_enabled`).

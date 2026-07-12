@@ -1,21 +1,31 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+
 **Verdict**: pass
-The question investigates a substantive relationship between library size (cardinality) and retrieval noise/task success, which is a phenomenon of information retrieval and cognitive load in agent architectures. While the methodology involves CPU-constrained settings, the core inquiry is about the scaling behavior of skill libraries, not merely whether a specific model can run on a specific hardware.
+
+The question asks about the fundamental relationship between library cardinality/semantic density and agent performance (retrieval fidelity, task success), which is a substantive phenomenon regarding information retrieval and cognitive load in autonomous systems. While the methodology specifies CPU constraints and a specific implementation (Python functions, cosine similarity), these are experimental parameters to define the regime of interest rather than the core object of inquiry, which remains the "threshold where retrieval noise overwhelms benefits."
 
 ### Circularity check
+
 **Verdict**: pass
-The predictor (skill library cardinality) is an external parameter set by the experimenter, while the predicted variable (task success rate/retrieval noise) is measured via task completion and embedding variance on held-out data. These are distinct measurements; the success rate is not mechanically derived from the library size itself but depends on the agent's ability to navigate the increased search space.
+
+The predictor variables (skill library size and semantic overlap) are properties of the constructed input database, while the predicted variables (task success rates and retrieval fidelity) are outcomes of the agent's execution against independent ground-truth solution paths. The methodology explicitly ensures the ground-truth paths are distinct from the retrieval process, preventing the outcome from being mechanically guaranteed by the input construction.
 
 ### Triviality check
+
 **Verdict**: pass
-A positive result (performance plateau/decline) would provide critical empirical evidence against the assumption that "more skills = better," guiding resource allocation in persistent agents. Conversely, a null result (linear improvement) would challenge the hypothesis of retrieval noise, suggesting that modern retrieval mechanisms scale well beyond current assumptions; both outcomes are scientifically informative.
+
+Both outcomes are scientifically informative: a finding of a sharp performance threshold would establish a critical design constraint for persistent agents, while a finding of no threshold (linear scaling) would refute the hypothesis of cognitive overhead in this architecture. Neither result is predetermined by current domain knowledge, as the specific trade-off between retrieval noise and capability expansion in deterministic skill libraries remains an open empirical question.
 
 ### Question-narrowing check
+
 **Verdict**: pass
-The question explicitly names a domain relationship: the trade-off between skill library accumulation and retrieval efficiency/noise. It asks "at what threshold" this occurs, which is a valid scientific inquiry into system behavior, rather than framing the question as "Can method X run on hardware Y?"
+
+The question names a specific domain relationship (the interplay between library density/size and retrieval noise) rather than focusing on whether a specific algorithm can solve a task. It asks "how does X influence Y and where is the threshold," which is a domain question about system dynamics, distinct from "can method M achieve accuracy B," which would be an implementation question.
 
 ### Overall verdict
+
 **Verdict**: validated
-All checks pass; the research question identifies a clear, non-circular phenomenon regarding the scaling limits of persistent agent skill libraries. The focus on the "tipping point" and "diminishing returns" ensures the study will yield publishable insights regardless of the specific outcome.
+
+The research question successfully isolates a non-trivial phenomenon regarding the scaling limits of persistent skill libraries without falling into circular reasoning or implementation-specific narrowness. The framing invites an empirical investigation into the "tipping point" of retrieval noise, which is a valid and publishable scientific inquiry regardless of whether the results show a sharp decline or continuous scaling.

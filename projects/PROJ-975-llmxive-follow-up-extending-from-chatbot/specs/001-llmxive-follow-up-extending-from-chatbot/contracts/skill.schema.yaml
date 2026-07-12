@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Skill Schema"
+description: "Schema for synthetic Python skills"
+type: "object"
+required:
+  - skill_id
+  - code_snippet
+  - embedding
+  - semantic_group
+properties:
+  skill_id:
+    type: "string"
+    pattern: "^skill_\\d{3}$"
+    description: "Unique identifier for the skill"
+  code_snippet:
+    type: "string"
+    description: "The Python function code"
+  embedding:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 384
+    maxItems: 384
+    description: "Vector representation of the skill"
+  semantic_group:
+    type: "string"
+    enum:
+      - "low"
+      - "medium"
+      - "high"
+    description: "Category for overlap control"
+  usage_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of times used in experiment"
+additionalProperties: false

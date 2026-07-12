@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Task Schema"
+description: "Schema for synthetic multi-step tasks"
+type: "object"
+required:
+  - task_id
+  - description
+  - ground_truth_path
+  - complexity
+properties:
+  task_id:
+    type: "string"
+    pattern: "^task_\\d{3}$"
+    description: "Unique identifier for the task"
+  description:
+    type: "string"
+    minLength: 1
+    description: "Natural language description of the task"
+  ground_truth_path:
+    type: "array"
+    items:
+      type: "string"
+      pattern: "^skill_\\d{3}$"
+    minItems: 3
+    maxItems: 5
+    description: "Ordered list of skill IDs required to solve the task"
+  complexity:
+    type: "integer"
+    minimum: 3
+    maximum: 5
+    description: "Number of steps in the solution path"
+additionalProperties: false

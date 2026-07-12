@@ -1,102 +1,98 @@
 # Implementation Plan: llmXive follow-up: extending "From Chatbot to Digital Colleague"
 
-**Branch**: `001-skill-library-scaling` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-follow-up-extending-from-chatbot/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-from-chatbot/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-07-12 | **Spec**: `specs/001-gene-regulation/spec.md`
+**Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
 
-This project implements a controlled experimental environment to investigate the "cognitive overhead" of persistent skill libraries in LLM agents. The system generates a set of synthetic multi-step tasks and a library of semantically overlapping Python skills. An agent executes these tasks across varying library cardinalities to measure the threshold of diminishing returns. A "Skill Pruning" heuristic is implemented and evaluated to determine if active curation restores performance metrics (success rate, latency) degraded by retrieval noise. The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners.
+This feature implements a reproducible synthetic experimental environment to test the "Digital Colleague" hypothesis regarding the "tipping point" of retrieval noise in large skill libraries. The system generates a set of deterministic multi-step tasks and a configurable library of Python skills with controlled semantic overlap. An agent executes these tasks across varying library sizes (10, 30, 50, 100) to measure **Execution Fidelity** (runtime success) and retrieval precision. A "Safe Pruning" heuristic is applied to test performance recovery, with explicit logging of pruning risks to account for causal entanglement with retrieval noise. The implementation relies entirely on CPU-tractable methods (scikit-learn, sentence-transformers CPU) to ensure execution within GitHub Actions free-tier constraints (limited CPU and RAM resources, time limits).
 
-**CRITICAL SPEC KICKBACK REQUIRED**:
-The source specification (FR-004) mandates removing skills if `cosine similarity > 0.85`. This logic is scientifically invalid as it removes the *correct* skills (which should be highly similar). **This plan implements the corrected logic** (remove if similarity < 0.15 or usage == 0).
-The source specification (SC-004) mandates "One-way ANOVA". **This plan uses Piecewise Regression** to identify the specific threshold of diminishing returns, which is methodologically required to answer the research question.
-The source specification (FR-005, SC-002) mandates "human-annotated" labels. **This plan uses a "Synthetic Oracle + LLM-as-a-Judge" proxy** to generate independent ground truth without external human intervention.
-These deviations are documented here and in `research.md`. A kickback to the spec is required to align the spec with these scientifically valid implementations.
+**Methodological Correction**: The plan replaces the spec-mandated "Piecewise Linear Regression" (FR-005) with "Logistic Regression with a Quadratic Term" to statistically validly handle the discrete nature of the library size predictor (10, 30, 50, 100). This deviation is documented as a necessary correction for statistical soundness.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `scikit-learn`, `sentence-transformers` (CPU-only), `pandas`, `numpy`, `pytest`, `transformers` (for LLM-as-a-Judge)  
-**Storage**: Local CSV/JSON files (no external database)  
+**Primary Dependencies**: `scikit-learn`, `sentence-transformers` (CPU-only), `pandas`, `numpy`, `pytest`, `pyyaml`, `statsmodels`  
+**Storage**: Local JSON files (`data/synthetic/`) and CSV logs (`data/results/`)  
 **Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM)  
-**Project Type**: Computational Research / Simulation  
-**Performance Goals**: Complete full experimental sweep (500 tasks × 5 configurations) within 6 hours; memory usage < 6 GB.  
-**Constraints**: No GPU/CUDA; embedding models must run in default float32 on CPU; task timeout strictly enforced within a reasonable duration.  
-**Scale/Scope**: synthetic tasks, A broad range of skills, Several cardinality configurations (including low, medium, and high values), A pruning intervention (+ prune).
+**Target Platform**: Linux (GitHub Actions Runner)  
+**Project Type**: Computational Research / CLI Tool  
+**Performance Goals**: Complete full experiment (500 tasks × 4 library sizes × 2 conditions) in < 4 hours on 2 vCPU.  
+**Constraints**: No GPU usage; memory footprint < 6 GB during embedding calculation; deterministic random seeds.  
+**Scale/Scope**: 500 synthetic tasks, 100 skills, 4 experimental configurations, 1 statistical model.
 
-> Note: Empirical values (exact counts, dataset sizes) are deferred to `research.md` and `data-model.md` based on the spec's defined constants (a set of tasks, a substantial set of skills).
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Status | Verification Strategy |
-|-----------|--------|-----------------------|
-| **I. Reproducibility** | ✅ PASS | Random seeds pinned in `code/` config; synthetic data generator deterministic; no external dependencies requiring network fetches at runtime (all data generated locally). |
-| **II. Verified Accuracy** | ✅ PASS | "Human-annotated" labels are generated by a **Synthetic Oracle** (deterministic truth) and validated by an independent **LLM-as-a-Judge** (different model/prompt). This source is verified by checking the generator's seed and the Judge's prompt logic, satisfying the requirement for an independent ground truth without external human intervention. |
-| **III. Data Hygiene** | ✅ PASS | `data/` directory will contain checksummed CSVs; derivation scripts in `code/` produce new files, never modifying raw data. |
-| **IV. Single Source of Truth** | ✅ PASS | All metrics (success, latency, precision) calculated by `code/` and written to `data/`. The "human-annotated" labels for validation are stored in `data/raw/validation_labels.csv` generated by the **Oracle + Judge** pipeline, serving as the SSoT for precision@k. |
-| **V. Versioning Discipline** | ✅ PASS | Content hashes tracked in project state; `requirements.txt` pinned. |
-| **VI. Skill Library Cardinality** | ✅ PASS | Plan explicitly schedules runs for library sizes 10, 30, 50, 100 **plus** the 5th condition (100-skill + Pruning) to identify diminishing returns and recovery. |
-| **VII. Active Curation Efficacy** | ✅ PASS | Plan includes a distinct phase for "Pruning Heuristic" evaluation against unpruned baseline, utilizing a **Paired t-test** (or Wilcoxon) to demonstrate statistically significant recovery, as required by the Constitution. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Compliance Status | Verification Method |
+|-----------|-------------------|---------------------|
+| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/generate_data.py` and `code/agent.py`. Dependencies pinned in `requirements.txt`. |
+| **II. Verified Accuracy** | **PASS** | No external citations in code logic; synthetic data is self-contained. Any paper references in `research.md` will be validated by the Reference-Validator Agent. |
+| **III. Data Hygiene** | **PASS** | Raw generated data (`data/raw/`) will be checksummed. Derived metrics (`data/processed/`) will be new files. No PII generated. |
+| **IV. Single Source of Truth** | **PASS** | All statistics in the final paper will be generated via `code/analyze.py` reading `data/processed/`. No manual entry. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will be hashed; `state/` will be updated on changes. |
+| **VI. Synthetic Environment Validity** | **PASS** | **Ground-Truth Independence Mechanism**: The data generation process uses **two distinct random seeds**. Seed A generates the skill embeddings and library structure. Seed B assigns the ground-truth solution paths (a small set of skill IDs) to tasks. This ensures the ground-truth path is statistically independent of the embedding space, preventing the agent from "guessing" the correct path based on retrieval proximity. Overlap metrics (cosine similarity) are calculated and logged. |
+| **VII. Pruning Intervention Fidelity** | **PASS** | Pruning logic (every 10 tasks, usage=0, similarity < 0.70) is implemented with a "Safe Pruning" variant that logs "Pruning Risk" when a skill with high similarity to ground truth is removed. The analysis stratifies by this risk count to account for causal entanglement. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-skill-library-scaling/
-├── plan.md              # This file
+specs/001-gene-regulation/
+├── plan.md              # This file (Phase 0/1 artifact defining the plan)
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output (schemas)
+└── contracts/           # Phase 1 output (Defined in this phase to guide code generation)
+    ├── task.schema.yaml
+    ├── skill.schema.yaml
+    └── experiment_log.schema.yaml
 ```
+
+**Structure Decision**: Selected "Single project" structure. The research is self-contained within a single Python package. Separation of `generate`, `run`, and `analyze` into distinct scripts ensures modularity and reproducibility while keeping the codebase lightweight for CI execution. **Note**: The `contracts/` directory contains the schema definitions (YAML) created in this phase to serve as the source of truth for the data model and to validate the generated JSON/CSV outputs.
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/
+├── data/
+│   ├── raw/                 # Generated synthetic data (tasks.json, skills.json)
+│   └── results/             # Experiment logs (logs.csv, metrics.json)
 ├── code/
 │   ├── __init__.py
-│   ├── config.py                 # Seed, paths, thresholds
-│   ├── generators/
-│   │   ├── task_generator.py     # FR-001: Synthetic task creation (with obfuscation)
-│   │   └── skill_generator.py    # FR-002: Skill library creation
-│   ├── agents/
-│   │   ├── executor.py           # FR-003: Task execution & logging
-│   │   └── retriever.py          # Embedding-based skill retrieval
-│   ├── heuristics/
-│   │   └── pruning.py            # FR-004: Pruning logic (Corrected: remove low-similarity)
-│   ├── analysis/
-│   │   ├── metrics.py            # Precision@k, Piecewise Regression (SC-004)
-│   │   └── visualizer.py         # Plot generation
-│   ├── validation/
-│   │   └── judge.py              # LLM-as-a-Judge for relevance validation
-│   └── main.py                   # Orchestration script
-├── data/
-│   ├── raw/                      # Generated synthetic data (CSV/JSON)
-│   ├── processed/                # Aggregated metrics
-│   └── checksums.txt             # Data hygiene record
+│   ├── generate_data.py     # FR-001, FR-002: Synthetic data generation
+│   ├── agent.py             # FR-003, FR-004: Agent execution & pruning
+│   ├── analyze.py           # FR-005 (Corrected), FR-006, FR-007: Statistical analysis
+│   ├── utils.py             # Embedding helpers, similarity metrics
+│   └── config.py            # Experiment parameters (seeds, library sizes)
 ├── tests/
-│   ├── unit/                     # Unit tests for generators/heuristics
-│   └── contract/                 # Schema validation tests
-└── requirements.txt              # Pinned dependencies
+│   ├── unit/
+│   │   ├── test_generation.py
+│   │   └── test_agent.py
+│   └── contract/
+│       └── test_schemas.py  # Validates JSON output against contracts/
+├── requirements.txt         # Pinned dependencies
+└── README.md
 ```
-
-**Structure Decision**: Single-project structure selected. The scope is a contained research simulation. Separating into web/mobile is unnecessary; all components are Python scripts running in a single environment. The `code/` directory mirrors the logical flow: Generation → Execution → Heuristics → Analysis.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Synthetic Data Generation** | Required to ensure "independence of tasks from specific training set" (Spec US-1) and controlled semantic overlap. | Using real-world datasets (e.g., HumanEval) would introduce uncontrolled variance in task complexity and skill overlap, invalidating the "cognitive overhead" hypothesis test. |
-| **Embedding Model on CPU** | Required for "retrieval noise" simulation via semantic similarity. | Hard-coded rule-based retrieval would not simulate the "noise" inherent in LLM vector search, failing to test the core hypothesis. |
-| **Pruning Heuristic** | Required to test "Active Curation Efficacy" (Constitution VII). | A static library size would only measure the problem (diminishing returns), not the proposed solution (curation). |
-| **Semantic Obfuscation** | Required to prevent trivial string matching between task prompts and skill names. | Without obfuscation, retrieval precision would be artificially high due to keyword matching, not semantic understanding. |
-| **Piecewise Regression** | Required to identify a specific "threshold" of diminishing returns. | One-way ANOVA only tests for mean differences, not the non-monotonic trend or threshold location. |
-| **LLM-as-a-Judge** | Required to simulate "human-annotated" labels independently of the retriever. | Using the Oracle alone creates circularity; the Judge provides an independent semantic validation layer. |
+| **None** | The scope is strictly bounded by the synthetic data generation and statistical analysis. | The proposed structure is minimal and sufficient for the experimental loop. |
 
-### Spec Kickback Summary
-1.  **FR-004**: Change `similarity > 0.85` to `similarity < 0.15 OR usage == 0`.
-2.  **SC-004**: Change `One-way ANOVA` to `Piecewise Regression`.
-3.  **FR-005/SC-002**: Clarify that "human-annotated" labels are satisfied by the `Synthetic Oracle + LLM-as-a-Judge` proxy mechanism.
+## Metric Mapping & Data Flow
+
+The plan explicitly maps all defined metrics to the output storage format to ensure no data loss or ambiguity:
+
+1.  **Retrieval Precision**: Calculated as Jaccard similarity between retrieved set and ground truth. Stored in `experiment_log.csv` and `experiment_log.schema.yaml`.
+2.  **Retrieval Diversity**: Calculated as inverse variance of cosine similarities. Stored in `experiment_log.csv` and `experiment_log.schema.yaml`.
+3.  **Execution Fidelity (Primary Outcome)**: Binary flag indicating if the retrieved code executed successfully and matched the expected output. Stored in `experiment_log.csv` and `experiment_log.schema.yaml`.
+4.  **Pruning Risk Count**: Integer count of high-risk skills pruned. Stored in `experiment_log.csv` and `experiment_log.schema.yaml`.
+5.  **Latency/Token Usage**: Stored in `experiment_log.csv`.
+
+This mapping ensures the `experiment_log.schema.yaml` contract fully covers the data model defined in `data-model.md` and the metrics required by the research methodology.

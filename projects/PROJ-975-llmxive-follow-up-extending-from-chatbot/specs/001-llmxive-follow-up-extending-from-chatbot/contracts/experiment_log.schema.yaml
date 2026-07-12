@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Log Schema"
+description: "Schema for experiment execution logs"
+type: "object"
+required:
+  - run_id
+  - task_id
+  - library_size
+  - pruning_enabled
+  - execution_success
+  - retrieval_precision
+  - retrieval_diversity
+  - pruning_risk_count
+  - latency_ms
+  - token_usage
+properties:
+  run_id:
+    type: "string"
+    description: "Unique run identifier"
+  task_id:
+    type: "string"
+    pattern: "^task_\\d{3}$"
+    description: "Reference to the task"
+  library_size:
+    type: "integer"
+    enum:
+      - 10
+      - 30
+      - 50
+      - 100
+    description: "Size of the active library"
+  pruning_enabled:
+    type: "boolean"
+    description: "Whether pruning was active"
+  execution_success:
+    type: "boolean"
+    description: "Did retrieved code run and match expected output? (Primary Outcome)"
+  retrieval_precision:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Jaccard similarity between retrieved and ground truth"
+  retrieval_diversity:
+    type: "number"
+    minimum: 0.0
+    description: "Inverse variance of cosine similarities"
+  pruning_risk_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of high-risk skills pruned (causal entanglement metric)"
+  latency_ms:
+    type: "number"
+    minimum: 0
+    description: "Execution time in milliseconds"
+  token_usage:
+    type: "integer"
+    minimum: 0
+    description: "Tokens consumed"
+additionalProperties: false

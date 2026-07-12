@@ -37,27 +37,23 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml` `updated_at` timestamp.
 
-### VI. Skill Library Cardinality & Retrieval Noise
+### VI. Synthetic Environment Validity
 
-Task success rates and latency MUST be explicitly correlated with the
-cardinality of the active skill library (ranging from 10 to 100 skills) to
-identify the specific threshold where retrieval noise induces diminishing
-returns. This principle is grounded in the **Research Question** and **Expected
-Results**, which posit a non-monotonic relationship between library size and
-performance. All experiments MUST vary the active skill set size systematically
-(10, 30, 50, 100) using the defined synthetic dataset of 500 multi-step tasks
-and the library of 100 pre-defined, overlapping Python functions.
+All experimental data MUST be generated from the project's defined synthetic
+dataset of 500 multi-step tasks and the controlled 100-skill Python function
+library. The ground-truth solution path for every task MUST be deterministic
+and independent of the agent's retrieval process to ensure that task success
+rates accurately reflect retrieval fidelity rather than stochastic luck, as
+specified in the Methodology sketch.
 
-### VII. Active Curation Efficacy
+### VII. Pruning Intervention Fidelity
 
-The efficacy of the "Skill Pruning" heuristic MUST be measured as a distinct
-intervention to restore performance metrics after the identified threshold is
-crossed. This principle is grounded in the **Methodology sketch**, which
-specifies the removal of unused or redundant skills based on usage frequency
-and embedding similarity after every 10 tasks. The project MUST demonstrate
-statistically significant recovery in task completion rates or latency reduction
-attributable solely to this curation mechanism, validating the hypothesis that
-persistent memory requires active management in CPU-constrained environments.
+Any performance recovery attributed to the "Skill Pruning" heuristic MUST be
+demonstrated by comparing metrics against a baseline where the library size
+and semantic overlap are held constant but the pruning mechanism is disabled.
+The intervention MUST be applied strictly according to the defined frequency
+(e.g., every 10 tasks) to validate the causal link between active curation
+and restored efficiency in CPU-constrained settings.
 
 ## Reproducibility Requirements
 
