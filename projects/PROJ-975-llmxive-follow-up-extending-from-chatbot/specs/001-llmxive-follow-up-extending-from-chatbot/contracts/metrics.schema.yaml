@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetricAggregationSchema"
+description: "Schema for aggregated experimental results."
+type: "object"
+properties:
+  library_size:
+    type: "integer"
+    description: "Grouping key for library size."
+    enum: [10, 30, 50, 100]
+  pruning_enabled:
+    type: "boolean"
+    description: "Grouping key for pruning status."
+  total_tasks:
+    type: "integer"
+    description: "Total number of tasks in this group."
+  success_rate:
+    type: "number"
+    description: "Mean success rate (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  avg_latency_ms:
+    type: "number"
+    description: "Mean latency in milliseconds."
+  precision_at_5:
+    type: "number"
+    description: "Mean retrieval precision at k=5."
+    minimum: 0.0
+    maximum: 1.0
+  false_prune_count:
+    type: "integer"
+    description: "Count of false positive pruning events."
+  breakpoint_estimate:
+    type: "number"
+    description: "Estimated library size threshold from Piecewise Regression."
+required:
+  - library_size
+  - pruning_enabled
+  - total_tasks
+  - success_rate
+  - avg_latency_ms
+  - precision_at_5
+  - false_prune_count
+  - breakpoint_estimate
+additionalProperties: false

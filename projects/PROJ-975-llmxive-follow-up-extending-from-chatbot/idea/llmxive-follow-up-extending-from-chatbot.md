@@ -9,11 +9,11 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does the performance of persistent "Digital Colleague" agents operating in CPU-tractable environments exhibit diminishing returns in task success as the library of reusable skills grows beyond a specific threshold, and can a lightweight pruning mechanism restore efficiency without compromising task closure?
+How does the cardinality of a reusable skill library affect retrieval noise and task success rates in persistent LLM agents, and at what threshold does the accumulation of skills introduce diminishing returns that require active curation?
 
 ## Motivation
 
-The transition from episodic chatbots to persistent agents relies on experience reuse, yet it remains untested whether accumulating a large library of persistent skills introduces cognitive overhead or state confusion in resource-constrained settings. This research addresses the critical gap of whether "more skills" automatically equate to "better agents" or if uncurated persistence negates the benefits of autonomy for edge-deployed systems.
+The transition from episodic chatbots to persistent "Digital Colleagues" relies on experience reuse, yet it remains untested whether accumulating a large library of persistent skills introduces cognitive overhead or state confusion in resource-constrained settings. This research addresses the critical gap of whether "more skills" automatically equate to "better agents" or if uncurated persistence negates the benefits of autonomy for edge-deployed systems.
 
 ## Literature gap analysis
 
@@ -21,7 +21,7 @@ The transition from episodic chatbots to persistent agents relies on experience 
 We queried Semantic Scholar, arXiv, and OpenAlex using terms such as "LLM agent skill library scaling," "persistent agent cognitive overhead," "retrieval noise in skill selection," and "agent pruning mechanisms." We also broadened the search to "agent-to-agent trust" and "human-like LLM responses" to identify any tangential work on agent complexity or interaction quality.
 
 ### What is known
-- [AI Agents with Decentralized Identifiers and Verifiable Credentials (2025)](https://arxiv.org/abs/2511.02841) — This work identifies a fundamental limitation in current LLM agents: the inability to build differentiated trust in agent-to-agent dialogues, highlighting the broader challenges of agent identity and interaction reliability rather than internal skill library management.
+- [AI Agents with Decentralized Identifiers and Verifiable Credentials (2025)](https://arxiv.org/abs/2511.02841) — This work identifies a fundamental limitation in current LLM agents regarding trust and identity in agent-to-agent dialogues, highlighting broader challenges in agent interaction reliability rather than internal skill library management or retrieval efficiency.
 - [Enhancing Human-Like Responses in Large Language Models (2025)](https://arxiv.org/abs/2501.05032) — This paper focuses on techniques to improve conversational coherence and emotional alignment, addressing the qualitative nature of agent output rather than the quantitative efficiency of skill retrieval in persistent workspaces.
 
 ### What is NOT known
@@ -39,13 +39,13 @@ We expect to observe a non-monotonic relationship where task success rates plate
 
 ## Methodology sketch
 
-- Construct a synthetic dataset of 500 multi-step tasks (e.g., file organization, log aggregation) requiring 3-5 deterministic actions each.
-- Develop a library of 100 pre-defined, overlapping Python functions acting as "skills" to simulate a growing knowledge base.
-- Implement a minimalistic "Digital Colleague" agent on a standard CPU using a retrieval-augmented mechanism to select skills based on current workspace state.
+- Construct a synthetic dataset of 500 multi-step tasks (e.g., file organization, log aggregation) requiring 3-5 deterministic actions each, ensuring tasks are independent of the specific skill set used for training.
+- Develop a library of 100 pre-defined, overlapping Python functions acting as "skills" to simulate a growing knowledge base, with varying degrees of semantic overlap.
+- Implement a minimalistic "Digital Colleague" agent on a standard CPU using a retrieval-augmented mechanism to select skills based on current workspace state, utilizing a lightweight embedding model (e.g., all-MiniLM-L6-v2).
 - Run experiments systematically varying the active skill library size (10, 30, 50, 100) while recording task completion rates, token usage, and latency.
-- Introduce a "Skill Pruning" heuristic that removes unused or redundant skills after every 10 tasks to test its efficacy in restoring performance.
+- Introduce a "Skill Pruning" heuristic that removes unused or redundant skills (based on usage frequency and embedding similarity) after every 10 tasks to test its efficacy in restoring performance.
 - Apply statistical analysis (e.g., ANOVA or regression discontinuity) to determine if the decline in performance beyond the threshold is significant and if the pruning intervention yields a statistically significant improvement.
-- Validate results against an independent metric of "state clarity" (measured by the variance in retrieved skill embeddings) to ensure performance changes are not correlated with the specific task definitions used for training.
+- Validate results against an independent metric of "state clarity" measured by the variance in retrieved skill embeddings from a separate, held-out validation set, ensuring the evaluation target is not mathematically derived from the predictor inputs.
 
 ## Duplicate-check
 
@@ -56,7 +56,7 @@ We expect to observe a non-monotonic relationship where task success rates plate
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-07T04:31:11Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T15:26:29Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persisten" computer science
 **Verified citation count**: 2
@@ -65,27 +65,7 @@ We expect to observe a non-monotonic relationship where task success rates plate
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persisten" computer science | 0 |
-| 1 | persistent AI agents | 1 |
-| 2 | long-term memory in large language models | 5 |
-| 3 | stateful conversational AI systems | 0 |
-| 4 | digital colleagues and AI assistants | 0 |
-| 5 | context retention in generative AI | 0 |
-| 6 | evolving personal AI assistants | 0 |
-| 7 | lifelong learning for language models | 0 |
-| 8 | persistent user modeling with LLMs | 0 |
-| 9 | agentic workflows in generative AI | 0 |
-| 10 | continuous interaction with AI agents | 0 |
-| 11 | memory-augmented language models | 0 |
-| 12 | autonomous digital coworkers | 0 |
-| 13 | longitudinal AI-human collaboration | 0 |
-| 14 | persistent context in chatbots | 0 |
-| 15 | adaptive AI personal assistants | 0 |
-| 16 | stateful generative models | 0 |
-| 17 | AI agents with long-term goals | 0 |
-| 18 | persistent identity in conversational agents | 0 |
-| 19 | continuous fine-tuning of LLMs for users | 0 |
-| 20 | human-AI partnership evolution | 0 |
+| 0 (initial) | llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persisten" computer science | 2 |
 
 ### Verified citations
 
