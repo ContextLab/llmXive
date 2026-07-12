@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/`, `specs/001-predicting-solubility-in-mixed-solvents/contracts/`
-- [ ] T002 Create Python 3.11 virtual environment and pinned dependency file: `code/requirements.txt`
-- [ ] T003 [P] Create linting and formatting configuration files: `.flake8` and `pyproject.toml` (with `[tool.black]` section)
+- [X] T001 Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/`, `specs/001-predicting-solubility-in-mixed-solvents/contracts/`
+- [X] T002 Create Python 3.11 virtual environment and pinned dependency file: `code/requirements.txt`
+- [X] T003 [P] Create linting and formatting configuration files: `.flake8` and `pyproject.toml` (with `[tool.black]` section)
 
 ---
 
@@ -55,15 +55,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/utils/constants.py` containing fixed random seeds (numpy, pandas, sklearn, xgboost) and standard file paths
-- [ ] T005 [P] Create `code/utils/logging.py` implementing memory/disk monitoring:
-    - Define function `monitor_resources(ram_limit_gb=7.0, disk_limit_gb=14.0)`
-    - Log output to stderr in JSON format: `{"timestamp": "ISO8601", "ram_gb": float, "disk_gb": float, "status": "ok"|"critical"}`
-    - On critical status, print `ERROR: Resource limit exceeded` to stderr and exit with code 1.
-- [ ] T006 Create data directory structure: `data/raw/`, `data/processed/`, `data/artifacts/`
-- [ ] T006b Create `code/utils/checksums.py` to generate `data/.checksums.json`
-- [ ] T007 Create schema definition files: `specs/001-predicting-solubility-in-mixed-solvents/contracts/solubility_record.schema.yaml` and `specs/001-predicting-solubility-in-mixed-solvents/contracts/processed_dataset.schema.yaml`
-- [ ] T008 Create `code/utils/errors.py` defining `CustomDataError`, `MissingURLError`, and `InvalidStoichiometryError`
+- [X] T004 Create `code/utils/constants.py` containing fixed random seeds (numpy, pandas, sklearn, xgboost) and standard file paths
+- [X] T005 [P] Create `code/utils/logging.py` implementing memory/disk monitoring:
+ - Define function `monitor_resources(ram_limit_gb=7.0, disk_limit_gb=14.0)`
+ - Log output to stderr in JSON format: `{"timestamp": "ISO8601", "ram_gb": float, "disk_gb": float, "status": "ok"|"critical"}`
+ - On critical status, print `ERROR: Resource limit exceeded` to stderr and exit with code 1.
+- [X] T006 Create data directory structure: `data/raw/`, `data/processed/`, `data/artifacts/`
+- [X] T006b Create `code/utils/checksums.py` to generate `data/.checksums.json`
+- [X] T007 Create schema definition files: `specs/001-predicting-solubility-in-mixed-solvents/contracts/solubility_record.schema.yaml` and `specs/001-predicting-solubility-in-mixed-solvents/contracts/processed_dataset.schema.yaml`
+- [X] T008 Create `code/utils/errors.py` defining `CustomDataError`, `MissingURLError`, and `InvalidStoichiometryError`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,18 +87,25 @@
 - [ ] T011 [US1] Implement `code/01_data_ingestion.py`: fetch EPA data (DSSTox excluded per Plan) and filter for molecules with MW < 500 Da
 - [ ] T011b [US1] **Formal Scope Amendment**: Create or update `specs/001-predicting-solubility-in-mixed-solvents/spec.md` to explicitly document the exclusion of DSSTox from FR-001, citing the Plan's "Assumptions & Gaps" section.
 - [ ] T012 [US1] Implement composition validation in `code/01_data_ingestion.py`: reject or normalize rows where composition sum != 1.0 (within tolerance) and write filtered data to `data/processed/cleaned_compositions.csv`
-- [ ] T013 [US1] Implement KNN imputation for missing solvent properties in `code/01_data_ingestion.py`; drop rows if imputation fails; log imputation rate to `data/artifacts/imputation_log.txt`.
+- [~] T013 [US1] Implement KNN imputation for missing solvent properties in `code/01_data_ingestion.py`; drop rows if imputation fails; log imputation rate to `data/artifacts/imputation_log.txt`.
  - **Failure Mode**: If imputation rate > 15%, write `ERROR: Imputation rate exceeded [deferred]` to `data/artifacts/imputation_error.log` and exit with code 1.
-    - Target imputation rate <15%.
-- [ ] T014 [US1] Implement `code/02_feature_engineering.py` to compute Morgan fingerprints and topological indices using RDKit
-- [ ] T015 [US1] Implement composition-weighted solvent descriptor calculation in `code/02_feature_engineering.py` (weighted average of properties * mole fractions)
-- [ ] T016 [US1] Implement explicit interaction term generation (polynomial, ratio) in `code/02_feature_engineering.py` **IF** mixed-solvent data exists; otherwise, apply to pure solvent descriptors; append columns to `data/processed/solubility_features.csv`
-- [ ] T017 [US1] Implement pivot logic in `code/02_feature_engineering.py`: if mixed-solvent entries < 100, flag dataset as "Pure Solvent", drop the "non-linear mixing" hypothesis per Plan.
-    - **Mandatory Deliverable**: Write a JSON flag file `data/artifacts/pivot_decision.json` with schema: `{"status": "pivoted" | "normal", "reason": "string"}`.
-    - This file acts as the hard trigger signal for downstream re-scoping tasks.
-- [ ] T017b [US1] **Re-scope Tasks**: If `data/artifacts/pivot_decision.json` indicates "pivoted", update `tasks.md` to redefine US2/US3 success criteria for pure solvents and disable mixed-solvent specific deliverables.
-- [ ] T017c [US1] **Verify Pivot Execution**: Before Phase 4 starts, verify that `data/artifacts/pivot_decision.json` exists and that `tasks.md` has been updated (if pivoted). If not, block execution and report error.
-- [ ] T018 [US1] Write final processed dataset to `data/processed/solubility_features.csv` with checksum
+ - Target imputation rate <15%.
+- [~] T014 [US1] Implement `code/02_feature_engineering.py` to compute Morgan fingerprints and topological indices using RDKit
+- [~] T015 [US1] Implement composition-weighted solvent descriptor calculation in `code/02_feature_engineering.py` (weighted average of properties * mole fractions)
+- [~] T016 [US1] Implement explicit interaction term generation (polynomial, ratio) in `code/02_feature_engineering.py` **IF** mixed-solvent data exists; otherwise, apply to pure solvent descriptors; append columns to `data/processed/solubility_features.csv`
+- [~] T017 [US1] Implement pivot logic in `code/02_feature_engineering.py`: if mixed-solvent entries < 100, flag dataset as "Pure Solvent", drop the "non-linear mixing" hypothesis per Plan. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+ in "<unicode string>", line 4, column 5:
+ * Implemented `execute_pivot_l...
+ ^
+expected alphabetic or numeric character, but found ' '
+ in "<unicode string>", line 4, column 6:
+ * Implemented `execute_pivot_lo...
+ ^) -->
+ - **Mandatory Deliverable**: Write a JSON flag file `data/artifacts/pivot_decision.json` with schema: `{"status": "pivoted" | "normal", "reason": "string"}`.
+ - This file acts as the hard trigger signal for downstream re-scoping tasks.
+- [~] T017b [US1] **Re-scope Tasks**: If `data/artifacts/pivot_decision.json` indicates "pivoted", update `tasks.md` to redefine US2/US3 success criteria for pure solvents and disable mixed-solvent specific deliverables.
+- [~] T017c [US1] **Verify Pivot Execution**: Before Phase 4 starts, verify that `data/artifacts/pivot_decision.json` exists and that `tasks.md` has been updated (if pivoted). If not, block execution and report error.
+- [~] T018 [US1] Write final processed dataset to `data/processed/solubility_features.csv` with checksum
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,25 +119,25 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Create `tests/contract/test_model_artifacts.py` containing function `test_model_artifact_valid` for model artifact validation
-- [ ] T020 [P] [US2] Create `tests/integration/test_training.py` containing function `test_training_sample` for training pipeline integration testing
+- [~] T019 [P] [US2] Create `tests/contract/test_model_artifacts.py` containing function `test_model_artifact_valid` for model artifact validation
+- [~] T020 [P] [US2] Create `tests/integration/test_training.py` containing function `test_training_sample` for training pipeline integration testing
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/03_model_training.py` to train XGBoost and Random Forest regressors with -fold cross-validation and hyperparameter grid (limit ≤30 mins/trial)
-- [ ] T022 [US2] Implement Abraham solvation parameter model baseline in `code/03_model_training.py`:
-    - Primary: Use `solv` package.
-    - Fallback: If `solv` unavailable, implement `scikit-learn LinearRegression` using **Abraham parameters (a, b, c, s, v, r)** as features X.
-    - **Requirement**: Fallback must replicate the exact output schema and behavior of the `solv` package's 'Abraham solvation parameter model'.
-- [ ] T023 [US2] **Input Dependency**: Read `data/artifacts/trained_models.pkl` (from T021/T022) and implement evaluation logic in `code/04_evaluation.py` to calculate RMSE, MAE, and R² for all models on hold-out test set.
-- [ ] T024 [US2] **Input Dependency**: Read `data/artifacts/trained_models.pkl`. Implement paired t-test on absolute errors per Constitution Principle VII **[OVERRIDES FR-005]** in `code/04_evaluation.py`; write statistical test results (p-value, t-statistic) to `data/artifacts/statistical_test_results.json`.
-- [ ] T024b [US2] **Document Override**: In `data/artifacts/training_report.json`, explicitly document the override of Spec FR-005 (Wilcoxon) by Constitution Principle VII (t-test).
-- [ ] T025 [US2] Generate comparison report in `data/artifacts/training_report.json` including metrics, statistical significance (p < 0.05), and **explicit check/report of the absolute R² > 0.70 threshold** (per Constitution VII).
-- [ ] T026 [US2] **Enforce Resource Limits**: Wrap the execution of `code/03_model_training.py` in a **subprocess wrapper** that spawns an external monitoring process.
-    - **Mechanism**: The monitoring process must poll the training process ID (PID) using `psutil`.
-    - **Action**: If RAM > 7.0 GB or Disk > 14.0 GB, the monitor must immediately kill the training process and exit with code 1.
-    - **Logging**: The monitor must write status updates to `data/artifacts/resource_monitor.log` and stderr (reusing `code/utils/logging.py` logic where possible).
-    - **Constraint**: Do NOT implement monitoring logic inside the training script itself (main thread); it must be an external watchdog to ensure deterministic termination.
+- [~] T021 [US2] Implement `code/03_model_training.py` to train XGBoost and Random Forest regressors with -fold cross-validation and hyperparameter grid (limit ≤30 mins/trial)
+- [~] T022 [US2] Implement Abraham solvation parameter model baseline in `code/03_model_training.py`:
+ - Primary: Use `solv` package.
+ - Fallback: If `solv` unavailable, implement `scikit-learn LinearRegression` using **Abraham parameters (a, b, c, s, v, r)** as features X.
+ - **Requirement**: Fallback must replicate the exact output schema and behavior of the `solv` package's 'Abraham solvation parameter model'.
+- [~] T023 [US2] **Input Dependency**: Read `data/artifacts/trained_models.pkl` (from T021/T022) and implement evaluation logic in `code/04_evaluation.py` to calculate RMSE, MAE, and R² for all models on hold-out test set.
+- [~] T024 [US2] **Input Dependency**: Read `data/artifacts/trained_models.pkl`. Implement paired t-test on absolute errors per Constitution Principle VII **[OVERRIDES FR-005]** in `code/04_evaluation.py`; write statistical test results (p-value, t-statistic) to `data/artifacts/statistical_test_results.json`.
+- [~] T024b [US2] **Document Override**: In `data/artifacts/training_report.json`, explicitly document the override of Spec FR-005 (Wilcoxon) by Constitution Principle VII (t-test).
+- [~] T025 [US2] Generate comparison report in `data/artifacts/training_report.json` including metrics, statistical significance (p < 0.05), and **explicit check/report of the absolute R² > 0.70 threshold** (per Constitution VII).
+- [~] T026 [US2] **Enforce Resource Limits**: Wrap the execution of `code/03_model_training.py` in a **subprocess wrapper** that spawns an external monitoring process.
+ - **Mechanism**: The monitoring process must poll the training process ID (PID) using `psutil`.
+ - **Action**: If RAM > 7.0 GB or Disk > 14.0 GB, the monitor must immediately kill the training process and exit with code 1.
+ - **Logging**: The monitor must write status updates to `data/artifacts/resource_monitor.log` and stderr (reusing `code/utils/logging.py` logic where possible).
+ - **Constraint**: Do NOT implement monitoring logic inside the training script itself (main thread); it must be an external watchdog to ensure deterministic termination.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -144,18 +151,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Create `tests/contract/test_shap_output.py` containing function `test_shap_format_valid` for SHAP output format validation
-- [ ] T028 [P] [US3] Create `tests/integration/test_sensitivity.py` containing function `test_sensitivity_sample` for sensitivity analysis integration testing
+- [~] T027 [P] [US3] Create `tests/contract/test_shap_output.py` containing function `test_shap_format_valid` for SHAP output format validation
+- [~] T028 [P] [US3] Create `tests/integration/test_sensitivity.py` containing function `test_sensitivity_sample` for sensitivity analysis integration testing
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] **Input Dependency**: Read `data/artifacts/trained_models.pkl` (best model). Implement SHAP value computation in `code/04_evaluation.py`.
-- [ ] T030 [US3] Generate SHAP summary plot and feature importance table in `data/artifacts/shap_analysis.png` and `shap_ranking.json`
-- [ ] T031 [US3] Filter and rank top 5 interaction terms contributing to model variance; append to `data/artifacts/shap_ranking.json`
-- [ ] T032 [US3] **Input Dependency**: Read `shap_ranking.json`. Implement sensitivity analysis in `code/04_evaluation.py`: identify top-ranked terms at representative low, medium, and high thresholds
-- [ ] T033 [US3] **Input Dependency**: Read sensitivity analysis results. Calculate Jaccard similarity between top-5 term sets at different thresholds; report minimum Jaccard similarity (target ≥0.6 per SC-004); append metrics to `data/artifacts/shap_ranking.json`
-- [ ] T034 [US3] **Input Dependency**: Read SHAP values across CV folds. Calculate Spearman rank correlation of **feature rankings** (stability) across CV folds to verify stability (target >0.8 per SC-002); compare result against threshold and record pass/fail; append to `data/artifacts/shap_ranking.json`
-- [ ] T035 [US3] Generate final research report in `data/artifacts/final_report.md` containing RMSE, R², p-values, and top interaction terms
+- [~] T029 [US3] **Input Dependency**: Read `data/artifacts/trained_models.pkl` (best model). Implement SHAP value computation in `code/04_evaluation.py`.
+- [~] T030 [US3] Generate SHAP summary plot and feature importance table in `data/artifacts/shap_analysis.png` and `shap_ranking.json`
+- [~] T031 [US3] Filter and rank top 5 interaction terms contributing to model variance; append to `data/artifacts/shap_ranking.json`
+- [~] T032 [US3] **Input Dependency**: Read `shap_ranking.json`. Implement sensitivity analysis in `code/04_evaluation.py`: identify top-ranked terms at representative low, medium, and high thresholds <!-- FAILED: unspecified -->
+- [~] T033 [US3] **Input Dependency**: Read sensitivity analysis results. Calculate Jaccard similarity between top-5 term sets at different thresholds; report minimum Jaccard similarity (target ≥0.6 per SC-004); append metrics to `data/artifacts/shap_ranking.json`
+- [~] T034 [US3] **Input Dependency**: Read SHAP values across CV folds. Calculate Spearman rank correlation of **feature rankings** (stability) across CV folds to verify stability (target >0.8 per SC-002); compare result against threshold and record pass/fail; append to `data/artifacts/shap_ranking.json`
+- [~] T035 [US3] Generate final research report in `data/artifacts/final_report.md` containing RMSE, R², p-values, and top interaction terms
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -165,15 +172,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Update `research.md`: append verified source URLs and pivot decisions to the "Data Sources" section
-- [ ] T037 Ensure type hints are added to `code/utils/*.py` and remove unused imports
-- [ ] T038 [P] Refactor `code/02_feature_engineering.py` to use batch processing for RDKit calls (batch size 1000).
-    - **Dependency**: Depends on completion of T014-T016.
-    - **Goal**: Targeting a reduction in **wall-clock time** for the feature engineering step.
-- [ ] T039 [P] Add `tests/unit/test_edge_cases.py` containing functions `test_missing_data_handling` and `test_small_dataset_split`
-- [ ] T040 Execute `code/quickstart.sh`.
-    - **Note**: If `code/quickstart.sh` does not exist, create a minimal script that prints "No quickstart instructions available" and exits 0.
-    - Record the exit code and any errors in `data/artifacts/quickstart_validation.log`.
+- [~] T036 [P] Update `research.md`: append verified source URLs and pivot decisions to the "Data Sources" section
+- [~] T037 Ensure type hints are added to `code/utils/*.py` and remove unused imports
+- [~] T038 [P] Refactor `code/02_feature_engineering.py` to use batch processing for RDKit calls (batch size 1000).
+ - **Dependency**: Depends on completion of T014-T016.
+ - **Goal**: Targeting a reduction in **wall-clock time** for the feature engineering step.
+- [~] T039 [P] Add `tests/unit/test_edge_cases.py` containing functions `test_missing_data_handling` and `test_small_dataset_split`
+- [~] T040 Execute `code/quickstart.sh`.
+ - **Note**: If `code/quickstart.sh` does not exist, create a minimal script that prints "No quickstart instructions available" and exits 0.
+ - Record the exit code and any errors in `data/artifacts/quickstart_validation.log`.
 
 ---
 
@@ -185,8 +192,8 @@
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **Pre-Implementation Tests (Phase 3.5)**: Depends on Foundational (Phase 2) - BLOCKS Phase 3 Implementation
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion and Phase 3.5 completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -253,9 +260,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

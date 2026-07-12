@@ -1,0 +1,17 @@
+? T009 [US1] Create `tests/contract/test_schema_validation.py` containing function
+  `test_solubility_record_valid` for schema validation
+: 1
+? T010 [US1] Create `tests/integration/test_pipeline.py` containing function `test_ingest_sample`
+  for data ingestion integration testing
+: 1
+? 'T011 [US1] Implement `code/01_data_ingestion.py`: fetch EPA data (DSSTox excluded
+  per Plan) and filter for molecules with MW < 500 Da'
+: 1
+? 'T011b [US1] **Formal Scope Amendment**: Create or update `specs/001-predicting-solubility-in-mixed-solvents/spec.md`
+  to explicitly document the exclusion of DSSTox from FR-001, citing the Plan''s "Assumptions
+  & Gaps" section.'
+: 1
+? 'T012 [US1] Implement composition validation in `code/01_data_ingestion.py`: reject
+  or normalize rows where composition sum != 1.0 (within tolerance) and write filtered
+  data to `data/processed/cleaned_compositions.csv`'
+: 1

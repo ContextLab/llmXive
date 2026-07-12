@@ -31,3 +31,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65f597dc26f86cf337fda72d/2414ccb6294233f07f447d7daed9cd9c005654afa1ac6ba3d3fb7703461e1a88?response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27new_epa_micro_all_202303.csv%3B+filename%3D%22new_epa_micro_all_202303.csv%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783556205&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVmNTk3ZGMyNmY4NmNmMzM3ZmRhNzJkLzI0MTRjY2I2Mjk0MjMzZjA3ZjQ0N2Q3ZGFlZDljZDljMDA1NjU0YWZhMWFjNmJhM2QzZmI3NzAzNDYxZTFhODhcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bmV3X2VwYV9taWNyb19hbGxfMjAyMzAzLmNzdiUzQitmaWxlbmFtZSUzRCUyMm5ld19lcGFfbWljcm9fYWxsXzIwMjMwMy5jc3YlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU1NjIwNX19fV19&Signature=MEYCIQDJYojPxax%7EkopLP3uq0uVQ1O8OHrF%7EjslHrdn4xYU7BAIhAPR-qIl%7ENbNCnyqEO7mKfgjglH9lLUBpxm5p1c4EwvB3&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-08T23:16:45.154781Z'
+- artifact_hash: 38117ee61919b05bc9ed046cd4f28c34c45ddf35104ccc30ca4bbbfe10398faa
+  artifact_path: projects/PROJ-142-predicting-solubility-in-mixed-solvents-/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://comptox.epa.gov/dashboard
+  verification_status: unreachable
+  verified_against_url: https://comptox.epa.gov/dashboard
+  verified_at: '2026-07-12T03:24:53.784926Z'

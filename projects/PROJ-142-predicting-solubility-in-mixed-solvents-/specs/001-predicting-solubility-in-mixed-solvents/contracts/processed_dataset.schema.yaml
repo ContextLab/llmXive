@@ -25,15 +25,15 @@ properties:
       max_mw:
         type: "number"
         description: "Maximum allowed molecular weight."
-        const:
+        const: 500
       mole_fraction_sum_tolerance:
         type: "number"
         description: "Tolerance for mole fraction sum (must be 1.0)."
-        const:
+        const: 0.01
       max_imputation_rate:
         type: "number"
         description: "Maximum allowed percentage of imputed rows."
-        const:
+        const: 0.15
     required:
       - max_mw
       - mole_fraction_sum_tolerance

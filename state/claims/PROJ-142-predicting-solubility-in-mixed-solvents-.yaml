@@ -1,0 +1,72 @@
+- artifact_path: projects/PROJ-142-predicting-solubility-in-mixed-solvents-/research.md
+  attempts: 1
+  canonical: EPA dataset contains fewer than 100 mixed-solvent entries
+  claim_id: c_30ce2afd
+  context: 'Trigger: Execution of code/02_feature_engineering.py included logic to
+    count mixed-solvent entries. Threshold: < 100 mixed-solvent entries triggers a
+    ''Pure Solvent'' pivot.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/EPA_dataset_contains_fewer_than_100_mixed-solvent_entries
+  kind: magnitude
+  raw_text: The analysis determined that the current EPA dataset contains insufficient
+    mixed-solvent entries (count < 100).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T03:20:09Z'
+- artifact_path: projects/PROJ-142-predicting-solubility-in-mixed-solvents-/research.md
+  attempts: 1
+  canonical: XGBoost Regressor RMSE is 0.42 log(S)
+  claim_id: c_38dad134
+  context: "Metrics: RMSE: 0.42 log(S), R\xB2: 0.73 (Exceeds threshold of 0.70 per\
+    \ Constitution Principle VII), MAE: 0.31 log(S)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RMSE: 0.42 log(S)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T03:22:13Z'
+- artifact_path: projects/PROJ-142-predicting-solubility-in-mixed-solvents-/research.md
+  attempts: 1
+  canonical: XGBoost Regressor MAE is 0.31 log(S)
+  claim_id: c_d891c44d
+  context: "Metrics: RMSE: 0.42 log(S), R\xB2: 0.73 (Exceeds threshold of 0.70 per\
+    \ Constitution Principle VII), MAE: 0.31 log(S)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'MAE: 0.31 log(S)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T03:24:11Z'
+- artifact_path: projects/PROJ-142-predicting-solubility-in-mixed-solvents-/research.md
+  attempts: 1
+  canonical: Feature rankings Spearman correlation across CV folds is greater than
+    0.85
+  claim_id: c_bb058455
+  context: 'Stability: Feature rankings showed high stability across CV folds (Spearman
+    correlation > 0.85).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_rankings_Spearman_correlation_across_CV_folds_is_gre
+  kind: magnitude
+  raw_text: Feature rankings showed high stability across CV folds (Spearman correlation
+    > 0.85).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T03:24:53Z'
