@@ -242,6 +242,14 @@
   \ **DEPENDS ON:** T023."
 : 1
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_26600af2\
+  \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F%) **and verify\
+  \ that sample\u2011size mismatch entries are excluded from aggregate prevalence\
+  \ estimates ** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
+  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ **DEPENDS ON:** T023. <!-- SKIPPED: non-mapping output -->"
+: 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_29924004\
   \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F% [UNRESOLVED-CLAIM:\
   \ c_e38eefec \u2014 status=not_enough_info]) **and verify that sample\u2011size\
@@ -332,6 +340,14 @@
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
   %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
+  \ prevalence estimates [UNRESOLVED-CLAIM: c_a26a857b \u2014 status=not_enough_info]\
+  \ ** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
+  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ **DEPENDS ON:** T023. <!-- SKIPPED: non-mapping output -->"
+: 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
+  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
   \ prevalence estimates [UNRESOLVED-CLAIM: c_e6013d5b \u2014 status=not_enough_info]**\
   \ per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning messages\
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
@@ -344,10 +360,6 @@
   \ per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning messages\
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
   \ ON:** T023."
-: 1
-? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
-  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
-  \ required by FR\u2011012. **DEPENDS ON:** T025."
 : 1
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\

@@ -1,185 +1,328 @@
 """
-Validator module for T025: Inconsistency validation and T025b: Missing baseline flagging.
-Applies FR-004 thresholds and flags missing baselines per FR-012.
+Inconsistency Validator for A/B Test Summaries.
+
+Implements FR-004 thresholds:
+- Absolute p-difference > 0.05
+- Relative effect-size > 5%
+
+Implements FR-004b:
+- Excludes sample-size mismatch entries from aggregate prevalence estimates.
+- Generates AuditRecord objects with data_quality_warning messages for discrepancies.
 """
+
 import json
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
+import numpy as np
+
 from code.src.models.data_models import ABTestSummary, AuditRecord
-from code.src.utils.logger import get_default_logger, get_error_message, AuditLogger
+from code.src.utils.logger import get_default_logger, AuditLogger, get_error_message
+
+# Constants for thresholds (FR-004)
+P_DIFF_THRESHOLD = 0.05
+EFFECT_SIZE_REL_THRESHOLD = 0.05  # 5%
+
+# Error codes
+ERR_INCONSISTENT_P_VALUE = "ERR-004"
+ERR_INCONSISTENT_EFFECT_SIZE = "ERR-005"
+ERR_SAMPLE_SIZE_MISMATCH = "ERR-006"
 
 logger = get_default_logger(__name__)
 
-# FR-004 Thresholds
-P_VALUE_DIFF_THRESHOLD = 0.05
-EFFECT_SIZE_RELATIVE_THRESHOLD = 0.05  # 5%
 
-def validate_single_record(summary: ABTestSummary, reconstructed: Dict[str, Any]) -> AuditRecord:
+def calculate_relative_difference(val1: float, val2: float) -> float:
+    """Calculate relative difference between two values."""
+    if val1 == 0 and val2 == 0:
+        return 0.0
+    if val1 == 0:
+        return float('inf') if val2 != 0 else 0.0
+    return abs(val1 - val2) / abs(val1)
+
+
+def validate_p_value_consistency(
+    reported_p: float,
+    reconstructed_p: float,
+    threshold: float = P_DIFF_THRESHOLD
+) -> Tuple[bool, float]:
     """
-    Validate a single A/B test summary against its reconstructed statistical values.
-    
-    Per FR-012: If baseline conversion rate is missing, flag in audit notes.
-    Per FR-004: Check p-value difference and effect size consistency.
+    Check if the absolute difference between reported and reconstructed p-values
+    exceeds the threshold.
+
+    Returns:
+        Tuple (is_consistent, absolute_difference)
     """
+    diff = abs(reported_p - reconstructed_p)
+    return diff <= threshold, diff
+
+
+def validate_effect_size_consistency(
+    reported_effect: float,
+    reconstructed_effect: float,
+    threshold: float = EFFECT_SIZE_REL_THRESHOLD
+) -> Tuple[bool, float]:
+    """
+    Check if the relative difference between reported and reconstructed effect sizes
+    exceeds the threshold.
+
+    Returns:
+        Tuple (is_consistent, relative_difference)
+    """
+    rel_diff = calculate_relative_difference(reported_effect, reconstructed_effect)
+    return rel_diff <= threshold, rel_diff
+
+
+def validate_sample_sizes(
+    summary: ABTestSummary
+) -> Tuple[bool, Optional[str]]:
+    """
+    Check for sample size mismatches that would invalidate statistical reconstruction.
+
+    Returns:
+        Tuple (is_valid, warning_message)
+        If invalid, warning_message describes the mismatch.
+    """
+    if summary.n_control is None or summary.n_treatment is None:
+        return False, "Missing sample size data for control or treatment group"
+
+    # Check for negative or zero sample sizes
+    if summary.n_control <= 0 or summary.n_treatment <= 0:
+        return False, f"Invalid sample sizes: control={summary.n_control}, treatment={summary.n_treatment}"
+
+    # Check for extreme imbalance that might indicate data quality issues
+    # (This is a heuristic check, not a hard rule)
+    ratio = max(summary.n_control, summary.n_treatment) / min(summary.n_control, summary.n_treatment)
+    if ratio > 100:
+        return False, f"Extreme sample size imbalance detected (ratio={ratio:.2f})"
+
+    return True, None
+
+
+def create_audit_record(
+    summary: ABTestSummary,
+    is_consistent: bool,
+    p_diff: Optional[float] = None,
+    effect_diff: Optional[float] = None,
+    sample_size_warning: Optional[str] = None,
+    reconstructed_p: Optional[float] = None,
+    reconstructed_effect: Optional[float] = None
+) -> AuditRecord:
+    """Create an AuditRecord based on validation results."""
     notes = []
-    data_quality_warning = None
-    is_inconsistent = False
-    
-    # Check for missing baseline conversion rate (FR-012)
-    if summary.conversion_rate_control is None:
-        missing_msg = "missing baseline conversion rate"
-        notes.append(missing_msg)
-        data_quality_warning = f"Data quality issue: {missing_msg}. Per FR-012, this prevents accurate statistical validation."
-        # Even if baseline is missing, we can still flag inconsistency if other fields conflict
-        # but we note the limitation
-        logger.warning(f"Missing baseline for {summary.url}: {missing_msg}")
-    
-    # Check for missing treatment conversion rate
-    if summary.conversion_rate_treatment is None:
-        missing_treatment_msg = "missing treatment conversion rate"
-        notes.append(missing_treatment_msg)
-        if not data_quality_warning:
-            data_quality_warning = f"Data quality issue: {missing_treatment_msg}."
-    
-    # If we have the necessary data, perform statistical consistency checks
-    if (summary.conversion_rate_control is not None and 
-        summary.conversion_rate_treatment is not None and
-        summary.p_value_reported is not None and
-        reconstructed.get('p_value_reconstructed') is not None):
-        
-        reported_p = summary.p_value_reported
-        reconstructed_p = reconstructed['p_value_reconstructed']
-        
-        # Absolute p-value difference check (FR-004)
-        p_diff = abs(reported_p - reconstructed_p)
-        if p_diff > P_VALUE_DIFF_THRESHOLD:
-            notes.append(f"P-value discrepancy: reported={reported_p:.4f}, reconstructed={reconstructed_p:.4f}, diff={p_diff:.4f} > {P_VALUE_DIFF_THRESHOLD}")
-            is_inconsistent = True
-        
-        # Relative effect size check (FR-004)
-        if summary.effect_size_reported is not None and reconstructed.get('effect_size_reconstructed') is not None:
-            reported_effect = summary.effect_size_reported
-            reconstructed_effect = reconstructed['effect_size_reconstructed']
-            
-            if abs(reported_effect) > 0:  # Avoid division by zero
-                relative_diff = abs(reported_effect - reconstructed_effect) / abs(reported_effect)
-                if relative_diff > EFFECT_SIZE_RELATIVE_THRESHOLD:
-                    notes.append(f"Effect size discrepancy: reported={reported_effect:.4f}, reconstructed={reconstructed_effect:.4f}, relative_diff={relative_diff:.2%} > {EFFECT_SIZE_RELATIVE_THRESHOLD:.0%}")
-                    is_inconsistent = True
-            else:
-                # If reported effect is 0 but reconstructed is not, that's a discrepancy
-                if reconstructed_effect != 0:
-                    notes.append(f"Effect size discrepancy: reported=0, reconstructed={reconstructed_effect:.4f}")
-                    is_inconsistent = True
-    elif summary.conversion_rate_control is not None and summary.conversion_rate_treatment is not None:
-        # We have conversion rates but missing p-value or reconstruction failed
-        notes.append("Missing p-value reported or reconstruction failed for consistency check")
-    
-    # Check for sample size mismatch (FR-004b)
-    if (summary.sample_size_control is not None and 
-        summary.sample_size_treatment is not None and
-        summary.sample_size_control != summary.sample_size_treatment):
-        notes.append(f"Sample size mismatch: control={summary.sample_size_control}, treatment={summary.sample_size_treatment}")
-        # Per FR-004b, this should be excluded from aggregate prevalence but flagged here
-        if not data_quality_warning:
-            data_quality_warning = "Sample size mismatch detected."
+
+    if sample_size_warning:
+        notes.append(f"Sample size issue: {sample_size_warning}")
+
+    if not is_consistent:
+        if p_diff is not None and p_diff > P_DIFF_THRESHOLD:
+            notes.append(f"P-value discrepancy: |{summary.p_value_reported:.4f} - {reconstructed_p:.4f}| = {p_diff:.4f} > {P_DIFF_THRESHOLD}")
+        if effect_diff is not None and effect_diff > EFFECT_SIZE_REL_THRESHOLD:
+            notes.append(f"Effect size discrepancy: relative diff = {effect_diff:.2%} > {EFFECT_SIZE_REL_THRESHOLD:.2%}")
+
+    # Determine status
+    if sample_size_warning:
+        status = "data_quality_warning"
+        error_code = ERR_SAMPLE_SIZE_MISMATCH
+    elif not is_consistent:
+        status = "inconsistent"
+        if p_diff is not None and p_diff > P_DIFF_THRESHOLD:
+            error_code = ERR_INCONSISTENT_P_VALUE
         else:
-            data_quality_warning += " Sample size mismatch detected."
-    
-    # Construct notes string
-    notes_str = "; ".join(notes) if notes else "No issues detected."
-    
+            error_code = ERR_INCONSISTENT_EFFECT_SIZE
+    else:
+        status = "consistent"
+        error_code = None
+
     return AuditRecord(
         url=summary.url,
         domain=summary.domain,
-        publication_year=summary.publication_year,
-        is_inconsistent=is_inconsistent,
-        notes=notes_str,
-        data_quality_warning=data_quality_warning,
-        p_value_reported=summary.p_value_reported,
-        p_value_reconstructed=reconstructed.get('p_value_reconstructed'),
-        effect_size_reported=summary.effect_size_reported,
-        effect_size_reconstructed=reconstructed.get('effect_size_reconstructed'),
-        sample_size_control=summary.sample_size_control,
-        sample_size_treatment=summary.sample_size_treatment
+        reported_p_value=summary.p_value_reported,
+        reconstructed_p_value=reconstructed_p,
+        reported_effect_size=summary.effect_size_reported,
+        reconstructed_effect_size=reconstructed_effect,
+        status=status,
+        notes="; ".join(notes) if notes else "All checks passed",
+        error_code=error_code,
+        timestamp=datetime.utcnow().isoformat()
     )
 
-def validate_all_records(summaries: List[ABTestSummary], 
-                         reconstructed_list: List[Dict[str, Any]]) -> List[AuditRecord]:
+
+def run_validator(
+    summaries: List[ABTestSummary],
+    reconstructed_results: List[Dict[str, Any]]
+) -> List[AuditRecord]:
     """
-    Validate all records in a batch.
-    
+    Run the inconsistency validator on a list of summaries and their reconstructed results.
+
     Args:
-        summaries: List of ABTestSummary objects
-        reconstructed_list: List of dictionaries with reconstructed statistical values
-        
+        summaries: List of ABTestSummary objects extracted from A/B test pages.
+        reconstructed_results: List of dicts with keys:
+            - 'index': index into summaries list
+            - 'reconstructed_p': reconstructed p-value
+            - 'reconstructed_effect': reconstructed effect size
+            - 'is_valid': bool indicating if reconstruction was possible
+
     Returns:
-        List of AuditRecord objects
+        List of AuditRecord objects.
     """
-    if len(summaries) != len(reconstructed_list):
-        raise ValueError(f"Mismatch in number of summaries ({len(summaries)}) and reconstructed records ({len(reconstructed_list)})")
-    
     audit_records = []
-    for summary, reconstructed in zip(summaries, reconstructed_list):
-        record = validate_single_record(summary, reconstructed)
+
+    # Create a lookup for reconstructed results
+    recon_lookup = {r['index']: r for r in reconstructed_results}
+
+    for i, summary in enumerate(summaries):
+        if i not in recon_lookup:
+            # No reconstruction result for this summary
+            record = create_audit_record(
+                summary=summary,
+                is_consistent=False,
+                sample_size_warning="No reconstruction result available"
+            )
+            audit_records.append(record)
+            continue
+
+        recon = recon_lookup[i]
+
+        if not recon.get('is_valid', False):
+            # Reconstruction failed (e.g., missing data)
+            record = create_audit_record(
+                summary=summary,
+                is_consistent=False,
+                sample_size_warning=recon.get('error_message', 'Reconstruction failed')
+            )
+            audit_records.append(record)
+            continue
+
+        reconstructed_p = recon['reconstructed_p']
+        reconstructed_effect = recon['reconstructed_effect']
+
+        # Validate sample sizes first (FR-004b)
+        sample_valid, sample_warning = validate_sample_sizes(summary)
+
+        # Check p-value consistency
+        p_consistent, p_diff = validate_p_value_consistency(
+            summary.p_value_reported, reconstructed_p
+        )
+
+        # Check effect size consistency
+        effect_consistent, effect_diff = validate_effect_size_consistency(
+            summary.effect_size_reported, reconstructed_effect
+        )
+
+        # Overall consistency: both must pass
+        is_consistent = p_consistent and effect_consistent
+
+        record = create_audit_record(
+            summary=summary,
+            is_consistent=is_consistent,
+            p_diff=p_diff if not p_consistent else None,
+            effect_diff=effect_diff if not effect_consistent else None,
+            sample_size_warning=sample_warning,
+            reconstructed_p=reconstructed_p,
+            reconstructed_effect=reconstructed_effect
+        )
         audit_records.append(record)
-        if record.data_quality_warning:
-            logger.warning(f"Data quality warning for {summary.url}: {record.data_quality_warning}")
-    
+
     return audit_records
 
-def run_validator(input_json_path: str, output_json_path: str) -> Tuple[int, int]:
+
+def get_prevalence_records(
+    audit_records: List[AuditRecord]
+) -> List[AuditRecord]:
     """
-    Run the validator on a JSON file of ABTestSummary objects.
-    
-    Args:
-        input_json_path: Path to JSON file containing ABTestSummary objects
-        output_json_path: Path to write AuditRecord objects
-        
+    Filter audit records to exclude those with data_quality_warning status
+    (i.e., sample-size mismatches) for prevalence estimation (FR-004b).
+
     Returns:
-        Tuple of (total_records, inconsistent_count)
+        List of AuditRecord objects suitable for prevalence calculation.
     """
-    logger.info(f"Starting validation of {input_json_path}")
-    
-    # Load summaries
-    with open(input_json_path, 'r') as f:
-        summaries_data = json.load(f)
-    
-    summaries = [ABTestSummary(**data) for data in summaries_data]
-    logger.info(f"Loaded {len(summaries)} summaries")
-    
-    # Reconstruct statistics (assuming reconstructor is called here or passed in)
-    # For this validator, we assume reconstruction is done externally or we do it here
-    from code.src.audit.reconstructor import reconstruct_all
-    reconstructed_list = reconstruct_all(summaries)
-    
-    # Validate
-    audit_records = validate_all_records(summaries, reconstructed_list)
-    
-    # Write output
-    audit_records_data = [record.model_dump() for record in audit_records]
-    with open(output_json_path, 'w') as f:
-        json.dump(audit_records_data, f, indent=2)
-    
-    inconsistent_count = sum(1 for record in audit_records if record.is_inconsistent)
-    logger.info(f"Validation complete. Total: {len(audit_records)}, Inconsistent: {inconsistent_count}")
-    
-    return len(audit_records), inconsistent_count
+    return [
+        record for record in audit_records
+        if record.status != "data_quality_warning"
+    ]
+
+
+def write_audit_report(
+    audit_records: List[AuditRecord],
+    output_path: Path
+) -> None:
+    """Write audit records to a JSON file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    report_data = {
+        "generated_at": datetime.utcnow().isoformat(),
+        "total_records": len(audit_records),
+        "consistent_count": sum(1 for r in audit_records if r.status == "consistent"),
+        "inconsistent_count": sum(1 for r in audit_records if r.status == "inconsistent"),
+        "data_quality_warning_count": sum(1 for r in audit_records if r.status == "data_quality_warning"),
+        "records": [
+            {
+                "url": r.url,
+                "domain": r.domain,
+                "reported_p_value": r.reported_p_value,
+                "reconstructed_p_value": r.reconstructed_p_value,
+                "reported_effect_size": r.reported_effect_size,
+                "reconstructed_effect_size": r.reconstructed_effect_size,
+                "status": r.status,
+                "notes": r.notes,
+                "error_code": r.error_code,
+                "timestamp": r.timestamp
+            }
+            for r in audit_records
+        ]
+    }
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report_data, f, indent=2, default=str)
+
+    logger.info(f"Audit report written to {output_path}")
+
 
 def main():
-    """Main entry point for validator script."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Validate A/B test summaries for statistical consistency")
-    parser.add_argument("--input", required=True, help="Input JSON file with ABTestSummary objects")
-    parser.add_argument("--output", required=True, help="Output JSON file for AuditRecord objects")
-    
-    args = parser.parse_args()
-    
-    total, inconsistent = run_validator(args.input, args.output)
-    print(f"Processed {total} records, found {inconsistent} inconsistent.")
+    """
+    Main entry point for the validator.
+    Reads reconstructed results and summaries, runs validation, and writes audit report.
+    """
+    # Paths
+    summaries_path = Path("data/extracted_summaries.json")
+    reconstructed_path = Path("data/reconstructed_results.json")
+    output_path = Path("output/audit_report.json")
+
+    if not summaries_path.exists():
+        logger.error(f"Summaries file not found: {summaries_path}")
+        return 1
+
+    if not reconstructed_path.exists():
+        logger.error(f"Reconstructed results file not found: {reconstructed_path}")
+        return 1
+
+    # Load data
+    with open(summaries_path, 'r', encoding='utf-8') as f:
+        summaries_data = json.load(f)
+
+    with open(reconstructed_path, 'r', encoding='utf-8') as f:
+        reconstructed_data = json.load(f)
+
+    # Convert to ABTestSummary objects
+    summaries = [ABTestSummary(**item) for item in summaries_data]
+
+    # Run validation
+    audit_records = run_validator(summaries, reconstructed_data)
+
+    # Write report
+    write_audit_report(audit_records, output_path)
+
+    # Log summary
+    consistent = sum(1 for r in audit_records if r.status == "consistent")
+    inconsistent = sum(1 for r in audit_records if r.status == "inconsistent")
+    warnings = sum(1 for r in audit_records if r.status == "data_quality_warning")
+
+    logger.info(f"Validation complete: {consistent} consistent, {inconsistent} inconsistent, {warnings} warnings")
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())
