@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.00249",
+  "judged_at": "2026-07-12T08:25:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"a survey of large audio language models: generalization, trustworthine\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides empirical evidence and a specific methodology (Acoustic Prompt Tuning) for extending Large Language Models to the audio domain, which is the core mechanism and domain of the user's question regarding \"Large Audio Language Models.\" It serves as a canonical technical reference for the \"generalization\" aspect mentioned in the user's survey title, even though it proposes a specific solution rather than a survey itself.",
+  "relevant": true
+}

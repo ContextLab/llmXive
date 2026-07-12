@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for raw and processed dataset records in the LLMXive follow-up project."
+type: "object"
+required:
+  - "sample_id"
+  - "label"
+  - "source"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the audio sample."
+  label:
+    type: "integer"
+    description: "Binary label: 0 for benign, 1 for jailbreak."
+    enum:
+      - 0
+      - 1
+  source:
+    type: "string"
+    description: "Name of the source dataset (e.g., 'cosyvoice-instruct')."
+  audio_path:
+    type: "string"
+    description: "Path to the raw audio file or base64 encoded audio."
+    nullable: true
+  error:
+    type: "string"
+    description: "Error message if processing failed, otherwise null."
+    nullable: true
+  embedding_vector:
+    type: "array"
+    description: "The extracted latent embedding vector (null if not yet processed)."
+    items:
+      type: "number"
+    nullable: true
+  anomaly_score:
+    type: "number"
+    description: "Mahalanobis distance from the benign centroid (null if not yet calculated)."
+    nullable: true
+  split:
+    type: "string"
+    description: "Data split assignment (train or test)."
+    enum:
+      - "train"
+      - "test"
+    nullable: true

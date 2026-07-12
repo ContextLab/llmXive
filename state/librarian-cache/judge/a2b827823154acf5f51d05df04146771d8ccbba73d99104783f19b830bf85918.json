@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.12792",
+  "judged_at": "2026-07-12T08:26:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"a survey of large audio language models: generalization, trustworthine\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it is a foundational survey on \"Large Audio Models\" (LAMs) and \"Foundational Audio Models,\" which is the canonical alternative-vocabulary cluster and methodological framework for the user's question regarding \"Large Audio Language Models.\" Even though the user's query references a specific prior survey, this candidate provides the essential, up-to-date literature review baseline on the same domain and mechanism that a researcher extending that work wo",
+  "relevant": true
+}

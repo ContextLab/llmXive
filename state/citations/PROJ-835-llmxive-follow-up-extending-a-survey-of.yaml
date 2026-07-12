@@ -1,0 +1,11 @@
+- artifact_hash: 3f5cc95ddc129689bea50313e5e47073e589fb7cf89b14b98b95d3b1e991f965
+  artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00005.parquet
+  kind: url
+  value: https://huggingface.co/datasets/LALM-emotional-damage/cosyvoice-instruct/resolve/main/data/train-00000-of-00005.parquet
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68b540cfdd645650b0b9a8c4/ce9a780f2cfaf16b73f773b6c9ae5027413bce3056845fefee8aebc3bb9a6deb?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00005.parquet%3B+filename%3D%22train-00000-of-00005.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783849098&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhiNTQwY2ZkZDY0NTY1MGIwYjlhOGM0L2NlOWE3ODBmMmNmYWYxNmI3M2Y3NzNiNmM5YWU1MDI3NDEzYmNlMzA1Njg0NWZlZmVlOGFlYmMzYmI5YTZkZWJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDUucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDA1LnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzg0OTA5OH19fV19&Signature=MEUCIHWbItDylENmZnDgDn1217GMaUrwkXI13QZyJdqz8C29AiEAugd2AwFPIoSvu-WfShM-19FQdLdPCXfpU2dj95e03B8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-12T08:38:18.415003Z'

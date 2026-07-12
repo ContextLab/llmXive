@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.20166",
+  "judged_at": "2026-07-12T08:25:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"a survey of large audio language models: generalization, trustworthine\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the core domain of Audio-Language Models (ALLMs) and specifically tackles the \"Trustworthiness\" aspect (via hallucination mitigation and reliability) mentioned in the user's target survey, satisfying criteria (a) for same-mechanism evidence and (b) for measuring dependent variables on the same domain.",
+  "relevant": true
+}

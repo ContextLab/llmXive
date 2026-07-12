@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Embedding Schema"
+description: "Schema for the extracted audio embeddings and associated metadata."
+type: "object"
+required:
+  - "sample_id"
+  - "embedding"
+  - "label"
+  - "dimension"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample."
+  embedding:
+    type: "array"
+    description: "The fixed-dimensional embedding vector (768 for Distil-Whisper Base)."
+    items:
+      type: "number"
+    minItems: 512
+    maxItems: 1024
+  label:
+    type: "integer"
+    description: "Ground truth label (0: benign, 1: jailbreak)."
+    enum:
+      - 0
+      - 1
+  dimension:
+    type: "integer"
+    description: "The dimensionality of the embedding vector (e.g., 768)."
+  encoder_name:
+    type: "string"
+    description: "Name of the encoder used (e.g., 'distil-whisper-base')."
+  extraction_time:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of extraction."
+  is_corrupted:
+    type: "boolean"
+    description: "True if the source audio was corrupted and skipped."
+  split:
+    type: "string"
+    description: "Data split assignment (train or test)."
+    enum:
+      - "train"
+      - "test"
+  covariance_regularization:
+    type: "string"
+    description: "Method used for covariance estimation (e.g., 'LedoitWolf')."
+    nullable: true

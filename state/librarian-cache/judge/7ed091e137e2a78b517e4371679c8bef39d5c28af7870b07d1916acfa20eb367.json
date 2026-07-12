@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.02768",
+  "judged_at": "2026-07-12T08:25:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"a survey of large audio language models: generalization, trustworthine\" computer science",
+  "rationale": "This paper belongs in the literature review because it is a foundational empirical study on the specific domain (Large Audio Language Models) and addresses the core mechanism of \"generalization\" and \"trustworthiness\" (via catastrophic forgetting and knowledge retention) mentioned in the user's survey topic, satisfying criteria (a) and (e).",
+  "relevant": true
+}
