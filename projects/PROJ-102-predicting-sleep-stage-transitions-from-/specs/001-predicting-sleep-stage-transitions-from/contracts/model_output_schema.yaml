@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model_Output_Schema"
+description: "Schema for model predictions and validation metrics."
+type: "object"
+properties:
+  prediction_id:
+    type: "string"
+    description: "Unique identifier for the prediction."
+  input_sequence_id:
+    type: "string"
+    description: "Identifier for the input sequence of epochs."
+  predicted_prob_transition:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Predicted probability of a transition in the next 30s."
+  actual_label:
+    type: "integer"
+    description: "Actual sleep stage label of the next epoch."
+  is_correct:
+    type: "boolean"
+    description: "Whether the prediction matched the actual transition."
+  metrics:
+    type: "object"
+    description: "Aggregated metrics for the validation set."
+    properties:
+      accuracy:
+        type: "number"
+        description: "Overall accuracy."
+      transition_accuracy:
+        type: "number"
+        description: "Accuracy specifically on transition predictions."
+      baseline_accuracy:
+        type: "number"
+        description: "Random baseline accuracy."
+      improvement:
+        type: "number"
+        description: "Improvement over baseline (percentage points)."
+required:
+  - prediction_id
+  - input_sequence_id
+  - predicted_prob_transition
+  - actual_label
+  - is_correct
+  - metrics

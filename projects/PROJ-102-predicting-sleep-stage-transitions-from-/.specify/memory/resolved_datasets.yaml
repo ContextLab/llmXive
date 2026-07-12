@@ -1,0 +1,208 @@
+resolved_at: '2026-07-12T02:50:57.937339+00:00'
+datasets:
+- intent: EOG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/eogreen/machine-failure-logs/resolve/main/data/data_e8bb03fc-2936-4d0b-a72a-5efb14ba4919.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 51981
+      parsed: true
+  - url: https://huggingface.co/datasets/eogreen/term-deposit-logs/resolve/main/data/data_513cc563-5193-446b-bc30-2897c04d895e.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 119763
+      parsed: true
+  - url: https://huggingface.co/datasets/eogreen/eric-green-insurance-charge-predictor-logs/resolve/main/data/data_2bd53123-bde6-451f-ae52-762227d78edb.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 126
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/eogreen/machine-failure-logs/resolve/main/data/data_e8bb03fc-2936-4d0b-a72a-5efb14ba4919.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/eogreen/term-deposit-logs/resolve/main/data/data_513cc563-5193-446b-bc30-2897c04d895e.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/eogreen/eric-green-insurance-charge-predictor-logs/resolve/main/data/data_2bd53123-bde6-451f-ae52-762227d78edb.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/eogreen/eric-green-rag-financial-analyst/resolve/main/data/data_0ce6c9e9-2e37-4151-bcea-a0e003cb358e.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/poster/Joseph_Ayo_Babalola_University_2026_2027_Application_07047903330_Form_Jupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967440
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Achievers_University_2026_2027_Application_07047903330_Form_Jupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Achievers_University_Owo_2026_2027_Application_07047903330_Form_Jupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Fountain_Unveristy_2026_2027_Application_07047903330_Form_Juupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967386
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Tansian_University_2026_2027_Application_07047903330_Form_Juupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967350
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10669288
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dergipark.org.tr/en/pub/ejosat/article/948124
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ejtas.com/index.php/journal/article/view/1189
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/6598851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17004838
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21311189
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21311189
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312988
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312988
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on004122?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EMG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jxie/emg/resolve/main/data/test-00000-of-00001-219d95dca0116082.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 96376
+      parsed: true
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTest/resolve/main/data/test-00000-of-00006.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTrain1/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jxie/emg/resolve/main/data/test-00000-of-00001-219d95dca0116082.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTest/resolve/main/data/test-00000-of-00006.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTrain1/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTrain2/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTrain3/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/Joseph_Ayo_Babalola_University_2026_2027_Application_07047903330_Form_Jupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967440
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Achievers_University_2026_2027_Application_07047903330_Form_Jupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Achievers_University_Owo_2026_2027_Application_07047903330_Form_Jupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Fountain_Unveristy_2026_2027_Application_07047903330_Form_Juupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967386
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Tansian_University_2026_2027_Application_07047903330_Form_Juupeb_A_Level_Form_Direct_Entry_Admission_Form_Out_07047903330/32967350
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8103735
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5729701
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.19070/2377-8075-210000464
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zookeys.pensoft.net/articles.php?id=1943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/articles.php?id=2070
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21311189
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21311189
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312988
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21312988
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/The_Impact_of_kernel_Dimensions_on_the_Generalizability_and_Efficienty_in_Neural_Drive_Estimation_from_HD-sEMG_Signal_/30392995/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

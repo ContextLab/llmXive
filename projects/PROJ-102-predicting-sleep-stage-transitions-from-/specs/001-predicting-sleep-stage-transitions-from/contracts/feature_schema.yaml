@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature_Vector_Schema"
+description: "Schema for extracted features from EEG epochs."
+type: "object"
+properties:
+  feature_id:
+    type: "string"
+    description: "Unique identifier for the feature vector."
+  epoch_id:
+    type: "string"
+    description: "Foreign key to the source epoch."
+  time_features:
+    type: "object"
+    description: "Time-domain features."
+    properties:
+      rms:
+        type: "number"
+        description: "Root Mean Square."
+      zero_crossing:
+        type: "integer"
+        description: "Number of zero crossings."
+  freq_features:
+    type: "object"
+    description: "Frequency-domain features (relative power)."
+    properties:
+      delta_power:
+        type: "number"
+        description: "Relative power in Delta band (0.5-4 Hz)."
+      theta_power:
+        type: "number"
+        description: "Relative power in Theta band (4-8 Hz)."
+      alpha_power:
+        type: "number"
+        description: "Relative power in Alpha band (8-13 Hz)."
+      sigma_power:
+        type: "number"
+        description: "Relative power in Sigma band (13-16 Hz)."
+      beta_power:
+        type: "number"
+        description: "Relative power in Beta band (16-30 Hz)."
+  nonlinear_features:
+    type: "object"
+    description: "Non-linear features."
+    properties:
+      sample_entropy:
+        type: "number"
+        description: "Sample Entropy value."
+      dfa:
+        type: "number"
+        description: "Detrended Fluctuation Analysis exponent."
+  label:
+    type: "integer"
+    description: "Sleep stage label."
+  is_transition:
+    type: "boolean"
+    description: "True if this epoch is a transition window."
+required:
+  - feature_id
+  - epoch_id
+  - time_features
+  - freq_features
+  - nonlinear_features
+  - label
+  - is_transition

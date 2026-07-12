@@ -2,33 +2,30 @@
 
 ### Phenomenon-vs-method check
 
-**Verdict**: fail
+**Verdict**: pass
 
-The question is framed as whether a specific architecture (lightweight deep learning) can work under specific resource constraints (CPU-only), not as a scientific question about sleep or EEG. The answer ("yes, it can classify" or "no, it cannot") evaluates the method, not the neuroscience. The underlying phenomenon question would be about what EEG patterns characterize sleep stage transitions.
+The question explicitly targets the physiological relationship between EEG spectral/temporal features and the biological process of sleep stage transitions, rather than asking whether a specific model architecture can achieve a benchmark score. While the methodology mentions using a lightweight 1D-CNN or LSTM, the core inquiry is about "what features and dynamics best characterize" the transitions, which is a substantive question about sleep physiology and signal properties independent of the specific deep learning tool used to detect them.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (PSD features from single-channel EEG) and the predicted variable (sleep stage labels) are nominally independent. Sleep stage labels are assigned by expert scorers following AASM guidelines based on EEG interpretation, not computed from the same mathematical transformation as the predictor features. This is a standard supervised learning setup.
+The predictor variables (time-domain, frequency-domain, and non-linear features extracted from the raw EEG signal) are derived directly from the physiological signal itself. The predicted variable (the annotated sleep stage transition) comes from expert manual scoring of that same signal's hypnogram. This is not circular because the expert score is a distinct human interpretation of the signal's state, not a mathematical derivation of the specific features being tested; the model is learning the mapping from signal properties to clinical state, which is the standard and necessary approach in this domain.
 
 ### Triviality check
 
-**Verdict**: concern
+**Verdict**: pass
 
-While both positive and null results have deployment implications (can lightweight models work on CPU or not?), the scientific contribution is limited. Either outcome primarily answers "does this architecture work" rather than advancing understanding of sleep neurophysiology. The expected results section confirms this focus on F1-score targets rather than mechanistic insights.
+Both positive and null results are scientifically informative: a positive result would identify specific, quantifiable signatures of sleep microstructure that could improve low-cost wearable algorithms, while a null result (or finding that transitions are indistinguishable from stable epochs in single-channel data) would suggest that transition detection requires multi-channel inputs or that the transitions are too subtle for current single-channel feature sets. Neither outcome is predetermined by basic domain knowledge in a way that renders the question trivial.
 
 ### Question-narrowing check
 
-**Verdict**: fail
+**Verdict**: pass
 
-The question explicitly names implementation constraints (lightweight architecture, CPU-only, resource constraints) rather than a domain relationship. "Can method M handle X under constraint Y?" is an implementation question masquerading as a neuroscience question. A domain question would ask about what EEG features or neural dynamics characterize sleep stage transitions.
+The question names a clear domain relationship (the correspondence between EEG dynamics and sleep stage transitions) rather than focusing on implementation constraints like "can this specific model run on a smartphone." The mention of "single-channel scalp recordings" defines the scope of the physiological phenomenon (what can be seen in that specific modality) rather than acting as a performance bottleneck constraint for the question itself.
 
 ### Overall verdict
 
-**Verdict**: validator_revise
+**Verdict**: validated
 
-[REVISED]
-What EEG features and temporal dynamics best characterize transitions between sleep stages (Wake, REM, N1, N2, N3), and how do these patterns differ across NREM and REM sleep in single-channel scalp recordings?
-[/REVISED]
-Reframing shifts the focus from method performance to the neuroscience question (what characterizes sleep transitions), allowing the lightweight architecture to remain the implementation choice without making it the research question. The CPU constraint can be preserved as a design requirement without being the scientific contribution.
+All checks pass; the research question successfully isolates a substantive physiological inquiry regarding sleep microstructure and EEG dynamics without being undermined by implementation constraints or circular reasoning. The focus on identifying distinguishing features for specific transition types (e.g., N2 to N3) provides a clear path for empirical validation that is valuable for both neuroscience understanding and wearable device development.

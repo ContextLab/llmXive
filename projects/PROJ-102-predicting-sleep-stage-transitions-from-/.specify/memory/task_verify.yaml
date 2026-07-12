@@ -1,0 +1,6 @@
+T001a Create `src/`, `tests/`, `data/`, `specs/` directories: 2
+T001b Create `data/raw`, `data/processed`, `data/interim` subdirectories: 2
+T001c Create `src/data`, `src/features`, `src/models`, `src/utils` subdirectories: 2
+T004 Implement configuration management in `src/utils/config.py` (paths, seeds, hyperparameters): 2
+T005 [P] Setup logging infrastructure in `src/utils/logging.py`: 2
+T006 Create base data schemas and validation logic in `tests/contract/test_schemas.py`: 2

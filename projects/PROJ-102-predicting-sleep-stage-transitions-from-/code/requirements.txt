@@ -1,0 +1,26 @@
+# Core dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+mne>=1.5.0
+pyedflib>=0.1.30
+requests>=2.31.0
+tqdm>=4.65.0
+pyyaml>=6.0
+
+# ML / Deep Learning (CPU version to keep it lightweight)
+torch>=2.0.0
+scikit-learn>=1.3.0
+
+# Stats
+statsmodels>=0.14.0
+pingouin>=0.5.0
+
+# Utilities
+joblib>=1.3.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
