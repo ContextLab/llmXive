@@ -111,6 +111,10 @@
     "classified_at": "2026-07-11T16:10:39Z",
     "verdict": false
   },
+  "PROJ-1032-llmxive-follow-up-extending-https-arxiv::1.6.0": {
+    "classified_at": "2026-07-12T04:21:10Z",
+    "verdict": false
+  },
   "PROJ-114-the-impact-of-ambient-noise-on-cognitive::1.6.0": {
     "classified_at": "2026-06-16T05:23:46Z",
     "verdict": false

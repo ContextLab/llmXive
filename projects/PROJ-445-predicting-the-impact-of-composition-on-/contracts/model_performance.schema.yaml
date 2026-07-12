@@ -1,110 +1,122 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Performance Metrics Schema
-description: |
-  Schema for the model performance metrics artifact (artifacts/performance_metrics.json).
-  Defines the structure for RMSE, R², MDES, VIF, Confidence Intervals, and Transferability metrics.
-  Per SC-006, SC-007, SC-009.
+description: >
+  Schema for the model performance metrics artifact (performance_metrics.json).
+  Contains RMSE, R², collinearity diagnostics (VIF), power analysis results,
+  SHAP-based confidence intervals, and transferability flags as per plan.md specifications.
 type: object
 required:
-  - rmse_linear
-  - rmse_gradient_boosting
-  - r2_linear
-  - r2_gradient_boosting
-  - vif_scores
-  - collinearity_mitigation
+  - rmse
+  - r_squared
+  - vif
+  - power_analysis
   - shap_ci
   - transferability
+additionalProperties: true
 properties:
-  rmse_linear:
+  rmse:
     type: number
-    description: Root Mean Squared Error for the Linear Regression baseline.
-  rmse_gradient_boosting:
+    description: Root Mean Squared Error on the held-out test set.
+    minimum: 0
+  r_squared:
     type: number
-    description: Root Mean Squared Error for the Gradient Boosting Regressor.
-  r2_linear:
-    type: number
-    description: R-squared (coefficient of determination) for the Linear Regression baseline.
-  r2_gradient_boosting:
-    type: number
-    description: R-squared (coefficient of determination) for the Gradient Boosting Regressor.
-  mdes:
+    description: Coefficient of determination (R²) on the held-out test set.
+  vif:
     type: object
-    description: Minimum Detectable Effect Size from power analysis.
+    description: Variance Inflation Factors for compositional descriptors.
+    required:
+      - values
+      - max_vif
+      - mitigation_strategy
+    properties:
+      values:
+        type: object
+        description: Map of feature name to VIF value.
+        additionalProperties:
+          type: number
+          minimum: 1
+      max_vif:
+        type: number
+        description: Maximum VIF observed across all features.
+      mitigation_strategy:
+        type: string
+        description: Strategy applied if VIF >= 5 (e.g., 'residualization' or 'none').
+        enum:
+          - residualization
+          - none
+          - pca
+          - regularization
+  power_analysis:
+    type: object
+    description: Minimum Detectable Effect Size (MDES) and power analysis results.
+    required:
+      - power
+      - mdes
     properties:
       power:
         type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Estimated statistical power.
+        description: Statistical power of the test (typically 0.80 threshold).
+        minimum: 0
+        maximum: 1
+      mdes:
+        type: number
+        description: Minimum Detectable Effect Size.
       power_limitation_message:
         type: string
-        description: Warning message if power < 0.80.
-    required:
-      - power
-  vif_scores:
-    type: object
-    description: Variance Inflation Factors for each compositional descriptor.
-    additionalProperties:
-      type: number
-    description: |
-      Key-value pairs where key is the feature name and value is the VIF score.
-      Used to detect multicollinearity.
-  collinearity_mitigation:
-    type: string
-    enum:
-      - none
-      - residualization
-    description: |
-      Strategy applied to mitigate collinearity if VIF >= 5.
-      Per SC-007, if VIF >= 5, this MUST be 'residualization'.
+        description: >
+          Optional message if power < 0.80. Example:
+          "Power Limitation: Insufficient power to detect small effects".
   shap_ci:
     type: object
-    description: 95% Bootstrapped Confidence Intervals for SHAP value differences.
-    properties:
-      ci_lower:
-        type: number
-        description: Lower bound of the 95% CI.
-      ci_upper:
-        type: number
-        description: Upper bound of the 95% CI.
-      is_significant:
-        type: boolean
-        description: True if the CI does not include zero (statistically significant difference).
-      correction_method:
-        type: string
-        description: Multiple comparison correction method used (e.g., 'bonferroni', 'holm').
+    description: 95% bootstrapped confidence intervals for SHAP value differences.
     required:
       - ci_lower
       - ci_upper
       - is_significant
+      - correction_method
+    properties:
+      ci_lower:
+        type: number
+        description: Lower bound of the 95% CI for the difference in mean absolute SHAP values.
+      ci_upper:
+        type: number
+        description: Upper bound of the 95% CI for the difference in mean absolute SHAP values.
+      is_significant:
+        type: boolean
+        description: Whether the CI excludes zero (indicating significance).
+      correction_method:
+        type: string
+        description: Multiple comparison correction method applied (e.g., 'bonferroni', 'holm').
+        enum:
+          - bonferroni
+          - holm-bonferroni
+          - none
   transferability:
     type: object
-    description: Cross-Family Transferability metrics (LOFO analysis).
-    properties:
-      avg_rmse_lofo:
-        type: number
-        description: Average RMSE across all N-1 family LOFO models.
-      max_rmse_lofo:
-        type: number
-        description: Maximum RMSE observed in any single LOFO fold.
-      min_rmse_lofo:
-        type: number
-        description: Minimum RMSE observed in any single LOFO fold.
-      feature_importance_stability:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Correlation or stability score of feature importance rankings across LOFO models.
+    description: Cross-family transferability metrics (LOFO analysis).
     required:
-      - avg_rmse_lofo
-      - max_rmse_lofo
-      - min_rmse_lofo
-      - feature_importance_stability
-  timestamp:
+      - families_tested
+      - average_drop_in_r2
+      - worst_case_drop_in_r2
+    properties:
+      families_tested:
+        type: array
+        items:
+          type: string
+        description: List of chemical families used as held-out test sets.
+      average_drop_in_r2:
+        type: number
+        description: Average decrease in R² when testing on held-out families.
+      worst_case_drop_in_r2:
+        type: number
+        description: Maximum decrease in R² observed in any LOFO fold.
+  collinearity_mitigation:
     type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the metrics were generated.
-  model_version:
-    type: string
-    description: Version identifier of the trained models.
-additionalProperties: false
+    description: >
+      Explicit key for collinearity mitigation strategy as per SC-007.
+      Value should be 'residualization' if VIF >= 5 triggered mitigation.
+      enum:
+        - residualization
+        - none
+        - pca
+        - regularization

@@ -1,3 +1,6 @@
+"""
+Unit tests for data download retry logic in src/data/download.py.
+"""
 import pytest
 import time
 from unittest.mock import patch, MagicMock
@@ -7,16 +10,16 @@ from requests.exceptions import RequestException, Timeout, HTTPError
 import sys
 import os
 
-# Ensure src is in path for imports if running from root
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Ensure code/src is in path for imports if running from root
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
-from src.data.download import download_dataset_with_retry
+from code.src.data.download import download_dataset_with_retry
 
 
 class TestDownloadRetryLogic:
     """Unit tests for data download retry logic in src/data/download.py."""
 
-    @patch('src.data.download.requests.get')
+    @patch('code.src.data.download.requests.get')
     def test_download_success_on_first_try(self, mock_get):
         """Test that a successful download on the first attempt returns data immediately."""
         mock_response = MagicMock()
@@ -30,7 +33,7 @@ class TestDownloadRetryLogic:
         assert result == mock_response
         assert mock_get.call_count == 1
 
-    @patch('src.data.download.requests.get')
+    @patch('code.src.data.download.requests.get')
     def test_download_success_after_retry(self, mock_get):
         """Test that the function retries on transient failure and succeeds eventually."""
         mock_response_success = MagicMock()
@@ -50,7 +53,7 @@ class TestDownloadRetryLogic:
         assert result == mock_response_success
         assert mock_get.call_count == 3
 
-    @patch('src.data.download.requests.get')
+    @patch('code.src.data.download.requests.get')
     def test_download_fails_after_max_retries(self, mock_get):
         """Test that the function raises an exception after exhausting retries."""
         mock_get.side_effect = RequestException("Persistent network error")
@@ -62,7 +65,7 @@ class TestDownloadRetryLogic:
         assert "Persistent network error" in str(exc_info.value)
         assert mock_get.call_count == 2  # Initial + 1 retry
 
-    @patch('src.data.download.requests.get')
+    @patch('code.src.data.download.requests.get')
     def test_download_handles_timeout_exception(self, mock_get):
         """Test that Timeout exceptions are caught and trigger a retry."""
         mock_response = MagicMock()
@@ -78,7 +81,7 @@ class TestDownloadRetryLogic:
         assert result == mock_response
         assert mock_get.call_count == 2
 
-    @patch('src.data.download.requests.get')
+    @patch('code.src.data.download.requests.get')
     def test_download_handles_http_error_exception(self, mock_get):
         """Test that HTTPError exceptions (5xx) are caught and trigger a retry."""
         mock_response = MagicMock()
@@ -98,8 +101,8 @@ class TestDownloadRetryLogic:
         assert result == mock_response
         assert mock_get.call_count == 2
 
-    @patch('src.data.download.time.sleep')
-    @patch('src.data.download.requests.get')
+    @patch('code.src.data.download.time.sleep')
+    @patch('code.src.data.download.requests.get')
     def test_download_waits_between_retries(self, mock_get, mock_sleep):
         """Test that the function waits (sleeps) between retry attempts."""
         mock_response = MagicMock()

@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-072-investigating-the-predictive-power-of-br
   verified_at: '2026-07-11T12:37:21.947174Z'
-- artifact_hash: 77554277884efa110ce6fd6226ebc03cdc9c308631a961f35a853da09977fa97
+- artifact_hash: 4ff6d3ce6863f1ee611ba698d341ed43550c1553c00ae3fb76761f2fa7b448c1
   artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://openneuro.org/datasets/ds000030
   verification_status: verified
   verified_against_url: https://openneuro.org/datasets/ds000030
-  verified_at: '2026-07-11T13:58:44.354166Z'
+  verified_at: '2026-07-12T04:44:00.642817Z'

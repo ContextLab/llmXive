@@ -1,75 +1,183 @@
+%YAML 1.2
+---
 $schema: http://json-schema.org/draft-07/schema#
 title: Chalcogenide Glass Composition Sample Schema
-description: >
-  JSON Schema for validating chalcogenide glass composition datasets.
-  Defines the required structure for samples including composition strings,
-  target variable (Tg), and computed compositional descriptors.
+description: |
+  JSON Schema for validating chalcogenide glass composition data samples.
+  This schema defines the structure for raw and preprocessed composition
+  data including elemental percentages, derived features, and target values.
+  Per plan.md specification for US1 data loading and preprocessing.
 type: object
 required:
   - composition
   - Tg
-  - mean_coordination_number
-  - electronegativity_variance
-  - atomic_radius_variance
   - chemical_family
 properties:
   composition:
     type: string
     description: >
-      Chemical formula string representing the glass composition.
-      Expected format: Element1x1Element2x2... (e.g., "Ge20Se80").
-    pattern: "^[A-Z][a-z]?[0-9.]*[A-Z][a-z]?[0-9.]*$"
+      Chemical composition string in standard format (e.g., "Ge20Se80", "As30Se70").
+      Must contain element symbols followed by optional atomic percentages.
+    pattern: "^[A-Z][a-z]?[0-9.]*([A-Z][a-z]?[0-9.]*)*$"
+    examples:
+      - "Ge20Se80"
+      - "As30Se70"
+      - "Sb10Ge20Se70"
   Tg:
     type: number
     description: >
       Glass transition temperature in Kelvin.
-      Must be a positive float value.
+      Must be a positive numeric value.
     minimum: 0
-  mean_coordination_number:
-    type: number
-    description: >
-      Mean coordination number (MCN) computed from the composition.
-      Calculated as the weighted average of coordination numbers of constituent elements.
-    minimum: 0
-  electronegativity_variance:
-    type: number
-    description: >
-      Variance of electronegativity values across the composition.
-      Measures chemical heterogeneity.
-    minimum: 0
-  atomic_radius_variance:
-    type: number
-    description: >
-      Variance of atomic radii across the composition.
-      Measures structural heterogeneity.
-    minimum: 0
+    examples:
+      - 350.5
+      - 420.0
   chemical_family:
     type: string
     description: >
-      Classification of the glass composition into a chemical family.
-      Used for stratified splitting and LOFO cross-validation.
-      Examples: "Ge-Se", "As-Se", "Sb-Se", "Ge-As-Se", "Other".
+      Classification of the glass composition family.
+      Used for stratified splitting and LOFO validation.
     enum:
-      - "Ge-Se"
-      - "As-Se"
-      - "Sb-Se"
-      - "Ge-As-Se"
-      - "Ge-Sb-Se"
-      - "As-Sb-Se"
-      - "Other"
+      - Germanium-Selenium
+      - Arsenic-Selenium
+      - Antimony-Selenium
+      - Germanium-Sulfur
+      - Arsenic-Sulfur
+      - Mixed-Chalcogen
+    examples:
+      - "Germanium-Selenium"
+      - "Arsenic-Selenium"
+  mc_n:
+    type: number
+    description: >
+      Mean Coordination Number.
+      Derived feature computed from composition using mendeleev.
+      Calculated as sum(element_fraction * coordination_number) for all elements.
+    minimum: 0
+    examples:
+      - 2.4
+      - 2.67
+  electronegativity_mean:
+    type: number
+    description: >
+      Mean electronegativity of the composition.
+      Weighted average based on atomic fractions.
+    minimum: 0
+    examples:
+      - 2.45
+  electronegativity_variance:
+    type: number
+    description: >
+      Variance of electronegativity across constituent elements.
+      Measures chemical heterogeneity.
+    minimum: 0
+    examples:
+      - 0.12
+  atomic_radius_mean:
+    type: number
+    description: >
+      Mean atomic radius in Angstroms.
+      Weighted average based on atomic fractions.
+    minimum: 0
+    examples:
+      - 1.25
+  atomic_radius_variance:
+    type: number
+    description: >
+      Variance of atomic radius across constituent elements.
+      Measures structural heterogeneity.
+    minimum: 0
+    examples:
+      - 0.05
+  atomic_number_mean:
+    type: number
+    description: >
+      Mean atomic number of constituent elements.
+    minimum: 0
+    examples:
+      - 32.5
+  atomic_mass_mean:
+    type: number
+    description: >
+      Mean atomic mass in g/mol.
+    minimum: 0
+    examples:
+      - 75.2
+  valence_electron_mean:
+    type: number
+    description: >
+      Mean number of valence electrons.
+    minimum: 0
+    examples:
+      - 4.2
+  source_url:
+    type: string
+    format: uri
+    description: >
+      URL of the source from which this sample data was obtained.
+    examples:
+      - "https://figshare.com/articles/dataset/chalcogenide_glass_dataset/12345"
   sample_id:
     type: string
     description: >
       Unique identifier for the sample.
-      Optional but recommended for tracking.
-    pattern: "^[A-Za-z0-9_-]+$"
-  source:
-    type: string
+    examples:
+      - "SAMPLE_001"
+      - "CHAL_2023_045"
+  metadata:
+    type: object
     description: >
-      Source of the data point (e.g., literature reference, database name).
-    minLength: 1
-  notes:
-    type: string
-    description: >
-      Optional notes or comments about the sample.
-additionalProperties: false
+      Additional metadata about the sample.
+    properties:
+      synthesis_method:
+        type: string
+        description: Method used to synthesize the glass.
+      measurement_method:
+        type: string
+        description: Method used to measure Tg (e.g., DSC).
+      purity:
+        type: number
+        description: Purity percentage of starting materials.
+        minimum: 0
+        maximum: 100
+      notes:
+        type: string
+        description: Any additional notes about the sample.
+    additionalProperties: true
+additionalProperties: true
+examples:
+  - composition: "Ge20Se80"
+    Tg: 350.5
+    chemical_family: "Germanium-Selenium"
+    mc_n: 2.4
+    electronegativity_mean: 2.45
+    electronegativity_variance: 0.02
+    atomic_radius_mean: 1.22
+    atomic_radius_variance: 0.01
+    atomic_number_mean: 33.6
+    atomic_mass_mean: 76.8
+    valence_electron_mean: 4.0
+    source_url: "https://example.com/data"
+    sample_id: "SAMPLE_001"
+    metadata:
+      synthesis_method: "Melt-quench"
+      measurement_method: "DSC"
+      purity: 99.99
+      notes: "High quality sample"
+  - composition: "As30Se70"
+    Tg: 420.0
+    chemical_family: "Arsenic-Selenium"
+    mc_n: 2.67
+    electronegativity_mean: 2.48
+    electronegativity_variance: 0.03
+    atomic_radius_mean: 1.18
+    atomic_radius_variance: 0.02
+    atomic_number_mean: 33.0
+    atomic_mass_mean: 71.5
+    valence_electron_mean: 4.2
+    source_url: "https://example.com/data"
+    sample_id: "SAMPLE_002"
+    metadata:
+      synthesis_method: "Melt-quench"
+      measurement_method: "DSC"
+      purity: 99.99

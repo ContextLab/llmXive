@@ -1,124 +1,231 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: SHAP Importance Schema
-description: >
-  Schema for SHAP feature importance analysis artifacts.
-  Defines the structure for mean absolute SHAP values, rankings,
-  and statistical significance tests comparing feature groups.
-  Used for the Glass Transition Temperature prediction pipeline.
+title: SHAP Importance Analysis Schema
+description: |
+  Schema for SHAP (SHapley Additive exPlanations) importance analysis results
+  generated from the chalcogenide glass Tg prediction model. This schema defines
+  the structure for feature importance rankings, SHAP values, and confidence intervals
+  as specified in the project plan.
 type: object
 required:
-  - schema_version
-  - generated_at
-  - model_type
+  - metadata
   - feature_importance
-  - group_comparison
+  - shap_values_summary
+  - confidence_intervals
 properties:
-  schema_version:
-    type: string
-    description: Version of this schema definition
-    const: "1.0.0"
-  
-  generated_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of artifact generation
-  
-  model_type:
-    type: string
-    description: Type of model analyzed (e.g., "GradientBoostingRegressor")
-  
-  sample_count:
-    type: integer
-    minimum: 1
-    description: Number of samples used for SHAP analysis
-  
-  feature_importance:
-    type: array
-    description: Ranked list of features by mean absolute SHAP value
-    items:
-      type: object
-      required:
-        - rank
-        - feature_name
-        - mean_abs_shap_value
-        - std_shap_value
-      properties:
-        rank:
-          type: integer
-          minimum: 1
-          description: Rank order (1 = most important)
-        feature_name:
-          type: string
-          description: Name of the compositional descriptor
-        mean_abs_shap_value:
-          type: number
-          description: Mean absolute SHAP value for this feature
-        std_shap_value:
-          type: number
-          description: Standard deviation of SHAP values
-        positive_shap_mean:
-          type: number
-          description: Mean of positive SHAP values
-        negative_shap_mean:
-          type: number
-          description: Mean of negative SHAP values
-  
-  group_comparison:
-    type: object
-    description: Statistical comparison between feature groups
-    required:
-      - chemical_heterogeneity_vs_mcn
-    properties:
-      chemical_heterogeneity_vs_mcn:
-        type: object
-        description: Comparison of chemical heterogeneity features vs Mean Coordination Number
-        required:
-          - heterogeneity_mean_abs_shap
-          - mcn_mean_abs_shap
-          - difference
-          - ci_lower
-          - ci_upper
-          - is_significant
-          - p_value
-          - correction_method
-        properties:
-          heterogeneity_mean_abs_shap:
-            type: number
-            description: Mean absolute SHAP value for chemical heterogeneity group
-          mcn_mean_abs_shap:
-            type: number
-            description: Mean absolute SHAP value for Mean Coordination Number
-          difference:
-            type: number
-            description: Difference (Heterogeneity - MCN)
-          ci_lower:
-            type: number
-            description: Lower bound of 95% bootstrapped confidence interval
-          ci_upper:
-            type: number
-            description: Upper bound of 95% bootstrapped confidence interval
-          is_significant:
-            type: boolean
-            description: Whether the difference is statistically significant
-          p_value:
-            type: number
-            description: Adjusted p-value
-          correction_method:
-            type: string
-            description: Multiple comparison correction method used (e.g., "holm-bonferroni")
-          bootstraps:
-            type: integer
-            description: Number of bootstrap iterations performed
-  
   metadata:
     type: object
+    description: Metadata about the analysis run
+    required:
+      - model_type
+      - dataset_hash
+      - analysis_timestamp
+      - shap_method
     properties:
-      shap_explainer_type:
+      model_type:
         type: string
-        description: Type of SHAP explainer used (e.g., "TreeExplainer")
-      seed:
+        description: Type of model analyzed (e.g., "GradientBoostingRegressor")
+        enum:
+          - GradientBoostingRegressor
+          - LinearRegression
+      dataset_hash:
+        type: string
+        description: SHA-256 hash of the dataset used for SHAP analysis
+        pattern: "^[a-f0-9]{64}$"
+      analysis_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the analysis was performed
+      shap_method:
+        type: string
+        description: SHAP explainer method used
+        enum:
+          - TreeExplainer
+          - KernelExplainer
+          - DeepExplainer
+          - SamplingExplainer
+      n_samples:
         type: integer
-        description: Random seed used for reproducibility
-      computation_time_seconds:
-        type: number
-        description: Time taken to compute SHAP values
+        minimum: 1
+        description: Number of samples used for SHAP computation
+      n_features:
+        type: integer
+        minimum: 1
+        description: Total number of features analyzed
+
+  feature_importance:
+    type: object
+    description: Ranked list of features by mean absolute SHAP value
+    required:
+      - ranking
+      - mean_abs_shap_values
+    properties:
+      ranking:
+        type: array
+        description: List of feature names in descending order of importance
+        items:
+          type: string
+        minItems: 1
+      mean_abs_shap_values:
+        type: object
+        description: Mapping of feature name to mean absolute SHAP value
+        additionalProperties:
+          type: number
+          minimum: 0
+      feature_categories:
+        type: object
+        description: Grouping of features by category
+        properties:
+          structural:
+            type: array
+            description: Features related to structural properties (e.g., MCN)
+            items:
+              type: string
+          chemical_heterogeneity:
+            type: array
+            description: Features related to chemical heterogeneity (e.g., variance metrics)
+            items:
+              type: string
+          compositional:
+            type: array
+            description: Raw compositional features
+            items:
+              type: string
+
+  shap_values_summary:
+    type: object
+    description: Statistical summary of SHAP values for each feature
+    required:
+      - features
+    properties:
+      features:
+        type: array
+        description: List of feature-specific SHAP summaries
+        items:
+          type: object
+          required:
+            - feature_name
+            - mean_shap
+            - std_shap
+            - min_shap
+            - max_shap
+            - median_shap
+          properties:
+            feature_name:
+              type: string
+            mean_shap:
+              type: number
+              description: Mean SHAP value across all samples
+            std_shap:
+              type: number
+              description: Standard deviation of SHAP values
+            min_shap:
+              type: number
+              description: Minimum SHAP value observed
+            max_shap:
+              type: number
+              description: Maximum SHAP value observed
+            median_shap:
+              type: number
+              description: Median SHAP value
+            direction:
+              type: string
+              description: Dominant direction of influence
+              enum:
+                - positive
+                - negative
+                - mixed
+
+  confidence_intervals:
+    type: object
+    description: Bootstrapped 95% confidence intervals for SHAP value differences
+    required:
+      - method
+      - comparisons
+    properties:
+      method:
+        type: string
+        description: Method used for CI calculation and correction
+        enum:
+          - bootstrap_bonferroni
+          - bootstrap_holm
+          - bootstrap_benjamini_hochberg
+      n_bootstraps:
+        type: integer
+        minimum: 100
+        description: Number of bootstrap iterations performed
+      comparisons:
+        type: array
+        description: Pairwise comparisons between feature categories
+        items:
+          type: object
+          required:
+            - category_1
+            - category_2
+            - difference
+            - ci_lower
+            - ci_upper
+            - is_significant
+            - p_value
+          properties:
+            category_1:
+              type: string
+              description: First category being compared
+            category_2:
+              type: string
+              description: Second category being compared
+            difference:
+              type: number
+              description: Observed difference in mean absolute SHAP values
+            ci_lower:
+              type: number
+              description: Lower bound of 95% CI
+            ci_upper:
+              type: number
+              description: Upper bound of 95% CI
+            is_significant:
+              type: boolean
+              description: Whether the difference is statistically significant after correction
+            p_value:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: Adjusted p-value
+
+  transferability_metrics:
+    type: object
+    description: Metrics from cross-family transferability tests (LOFO)
+    required:
+      - enabled
+    properties:
+      enabled:
+        type: boolean
+        description: Whether LOFO transferability analysis was performed
+      family_importance_shift:
+        type: array
+        description: Change in feature importance when each family is held out
+        items:
+          type: object
+          required:
+            - held_out_family
+            - top_feature_before
+            - top_feature_after
+            - importance_change
+          properties:
+            held_out_family:
+              type: string
+              description: Name of the chemical family held out
+            top_feature_before:
+              type: string
+              description: Top feature when all families included
+            top_feature_after:
+              type: string
+              description: Top feature when this family is held out
+            importance_change:
+              type: number
+              description: Change in importance of the top feature
+
+  warnings:
+    type: array
+    description: Any warnings generated during analysis
+    items:
+      type: string

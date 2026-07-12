@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T05:08:09.866590Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-425-predicting-molecular-complexity-using-in
-last_run_id: b719f391-526e-4b69-9b65-2f5ce6af8fa1
+last_run_id: 46263430-8251-4c5f-a674-e3947dfc9cc8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in
 title: Predicting Molecular Complexity Using Information Theory
-updated_at: '2026-07-11T07:33:20.633444Z'
+updated_at: '2026-07-12T04:51:23.931057Z'

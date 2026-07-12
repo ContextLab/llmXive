@@ -58,11 +58,11 @@
 - [X] T004 Setup `data/`, `artifacts/`, `state/` directory structure
 - [X] T005 [P] Implement `state/manifest.json` initialization logic to track artifact hashes
 - [X] T006 [P] Create `src/utils/constants.py` with periodic property helpers (coordination numbers, electronegativity, atomic radii) using `mendeleev`
-- [ ] T007a [P] Create `contracts/chalcogenide_sample.schema.yaml` per plan.md specification
-- [ ] T007b [P] Create `contracts/model_performance.schema.yaml` per plan.md specification
-- [ ] T007c [P] Create `contracts/shap_importance.schema.yaml` per plan.md specification
-- [ ] T007d [P] Create `contracts/shap_report.schema.yaml` per plan.md specification
-- [ ] T008 Configure error handling and logging infrastructure in `src/utils/logger.py` <!-- SKIPPED: non-mapping output -->
+- [X] T007a [P] Create `contracts/chalcogenide_sample.schema.yaml` per plan.md specification
+- [X] T007b [P] Create `contracts/model_performance.schema.yaml` per plan.md specification
+- [X] T007c [P] Create `contracts/shap_importance.schema.yaml` per plan.md specification
+- [X] T007d [P] Create `contracts/shap_report.schema.yaml` per plan.md specification
+- [X] T008 Configure error handling and logging infrastructure in `src/utils/logger.py` <!-- SKIPPED: non-mapping output -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,7 +78,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for data download retry logic in `tests/unit/test_download.py`
+- [X] T009 [P] [US1] Unit test for data download retry logic in `tests/unit/test_download.py`
 - [~] T010 [P] [US1] Unit test for feature engineering (MCN, electronegativity variance) in `tests/unit/test_feature_engineering.py` <!-- SKIPPED: non-mapping output -->
 - [~] T011 [P] [US1] Integration test for stratified split logic in `tests/integration/test_split.py`
 

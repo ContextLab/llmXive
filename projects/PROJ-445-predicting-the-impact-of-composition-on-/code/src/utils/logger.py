@@ -5,208 +5,195 @@ import json
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Constants for log paths
-LOG_DIR = Path("code/state")
+# Project root detection
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+LOG_DIR = PROJECT_ROOT / "state"
 LOG_FILE = LOG_DIR / "pipeline.log"
-ERROR_LOG_FILE = LOG_DIR / "errors.log"
-MANIFEST_FILE = LOG_DIR / "manifest.json"
+MANIFEST_FILE = PROJECT_ROOT / "state" / "manifest.json"
 
 # Ensure log directory exists
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Configuration constants
-DEFAULT_LOG_LEVEL = logging.INFO
-MAX_LOG_BYTES = 10 * 1024 * 1024  # 10MB
-BACKUP_COUNT = 5
-
 class LoggerConfig:
-    """Configuration container for logging infrastructure."""
-    def __init__(self, log_level: int = DEFAULT_LOG_LEVEL):
-        self.log_level = log_level
-        self.log_file = LOG_FILE
-        self.error_log_file = ERROR_LOG_FILE
-        self.manifest_file = MANIFEST_FILE
-        self.max_bytes = MAX_LOG_BYTES
-        self.backup_count = BACKUP_COUNT
+    """Configuration for the project logger."""
+    def __init__(
+        self,
+        name: str = "chalcogenide_pipeline",
+        level: int = logging.INFO,
+        log_file: Optional[Path] = None,
+        console: bool = True
+    ):
+        self.name = name
+        self.level = level
+        self.log_file = log_file or LOG_FILE
+        self.console = console
+        self.logger = self._setup_logger()
 
-def _get_formatter() -> logging.Formatter:
-    """Create a standard log formatter with timestamp, level, and message."""
-    return logging.Formatter(
-        fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    def _setup_logger(self) -> logging.Logger:
+        logger = logging.getLogger(self.name)
+        logger.setLevel(self.level)
 
-def _setup_console_handler(level: int) -> logging.StreamHandler:
-    """Configure console logging handler."""
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(level)
-    handler.setFormatter(_get_formatter())
-    return handler
+        if logger.handlers:
+            return logger
 
-def _setup_file_handler(log_path: Path, level: int) -> logging.handlers.RotatingFileHandler:
-    """Configure rotating file logging handler."""
-    # Ensure parent directory exists
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    handler = logging.handlers.RotatingFileHandler(
-        str(log_path),
-        maxBytes=MAX_LOG_BYTES,
-        backupCount=BACKUP_COUNT
-    )
-    handler.setLevel(level)
-    handler.setFormatter(_get_formatter())
-    return handler
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
 
-def initialize_logging(log_level: int = DEFAULT_LOG_LEVEL) -> logging.Logger:
+        if self.console:
+            ch = logging.StreamHandler(sys.stdout)
+            ch.setLevel(self.level)
+            ch.setFormatter(formatter)
+            logger.addHandler(ch)
+
+        if self.log_file:
+            fh = logging.FileHandler(self.log_file)
+            fh.setLevel(self.level)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+
+        return logger
+
+    def get_logger(self) -> logging.Logger:
+        return self.logger
+
+
+def initialize_logging(
+    log_level: str = "INFO",
+    log_file: Optional[str] = None,
+    console: bool = True
+) -> logging.Logger:
     """
-    Initialize the logging infrastructure for the project.
-    
-    Creates a root logger with:
-    - Console output (INFO and above)
-    - General log file (INFO and above)
-    - Error-specific log file (ERROR and above)
-    
+    Initialize the global logging infrastructure.
+
     Args:
-        log_level: Minimum logging level for general logs.
-        
+        log_level: Logging level string ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+        log_file: Optional path to log file. Defaults to state/pipeline.log
+        console: Whether to log to console
+
     Returns:
-        The configured root logger instance.
+        Configured logger instance
     """
-    # Get root logger
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)  # Capture everything, handlers filter
-    
-    # Clear existing handlers to avoid duplicates
-    if logger.hasHandlers():
-        logger.handlers.clear()
-    
-    # Create configuration
-    config = LoggerConfig(log_level)
-    
-    # Add console handler
-    console_handler = _setup_console_handler(config.log_level)
-    logger.addHandler(console_handler)
-    
-    # Add general file handler
-    file_handler = _setup_file_handler(config.log_file, config.log_level)
-    logger.addHandler(file_handler)
-    
-    # Add error-specific file handler
-    error_handler = _setup_file_handler(config.error_log_file, logging.ERROR)
-    logger.addHandler(error_handler)
-    
-    # Log initialization
-    logger.info("Logging infrastructure initialized successfully.")
-    logger.debug(f"Log directory: {LOG_DIR.absolute()}")
-    logger.debug(f"General log file: {config.log_file.absolute()}")
-    logger.debug(f"Error log file: {config.error_log_file.absolute()}")
-    
-    return logger
+    level_map = {
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL
+    }
 
-def log_error_to_manifest(error_type: str, error_message: str, task_id: Optional[str] = None) -> None:
+    level = level_map.get(log_level.upper(), logging.INFO)
+
+    if log_file:
+        log_path = Path(log_file)
+    else:
+        log_path = LOG_FILE
+
+    config = LoggerConfig(
+        name="chalcogenide_pipeline",
+        level=level,
+        log_file=log_path,
+        console=console
+    )
+    return config.get_logger()
+
+
+def log_error_to_manifest(
+    error_type: str,
+    error_message: str,
+    context: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Log an error event to the state manifest.json file.
-    
-    This ensures critical errors are tracked alongside artifact checksums.
-    
+    Log an error to the manifest file for tracking.
+
     Args:
-        error_type: Category of error (e.g., 'DATA_MISSING', 'COMPUTATION_FAILED').
-        error_message: Detailed description of the error.
-        task_id: Optional ID of the task where the error occurred.
+        error_type: Type of error (e.g., 'DATA_MISSING', 'TRAINING_FAILED')
+        error_message: Detailed error message
+        context: Optional dictionary of context information
     """
-    try:
-        manifest_path = Path(MANIFEST_FILE)
-        
-        # Load existing manifest or create new one
-        if manifest_path.exists():
-            with open(manifest_path, 'r') as f:
+    if not MANIFEST_FILE.exists():
+        # Initialize manifest if it doesn't exist
+        manifest = {"artifacts": {}, "errors": []}
+    else:
+        try:
+            with open(MANIFEST_FILE, 'r') as f:
                 manifest = json.load(f)
-        else:
-            manifest = {
-                "artifacts": {},
-                "errors": []
-            }
-        
-        # Ensure errors list exists
-        if "errors" not in manifest:
-            manifest["errors"] = []
-        
-        # Create error entry
-        error_entry = {
-            "timestamp": logging.Formatter("%Y-%m-%d %H:%M:%S").format(logging.LogRecord("", 0, "", 0, "", (), None)),
-            "type": error_type,
-            "message": error_message,
-            "task_id": task_id
-        }
-        
-        manifest["errors"].append(error_entry)
-        
-        # Save updated manifest
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f, indent=2)
-        
-        logging.error(f"Error recorded in manifest: {error_type} - {error_message}")
-        
-    except Exception as e:
-        logging.critical(f"Failed to write error to manifest: {str(e)}")
-        # Fallback to standard error log
-        logging.error(f"Error details: {error_type} - {error_message}")
+        except (json.JSONDecodeError, IOError):
+            manifest = {"artifacts": {}, "errors": []}
 
-def log_data_missing_error(column_name: str, task_id: Optional[str] = None) -> None:
-    """
-    Helper to log the specific DATA_MISSING marker required by SC-005.
-    
-    Args:
-        column_name: The name of the missing column.
-        task_id: Optional task ID.
-    """
-    error_msg = f"DATA_MISSING: Required column {column_name} not found"
-    logging.error(error_msg)
-    log_error_to_manifest("DATA_MISSING", error_msg, task_id)
+    if "errors" not in manifest:
+        manifest["errors"] = []
 
-def log_variable_availability_success(predictors: list) -> None:
-    """
-    Helper to log the success marker for variable availability (SC-008).
-    
-    Args:
-        predictors: List of predictor names found.
-    """
-    msg = f"Dataset variable availability is confirmed. Predictors found: {predictors}"
-    logging.info(msg)
+    error_entry = {
+        "timestamp": logging.Formatter('%Y-%m-%d %H:%M:%S').format(logging.LogRecord(
+            "", logging.INFO, "", 0, "", (), None
+        )),
+        "type": error_type,
+        "message": error_message,
+        "context": context or {}
+    }
+    manifest["errors"].append(error_entry)
 
-def log_variable_missing_error(predictor_name: str) -> None:
+    with open(MANIFEST_FILE, 'w') as f:
+        json.dump(manifest, f, indent=2)
+
+
+def log_data_missing_error(column_name: str, file_path: str, logger: Optional[logging.Logger] = None) -> None:
     """
-    Helper to log the specific DATA_MISSING marker for missing predictors (SC-008).
-    
+    Log a specific data missing error as per SC-005.
+
     Args:
-        predictor_name: The name of the missing predictor.
+        column_name: Name of the missing column
+        file_path: Path to the file where the column was expected
+        logger: Logger instance to use
     """
-    error_msg = f"DATA_MISSING: Predictor {predictor_name} not found"
-    logging.error(error_msg)
-    log_error_to_manifest("DATA_MISSING", error_msg, "Feature Engineering")
+    msg = f"DATA_MISSING: Required column {column_name} not found in {file_path}"
+    logger = logger or initialize_logging()
+    logger.error(msg)
+    log_error_to_manifest("DATA_MISSING", msg, {"column": column_name, "file": file_path})
+
+
+def log_variable_availability_success(predictors: list, logger: Optional[logging.Logger] = None) -> None:
+    """
+    Log success marker for variable availability as per SC-008.
+
+    Args:
+        predictors: List of predictor variables found
+        logger: Logger instance to use
+    """
+    msg = f"Dataset variable availability is confirmed. Found predictors: {', '.join(predictors)}"
+    logger = logger or initialize_logging()
+    logger.info(msg)
+
+
+def log_variable_missing_error(predictor_name: str, logger: Optional[logging.Logger] = None) -> None:
+    """
+    Log a specific variable missing error as per SC-008.
+
+    Args:
+        predictor_name: Name of the missing predictor
+        logger: Logger instance to use
+    """
+    msg = f"DATA_MISSING: Predictor {predictor_name} not found"
+    logger = logger or initialize_logging()
+    logger.error(msg)
+    log_error_to_manifest("VARIABLE_MISSING", msg, {"predictor": predictor_name})
+
 
 def main():
     """
-    Entry point for logging initialization script.
-    Demonstrates the logging infrastructure.
+    Main entry point for testing the logger module.
     """
-    # Initialize logging
-    logger = initialize_logging()
+    logger = initialize_logging(log_level="DEBUG")
+    logger.info("Logger initialized successfully.")
     
-    logger.info("Starting logging infrastructure test.")
+    log_variable_availability_success(["mean_coordination", "electronegativity_variance"], logger)
     
-    # Test standard logging
-    logger.debug("Debug message test.")
-    logger.info("Info message test.")
-    logger.warning("Warning message test.")
-    logger.error("Error message test.")
+    log_data_missing_error("Tg", "data/raw/sample.csv", logger)
     
-    # Test custom error logging
-    log_data_missing_error("test_column", "T012")
-    log_variable_missing_error("test_predictor")
+    log_variable_missing_error("atomic_radius_variance", logger)
     
     logger.info("Logging infrastructure test completed.")
-    logger.info(f"Check {LOG_FILE} and {ERROR_LOG_FILE} for output.")
 
 if __name__ == "__main__":
     main()

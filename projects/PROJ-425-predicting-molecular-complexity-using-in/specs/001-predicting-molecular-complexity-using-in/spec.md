@@ -9,7 +9,7 @@
 
 ### User Story 1 - Core Correlation Analysis (Priority: P1)
 
-**User Journey**: A researcher needs to determine if information-theoretic complexity (Shannon entropy and Lempel-Ziv compression) correlates with established chemical properties (Synthetic Accessibility Score and QED) for a dataset of molecules.
+**User Journey**: A researcher needs to determine if information-theoretic complexity (Shannon entropy of vertex degrees and Lempel-Ziv compression of canonical SMILES) correlates with established chemical properties (Synthetic Accessibility Score and QED) for a dataset of molecules.
 
 **Why this priority**: This is the primary research question. Without establishing the correlation, the utility of the information-theoretic metric cannot be validated. It forms the foundation of the entire study.
 
@@ -35,7 +35,6 @@
 
 1. **Given** the initial correlation results, **When** the bootstrap resampling module runs 1,000 iterations, **Then** the system outputs 95% confidence intervals for the correlation coefficients and reports the standard deviation of the bootstrapped correlations.
 2. **Given** the analysis logic, **When** multiple hypothesis tests are performed (e.g., testing both Entropy and LZ against both SA and QED), **Then** the system applies a multiple-comparison correction (e.g., Bonferroni or Holm-Bonferroni) and reports the adjusted p-values.
-3. **Given** a hypothetical decision threshold for "high complexity" (e.g., if the study later defines a cutoff), **When** the sensitivity analysis runs, **Then** the system sweeps the cutoff across a concrete set (e.g., ±0.05, ±0.1) and reports the variation in false-positive/negative rates or inconsistency rates.
 
 ---
 
@@ -59,20 +58,20 @@
 
 - **What happens when** the PubChem API rate limits the request? The system must implement a retry mechanism with exponential backoff (a limited number of retries, wait 2-10 seconds) before failing the job.
 - **How does the system handle** molecules with extremely large molecular weights or complex structures that might cause RDKit to hang or consume excessive memory? The system must set a timeout of 60 seconds per molecule; if exceeded, the molecule is skipped and logged as "timeout".
-- **What happens when** the dataset size exceeds the 7 GB RAM limit of the CI runner? The system must process the dataset in chunks (e.g., a defined batch size) and aggregate results incrementally to stay within memory bounds.
+- **What happens when** the dataset size exceeds the 4 GB RAM limit of the CI runner? The system must process the dataset in chunks (e.g., a defined batch size) and aggregate results incrementally to stay within memory bounds.
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download [deferred] molecules from PubChem (CID 1-5000) in SMILES format, handling rate limits with a retry mechanism of at most 3 attempts per molecule. (See US-1)
-- **FR-002**: System MUST compute Shannon entropy based on the adjacency matrix row distributions and Lempel-Ziv compressed byte counts for every valid SMILES string. (See US-1)
+- **FR-002**: System MUST compute Shannon entropy based on the distribution of vertex degrees in the molecular graph and Lempel-Ziv compressed byte counts of the canonical SMILES string (using RDKit v2023.09 or later) for every valid SMILES string. (See US-1)
 - **FR-003**: System MUST calculate Synthetic Accessibility (SA) and Quantitative Estimate of Drug-likeness (QED) scores using RDKit's standard implementations for every valid molecule. (See US-1)
 - **FR-004**: System MUST perform Pearson correlation analysis between (Shannon Entropy, SA), (Shannon Entropy, QED), (LZ, SA), and (LZ, QED), explicitly framing results as associational. (See US-1)
-- **FR-005**: System MUST execute a sufficient number of bootstrap resampling iterations to generate 95% confidence intervals for all correlation coefficients. (See US-2)
+- **FR-005**: System MUST execute exactly 1,000 bootstrap resampling iterations to generate 95% confidence intervals for all correlation coefficients. (See US-2)
 - **FR-006**: System MUST apply a multiple-comparison correction (e.g., Bonferroni) to all p-values generated from the four correlation tests. (See US-2)
 - **FR-007**: System MUST generate scatter plots with linear regression lines, 95% confidence intervals, and annotated statistical metrics (r, p, n) for all metric pairs. (See US-3)
-- **FR-008**: System MUST process the dataset in appropriately sized chunks to ensure total memory usage remains within available system limits. (See Assumptions)
+- **FR-008**: System MUST process the dataset in chunks such that peak memory usage remains ≤ 4 GB. (See US-1)
 
 ### Key Entities
 
@@ -84,12 +83,12 @@
 
 ### Measurable Outcomes
 
-- **SC-001**: The Pearson correlation coefficient (r) between information-theoretic complexity (Shannon Entropy) and Synthetic Accessibility Score is measured against the expected moderate-to-strong positive correlation (r > 0.5) as hypothesized in the research question. (See US-1)
-- **SC-002**: The Pearson correlation coefficient (r) between Lempel-Ziv complexity and Synthetic Accessibility Score is measured against the expected moderate-to-strong positive correlation (r > 0.5). (See US-1)
+- **SC-001**: The Pearson correlation coefficient (r) between information-theoretic complexity (Shannon Entropy of vertex degrees) and Synthetic Accessibility Score is measured against the expected moderate-to-strong positive correlation (r > 0.5) as hypothesized in the research question. (See US-1)
+- **SC-002**: The Pearson correlation coefficient (r) between Lempel-Ziv complexity (of canonical SMILES) and Synthetic Accessibility Score is measured against the expected moderate-to-strong positive correlation (r > 0.5). (See US-1)
 - **SC-003**: The stability of the correlation coefficients is measured against the 95% confidence intervals derived from bootstrap iterations, ensuring the intervals do not include zero for significant findings. (See US-2)
 - **SC-004**: The false-positive rate is measured against the significance threshold (α = 0.05) after applying multiple-comparison correction, ensuring the family-wise error rate is controlled. (See US-2)
-- **SC-005**: The computational execution time is measured against the time limit of the GitHub Actions free-tier runner, ensuring the full analysis (download, compute, bootstrap, plot) completes within this window. (See Assumptions)
-- **SC-006**: The memory footprint is measured against a predefined RAM limit, ensuring peak usage never exceeds this threshold during the chunked processing of the dataset. (See Assumptions)
+- **SC-005**: The computational execution time is measured against a duration limit of ≤ 45 minutes, ensuring the full analysis (download, compute, bootstrap, plot) completes within this window. (See US-1)
+- **SC-006**: The memory footprint is measured against a peak usage threshold of ≤ 4 GB, ensuring peak usage never exceeds this threshold during the chunked processing of the dataset. (See US-1)
 
 ## Assumptions
 
@@ -98,6 +97,8 @@
 - **Compute feasibility**: The analysis assumes the use of CPU-only methods (Shannon entropy calculation, Lempel-Ziv compression, linear regression) that do not require GPU acceleration or heavy deep learning training, fitting within a constrained multi-core, limited RAM, and time-bound environment.
 - **Threshold justification**: No arbitrary decision thresholds (e.g., "high complexity" cutoffs) are introduced in this phase; the analysis focuses on continuous correlation. If thresholds are defined in future work, a sensitivity analysis will be required.
 - **Measurement validity**: We assume RDKit's implementations of SA Score and QED are the standard, validated benchmarks for synthetic accessibility and drug-likeness, respectively, as cited in the literature.
-- **Predictor collinearity**: We assume that while Shannon Entropy and Lempel-Ziv length both measure complexity, they capture different structural aspects (graph topology vs. string compression), but collinearity diagnostics will be reported if both are used as predictors in a joint model.
+- **Predictor collinearity**: We assume that while Shannon Entropy (vertex degrees) and Lempel-Ziv length (canonical SMILES) both measure complexity, they capture different structural aspects (graph topology vs. string redundancy), but collinearity diagnostics will be reported if both are used as predictors in a joint model.
 - **Data sampling**: The dataset is limited to the first [deferred] CIDs to ensure the analysis remains computationally tractable on free-tier CI runners; this sample is assumed to be representative of general chemical space for the purpose of this exploratory study.
 - **API reliability**: The PubChem REST API is assumed to be available and stable; transient failures are handled via the retry mechanism described in FR-001.
+- **SA Complexity Component**: We explicitly acknowledge that the Synthetic Accessibility Score (SA) includes a topological complexity component (Bertz CT). The study tests whether information-theoretic measures provide *incremental* predictive power over standard size/complexity metrics, rather than merely re-confirming the internal structure of the SA score.
+- **Canonicalization Bias**: We acknowledge that Lempel-Ziv compression on SMILES is dependent on the canonicalization algorithm. The results are interpreted as "complexity of the canonical SMILES representation" rather than "absolute graph complexity," and the specific RDKit version used for canonicalization is recorded in the output.

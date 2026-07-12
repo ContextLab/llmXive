@@ -66,8 +66,8 @@ A researcher needs to aggregate results across multiple downsampled configuratio
 ### Functional Requirements
 
 - **FR-001**: System MUST download high-SNR gravitational wave strain data (e.g., GW150914) from GWOSC using `gwpy` with a minimum SNR threshold of ≥ 20 (See US-1).
-- **FR-002**: System MUST downsample strain data to exactly 4096 Hz, 2048 Hz, and 1024 Hz using `scipy.signal.decimate` with an anti-aliasing filter enabled (See US-1).
-- **FR-003**: System MUST quantize data bit depth to 16-bit and 32-bit float representations to simulate storage constraints (See US-1).
+- **FR-002**: System MUST downsample strain data to multiple discrete sampling rates using `scipy.signal.decimate` with an anti-aliasing filter enabled (See US-1).
+- **FR-003**: System MUST quantize data bit depth to standard fixed and floating-point representations to simulate storage constraints (See US-1).
 - **FR-004**: System MUST execute parameter estimation using `bilby` with the `IMRPhenomPv2` waveform model, running until the Gelman-Rubin statistic < 1.01 OR a hard limit of 5000 steps is reached; if the limit is reached before convergence is met, the system MUST flag the run as "inconclusive" (See US-1).
 - **FR-005**: System MUST calculate the Hellinger distance between the downsampled posterior and the ground truth injected distribution (if simulated) or the baseline posterior (for validation of the pipeline) to quantify distribution divergence (See US-2).
 - **FR-006**: System MUST compute the bias in estimated mass and spin parameters as the absolute difference from the known GWOSC catalog ground truth parameters, measured against the catalog-reported 1σ uncertainty scaled to a 90% confidence interval (See US-2).
@@ -96,9 +96,9 @@ A researcher needs to aggregate results across multiple downsampled configuratio
 ## Assumptions
 
 - The GWOSC API and data archives will remain accessible and stable during the execution of the CI job.
-- The `IMRPhenomPv2` waveform model is computationally tractable for 5000 MCMC steps on a CPU-only runner with 7 GB RAM for the selected high-SNR events.
+- The `IMRPhenomPv` waveform model is computationally tractable for 5000 MCMC steps on a CPU-only runner with 7 GB RAM for the selected high-SNR events.
 - The catalog-reported 1σ uncertainty for GWOSC parameters, when scaled to a 90% confidence interval (assuming normality), is a sufficient proxy for the statistical uncertainty threshold.
-- The downsampling process using `scipy.signal.decimate` with an anti-aliasing filter adequately preserves the signal content within the frequency band of interest (10 Hz to 1024 Hz).
+- The downsampling process using `scipy.signal.decimate` with an anti-aliasing filter adequately preserves the signal content within the frequency band of interest (low-frequency to high-frequency range)..
 - The GitHub Actions free-tier runner provides sufficient I/O bandwidth to download the required strain data files (typically < 100 MB per event) within the job timeout.
 - The bias introduced by 16-bit quantization is negligible compared to the bias introduced by downsampling for the signal-to-noise ratios of interest.
-- The 50% majority rule for threshold identification is sufficient to distinguish a systematic resolution limit from random variance across the tested events.
+- A majority rule for threshold identification is sufficient to distinguish a systematic resolution limit from random variance across the tested events..
