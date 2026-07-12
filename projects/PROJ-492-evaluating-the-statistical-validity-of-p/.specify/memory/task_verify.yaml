@@ -311,10 +311,6 @@
 : 1
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\
-  \ required by FR\u2011012. **DEPENDS ON:** T025."
-: 2
-? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
-  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
   \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_3c394da2 \u2014 status=not_enough_info]\
   \ **DEPENDS ON:** T025."
 : 1
@@ -585,6 +581,13 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
   \ condition). **DEPENDS ON:** T010."
 : 2
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
+  preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
+  \ condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->"
+: 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
