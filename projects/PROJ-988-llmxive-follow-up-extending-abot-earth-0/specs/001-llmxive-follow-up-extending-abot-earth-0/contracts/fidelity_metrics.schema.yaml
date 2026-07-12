@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FidelityMetrics"
+description: "Schema for a single row of fidelity metrics comparing reconstruction to ground truth."
+type: object
+properties:
+  scene_id:
+    type: string
+    description: "Unique identifier."
+  method:
+    type: string
+    enum:
+      - "baseline_3dgs"
+      - "inpaint_3dgs"
+    description: "Reconstruction method."
+  chamfer_distance_m:
+    type: number
+    minimum: 0
+    description: "Chamfer Distance in meters (normalized)."
+  ppsnr:
+    type: ["number", "null"]
+    description: "Projected PSNR (null for temporal mode)."
+  pssim:
+    type: ["number", "null"]
+    minimum: 0
+    maximum: 1
+    description: "Projected SSIM (null for temporal mode)."
+  nnf:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized Noise Fraction of the input."
+  degradation_type:
+    type: string
+    description: "Type of degradation applied."
+  temporal_gap_months:
+    type: integer
+    minimum: 0
+    description: "Months between LiDAR and Image acquisition."
+  is_confounded:
+    type: boolean
+    description: "True if temporal_gap_months > 12."
+  timestamp:
+    type: string
+    format: date-time
+    description: "Time of metric calculation."
+required:
+  - scene_id
+  - method
+  - chamfer_distance_m
+  - nnf
+  - degradation_type
+  - temporal_gap_months
+  - is_confounded
+additionalProperties: false

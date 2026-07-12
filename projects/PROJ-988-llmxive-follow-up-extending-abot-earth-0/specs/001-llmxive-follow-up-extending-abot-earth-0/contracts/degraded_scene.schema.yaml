@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DegradedScene Metadata"
+description: "Schema for metadata of a synthetically degraded satellite scene."
+type: object
+properties:
+  scene_id:
+    type: string
+    description: "Unique identifier for the scene."
+  original_tile_id:
+    type: string
+    description: "Sentinel-2 tile ID."
+  degradation_type:
+    type: string
+    enum:
+      - "low_res"
+      - "cloud"
+      - "temporal"
+      - "mixed"
+    description: "Type of degradation applied."
+  nnf:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized Noise Fraction."
+  resolution_m:
+    type: number
+    description: "Pixel resolution in meters."
+  cloud_opacity:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Opacity of the applied cloud mask."
+  seed:
+    type: integer
+    description: "Random seed for reproducibility."
+  created_at:
+    type: string
+    format: date-time
+    description: "Timestamp of generation."
+required:
+  - scene_id
+  - original_tile_id
+  - degradation_type
+  - nnf
+  - resolution_m
+  - seed
+additionalProperties: false

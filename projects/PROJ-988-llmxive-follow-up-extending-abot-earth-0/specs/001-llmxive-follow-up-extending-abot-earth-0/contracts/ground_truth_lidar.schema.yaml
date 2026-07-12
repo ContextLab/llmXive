@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GroundTruthLiDAR Metadata"
+description: "Schema for metadata of the independent LiDAR ground truth."
+type: object
+properties:
+  scene_id:
+    type: string
+    description: "Unique identifier matching the scene."
+  projection:
+    type: string
+    description: "CRS string (e.g., EPSG:32610)."
+  point_count:
+    type: integer
+    minimum: 1
+    description: "Total number of points."
+  bounds:
+    type: object
+    properties:
+      min_x:
+        type: number
+      min_y:
+        type: number
+      min_z:
+        type: number
+      max_x:
+        type: number
+      max_y:
+        type: number
+      max_z:
+        type: number
+    required:
+      - min_x
+      - min_y
+      - min_z
+      - max_x
+      - max_y
+      - max_z
+  source_url:
+    type: string
+    description: "URL or identifier of the source (e.g., OpenTopography)."
+  checksum:
+    type: string
+    description: "SHA256 checksum of the raw file."
+required:
+  - scene_id
+  - projection
+  - point_count
+  - bounds
+  - checksum
+additionalProperties: false

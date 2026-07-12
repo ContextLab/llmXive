@@ -1,0 +1,231 @@
+resolved_at: '2026-07-12T11:38:03.712679+00:00'
+datasets:
+- intent: OpenTopography
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Digital_Transformation_Readiness_and_Policy_Capacity_in_Europe/32968319
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Burden_and_correlates_of_late_diagnosis_of_cervical_cancer_among_women_attending_care_at_a_public_health_facility_in_Coastal_Kenya/32968310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Life_at_the_crossroads_of_Evolution_of_epidemiology_fiscal_pressure_and_governance_void_in_federal_Nepal_/32968313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/vW_KG_for_Artificial_Intelligence_Reasoning_Stability_A_Structural_Framework_for_Collapse_Vector_Control/32968298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Unified_Framework_for_Post-Quantum_Computationally_Resilient_Direct-to-Device_Non-Terrestrial_Networks/32968286
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4245345
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5823417
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15749550
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10274142
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5496367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openheritage3d.org/project.php?id=D6NS3R
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20585160
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20585160
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20818936
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20818936
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ONNX
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bakks/flan-t5-onnx/resolve/main/flan-t5-base/config.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1500
+      parsed: true
+  - url: https://huggingface.co/datasets/crozierm/DEAD-text-onnx/resolve/main/config.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 782
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bakks/flan-t5-onnx/resolve/main/flan-t5-base/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/crozierm/DEAD-text-onnx/resolve/main/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/magiccodingman/stella_en_400m_v5_onnx/87ecb42bd573adab2cfca9a50fbae26fa73ad6a9/FP32_1024D%2Ftokenizer.json?%2Fdatasets%2Fmagiccodingman%2Fstella_en_400m_v5_onnx%2Fresolve%2Fmain%2FFP32_1024D%2Ftokenizer.json=&etag=%228f778e7d950e055b18b53222c75d2c54c3732df5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Digital_Transformation_Readiness_and_Policy_Capacity_in_Europe/32968319
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Burden_and_correlates_of_late_diagnosis_of_cervical_cancer_among_women_attending_care_at_a_public_health_facility_in_Coastal_Kenya/32968310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Life_at_the_crossroads_of_Evolution_of_epidemiology_fiscal_pressure_and_governance_void_in_federal_Nepal_/32968313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/vW_KG_for_Artificial_Intelligence_Reasoning_Stability_A_Structural_Framework_for_Collapse_Vector_Control/32968298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Unified_Framework_for_Post-Quantum_Computationally_Resilient_Direct-to-Device_Non-Terrestrial_Networks/32968286
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15314214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3228411
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5907059
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7543883
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3899507
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20984278
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20984278
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21319837
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21319837
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21317967
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NNF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CyberHarem/nn_fireemblem/resolve/main/meta.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 4001
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/CyberHarem/nn_fireemblem/resolve/main/meta.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/Digital_Transformation_Readiness_and_Policy_Capacity_in_Europe/32968319
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Burden_and_correlates_of_late_diagnosis_of_cervical_cancer_among_women_attending_care_at_a_public_health_facility_in_Coastal_Kenya/32968310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Life_at_the_crossroads_of_Evolution_of_epidemiology_fiscal_pressure_and_governance_void_in_federal_Nepal_/32968313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/vW_KG_for_Artificial_Intelligence_Reasoning_Stability_A_Structural_Framework_for_Collapse_Vector_Control/32968298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Unified_Framework_for_Post-Quantum_Computationally_Resilient_Direct-to-Device_Non-Terrestrial_Networks/32968286
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18179205
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://neobiota.pensoft.net/article/146421/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://neobiota.pensoft.net/article/146421/element/5/35/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6566016
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7588461
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/388586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20952954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20952954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ualberta.scholaris.ca/handle/123456789/105420
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20668053
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

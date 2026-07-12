@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReconstructedScene Metadata"
+description: "Schema for metadata of a 3DGS reconstructed scene."
+type: object
+properties:
+  scene_id:
+    type: string
+    description: "Unique identifier matching the input scene."
+  method:
+    type: string
+    enum:
+      - "baseline_3dgs"
+      - "inpaint_3dgs"
+    description: "Method used for reconstruction."
+  num_gaussians:
+    type: integer
+    minimum: 1
+    description: "Number of Gaussian primitives in the output."
+  generation_time_sec:
+    type: number
+    minimum: 0
+    description: "Wall-clock time taken in seconds."
+  peak_ram_mb:
+    type: number
+    minimum: 0
+    description: "Peak RAM usage in MB."
+  file_path:
+    type: string
+    description: "Relative path to the .ply file."
+  file_size_mb:
+    type: number
+    description: "File size in MB."
+required:
+  - scene_id
+  - method
+  - num_gaussians
+  - generation_time_sec
+  - peak_ram_mb
+  - file_path
+additionalProperties: false
