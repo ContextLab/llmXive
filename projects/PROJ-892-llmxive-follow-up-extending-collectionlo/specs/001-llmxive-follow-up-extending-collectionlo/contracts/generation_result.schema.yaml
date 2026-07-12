@@ -1,0 +1,52 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: GenerationResult
+description: Schema for the generated image metrics CSV (converted to JSON for validation).
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the generation run."
+  prompt_id:
+    type: string
+    description: "Foreign key to the EffectPrompt."
+  quantization_level:
+    type: string
+    enum:
+      - "FP16"
+      - "INT8"
+      - "INT4"
+    description: "The quantization level used for this generation."
+  image_path:
+    type: string
+    description: "Relative path to the generated image file."
+  clip_similarity:
+    type: number
+    description: "Cosine similarity between prompt and image embeddings."
+  lpips_distance:
+    type: number
+    description: "LPIPS distance from the FP16 baseline image."
+  icbs_score:
+    type: number
+    description: "Image-Cluster Bleeding Score (max similarity to non-target effect image clusters)."
+  delta_icbs:
+    type: number
+    description: "Delta ICBS (ICBS_Quantized - ICBS_FP16) to isolate noise-induced bleeding."
+  isolated_rank:
+    type: number
+    description: "The rank of the LoRA subspace for this specific effect, extracted via isolation and SVD."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of generation."
+required:
+  - run_id
+  - prompt_id
+  - quantization_level
+  - image_path
+  - clip_similarity
+  - lpips_distance
+  - icbs_score
+  - delta_icbs
+  - isolated_rank
+  - timestamp
+additionalProperties: false

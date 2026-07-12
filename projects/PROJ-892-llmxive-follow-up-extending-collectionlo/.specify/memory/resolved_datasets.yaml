@@ -1,0 +1,293 @@
+resolved_at: '2026-07-12T01:30:35.291323+00:00'
+datasets:
+- intent: FP16
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_OpenBuddy__openbuddy-llama2-13b-v8.1-fp16/resolve/main/2023-07-25T10:11:44.944856/details_harness|arc:challenge|25_2023-07-25T10:11:44.944856.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_The-Face-Of-Goonery__Huginn-13b-FP16/resolve/main/2023-08-09T13:30:49.317288/details_harness|arc:challenge|25_2023-08-09T13:30:49.317288.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_bhenrym14__airoboros-33b-gpt4-1.4.1-lxctx-PI-16384-fp16/resolve/main/2023-08-09T13:44:06.910726/details_harness|arc:challenge|25_2023-08-09T13:44:06.910726.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_OpenBuddy__openbuddy-llama2-13b-v8.1-fp16/resolve/main/2023-07-25T10:11:44.944856/details_harness|arc:challenge|25_2023-07-25T10:11:44.944856.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_The-Face-Of-Goonery__Huginn-13b-FP16/resolve/main/2023-08-09T13:30:49.317288/details_harness|arc:challenge|25_2023-08-09T13:30:49.317288.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_bhenrym14__airoboros-33b-gpt4-1.4.1-lxctx-PI-16384-fp16/resolve/main/2023-08-09T13:44:06.910726/details_harness|arc:challenge|25_2023-08-09T13:44:06.910726.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_p_dir_rtl___________p_/32965475
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_1910_The_Manhattan_brand_trucks_are_rebranded/32965547
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Otta_2026_2027_Application_Form_Confirmed_07047903330/32965535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Prediksi_Ketepatan_Waktu_Kelulusan_Mahasiswa_Menggunakan_Algoritma_Decision_Tree_Berdasarkan_Data_Akademik_dan_Status_Bekerja/32965481
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18344503
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20371757
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20384204
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10964095
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5241425
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21302658
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21297880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: INT8
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CohereLabs/wikipedia-2023-11-embed-multilingual-v3-int8-binary/resolve/main/ab/0000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/korexyz/mnist-activations-int8/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/cloneofsimo/imagenet.int8/resolve/main/index.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 44336
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/CohereLabs/wikipedia-2023-11-embed-multilingual-v3-int8-binary/resolve/main/ab/0000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/korexyz/mnist-activations-int8/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/cloneofsimo/imagenet.int8/resolve/main/index.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_p_dir_rtl___________p_/32965475
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_1910_The_Manhattan_brand_trucks_are_rebranded/32965547
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Otta_2026_2027_Application_Form_Confirmed_07047903330/32965535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Prediksi_Ketepatan_Waktu_Kelulusan_Mahasiswa_Menggunakan_Algoritma_Decision_Tree_Berdasarkan_Data_Akademik_dan_Status_Bekerja/32965481
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21168402
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7233565
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7219754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21168239
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dl.acm.org/doi/10.1145/3615338.3618122
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21316291
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21316291
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21301904
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: INT4
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_qualis2006__llama-2-7b-int4-python-code-18k/resolve/main/2023-09-13T11-26-16.284466/details_harness|arc:challenge|25_2023-09-13T11-26-16.284466.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kivod/eval_act_int4/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 44254
+      parsed: true
+  - url: https://huggingface.co/datasets/testcase-evaluate/all-Meta-Llama-3.1-70B-Instruct-AWQ-INT4/resolve/main/task1_gen.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_qualis2006__llama-2-7b-int4-python-code-18k/resolve/main/2023-09-13T11-26-16.284466/details_harness|arc:challenge|25_2023-09-13T11-26-16.284466.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kivod/eval_act_int4/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/testcase-evaluate/all-Meta-Llama-3.1-70B-Instruct-AWQ-INT4/resolve/main/task1_gen.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/dataset_for_manuscript_From_Resilience_Debt_to_Regime_Shift_The_Synergistic_Collapse_of_Diaoyu_Island_s_Eco-geomorphology_1987_2026_/32347233
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_p_dir_rtl___________p_/32965475
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_1910_The_Manhattan_brand_trucks_are_rebranded/32965547
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Otta_2026_2027_Application_Form_Confirmed_07047903330/32965535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14991386
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20965060
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18892631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19209689
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14926536
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.08029
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284507
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284507
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2506.04985
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21268419
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

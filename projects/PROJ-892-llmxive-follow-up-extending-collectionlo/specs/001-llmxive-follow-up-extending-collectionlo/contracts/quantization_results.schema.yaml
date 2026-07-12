@@ -1,0 +1,136 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Quantization Results Schema"
+description: "Schema for the aggregated metrics of the quantization robustness study."
+type: "object"
+properties:
+  run_metadata:
+    type: "object"
+    properties:
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "ISO 8601 timestamp of the run."
+      base_model:
+        type: "string"
+        description: "HuggingFace ID of the base model."
+      adapter_model:
+        type: "string"
+        description: "HuggingFace ID of the CollectionLoRA adapter."
+      seed_list:
+        type: "array"
+        items:
+          type: "integer"
+        description: "List of random seeds used for generation."
+    required:
+      - timestamp
+      - base_model
+      - adapter_model
+      - seed_list
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        run_id:
+          type: "string"
+          description: "Unique identifier for the run."
+        effect_id:
+          type: "string"
+          description: "Identifier for the visual effect (e.g., 'oil_painting')."
+        quantization_level:
+          type: "string"
+          enum:
+            - "FP16"
+            - "INT8"
+            - "INT4"
+          description: "Quantization precision level."
+        prompt:
+          type: "string"
+          description: "The text prompt used for generation."
+        seed:
+          type: "integer"
+          description: "Random seed used."
+        cosine_similarity:
+          type: "number"
+          description: "Cosine similarity between prompt and image embeddings."
+        lpips_distance:
+          type: "number"
+          description: "LPIPS distance to the FP16 baseline image."
+        cesr_score:
+          type: "number"
+          description: "Cross-Effect Similarity Ratio (bleeding metric, Max similarity)."
+        delta_cesr:
+          type: "number"
+          description: "Delta CESR (CESR_Quantized - CESR_FP16) to isolate noise-induced bleeding."
+        subspace_rank:
+          type: "integer"
+          description: "Effective rank of the effect subspace."
+        image_sha256:
+          type: "string"
+          description: "SHA-256 hash of the generated image."
+      required:
+        - run_id
+        - effect_id
+        - quantization_level
+        - prompt
+        - seed
+        - cosine_similarity
+        - lpips_distance
+        - cesr_score
+        - delta_cesr
+        - subspace_rank
+        - image_sha256
+  statistical_summary:
+    type: "object"
+    properties:
+      int4_vs_fp16_effect:
+        type: "object"
+        properties:
+          mean_delta:
+            type: "number"
+          credible_interval_lower:
+            type: "number"
+          credible_interval_upper:
+            type: "number"
+          posterior_probability:
+            type: "number"
+            description: "Probability that INT4 < FP16."
+        required:
+          - mean_delta
+          - credible_interval_lower
+          - credible_interval_upper
+          - posterior_probability
+      rank_bleeding_correlation:
+        type: "object"
+        properties:
+          correlation_coefficient:
+            type: "number"
+          credible_interval_lower:
+            type: "number"
+          credible_interval_upper:
+            type: "number"
+          status:
+            type: "string"
+            enum:
+              - "Valid"
+              - "Underpowered"
+              - "PredictorInsufficientVariance"
+        required:
+          - correlation_coefficient
+          - credible_interval_lower
+          - credible_interval_upper
+          - status
+      posterior_width_check:
+        type: "string"
+        enum:
+          - "Sufficient"
+          - "Underpowered"
+        description: "Status of the posterior width analysis (target width ≤ 0.2)."
+    required:
+      - int4_vs_fp16_effect
+      - rank_bleeding_correlation
+      - posterior_width_check
+required:
+  - run_metadata
+  - results
+  - statistical_summary

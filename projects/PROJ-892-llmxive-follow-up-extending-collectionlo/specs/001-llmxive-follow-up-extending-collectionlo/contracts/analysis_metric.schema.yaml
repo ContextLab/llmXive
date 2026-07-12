@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisMetric
+description: Schema for the statistical analysis output JSON.
+type: object
+properties:
+  metric_name:
+    type: string
+    enum:
+      - "bhm_adherence"
+      - "bhm_bleeding"
+      - "anova_adherence"
+      - "anova_lpips"
+      - "bayesian_correlation_rank_bleed"
+      - "spearman_correlation_rank_bleed"
+      - "power_analysis"
+    description: "The type of statistical metric."
+  value:
+    type: number
+    description: "The primary value of the metric (e.g., F-statistic, correlation coefficient, posterior mean)."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "The p-value associated with the test (null for BHM)."
+  confidence_interval:
+    type: string
+    description: "String representation of the confidence interval (e.g., '95% CI [0.1, 0.5]' or '95% HDI [0.1, 0.5]' or 'Bootstrap 95% CI [0.1, 0.5]')."
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "The number of samples used in the analysis."
+  methodology:
+    type: string
+    description: "Description of the statistical method used (e.g., 'Bayesian Hierarchical Model', 'Repeated-Measures ANOVA (Greenhouse-Geisser)', 'Bayesian Correlation', 'Spearman Rank Correlation (Bootstrap)')."
+  status:
+    type: string
+    enum:
+      - "Valid"
+      - "Underpowered"
+      - "PredictorInsufficientVariance"
+    description: "Status of the analysis based on posterior width or predictor variance checks."
+required:
+  - metric_name
+  - value
+  - sample_size
+  - methodology
+  - status
+additionalProperties: false
