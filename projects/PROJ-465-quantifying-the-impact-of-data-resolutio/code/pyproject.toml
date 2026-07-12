@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gw-resolution-study"
+version = "0.1.0"
+description = "Quantifying the Impact of Data Resolution on Gravitational Wave Parameter Estimation"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "gwpy",
+    "bilby",
+    "scipy",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "astropy",
+    "dynesty",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "pylint",
+    "black",
+    "isort",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["code"]
+
+[tool.pylint.messages_control]
+disable = [
+    "C0111",  # Missing docstring (we use docstrings but not on every single line)
+    "C0103",  # Invalid name (allowing some scientific abbreviations)
+    "R0903",  # Too few public methods
+    "R0913",  # Too many arguments
+    "R0914",  # Too many local variables
+    "W0511",  # TODO (we use TODOs for tracking)
+]
+
+[tool.pylint.format]
+max-line-length = 100

@@ -1,0 +1,10 @@
+gwpy>=2.1.0
+bilby>=2.2.0
+scipy>=1.9.0
+numpy>=1.23.0
+pandas>=1.5.0
+matplotlib>=3.6.0
+astropy>=5.1.0
+dynesty>=2.1.0
+lalsuite>=7.0.0
+tqdm>=4.64.0

@@ -1,0 +1,11 @@
+? T015 [US1] Implement `code/data/transform.py` to quantize data to **16-bit and 32-bit
+  float representations** to simulate storage constraints (FR-003).
+: 1
+? 'T017 [US1] Implement `code/inference/run_bilby.py` to execute parameter estimation
+  using `bilby` with `dynesty` (nested sampling) and `IMRPhenomPv2`, running with
+  a maximum of 5000 steps (hard limit) and a `dlogz` threshold of **0.1** (FR-004).
+  **Spec Override Note**: The spec''s FR-004 mandates ''Gelman-Rubin statistic < 1.01'',
+  which is inapplicable to `dynesty`. This task implements the scientifically correct
+  `dlogz` convergence check as resolved in `plan.md` ''Unresolved Concerns''. If `dlogz`
+  > 0.1 after max steps, flag as "inconclusive".'
+: 1

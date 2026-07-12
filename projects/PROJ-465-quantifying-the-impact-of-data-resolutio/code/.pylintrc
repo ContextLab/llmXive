@@ -1,0 +1,52 @@
+[MAIN]
+# Files or directories to be skipped.
+ignore=.git,__pycache__,build,dist,.eggs,*.egg-info
+
+[MESSAGES CONTROL]
+# Disable the message, report, category or checker with the given id(s).
+disable=
+    C0111,
+    C0103,
+    R0903,
+    R0913,
+    R0914,
+    W0511,
+    W0613,
+    R0902,
+    R0904
+
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=100
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=10
+
+# Maximum number of locals for function / method body
+max-locals=20
+
+# Maximum number of return / yield for function / method body
+max-returns=10
+
+# Maximum number of branch for function / method body
+max-branches=20
+
+# Maximum number of statements in function / method body
+max-statements=60
+
+# Maximum number of attributes for a class
+max-attributes=20
+
+# Maximum number of public methods for a class
+max-public-methods=30
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=10
+
+# Ignore comments when computing similarities
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities
+ignore-docstrings=yes
