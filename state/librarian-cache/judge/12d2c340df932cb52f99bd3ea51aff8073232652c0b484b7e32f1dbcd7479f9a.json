@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.12421",
+  "judged_at": "2026-07-12T10:04:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"moebius: 0.2b lightweight image inpainting framework with 10b-level pe\" computer science",
+  "rationale": "This paper belongs in the literature review as it addresses the core domain of image inpainting and provides foundational methodology (low-rank decomposition, nonlocal self-similarity) that serves as a canonical reference for the \"Moebius\" framework mentioned in the user's question, satisfying criteria (d) and (b). Although the paper focuses on traditional optimization-based methods rather than the specific lightweight LLM architecture of the user's target, it establishes the empirical and algor",
+  "relevant": true
+}

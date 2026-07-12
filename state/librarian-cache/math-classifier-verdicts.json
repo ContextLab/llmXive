@@ -1015,6 +1015,10 @@
     "classified_at": "2026-07-10T16:13:32Z",
     "verdict": false
   },
+  "PROJ-837-llmxive-follow-up-extending-moebius-0-2b::1.6.0": {
+    "classified_at": "2026-07-12T10:04:22Z",
+    "verdict": false
+  },
   "PROJ-839-llmxive-follow-up-extending-opencomputer::1.6.0": {
     "classified_at": "2026-07-11T09:45:01Z",
     "verdict": false

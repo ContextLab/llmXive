@@ -1,0 +1,678 @@
+{
+  "fetched_at": "2026-07-12T10:04:41Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framework with 10B-Level Pe\"",
+      "target_n": 5
+    },
+    "duration_seconds": 49.091,
+    "ended_at": "2026-07-12T10:04:41Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "lightweight image inpainting models"
+        ],
+        [
+          2,
+          "parameter-efficient image inpainting"
+        ],
+        [
+          3,
+          "small-scale diffusion models for inpainting"
+        ],
+        [
+          4,
+          "efficient generative models for image completion"
+        ],
+        [
+          5,
+          "low-parameter image restoration frameworks"
+        ],
+        [
+          6,
+          "knowledge distillation for image inpainting"
+        ],
+        [
+          7,
+          "compact neural networks for image in-painting"
+        ],
+        [
+          8,
+          "0.2B parameter image generation"
+        ],
+        [
+          9,
+          "edge-device image inpainting algorithms"
+        ],
+        [
+          10,
+          "efficient transformer architectures for vision"
+        ],
+        [
+          11,
+          "lightweight generative adversarial networks for inpainting"
+        ],
+        [
+          12,
+          "resource-constrained image synthesis"
+        ],
+        [
+          13,
+          "scalable lightweight image completion"
+        ],
+        [
+          14,
+          "Moebius framework extensions"
+        ],
+        [
+          15,
+          "parameter reduction techniques for diffusion models"
+        ],
+        [
+          16,
+          "real-time image inpainting with small models"
+        ],
+        [
+          17,
+          "efficient attention mechanisms for image restoration"
+        ],
+        [
+          18,
+          "mobile-friendly image inpainting systems"
+        ],
+        [
+          19,
+          "quantized models for image in-painting"
+        ],
+        [
+          20,
+          "neural architecture search for lightweight inpainting"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "lightweight image inpainting models": 5,
+        "llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framework with 10B-Level Pe\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "model distillation parameter efficiency image restoration",
+      "Moebius lightweight GAN diffusion inpainting",
+      "0.2B parameter billion-scale performance gap",
+      "FID PSNR computational cost visual completion",
+      "knowledge distillation architecture search neural compression"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1912.05189"
+      ]
+    },
+    "per_query_hit_count": {
+      "0.2B parameter billion-scale performance gap": 3,
+      "FID PSNR computational cost visual completion": 3,
+      "Moebius lightweight GAN diffusion inpainting": 3,
+      "knowledge distillation architecture search neural compression": 3,
+      "llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framework with 10B-Level Pe\" computer science": 3,
+      "model distillation parameter efficiency image restoration": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T10:03:52Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"moebius: 0.2b lightweight image inpainting framework with 10b-level pe\" computer science",
+      "raw": "llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framework with 10B-Level Pe\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transformers have revolutionized medical image restoration, but the quadratic complexity still poses limitations for their application to high-resolution medical images. The recent advent of the Receptance Weighted Key Value (RWKV) model in the natural language processing field has attracted much attention due to its ability to process long sequences efficiently. To leverage its advanced design, we propose Restore-RWKV, the first RWKV-based model for medical image restoration. Since the original RWKV model is designed for 1D sequences, we make two necessary modifications for modeling spatial relations in 2D medical images. First, we present a recurrent WKV (Re-WKV) attention mechanism that captures global dependencies with linear computational complexity. Re-WKV incorporates bidirectional attention as basic for a global receptive field and recurrent attention to effectively model 2D dependencies from various scan directions. Second, we develop an omnidirectional token shift (Omni-Shift) layer that enhances local dependencies by shifting tokens from all directions and across a wide context range. These adaptations make the proposed Restore-RWKV an efficient and effective model for medical image restoration. Even a lightweight variant of Restore-RWKV, with only 1.16 million parameters, achieves comparable or even superior results compared to existing state-of-the-art (SOTA) methods. Extensive experiments demonstrate that the resulting Restore-RWKV achieves SOTA performance across a range of medical image restoration tasks, including PET image synthesis, CT image denoising, MRI image super-resolution, and all-in-one medical image restoration. Code is available at: https://github.com/Yaziwel/Restore-RWKV.",
+          "claimed_authors": [
+            "Zhiwen Yang",
+            "Jiayin Li",
+            "Hui Zhang",
+            "Dan Zhao",
+            "Bingzheng Wei",
+            "Yan Xu"
+          ],
+          "claimed_title": "Restore-RWKV: Efficient and Effective Medical Image Restoration with RWKV",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.11087"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Restore-RWKV: Efficient and Effective Medical Image Restoration with RWKV')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image restoration networks are usually comprised of an encoder and a decoder, responsible for aggregating image content from noisy, distorted data and to restore clean, undistorted images, respectively. Data aggregation as well as high-resolution image generation both usually come at the risk of involving aliases, i.e.~standard architectures put their ability to reconstruct the model input in jeopardy to reach high PSNR values on validation data. The price to be paid is low model robustness. In this work, we show that simply providing alias-free paths in state-of-the-art reconstruction transformers supports improved model robustness at low costs on the restoration performance. We do so by proposing BOA-Restormer, a transformer-based image restoration model that executes downsampling and upsampling operations partly in the frequency domain to ensure alias-free paths along the entire model while potentially preserving all relevant high-frequency information.",
+          "claimed_authors": [
+            "Shashank Agnihotri",
+            "Julia Grabinski",
+            "Janis Keuper",
+            "Margret Keuper"
+          ],
+          "claimed_title": "Beware of Aliases -- Signal Preservation is Crucial for Robust Image Restoration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.07435"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Beware of Aliases -- Signal Preservation is Crucial for Robust Image Restoration')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper reviews the NTIRE 2025 RAW Image Restoration and Super-Resolution Challenge, highlighting the proposed solutions and results. New methods for RAW Restoration and Super-Resolution could be essential in modern Image Signal Processing (ISP) pipelines, however, this problem is not as explored as in the RGB domain. The goal of this challenge is two fold, (i) restore RAW images with blur and noise degradations, (ii) upscale RAW Bayer images by 2x, considering unknown noise and blur. In the challenge, a total of 230 participants registered, and 45 submitted results during thee challenge period. This report presents the current state-of-the-art in RAW Restoration.",
+          "claimed_authors": [
+            "Marcos V. Conde",
+            "Radu Timofte",
+            "Zihao Lu",
+            "Xiangyu Kong",
+            "Xiaoxia Xing",
+            "Fan Wang",
+            "Suejin Han",
+            "MinKyu Park",
+            "Tianyu Zhang",
+            "Xin Luo",
+            "Yeda Chen",
+            "Dong Liu",
+            "Li Pang",
+            "Yuhang Yang",
+            "Hongzhong Wang",
+            "Xiangyong Cao",
+            "Ruixuan Jiang",
+            "Senyan Xu",
+            "Siyuan Jiang",
+            "Xueyang Fu",
+            "Zheng-Jun Zha",
+            "Tianyu Hao",
+            "Yuhong He",
+            "Ruoqi Li",
+            "Yueqi Yang",
+            "Xiang Yu",
+            "Guanlan Hong",
+            "Minmin Yi",
+            "Yuanjia Chen",
+            "Liwen Zhang",
+            "Zijie Jin",
+            "Cheng Li",
+            "Lian Liu",
+            "Wei Song",
+            "Heng Sun",
+            "Yubo Wang",
+            "Jinghua Wang",
+            "Jiajie Lu",
+            "Watchara Ruangsan"
+          ],
+          "claimed_title": "NTIRE 2025 Challenge on RAW Image Restoration and Super-Resolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.02197"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='NTIRE 2025 Challenge on RAW Image Restoration and Super-Resolution')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Layout Generation aims to synthesize plausible arrangements from given elements. Currently, the predominant methods in layout generation are Generative Adversarial Networks (GANs) and diffusion models, each presenting its own set of challenges. GANs typically struggle with handling discrete data due to their requirement for differentiable generated samples and have historically circumvented the direct generation of discrete labels by treating them as fixed conditions. Conversely, diffusion-based models, despite achieving state-of-the-art performance across several metrics, require extensive sampling steps which lead to significant time costs. To address these limitations, we propose \\textbf{DogLayout} (\\textbf{D}en\\textbf{o}ising Diffusion \\textbf{G}AN \\textbf{Layout} model), which integrates a diffusion process into GANs to enable the generation of discrete label data and significantly reduce diffusion's sampling time. Experiments demonstrate that DogLayout considerably reduces sampling costs by up to 175 times and cuts overlap from 16.43 to 9.59 compared to existing diffusion models, while also surpassing GAN based and other layout methods. Code is available at https://github.com/deadsmither5/DogLayout.",
+          "claimed_authors": [
+            "Zhaoxing Gan",
+            "Guangnan Ye"
+          ],
+          "claimed_title": "DogLayout: Denoising Diffusion GAN for Discrete and Continuous Layout Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.00381"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='DogLayout: Denoising Diffusion GAN for Discrete and Continuous Layout Generation')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Free-form inpainting is the task of adding new content to an image in the regions specified by an arbitrary binary mask. Most existing approaches train for a certain distribution of masks, which limits their generalization capabilities to unseen mask types. Furthermore, training with pixel-wise and perceptual losses often leads to simple textural extensions towards the missing areas instead of semantically meaningful generation. In this work, we propose RePaint: A Denoising Diffusion Probabilistic Model (DDPM) based inpainting approach that is applicable to even extreme masks. We employ a pretrained unconditional DDPM as the generative prior. To condition the generation process, we only alter the reverse diffusion iterations by sampling the unmasked regions using the given image information. Since this technique does not modify or condition the original DDPM network itself, the model produces high-quality and diverse output images for any inpainting form. We validate our method for both faces and general-purpose image inpainting using standard and extreme masks.\n  RePaint outperforms state-of-the-art Autoregressive, and GAN approaches for at least five out of six mask distributions.\n  Github Repository: git.io/RePaint",
+          "claimed_authors": [
+            "Andreas Lugmayr",
+            "Martin Danelljan",
+            "Andres Romero",
+            "Fisher Yu",
+            "Radu Timofte",
+            "Luc Van Gool"
+          ],
+          "claimed_title": "RePaint: Inpainting using Denoising Diffusion Probabilistic Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.09865"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='RePaint: Inpainting using Denoising Diffusion Probabilistic Models')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative adversarial networks (GANs) are challenging to train stably, and a promising remedy of injecting instance noise into the discriminator input has not been very effective in practice. In this paper, we propose Diffusion-GAN, a novel GAN framework that leverages a forward diffusion chain to generate Gaussian-mixture distributed instance noise. Diffusion-GAN consists of three components, including an adaptive diffusion process, a diffusion timestep-dependent discriminator, and a generator. Both the observed and generated data are diffused by the same adaptive diffusion process. At each diffusion timestep, there is a different noise-to-data ratio and the timestep-dependent discriminator learns to distinguish the diffused real data from the diffused generated data. The generator learns from the discriminator's feedback by backpropagating through the forward diffusion chain, whose length is adaptively adjusted to balance the noise and data levels. We theoretically show that the discriminator's timestep-dependent strategy gives consistent and helpful guidance to the generator, enabling it to match the true data distribution. We demonstrate the advantages of Diffusion-GAN over strong GAN baselines on various datasets, showing that it can produce more realistic images with higher stability and data efficiency than state-of-the-art GANs.",
+          "claimed_authors": [
+            "Zhendong Wang",
+            "Huangjie Zheng",
+            "Pengcheng He",
+            "Weizhu Chen",
+            "Mingyuan Zhou"
+          ],
+          "claimed_title": "Diffusion-GAN: Training GANs with Diffusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.02262"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Diffusion-GAN: Training GANs with Diffusion')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent graph computation approaches have demonstrated that a single PC can perform efficiently on billion-scale graphs. While these approaches achieve scalability by optimizing I/O operations, they do not fully exploit the capabilities of modern hard drives and processors. To overcome their performance, in this work, we introduce the Bimodal Block Processing (BBP), an innovation that is able to boost the graph computation by minimizing the I/O cost even further. With this strategy, we achieved the following contributions: (1) M-Flash, the fastest graph computation framework to date; (2) a flexible and simple programming model to easily implement popular and essential graph algorithms, including the first single-machine billion-scale eigensolver; and (3) extensive experiments on real graphs with up to 6.6 billion edges, demonstrating M-Flash's consistent and significant speedup.",
+          "claimed_authors": [
+            "Hugo Gualdron",
+            "Robson Cordeiro",
+            "Jose Rodrigues-Jr",
+            "Duen Chau",
+            "Minsuk Kahng",
+            "U Kang"
+          ],
+          "claimed_title": "M-Flash: Fast Billion-scale Graph Computation Using a Bimodal Block Processing Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1506.01406"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='M-Flash: Fast Billion-scale Graph Computation Using a Bimodal Block Processing Model')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
+          "claimed_authors": [
+            "Vittorio Cortellessa",
+            "Daniele Di Pompeo",
+            "Michele Tucci"
+          ],
+          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13875"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Neural Network (GNN) inference on billion-scale graphs is critical for domains like fintech and recommendation systems. Full-graph inference on these large graphs can be challenging due to high communication costs in distributed settings and high I/O costs in disk-backed Out-of-Core (OOC) settings. Existing OOC systems, operating across disk and memory, primarily focus on GNN training and perform poorly for full-graph inference due to massive read amplification, irregular I/O, and memory pressure. We present ATLAS, a disk-based GNN inference framework that enables efficient full-graph, layer-wise inference on graphs whose topologies, features and intermediate embeddings exceed the available memory on single machines. ATLAS replaces gather-based execution with a broadcast-based model that enables sequential, single-pass streaming reads of features and embeddings per layer. A tiered memory-disk hierarchy with minimum-pending-message eviction, graph reordering and a GPU-accelerated pipeline sustains high throughput within $128$ GiB RAM and $2$ TiB SSD. Across out-of-core graphs with up to $4$B edges and $550$ GiB features and multiple GNN architectures, ATLAS improves end-to-end inference time by $\\approx12$--$30\\times$ over State-of-the-Art (SOTA) OOC baselines on a single workstation, while remaining within $\\approx5\\%$ when features fit in memory.",
+          "claimed_authors": [
+            "Pranjal Naman",
+            "Yogesh Simmhan"
+          ],
+          "claimed_title": "ATLAS: Efficient Out-of-Core Inference for Billion-Scale Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.09402"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='ATLAS: Efficient Out-of-Core Inference for Billion-Scale Graph Neural Networks')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Frechet Inception Distance (FID) is the de facto arbiter of image generation, yet most papers report just a single number from a single trained model using a single sampling seed. How reproducible is that number if we retrain the model, or merely resample from it? In this paper, we treat FID as a random variable on a two-axis panel of training and generation seeds, and measure its variance directly on several hundred SiT networks trained on class-conditional ImageNet 256x256. We report surprising findings: (a) Retraining the model using the same recipe with a different seed moves FID 3.2x more (in Inception feature space) than redrawing samples from a fixed network. (b) That gap is driven by three factors: random initialisation, data ordering, and the per-step Gaussian noise of the flow-matching loss. (c) Increasing compute or model size barely tightens the spread, holding the FID coefficient of variation (CoV) inside a 1-2% band. (d) Per-cell classifier-free-guidance tuning halves the spread but reshuffles which seeds work best, and a lucky training seed reaches the same FID with up to 2x less compute than an unlucky one. Based on these findings, we recommend a new FID evaluation protocol: evaluate under per-cell optimal guidance, treat any FID gap below the empirically measured ~1.3% CoV as inconclusive, and report an error bar over several training seeds rather than a single FID number.",
+          "claimed_authors": [
+            "Nicolas Dufour",
+            "Alexei A. Efros",
+            "Patrick Pérez"
+          ],
+          "claimed_title": "The FID Lottery: Quantifying Hidden Randomness in Generative-Model Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.20536"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='The FID Lottery: Quantifying Hidden Randomness in Generative-Model Evaluation')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The analysis of spatiotemporal data is essential in domains such as epidemiology and environmental monitoring, where understanding the interplay between spatially distributed phenomena and their temporal evolution is critical. Dense pixel visualizations offer a compact, effective overview of spatiotemporal dynamics. However, the necessary linearization of 2D geographic space into a 1D ordering inevitably introduces structural distortions that manifest as visual artifacts. We propose a measure-driven visual analytics approach that captures visual artifacts through neighborhood preservation measures for 1D orderings and renders them using visual boosting techniques such as glyphs, halos, and hatching. We demonstrate our approach through a usage scenario analyzing COVID-19 incidence data across German districts, showing that interactive, measure-driven boosting enables analysts to reliably distinguish genuine spatial patterns from linearization artifacts.",
+          "claimed_authors": [
+            "Julius Rauscher",
+            "Frederik L. Dennig",
+            "Udo Schlegel",
+            "Daniel A. Keim",
+            "Tobias Schreck"
+          ],
+          "claimed_title": "Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25298"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Argumentation Mining addresses the challenging tasks of identifying boundaries of argumentative text fragments and extracting their relationships. Fully automated solutions do not reach satisfactory accuracy due to their insufficient incorporation of semantics and domain knowledge. Therefore, experts currently rely on time-consuming manual annotations. In this paper, we present a visual analytics system that augments the manual annotation process by automatically suggesting which text fragments to annotate next. The accuracy of those suggestions is improved over time by incorporating linguistic knowledge and language modeling to learn a measure of argument similarity from user interactions. Based on a long-term collaboration with domain experts, we identify and model five high-level analysis tasks. We enable close reading and note-taking, annotation of arguments, argument reconstruction, extraction of argument relations, and exploration of argument graphs. To avoid context switches, we transition between all views through seamless morphing, visually anchoring all text- and graph-based layers. We evaluate our system with a two-stage expert user study based on a corpus of presidential debates. The results show that experts prefer our system over existing solutions due to the speedup provided by the automatic suggestions and the tight integration between text and graph views.",
+          "claimed_authors": [
+            "Fabian Sperrle",
+            "Rita Sevastjanova",
+            "Rebecca Kehlbeck",
+            "Mennatallah El-Assady"
+          ],
+          "claimed_title": "VIANA: Visual Interactive Annotation of Argumentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.12413"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='VIANA: Visual Interactive Annotation of Argumentation')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge distillation has become increasingly important in model compression. It boosts the performance of a miniaturized student network with the supervision of the output distribution and feature maps from a sophisticated teacher network. Some recent works introduce multi-teacher distillation to provide more supervision to the student network. However, the effectiveness of multi-teacher distillation methods are accompanied by costly computation resources. To tackle with both the efficiency and the effectiveness of knowledge distillation, we introduce the feature aggregation to imitate the multi-teacher distillation in the single-teacher distillation framework by extracting informative supervision from multiple teacher feature maps. Specifically, we introduce DFA, a two-stage Differentiable Feature Aggregation search method that motivated by DARTS in neural architecture search, to efficiently find the aggregations. In the first stage, DFA formulates the searching problem as a bi-level optimization and leverages a novel bridge loss, which consists of a student-to-teacher path and a teacher-to-student path, to find appropriate feature aggregations. The two paths act as two players against each other, trying to optimize the unified architecture parameters to the opposite directions while guaranteeing both expressivity and learnability of the feature aggregation simultaneously. In the second stage, DFA performs knowledge distillation with the derived feature aggregation. Experimental results show that DFA outperforms existing methods on CIFAR-100 and CINIC-10 datasets under various teacher-student settings, verifying the effectiveness and robustness of the design.",
+          "claimed_authors": [
+            "Yushuo Guan",
+            "Pengyu Zhao",
+            "Bingxuan Wang",
+            "Yuanxing Zhang",
+            "Cong Yao",
+            "Kaigui Bian",
+            "Jian Tang"
+          ],
+          "claimed_title": "Differentiable Feature Aggregation Search for Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.00506"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Differentiable Feature Aggregation Search for Knowledge Distillation')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fabricating neural models for a wide range of mobile devices demands for a specific design of networks due to highly constrained resources. Both evolution algorithms (EA) and reinforced learning methods (RL) have been dedicated to solve neural architecture search problems. However, these combinations usually concentrate on a single objective such as the error rate of image classification. They also fail to harness the very benefits from both sides. In this paper, we present a new multi-objective oriented algorithm called MoreMNAS (Multi-Objective Reinforced Evolution in Mobile Neural Architecture Search) by leveraging good virtues from both EA and RL. In particular, we incorporate a variant of multi-objective genetic algorithm NSGA-II, in which the search space is composed of various cells so that crossovers and mutations can be performed at the cell level. Moreover, reinforced control is mixed with a natural mutating process to regulate arbitrary mutation, maintaining a delicate balance between exploration and exploitation. Therefore, not only does our method prevent the searched models from degrading during the evolution process, but it also makes better use of learned knowledge. Our experiments conducted in Super-resolution domain (SR) deliver rivalling models compared to some state-of-the-art methods with fewer FLOPS.",
+          "claimed_authors": [
+            "Xiangxiang Chu",
+            "Bo Zhang",
+            "Ruijun Xu",
+            "Hailong Ma"
+          ],
+          "claimed_title": "Multi-Objective Reinforced Evolution in Mobile Neural Architecture Search",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.01074"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='Multi-Objective Reinforced Evolution in Mobile Neural Architecture Search')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural Architecture Search has achieved state-of-the-art performance in a variety of tasks, out-performing human-designed networks. However, many assumptions, that require human definition, related with the problems being solved or the models generated are still needed: final model architectures, number of layers to be sampled, forced operations, small search spaces, which ultimately contributes to having models with higher performances at the cost of inducing bias into the system. In this paper, we propose HMCNAS, which is composed of two novel components: i) a method that leverages information about human-designed models to autonomously generate a complex search space, and ii) an Evolutionary Algorithm with Bayesian Optimization that is capable of generating competitive CNNs from scratch, without relying on human-defined parameters or small search spaces. The experimental results show that the proposed approach results in competitive architectures obtained in a very short time. HMCNAS provides a step towards generalizing NAS, by providing a way to create competitive models, without requiring any human knowledge about the specific task.",
+          "claimed_authors": [
+            "Vasco Lopes",
+            "Luís A. Alexandre"
+          ],
+          "claimed_title": "HMCNAS: Neural Architecture Search using Hidden Markov Chains and Bayesian Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.16149"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Moebius: 0.2B Lightweight Image Inpainting Framewo', candidate_title='HMCNAS: Neural Architecture Search using Hidden Markov Chains and Bayesian Optimization')",
+        "failed_at": "2026-07-12T10:04:22Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ze Lu",
+            "Yalei Lv",
+            "Wenqi Wang",
+            "Pengfei Xiong"
+          ],
+          "title": "Both Spatial and Frequency Cues Contribute to High-Fidelity Image Inpainting",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.07678",
+        "summary": "Deep generative approaches have obtained great success in image inpainting recently. However, most generative inpainting networks suffer from either over-smooth results or aliasing artifacts. The former lacks high-frequency details, while the latter lacks semantic structure. To address this issue, we propose an effective Frequency-Spatial Complementary Network (FSCN) by exploiting rich semantic information in both spatial and frequency domains. Specifically, we introduce an extra Frequency Branch and Frequency Loss on the spatial-based network to impose direct supervision on the frequency information, and propose a Frequency-Spatial Cross-Attention Block (FSCAB) to fuse multi-domain features and combine the corresponding characteristics. With our FSCAB, the inpainting network is capable of capturing frequency information and preserving visual consistency simultaneously. Extensive quantitative and qualitative experiments demonstrate that our inpainting network can effectively achieve superior results, outperforming previous state-of-the-art approaches with significantly fewer parameters and less computation cost. The code will be released soon.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2307.07678",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:04:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "André Nortje",
+            "Willie Brink",
+            "Herman A. Engelbrecht",
+            "Herman Kamper"
+          ],
+          "title": "BINet: a binary inpainting network for deep patch-based image compression",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1912.05189",
+        "summary": "Recent deep learning models outperform standard lossy image compression codecs. However, applying these models on a patch-by-patch basis requires that each image patch be encoded and decoded independently. The influence from adjacent patches is therefore lost, leading to block artefacts at low bitrates. We propose the Binary Inpainting Network (BINet), an autoencoder framework which incorporates binary inpainting to reinstate interdependencies between adjacent patches, for improved patch-based compression of still images. When decoding a patch, BINet additionally uses the binarised encodings from surrounding patches to guide its reconstruction. In contrast to sequential inpainting methods where patches are decoded based on previons reconstructions, BINet operates directly on the binary codes of surrounding patches without access to the original or reconstructed image data. Encoding and decoding can therefore be performed in parallel. We demonstrate that BINet improves the compression quality of a competitive deep image codec across a range of compression levels.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1912.05189",
+          "http_status": 200,
+          "pdf_sample_score": 0.2407,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:04:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shenghai Liao",
+            "Xuya Liu",
+            "Ruyi Han",
+            "Shujun Fu",
+            "Yuanfeng Zhou",
+            "Yuliang Li"
+          ],
+          "title": "Region-wise matching for image inpainting based on adaptive weighted low-rank decomposition",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.12421",
+        "summary": "Digital image inpainting is an interpolation problem, inferring the content in the missing (unknown) region to agree with the known region data such that the interpolated result fulfills some prior knowledge. Low-rank and nonlocal self-similarity are two important priors for image inpainting. Based on the nonlocal self-similarity assumption, an image is divided into overlapped square target patches (submatrices) and the similar patches of any target patch are reshaped as vectors and stacked into a patch matrix. Such a patch matrix usually enjoys a property of low rank or approximately low rank, and its missing entries are recoveried by low-rank matrix approximation (LRMA) algorithms. Traditionally, $n$ nearest neighbor similar patches are searched within a local window centered at a target patch. However, for an image with missing lines, the generated patch matrix is prone to having entirely-missing rows such that the downstream low-rank model fails to reconstruct it well. To address this problem, we propose a region-wise matching (RwM) algorithm by dividing the neighborhood of a target patch into multiple subregions and then search the most similar one within each subregion. A non-convex weighted low-rank decomposition (NC-WLRD) model for LRMA is also proposed to reconstruct all degraded patch matrices grouped by the proposed RwM algorithm. We solve the proposed NC-WLRD model by the alternating direction method of multipliers (ADMM) and analyze the convergence in detail. Numerous experiments on line inpainting (entire-row/column missing) demonstrate the superiority of our method over other competitive inpainting algorithms. Unlike other low-rank-based matrix completion methods and inpainting algorithms, the proposed model NC-WLRD is also effective for removing random-valued impulse noise and structural noise (stripes).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.12421",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:04:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andreas Lugmayr",
+            "Martin Danelljan",
+            "Andres Romero",
+            "Fisher Yu",
+            "Radu Timofte",
+            "Luc Van Gool"
+          ],
+          "title": "RePaint: Inpainting using Denoising Diffusion Probabilistic Models",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.09865",
+        "summary": "Free-form inpainting is the task of adding new content to an image in the regions specified by an arbitrary binary mask. Most existing approaches train for a certain distribution of masks, which limits their generalization capabilities to unseen mask types. Furthermore, training with pixel-wise and perceptual losses often leads to simple textural extensions towards the missing areas instead of semantically meaningful generation. In this work, we propose RePaint: A Denoising Diffusion Probabilistic Model (DDPM) based inpainting approach that is applicable to even extreme masks. We employ a pretrained unconditional DDPM as the generative prior. To condition the generation process, we only alter the reverse diffusion iterations by sampling the unmasked regions using the given image information. Since this technique does not modify or condition the original DDPM network itself, the model produces high-quality and diverse output images for any inpainting form. We validate our method for both faces and general-purpose image inpainting using standard and extreme masks.\n  RePaint outperforms state-of-the-art Autoregressive, and GAN approaches for at least five out of six mask distributions.\n  Github Repository: git.io/RePaint",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.09865",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:04:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jitesh Jain",
+            "Yuqian Zhou",
+            "Ning Yu",
+            "Humphrey Shi"
+          ],
+          "title": "Keys to Better Image Inpainting: Structure and Texture Go Hand in Hand",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2208.03382",
+        "summary": "Deep image inpainting has made impressive progress with recent advances in image generation and processing algorithms. We claim that the performance of inpainting algorithms can be better judged by the generated structures and textures. Structures refer to the generated object boundary or novel geometric structures within the hole, while texture refers to high-frequency details, especially man-made repeating patterns filled inside the structural regions. We believe that better structures are usually obtained from a coarse-to-fine GAN-based generator network while repeating patterns nowadays can be better modeled using state-of-the-art high-frequency fast fourier convolutional layers. In this paper, we propose a novel inpainting network combining the advantages of the two designs. Therefore, our model achieves a remarkable visual quality to match state-of-the-art performance in both structure generation and repeating texture synthesis using a single network. Extensive experiments demonstrate the effectiveness of the method, and our conclusions further highlight the two critical factors of image inpainting quality, structures, and textures, as the future design directions of inpainting networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2208.03382",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:04:28Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"moebius: 0.2b lightweight image inpainting framework with 10b-level pe\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

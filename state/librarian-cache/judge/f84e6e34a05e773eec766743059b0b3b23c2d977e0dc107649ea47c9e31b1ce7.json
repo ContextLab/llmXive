@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.03382",
+  "judged_at": "2026-07-12T10:04:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"moebius: 0.2b lightweight image inpainting framework with 10b-level pe\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same domain (image inpainting) and evaluates the same core mechanism (generating structures and textures) as the user's question, satisfying criteria (a) and (b) by providing foundational context on the specific technical challenges (structure vs. texture synthesis) that the user's proposed \"Moebius\" framework aims to solve.",
+  "relevant": true
+}

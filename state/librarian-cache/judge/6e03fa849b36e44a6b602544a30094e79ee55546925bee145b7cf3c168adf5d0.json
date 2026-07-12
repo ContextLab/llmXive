@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.07678",
+  "judged_at": "2026-07-12T10:04:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"moebius: 0.2b lightweight image inpainting framework with 10b-level pe\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same core mechanism (high-fidelity image inpainting) and domain (computer vision/deep learning) as the user's question, satisfying criteria (a) and (b) by providing empirical evidence on the specific task of image inpainting using lightweight or efficient architectures (noting the claim of \"significantly fewer parameters\").",
+  "relevant": true
+}

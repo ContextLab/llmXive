@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.05189",
+  "judged_at": "2026-07-12T10:04:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"moebius: 0.2b lightweight image inpainting framework with 10b-level pe\" computer science",
+  "rationale": "This paper satisfies criterion (a) and (b) as it addresses the core mechanism of \"image inpainting\" within the same domain (computer vision/deep learning) and utilizes a specific technique (binary inpainting) that is directly relevant to the user's interest in lightweight inpainting frameworks, even though the specific application context is image compression rather than the exact \"Moebius\" follow-up scenario.",
+  "relevant": true
+}
