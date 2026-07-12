@@ -1,0 +1,354 @@
+{
+  "fetched_at": "2026-07-12T21:36:26Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Improved Large Language Diffusion Models\"",
+      "target_n": 5
+    },
+    "duration_seconds": 43.534,
+    "ended_at": "2026-07-12T21:36:26Z",
+    "expansion": null,
+    "extracted_queries": [
+      "language diffusion models generative linguistics",
+      "LLM text generation perplexity fluency metrics",
+      "diffusion-based natural language synthesis autoregressive",
+      "semantic coherence syntactic structure generation",
+      "denoising score matching language modeling theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.07546"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM text generation perplexity fluency metrics": 3,
+      "denoising score matching language modeling theory": 3,
+      "diffusion-based natural language synthesis autoregressive": 3,
+      "language diffusion models generative linguistics": 3,
+      "llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguistics": 3,
+      "semantic coherence syntactic structure generation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2606.14257",
+          "rationale": "The paper focuses on using Linguistics Olympiad problems as a corpus for human linguistic research and as benchmarks for LLMs, but it does not address the specific mechanism of \"Large Language Diffusion Models\" (a generative architecture distinct from standard autoregressive LLMs) nor does it provide the foundational methodology or empirical baseline for extending diffusion models in linguistics. It fails criteria (a) and (d) because it discusses LLM benchmarks generally rather than the specific",
+          "title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?"
+        },
+        {
+          "primary_pointer": "2503.20088",
+          "rationale": "The paper discusses the sociological and philosophical crisis in generative linguistics regarding LLMs but does not measure the specific biological, algorithmic, or physical mechanisms of \"Large Language Diffusion Models\" (the user's specific technical focus) nor does it provide empirical baselines for extending that specific architecture. It falls under the \"distinct construct\" rejection rule as it addresses the *social nature of scientific success* in linguistics rather than the technical prop",
+          "title": "Generative Linguistics, Large Language Models, and the Social Nature of Scientific Success"
+        },
+        {
+          "primary_pointer": "2606.05868",
+          "rationale": "The paper focuses on system-level efficiency (KV-cache compression, concurrency) and architectural transitions (GQA-to-MLA) for financial LLM deployment, which does not address the user's specific interest in \"linguistics\" or the theoretical mechanisms of \"Large Language Diffusion Models.\" While both involve LLMs, the candidate paper lacks any measurable connection to the linguistic properties, diffusion mechanisms, or specific \"llmXive\" follow-up context requested, falling under the \"Off-domain",
+          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition"
+        },
+        {
+          "primary_pointer": "2503.21676",
+          "rationale": "The paper investigates general learning dynamics, factual recall, and hallucinations in language models, but it does not address the specific mechanism of \"diffusion models\" or the \"linguistics\" extension mentioned in the user's question. While it covers LLMs broadly, it fails to satisfy the criteria for same-mechanism evidence (a) or domain-specific variables (b) because diffusion-based LLMs operate on a fundamentally different generative process than the autoregressive models typically studied",
+          "title": "How do language models learn facts? Dynamics, curricula and hallucinations"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T21:35:43Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+      "raw": "llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-12T21:36:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-12T21:36:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Futrell and Mahowald (2025) frame the success of neural language models (LMs) as supporting gradient, usage-based linguistic theories. I argue that LMs can also instantiate theories based on formal structures - the types of theories seen in the generative tradition. This argument expands the space of theories that can be tested with LMs, potentially enabling reconciliations between usage-based and generative accounts.",
+          "claimed_authors": [
+            "R. Thomas McCoy"
+          ],
+          "claimed_title": "Not-So-Strange Love: Language Models and Generative Linguistic Theories are More Compatible than They Appear",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.10061"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='Not-So-Strange Love: Language Models and Generative Linguistic Theories are More Compatible than They Appear')",
+        "failed_at": "2026-07-12T21:36:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-07-12T21:36:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reference-free metrics like self-perplexity are strongly biased against creative text generation. We propose the Confidence Score (CS), derived from a model's output probability distribution, as a less biased alternative. Experiments on gpt-4o-mini show that while fluency-based metrics prefer novel responses in 0\\% of cases on 99 creative prompts, our CS does so 19% of the time, a statistically significant difference (95% CI for difference: [11.1%, 27.3%]). We also show that CS effectively distinguishes between easy, medium, and hard tasks, confirmed by non-overlapping confidence intervals. The Confidence Score thus mitigates the creativity bias of traditional metrics while retaining their core evaluative strengths, offering a more balanced assessment for modern LLMs.",
+          "claimed_authors": [
+            "V. S. Raghu Parupudi"
+          ],
+          "claimed_title": "Confidence, Not Perplexity: A Better Metric for the Creative Era of LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08596"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='Confidence, Not Perplexity: A Better Metric for the Creative Era of LLMs')",
+        "failed_at": "2026-07-12T21:36:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.06371"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
+        "failed_at": "2026-07-12T21:36:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most existing natural language database interfaces (NLDBs) were designed to be used with database systems that provide very limited facilities for manipulating time-dependent data, and they do not support adequately temporal linguistic mechanisms (verb tenses, temporal adverbials, temporal subordinate clauses, etc.). The database community is becoming increasingly interested in temporal database systems, that are intended to store and manipulate in a principled manner information not only about the present, but also about the past and future. When interfacing to temporal databases, supporting temporal linguistic mechanisms becomes crucial.\n  We present a framework for constructing natural language interfaces for temporal databases (NLTDBs), that draws on research in tense and aspect theories, temporal logics, and temporal databases. The framework consists of a temporal intermediate representation language, called TOP, an HPSG grammar that maps a wide range of questions involving temporal mechanisms to appropriate TOP expressions, and a provably correct method for translating from TOP to TSQL2, TSQL2 being a recently proposed temporal extension of the SQL database language. This framework was employed to implement a prototype NLTDB using ALE and Prolog.",
+          "claimed_authors": [
+            "I. Androutsopoulos",
+            "G. D. Ritchie",
+            "P. Thanisch"
+          ],
+          "claimed_title": "Time, Tense and Aspect in Natural Language Database Interfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "cmp-lg/9803002"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='Time, Tense and Aspect in Natural Language Database Interfaces')",
+        "failed_at": "2026-07-12T21:36:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
+          "claimed_authors": [
+            "Chidinma A. Nwafor",
+            "Ikechukwu E. Onyenwe"
+          ],
+          "claimed_title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14757"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques')",
+        "failed_at": "2026-07-12T21:36:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aspect-based sentiment analysis (ABSA) aims to identify aspect terms and determine their sentiment polarity. While dependency trees combined with contextual semantics provide structural cues, existing approaches often rely on dot-product similarity and fixed graphs, which limit their ability to capture nonlinear associations and adapt to noisy contexts. To address these limitations, we propose the Optimal Transport-Enhanced Syntactic-Semantic Graph Network (OTESGN), a model that jointly integrates structural and distributional signals. Specifically, a Syntactic Graph-Aware Attention module models global dependencies with syntax-guided masking, while a Semantic Optimal Transport Attention module formulates aspect-opinion association as a distribution matching problem solved via the Sinkhorn algorithm. An Adaptive Attention Fusion mechanism balances heterogeneous features, and contrastive regularization enhances robustness. Extensive experiments on three benchmark datasets (Rest14, Laptop14, and Twitter) demonstrate that OTESGN delivers state-of-the-art performance. Notably, it surpasses competitive baselines by up to +1.30 Macro-F1 on Laptop14 and +1.01 on Twitter. Ablation studies and visualization analyses further highlight OTESGN's ability to capture fine-grained sentiment associations and suppress noise from irrelevant context.",
+          "claimed_authors": [
+            "Xinfeng Liao",
+            "Xuanqi Chen",
+            "Lianxi Wang",
+            "Jiahuan Yang",
+            "Zhuowei Chen",
+            "Ziying Rong"
+          ],
+          "claimed_title": "OTESGN: Optimal Transport-Enhanced Syntactic-Semantic Graph Networks for Aspect-Based Sentiment Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.08612"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='OTESGN: Optimal Transport-Enhanced Syntactic-Semantic Graph Networks for Aspect-Based Sentiment Analysis')",
+        "failed_at": "2026-07-12T21:36:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans exhibit garden path effects: When reading sentences that are temporarily structurally ambiguous, they slow down when the structure is disambiguated in favor of the less preferred alternative. Surprisal theory (Hale, 2001; Levy, 2008), a prominent explanation of this finding, proposes that these slowdowns are due to the unpredictability of each of the words that occur in these sentences. Challenging this hypothesis, van Schijndel & Linzen (2021) find that estimates of the cost of word predictability derived from language models severely underestimate the magnitude of human garden path effects. In this work, we consider whether this underestimation is due to the fact that humans weight syntactic factors in their predictions more highly than language models do. We propose a method for estimating syntactic predictability from a language model, allowing us to weigh the cost of lexical and syntactic predictability independently. We find that treating syntactic predictability independently from lexical predictability indeed results in larger estimates of garden path. At the same time, even when syntactic predictability is independently weighted, surprisal still greatly underestimate the magnitude of human garden path effects. Our results support the hypothesis that predictability is not the only factor responsible for the processing cost associated with garden path sentences.",
+          "claimed_authors": [
+            "Suhas Arehalli",
+            "Brian Dillon",
+            "Tal Linzen"
+          ],
+          "claimed_title": "Syntactic Surprisal From Neural Models Predicts, But Underestimates, Human Processing Difficulty From Syntactic Ambiguities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12187"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='Syntactic Surprisal From Neural Models Predicts, But Underestimates, Human Processing Difficulty From Syntactic Ambiguities')",
+        "failed_at": "2026-07-12T21:36:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The popularity of the Semantic Web (SW) encourages organizations to organize and publish semantic data using the RDF model. This growth poses new requirements to Business Intelligence (BI) technologies to enable On-Line Analytical Processing (OLAP)-like analysis over semantic data. The incorporation of semantic data into a Data Warehouse (DW) is not supported by the traditional Extract-Transform-Load (ETL) tools because they do not consider semantic issues in the integration process. In this paper, we propose a layer-based integration process and a set of high-level RDF-based ETL constructs required to define, map, extract, process, transform, integrate, update, and load (multidimensional) semantic data. Different to other ETL tools, we automate the ETL data flows by creating metadata at the schema level. Therefore, it relieves ETL developers from the burden of manual mapping at the ETL operation level. We create a prototype, named Semantic ETL Construct (SETLCONSTRUCT), based on the innovative ETL constructs proposed here. To evaluate SETLCONSTRUCT, we create a multidimensional semantic DW by integrating a Danish Business dataset and an EU Subsidy dataset using it and compare it with the previous programmable framework SETLPROG in terms of productivity, development time and performance. The evaluation shows that 1) SETLCONSTRUCT uses 92% fewer Number of Typed Characters (NOTC) than SETLPROG, and SETLAUTO (the extension of SETLCONSTRUCT for generating ETL execution flow automatically) further reduces the Number of Used Concepts (NOUC) by another 25%; 2) using SETLCONSTRUCT, the development time is almost cut in half compared to SETLPROG, and is cut by another 27% using SETLAUTO; 3) SETLCONSTRUCT is scalable and has similar performance compared to SETLPROG.",
+          "claimed_authors": [
+            "Rudra Pratap Deb Nath",
+            "Oscar Romero",
+            "Torben Bach Pedersen",
+            "Katja Hose"
+          ],
+          "claimed_title": "High-Level ETL for Semantic Data Warehouses -- Full Version",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.07180"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='High-Level ETL for Semantic Data Warehouses -- Full Version')",
+        "failed_at": "2026-07-12T21:36:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When language models (LMs) are trained to forget (or \"unlearn'') a skill, how precisely does their behavior change? We study the behavior of transformer LMs in which tasks have been forgotten via fine-tuning on randomized labels. Such LMs learn to generate near-random predictions for individual examples in the \"training'' set used for forgetting. Across tasks, however, LMs exhibit extreme variability in whether LM predictions change on examples outside the training set. In some tasks (like entailment classification), forgetting generalizes robustly, and causes models to produce uninformative predictions on new task instances; in other tasks (like physical commonsense reasoning and scientific question answering) forgetting affects only the training examples, and models continue to perform the \"forgotten'' task accurately even for examples very similar to those that appeared in the training set. Dataset difficulty is not predictive of whether a behavior can be forgotten; instead, generalization in forgetting is (weakly) predicted by the confidence of LMs' initial task predictions and the variability of LM representations of training data, with low confidence and low variability both associated with greater generalization. Perhaps most surprisingly, random-label forgetting appears to be somewhat insensitive to the contents of the training set: for example, models trained on science questions with random labels continue to answer other science questions accurately, but begin to produce random labels on entailment classification tasks. Finally, we show that even generalizable forgetting is shallow: linear probes trained on LMs' representations can still perform tasks reliably after forgetting. Our results highlight the difficulty and unpredictability of performing targeted skill removal from models via fine-tuning.",
+          "claimed_authors": [
+            "Eric Zhang",
+            "Leshem Chosen",
+            "Jacob Andreas"
+          ],
+          "claimed_title": "Unforgettable Generalization in Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.02228"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='Unforgettable Generalization in Language Models')",
+        "failed_at": "2026-07-12T21:36:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Delta Denoising Score (DDS), a novel scoring function for text-based image editing that guides minimal modifications of an input image towards the content described in a target prompt. DDS leverages the rich generative prior of text-to-image diffusion models and can be used as a loss term in an optimization problem to steer an image towards a desired direction dictated by a text. DDS utilizes the Score Distillation Sampling (SDS) mechanism for the purpose of image editing. We show that using only SDS often produces non-detailed and blurry outputs due to noisy gradients. To address this issue, DDS uses a prompt that matches the input image to identify and remove undesired erroneous directions of SDS. Our key premise is that SDS should be zero when calculated on pairs of matched prompts and images, meaning that if the score is non-zero, its gradients can be attributed to the erroneous component of SDS. Our analysis demonstrates the competence of DDS for text based image-to-image translation. We further show that DDS can be used to train an effective zero-shot image translation model. Experimental results indicate that DDS outperforms existing methods in terms of stability and quality, highlighting its potential for real-world applications in text-based image editing.",
+          "claimed_authors": [
+            "Amir Hertz",
+            "Kfir Aberman",
+            "Daniel Cohen-Or"
+          ],
+          "claimed_title": "Delta Denoising Score",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.07090"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Improved Large Language Diffusion Models\" linguist', candidate_title='Delta Denoising Score')",
+        "failed_at": "2026-07-12T21:36:14Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zicong Cheng",
+            "Ruixuan Jia",
+            "Jia Li",
+            "Guo-Wei Yang",
+            "Meng-Hao Guo",
+            "Shi-Min Hu"
+          ],
+          "title": "Improving Variable-Length Generation in Diffusion Language Models via Length Regularization",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.07546",
+        "summary": "Diffusion Large Language Models (DLLMs) are inherently ill-suited for variable-length generation, as their inference is defined on a fixed-length canvas and implicitly assumes a known target length. When the length is unknown, as in realistic completion and infilling, naively comparing confidence across mask lengths becomes systematically biased, leading to under-generation or redundant continuations. In this paper, we show that this failure arises from an intrinsic lengthinduced bias in generation confidence estimates, leaving existing DLLMs without a robust way to determine generation length and making variablelength inference unreliable. To address this issue, we propose LR-DLLM, a length-regularized inference framework for DLLMs that treats generation length as an explicit variable and achieves reliable length determination at inference time. It decouples semantic compatibility from lengthinduced uncertainty through an explicit length regularization that corrects biased confidence estimates. Based on this, LR-DLLM enables dynamic expansion or contraction of the generation span without modifying the underlying DLLM or its training procedure. Experiments show that LRDLLM achieves 51.3% Pass@1 on HumanEvalInfilling under fully unknown lengths (+13.4% vs. DreamOn) and 51.5% average Pass@1 on four-language McEval (+14.3% vs. DreamOn).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.07546",
+          "http_status": 200,
+          "pdf_sample_score": 0.2042,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:36:12Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T10:46:59.575220Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-864-llmxive-follow-up-extending-improved-lar
-last_run_id: null
+last_run_id: 34f2a294-b0e1-4347-b803-0a8a3dc814eb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Improved Large Language Diffusion Models"'
-updated_at: '2026-07-02T10:46:59.575220Z'
+updated_at: '2026-07-12T21:36:46.729581Z'

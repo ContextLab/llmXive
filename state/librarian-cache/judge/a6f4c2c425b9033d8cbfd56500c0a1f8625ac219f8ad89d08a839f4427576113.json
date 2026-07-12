@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.03724",
+  "judged_at": "2026-07-12T21:47:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dockerless: environment-free program verifier for coding agents\" computer science",
+  "rationale": "The paper focuses on hardware-level defenses against speculative execution attacks (e.g., Spectre/Meltdown) in computer architecture, which is a distinct security domain from the user's question about \"Dockerless\" environment-free program verification for coding agents. There is no overlap in the specific mechanism (hardware speculation vs. software verification environments), variables, or empirical population, and the paper does not address the canonical alternative vocabulary or foundational ",
+  "relevant": false
+}

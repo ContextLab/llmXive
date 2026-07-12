@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.20088",
+  "judged_at": "2026-07-12T21:36:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+  "rationale": "The paper discusses the sociological and philosophical crisis in generative linguistics regarding LLMs but does not measure the specific biological, algorithmic, or physical mechanisms of \"Large Language Diffusion Models\" (the user's specific technical focus) nor does it provide empirical baselines for extending that specific architecture. It falls under the \"distinct construct\" rejection rule as it addresses the *social nature of scientific success* in linguistics rather than the technical prop",
+  "relevant": false
+}

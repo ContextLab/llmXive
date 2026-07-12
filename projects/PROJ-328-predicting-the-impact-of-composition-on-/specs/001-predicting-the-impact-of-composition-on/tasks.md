@@ -58,7 +58,7 @@
 - [X] T004 Create `code/seed.py` to pin random seeds for reproducibility (numpy, random, xgboost)
 - [ ] T005 [P] Implement data ingestion scaffolding in `code/ingestion/` with placeholder for literature aggregator
 - [ ] T006 [P] Setup `code/features/` directory structure for descriptor engineering
-- [~] T007 Create base data models/entities (`SolderComposition`, `CompositionalDescriptor`) in `code/models/`
+- [ ] T007 Create base data models/entities (`SolderComposition`, `CompositionalDescriptor`) in `code/models/`
 - [~] T008 Configure error handling and logging infrastructure in `code/utils/`
 - [~] T009 Setup environment configuration management for paths and thresholds in `code/config.py`
 
@@ -88,8 +88,8 @@
  - Implement random sampling logic with fixed seed (from T004) if dataset exceeds RAM limits (per FR-011)
 - [~] T014 [US1] Implement validation logic in `code/ingestion/validator.py` to check for non-null hardness and complete composition, emitting power limitation warning if 50 ≤ N < 100
 - [~] T015 [US1] Save raw immutable data to `data/raw/solder_hardness_raw.csv` with checksums in `data/checksums.txt`
-- [ ] T016 [US1] Save validated dataset to `data/processed/solder_hardness_validated.csv`
-- [ ] T017 [US1] Add logging for ingestion operations and data source citations in `code/ingestion/`
+- [~] T016 [US1] Save validated dataset to `data/processed/solder_hardness_validated.csv`
+- [~] T017 [US1] Add logging for ingestion operations and data source citations in `code/ingestion/`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,13 +103,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [ ] T019 [P] [US2] Integration test for model training pipeline in `tests/integration/test_model_training.py`
+- [~] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
+- [~] T019 [P] [US2] Integration test for model training pipeline in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement CLR transform in `code/features/transformer.py` using `compositional` library to handle closure problem; output both the transformed vector and the weight coefficients for downstream use
-- [ ] T021 [US2] Implement descriptor computation in `code/features/descriptor_engine.py` to calculate weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration by: 1) Applying CLR to raw composition vector, 2) Using the resulting CLR coefficients to weight the original raw elemental property tables (NOT computing properties on log-ratios)
+- [~] T020 [US2] Implement CLR transform in `code/features/transformer.py` using `compositional` library to handle closure problem; output both the transformed vector and the weight coefficients for downstream use
+- [~] T021 [US2] Implement descriptor computation in `code/features/descriptor_engine.py` to calculate weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration by: 1) Applying CLR to raw composition vector, 2) Using the resulting CLR coefficients to weight the original raw elemental property tables (NOT computing properties on log-ratios)
 - [ ] T022 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5
 - [ ] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
 - [ ] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`

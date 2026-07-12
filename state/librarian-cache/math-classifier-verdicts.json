@@ -1095,6 +1095,10 @@
     "classified_at": "2026-07-06T08:02:35Z",
     "verdict": false
   },
+  "PROJ-864-llmxive-follow-up-extending-improved-lar::1.6.0": {
+    "classified_at": "2026-07-12T21:36:11Z",
+    "verdict": false
+  },
   "PROJ-866-llmxive-follow-up-extending-foundation-p::1.6.0": {
     "classified_at": "2026-07-04T21:38:37Z",
     "verdict": false
@@ -1225,6 +1229,10 @@
   },
   "PROJ-953-llmxive-follow-up-extending-code-as-agen::1.6.0": {
     "classified_at": "2026-07-04T21:28:03Z",
+    "verdict": false
+  },
+  "PROJ-955-llmxive-follow-up-extending-dockerless-e::1.6.0": {
+    "classified_at": "2026-07-12T21:46:40Z",
     "verdict": false
   },
   "PROJ-957-llmxive-follow-up-extending-researchclaw::1.6.0": {

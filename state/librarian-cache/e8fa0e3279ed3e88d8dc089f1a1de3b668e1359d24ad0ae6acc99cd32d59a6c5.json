@@ -1,0 +1,717 @@
+{
+  "fetched_at": "2026-07-12T21:47:11Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for Coding Agents\"",
+      "target_n": 5
+    },
+    "duration_seconds": 58.572,
+    "ended_at": "2026-07-12T21:47:11Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Dockerless program verification for coding agents"
+        ],
+        [
+          2,
+          "Environment-free code execution verification"
+        ],
+        [
+          3,
+          "Static analysis for LLM-generated code"
+        ],
+        [
+          4,
+          "Sandboxing LLM code generation without containers"
+        ],
+        [
+          5,
+          "Runtime verification of AI-generated programs"
+        ],
+        [
+          6,
+          "Secure execution of autonomous coding agents"
+        ],
+        [
+          7,
+          "Lightweight code verification for language models"
+        ],
+        [
+          8,
+          "Isolation mechanisms for LLM code execution"
+        ],
+        [
+          9,
+          "Formal verification of synthetic code"
+        ],
+        [
+          10,
+          "Containerless code testing infrastructure"
+        ],
+        [
+          11,
+          "AI code correctness validation"
+        ],
+        [
+          12,
+          "Zero-dependency code verification systems"
+        ],
+        [
+          13,
+          "Verifying LLM outputs in untrusted environments"
+        ],
+        [
+          14,
+          "Automated program verification for generative AI"
+        ],
+        [
+          15,
+          "Secure execution environments for coding assistants"
+        ],
+        [
+          16,
+          "Lightweight sandboxing for code generation models"
+        ],
+        [
+          17,
+          "Static and dynamic analysis of LLM code"
+        ],
+        [
+          18,
+          "Trustworthy execution of autonomous programming agents"
+        ],
+        [
+          19,
+          "Code safety verification without full runtime environments"
+        ],
+        [
+          20,
+          "Efficient verification of AI-assisted software development"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Dockerless program verification for coding agents": 3,
+        "Environment-free code execution verification": 4,
+        "llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for Coding Agents\" computer science": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "sandbox-free code execution verification",
+      "containerless LLM agent program synthesis",
+      "runtime environment isolation security",
+      "program correctness automated agent evaluation",
+      "zero-trust code generation safety"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.22114"
+      ]
+    },
+    "per_query_hit_count": {
+      "containerless LLM agent program synthesis": 3,
+      "llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for Coding Agents\" computer science": 3,
+      "program correctness automated agent evaluation": 3,
+      "runtime environment isolation security": 3,
+      "sandbox-free code execution verification": 3,
+      "zero-trust code generation safety": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2301.03724",
+          "rationale": "The paper focuses on hardware-level defenses against speculative execution attacks (e.g., Spectre/Meltdown) in computer architecture, which is a distinct security domain from the user's question about \"Dockerless\" environment-free program verification for coding agents. There is no overlap in the specific mechanism (hardware speculation vs. software verification environments), variables, or empirical population, and the paper does not address the canonical alternative vocabulary or foundational ",
+          "title": "SoK: Hardware Defenses Against Speculative Execution Attacks"
+        },
+        {
+          "primary_pointer": "2503.08946",
+          "rationale": "The paper focuses on verifying data races in GPU parallel code using intermediary representations, which is a distinct construct from the user's question about \"Dockerless\" environment-free program verification for coding agents. While both involve program verification, the specific mechanism (race detection vs. environment isolation), domain (GPU hardware vs. agent execution environments), and methodology do not satisfy the criteria for inclusion as canonical prior work for the user's specific ",
+          "title": "SIMT/GPU Data Race Verification using ISCC and Intermediary Code Representations: A Case Study"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T21:46:12Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"dockerless: environment-free program verifier for coding agents\" computer science",
+      "raw": "llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for Coding Agents\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Speculative execution attacks leverage the speculative and out-of-order execution features in modern computer processors to access secret data or execute code that should not be executed. Secret information can then be leaked through a covert channel. While software patches can be installed for mitigation on existing hardware, these solutions can incur big performance overhead. Hardware mitigation is being studied extensively by the computer architecture community. It has the benefit of preserving software compatibility and the potential for much smaller performance overhead than software solutions.\n  This paper presents a systematization of the hardware defenses against speculative execution attacks that have been proposed. We show that speculative execution attacks consist of 6 critical attack steps. We propose defense strategies, each of which prevents a critical attack step from happening, thus preventing the attack from succeeding. We then summarize 20 hardware defenses and overhead-reducing features that have been proposed. We show that each defense proposed can be classified under one of our defense strategies, which also explains why it can thwart the attack from succeeding. We discuss the scope of the defenses, their performance overhead, and the security-performance trade-offs that can be made.",
+          "claimed_authors": [
+            "Guangyuan Hu",
+            "Zecheng He",
+            "Ruby Lee"
+          ],
+          "claimed_title": "SoK: Hardware Defenses Against Speculative Execution Attacks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.03724"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='SoK: Hardware Defenses Against Speculative Execution Attacks')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a new approach to automated reasoning about higher-order programs by endowing symbolic execution with a notion of higher-order, symbolic values. Our approach is sound and relatively complete with respect to a first-order solver for base type values. Therefore, it can form the basis of automated verification and bug-finding tools for higher-order programs.\n  To validate our approach, we use it to develop and evaluate a system for verifying and refuting behavioral software contracts of components in a functional language, which we call soft contract verification. In doing so, we discover a mutually beneficial relation between behavioral contracts and higher-order symbolic execution.\n  Our system uses higher-order symbolic execution, leveraging contracts as a source of symbolic values including unknown behavioral values, and employs an updatable heap of contract invariants to reason about flow-sensitive facts. Whenever a contract is refuted, it reports a concrete counterexample reproducing the error, which may involve solving for an unknown function. The approach is able to analyze first-class contracts, recursive data structures, unknown functions, and control-flow-sensitive refinements of values, which are all idiomatic in dynamic languages. It makes effective use of an off-the-shelf solver to decide problems without heavy encodings. The approach is competitive with a wide range of existing tools---including type systems, flow analyzers, and model checkers---on their own benchmarks. We have built a tool which analyzes programs written in Racket, and report on its effectiveness in verifying and refuting contracts.",
+          "claimed_authors": [
+            "Phuc C. Nguyen",
+            "Sam Tobin-Hochstadt",
+            "David Van Horn"
+          ],
+          "claimed_title": "Higher-order symbolic execution for contract verification and refutation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1507.04817"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Higher-order symbolic execution for contract verification and refutation')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is often difficult to write code that you can ensure will be executed in the right order when programing for parallel compute tasks. Due to the way that today's parallel compute hardware, primarily Graphical Processing Units (GPUs), allows you to write code. It is easy to write code that may result in one thread reading or modifying data before it should, thus resulting in a data race. It would be useful to have a tool that could verify that the code will execute as expected. However, most static analysis done at the language level has to be completely retooled to work on a different languages. Therefore, it would be of great use to be able to perform verification and analysis on the Memory Model of a parallel compute code, in a lower level intermediary representations that most languages pass through on their way to something that the GPU hardware can understand. This body of work aims to deal with the question of if there is still enough of the information in the intermediary representations to be able to perform memory model verification to check for data races. To determine this we plan to analyze as a case study the GeSpMM Sparse Matrix Multiplication Algorithm, implemented in CUDA C++ with the LLVM compiler and Julia with CUDA.jl.",
+          "claimed_authors": [
+            "Andrew Osterhout",
+            "Ganesh Gopalakrishnan"
+          ],
+          "claimed_title": "SIMT/GPU Data Race Verification using ISCC and Intermediary Code Representations: A Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.08946"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='SIMT/GPU Data Race Verification using ISCC and Intermediary Code Representations: A Case Study')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_authors": [
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
+          ],
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01907"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Integrating large language models (LLMs) into personal assistants, like Xiao Ai and Blue Heart V, effectively enhances their ability to interact with humans, solve complex tasks, and manage IoT devices. Such assistants are also termed LLM-driven agents. Upon receiving user requests, the LLM-driven agent generates plans using an LLM, executes these plans through various tools, and then returns the response to the user. During this process, the latency for generating a plan with an LLM can reach tens of seconds, significantly degrading user experience. Real-world dataset analysis shows that about 30% of the requests received by LLM-driven agents are identical or similar, which allows the reuse of previously generated plans to reduce latency. However, it is difficult to accurately define the similarity between the request texts received by the LLM-driven agent through directly evaluating the original request texts. Moreover, the diverse expressions of natural language and the unstructured format of plan texts make implementing plan reuse challenging. To address these issues, we present and implement a plan reuse mechanism for LLM-driven agents called AgentReuse. AgentReuse leverages the similarities and differences among requests' semantics and uses intent classification to evaluate the similarities between requests and enable the reuse of plans. Experimental results based on a real-world dataset demonstrate that AgentReuse achieves a 93% effective plan reuse rate, an F1 score of 0.9718, and an accuracy of 0.9459 in evaluating request similarities, reducing latency by 93.12% compared with baselines without using the reuse mechanism.",
+          "claimed_authors": [
+            "Guopeng Li",
+            "Ruiqi Wu",
+            "Haisheng Tan"
+          ],
+          "claimed_title": "A Plan Reuse Mechanism for LLM-Driven Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.21309"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='A Plan Reuse Mechanism for LLM-Driven Agent')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cloning spare parts and entities of mass products is an old and serious unsolved problem for the automotive industry. The economic losses in addition to a loss of know-how and IP theft as well as security and safety threats are huge in all dimensions. This presentation gives an overview of the traditional state of the art on producing clone resistant electronic units in the last two decades. A survey is attempting to demonstrate the techniques so far known as Physically Unclonable Functions PUFs showing their advantages and drawbacks. The necessity for fabricating mechatronic-security in the vehicular environment is emerging to become a vital requirement for new automotive security regulations (legal regulations) in the near future. The automotive industry is facing a challenge to produce low-cost and highly safe and secure networked automotive systems. The emerging networked smart traffic environment is offering new safety services and creating at the same time new needs and threats in a highly networked world. There is a crying need for automotive security that approaches the level of the robust biological security for cars as dominating mobility actors in the modern smart life environment. Possible emerging technologies allowing embedding practical mechatronic-security modules as a low-cost digital alternative are presented. Such digital clone-resistant mechatronic-units (as Electronic Control Units ECUs) may serve as smart security anchors for the automotive environment in the near future. First promising initial results are also presented.",
+          "claimed_authors": [
+            "Wael Adi",
+            "Ayoub Mars"
+          ],
+          "claimed_title": "Physical and Mechatronic Security, Technologies and Future Trends for Vehicular Environment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.07570"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Physical and Mechatronic Security, Technologies and Future Trends for Vehicular Environment')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, the WebAssembly (or Wasm) technology has been rapidly evolving, with many runtimes actively under development, providing cross-platform secure sandboxes for Wasm modules to run as portable containers. Compared with Docker, which isolates applications at the operating system level, Wasm runtimes provide more security mechanisms, such as linear memory, type checking, and protected call stacks. Although Wasm is designed with security in mind and considered to be a more secure container runtime, various security challenges have arisen, and researchers have focused on the security of Wasm runtimes, such as discovering vulnerabilities or proposing new security mechanisms to achieve robust isolation. However, we have observed that the resource isolation is not well protected by the current Wasm runtimes, and attackers can exhaust the host's resources to interfere with the execution of other container instances by exploiting the WASI/WASIX interfaces. And the attack surface has not been well explored and measured. In this paper, we explore the resource isolation attack surface of Wasm runtimes systematically by proposing several static Wasm runtime analysis approaches. Based on the analysis results, we propose several exploitation strategies to break the resource isolation of Wasm runtimes. The experimental results show that malicious Wasm instances can not only consume large amounts of system resources on their own but also introduce high workloads into other components of the underlying operating system, leading to a substantial performance degradation of the whole system. In addition, the mitigation approaches have also been discussed.",
+          "claimed_authors": [
+            "Zhaofeng Yu",
+            "Dongyang Zhan",
+            "Lin Ye",
+            "Haining Yu",
+            "Hongli Zhang",
+            "Zhihong Tian"
+          ],
+          "claimed_title": "Exploring and Exploiting the Resource Isolation Attack Surface of WebAssembly Containers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.11242"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Exploring and Exploiting the Resource Isolation Attack Surface of WebAssembly Containers')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In last few decades large technology development raised various new needs. Financial sector has also no exception. People are approaching all over the world to fulfill there dreams. Any sector needs to understand changing need of customer. In order to satisfy financial need for customer banks are taking help of new technology such as internet. Only problem remain is of security. The aim of this work is to provide a secure environment in terms of security for transaction by various ways. In order to improve security we are making use of \"Steganography\" technique in the way never used before. Task of enhancing security include construction of formula for both data encryption and also for hiding pattern. Server should not process any fake request hence concept of custom \"Session id\" and \"Request id\" is introduced. Implementation of such a security constraints in banking sector not only help to serve customer in better way but also make customer confident and satisfy.",
+          "claimed_authors": [
+            "Geeta S. Navale",
+            "Swati S. Joshi",
+            "Aaradhana A. Deshmukh"
+          ],
+          "claimed_title": "M-Banking Security - a futuristic improved security approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1174"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='M-Banking Security - a futuristic improved security approach')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in visual generative models have enabled high-quality image and video generation, opening diverse applications. However, evaluating these models often demands sampling hundreds or thousands of images or videos, making the process computationally expensive, especially for diffusion-based models with inherently slow sampling. Moreover, existing evaluation methods rely on rigid pipelines that overlook specific user needs and provide numerical results without clear explanations. In contrast, humans can quickly form impressions of a model's capabilities by observing only a few samples. To mimic this, we propose the Evaluation Agent framework, which employs human-like strategies for efficient, dynamic, multi-round evaluations using only a few samples per round, while offering detailed, user-tailored analyses. It offers four key advantages: 1) efficiency, 2) promptable evaluation tailored to diverse user needs, 3) explainability beyond single numerical scores, and 4) scalability across various models and tools. Experiments show that Evaluation Agent reduces evaluation time to 10% of traditional methods while delivering comparable results. The Evaluation Agent framework is fully open-sourced to advance research in visual generative models and their efficient evaluation.",
+          "claimed_authors": [
+            "Fan Zhang",
+            "Shulin Tian",
+            "Ziqi Huang",
+            "Yu Qiao",
+            "Ziwei Liu"
+          ],
+          "claimed_title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.09645"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agent applications are increasingly adopted to automate workflows across diverse tasks. However, due to the heterogeneous domains they operate in, it is challenging to create a scalable evaluation framework. Prior works each employ their own methods to determine task success, such as database lookups, regex match, etc., adding complexity to the development of a unified agent evaluation approach. Moreover, they do not systematically account for the user's role nor expertise in the interaction, providing incomplete insights into the agent's performance. We argue that effective agent evaluation goes beyond correctness alone, incorporating conversation quality, efficiency and systematic diagnosis of agent errors. To address this, we introduce the TED framework (Talk, Evaluate, Diagnose). (1) Talk: We leverage reusable, generic expert and non-expert user persona templates for user-agent interaction. (2) Evaluate: We adapt existing datasets by representing subgoals-such as tool signatures, and responses-as natural language grading notes, evaluated automatically with LLM-as-a-judge. We propose new metrics that capture both turn efficiency and intermediate progress of the agent complementing the user-aware setup. (3) Diagnose: We introduce an automated error analysis tool that analyzes the inconsistencies of the judge and agents, uncovering common errors, and providing actionable feedback for agent improvement. We show that our TED framework reveals new insights regarding agent performance across models and user expertise levels. We also demonstrate potential gains in agent performance with peaks of 8-10% on our proposed metrics after incorporating the identified error remedies into the agent's design.",
+          "claimed_authors": [
+            "Penny Chong",
+            "Harshavardhan Abichandani",
+            "Jiyuan Shen",
+            "Atin Ghosh",
+            "Min Pyae Moe",
+            "Yifan Mai",
+            "Daniel Dahlmeier"
+          ],
+          "claimed_title": "Talk, Evaluate, Diagnose: User-aware Agent Evaluation with Automated Error Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.15483"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Talk, Evaluate, Diagnose: User-aware Agent Evaluation with Automated Error Analysis')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bug fixing and code generation have been core research topics in software development for many years. The recent explosive growth in Large Language Models has completely transformed these spaces, putting in reach incredibly powerful tools for both. In this survey, 27 recent papers have been reviewed and split into two groups: one dedicated to Automated Program Repair (APR) and LLM integration and the other to code generation using LLMs. The first group consists of new methods for bug detection and repair, which include locating semantic errors, security vulnerabilities, and runtime failure bugs. The place of LLMs in reducing manual debugging efforts is emphasized in this work by APR toward context-aware fixes, with innovations that boost accuracy and efficiency in automatic debugging. The second group dwells on code generation, providing an overview of both general-purpose LLMs fine-tuned for programming and task-specific models. It also presents methods to improve code generation, such as identifier-aware training, fine-tuning at the instruction level, and incorporating semantic code structures. This survey work contrasts the methodologies in APR and code generation to identify trends such as using LLMs, feedback loops to enable iterative code improvement and open-source models. It also discusses the challenges of achieving functional correctness and security and outlines future directions for research in LLM-based software development.",
+          "claimed_authors": [
+            "Avinash Anand",
+            "Akshit Gupta",
+            "Nishchay Yadav",
+            "Shaurya Bajaj"
+          ],
+          "claimed_title": "A Comprehensive Survey of AI-Driven Advancements and Techniques in Automated Program Repair and Code Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.07586"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='A Comprehensive Survey of AI-Driven Advancements and Techniques in Automated Program Repair and Code Generation')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is well known that since 2008 Australia has had some of the world's most restrictive laws regarding the possession and importation of \"laser pointers\" with powers exceeding 1 mW. Now four years on Australia is used as a test case and question whether this has actually improved safety for those wishing to purchase these devices or if it has impacted on the availability of prohibited devices. Results from the analysis of over 40 laser pointers legitimately purchased in Australia from local and International suppliers are presented. Specifically lasers that are readily available to everyday consumers through the simple on-line search \"laser pointer 1mw\" are targeted. The parameters investigated are quoted power versus measured power, correct representation in advertising and adherence to laser standards as related to specified use and purchase price. The analysis indicates that the suppliers in this market have learnt how to bypass the prohibition and the impact on general safety in these cases is detrimental.",
+          "claimed_authors": [
+            "Trevor A Wheatley"
+          ],
+          "claimed_title": "Laser pointer prohibition: improving safety or driving misclassification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.4924"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='Laser pointer prohibition: improving safety or driving misclassification')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently the retrieval-augmented generation (RAG) has been successfully applied in code generation. However, existing pipelines for retrieval-augmented code generation (RACG) employ static knowledge bases with a single source, limiting the adaptation capabilities of Large Language Models (LLMs) to domains they have insufficient knowledge of. In this work, we develop a novel pipeline, EVOR, that employs the synchronous evolution of both queries and diverse knowledge bases. On two realistic settings where the external knowledge is required to solve code generation tasks, we compile four new datasets associated with frequently updated libraries and long-tail programming languages, named EVOR-BENCH. Extensive experiments demonstrate that EVOR achieves two to four times of execution accuracy compared to other methods such as Reflexion (Shinn et al., 2024), DocPrompting (Zhou et al., 2023), etc. We demonstrate that EVOR is flexible and can be easily combined with them to achieve further improvement. Further analysis reveals that EVOR benefits from the synchronous evolution of queries and documents and the diverse information sources in the knowledge base. We hope that our studies will inspire more insights into the design of advanced RACG pipelines in future research. Our model, code, and data are available at https://arks-codegen.github.io.",
+          "claimed_authors": [
+            "Hongjin Su",
+            "Shuyang Jiang",
+            "Yuhang Lai",
+            "Haoyuan Wu",
+            "Boao Shi",
+            "Che Liu",
+            "Qian Liu",
+            "Tao Yu"
+          ],
+          "claimed_title": "EVOR: Evolving Retrieval for Code Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.12317"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Dockerless: Environment-Free Program Verifier for ', candidate_title='EVOR: Evolving Retrieval for Code Generation')",
+        "failed_at": "2026-07-12T21:46:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wenhao Zeng",
+            "Yuling Shi",
+            "Xiaodong Gu",
+            "Chao Hu",
+            "Chaofan Wang",
+            "Yuhao Cui",
+            "Hongting Zhou",
+            "Mengnan Qi",
+            "Jianqiao Wangni",
+            "Zhaojian Yu",
+            "Shuzheng Gao",
+            "Kai Cai",
+            "Shilin He"
+          ],
+          "title": "Dockerless: Environment-Free Program Verifier for Coding Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.28436",
+        "summary": "Program verifiers play a central role in training coding agents, including selecting trajectories for supervised fine-tuning (SFT) and providing rewards for reinforcement learning (RL). Standard execution-based verification requires running unit tests inside per-repository environments such as Docker images, incurring substantial environment setup costs. We propose Dockerless, an environment-free agentic patch verifier that evaluates generated code patches without executing them. Rather than simply matching candidate patches to references, Dockerless judges patch correctness using evidence gathered through agentic repository exploration. On a verifier evaluation benchmark, Dockerless outperforms the strongest open-source verifier by 14.3 AUC points. Using Dockerless as both the SFT trajectory filter and the RL reward enables a fully environment-free post-training pipeline. The resulting model reaches 62.0%, 50.0%, and 35.2% resolve rate on SWE-bench Verified, Multilingual, and Pro, respectively. It surpasses the Qwen3.5-9B baseline by 2.4, 8.7, and 2.9 points, matching environment-based post-training.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.28436",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:46:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhihao Lin",
+            "Mingyi Zhou",
+            "Li Li"
+          ],
+          "title": "AtomicCommitBench: Can Coding Agents Reconstruct Commit Histories from Squashed Patches?",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.03332",
+        "summary": "Coding agents often finish a session by returning one squashed patch that mixes feature implementation, bug fixes, refactorings, tests, and configuration edits. While the final code may be correct, collapsing unrelated edits into one patch removes the history structure needed for review, selective revert, and later maintenance. We study retrospective commit-history reconstruction: given a completed squashed change, an agent groups its hunks into commits and materializes a replayable commit sequence. We formalize the task as hunk-to-commit partitioning with a replay requirement and build AtomicCommitBench, containing 800 real consecutive-commit episodes from 10 Python projects. Because multiple decompositions may be reasonable, we evaluate outputs using complementary metrics: PPAR for replay validity, ARI for reference-based grouping quality, and TCR for failure containment on scoreable modified-test episodes. Natural retrospective reconstruction proves substantially harder than replay checking or synthetic tangling. Although nearly all non-random methods achieve replay validity (PPAR >= 0.988), grouping quality ranges from 0.03 to 0.46 ARI. Matched synthetic composites are much easier than real same-author squashed diffs (+0.333 ARI). In our evaluation, the GPT-5.4 setup driven by Codex CLI (0.46 ARI) and the GLM-5 setup driven by Claude Code (0.43 ARI) outperform MiniMax (0.31) and Kimi (0.29). Qualitative analysis identifies same-file lumping and support-hunk drift as recurring failure modes. Dependency-Aware Commit Evidence (DACE) improves the lower-scoring setups by 0.05 to 0.08 ARI, indicating that dependency cues and hunk-role information help agents avoid locality-driven grouping errors. AtomicCommitBench enables evaluation of the commit histories produced by coding agents alongside the final code.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.03332",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:46:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Huan Zhao",
+            "Haoxin Tu",
+            "Zhengyao Liu",
+            "Martin Rinard",
+            "Abhik Roychoudhury"
+          ],
+          "title": "Lemma Discovery in Agentic Program Verification",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.22114",
+        "summary": "Deductive verification provides strong correctness guarantees for code by extracting verification conditions (VCs) and writing formal proofs for them. The expertise-intensive task of VC proving is the main bottleneck in this process, and has been partly automated owing to recent advances in Large Language Model (LLM) agents. However, existing proof agents are not able to discover helper lemmas - auxiliary lemmas that aid in proving - and thus fall short as programs grow in size and complexity.\n  In this paper, we argue that VC proving for program verification is more than a purely mathematical task, and benefits considerably from program comprehension. Our key insight is that human-proof engineers often discover and apply helper lemmas based on their understanding of the program semantics, which are not directly reflected in the VCs produced by VC generators. Inspired by this insight, we propose an LLM agent, LemmaNet, that discovers helper lemmas in two ways. Specifically, the agent first synthesizes lemmas offline by directly analyzing the source code and specifications, and then relating this semantic understanding to the mechanical, verbose encoding produced by VC generators. As the proof unfolds, LemmaNet then adapts existing helper lemmas online to accommodate evolving proof states, enabling the agent to effectively discharge complex VCs on-the-fly.\n  We evaluate LemmaNet on SV-COMP and established real-world subjects, including modules of the Linux kernel, Contiki OS, standard C++ library, and X.509 parser. Our experimental results demonstrate that LemmaNet significantly outperforms state-of-the-art approaches, highlighting the importance of program comprehension-aided lemma discovery in agentic program verification.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.22114",
+          "http_status": 200,
+          "pdf_sample_score": 0.3112,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:46:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Phuc C. Nguyen",
+            "Sam Tobin-Hochstadt",
+            "David Van Horn"
+          ],
+          "title": "Higher-order symbolic execution for contract verification and refutation",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1507.04817",
+        "summary": "We present a new approach to automated reasoning about higher-order programs by endowing symbolic execution with a notion of higher-order, symbolic values. Our approach is sound and relatively complete with respect to a first-order solver for base type values. Therefore, it can form the basis of automated verification and bug-finding tools for higher-order programs.\n  To validate our approach, we use it to develop and evaluate a system for verifying and refuting behavioral software contracts of components in a functional language, which we call soft contract verification. In doing so, we discover a mutually beneficial relation between behavioral contracts and higher-order symbolic execution.\n  Our system uses higher-order symbolic execution, leveraging contracts as a source of symbolic values including unknown behavioral values, and employs an updatable heap of contract invariants to reason about flow-sensitive facts. Whenever a contract is refuted, it reports a concrete counterexample reproducing the error, which may involve solving for an unknown function. The approach is able to analyze first-class contracts, recursive data structures, unknown functions, and control-flow-sensitive refinements of values, which are all idiomatic in dynamic languages. It makes effective use of an off-the-shelf solver to decide problems without heavy encodings. The approach is competitive with a wide range of existing tools---including type systems, flow analyzers, and model checkers---on their own benchmarks. We have built a tool which analyzes programs written in Racket, and report on its effectiveness in verifying and refuting contracts.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1507.04817",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:46:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aojun Zhou",
+            "Ke Wang",
+            "Zimu Lu",
+            "Weikang Shi",
+            "Sichun Luo",
+            "Zipeng Qin",
+            "Shaoqing Lu",
+            "Anya Jia",
+            "Linqi Song",
+            "Mingjie Zhan",
+            "Hongsheng Li"
+          ],
+          "title": "Solving Challenging Math Word Problems Using GPT-4 Code Interpreter with Code-based Self-Verification",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2308.07921",
+        "summary": "Recent progress in large language models (LLMs) like GPT-4 and PaLM-2 has brought significant advancements in addressing math reasoning problems. In particular, OpenAI's latest version of GPT-4, known as GPT-4 Code Interpreter, shows remarkable performance on challenging math datasets. In this paper, we explore the effect of code on enhancing LLMs' reasoning capability by introducing different constraints on the \\textit{Code Usage Frequency} of GPT-4 Code Interpreter. We found that its success can be largely attributed to its powerful skills in generating and executing code, evaluating the output of code execution, and rectifying its solution when receiving unreasonable outputs. Based on this insight, we propose a novel and effective prompting method, explicit \\uline{c}ode-based \\uline{s}elf-\\uline{v}erification~(CSV), to further boost the mathematical reasoning potential of GPT-4 Code Interpreter. This method employs a zero-shot prompt on GPT-4 Code Interpreter to encourage it to use code to self-verify its answers. In instances where the verification state registers as ``False'', the model shall automatically amend its solution, analogous to our approach of rectifying errors during a mathematics examination. Furthermore, we recognize that the states of the verification result indicate the confidence of a solution, which can improve the effectiveness of majority voting. With GPT-4 Code Interpreter and CSV, we achieve an impressive zero-shot accuracy on MATH dataset \\textbf{(53.9\\% $\\to$ 84.3\\%)}.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2308.07921",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:46:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"dockerless: environment-free program verifier for coding agents\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

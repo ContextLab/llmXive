@@ -1,188 +1,168 @@
-"""
-Synthetic Data Generator
-Primary Mode: Analytical Continuum Mechanics
-Hold-Out Mode: Gaussian GP Surrogate
-"""
 import os
-import json
 import csv
+import json
+import hashlib
+import subprocess
 import numpy as np
-from pathlib import Path
-from typing import Optional, List, Dict, Any
 import logging
+from typing import List, Dict, Optional
+from pathlib import Path
 
-from infrastructure.path_utils import (
-    DIR_DATA_RAW,
-    ensure_dir,
-    get_project_root
-)
+from infrastructure.path_utils import get_project_root, ensure_dir
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def get_git_hash() -> str:
     """Get the current git commit hash for versioning."""
-    import subprocess
     try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=get_project_root(),
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        return result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
+        return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+    except Exception:
         return "no-git"
 
-def generate_synthetic_defect_data(
-    output_path: Optional[Path] = None,
-    seed: int = 42,
-    min_density: float = 0.001,
-    max_density: float = 0.1,
-    min_entries: int = 100
-) -> bool:
+def ensure_output_directories() -> None:
+    """Ensure all required output directories exist."""
+    root = get_project_root()
+    dirs = [root / "data" / "raw"]
+    for d in dirs:
+        ensure_dir(d)
+
+def apply_griffith_criterion(energy_release_rate: float, elastic_modulus: float, crack_length: float) -> float:
     """
-    Generate synthetic defect data using analytical continuum mechanics.
-    
-    Models:
-    - Griffith criterion for fracture energy
-    - Rule of Mixtures for elastic properties
-    - Matthiessen's rule for conductivity
+    Apply Griffith criterion for fracture strength.
+    sigma_f = sqrt(2 * E * gamma / (pi * a))
     """
-    if output_path is None:
-        output_path = DIR_DATA_RAW / "synthetic_defect_fallback.csv"
-    
-    ensure_dir(output_path.parent)
+    if crack_length <= 0 or elastic_modulus <= 0:
+        return 0.0
+    return np.sqrt((2 * elastic_modulus * energy_release_rate) / (np.pi * crack_length))
+
+def apply_rule_of_mixtures(matrix_prop: float, inclusion_prop: float, volume_fraction: float) -> float:
+    """
+    Apply Rule of Mixtures for effective property.
+    P_eff = P_m * (1 - V_f) + P_i * V_f
+    """
+    return matrix_prop * (1 - volume_fraction) + inclusion_prop * volume_fraction
+
+def apply_matthiessen_rule(base_resistivity: float, defect_resistivity: float, defect_density: float) -> float:
+    """
+    Apply Matthiessen's rule for conductivity/resistivity.
+    rho_total = rho_base + rho_defect * density
+    Conductivity = 1 / rho_total
+    """
+    rho_total = base_resistivity + defect_resistivity * defect_density
+    if rho_total <= 0:
+        return 0.0
+    return 1.0 / rho_total
+
+def generate_synthetic_defect_data(output_path: str, count: int = 100, seed: int = 42, version: str = "unknown") -> None:
+    """
+    Generate synthetic defect data based on physics-based models.
+    - Defect density in [0.001, 0.1]
+    - Generates >= count entries.
+    - Sets data_source = 'synthetic'.
+    - Includes git hash versioning.
+    """
     np.random.seed(seed)
-    git_hash = get_git_hash()
+    ensure_output_directories()
     
-    defect_types = ["vacancy", "interstitial", "substitutional", "grain_boundary"]
-    materials = ["graphene", "mos2"]
+    # Physical constants / reference values (approximate for graphene/MoS2)
+    # Graphene
+    E_graphene = 1000.0  # GPa
+    sigma_0_graphene = 130.0  # GPa
+    cond_0_graphene = 1.0  # arbitrary units
     
-    # Generate entries
-    entries = []
-    for i in range(min_entries):
+    # MoS2
+    E_mos2 = 270.0
+    sigma_0_mos2 = 23.0
+    cond_0_mos2 = 0.001
+    
+    materials = ["graphene", "MoS2"]
+    defect_types = ["vacancy", "substitution", "grain_boundary", "adatom"]
+    
+    rows = []
+    
+    for i in range(count):
+        mat = np.random.choice(materials)
         defect_type = np.random.choice(defect_types)
-        material = np.random.choice(materials)
-        density = np.random.uniform(min_density, max_density)
         
-        # Analytical models
-        # Conductivity reduction (Matthiessen's rule approximation)
-        base_conductivity = 1.0 if material == "graphene" else 0.1
-        conductivity = base_conductivity * (1 - 0.5 * density)
+        # Defect density in [0.001, 0.1]
+        density = np.random.uniform(0.001, 0.1)
         
-        # Elastic modulus reduction (Rule of Mixtures)
-        base_youngs = 1.0 if material == "graphene" else 0.3
-        youngs_modulus = base_youngs * (1 - 0.3 * density)
+        # Reference properties
+        if mat == "graphene":
+            E_ref = E_graphene
+            sigma_ref = sigma_0_graphene
+            cond_ref = cond_0_graphene
+        else:
+            E_ref = E_mos2
+            sigma_ref = sigma_0_mos2
+            cond_ref = cond_0_mos2
         
-        # Fracture energy (Griffith criterion approximation)
-        base_fracture = 1.0 if material == "graphene" else 0.5
-        fracture_energy = base_fracture * (1 - 0.4 * density)
+        # Generate properties using physics models
+        # 1. Elastic Modulus (Rule of Mixtures) - Defects usually reduce stiffness
+        # Assume inclusion (defect) has much lower modulus
+        E_defect = E_ref * 0.1
+        E_eff = apply_rule_of_mixtures(E_ref, E_defect, density)
         
-        entry = {
+        # 2. Fracture Strength (Griffith Criterion)
+        # sigma_f = sigma_0 * (1 - k * density) approx, or using crack length proportional to density
+        # Simulating crack length a ~ density
+        a = density * 10.0  # arbitrary scaling
+        gamma = 1.0  # surface energy
+        # sigma_f = sqrt(2 * E * gamma / (pi * a))
+        # Normalize to reference to avoid extreme values
+        sigma_f_raw = apply_griffith_criterion(gamma, E_eff, a)
+        # Scale to be reasonable relative to reference
+        sigma_f = sigma_ref * (sigma_f_raw / (sigma_ref + 1e-6)) 
+        # Ensure it's not higher than pristine and not negative
+        sigma_f = min(sigma_f, sigma_ref)
+        sigma_f = max(sigma_f, sigma_ref * 0.1)
+        
+        # 3. Conductivity (Matthiessen's Rule)
+        # rho_total = rho_base + rho_defect * density
+        # Assume defect adds significant resistivity
+        rho_base = 1.0 / cond_ref
+        rho_defect_factor = 100.0
+        rho_total = rho_base + rho_defect_factor * density
+        cond_eff = 1.0 / rho_total
+        
+        # Add some noise
+        noise_factor = 1.0 + np.random.normal(0, 0.05)
+        E_eff *= noise_factor
+        sigma_f *= noise_factor
+        cond_eff *= noise_factor
+        
+        # Elastic tensor (simplified as string representation of a 6x6 matrix diagonal for isotropic approx)
+        # Just a placeholder string for the required column
+        elastic_tensor_str = f"[[{E_eff}, 0, 0], [0, {E_eff}, 0], [0, 0, {E_eff}]]"
+        
+        row = {
             "defect_type": defect_type,
-            "material": material,
-            "defect_density": density,
-            "conductivity": conductivity,
-            "elastic_tensor": f"[{youngs_modulus}, 0.0, 0.0, 0.0, {youngs_modulus}, 0.0, 0.0, 0.0, {youngs_modulus}]",
-            "fracture_energy": fracture_energy,
+            "density": f"{density:.6f}",
+            "conductivity": f"{cond_eff:.6e}",
+            "elastic_tensor": elastic_tensor_str,
+            "fracture_energy": f"{sigma_f:.6f}",
+            "material": mat,
             "data_source": "synthetic",
-            "generator_version": git_hash,
-            "seed": seed
+            "version": version,
+            "seed": str(seed)
         }
-        entries.append(entry)
+        rows.append(row)
     
     # Write to CSV
-    fieldnames = ["defect_type", "material", "defect_density", "conductivity", 
-                 "elastic_tensor", "fracture_energy", "data_source", "generator_version", "seed"]
-    
-    with open(output_path, 'w', newline='') as f:
+    ensure_dir(Path(output_path).parent)
+    fieldnames = list(rows[0].keys())
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(entries)
+        writer.writerows(rows)
     
-    logger.info(f"Generated {len(entries)} synthetic entries to {output_path}")
-    return True
-
-def generate_holdout_data(
-    output_path: Optional[Path] = None,
-    seed: int = 43,  # Distinct seed for hold-out
-    min_density: float = 0.001,
-    max_density: float = 0.1,
-    min_entries: int = 50
-) -> bool:
-    """
-    Generate hold-out data using a Gaussian GP Surrogate.
-    This emulates a "Distinct Physics Engine" for validation.
-    """
-    if output_path is None:
-        output_path = DIR_DATA_RAW / "synthetic_holdout.csv"
-    
-    ensure_dir(output_path.parent)
-    np.random.seed(seed)
-    git_hash = get_git_hash()
-    
-    defect_types = ["vacancy", "interstitial", "substitutional", "grain_boundary"]
-    materials = ["graphene", "mos2"]
-    
-    # Simulate GP surrogate with slightly different parameters
-    entries = []
-    for i in range(min_entries):
-        defect_type = np.random.choice(defect_types)
-        material = np.random.choice(materials)
-        density = np.random.uniform(min_density, max_density)
-        
-        # GP surrogate with perturbed parameters
-        base_conductivity = 1.0 if material == "graphene" else 0.1
-        conductivity = base_conductivity * (1 - 0.5 * density + 0.05 * np.random.randn())
-        conductivity = max(0.01, conductivity)  # Ensure positive
-        
-        base_youngs = 1.0 if material == "graphene" else 0.3
-        youngs_modulus = base_youngs * (1 - 0.3 * density + 0.03 * np.random.randn())
-        youngs_modulus = max(0.01, youngs_modulus)
-        
-        base_fracture = 1.0 if material == "graphene" else 0.5
-        fracture_energy = base_fracture * (1 - 0.4 * density + 0.04 * np.random.randn())
-        fracture_energy = max(0.01, fracture_energy)
-        
-        entry = {
-            "defect_type": defect_type,
-            "material": material,
-            "defect_density": density,
-            "conductivity": conductivity,
-            "elastic_tensor": f"[{youngs_modulus}, 0.0, 0.0, 0.0, {youngs_modulus}, 0.0, 0.0, 0.0, {youngs_modulus}]",
-            "fracture_energy": fracture_energy,
-            "data_source": "synthetic_holdout",
-            "generator_version": git_hash,
-            "seed": seed,
-            "mode": "gp_surrogate"
-        }
-        entries.append(entry)
-    
-    fieldnames = ["defect_type", "material", "defect_density", "conductivity", 
-                 "elastic_tensor", "fracture_energy", "data_source", "generator_version", "seed", "mode"]
-    
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(entries)
-    
-    logger.info(f"Generated {len(entries)} hold-out entries to {output_path}")
-    return True
+    logger.info(f"Generated {count} synthetic entries to {output_path}")
 
 def main():
-    """Generate both primary and hold-out synthetic datasets."""
-    logger.info("Generating synthetic datasets...")
-    
-    success1 = generate_synthetic_defect_data()
-    success2 = generate_holdout_data()
-    
-    if success1 and success2:
-        logger.info("All synthetic datasets generated successfully.")
-    else:
-        logger.error("Some synthetic datasets failed to generate.")
-        exit(1)
+    root = get_project_root()
+    output = str(root / "data" / "raw" / "synthetic_defect_fallback.csv")
+    generate_synthetic_defect_data(output, count=100, seed=42, version=get_git_hash())
 
 if __name__ == "__main__":
     main()

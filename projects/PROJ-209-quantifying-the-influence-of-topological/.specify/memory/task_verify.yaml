@@ -1,30 +1,30 @@
 ? "T010 [P] [US1] Implement `code/01_data_acquisition.py`: Step 1.1 - Query **Materials\
   \ Project REST API** for \u226550 pristine graphene and MoS\u2082 structures; cache\
   \ locally under `data/raw/pristine_structures.csv`"
-: 1
+: 2
 ? 'T011 [P] [US1] Implement `code/01_data_acquisition.py`: Step 1.2 - Attempt to download
   the **2022 Supplementary Defect Dataset** to `data/raw/defect_dataset_2022.csv`;
   verify columns (defect type, density, conductivity, elastic tensor, fracture energy)
   exist and row count > 0'
-: 1
+: 2
 ? "T012 [US1] Implement `code/01_data_acquisition.py`: Step 1.2 Fallback - Invoke\
   \ `src/generators/synthetic_data_generator.py` (seed=42, versioned via git hash)\
   \ if primary dataset is missing/invalid; generate \u2265100 entries with defect\
   \ density \u2208 [0.001, 0.1] and physical bounds; save to `data/raw/synthetic_defect_fallback.csv`;\
   \ set internal flag `data_source = 'synthetic'` if fallback is used."
-: 1
+: 2
 ? 'T013 [P] [US1] Implement `src/generators/synthetic_data_generator.py`: Primary
   Mode - Use Analytical Continuum Mechanics (Griffith criterion, Rule of Mixtures,
   Matthiessen''s rule) to generate properties; output to `data/raw/synthetic_train.csv`;
   ensure seed=42 and versioned via git hash.'
-: 1
+: 2
 ? 'T014 [P] [US1] Implement `src/generators/synthetic_data_generator.py`: Hold-Out
   Mode - Use a Gaussian GP Surrogate (trained on distinct public DFT data or distinct
   analytical params) to emulate a "Distinct Physics Engine" for the hold-out set;
   output to `data/raw/synthetic_holdout.csv`; **Note**: This mode triggers "Method
   Validation" scope shift per Plan''s Critical Scope Limitation.'
-: 1
+: 2
 ? 'T015 [US1] Implement `code/01_data_acquisition.py`: Step 1.3 - Add exponential
   backoff (max a limited number of retries) for API calls; on failure load cached
   pristine structures or abort with `[ERROR: API access unavailable and no cache present]`'
-: 1
+: 2

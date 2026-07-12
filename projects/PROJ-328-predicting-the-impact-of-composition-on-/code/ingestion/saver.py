@@ -5,16 +5,14 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-import pandas as pd
-from ingestion.aggregator import LiteratureAggregator
-from ingestion.cleaner import DataCleaner
-from ingestion.validator import DataValidator
-from config import get_data_raw_dir, get_data_processed_dir
+from config import get_data_processed_dir, get_data_raw_dir
 from utils.logging_config import get_logger
+from utils.error_handlers import DataValidationError
 
 logger = get_logger(__name__)
 
-def calculate_md5(file_path: Path) -> str:
+
+def calculate_md5(file_path: str) -> str:
     """Calculate MD5 checksum of a file."""
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
@@ -22,107 +20,90 @@ def calculate_md5(file_path: Path) -> str:
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
+
 def save_raw_data_with_checksums(
-    df: pd.DataFrame,
-    raw_output_path: Path,
-    checksum_output_path: Path
-) -> None:
+    data: List[Dict[str, Any]],
+    output_filename: str = "solder_hardness_raw.csv",
+    checksum_filename: str = "checksums.txt"
+) -> str:
     """
-    Save the dataframe to a CSV file and generate a checksum file.
-    
-    This function:
-    1. Ensures the output directory exists.
-    2. Saves the DataFrame to a CSV file (immutable raw data).
-    3. Calculates the MD5 checksum of the saved file.
-    4. Writes the filename and checksum to a text file.
-    
-    Args:
-        df: The DataFrame containing the raw solder hardness data.
-        raw_output_path: Path to the output CSV file.
-        checksum_output_path: Path to the output checksum text file.
-    
-    Raises:
-        IOError: If the file cannot be written.
+    Save raw data to CSV and generate checksums.
+    Returns the path to the saved CSV file.
     """
-    # Ensure directory exists
-    raw_output_path.parent.mkdir(parents=True, exist_ok=True)
-    checksum_output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Saving raw data to {raw_output_path}")
-    
-    # Save to CSV
-    # Use index=False to avoid saving the pandas index as a column
-    df.to_csv(raw_output_path, index=False)
-    
-    # Verify file was written
-    if not raw_output_path.exists():
-        raise IOError(f"Failed to write file: {raw_output_path}")
-    
-    # Calculate checksum
-    checksum = calculate_md5(raw_output_path)
-    logger.info(f"Checksum for {raw_output_path.name}: {checksum}")
-    
-    # Write checksum file
-    # Format: <filename> <checksum>
-    with open(checksum_output_path, 'w') as f:
-        f.write(f"{raw_output_path.name} {checksum}\n")
-    
-    logger.info(f"Checksum saved to {checksum_output_path}")
+    raw_dir = get_data_raw_dir()
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = raw_dir / output_filename
+    checksum_path = raw_dir / checksum_filename
+
+    logger.info(f"Saving raw data to {output_path}")
+
+    if not data:
+        raise DataValidationError("Cannot save empty dataset.")
+
+    # Determine headers from the first row
+    headers = list(data[0].keys())
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=headers)
+        writer.writeheader()
+        writer.writerows(data)
+
+    # Calculate and save checksum
+    checksum = calculate_md5(str(output_path))
+    with open(checksum_path, 'w', encoding='utf-8') as f:
+        f.write(f"{checksum}  {output_filename}\n")
+
+    logger.info(f"Saved {len(data)} rows to {output_path}")
+    logger.info(f"Checksum: {checksum}")
+
+    return str(output_path)
+
+
+def save_validated_data(
+    data: List[Dict[str, Any]],
+    output_filename: str = "solder_hardness_validated.csv"
+) -> str:
+    """
+    Save validated data to the processed directory.
+    This function implements T016: Save validated dataset.
+    """
+    processed_dir = get_data_processed_dir()
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = processed_dir / output_filename
+
+    logger.info(f"Saving validated data to {output_path}")
+
+    if not data:
+        raise DataValidationError("Cannot save empty validated dataset.")
+
+    # Determine headers from the first row
+    headers = list(data[0].keys())
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=headers)
+        writer.writeheader()
+        writer.writerows(data)
+
+    logger.info(f"Saved {len(data)} validated rows to {output_path}")
+
+    return str(output_path)
+
 
 def main():
     """
-    Main entry point for the raw data saving task (T015).
-    
-    This function orchestrates the full ingestion pipeline up to the saving stage:
-    1. Aggregates data from literature sources.
-    2. Cleans the data (filtering, standardization).
-    3. Validates the data (non-null, composition sums).
-    4. Saves the validated raw data to `data/raw/solder_hardness_raw.csv`.
-    5. Generates `data/checksums.txt`.
+    Entry point for the saver module.
+    This function is intended to be called by the pipeline orchestrator.
+    For T016, it ensures the validated data saving capability is ready.
     """
-    logger.info("Starting T015: Save raw immutable data with checksums")
-    
-    # 1. Aggregation
-    # Note: T012 implementation is assumed to be present in code/ingestion/aggregator.py
-    aggregator = LiteratureAggregator()
-    raw_df = aggregator.run()
-    
-    if raw_df is None or raw_df.empty:
-        logger.error("Aggregation returned no data. Cannot proceed with saving.")
-        # In a real pipeline, we might raise an exception here
-        return
-    
-    logger.info(f"Aggregated {len(raw_df)} records.")
-    
-    # 2. Cleaning
-    # Note: T013 implementation is assumed to be present in code/ingestion/cleaner.py
-    cleaner = DataCleaner()
-    cleaned_df = cleaner.run(raw_df)
-    
-    if cleaned_df is None or cleaned_df.empty:
-        logger.error("Cleaning resulted in an empty dataset. Cannot proceed with saving.")
-        return
-    
-    logger.info(f"Cleaned data contains {len(cleaned_df)} records.")
-    
-    # 3. Validation
-    # Note: T014 implementation is assumed to be present in code/ingestion/validator.py
-    validator = DataValidator()
-    validated_df = validator.run(cleaned_df)
-    
-    if validated_df is None or validated_df.empty:
-        logger.error("Validation failed or resulted in empty dataset. Cannot proceed with saving.")
-        return
-    
-    logger.info(f"Validated data contains {len(validated_df)} records.")
-    
-    # 4. Save Raw Data
-    raw_output_path = get_data_raw_dir() / "solder_hardness_raw.csv"
-    checksum_output_path = Path("data/checksums.txt")
-    
-    save_raw_data_with_checksums(validated_df, raw_output_path, checksum_output_path)
-    
-    logger.info("T015 completed successfully.")
+    logger.info("Saver module initialized.")
+    # In a real pipeline, this would receive data from the validator
+    # and call save_validated_data().
+    # For now, we log the capability.
+    processed_dir = get_data_processed_dir()
+    logger.info(f"Output directory for validated data: {processed_dir}")
+
 
 if __name__ == "__main__":
     main()

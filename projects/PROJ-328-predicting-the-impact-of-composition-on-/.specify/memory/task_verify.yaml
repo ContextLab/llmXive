@@ -1,11 +1,12 @@
 ? 'T001 Create project directory structure per implementation plan: `projects/PROJ-328-predicting-the-impact-of-composition-on-/data/`,
   `code/`, `tests/`, and `models/`'
-: 1
+: 2
 ? 'T002 Create `requirements.txt` at `projects/PROJ-328-predicting-the-impact-of-composition-on-/code/`
   with dependencies (PIN EXACT VERSIONS): `pandas`, `scikit-learn`, `xgboost`, `shap`,
   `numpy`, `matplotlib`, `pyyaml`, `requests`, `compositional`, `pdfplumber`, `pytest`,
   `flake8`, `black`'
-: 1
-T003 Configure linting (flake8/black) and formatting tools (must run after T001): 1
-T005 [P] Implement data ingestion scaffolding in `code/ingestion/` with placeholder for literature aggregator: 1
-T006 [P] Setup `code/features/` directory structure for descriptor engineering: 1
+: 2
+T003 Configure linting (flake8/black) and formatting tools (must run after T001): 2
+T005 [P] Implement data ingestion scaffolding in `code/ingestion/` with placeholder for literature aggregator: 2
+T006 [P] Setup `code/features/` directory structure for descriptor engineering: 2
+T007 Create base data models/entities (`SolderComposition`, `CompositionalDescriptor`) in `code/models/`: 1

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.05868",
+  "judged_at": "2026-07-12T21:36:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+  "rationale": "The paper focuses on system-level efficiency (KV-cache compression, concurrency) and architectural transitions (GQA-to-MLA) for financial LLM deployment, which does not address the user's specific interest in \"linguistics\" or the theoretical mechanisms of \"Large Language Diffusion Models.\" While both involve LLMs, the candidate paper lacks any measurable connection to the linguistic properties, diffusion mechanisms, or specific \"llmXive\" follow-up context requested, falling under the \"Off-domain",
+  "relevant": false
+}

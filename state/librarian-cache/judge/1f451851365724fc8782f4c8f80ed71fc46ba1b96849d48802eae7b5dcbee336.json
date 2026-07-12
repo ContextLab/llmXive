@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.07921",
+  "judged_at": "2026-07-12T21:47:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dockerless: environment-free program verifier for coding agents\" computer science",
+  "rationale": "This paper satisfies criterion (a) and (b) as it investigates the same core mechanism of \"code-based self-verification\" for LLMs, which is the central technical contribution of the user's referenced work (\"Dockerless\"). Although the user's paper focuses on a \"Dockerless\" environment for general program verification and this paper applies the concept to math word problems, both measure the efficacy of using code execution and self-correction loops to improve LLM reliability, making it a canonical",
+  "relevant": true
+}

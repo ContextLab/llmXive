@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.07546",
+  "judged_at": "2026-07-12T21:36:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (Diffusion Language Models) and addresses a critical variable (generation length/variable-length inference) within the exact domain specified by the user's question, providing essential prior work on the limitations and improvements of LLM diffusion models.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.14257",
+  "judged_at": "2026-07-12T21:36:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+  "rationale": "The paper focuses on using Linguistics Olympiad problems as a corpus for human linguistic research and as benchmarks for LLMs, but it does not address the specific mechanism of \"Large Language Diffusion Models\" (a generative architecture distinct from standard autoregressive LLMs) nor does it provide the foundational methodology or empirical baseline for extending diffusion models in linguistics. It fails criteria (a) and (d) because it discusses LLM benchmarks generally rather than the specific",
+  "relevant": false
+}

@@ -134,8 +134,11 @@
 - [~] T036b [P] Update `docs/API.md` with synthetic generator API documentation
 - [~] T037 Code cleanup and refactoring (ensure no hardcoded paths)
 - [~] T038 Performance optimization (ensure Random Forest and Permutation tests fit within 6h limit)
-- [ ] T039 [P] Additional unit tests in `tests/unit/` for data generators and normalization logic
-- [ ] T040 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T039 [P] Additional unit tests in `tests/unit/` for data generators and normalization logic <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 3, column 9:
+ - path: tests/unit/test_data_processing.py
+ ^) -->
+- [~] T040 Run `quickstart.md` validation to ensure end-to-end reproducibility <!-- FAILED: unspecified -->
 
 ---
 

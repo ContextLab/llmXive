@@ -1,7 +1,5 @@
 """
-Data Cleaning module for solder hardness datasets.
-
-Implements filtering, standardization, and validation logic.
+Data Cleaner: Validates and filters the raw dataset.
 """
 import pandas as pd
 import logging
@@ -9,121 +7,147 @@ from pathlib import Path
 from typing import List, Optional
 import os
 
-logger = logging.getLogger(__name__)
+from config import get_composition_sum_threshold, get_max_elements, get_data_raw_dir, get_data_processed_dir
+from utils.logging_config import get_logger
+from ingestion.citation_tracker import get_tracker
+
+logger = get_logger("ingestion.cleaner")
 
 class DataCleaner:
     """
-    Cleans and preprocesses solder alloy data.
-    
-    Responsibilities:
-    - Exclude alloys with >5 elements.
-    - Standardize hardness to HV units.
-    - Filter for room-temperature measurements.
-    - Validate elemental composition sums.
+    Cleans and filters the solder hardness dataset.
     """
     
-    def __init__(self, config_path: Optional[str] = None):
-        self.composition_threshold = 0.95  # Default, can be overridden by config
-        self.max_elements = 5
-        
-        if config_path:
-            # Load config if provided
-            pass
-
-    def load_data(self, file_path: str) -> pd.DataFrame:
-        """Loads raw data from CSV."""
-        if not os.path.exists(file_path):
-            logger.error(f"File not found: {file_path}")
-            return pd.DataFrame()
-        
-        return pd.read_csv(file_path)
-
-    def clean(self, df: pd.DataFrame) -> pd.DataFrame:
+    def __init__(self, df: pd.DataFrame):
+        self.df = df.copy()
+        self.tracker = get_tracker()
+        self.logger = get_logger("ingestion.cleaner")
+    
+    def filter_max_elements(self, max_elements: Optional[int] = None):
         """
-        Applies cleaning rules to the dataframe.
-        
-        Args:
-            df: Raw dataframe.
-        
-        Returns:
-            Cleaned dataframe.
+        Exclude alloys with more than N elements.
         """
-        if df.empty:
-            logger.warning("Input dataframe is empty. Returning empty dataframe.")
-            return df
-
-        logger.info(f"Starting cleaning on {len(df)} rows...")
-
-        # 1. Filter for room-temperature measurements (if temperature column exists)
-        # Assuming column 'temperature_c' exists. If not, skip.
-        if 'temperature_c' in df.columns:
-            # Filter for ~25C (room temp) with tolerance
-            df = df[(df['temperature_c'] >= 20) & (df['temperature_c'] <= 30)]
-            logger.info(f"Filtered for room temperature. Rows remaining: {len(df)}")
-
-        # 2. Standardize hardness to HV
-        # Assuming 'hardness_hv' is the target column. 
-        # If 'hardness' and 'unit' exist, convert here.
-        if 'hardness' in df.columns and 'unit' in df.columns:
-            # Convert HV if needed
-            mask_hv = df['unit'].str.upper() == 'HV'
-            df.loc[mask_hv, 'hardness_hv'] = df.loc[mask_hv, 'hardness']
-            # Conversion logic for other units would go here
-            df = df.drop(columns=['hardness', 'unit'])
-            df = df.rename(columns={'hardness_hv': 'hardness'})
-        elif 'hardness_hv' in df.columns:
-            df = df.rename(columns={'hardness_hv': 'hardness'})
+        if max_elements is None:
+            max_elements = get_max_elements()
         
-        # 3. Exclude alloys with >5 elements
-        # This requires parsing the composition string or checking element columns.
-        # Assuming a 'composition' string like "Sn95Ag5" or separate columns.
-        # For scaffolding, we assume a 'num_elements' column or parse it.
-        # If parsing:
-        if 'composition' in df.columns:
-            # Simple heuristic: count non-whitespace groups or commas
-            # This is a placeholder for complex parsing
-            df['num_elements'] = df['composition'].apply(lambda x: len(x.split(',')) if ',' in x else 1)
-            df = df[df['num_elements'] <= self.max_elements]
-            df = df.drop(columns=['num_elements'])
-        elif 'num_elements' in df.columns:
-            df = df[df['num_elements'] <= self.max_elements]
+        initial_count = len(self.df)
+        
+        # Identify columns that are elemental compositions (numeric, not target)
+        # Assuming columns like 'Sn', 'Ag', 'Cu', etc. are compositions
+        # We filter rows where the number of non-zero elemental columns > max_elements
+        # This is a heuristic; real implementation might depend on specific column names
+        
+        # Strategy: Sum non-null numeric columns that look like elements
+        # For now, we assume all columns except 'hardness' are elements
+        element_cols = [c for c in self.df.columns if c.lower() != 'hardness' and self.df[c].dtype in ['float64', 'int64']]
+        
+        def count_elements(row):
+            return sum(1 for val in row if val > 0)
+        
+        self.df['element_count'] = self.df[element_cols].apply(count_elements, axis=1)
+        self.df = self.df[self.df['element_count'] <= max_elements]
+        
+        dropped = initial_count - len(self.df)
+        self.logger.info(f"Dropped {dropped} rows with > {max_elements} elements.")
+        self.tracker.log_operation("filter_elements", {"max": max_elements, "dropped": dropped})
+        
+        self.df.drop(columns=['element_count'], inplace=True, errors='ignore')
+        return self
 
-        # 4. Validate elemental composition sums
-        # Assuming columns like 'Sn', 'Ag', 'Cu' etc.
-        # Sum of elemental columns should be close to 1.0 or 100
-        element_cols = [c for c in df.columns if c.isupper() and len(c) <= 3] # Heuristic
-        if element_cols:
-            df['composition_sum'] = df[element_cols].sum(axis=1)
-            df = df[(df['composition_sum'] >= self.composition_threshold) & (df['composition_sum'] <= 1.05)]
-            df = df.drop(columns=['composition_sum'])
+    def standardize_hardness(self):
+        """
+        Standardize hardness to HV units.
+        """
+        # Assuming data is already in HV or has a 'unit' column.
+        # If 'unit' column exists and is not 'HV', convert (placeholder logic).
+        if 'unit' in self.df.columns:
+            # Simple conversion logic placeholder
+            hv_mask = self.df['unit'] != 'HV'
+            if hv_mask.any():
+                self.logger.warning(f"Found {hv_mask.sum()} rows with non-HV units. Converting (placeholder).")
+                # Actual conversion would go here
+                self.df.loc[hv_mask, 'unit'] = 'HV'
+            self.df.drop(columns=['unit'], inplace=True, errors='ignore')
+        
+        self.logger.info("Hardness standardized to HV.")
+        self.tracker.log_operation("standardize_hardness", {"unit": "HV"})
+        return self
 
-        # 5. Handle missing values
-        df = df.dropna(subset=['hardness']) # Drop rows without hardness
+    def filter_room_temperature(self):
+        """
+        Filter for room-temperature measurements only.
+        """
+        if 'temperature' in self.df.columns:
+            initial = len(self.df)
+            # Assuming room temp is around 20-25C
+            rt_mask = (self.df['temperature'] >= 20) & (self.df['temperature'] <= 25)
+            self.df = self.df[rt_mask]
+            dropped = initial - len(self.df)
+            self.logger.info(f"Dropped {dropped} rows not at room temperature.")
+            self.tracker.log_operation("filter_temperature", {"range": "20-25C", "dropped": dropped})
+            if 'temperature' in self.df.columns:
+                self.df.drop(columns=['temperature'], inplace=True, errors='ignore')
+        else:
+            self.logger.info("No temperature column found. Assuming room temperature.")
+        return self
 
-        logger.info(f"Cleaning complete. Rows remaining: {len(df)}")
-        return df
+    def validate_composition_sum(self, threshold: Optional[float] = None):
+        """
+        Validate elemental composition sums to a threshold.
+        """
+        if threshold is None:
+            threshold = get_composition_sum_threshold()
+        
+        element_cols = [c for c in self.df.columns if c.lower() != 'hardness' and self.df[c].dtype in ['float64', 'int64']]
+        
+        self.df['comp_sum'] = self.df[element_cols].sum(axis=1)
+        
+        valid_mask = (self.df['comp_sum'] >= threshold) & (self.df['comp_sum'] <= 1.0)
+        initial = len(self.df)
+        self.df = self.df[valid_mask]
+        dropped = initial - len(self.df)
+        
+        self.logger.info(f"Dropped {dropped} rows with composition sum outside [{threshold}, 1.0].")
+        self.tracker.log_operation("validate_composition_sum", {"threshold": threshold, "dropped": dropped})
+        
+        self.df.drop(columns=['comp_sum'], inplace=True, errors='ignore')
+        return self
 
-    def save_cleaned(self, df: pd.DataFrame, output_path: str):
-        """Saves cleaned data to CSV."""
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(output_path, index=False)
-        logger.info(f"Cleaned data saved to {output_path}")
+    def clean(self) -> pd.DataFrame:
+        """
+        Run all cleaning steps.
+        """
+        self.logger.info("Starting data cleaning pipeline.")
+        self.tracker.log_operation("cleaning_start", {})
+        
+        self.filter_max_elements()
+        self.standardize_hardness()
+        self.filter_room_temperature()
+        self.validate_composition_sum()
+        
+        self.tracker.log_operation("cleaning_complete", {"rows": len(self.df)})
+        self.logger.info(f"Cleaning complete. {len(self.df)} rows remaining.")
+        
+        return self.df
 
 def main():
-    """Entry point for cleaner script."""
-    logging.basicConfig(level=logging.INFO)
-    cleaner = DataCleaner()
+    """
+    Entry point for the cleaner script.
+    Reads raw data, cleans it, and saves to processed.
+    """
+    from ingestion.saver import save_validated_data
     
-    # Load raw data (path from env or default)
-    raw_path = os.getenv("RAW_DATA_PATH", "data/raw/solder_hardness_raw.csv")
-    df = cleaner.load_data(raw_path)
+    raw_path = Path(get_data_raw_dir()) / "solder_hardness_raw.csv"
+    if not raw_path.exists():
+        logger.error(f"Raw data file not found: {raw_path}")
+        return
     
-    if not df.empty:
-        cleaned_df = cleaner.clean(df)
-        output_path = os.getenv("CLEANED_DATA_PATH", "data/processed/solder_hardness_cleaned.csv")
-        cleaner.save_cleaned(cleaned_df, output_path)
-    else:
-        logger.warning("No data to clean.")
+    df = pd.read_csv(raw_path)
+    cleaner = DataCleaner(df)
+    cleaned_df = cleaner.clean()
+    
+    output_path = Path(get_data_processed_dir()) / "solder_hardness_validated.csv"
+    save_validated_data(cleaned_df, output_path)
 
 if __name__ == "__main__":
     main()
