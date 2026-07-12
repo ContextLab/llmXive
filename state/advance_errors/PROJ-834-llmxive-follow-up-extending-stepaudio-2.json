@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-834-llmxive-follow-up-extending-stepaudio-2",
+  "stage": "project_initialized",
+  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-834-llmxive-follow-up-extending-stepaudio-2/specs/001-llmxive-follow-up-extending-stepaudio-2/spec.md.\n  Rules fired: unfilled_bracket_density=10 bracket markers; sample=['[MODE: ASR]', '[MODE: TTS]', '[MODE: ASR]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "last_seen": "2026-07-12T07:31:13.599812+00:00",
+  "count": 1
+}
