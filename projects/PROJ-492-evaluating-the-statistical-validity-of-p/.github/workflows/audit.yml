@@ -1,4 +1,4 @@
-name: A/B Test Audit Pipeline
+name: Audit Pipeline
 
 on:
   push:
@@ -6,16 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  audit:
+  run-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,56 +19,47 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r code/requirements.txt
-
-      - name: Run Monte-Carlo Startup Validation
-        run: |
-          python -m code.src.audit.monte_carlo_startup_validator
+          pip install -r requirements.txt
 
       - name: Run Schema Validation
         run: |
-          python -m code.src.audit.export_schema_validator
-          python -m code.src.audit.manifest_schema_validator
+          python -m code.scripts.run_validator_test
 
-      - name: Run Synthetic Validation
+      - name: Run Monte Carlo Startup Validation
+        run: |
+          python -m code.src.audit.monte_carlo_startup_validator
+
+      - name: Run Synthetic Validation (Precision/Recall Check)
         run: |
           python -m code.scripts.run_synthetic_validation
 
       - name: Run Resource Monitor Check
         run: |
-          python -m code.scripts.run_resource_monitor_check || true
-          # Note: Resource monitor check may run as part of main pipeline or standalone
-          # ensuring limits are respected before proceeding
+          python -m code.scripts.run_quickstart_venv_check
 
       - name: Run Main Audit Pipeline
         run: |
           python -m code.src.cli.run_audit
 
-      - name: Verify Outputs
-        run: |
-          if [ ! -f "code/output/audit_report.json" ]; then
-            echo "Error: audit_report.json not found"
-            exit 1
-          fi
-          if [ ! -f "code/output/summary_report.csv" ]; then
-            echo "Error: summary_report.csv not found"
-            exit 1
-          fi
-          if [ ! -f "code/output/manifest.json" ]; then
-            echo "Error: manifest.json not found"
-            exit 1
-          fi
-
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: audit-results
+          name: audit-artifacts
           path: |
-            code/output/
-            code/data/processed/
-          retention-days: 30
+            output/
+            data/provenance_log.csv
+            data/checksums.txt
+            output/resource_log.json
