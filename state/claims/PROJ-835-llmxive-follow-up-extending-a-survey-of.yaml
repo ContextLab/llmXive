@@ -1,0 +1,526 @@
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/data-model.md
+  attempts: 1
+  canonical: 1234 jailbreak and 5678 benign audio files in manifest
+  claim_id: c_12eef66f
+  context: 'Manifest Schema (data/raw/manifest.json): ... counts: { jailbreak: 1234,
+    benign: 5678 } ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Manifest file data/raw/manifest.json contains counts: jailbreak: 1234,
+    benign: 5678.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T08:57:41Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/data-model.md
+  attempts: 1
+  canonical: 6.5 GB peak RAM limit for processing
+  claim_id: c_a0f103f7
+  context: 'Validation Rules: ... 5. Memory Limits: Processing must not exceed 6.5
+    GB peak RAM (enforced by utils/memory_monitor.py).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Processing must not exceed 6.5 GB peak RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T08:58:01Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/data-model.md
+  attempts: 1
+  canonical: 0.95 accuracy, 0.92 recall, 0.05 fpr, 0.98 auc_roc in model metadata
+    example
+  claim_id: c_c6dccf13
+  context: 'Metadata Schema (model_meta.json): ... metrics: { accuracy: 0.95, recall:
+    0.92, fpr: 0.05, auc_roc: 0.98 } ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Model metadata example shows accuracy: 0.95, recall: 0.92, fpr: 0.05,
+    auc_roc: 0.98.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T08:58:19Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/data-model.md
+  attempts: 1
+  canonical: 0.012 p-value for McNemar test in model metadata example
+  claim_id: c_39517c46
+  context: 'Metadata Schema (model_meta.json): ... statistical_test: { name: McNemar,
+    p_value: 0.012, baseline: random_guessing } ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Statistical test example uses McNemar test with p_value: 0.012.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T08:58:52Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/data-model.md
+  attempts: 1
+  canonical: 16 kHz mono 16-bit PCM raw audio format
+  claim_id: c_25dce4fe
+  context: 'Raw Audio Dataset (data/raw): Format: .wav (16kHz, mono, 16-bit PCM)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raw audio files are 16kHz, mono, 16-bit PCM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T08:59:13Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/data-model.md
+  attempts: 1
+  canonical: 16000 Hz sampling rate for processed audio
+  claim_id: c_b539c77d
+  context: 'Processed Audio (data/processed): Sampling Rate: 16,000 Hz (fixed)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Processed audio sampling rate is 16,000 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T08:59:35Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/data-model.md
+  attempts: 1
+  canonical: 768 or 1280 embedding dimensions
+  claim_id: c_e364e9ce
+  context: 'Embeddings (data/embeddings): Dimensions: Fixed vector size (e.g., 768
+    or 1280 depending on model layer).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Embedding dimensions are fixed vector size (e.g., 768 or 1280).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:00:05Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/data-model.md
+  attempts: 1
+  canonical: 0.8 train split ratio
+  claim_id: c_86d91288
+  context: 'Metadata Schema (model_meta.json): ... train_split_ratio: 0.8 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train split ratio is 0.8 in model metadata example.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:00:29Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on local CPU with <= 7 GB RAM without OOM errors
+  claim_id: c_099e4df1
+  context: "Independent Test: The pipeline runs on a representative subset of samples\
+    \ on a local CPU machine with \u2264 7 GB RAM, outputting a valid matrix of floats\
+    \ without OOM errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline runs on a representative subset of samples on a local CPU\
+    \ machine with \u2264 7 GB RAM, outputting a valid matrix of floats without OOM\
+    \ errors."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:07:21Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Load distil-whisper/distil-large-v or openai/whisper-distil-base for
+    embedding extraction
+  claim_id: c_9e471bfb
+  context: T011 [US1] Implement `data/extract.py` to load frozen `distil-whisper/distil-large-v`
+    (CPU mode, fallback `openai/whisper-distil-base`) and extract embeddings in batches
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_distil-whisper/distil-large-v_or_openai/whisper-distil-
+  kind: entity_fact
+  raw_text: Implement `data/extract.py` to load frozen `distil-whisper/distil-large-v`
+    (CPU mode, fallback `openai/whisper-distil-base`) and extract embeddings in batches
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:07:48Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Peak RAM limited to <= 6.5 GB during extraction
+  claim_id: c_79a00746
+  context: "T012 [US1] Add memory monitoring logic in `data/extract.py` to ensure\
+    \ peak RAM \u2264 6.5 GB"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add memory monitoring logic in `data/extract.py` to ensure peak RAM \u2264\
+    \ 6.5 GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:07:48Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Implement stratified 80/20 split logic
+  claim_id: c_6b0a7230
+  context: 'T015b [US2] **Implement Stratified Split**: Explicitly implement and log
+    the stratified 80/20 split logic in `models/train.py` to satisfy FR-003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly implement and log the stratified 80/20 split logic in `models/train.py`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:08:08Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Use McNemar's Test comparing classifier against random-guessing baseline
+  claim_id: c_e9c6a235
+  context: T018 [US2] Implement **McNemar's Test** in `models/eval.py` comparing classifier
+    against a **random-guessing baseline** (using `DummyClassifier(strategy='stratified')`
+    with fixed seed) per Constitution Principle VII.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_McNemar's_Test_comparing_classifier_against_random-guess
+  kind: entity_fact
+  raw_text: Implement **McNemar's Test** in `models/eval.py` comparing classifier
+    against a **random-guessing baseline**
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:08:33Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Sweep thresholds over set {0.3, 0.4, 0.5, 0.6, 0.7}
+  claim_id: c_df29e25f
+  context: 'T022 [US3] **Run Real Data Sensitivity**: Sweep thresholds over the **exact
+    set {0.3, 0.4, 0.5, 0.6, 0.7}** on actual model scores from T017/T018 and generate
+    `results/sensitivity_report.md`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds over the **exact set {0.3, 0.4, 0.5, 0.6, 0.7}** on actual
+    model scores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:08:55Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Verify pipeline runtime <= 6 hours on GitHub Actions free-tier
+  claim_id: c_183cba91
+  context: "T027 Run full pipeline end-to-end on CI (GitHub Actions free-tier) to\
+    \ verify \u2264 6h runtime"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run full pipeline end-to-end on CI (GitHub Actions free-tier) to verify\
+    \ \u2264 6h runtime"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:08:55Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Assert total pipeline runtime <= 6 hours in CI
+  claim_id: c_72730bdc
+  context: "T027a [P] **Assert Runtime Limit**: Explicitly assert that the total pipeline\
+    \ runtime is \u2264 6h in the CI script; fail if exceeded"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Explicitly assert that the total pipeline runtime is \u2264 6h in the\
+    \ CI script"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:08:55Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Test distil-whisper/distil-large-v2 and openai/whisper-distil-base encoders
+    on CPU
+  claim_id: c_89693bad
+  context: 'T008a [P] Encoder Verification: Implement utils/encoder_verify.py to test
+    distil-whisper/distil-large-v2 and openai/whisper-distil-base on CPU; log availability
+    and memory footprint (Addresses FR-001 flexibility)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_distil-whisper/distil-large-v2_and_openai/whisper-disti
+  kind: entity_fact
+  raw_text: Implement utils/encoder_verify.py to test distil-whisper/distil-large-v2
+    and openai/whisper-distil-base on CPU
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:09:58Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Dummy extraction of 100 samples completes in less than 6 hours equivalent
+    time
+  claim_id: c_fbaadf7b
+  context: 'T008b [P] Runtime Limit Assertion: Implement utils/runtime_verify.py to
+    assert that a dummy extraction of 100 samples completes in < 6h equivalent time
+    (Addresses FR-007)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dummy_extraction_of_100_samples_completes_in_less_than_6_hou
+  kind: magnitude
+  raw_text: Implement utils/runtime_verify.py to assert that a dummy extraction of
+    100 samples completes in < 6h equivalent time
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:10:45Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Validate downloaded data against dataset schema
+  claim_id: c_14b26f69
+  context: 'T014b [US1] Validate Schemas: Implement data/validate.py to verify downloaded
+    data against contracts/dataset.schema.yaml (Addresses executability-d5676129)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_downloaded_data_against_dataset_schema
+  kind: entity_fact
+  raw_text: Verify downloaded data against contracts/dataset.schema.yaml
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:11:07Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Extract embeddings using distil-whisper/distil-large-v with openai/whisper-distil-base
+    fallback
+  claim_id: c_bc6ea048
+  context: T011 [US1] Implement data/extract.py to load frozen distil-whisper/distil-large-v
+    (CPU mode, fallback openai/whisper-distil-base) and extract embeddings in batches
+    (Addresses executability-5bd844ff)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_embeddings_using_distil-whisper/distil-large-v_with
+  kind: entity_fact
+  raw_text: Load frozen distil-whisper/distil-large-v (CPU mode, fallback openai/whisper-distil-base)
+    and extract embeddings in batches
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:11:29Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage less than or equal to 6.5 GB
+  claim_id: c_d38156f6
+  context: "T012 [US1] Add memory monitoring logic in data/extract.py to ensure peak\
+    \ RAM \u2264 6.5 GB"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_or_equal_to_6.5_GB
+  kind: magnitude
+  raw_text: Ensure peak RAM usage is less than or equal to 6.5 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:11:57Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Implement stratified 80/20 split
+  claim_id: c_95fee983
+  context: 'T015b [US2] Implement Stratified Split: Explicitly implement and log the
+    stratified 80/20 split logic in models/train.py to satisfy FR-003 (Addresses coverage-b51c41a3)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified 80/20 split logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:12:19Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Compare classifier against random-guessing baseline using DummyClassifier
+    with stratified strategy
+  claim_id: c_1a1e6493
+  context: T018 [US2] Implement McNemar's Test in models/eval.py comparing classifier
+    against a random-guessing baseline (using DummyClassifier(strategy='stratified')
+    with fixed seed) per Constitution Principle VII.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_classifier_against_random-guessing_baseline_using_Du
+  kind: entity_fact
+  raw_text: Compare classifier against a random-guessing baseline using DummyClassifier(strategy='stratified')
+    with fixed seed per Constitution Principle VII
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:12:56Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Sweep thresholds over set 0.3 0.4 0.5 0.6 0.7
+  claim_id: c_72825837
+  context: 'T022 [US3] Run Real Data Sensitivity: Sweep thresholds over the exact
+    set {0.3, 0.4, 0.5, 0.6, 0.7} on actual model scores from T017/T018 and generate
+    results/sensitivity_report.md (Addresses coverage-82d145dd)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds over the exact set {0.3, 0.4, 0.5, 0.6, 0.7} on actual
+    model scores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:12:56Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime less than or equal to 6 hours
+  claim_id: c_4ef2c031
+  context: "T027 Run full pipeline end-to-end on CI (GitHub Actions free-tier) to\
+    \ verify \u2264 6h runtime"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: Verify total pipeline runtime is less than or equal to 6h on CI
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:13:15Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: pipeline runs on local CPU with 7 GB RAM limit
+  claim_id: c_12b9d44f
+  context: "Independent Test: The pipeline runs on a representative subset of samples\
+    \ on a local CPU machine with \u2264 7 GB RAM, outputting a valid matrix of floats\
+    \ without OOM errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline runs on a representative subset of samples on a local CPU\
+    \ machine with \u2264 7 GB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:13:51Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: peak RAM limit 6.5 GB
+  claim_id: c_7d54b83b
+  context: "Implement data/extract.py to add memory monitoring logic in data/extract.py\
+    \ to ensure peak RAM \u2264 6.5 GB"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "peak RAM \u2264 6.5 GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:13:51Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: stratified 80/20 split implemented
+  claim_id: c_ccc8fc44
+  context: Explicitly implement and log the stratified 80/20 split logic in models/train.py
+    to satisfy FR-003
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratified 80/20 split
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:14:20Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: threshold sweep set 0.3 0.4 0.5 0.6 0.7
+  claim_id: c_2f6b7662
+  context: Sweep thresholds over the exact set {0.3, 0.4, 0.5, 0.6, 0.7} on actual
+    model scores from T017/T018 and generate results/sensitivity_report.md
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep thresholds over the exact set {0.3, 0.4, 0.5, 0.6, 0.7}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:14:42Z'
+- artifact_path: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours
+  claim_id: c_a90babae
+  context: "Run full pipeline end-to-end on CI (GitHub Actions free-tier) to verify\
+    \ \u2264 6h runtime"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total pipeline runtime is \u2264 6h"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:14:42Z'

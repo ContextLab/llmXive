@@ -1,0 +1,8 @@
+T001 Create project structure per implementation plan (`projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/code/`): 2
+? T002 Initialize Python project with `requirements.txt` (transformers, torch-cpu,
+  scikit-learn, pandas, numpy, librosa, datasets, psutil)
+: 2
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2
+T004 Create `config.py` with global paths, random seeds, and memory limits (limited capacity): 2
+T005 [P] Implement `utils/memory_monitor.py` to track peak RAM and enforce hard limits: 2
+T006 [P] Implement `utils/logging.py` for structured logging of pipeline steps: 2

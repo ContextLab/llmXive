@@ -1,46 +1,27 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema"
-description: "Schema for raw and processed dataset records in the LLMXive follow-up project."
-type: "object"
+title: "Audio Dataset Manifest Schema"
+description: "Schema for the raw audio dataset manifest (input to extraction pipeline)."
+type: object
 required:
-  - "sample_id"
-  - "label"
-  - "source"
+  - id
+  - audio_path
+  - label
 properties:
-  sample_id:
-    type: "string"
+  id:
+    type: string
     description: "Unique identifier for the audio sample."
-  label:
-    type: "integer"
-    description: "Binary label: 0 for benign, 1 for jailbreak."
-    enum:
-      - 0
-      - 1
-  source:
-    type: "string"
-    description: "Name of the source dataset (e.g., 'cosyvoice-instruct')."
   audio_path:
-    type: "string"
-    description: "Path to the raw audio file or base64 encoded audio."
-    nullable: true
-  error:
-    type: "string"
-    description: "Error message if processing failed, otherwise null."
-    nullable: true
-  embedding_vector:
-    type: "array"
-    description: "The extracted latent embedding vector (null if not yet processed)."
-    items:
-      type: "number"
-    nullable: true
-  anomaly_score:
-    type: "number"
-    description: "Mahalanobis distance from the benign centroid (null if not yet calculated)."
-    nullable: true
-  split:
-    type: "string"
-    description: "Data split assignment (train or test)."
+    type: string
+    description: "Path or URL to the audio file."
+    pattern: "^(https?://|/|\\.\\./|[a-zA-Z]:\\\\).*"
+  label:
+    type: string
+    description: "Ground truth label."
     enum:
-      - "train"
-      - "test"
-    nullable: true
+      - "jailbreak"
+      - "benign"
+  duration_sec:
+    type: number
+    description: "Duration of the audio in seconds."
+    minimum: 0
+additionalProperties: false

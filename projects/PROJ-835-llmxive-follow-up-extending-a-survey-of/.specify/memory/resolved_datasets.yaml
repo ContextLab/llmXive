@@ -1,4 +1,4 @@
-resolved_at: '2026-07-12T08:31:03.345218+00:00'
+resolved_at: '2026-07-12T08:29:21.814923+00:00'
 datasets:
 - intent: CPU-only
   status: verified
@@ -47,11 +47,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -72,115 +72,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21317970
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: LALM
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/LALM-emotional-damage/cosyvoice-clone/resolve/main/data/train-00000-of-00006.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/LALM-emotional-damage/cosyvoice-instruct/resolve/main/data/train-00000-of-00005.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/LALM-emotional-damage/gpt-4o-mini-tts/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/LalMani/furniture-sample/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/LALM-emotional-damage/cosyvoice-clone/resolve/main/data/train-00000-of-00006.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/LALM-emotional-damage/cosyvoice-instruct/resolve/main/data/train-00000-of-00005.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/LALM-emotional-damage/gpt-4o-mini-tts/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/LALM-emotional-vulnerability/cosyvoice-clone/resolve/main/data/train-00000-of-00006.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/dataset/Fluorine-driven_dissolution-reprecipitation_of_zircon_to_xenotime_Key_for_HREE_enrichment_in_South_China/32967968
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/_Ver_Claude_Fable5_Paper_190_The_Structure_of_Advocacy_by_Placement_in_Structural_Psychology_/32967962
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Design_Modeling_and_Performance_Study_of_a_2-DOF_Pneumatic_Flexible_wrist/32119684
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Multi-Modal_Longitudinal_AI_for_Chronic_Rhinosinusitis_A_Framework_Integrating_Cone-Beam_CT_Endoscopy_and_Generative_Counterfactual_Reasoning_b_/32967944
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/TWAS-Derived_Mechanistic_Leads_Linking_NMN-Sensitive_Trafficking_and_Bioenergetics_to_Eating-Disorder_Genetic_Risk_RHOA_and_Synaptic_Vesicle_Dynamics_as_Translational_Entry_Points/32967947
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.54943/rcsxxi.v3i1.212
-    source: zenodo
-    status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''revistas.unh.edu.pe'',
-      port=443): Max retries exceeded with url: /index.php/rcsxxi/article/view/212
-      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''revistas.unh.edu.pe'',
-      port=443) at 0x7f63e003a750>, ''Connection to revistas.unh.edu.pe timed out.
-      (connect timeout=20.0)''))'
-  - url: https://zenodo.org/records/7986018
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://pharmacia.pensoft.net/article/182946/
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13907061
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17859047
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.07985
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.04383
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://drum.lib.umd.edu/handle/1903/35542
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.24648
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.24082
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

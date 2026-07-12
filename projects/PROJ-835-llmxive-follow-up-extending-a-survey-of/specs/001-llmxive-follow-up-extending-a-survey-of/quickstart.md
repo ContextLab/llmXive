@@ -1,49 +1,75 @@
-# Quickstart: LLMXive Follow-up: Latent Anomaly Detection
+# Quickstart: LlmXive Follow-up: Latent-Space Jailbreak Detection
 
 ## Prerequisites
-- Python 3.11+
-- Git
-- Access to a GitHub Actions free-tier runner (or local machine with sufficient RAM and CPU cores to support the method).
 
-## 1. Clone and Setup
+- **Python**: 3.11+
+- **Hardware**: CPU-only environment (2 cores, 7 GB RAM). **No GPU required.**
+- **Dataset**: A verified audio dataset containing `jailbreak` and `benign` samples.
+  - **CRITICAL**: The current "Verified datasets" list contains only text data. You **MUST** provide a valid audio dataset path or add a verified audio URL to the project configuration. If no verified audio dataset is found, the pipeline will **HALT** with a `FATAL: Missing Verified Audio Dataset` error.
+
+## Installation
+
+1. **Clone the repository** (if not already done).
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/code/requirements.txt
+   ```
+   *Dependencies include*: `torch`, `transformers`, `librosa`, `scikit-learn`, `pandas`, `numpy`.
+
+## Configuration
+
+Edit `code/config.py` to set the following:
+- `DATASET_PATH`: Path to your audio dataset (Parquet/CSV) or HuggingFace dataset name.
+- `EMBEDDING_MODEL`: `"distil-whisper-base"` (default).
+- `OUTPUT_DIR`: Path to save embeddings and results.
+- `SEED`: Random seed (default: 42).
+
+## Execution Steps
+
+### Step 1: Download & Verify Data
+*Note: If using HuggingFace, this runs automatically. If using local files, ensure checksums match.*
 ```bash
-git clone <repo-url>
-cd projects/PROJ-835-llmxive-follow-up-extending-a-survey-of
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+python code/data/download.py
 ```
+*Note*: This step will fail if no verified audio dataset is found.
 
-## 2. Data Preparation
-The pipeline automatically downloads and verifies datasets from the verified sources.
+### Step 2: Extract Embeddings
+*This step may take several hours depending on dataset size. It is CPU-bound.*
 ```bash
-# Run the data download and verification step
-python src/data/download.py
+python code/data/extract.py
 ```
-*Note: This will fetch the LALM Adversarial/Benign datasets from the verified HuggingFace URLs and compute checksums. It will also validate label independence.*
+*Output*: `data/embeddings/embeddings.npy`, `data/embeddings/labels.npy`.
 
-## 3. Run the Full Pipeline
-Execute the end-to-end pipeline (Extraction -> Training -> Evaluation -> State Update):
+### Step 3: Train & Evaluate
+*Runs training, sensitivity analysis, and McNemar's Test.*
 ```bash
-python src/cli/run_pipeline.py
+python code/models/train.py
+python code/models/eval.py
 ```
-**Expected Output**:
-- `data/processed/embeddings.parquet`
-- `models/logistic_regression.pkl`
-- `results/report.md`
-- `results/resource_log.json`
-- `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml` (Updated with artifact hashes)
+*Output*: `results/metrics.json`, `results/predictions.csv`.
 
-## 4. Verify Results
-Check the generated report for:
-- **Recall**: Should be reported with confidence intervals.
-- **F1 vs Baseline**: Confirm improvement over stratified random baseline.
-- **Random Noise Baseline**: Verify that jailbreaks are outliers relative to random noise, not just the benign cluster.
-- **Resource Usage**: Ensure RAM < 7 GB and Time < 6 hours.
+### Step 4: Verify Results
+Check `results/metrics.json` for:
+- `recall`: Must be > random baseline.
+- `p_value`: Must be < 0.05 (from McNemar's Test).
+- `threshold_sensitivity`: Verify stability across {0.3, 0.5, 0.7}.
+- `auc_roc`: Should be > 0.5 (better than random).
 
-## 5. Reproducibility Check
-To ensure reproducibility, re-run the pipeline with the same random seed:
-```bash
-python src/cli/run_pipeline.py --seed 42
-```
-Verify that the checksums of the output artifacts in the `state` file match the previous run.
+## Troubleshooting
+
+- **FATAL: Missing Verified Audio Dataset**: You must provide a valid audio dataset. Synthetic data is not supported.
+- **OOM (Out of Memory)**: Reduce `BATCH_SIZE` in `config.py` (e.g., from 32 to 8).
+- **NaN in Embeddings**: Check audio files for corruption. Ensure `librosa` loads valid waveforms.
+- **No Jailbreak Samples in Test Set**: Ensure `stratify=y` is used in `train_test_split`.
+- **Slow Inference**: The pipeline is designed for CPU. Do not attempt to force GPU.
+
+## Data Hygiene Note
+
+- **Raw Data**: Never modify files in `data/raw/`.
+- **Derived Data**: All derived files (embeddings, predictions) are written to `data/processed/` with timestamps.
+- **Reproducibility**: Always run with the same `SEED` and `config.py` to reproduce results.

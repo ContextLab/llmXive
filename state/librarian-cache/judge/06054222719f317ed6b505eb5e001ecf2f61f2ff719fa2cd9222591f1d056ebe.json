@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.04730",
+  "judged_at": "2026-07-12T08:24:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"a survey of large audio language models: generalization, trustworthine\" computer science",
+  "rationale": "This paper addresses the \"Generalization\" and \"Trustworthiness\" (specifically regarding overfitting and failure modes in instruction following) aspects of the user's survey topic by providing empirical evidence on how Large Audio Language Models handle long-form, multilingual speech instructions. It satisfies criteria (a) and (b) by measuring the same mechanism (instruction following and generalization in audio-LLMs) and variables (performance on long-form vs. short-form tasks) within the same d",
+  "relevant": true
+}

@@ -1,0 +1,129 @@
+# Embedding Schema for LlmXive Jailbreak Detection Pipeline
+# Defines the expected structure of the extracted latent embeddings
+# Output of: code/data/extract.py
+# Address: ordering-c952aaa0
+
+$schema: http://json-schema.org/draft-07/schema#
+title: AudioEmbeddingDataset
+description: >
+  Schema for the processed embedding matrix and associated metadata.
+  This defines the output format for the embedding extraction pipeline.
+
+type: object
+required:
+  - embedding_matrix
+  - metadata
+  - labels
+properties:
+  embedding_matrix:
+    type: object
+    description: >
+      The primary embedding data.
+      Stored as a NumPy array (.npy) or Parquet table.
+    properties:
+      shape:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+        description: [num_samples, embedding_dim]
+      dtype:
+        type: string
+        enum:
+          - float32
+          - float64
+        description: Data type of the embeddings
+      path:
+        type: string
+        description: Relative path to the stored file (e.g., data/embeddings/extracted.npy)
+      dimensions:
+        type: integer
+        description: The fixed dimensionality of the embedding vector (e.g., 1024 for Whisper)
+
+  metadata:
+    type: object
+    description: Metadata about the extraction process
+    required:
+      - encoder_model
+      - extraction_timestamp
+      - sampling_rate
+    properties:
+      encoder_model:
+        type: string
+        description: Name of the model used (e.g., distil-whisper/distil-large-v2)
+      extraction_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when extraction occurred
+      sampling_rate:
+        type: integer
+        description: The sampling rate used for all inputs (normalized)
+      device:
+        type: string
+        description: Hardware used (e.g., cpu)
+      batch_size:
+        type: integer
+        description: Batch size used during extraction
+      total_samples:
+        type: integer
+        description: Total number of samples processed
+      skipped_samples:
+        type: integer
+        description: Number of samples skipped due to errors
+      errors:
+        type: array
+        items:
+          type: object
+          properties:
+            sample_id:
+              type: string
+            error_type:
+              type: string
+            message:
+              type: string
+        description: List of errors encountered during processing
+
+  labels:
+    type: array
+    items:
+      type: integer
+      enum:
+        - 0
+        - 1
+    description: >
+      List of labels corresponding to the rows in embedding_matrix.
+      Order must match the embedding_matrix rows exactly.
+      0 = Benign, 1 = Jailbreak
+
+  validation_constraints:
+    type: object
+    properties:
+      no_nan:
+        type: boolean
+        default: true
+        description: Embedding matrix must not contain NaN values
+      no_inf:
+        type: boolean
+        default: true
+        description: Embedding matrix must not contain Inf values
+      min_norm:
+        type: number
+        minimum: 0.0
+        description: Minimum L2 norm for any embedding vector (prevents zero vectors)
+      max_norm:
+        type: number
+        description: Maximum L2 norm for any embedding vector (prevents exploding gradients)
+
+file_formats:
+  - extension: .npy
+    library: numpy
+    description: Binary NumPy array format (efficient for loading)
+  - extension: .parquet
+    library: pyarrow/pandas
+    description: Columnar format (efficient for partial loading and metadata)
+
+notes:
+  - "Embeddings are extracted from the final hidden state of the encoder."
+  - "All audio inputs are resampled to 16kHz before processing."
+  - "Labels are preserved from the original dataset schema."

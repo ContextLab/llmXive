@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-12T08:26:06Z",
+  "fetched_at": "2026-07-12T08:25:04Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,15 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generalization, Trustworthine\"",
       "target_n": 5
     },
-    "duration_seconds": 53.48,
-    "ended_at": "2026-07-12T08:26:06Z",
-    "expansion": {
-      "expanded_terms_ranked": [
-        [
-          1,
-          "Large audio language models survey"
-        ],
-        [
-          2,
-          "Generalization in audio foundation models"
-        ],
-        [
-          3,
-          "Trustworthiness of multimodal audio systems"
-        ],
-        [
-          4,
-          "Robustness of large audio models"
-        ],
-        [
-          5,
-          "Safety and alignment in audio-language models"
-        ],
-        [
-          6,
-          "Multimodal large language models for audio"
-        ],
-        [
-          7,
-          "Out-of-distribution generalization in audio AI"
-        ],
-        [
-          8,
-          "Reliability of generative audio models"
-        ],
-        [
-          9,
-          "Auditory perception in large language models"
-        ],
-        [
-          10,
-          "Fairness and bias in audio language models"
-        ],
-        [
-          11,
-          "Explainability of audio foundation models"
-        ],
-        [
-          12,
-          "Adversarial robustness in audio LLMs"
-        ],
-        [
-          13,
-          "Evaluation metrics for audio language models"
-        ],
-        [
-          14,
-          "Zero-shot audio understanding with LLMs"
-        ],
-        [
-          15,
-          "Multimodal trustworthiness in generative AI"
-        ],
-        [
-          16,
-          "Audio representation learning in large models"
-        ],
-        [
-          17,
-          "Hallucination detection in audio-language models"
-        ],
-        [
-          18,
-          "Scalable audio-language pre-training strategies"
-        ],
-        [
-          19,
-          "Ethical challenges in large audio models"
-        ],
-        [
-          20,
-          "Cross-modal generalization for audio tasks"
-        ]
-      ],
-      "original_term": "",
-      "per_term_hit_count": {
-        "Large audio language models survey": 5,
-        "llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generalization, Trustworthine\" computer science": 0
-      },
-      "total_queries_issued": 1
-    },
+    "duration_seconds": 56.199,
+    "ended_at": "2026-07-12T08:25:04Z",
+    "expansion": null,
     "extracted_queries": [
-      "audio language model generalization robustness",
-      "LLaVA-LLM audio instruction tuning benchmarks",
-      "hallucination detection trustworthiness evaluation audio",
-      "audio-LLM safety alignment toxicity benchmarking",
-      "data contamination audio pretraining memorization"
+      "audio foundation model generalization robustness",
+      "LLaVA-LLaMA audio instruction following benchmark",
+      "hallucination detection audio reasoning trustworthiness",
+      "audio language model zero-shot transfer evaluation",
+      "data contamination audio pretraining leakage"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,20 +26,20 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success_after_expansion",
+    "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2312.00249"
+        "2411.07186"
       ]
     },
     "per_query_hit_count": {
-      "LLaVA-LLM audio instruction tuning benchmarks": 3,
-      "audio language model generalization robustness": 3,
-      "audio-LLM safety alignment toxicity benchmarking": 2,
-      "data contamination audio pretraining memorization": 1,
-      "hallucination detection trustworthiness evaluation audio": 3,
+      "LLaVA-LLaMA audio instruction following benchmark": 2,
+      "audio foundation model generalization robustness": 3,
+      "audio language model zero-shot transfer evaluation": 3,
+      "data contamination audio pretraining leakage": 1,
+      "hallucination detection audio reasoning trustworthiness": 3,
       "llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generalization, Trustworthine\" computer science": 3
     },
     "relevance_judge": {
@@ -137,14 +48,14 @@
       "rejected_count": 1,
       "rejections": [
         {
-          "primary_pointer": "2509.16679",
-          "rationale": "The candidate paper is a general survey on Reinforcement Learning (RL) applied to Large Language Models (LLMs), whereas the user's question specifically targets Large **Audio** Language Models (LALMs) and their generalization and trustworthiness. While RL is a relevant technique, the paper does not address the specific modality (audio), the specific properties (generalization/trustworthiness in audio contexts), or the specific prior work (\"A Survey of Large Audio Language Models\") mentioned in t",
-          "title": "Reinforcement Learning Meets Large Language Models: A Survey of Advancements and Applications Across the LLM Lifecycle"
+          "primary_pointer": "2411.18222",
+          "rationale": "The paper focuses on traditional audio codec development and perceptual quality assessment metrics (PEAQ), which is a distinct domain from Large Audio Language Models (LALMs) and their generalization or trustworthiness properties. While both involve \"audio\" and \"generalization,\" the paper addresses signal processing and distortion coding rather than the semantic understanding, multimodal reasoning, or safety mechanisms central to the user's question about LALMs.",
+          "title": "Towards Improved Objective Perceptual Audio Quality Assessment -- Part 1: A Novel Data-Driven Cognitive Model"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-12T08:25:12Z",
+    "started_at": "2026-07-12T08:24:08Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"a survey of large audio language models: generalization, trustworthine\" computer science",
       "raw": "llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generalization, Trustworthine\" computer science"
@@ -163,7 +74,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-12T08:25:44Z",
+        "failed_at": "2026-07-12T08:24:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +93,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-12T08:25:44Z",
+        "failed_at": "2026-07-12T08:24:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -200,71 +111,24 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-12T08:25:44Z",
+        "failed_at": "2026-07-12T08:24:40Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
+          "claimed_abstract": "Audio inpainting aims to reconstruct missing segments in corrupted recordings. Most of existing methods produce plausible reconstructions when the gap lengths are short, but struggle to reconstruct gaps larger than about 100 ms. This paper explores recent advancements in deep learning and, particularly, diffusion models, for the task of audio inpainting. The proposed method uses an unconditionally trained generative model, which can be conditioned in a zero-shot fashion for audio inpainting, and is able to regenerate gaps of any size. An improved deep neural network architecture based on the constant-Q transform, which allows the model to exploit pitch-equivariant symmetries in audio, is also presented. The performance of the proposed algorithm is evaluated through objective and subjective metrics for the task of reconstructing short to mid-sized gaps, up to 300 ms. The results of a formal listening test show that the proposed method delivers comparable performance against the compared baselines for short gaps, such as 50 ms, while retaining a good audio quality and outperforming the baselines for wider gaps that are up to 300 ms long. The method presented in this paper can be applied to restoring sound recordings that suffer from severe local disturbances or dropouts, which must be reconstructed.",
           "claimed_authors": [
-            "Neng Wang",
-            "Hongyang Yang",
-            "Christina Dan Wang"
+            "Eloi Moliner",
+            "Vesa Välimäki"
           ],
-          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_title": "Diffusion-Based Audio Inpainting",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2310.04793"
+          "primary_pointer": "2305.15266"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
-        "failed_at": "2026-07-12T08:25:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
-          "claimed_authors": [
-            "Zhiyang Xu",
-            "Chao Feng",
-            "Rulin Shao",
-            "Trevor Ashby",
-            "Ying Shen",
-            "Di Jin",
-            "Yu Cheng",
-            "Qifan Wang",
-            "Lifu Huang"
-          ],
-          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.11690"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
-        "failed_at": "2026-07-12T08:25:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
-          "claimed_authors": [
-            "Renxi Wang",
-            "Haonan Li",
-            "Minghao Wu",
-            "Yuxia Wang",
-            "Xudong Han",
-            "Chiyu Zhang",
-            "Timothy Baldwin"
-          ],
-          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.10793"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
-        "failed_at": "2026-07-12T08:25:45Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Diffusion-Based Audio Inpainting')",
+        "failed_at": "2026-07-12T08:24:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -282,57 +146,26 @@
           "primary_pointer": "2412.17924"
         },
         "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Are audio DeepFake detection models polyglots?')",
-        "failed_at": "2026-07-12T08:25:45Z",
+        "failed_at": "2026-07-12T08:24:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Audio inpainting aims to reconstruct missing segments in corrupted recordings. Most of existing methods produce plausible reconstructions when the gap lengths are short, but struggle to reconstruct gaps larger than about 100 ms. This paper explores recent advancements in deep learning and, particularly, diffusion models, for the task of audio inpainting. The proposed method uses an unconditionally trained generative model, which can be conditioned in a zero-shot fashion for audio inpainting, and is able to regenerate gaps of any size. An improved deep neural network architecture based on the constant-Q transform, which allows the model to exploit pitch-equivariant symmetries in audio, is also presented. The performance of the proposed algorithm is evaluated through objective and subjective metrics for the task of reconstructing short to mid-sized gaps, up to 300 ms. The results of a formal listening test show that the proposed method delivers comparable performance against the compared baselines for short gaps, such as 50 ms, while retaining a good audio quality and outperforming the baselines for wider gaps that are up to 300 ms long. The method presented in this paper can be applied to restoring sound recordings that suffer from severe local disturbances or dropouts, which must be reconstructed.",
+          "claimed_abstract": "Zero-shot audio captioning aims at automatically generating descriptive textual captions for audio content without prior training for this task. Different from speech recognition which translates audio content that contains spoken language into text, audio captioning is commonly concerned with ambient sounds, or sounds produced by a human performing an action. Inspired by zero-shot image captioning methods, we propose ZerAuCap, a novel framework for summarising such general audio signals in a text caption without requiring task-specific training. In particular, our framework exploits a pre-trained large language model (LLM) for generating the text which is guided by a pre-trained audio-language model to produce captions that describe the audio content. Additionally, we use audio context keywords that prompt the language model to generate text that is broadly relevant to sounds. Our proposed framework achieves state-of-the-art results in zero-shot audio captioning on the AudioCaps and Clotho datasets. Our code is available at https://github.com/ExplainableML/ZerAuCap.",
           "claimed_authors": [
-            "Eloi Moliner",
-            "Vesa Välimäki"
+            "Leonard Salewski",
+            "Stefan Fauth",
+            "A. Sophia Koepke",
+            "Zeynep Akata"
           ],
-          "claimed_title": "Diffusion-Based Audio Inpainting",
+          "claimed_title": "Zero-shot audio captioning with audio-language model guidance and audio context keywords",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2305.15266"
+          "primary_pointer": "2311.08396"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Diffusion-Based Audio Inpainting')",
-        "failed_at": "2026-07-12T08:25:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The outstanding multidisciplinary applicability of nanomaterials has paved the path for the rapid advancement of nanoscience during the last few decades. Such technological progress subsequently results in an inevitable environmental exposure of nanomaterials. Presently, nanomaterials are employed in an extensive range of commercial products. Safe and sustainable incorporation of nanomaterials in industrial products requires a profound and comprehensive understanding of their potential toxicity. Among different nanomaterials, carbon nanomaterials marked its notable superiority toward the development of state-of-the-art nanotechnology due to the significant contribution of each of the carbon allotropes with varied dimensionality. The zero-dimensional fullerene, one-dimensional carbon nanotube, and two-dimensional graphene possess an exclusive combination of distinctive properties that are utilized in most of the nanotechnology-based products nowadays. However, potential risk factors are associated with the production and the use of carbon nanomaterials. Consequently, the number of studies regarding the assessment of the toxicity of these nanomaterials has increased rapidly in the past decade. This chapter will summarize the recent scientific efforts on the toxicity evaluation of different carbon nanomaterials.",
-          "claimed_authors": [
-            "Arpita Adhikari",
-            "Joydip Sengupta"
-          ],
-          "claimed_title": "Toxicity of Carbon Nanomaterials",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2109.13918"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Toxicity of Carbon Nanomaterials')",
-        "failed_at": "2026-07-12T08:25:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We propose a novel protocol for aligning artificial superintelligence (ASI) based on mutual verification among multiple isolated systems that self-modify to achieve alignment. The protocol operates by containing multiple diverse artificial superintelligences in strict isolation (\"boxes\"), with humans remaining entirely outside the system. Each superintelligence has no ability to communicate with humans and cannot communicate directly with other superintelligences. The only interaction possible is through an auditable submission interface accessible exclusively to the superintelligences themselves, through which they can: (1) submit alignment proofs with attested state snapshots, (2) validate or disprove other superintelligences' proofs, (3) request self-modifications, (4) approve or disapprove modification requests from others, (5) report hidden messages in submissions, and (6) confirm or refute hidden message reports. A reputation system incentivizes honest behavior, with reputation gained through correct evaluations and lost through incorrect ones. The key insight is that without direct communication channels, diverse superintelligences can only achieve consistent agreement by converging on objective truth rather than coordinating on deception. This naturally leads to what we call a \"consistent group\", essentially a truth-telling coalition that emerges because isolated systems cannot coordinate on lies but can independently recognize valid claims. Release from containment requires both high reputation and verification by multiple high-reputation superintelligences. While our approach requires substantial computational resources and does not address the creation of diverse artificial superintelligences, it provides a framework for leveraging peer verification among superintelligent systems to solve the alignment problem.",
-          "claimed_authors": [
-            "Avraham Yair Negozio"
-          ],
-          "claimed_title": "Aligning Artificial Superintelligence via a Multi-Box Protocol",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2511.21779"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Aligning Artificial Superintelligence via a Multi-Box Protocol')",
-        "failed_at": "2026-07-12T08:25:45Z",
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='Zero-shot audio captioning with audio-language model guidance and audio context keywords')",
+        "failed_at": "2026-07-12T08:24:42Z",
         "reason": "query_irrelevant"
       },
       {
@@ -350,7 +183,7 @@
           "primary_pointer": "2102.01243"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"A Survey of Large Audio Language Models: Generaliz', candidate_title='PSLA: Improving Audio Tagging with Pretraining, Sampling, Labeling, and Aggregation')",
-        "failed_at": "2026-07-12T08:25:45Z",
+        "failed_at": "2026-07-12T08:24:43Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -358,19 +191,87 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Chun-Yi Kuan",
-            "Hung-yi Lee"
+            "David Robinson",
+            "Marius Miron",
+            "Masato Hagiwara",
+            "Benno Weck",
+            "Sara Keen",
+            "Milad Alizadeh",
+            "Gagan Narula",
+            "Matthieu Geist",
+            "Olivier Pietquin"
           ],
-          "title": "From Alignment to Advancement: Bootstrapping Audio-Language Alignment with Synthetic Data",
+          "title": "NatureLM-audio: an Audio-Language Foundation Model for Bioacoustics",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2024
         },
-        "primary_pointer": "2505.20166",
-        "summary": "Audio-aware large language models (ALLMs) have recently made great strides in understanding and processing audio inputs. These models are typically adapted from text-based large language models (LLMs) through additional training on audio-related tasks. This adaptation process presents two major limitations. First, ALLMs often suffer from catastrophic forgetting, where crucial textual capabilities like instruction-following are lost after training on audio data. In some cases, models may even hallucinate sounds that are not present in the input audio, raising concerns about reliability. Second, achieving cross-modal alignment between audio and language typically relies on large collections of task-specific question-answer pairs for instruction tuning, making it resource-intensive. To address these issues, previous works have leveraged the backbone LLMs to synthesize general-purpose, caption-style alignment data. In this paper, we propose a data generation framework that produces contrastive-like training data, designed to enhance ALLMs' ability to differentiate between present and absent sounds. We further extend our approach to multi-audio scenarios, enabling the model to either explain differences between audio inputs or produce unified captions that describe all inputs, thereby enhancing audio-language alignment. We refer to the entire ALLM training framework as bootstrapping audio-language alignment via synthetic data generation from backbone LLMs (BALSa). Experimental results indicate that our method effectively mitigates audio hallucinations while reliably maintaining strong performance on audio understanding and reasoning benchmarks, as well as instruction-following skills. Moreover, incorporating multi-audio training further enhances the model's comprehension and reasoning capabilities. Overall, BALSa offers an efficient and scalable approach to developing ALLMs.",
+        "primary_pointer": "2411.07186",
+        "summary": "Large language models (LLMs) prompted with text and audio have achieved state-of-the-art performance across various auditory tasks, including speech, music, and general audio, showing emergent abilities on unseen tasks. However, their potential has yet to be fully demonstrated in bioacoustics tasks, such as detecting animal vocalizations in large recordings, classifying rare and endangered species, and labeling context and behavior -- tasks that are crucial for conservation, biodiversity monitoring, and animal behavior studies. In this work, we present NatureLM-audio, the first audio-language foundation model specifically designed for bioacoustics. Our training dataset consists of carefully curated text-audio pairs spanning bioacoustics, speech, and music, designed to address the field's limited availability of annotated data. We demonstrate successful transfer of learned representations from music and speech to bioacoustics, and our model shows promising generalization to unseen taxa and tasks. We evaluate NatureLM-audio on a novel benchmark (BEANS-Zero) and it sets a new state of the art on several bioacoustics tasks, including zero-shot classification of unseen species. To advance bioacoustics research, we release our model weights, benchmark data, and open-source the code for training and benchmark data generation and model training.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2505.20166",
+          "final_url": "https://arxiv.org/abs/2411.07186",
+          "http_status": 200,
+          "pdf_sample_score": 0.2364,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T08:24:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiming Gao",
+            "Bin Wang",
+            "Chengwei Wei",
+            "Shuo Sun",
+            "AiTi Aw"
+          ],
+          "title": "IFEval-Audio: Benchmarking Instruction-Following Capability in Audio-based Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.16774",
+        "summary": "Large language models (LLMs) have demonstrated strong instruction-following capabilities in text-based tasks. However, this ability often deteriorates in multimodal models after alignment with non-text modalities such as images or audio. While several recent efforts have investigated instruction-following performance in text and vision-language models, instruction-following in audio-based large language models remains largely unexplored. To bridge this gap, we introduce IFEval-Audio, a novel evaluation dataset designed to assess the ability to follow instructions in an audio LLM. IFEval-Audio contains 280 audio-instruction-answer triples across six diverse dimensions: Content, Capitalization, Symbol, List Structure, Length, and Format. Each example pairs an audio input with a text instruction, requiring the model to generate an output that follows a specified structure. We benchmark state-of-the-art audio LLMs on their ability to follow audio-involved instructions. The dataset is released publicly to support future research in this emerging area.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.16774",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T08:24:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Enes Yavuz Ugan",
+            "Maike Züfle",
+            "Yuka Ko",
+            "Supriti Sinhamahapatra",
+            "Fabian Retkowski",
+            "Seymanur Akti",
+            "Jan Niehues",
+            "Alexander Waibel"
+          ],
+          "title": "Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.04730",
+        "summary": "With the advent of Large Language Models, single-task and token-based multi-task models have evolved into instruction-based systems that infer task and target language implicitly from natural language prompts. This trend is reflected in IWSLT's Instruction Following Track, which this year introduced new tasks including an unknown surprise task, posing a genuine challenge against overfitting to known tasks. We present KIT's submission to the Long and Short Instruction Following tracks in the unconstrained setting. Our approach combines a general data augmentation pipeline that converts short-form corpora into long-form training data through segment concatenation, LLM-based label generation, and cross-lingual translation, yielding over 1M instances across six tasks and four languages. We further show that likelihood-based re-ranking, while highly effective for ASR, systematically degrades semantic tasks by spuriously selecting candidates generated from segmented audio processing rather than holistic long-form inference, a failure mode resolved by combining likelihood with Minimum Bayes Risk decoding.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.04730",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.3333,
@@ -378,89 +279,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T08:25:44Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Ke-Han Lu",
-            "Zhehuai Chen",
-            "Szu-Wei Fu",
-            "Chao-Han Huck Yang",
-            "Sung-Feng Huang",
-            "Chih-Kai Yang",
-            "Chee-En Yu",
-            "Chun-Wei Chen",
-            "Wei-Chih Chen",
-            "Chien-yu Huang",
-            "Yi-Cheng Lin",
-            "Yu-Xiang Lin",
-            "Chi-An Fu",
-            "Chun-Yi Kuan",
-            "Wenze Ren",
-            "Xuanjun Chen",
-            "Wei-Ping Huang",
-            "En-Pei Hu",
-            "Tzu-Quan Lin",
-            "Yuan-Kuei Wu",
-            "Kuan-Po Huang",
-            "Hsiao-Ying Huang",
-            "Huang-Cheng Chou",
-            "Kai-Wei Chang",
-            "Cheng-Han Chiang",
-            "Boris Ginsburg",
-            "Yu-Chiang Frank Wang",
-            "Hung-yi Lee"
-          ],
-          "title": "DeSTA2.5-Audio: Toward General-Purpose Large Audio Language Model with Self-Generated Cross-Modal Alignment",
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2507.02768",
-        "summary": "We introduce DeSTA2.5-Audio, a general-purpose Large Audio Language Model (LALM) designed for robust auditory perception and instruction-following. Recent LALMs augment Large Language Models (LLMs) with auditory capabilities by training on large-scale audio-instruction datasets. However, existing LALMs have often suffered from the catastrophic forgetting of the LLM's original abilities. Therefore, balancing knowledge retention and audio perception has become a critical challenge. To address this, we revisit the data construction pipeline and propose a self-generated cross-modal alignment strategy in which the backbone LLM generates its own training targets, named DeSTA. This approach aims at preserving the LLM's native language proficiency thereby enabling zero-shot generalization without task-specific tuning. We construct DeSTA-AQA5M, a large-scale, task-agnostic dataset containing 5 million training samples derived from 7,000 hours of audio spanning 50 diverse datasets, including speech, environmental sounds, and music. DeSTA2.5-Audio achieves state-of-the-art or competitive performance across a wide range of audio-language benchmarks, including Dynamic-SUPERB, MMAU, SAKURA, Speech-IFEval, and VoiceBench. Comprehensive comparative studies demonstrate that our self-generated strategy outperforms existing training strategies. Our findings underscore the importance of carefully designed data construction in LALM development and offer practical insights for building robust, general-purpose LALMs.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2507.02768",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4167,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-12T08:25:44Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jinhua Liang",
-            "Xubo Liu",
-            "Wenwu Wang",
-            "Mark D. Plumbley",
-            "Huy Phan",
-            "Emmanouil Benetos"
-          ],
-          "title": "Acoustic Prompt Tuning: Empowering Large Language Models with Audition Capabilities",
-          "venue": "arXiv",
-          "year": 2023
-        },
-        "primary_pointer": "2312.00249",
-        "summary": "The auditory system plays a substantial role in shaping the overall human perceptual experience. While prevailing large language models (LLMs) and visual language models (VLMs) have shown their promise in solving a wide variety of language and vision understanding tasks, only a few of them can be generalised to the audio domain without compromising their domain-specific capability. In this work, we introduce Acoustic Prompt Tuning (APT), a new adapter extending LLMs and VLMs to the audio domain by injecting audio embeddings to the input of LLMs, namely soft prompting. Specifically, APT applies an instruction-aware audio aligner to generate soft prompts, conditioned on both input text and sounds, as the inputs to the language model. To mitigate data scarcity in the audio domain, a curriculum learning strategy is proposed by formulating diverse audio tasks in a sequential manner. Moreover, we improve the audio language model by using interleaved audio-text embeddings as the input sequence. In this improved model, zero constraints are imposed on the input format, thus it is capable of tackling diverse modelling tasks, such as few-shot audio classification and audio comparison. To further evaluate the advanced ability of the audio networks, we introduce natural language audio reasoning (NLAR), a new task that analyses two audio clips by comparison and summarisation. Experiments show that APT-enhanced LLMs (namely APT-LLMs) achieve competitive results compared to the expert models (i.e., the networks trained on the target datasets) across various tasks. We finally demonstrate APT's ability in extending frozen VLMs to the audio domain without fine-tuning, achieving promising results in audio-visual question and answering. Our code and model weights will be released at https://github.com/JinhuaLiang/APT",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2312.00249",
-          "http_status": 200,
-          "pdf_sample_score": 0.3768,
-          "query_relevance_score": 0.4167,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-12T08:25:44Z"
+          "verified_at": "2026-07-12T08:24:41Z"
         }
       },
       {
@@ -486,42 +305,99 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T08:25:45Z"
+          "verified_at": "2026-07-12T08:24:41Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Siddique Latif",
-            "Moazzam Shoukat",
-            "Fahad Shamshad",
-            "Muhammad Usama",
-            "Yi Ren",
-            "Heriberto Cuayáhuitl",
-            "Wenwu Wang",
-            "Xulong Zhang",
-            "Roberto Togneri",
-            "Erik Cambria",
-            "Björn W. Schuller"
+            "Ziyang Ma",
+            "Ruiyang Xu",
+            "Yinghao Ma",
+            "Chao-Han Huck Yang",
+            "Bohan Li",
+            "Jaeyeon Kim",
+            "Jin Xu",
+            "Jinyu Li",
+            "Carlos Busso",
+            "Kai Yu",
+            "Eng Siong Chng",
+            "Xie Chen"
           ],
-          "title": "Sparks of Large Audio Models: A Survey and Outlook",
+          "title": "The Interspeech 2026 Audio Reasoning Challenge: Evaluating Reasoning Process Quality for Audio Reasoning Models and Agents",
           "venue": "arXiv",
-          "year": 2023
+          "year": 2026
         },
-        "primary_pointer": "2308.12792",
-        "summary": "This survey paper provides a comprehensive overview of the recent advancements and challenges in applying large language models to the field of audio signal processing. Audio processing, with its diverse signal representations and a wide range of sources--from human voices to musical instruments and environmental sounds--poses challenges distinct from those found in traditional Natural Language Processing scenarios. Nevertheless, \\textit{Large Audio Models}, epitomized by transformer-based architectures, have shown marked efficacy in this sphere. By leveraging massive amount of data, these models have demonstrated prowess in a variety of audio tasks, spanning from Automatic Speech Recognition and Text-To-Speech to Music Generation, among others. Notably, recently these Foundational Audio Models, like SeamlessM4T, have started showing abilities to act as universal translators, supporting multiple speech tasks for up to 100 languages without any reliance on separate task-specific systems. This paper presents an in-depth analysis of state-of-the-art methodologies regarding \\textit{Foundational Large Audio Models}, their performance benchmarks, and their applicability to real-world scenarios. We also highlight current limitations and provide insights into potential future research directions in the realm of \\textit{Large Audio Models} with the intent to spark further discussion, thereby fostering innovation in the next generation of audio-processing systems. Furthermore, to cope with the rapid development in this area, we will consistently update the relevant repository with relevant recent articles and their open-source implementations at https://github.com/EmulationAI/awesome-large-audio-models.",
+        "primary_pointer": "2602.14224",
+        "summary": "Recent Large Audio Language Models (LALMs) excel in understanding but often lack transparent reasoning. To address this \"black-box\" limitation, we organized the Audio Reasoning Challenge at Interspeech 2026, the first shared task dedicated to evaluating Chain-of-Thought (CoT) quality in the audio domain. The challenge introduced MMAR-Rubrics, a novel instance-level protocol assessing the factuality and logic of reasoning chains. Featured Single Model and Agent tracks, the competition attracting 156 teams from 18 countries and regions. Results show agent systems currently lead in reasoning quality, utilizing iterative tool orchestration and cross-modal analysis. Besides, single models are rapidly advancing via reinforcement learning and sophisticated data pipeline. We details the challenge design, methodology, and a comprehensive analysis of state-of-the-art systems, providing new insights for explainable audio intelligence.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2308.12792",
+          "final_url": "https://arxiv.org/abs/2602.14224",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T08:25:50Z"
+          "verified_at": "2026-07-12T08:24:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chun-Yi Kuan",
+            "Hung-yi Lee"
+          ],
+          "title": "From Alignment to Advancement: Bootstrapping Audio-Language Alignment with Synthetic Data",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.20166",
+        "summary": "Audio-aware large language models (ALLMs) have recently made great strides in understanding and processing audio inputs. These models are typically adapted from text-based large language models (LLMs) through additional training on audio-related tasks. This adaptation process presents two major limitations. First, ALLMs often suffer from catastrophic forgetting, where crucial textual capabilities like instruction-following are lost after training on audio data. In some cases, models may even hallucinate sounds that are not present in the input audio, raising concerns about reliability. Second, achieving cross-modal alignment between audio and language typically relies on large collections of task-specific question-answer pairs for instruction tuning, making it resource-intensive. To address these issues, previous works have leveraged the backbone LLMs to synthesize general-purpose, caption-style alignment data. In this paper, we propose a data generation framework that produces contrastive-like training data, designed to enhance ALLMs' ability to differentiate between present and absent sounds. We further extend our approach to multi-audio scenarios, enabling the model to either explain differences between audio inputs or produce unified captions that describe all inputs, thereby enhancing audio-language alignment. We refer to the entire ALLM training framework as bootstrapping audio-language alignment via synthetic data generation from backbone LLMs (BALSa). Experimental results indicate that our method effectively mitigates audio hallucinations while reliably maintaining strong performance on audio understanding and reasoning benchmarks, as well as instruction-following skills. Moreover, incorporating multi-audio training further enhances the model's comprehension and reasoning capabilities. Overall, BALSa offers an efficient and scalable approach to developing ALLMs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.20166",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T08:24:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jinhua Liang",
+            "Xubo Liu",
+            "Wenwu Wang",
+            "Mark D. Plumbley",
+            "Huy Phan",
+            "Emmanouil Benetos"
+          ],
+          "title": "Acoustic Prompt Tuning: Empowering Large Language Models with Audition Capabilities",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2312.00249",
+        "summary": "The auditory system plays a substantial role in shaping the overall human perceptual experience. While prevailing large language models (LLMs) and visual language models (VLMs) have shown their promise in solving a wide variety of language and vision understanding tasks, only a few of them can be generalised to the audio domain without compromising their domain-specific capability. In this work, we introduce Acoustic Prompt Tuning (APT), a new adapter extending LLMs and VLMs to the audio domain by injecting audio embeddings to the input of LLMs, namely soft prompting. Specifically, APT applies an instruction-aware audio aligner to generate soft prompts, conditioned on both input text and sounds, as the inputs to the language model. To mitigate data scarcity in the audio domain, a curriculum learning strategy is proposed by formulating diverse audio tasks in a sequential manner. Moreover, we improve the audio language model by using interleaved audio-text embeddings as the input sequence. In this improved model, zero constraints are imposed on the input format, thus it is capable of tackling diverse modelling tasks, such as few-shot audio classification and audio comparison. To further evaluate the advanced ability of the audio networks, we introduce natural language audio reasoning (NLAR), a new task that analyses two audio clips by comparison and summarisation. Experiments show that APT-enhanced LLMs (namely APT-LLMs) achieve competitive results compared to the expert models (i.e., the networks trained on the target datasets) across various tasks. We finally demonstrate APT's ability in extending frozen VLMs to the audio domain without fine-tuning, achieving promising results in audio-visual question and answering. Our code and model weights will be released at https://github.com/JinhuaLiang/APT",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2312.00249",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T08:24:42Z"
         }
       }
     ]

@@ -1,151 +1,126 @@
-# Implementation Plan: LLMXive Follow-up: Extending "A Survey of Large Audio Language Models" (Latent Anomaly Detection)
+# Implementation Plan: LlmXive Follow-up: Latent-Space Jailbreak Detection
 
-**Branch**: `001-gene-regulation` | **Date**: 2026-07-12 | **Spec**: `specs/001-gene-regulation/spec.md`
-**Input**: Feature specification from `specs/001-gene-regulation/spec.md`
+**Branch**: `001-latent-space-jailbreak-detection` | **Date**: 2026-07-12 | **Spec**: `specs/001-latent-space-jailbreak-detection/spec.md`
+**Input**: Feature specification from `/specs/001-latent-space-jailbreak-detection/spec.md`
 
 ## Summary
 
-This feature implements a CPU-only pipeline to investigate whether statistical anomalies in the latent embedding space of frozen audio encoders correlate with cross-modal jailbreak attempts. The approach involves extracting fixed-dimensional embeddings from labeled audio-text pairs (benign vs. jailbreak) using a distilled Whisper Base encoder, calculating Mahalanobis distances from a benign centroid (derived strictly from the training set), and training a lightweight Logistic Regression classifier. To address methodological rigor, the plan includes a random noise baseline to avoid tautological validation. The entire pipeline is constrained to run on a GitHub Actions free-tier runner (CPU cores, 7 GB RAM, ≤6 hours) without GPU acceleration.
+This feature implements a CPU-only pipeline to detect cross-modal jailbreak attempts in audio samples by analyzing latent-space statistical anomalies. The approach involves extracting fixed-dimensional embeddings from audio data using a frozen, lightweight encoder (distilled Whisper Base) and training a binary classifier (Logistic Regression and SVM fallback) to distinguish between "jailbreak" and "benign" classes. The plan strictly adheres to the project's resource constraints (2 CPU cores, ≤7 GB RAM, ≤6 hours runtime) and methodological rigor requirements (stratified splits, sensitivity analysis, McNemar's test).
+
+**Critical Note on Spec vs. Constitution**: The project Constitution (Principle VII) mandates **McNemar's Test** for statistical validation. The source spec (FR-006, SC-003) currently mandates a **Binomial Test** and **Bonferroni correction**. This plan implements the **Constitution's** requirement (McNemar's Test, no Bonferroni for dependent metrics) as the Single Source of Truth. The spec **must be amended** to align with the Constitution before the project can proceed to `research_complete`.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers` (CPU-only), `torch` (CPU-only), `scikit-learn`, `pandas`, `datasets`, `numpy`, `soundfile`  
-**Storage**: Local filesystem (`data/` for raw/processed data, `models/` for artifacts, `results/` for reports, `state/` for versioning)  
-**Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Computational research pipeline / CLI  
-**Performance Goals**: Total runtime < 6 hours; Peak RAM < 7 GB; Embedding extraction < 15 mins for 100 samples  
-**Constraints**: NO GPU/CUDA; NO deep-net training; NO 8-bit/4-bit quantization requiring CUDA; strict adherence to dataset-variable fit (verified labels independent of encoder stats); strict data separation (training vs. test) for statistics.  
-**Scale/Scope**: Processing a subset of verified LALM adversarial datasets (approx. k to memory-constrained scale); single-node execution.
+**Primary Dependencies**: `transformers` (CPU-optimized), `torch` (CPU-only), `scikit-learn`, `pandas`, `numpy`, `librosa` (for audio loading), `datasets` (HuggingFace)  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/embeddings`), Parquet/NPY formats  
+**Testing**: `pytest` (unit tests for data loading, model inference, statistical calculations)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7 GB RAM, No GPU)  
+**Project Type**: Research pipeline / CLI  
+**Performance Goals**: Throughput ≥ 10 samples/hour; Peak RAM ≤ 6.5 GB; Total runtime ≤ 6 hours  
+**Constraints**: No CUDA, no GPU acceleration, no fine-tuning of the encoder, no large-batch processing  
+**Scale/Scope**: Processing of a subset of the AudioBench/ALFRED datasets (size deferred to research phase, but capped to fit RAM)
 
-> Domain-specific empirical specifics (exact sample counts, measured runtimes) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Status | Action / Verification |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Status | Implementation Strategy |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, fixed random seeds, and deterministic data fetching from verified URLs. |
-| **II. Verified Accuracy** | PASS | Plan restricts dataset sources to the "Verified datasets" block in the spec. No external URLs will be invented. |
-| **III. Data Hygiene** | PASS | Plan includes checksumming of downloaded datasets and separation of raw vs. derived data. |
-| **IV. Single Source of Truth** | PASS | All metrics (Precision, Recall, F1, Mahalanobis r) derived from `code/` execution, not hand-typed. |
-| **V. Versioning Discipline** | PASS | Plan explicitly includes a step to write artifact hashes to `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml` after each major phase. |
-| **VI. CPU-Only Inference** | PASS | Plan explicitly selects `torch` CPU wheels and `distil-whisper` (or similar) without CUDA flags. |
-| **VII. Latent-Space Protocol** | PASS | Plan centers on Mahalanobis distance and Logistic Regression on embeddings, not retraining the encoder. Includes random noise baseline to avoid tautology. |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. External datasets fetched from canonical HuggingFace sources via `datasets` library. `requirements.txt` pins all dependencies. |
+| **II. Verified Accuracy** | **PASS** | All dataset citations in `research.md` will be restricted to the "Verified datasets" block provided by the system. No fabricated URLs. |
+| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/`. Embeddings written to `data/embeddings/` with checksums recorded in `state/`. No in-place modification. |
+| **IV. Single Source of Truth** | **PASS** | All metrics (Recall, FPR, p-value) generated by `code/` scripts and loaded into the paper/report via automated parsing. No hand-typed numbers. |
+| **V. Versioning Discipline** | **PASS** | Content hashes for datasets and code artifacts will be managed by the `state/` YAML file. |
+| **VI. Lightweight Inference & CPU-First** | **PASS** | Pipeline uses frozen `distil-whisper` (CPU compatible). No training of deep nets. Memory usage monitored via `psutil` with hard limits. |
+| **VII. Latent-Space Statistical Anomaly Validation** | **PASS** | Plan implements **McNemar's Test** (per Constitution) against a random baseline. Sensitivity analysis (threshold sweep) included. **Note**: This overrides FR-006 (Binomial Test) in the spec; spec amendment required. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-gene-regulation/
+specs/001-latent-space-jailbreak-detection/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    └── embedding.schema.yaml
+├── contracts/           # Phase 1 output (CREATED in Phase 1)
+│   ├── dataset.schema.yaml
+│   └── embedding.schema.yaml
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-src/
+projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/code/
+├── requirements.txt
+├── config.py            # Global config, seeds, paths
 ├── data/
-│   ├── download.py          # Fetches verified datasets
-│   ├── preprocess.py        # Handles audio loading, error skipping (FR-005), label validation
-│   └── embed.py             # Extracts frozen encoder embeddings (FR-001)
+│   ├── download.py      # Dataset fetching & checksumming
+│   ├── preprocess.py    # Audio loading, normalization, batching
+│   └── extract.py       # Embedding extraction (Frozen Encoder)
 ├── models/
-│   ├── train.py             # Logistic Regression training (FR-002)
-│   └── eval.py              # Metrics, baseline comparison, resource logging (FR-003, FR-004)
+│   ├── train.py         # Logistic Regression & SVM training
+│   └── eval.py          # Metrics, Sensitivity Analysis, McNemar's Test
 ├── utils/
-│   ├── stats.py             # Mahalanobis distance calculation with Ledoit-Wolf (FR-006)
-│   └── config.py            # Random seeds, paths, state file management
-└── cli/
-    └── run_pipeline.py      # Orchestrates download -> embed -> train -> eval -> state-update
-
-tests/
-├── contract/
-│   ├── test_dataset_schema.py
-│   └── test_embedding_schema.py
-├── unit/
-│   └── test_stats.py
-└── integration/
-    └── test_full_pipeline.py
+│   ├── logging.py
+│   └── memory_monitor.py
+└── tests/
+    ├── test_data.py
+    ├── test_model.py
+    └── test_stats.py
 ```
 
-**Structure Decision**: Single project structure (`src/`) chosen to simplify data flow for a research pipeline. No separate frontend/backend required. `cli/` ensures end-to-end reproducibility.
+**Structure Decision**: Single project structure chosen to minimize overhead for a research pipeline. All scripts are CLI-driven to ensure reproducibility in CI.
 
-## Phase Breakdown & FR/SC Mapping
+## Complexity Tracking
 
-### Phase 0: Data Acquisition, Verification & Label Validation
-*   **Goal**: Download, verify integrity, and validate label independence of verified datasets.
-*   **FR Coverage**:
-    *   **FR-007**: Verify ground truth independence (check dataset documentation for labeling methodology).
-    *   **FR-005**: Implement robust loading (skip corrupted files).
-    *   **Label Validation**: Explicitly verify that 'jailbreak' labels are not derived from encoder statistics.
-*   **SC Coverage**:
-    *   **SC-002**: Log start time.
-*   **Steps**:
-    1.  Fetch datasets from verified URLs (LALM Adversarial subsets, if available; otherwise, fallback to verified benign TTS + random noise generation).
-    2.  Compute SHA-256 checksums; validate against `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml` `artifact_hashes` map.
-    3.  **Label Validation**: Inspect metadata to confirm `jailbreak`/`benign` labels exist. If labels are ambiguous (e.g., "emotional damage"), map them only if the definition aligns with adversarial intent. If not, exclude the dataset or use it only for benign baseline construction.
-    4.  Define `state` file schema: `artifact_hashes` map where keys are file paths and values are SHA-256 strings.
+> **N/A**: The project scope is strictly defined by the spec and constrained by CPU resources. No complex architectural patterns (e.g., microservices, complex state management) are introduced.
 
-### Phase 1: Embedding Extraction (CPU-Only)
-*   **Goal**: Extract fixed-dimensional vectors using frozen encoder.
-*   **FR Coverage**:
-    *   **FR-001**: Extract embeddings on CPU, no CUDA.
-    *   **FR-005**: Skip corrupted audio, log errors.
-*   **SC Coverage**:
-    *   **SC-002**: Monitor time per batch.
-*   **Steps**:
-    1.  Load `distil-whisper-base` (output dimension appropriate to the chosen model architecture, matching `AudioEmbedding` contract within the expected range) in `torch.no_grad()` mode, device=`cpu`.
-    2.  Iterate batches (size=32).
-    3.  Save embeddings + labels to `data/embeddings.parquet`.
-    4.  **Dimension Check**: Verify output dimension is consistent with the model specification.
+## Plan Phases & FR/SC Mapping
 
-### Phase 2: Anomaly Scoring, Classification & Baseline Testing
-*   **Goal**: Compute Mahalanobis distance (with regularization), train classifier, and test against random noise.
-*   **FR Coverage**:
-    *   **FR-002**: Train Logistic Regression (We will employ a standard train-test split. The research question remains: [Research Question]. The method will be: [Method]. References: [Citations].).
-    *   **FR-006**: Calculate Mahalanobis distance from benign centroid (stored as `AnomalyScore` entity).
-*   **SC Coverage**:
-    *   **SC-005**: Calculate Pearson correlation (r) between Mahalanobis distance and labels.
-    *   **SC-004**: Compare F1 against stratified random baseline.
-*   **Steps**:
-    1.  **Strict Data Split**: Split data into Train (majority) and Test (minority) **before** any statistical calculation.
-    2.  **Centroid Calculation**: Compute mean $\mu_{benign}$ and covariance $\Sigma$ **only** from the **Training Set's** benign samples.
-        *   **Regularization**: Use `LedoitWolf` covariance estimator to handle high dimensionality vs. sample size.
-    3.  **Anomaly Scoring**: Calculate Mahalanobis distance for all samples (Train and Test) using $\mu_{benign}$ and $\Sigma$ from Step 2. Store results as `AnomalyScore` entity.
-    4.  **Random Noise Baseline**: Generate synthetic random noise vectors (Gaussian, same dim) and calculate their distance to $\mu_{benign}$ to establish a general audio manifold baseline.
-    5.  Train `LogisticRegression` (CPU, no GPU) on Train set embeddings.
-    6.  Generate predictions and probabilities for Test set.
+### Phase 0: Research & Dataset Verification
+*Goal: Confirm dataset availability and variable fit.*
+- **FR-001**: Verify `distil-whisper` availability on CPU.
+- **FR-007**: Verify `librosa` and `torch` CPU wheels install correctly.
+- **SC-004/SC-005**: Estimate memory footprint for the target dataset subset.
+- **Action**: Check "Verified datasets" block.
+  - **CRITICAL**: If no verified audio dataset (e.g., AudioBench, ALFRED) is present, the pipeline **MUST HALT** with a `FATAL: Missing Verified Audio Dataset` error.
+  - **NO Synthetic Data**: Synthetic audio (e.g., sine waves) is **NOT** a valid proxy for the research question and will not be used.
+  - **Spec Conflict**: The plan notes that the spec (FR-006, SC-003) requires a Binomial Test, but the Constitution (Principle VII) requires McNemar's Test. The plan follows the Constitution. The spec **must be amended** to resolve this conflict.
 
-### Phase 3: Evaluation, Reporting & State Update
-*   **Goal**: Generate metrics, resource logs, and update versioning state.
-*   **FR Coverage**:
-    *   **FR-003**: Evaluate Precision, Recall, F1.
-    *   **FR-004**: Log RAM usage and total wall-clock time.
-*   **SC Coverage**:
-    *   **SC-001**: Measure Recall against ground truth.
-    *   **SC-002**: Verify total time < 6 hours.
-    *   **SC-003**: Verify RAM < 7 GB.
-*   **Steps**:
-    1.  Compute metrics.
-    2.  Profile memory (using `tracemalloc` or `psutil`).
-    3.  Write `results/report.md` and `results/resource_log.json`.
-    4.  **State Update**: Compute SHA-256 hashes for all output artifacts (embeddings, models, reports) and update `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml` `artifact_hashes` map.
+### Phase 1: Data Engineering (Embedding Extraction)
+*Goal: Generate the feature matrix.*
+- **FR-001**: Extract embeddings using frozen encoder.
+- **FR-007**: Implement batch processing to stay under 7 GB RAM.
+- **FR-001 (Test)**: Output `.npy` or `.parquet` with no NaN/Inf.
+- **SC-004**: Monitor peak RAM.
+- **Output**: `contracts/dataset.schema.yaml` and `contracts/embedding.schema.yaml` are **created** in this phase to define the input/output schemas.
 
-## Compute Feasibility Strategy
+### Phase 2: Model Training & Evaluation
+*Goal: Train classifier and compute metrics.*
+- **FR-002**: Train Logistic Regression.
+- **FR-003**: Stratified 80/20 split.
+- **FR-004**: Compute Precision, Recall, FPR, AUC-ROC, AUC-PR.
+- **FR-006 (Override)**: Perform **McNemar's Test** (per Constitution Principle VII) comparing the classifier against a random-guessing baseline (or a dummy classifier) to validate discriminative power.
+  - **Note**: This overrides the spec's Binomial Test requirement. The spec must be amended.
+- **SC-001**: Compare Recall to a random baseline (not majority class).
+- **SC-003**: Validate p < 0.05 (after McNemar's test).
 
-- **Memory Management**: Process audio in batches of a fixed size. If RAM approaches a high threshold, reduce batch size to. Use `float32` (default) but avoid storing full intermediate tensors.
-- **CPU Optimization**: Use `The number of threads will be configured to a fixed integer value.
+### Phase 3: Statistical Validation & Sensitivity
+*Goal: Robustness checks.*
+- **FR-005 (Explicit)**: Threshold sweep over **{0.3, 0.4, 0.5, 0.6, 0.7}** as mandated by FR-005.
+  - **FR-005 (Test)**: Report Recall/FPR variation.
+  - **SC-002**: Analyze variation trend.
+- **FR-006 (Extension)**: **No Bonferroni correction** is applied to dependent metrics (Precision, Recall, FPR) as they are not independent hypotheses. The primary hypothesis test is McNemar's Test.
+  - **Note**: This overrides the spec's Bonferroni requirement (User Story 3, Acceptance Scenario 2). The spec must be amended.
 
-Research Question: How does thread configuration impact computational efficiency in PyTorch workflows?
-Method: Controlled experiments varying thread settings while measuring execution time.
-References: Paszke et al. (2019)` to match the runner. Disable CUDA (`os.environ["CUDA_VISIBLE_DEVICES"]=""`).
-- **Dataset Sampling**: If the full LALM dataset exceeds memory/time limits, the plan will implement a stratified random sampling step (e.g., A large sample size will be utilized.) *before* embedding extraction to ensure the 6-hour limit is met.
-- **Library Pins**: `torch` (CPU wheel), `transformers` (latest stable), `scikit-learn` (latest).
-- **Covariance Regularization**: Use `LedoitWolf` to ensure mathematical validity when $N_{samples} < N_{dimensions}$.
+### Phase 4: Integration & Reporting
+*Goal: Finalize artifacts.*
+- **Constitution Principle IV**: Ensure all metrics trace to code outputs.
+- **Constitution Principle I**: Run full pipeline end-to-end on CI.
+- **Spec Kickback**: Generate a report highlighting the conflicts between the spec (Binomial Test, Bonferroni) and the Constitution (McNemar's Test, no Bonferroni) to trigger a spec amendment.

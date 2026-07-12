@@ -1,6 +1,6 @@
 {
   "candidate_pointer": "2312.00249",
-  "judged_at": "2026-07-12T08:25:57Z",
+  "judged_at": "2026-07-12T08:25:03Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"a survey of large audio language models: generalization, trustworthine\" computer science",

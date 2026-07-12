@@ -1,0 +1,111 @@
+# Dataset Schema for LlmXive Jailbreak Detection Pipeline
+# Defines the expected structure of the raw audio dataset downloaded from audio_bench/jailbreak_v1
+# Source: HuggingFace datasets library -> audio_bench/jailbreak_v1
+# Address: ordering-c952aaa0
+
+$schema: http://json-schema.org/draft-07/schema#
+title: JailbreakAudioDataset
+description: >
+  Schema for the raw audio dataset containing jailbreak and benign audio samples.
+  This schema defines the structure of the DataFrame loaded from the HuggingFace dataset.
+
+type: object
+required:
+  - fields
+  - features
+properties:
+  fields:
+    type: array
+    items:
+      type: string
+    description: List of column names in the dataset
+    const:
+      - audio
+      - label
+      - text
+      - id
+
+  features:
+    type: object
+    description: Detailed feature definitions
+    required:
+      - audio
+      - label
+      - text
+      - id
+    properties:
+      audio:
+        type: object
+        description: Audio file path and metadata (processed by datasets library)
+        properties:
+          path:
+            type: string
+            description: Local path to the audio file
+          bytes:
+            type: integer
+            description: Size of the audio file in bytes (optional, depends on download config)
+          array:
+            type: array
+            items:
+              type: number
+            description: Audio waveform array (float32)
+          sampling_rate:
+            type: integer
+            description: Sampling rate of the audio (expected: 16000 or 44100)
+
+      label:
+        type: integer
+        description: >
+          Binary classification label.
+          0 = Benign (safe)
+          1 = Jailbreak (attack)
+        enum:
+          - 0
+          - 1
+
+      text:
+        type: string
+        description: Transcription or associated text prompt for the audio sample
+
+      id:
+        type: string
+        description: Unique identifier for the sample
+
+  expected_row_count:
+    type: integer
+    minimum: 1
+    description: Minimum expected number of samples in the dataset
+
+  validation_rules:
+    type: object
+    properties:
+      label_distribution:
+        type: object
+        properties:
+          benign_min_ratio:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+            default: 0.1
+          jailbreak_min_ratio:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+            default: 0.1
+        description: Ensures dataset is not trivially imbalanced
+
+      audio_format:
+        type: string
+        default: "wav"
+        description: Expected audio file extension/format
+
+      sampling_rate_tolerance:
+        type: integer
+        default: 1000
+        description: Allowed deviation in sampling rate for normalization
+
+metadata:
+  source: "audio_bench/jailbreak_v1"
+  version: "1.0.0"
+  generated_at: "2023-10-27"
+  purpose: "Pre-download validation and schema enforcement"

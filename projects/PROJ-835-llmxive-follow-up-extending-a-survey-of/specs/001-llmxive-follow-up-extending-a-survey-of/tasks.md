@@ -1,9 +1,9 @@
-# Tasks: LLMXive Follow-up: Extending "A Survey of Large Audio Language Models"
+# Tasks: LlmXive Follow-up: Latent-Space Jailbreak Detection
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
+**Input**: Design documents from `/specs/001-llmxive-follow-up-extending-a-survey-of/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are MANDATORY to satisfy the Independent Test criteria defined in the User Stories.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -20,140 +20,127 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `models/`, `results/`, `state/`)
-- [ ] T002 Initialize Python 3.11 project with pinned `requirements.txt` (torch-cpu, transformers, scikit-learn, pandas, soundfile, datasets)
+- [ ] T001 Create project structure per implementation plan (`projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/code/`)
+- [ ] T002 Initialize Python project with `requirements.txt` (transformers, torch-cpu, scikit-learn, pandas, numpy, librosa, datasets, psutil)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure, design artifacts, and constraint verification that MUST be complete before ANY user story can be implemented.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. This includes verifying the statistical methodology override and data schemas.
 
-- [ ] T004 Implement `src/utils/config.py` for random seeds, path management, and state file I/O
-- [ ] T005 [P] Setup `tests/contract/` directory and schema validation utilities for YAML/JSON artifacts
-- [ ] T006 [P] Create `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml` with initial `artifact_hashes` map
-- [ ] T007a [P] Implement `src/utils/stats.py` Mahalanobis distance calculation logic using `LedoitWolf` covariance estimator (FR-006)
-- [ ] T007b [P] Save the implemented Mahalanobis utility to `src/utils/stats.py` with proper documentation
-- [ ] T008 Configure error handling and logging infrastructure (global logger with file and console handlers)
-- [ ] T009 Setup environment configuration to enforce CPU-only execution (`os.environ["CUDA_VISIBLE_DEVICES"]=""`)
+- [ ] T004 Create `config.py` with global paths, random seeds, and memory limits (limited capacity)
+- [ ] T005 [P] Implement `utils/memory_monitor.py` to track peak RAM and enforce hard limits
+- [ ] T006 [P] Implement `utils/logging.py` for structured logging of pipeline steps
+- [~] T007 Create `data/` directory structure (`raw`, `processed`, `embeddings`)
+- [~] T008 [P] **Generate `research.md`** artifact with dataset verification details (Moved from Phase 6 to align with Plan Phase 0)
+- [~] T008b [P] **Generate `data-model.md`** artifact with schema definitions (Moved from Phase 6 to align with Plan Phase 0)
+- [~] T008a [P] **Encoder Verification**: Implement `utils/encoder_verify.py` to test `distil-whisper/distil-large-v2` and `openai/whisper-distil-base` on CPU; log availability and memory footprint (Addresses FR-001 flexibility)
+- [~] T008b [P] **Runtime Limit Assertion**: Implement `utils/runtime_verify.py` to assert that a dummy extraction of 100 samples completes in < 6h equivalent time (Addresses FR-007)
+- [~] T014a [P] **Define Data Schemas**: Generate `contracts/dataset.schema.yaml` and `contracts/embedding.schema.yaml` defining input/output formats **BEFORE** data download (Addresses ordering-c952aaa0; moved from Phase 3 to Phase 2)
+- [~] T018b [P] **Document Constitutional Override**: Generate `results/methodology_notes.md` explicitly documenting the override of Spec FR-006 (Binomial Test) with Constitution Principle VII (McNemar's Test) and the omission of Bonferroni correction (Addresses ordering-cd24e1ac; moved from Phase 4 to Phase 2)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 2.5: Data Verification & Label Independence Gate
+## Phase 3: User Story 1 - CPU-Only Embedding Extraction Pipeline (Priority: P1) 🎯 MVP
 
-**Purpose**: Explicitly validate dataset labeling methodology before embedding extraction (FR-007)
+**Goal**: Extract fixed-dimensional latent embeddings from audio samples using a frozen, lightweight encoder on CPU-only environment.
 
-- [ ] T011b [US1] Implement `src/data/verify_labels.py` to perform an automated check for the *absence* of latent-space correlation in dataset metadata; fail the pipeline if such correlation is detected (FR-007)
-
-**Checkpoint**: Label independence verified - safe to proceed with embedding extraction
-
----
-
-## Phase 3: User Story 1 - CPU-Only Latent Embedding Extraction (Priority: P1) 🎯 MVP
-
-**Goal**: Extract fixed-dimensional latent embeddings from audio-text pairs using a frozen, lightweight encoder on CPU.
-
-**Independent Test**: Run extraction on 100 benign files on a 2-core CPU runner; verify JSON output of fixed-size vectors without CUDA errors within 15 mins.
-
-### Tests for User Story 1 (MANDATORY) ⚠️
-
-- [ ] T010 [P] [US1] Contract test for embedding output schema in `tests/contract/test_embedding_schema.py`
-- [ ] T011 [P] [US1] Integration test for error handling (corrupted files) in `tests/integration/test_error_handling.py`
+**Independent Test**: The pipeline runs on a representative subset of samples on a local CPU machine with ≤ 7 GB RAM [UNRESOLVED-CLAIM: c_12b9d44f — status=not_enough_info], outputting a valid matrix of floats without OOM errors.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch verified datasets (LALM subsets); if unavailable, implement fallback logic to generate 'verified benign TTS + random noise' data (FR-007, FR-005)
-- [ ] T013 [P] [US1] Implement `src/data/preprocess.py` to load audio, skip corrupted files gracefully, and validate label independence (FR-005)
-- [ ] T014 [US1] Implement `src/data/embed.py` to load `distil-whisper-base` (CPU-only), extract embeddings in batches (size=32), and save to `data/embeddings.parquet` (Parquet format) (FR-001)
-- [ ] T015 [US1] Add dimensionality validation logic to ensure encoder output matches expected `AudioEmbedding` shape before saving
-- [ ] T016 [US1] Implement resource logging for embedding extraction phase (time per batch, peak RAM)
+- [~] T009 [US1] Implement `data/download.py` to fetch real audio data from verified source `audio_bench/jailbreak_v1` (via `datasets` library) with checksum verification; fallback to `audio_bench` if config missing (Addresses executability-926f92f3)
+- [~] T014b [US1] **Validate Schemas**: Implement `data/validate.py` to verify downloaded data against `contracts/dataset.schema.yaml` (Addresses executability-d5676129)
+- [~] T010 [US1] Implement `data/preprocess.py` to load audio files using `librosa`, normalize, and handle corrupted headers (skip/log)
+- [ ] T011 [US1] Implement `data/extract.py` to load frozen `distil-whisper/distil-large-v` (CPU mode, fallback `openai/whisper-distil-base`) and extract embeddings in batches (Addresses executability-5bd844ff)
+- [ ] T012 [US1] Add memory monitoring logic in `data/extract.py` to ensure peak RAM ≤ 6.5 GB [UNRESOLVED-CLAIM: c_7d54b83b — status=not_enough_info]
+- [ ] T013 [US1] Write output embeddings to `data/embeddings/` as `.npy` or `.parquet` (verify no NaN/Inf)
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: Embeddings extracted successfully; US1 functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Lightweight Binary Classifier Training (Priority: P2)
+## Phase 4: User Story 2 - Lightweight Binary Classifier Training & Evaluation (Priority: P2)
 
-**Goal**: Train a Logistic Regression classifier on extracted embeddings to distinguish jailbreak vs. benign samples.
+**Goal**: Train a Logistic Regression classifier on embeddings to distinguish "jailbreak" vs "benign" and evaluate performance.
 
-**Independent Test**: Train on [deferred] of data; verify model convergence, non-zero weights, and probability output for test set within 5 mins on CPU.
-
-### Tests for User Story 2 (MANDATORY) ⚠️
-
-- [ ] T018 [P] [US2] Contract test for model artifact schema in `tests/contract/test_model_schema.py`
-- [ ] T019 [P] [US2] Integration test for train/test split integrity in `tests/integration/test_data_split.py`
+**Independent Test**: Model trains on pre-computed embeddings, outputs a confusion matrix, and calculates Recall/FPR.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `src/models/train.py` to perform a stratified split of embeddings and labels into training and testing subsets. (FR-002)
-- [ ] T021 [US2] Implement `src/models/train.py` to train `LogisticRegression` (CPU, no GPU) on the training split (FR-002)
-- [ ] T022 [US2] Implement `src/models/train.py` to calculate benign centroid ($\mu_{benign}$) and covariance ($\Sigma$) **only** from the Training Set's benign samples
-- [ ] T022b [US2] Implement `src/models/train.py` to calculate Mahalanobis distance for **ALL samples** (train and test) using the benign centroid/covariance and save the unified AnomalyScore report to `data/anomaly_scores.parquet` (FR-006)
-- [ ] T023 [US2] Generate synthetic random noise baseline (Gaussian, same dim) and calculate its distance to $\mu_{benign}$ for comparison
-- [ ] T024 [US2] Save trained model artifact and prediction probabilities to `results/predictions.csv`
+- [ ] T015 [US2] Implement `models/train.py` to load embeddings and labels
+- [ ] T015b [US2] **Implement Stratified Split**: Explicitly implement and log the stratified 80/20 split [UNRESOLVED-CLAIM: c_ccc8fc44 — status=not_enough_info] logic in `models/train.py` to satisfy FR-003 (Addresses coverage-b51c41a3)
+- [ ] T016 [US2] Train Logistic Regression model in `models/train.py` (with SVM fallback logic if needed)
+- [ ] T017 [US2] Implement `models/eval.py` to compute Precision, Recall, FPR, and AUC-ROC on held-out test set
+- [ ] T017a [US2] Implement **Majority-Class Predictor Baseline** in `models/eval.py` to compute metrics for SC-001 verification (Secondary Verification only; distinct from Primary Validation) (Addresses constraint_preservation-f1e7d30f)
+- [ ] T018 [US2] Implement **McNemar's Test** in `models/eval.py` comparing classifier against a **random-guessing baseline** (using `DummyClassifier(strategy='stratified')` with fixed seed) per Constitution Principle VII. *Note: This is a Staged Deviation from Spec FR-006; see `results/methodology_notes.md` (T018b).* (Addresses executability-8128fa79, constraint_preservation-bcf9da83, F001)
+- [ ] T018c [US2] **Implement Threshold Check**: Explicitly implement the `p < 0.05` threshold check and pass/fail logic for SC-003 in `models/eval.py` (Addresses coverage-5ebaf3a7)
+- [ ] T019 [US2] Log all metrics to `results/metrics.json` for automated parsing (Constitution Principle IV)
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: Classifier trained and evaluated; US2 functional and testable independently
 
 ---
 
-## Phase 5: User Story 3 - Performance Evaluation and Resource Profiling (Priority: P3)
+## Phase 5: User Story 3 - Statistical Validation & Sensitivity Analysis (Priority: P3)
 
-**Goal**: Evaluate classifier metrics, compare against baseline, and verify pipeline fits 6h/7GB constraints.
+**Goal**: Perform sensitivity analysis on decision thresholds and validate robustness.
 
-**Independent Test**: Run evaluation script; verify report contains Precision/Recall/F1, baseline comparison, and resource logs confirming <6h/<7GB.
-
-### Tests for User Story 3 (MANDATORY) ⚠️
-
-- [ ] T025 [P] [US3] Contract test for evaluation report schema in `tests/contract/test_report_schema.py` (Written BEFORE T027/T029; depends on spec.md/contracts schema definition, not implementation tasks)
-- [ ] T026 [P] [US3] Integration test for full pipeline resource constraints in `tests/integration/test_resource_limits.py`
+**Independent Test**: Script sweeps thresholds across a range of values. and generates a report showing Recall/FPR variation.
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `src/models/eval.py` to calculate Precision, Recall, F1-score and compare against stratified random baseline (FR-003)
-- [ ] T027b [US3] Implement `src/models/eval.py` to read `data/anomaly_scores.parquet` (from T022b), calculate Pearson correlation (r) between Mahalanobis distance and jailbreak labels, **perform hypothesis test**, and verify threshold (p < 0.05 or r > 0.3) as required by SC-005; save results to `results/correlation.json`
-- [ ] T028 [US3] Implement `src/models/eval.py` to profile RAM usage (`tracemalloc`/`psutil`) and total wall-clock time (FR-004)
-- [ ] T029 [US3] Generate `results/report.md` containing all metrics and `results/resource_log.json`
-- [ ] T030 [US3] Implement state update logic to compute SHA-256 hashes for all artifacts and update `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml`
+- [ ] T020 [US3] Implement `models/eval.py` threshold sweep logic (Unit test logic)
+- [ ] T020a [US3] **Generate Synthetic Data**: Implement `tests/generate_synthetic.py` to create synthetic data with known properties for T020 unit tests (Addresses executability-f0b31241)
+- [ ] T021 [US3] Run sensitivity analysis unit tests with synthetic data to verify sweep logic independence
+- [ ] T022 [US3] **Run Real Data Sensitivity**: Sweep thresholds over the **exact set {0.3, 0.4, 0.5, 0.6, 0.7}** on actual model scores from T017/T018 and generate `results/sensitivity_report.md` (Addresses coverage-82d145dd)
+- [ ] T022a [US3] **Document Bonferroni Omission**: In `results/sensitivity_report.md`, explicitly cite Constitution Principle VII and link to `results/methodology_notes.md` (T018b) as the justification for omitting Bonferroni correction (Staged Deviation from Spec US-3) (Addresses constraint_preservation-71bbe128)
+- [ ] T022b [US3] Document justification for threshold 0.5 default and confirm stability against minor deviations
 
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: Sensitivity analysis complete; US3 functional and testable independently
 
 ---
 
-## Phase 6: Orchestration & CLI
+## Phase 6: Polish & Cross-Cutting Concerns
 
-**Purpose**: Connect all phases into a single executable pipeline
+**Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T031 [P] Implement `src/cli/run_pipeline.py` to orchestrate download -> embed -> train -> eval -> state-update
-- [ ] T032 [P] Add CLI argument parsing for dataset sampling size and batch size configuration
-- [ ] T033 [P] Create `quickstart.md` with instructions to run the full pipeline on a free-tier runner
+- [ ] T024 [P] Write unit tests for data loading and embedding extraction in `tests/test_data.py`
+- [ ] T025 [P] Write unit tests for model training and statistical tests in `tests/test_model.py`
+- [ ] T026 [P] Write unit tests for sensitivity analysis in `tests/test_stats.py`
+- [ ] T027 Run full pipeline end-to-end on CI (GitHub Actions free-tier) to verify ≤ 6h runtime
+- [ ] T027a [P] **Assert Runtime Limit**: Explicitly assert that the total pipeline runtime is ≤ 6h [UNRESOLVED-CLAIM: c_a90babae — status=not_enough_info] in the CI script; fail if exceeded (Addresses coverage-c452d5c7)
+- [ ] T029a [P] Generate `specs/001-llmxive-follow-up-extending-a-survey-of/amendment_report.md` explicitly listing: (1) FR-006 Binomial Test vs Constitution McNemar's Test conflict, (2) Bonferroni omission justification, (3) Proposed spec amendments. *MUST be completed before final research acceptance.*
+- [ ] T029b [P] Review `amendment_report.md` and update `spec.md` to reflect Constitution requirements (if approved)
+- [ ] T030 Run `quickstart.md` validation
 
 ---
 
@@ -163,23 +150,20 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **Data Verification (Phase 2.5)**: Depends on Foundational; BLOCKS Phase 3
-- **User Stories (Phase 3+)**: All depend on Foundational and Data Verification phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational + Data Verification - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational + Data Verification - Depends on T012/T013/T014 (Data/Embeddings)
-- **User Story 3 (P3)**: Can start after Foundational + Data Verification - Depends on T020/T021/T022 (Model/Predictions)
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Depends on US1 completion (requires embeddings)
+- **User Story 3 (P3)**: Depends on US2 completion (requires model scores)
 
 ### Within Each User Story
 
-- Tests (Mandatory) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
+- Models before services (where applicable)
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -187,32 +171,21 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational + Data Verification phases complete, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
-### Specific Task Dependencies
-
-- **T020** (Split) MUST complete before **T021** (Train) and **T022** (Centroid)
-- **T022** (Centroid) MUST complete before **T022b** (Unified AnomalyScore)
-- **T022b** (Unified AnomalyScore) MUST complete before **T027b** (Correlation/Validation)
-- **T025** (Contract Test) depends on the **specification** of the schema (from spec.md/contracts), NOT on implementation tasks T027/T029.
-- **T027b** (Correlation) is NOT parallel-safe ([P] removed) as it consumes T022b outputs.
-- **T025** (Contract Test) is written before T027/T029 to define the schema, but logically depends on the spec, not the implementation.
 
 ---
 
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (MANDATORY):
-Task: "Contract test for embedding output schema in tests/contract/test_embedding_schema.py"
-Task: "Integration test for error handling in tests/integration/test_error_handling.py"
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Unit test for data loading in tests/test_data.py"
+Task: "Unit test for embedding extraction in tests/test_data.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement src/data/download.py"
-Task: "Implement src/data/preprocess.py"
+Task: "Implement data/download.py"
+Task: "Implement data/preprocess.py"
 ```
 
 ---
@@ -223,14 +196,13 @@ Task: "Implement src/data/preprocess.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 2.5: Data Verification (CRITICAL - blocks US1)
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently
-6. Deploy/demo if ready
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently (verify embeddings extracted within RAM limits)
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational + Data Verification → Foundation ready
+1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
@@ -240,11 +212,11 @@ Task: "Implement src/data/preprocess.py"
 
 With multiple developers:
 
-1. Team completes Setup + Foundational + Data Verification together
-2. Once Foundational + Data Verification is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Model Training)
+ - Developer C: User Story 3 (Sensitivity Analysis)
 3. Stories complete and integrate independently
 
 ---
@@ -257,8 +229,10 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: T020 must complete before T021/T022; T022 must complete before T022b; T022b must complete before T027b.
-- **Critical**: T025 depends on the *specification* of the schema (from spec.md/contracts), not on the implementation tasks T027/T029.
-- **Critical**: T014 must output to `data/embeddings.parquet` as per plan.md.
-- **Critical**: T022b must calculate Mahalanobis distance for *all* samples to generate the unified AnomalyScore report.
+- **Critical Constraint**: All tasks must run on free-tier CI (CPU, standard memory constraints, No GPU). No 8-bit quantization or CUDA usage allowed.
+- **Critical Constraint**: Use **McNemar's Test** (Constitution) instead of Binomial Test (Spec). Primary test baseline is **random-guessing**. Spec's majority-class baseline is handled separately in T017a as a secondary verification.
+- **Critical Constraint**: Use **real datasets** only; no synthetic data or fabricated results.
+- **Critical Constraint**: **No Bonferroni correction** applied to dependent metrics per Constitution Principle VII (Staged Deviation; see T018b/T022a).
+- **Critical Constraint**: Schema generation (T014a) is now in Phase 2 to define data flow before extraction (T013).
+- **Critical Constraint**: T008a/T008b verify encoder availability and runtime limits before data processing begins.
+- **Critical Constraint**: T027a explicitly asserts the 6h runtime limit as a pass/fail condition.

@@ -1,0 +1,45 @@
+[ruff]
+# Target Python version
+target-version = "py310"
+
+# Exclude common directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I"]
+
+# Ignore specific rules if necessary
+ignore = []
+
+[ruff.lint.per-file-ignores]
+# Allow unused imports in __init__.py
+"__init__.py" = ["F401"]
+
+[ruff.lint.isort]
+# Configuration for import sorting
+known-first-party = ["setup_project_structure", "utils", "data", "models"]
+force-single-line = true
+lines-between-types = 1

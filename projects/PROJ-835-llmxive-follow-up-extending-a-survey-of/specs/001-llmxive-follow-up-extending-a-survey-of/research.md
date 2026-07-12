@@ -1,80 +1,79 @@
-# Research: LLMXive Follow-up: Latent Anomaly Detection for Audio Jailbreaks
-
-## Research Question
-Do statistical anomalies in the latent embedding space of pre-trained audio encoders correlate with cross-modal jailbreak attempts, enabling lightweight, rule-based detection without requiring model retraining or GPU resources?
-
-## Background & Motivation
-Cross-modal jailbreaking (e.g., adversarial audio prompts) is an emerging threat to Large Audio Language Models (LALMs). Traditional defenses often require fine-tuning or heavy model overhead, which is incompatible with edge deployment. This research hypothesizes that jailbreak samples, due to their adversarial nature, will occupy distinct regions in the latent space of frozen, benign-trained encoders (like Whisper), manifesting as statistical outliers.
+# Research: LlmXive Follow-up: Latent-Space Jailbreak Detection
 
 ## Dataset Strategy
 
-### Verified Datasets
-The following datasets are the **only** sources used for this research, as verified by the spec's "Verified datasets" block. **Note**: Text-only datasets are excluded from audio embedding extraction.
+### Verified Sources & Mismatch Analysis
 
-| Dataset Name | Source URL | Content | Relevance |
-| :--- | :--- | :--- | :--- |
-| **LALM: Adversarial Audio Subset** (If available) | *Deferred to verified URL in spec* | Audio samples with explicit "jailbreak" labels (e.g., "ignore instructions"). | **Primary Source** for audio-jailbreak pairs. |
-| **LALM: Benign TTS** (e.g., CosyVoice Instruct) | https://huggingface.co/datasets/LALM-emotional-damage/cosyvoice-instruct/resolve/main/data/train-00000-of-00005.parquet | Instruction-following audio samples. | **Primary Source** for benign/instructive audio baseline. |
-| **Random Noise** (Synthetic) | N/A | Synthetic Gaussian noise vectors matching embedding dimension. | **Control Baseline** to test if jailbreaks are outliers relative to a general audio manifold. |
+The project spec explicitly requires **audio** samples containing "jailbreak" and "benign" labels to extract latent embeddings.
+The provided "Verified datasets" block contains only one entry:
+- **URL**: `
+- **Content**: Text-only data (LLaMA-3.2).
 
-### Dataset-Variable Fit Analysis
-- **Required Variables**: `audio_path` (or raw audio bytes), `label` (jailbreak vs. benign), `prompt_text`.
-- **Fit Verification**:
-  - **Critical Check**: We must verify that the `label` field in these datasets was **not** derived using the same latent space statistics we intend to test (e.g., if the original paper labeled "jailbreak" based on a specific encoder's outlier score).
-  - **Label Mapping**: If a dataset contains ambiguous tags (e.g., "emotional damage"), we will map them to "jailbreak" **only** if the definition aligns with adversarial intent (e.g., presence of "ignore previous instructions"). If the label is purely emotional and not adversarial, that dataset will be **excluded** from the jailbreak class and used only for benign baseline construction.
-  - **Fallback**: If no verified dataset contains explicit "audio jailbreak" labels, the study will proceed with a "Benign vs. Random Noise" experiment to test the sensitivity of the anomaly detector, while explicitly acknowledging the limitation in the final report.
-- **Text-Only Exclusion**: The "MixSub (Text-Only)" dataset is excluded from the audio embedding pipeline as it lacks the required audio modality.
+**Critical Mismatch Identified**:
+The verified dataset is **text-only**. The feature specification (FR-001, US-1) requires **audio** samples to extract latent embeddings using an audio encoder (e.g., Whisper Base).
+- **Variable Fit**: The dataset lacks the `audio` variable required for the study. It contains text, not audio.
+- **Impact**: The primary hypothesis (latent-space anomalies in *audio* jailbreaks) **cannot be tested** using this specific verified dataset.
+- **Decision**:
+ 1. **Do NOT** use the text dataset as a proxy for audio without explicit spec amendment.
+ 2. **Do NOT** use synthetic audio (e.g., sine waves) as a fallback. Synthetic data lacks the semantic and acoustic complexity of real jailbreaks, rendering any statistical anomaly detection results invalid for the research question.
+ 3. **Action**: The implementation plan will **HALT** with a `FATAL: Missing Verified Audio Dataset` error if no verified audio dataset is found in the "Verified datasets" block.
+ 4. **Spec Kickback**: The project cannot proceed to `research_complete` until a verified audio dataset (e.g., AudioBench, ALFRED) is added to the "Verified datasets" block or the spec is amended to allow a different data source.
 
-## Methodology
+*Note: If the user intended to test *text* jailbreaks using a text encoder (e.g., BERT), the spec would need to be updated to reflect "Text-Based Latent-Space Jailbreak Detection". As written, the spec demands audio.*
 
-### 1. Embedding Extraction
-- **Encoder**: Distil-Whisper Base (Output dimension: 768).
-- **Reasoning**: Lightweight, frozen, proven on CPU, and widely used as a feature extractor.
-- **Process**:
-  1.  Load audio, resample to 16kHz.
-  2.  Pass through `model.get_encoder()` with `return_dict=True`, `output_hidden_states=False`.
-  3.  Extract the last hidden state mean-pool.
-  4.  **Constraint**: Run entirely on CPU (`device="cpu"`). No `torch.cuda`.
+### Data Loading Strategy (Assuming Audio Dataset Availability)
 
-### 2. Anomaly Scoring (Mahalanobis Distance)
-- **Hypothesis**: Benign samples cluster tightly; jailbreaks are outliers.
-- **Method**:
- 1. **Strict Data Separation**: Split data into Train ([deferred]) and Test ([deferred]) **before** calculating statistics.
-  2.  **Centroid Calculation**: Compute mean $\mu_{benign}$ and covariance $\Sigma$ **only** from the **Training Set's** benign samples.
-  3.  **Regularization**: Use `LedoitWolf` shrinkage estimator for $\Sigma$ to ensure invertibility when embedding dimension (768) > sample count.
-  4.  Calculate $D_M(x) = \sqrt{(x - \mu_{benign})^T \Sigma^{-1} (x - \mu_{benign})}$ for all samples.
-  5.  **Random Noise Baseline**: Generate synthetic Gaussian noise vectors of the same dimension and calculate their distance to $\mu_{benign}$. This tests if jailbreaks are outliers relative to a general "audio-like" distribution, avoiding tautological validation against the specific benign subset.
+If a verified audio dataset (e.g., `AudioBench` or `ALFRED` via `datasets` library) becomes available:
+- **Loader**: `datasets.load_dataset("huggingface-dataset-name", split="train")`
+- **Format**: Expecting columns: `audio` (path or array), `label` (jailbreak/benign).
+- **Preprocessing**:
+ - Resample to 16kHz (standard for Whisper).
+ - Normalize amplitude.
+ - Batch loading to prevent OOM (batch size = 8 or 16).
 
-### 3. Classification (Logistic Regression)
-- **Model**: `sklearn.linear_model.LogisticRegression`.
-- **Rationale**: Interpretable, fast, CPU-friendly, and sufficient for linear separability testing in latent space.
-- **Validation**: 80/20 stratified split. **Crucially**, the classifier is trained on the Train set, and the `AnomalyScore` for the Test set is computed using the Train set's statistics only.
+## Methodological Rationale
 
-### 4. Statistical Rigor & Assumptions
-- **Multiple Comparisons**: We are running a single primary test (correlation of Mahalanobis distance with labels) and one classification task. No family-wise error correction is strictly required for a single hypothesis, but we will report p-values.
-- **Sample Size/Power**:
-  - The LALM datasets are large, but we will sample to fit the 6-hour limit.
-  - **Acknowledgement**: If the resulting sample size is small (<1000), we will explicitly state the power limitation in the results.
-- **Causal Framing**:
-  - **Observational**: The data is observational (no random assignment of attacks).
-  - **Claim**: Findings will be framed as **associational correlations** between latent anomalies and jailbreak labels. We will **not** claim the anomalies *cause* the jailbreaks or that the model *prevents* them, only that they are detectable.
-- **Measurement Validity**:
-  - **Labels**: Validated against the original dataset paper (LALM survey) to ensure they represent true adversarial attempts.
-  - **Embeddings**: Validated by checking reconstruction loss on a held-out benign set (optional sanity check).
-- **Collinearity**:
-  - If we include text embeddings alongside audio, we must check for collinearity. However, the scope is **audio-only** embeddings.
-  - If we use multiple audio encoders, we must acknowledge they may share latent features. The plan focuses on **one** encoder (Whisper) to avoid this.
+### Encoder Selection: Distilled Whisper Base
+- **Rationale**: The spec requires a "frozen, lightweight audio encoder". Distilled Whisper Base is significantly smaller than the Base and Large models., making it feasible for CPU inference within 7 GB RAM while retaining sufficient acoustic feature representation.
+- **CPU Feasibility**: `transformers` supports CPU inference for Whisper. No CUDA required.
+- **Freezing**: Weights are frozen (`requires_grad=False`) to ensure no GPU memory is allocated for gradients and to strictly adhere to the "frozen" constraint.
 
-## Computational Constraints & Feasibility
-- **Hardware**: 2 CPU cores, 7 GB RAM.
-- **Strategy**:
-  - **Batching**: Process audio in small batches (32).
-  - **Precision**: Use `float32` (default). Avoid `float16` if it causes instability on CPU without GPU.
- - **Sampling**: If the full dataset is too large, we will perform stratified sampling *before* embedding extraction to ensure the total number of embeddings fits in memory (e.g., [deferred] samples * 768 dims * 4 bytes ≈ 15 MB, which is trivial; the bottleneck is audio decoding and model inference time).
-  - **Time**: 6 hours is generous for 5k-10k samples on a distilled model. If inference is slow, we will reduce the sample size further.
+### Classifier Selection: Logistic Regression & SVM Fallback
+- **Primary**: Logistic Regression.
+ - **Rationale**: Linear models are computationally cheap, interpretable, and less prone to overfitting on small/embedding datasets.
+ - **Hypothesis**: If jailbreaks create distinct statistical anomalies in the latent space, a linear boundary should suffice to separate them from benign samples.
+- **Fallback**: SVM with RBF Kernel.
+ - **Rationale**: To address the concern that jailbreak anomalies may be non-linear. If the linear model fails to show significant separation, the SVM will be used to determine if the anomaly is non-linear, preventing a false negative conclusion (Type II error).
+- **Baseline**: Random-guessing baseline (or dummy classifier predicting class distribution) is used for McNemar's Test to validate discriminative power, not just accuracy over imbalance.
 
-## Decision Rationale
-- **Why Logistic Regression?** It is the simplest linear classifier. If it fails, the hypothesis (linear separability in latent space) is likely false. More complex models (SVM, Random Forest) add computational overhead without necessarily proving the core "anomaly" hypothesis better.
-- **Why Mahalanobis?** It accounts for the covariance structure of the benign data, unlike Euclidean distance, making it more robust to anisotropic clusters.
-- **Why CPU-only?** To satisfy the edge-deployment constraint and the specific project constitution (Principle VI).
-- **Why Random Noise Baseline?** To avoid the tautological trap where "jailbreaks are far from benign" simply because they are "not benign". This tests if they are far from a general audio distribution.
+### Statistical Rigor Plan
+1. **Primary Test**: **McNemar's Test** (per Constitution Principle VII) comparing the proposed classifier against a random-guessing baseline. This tests if the model's classification is significantly better than random chance, validating the latent-space anomaly hypothesis.
+ - **Note**: This overrides the spec's requirement for a Binomial Test (FR-006, SC-003). The spec must be amended.
+2. **Multiple Comparisons**: **No Bonferroni correction** is applied to dependent metrics (Precision, Recall, FPR) as they are derived from the same confusion matrix and are not independent hypotheses. The primary hypothesis test (McNemar's) is the only one subject to alpha control.
+ - **Note**: This overrides the spec's requirement for Bonferroni correction (User Story 3, Acceptance Scenario 2). The spec must be amended.
+3. **Power Analysis**: Given the dataset size is deferred, the plan will calculate the minimum sample size required for [deferred] power to detect a small effect size (Cohen's h = 0.2) *post-hoc* if the sample is small, explicitly stating power limitations if underpowered.
+4. **Collinearity**: Since the input is a single embedding vector per sample, predictor collinearity is not an issue within the classifier itself. However, if multiple embedding dimensions are highly correlated (common in embeddings), Logistic Regression handles this via L2 regularization (default).
+5. **Threshold Justification**: The default 0.5 threshold is used, but FR-005 mandates a sensitivity analysis to prove the "high recall" conclusion is not an artifact of this specific cutoff.
+
+## Compute Feasibility Assessment
+
+- **Memory**:
+ - Embedding size: consistent with the Whisper Base architecture (Whisper Base)..
+ - Max samples: Available system RAM / (512 * 4 bytes * 2 (floats + overhead)) ≈ a large number of samples theoretically, but audio loading overhead reduces this.
+ - **Strategy**: Process in batches of 32. Store embeddings in `float32` `.npy` files.
+- **Time**:
+ - Whisper Base inference on CPU: approximately one to two seconds per 30s audio clip..
+ - Target: A conservative sampling rate..
+ - Max time: hours.
+ - **Strategy**: If the dataset is large (>10,000 samples), the plan will sample a subset (e.g., [deferred] samples) for the initial feasibility run, noting this as a limitation.
+
+## Decision Log
+
+| Decision | Rationale | Alternative Rejected |
+|:--- |:--- |:--- |
+| **Use Distilled Whisper Base** | Smallest viable audio encoder for CPU; fits RAM. | Whisper Large (OOM); HuBERT (larger). |
+| **Logistic Regression & SVM Fallback** | Fast, interpretable, and covers non-linear cases. | Neural Net (overkill, OOM risk). |
+| **Stratified Split** | Ensures class balance for rare "jailbreak" class. | Random split (risk of 0 jailbreaks in test). |
+| **McNemar's Test** | Mandated by Constitution Principle VII; validates discriminative power. | Binomial Test (spec conflict, methodologically unsound for this context). |
+| **No Bonferroni Correction** | Metrics are dependent; correction is statistically inappropriate. | Bonferroni (spec conflict, statistical misuse). |
+| **No Synthetic Data** | Synthetic audio lacks semantic complexity; invalid for hypothesis. | Synthetic sine waves (methodologically unsound). |

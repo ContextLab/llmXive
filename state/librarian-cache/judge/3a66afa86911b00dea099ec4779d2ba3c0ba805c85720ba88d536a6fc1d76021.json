@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.16774",
+  "judged_at": "2026-07-12T08:24:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"a survey of large audio language models: generalization, trustworthine\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the \"trustworthiness\" (specifically instruction-following capability) of \"Large Audio Language Models,\" which are the core subjects of the user's survey on generalization and trustworthiness in this domain. It provides the necessary empirical baseline and mechanism analysis for the specific modality (audio) that the user's literature review must cover.",
+  "relevant": true
+}

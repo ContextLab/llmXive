@@ -37,28 +37,28 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml` `updated_at` timestamp.
 
-### VI. CPU-Only Inference Constraint
+### VI. Lightweight Inference & CPU-First Feasibility
 
-All feature extraction and classification tasks MUST execute exclusively on
-CPU resources without GPU acceleration, as defined in the "Methodology sketch"
-which mandates a "CPU-only environment" and "2-core CPU runner" to validate
-the feasibility of edge deployment. The frozen audio encoder (e.g., distilled
-Whisper Base or HuBERT Base) and the binary classifier (Logistic Regression)
-MUST be verified to run within the 7GB RAM and 6-hour runtime constraints
-specified for the project's resource profiling.
+Given the project's explicit motivation to deploy safety filters on edge devices
+where GPU resources are unavailable, all feature extraction and classification
+experiments MUST be executed on CPU-only pipelines using frozen encoders (e.g.,
+distilled Whisper Base or HuBERT Base) without fine-tuning. The `code/` directory
+MUST include explicit resource constraints (e.g., memory limits, thread counts)
+to verify that the proposed detection layer remains tractable for real-world
+edge deployment, directly addressing the gap between threat identification and
+resource-constrained mitigation described in the project's methodology.
 
-### VII. Latent-Space Anomaly Detection Protocol
+### VII. Latent-Space Statistical Anomaly Validation
 
-The project MUST adhere to a strict protocol where safety gating is derived
-solely from statistical anomalies in the latent embedding space of pre-trained
-audio encoders, as posited in the "Research question" and "Expected results."
-The methodology MUST distinguish between benign inputs and cross-modal
-jailbreak samples (including inaudible prompts and adversarial noise) by
-training a lightweight classifier on fixed-dimensional embeddings rather than
-retraining the base model. Evaluation MUST prioritize recall (>85% target)
-for malicious inputs using precision, recall, and F1-score metrics on a held-
-out test set derived from original benchmark metadata (e.g., LLaMA-Adapter,
-AudioBench) to ensure independence from embedding statistics.
+Per the project's core research question regarding statistical deviations in
+latent embedding space, every reported detection metric MUST be accompanied by
+statistical validation (specifically McNemar's test) comparing the lightweight
+classifier against a random chance baseline. Claims of "distinct statistical
+deviations" (e.g., variance in frequency bands, distance from benign manifold)
+MUST be supported by quantitative analysis of the extracted embeddings rather
+than qualitative assertions, ensuring that the detection efficacy (>85% recall)
+is empirically grounded in the specific latent-space properties of the frozen
+encoder as defined in the methodology sketch.
 
 ## Reproducibility Requirements
 

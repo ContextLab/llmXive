@@ -1,31 +1,21 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: pass
-
-The question asks about the existence of a statistical relationship between latent embedding anomalies and adversarial inputs in audio-language models, which is a substantive scientific question about model representation and robustness. While the motivation mentions "lightweight" and "CPU resources," the core inquiry ("Do statistical anomalies... correlate...") is independent of the specific computational constraints used to test it.
+The question investigates a substantive phenomenon: whether adversarial acoustic perturbations leave distinct statistical footprints in the latent representation of frozen encoders. While the methodology specifies a lightweight classifier and CPU constraints, these are framed as implementation choices to enable a specific defense-in-depth strategy rather than as the core scientific question itself, which is about the detectability of anomalies in the embedding space.
 
 ### Circularity check
-
 **Verdict**: pass
-
-The predictor (statistical anomalies in latent embeddings) is derived from a frozen encoder processing the raw audio input, while the predicted variable (cross-modal jailbreak attempts) is defined by the semantic content and intent of the input as labeled in external benchmark metadata. These are independent sources: the embeddings are continuous vector representations, while the labels are discrete semantic classifications not mathematically derived from the embedding statistics themselves.
+The predictor is derived from the latent embeddings of a frozen audio encoder, while the predicted variable (jailbreak vs. benign) is derived from external benchmark annotations or ground-truth labels of the input audio content. These sources are independent; the labels are not computed from the embeddings, but rather the embeddings are used to see if they can recover the pre-existing semantic distinction.
 
 ### Triviality check
-
 **Verdict**: pass
-
-A positive result would demonstrate that safety vulnerabilities leave detectable geometric traces in representation space, offering a new avenue for efficient defense. A null result would be equally informative, suggesting that adversarial perturbations successfully mimic benign distributions in the latent space, thereby proving the inadequacy of simple anomaly detection for this threat model. Neither outcome is predetermined by current domain knowledge.
+A positive result (high recall) would demonstrate that adversarial audio perturbations are not "invisible" to standard encoders and can be filtered with negligible compute, a significant finding for edge deployment. A null result (low recall) would be equally informative, suggesting that current lightweight encoders fail to capture the necessary features of adversarial perturbations, implying that detection requires either more powerful models or entirely different signal processing approaches.
 
 ### Question-narrowing check
-
 **Verdict**: pass
-
-The question explicitly names a relationship in the domain (the correlation between latent-space geometry and adversarial semantic intent) rather than framing the research around a specific method's performance or a resource constraint. The constraint on "rule-based detection" is a proposed solution to the phenomenon, not the phenomenon itself.
+The question names a relationship in the domain: the correlation between statistical anomalies in latent space and the presence of adversarial inputs. It does not ask "Can method M solve task T under budget B?" but rather "Do anomalies exist that allow detection," using the budget constraint only to define the scope of the *application* of the finding, not the existence of the phenomenon.
 
 ### Overall verdict
-
 **Verdict**: validated
-
-All checks pass; the research question investigates a genuine empirical relationship between input representations and adversarial behavior without falling into circularity or implementation-narrowing traps. The focus on lightweight detection is a practical motivation for the study, not a limitation that invalidates the scientific inquiry.
+All four checks pass; the research question targets a genuine, non-circular phenomenon regarding the detectability of adversarial audio in latent spaces. The constraints on compute and model type are appropriate for the proposed application (edge safety) and do not obscure the underlying scientific inquiry. The project is ready to advance to initialization.

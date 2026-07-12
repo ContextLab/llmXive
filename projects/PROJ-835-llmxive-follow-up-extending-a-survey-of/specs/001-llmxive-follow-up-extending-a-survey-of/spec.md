@@ -1,98 +1,104 @@
-# Feature Specification: LLMXive Follow-up: Extending "A Survey of Large Audio Language Models: Generalization, Trustworthine"
+# Feature Specification: LlmXive Follow-up: Latent-Space Jailbreak Detection
 
-**Feature Branch**: `001-gene-regulation`  
+**Feature Branch**: `001-latent-space-jailbreak-detection`  
 **Created**: 2026-07-12  
 **Status**: Draft  
-**Input**: User description: "llmXive follow-up: extending 'A Survey of Large Audio Language Models: Generalization, Trustworthine' - Do statistical anomalies in the latent embedding space of pre-trained audio encoders correlate with cross-modal jailbreak attempts, enabling lightweight, rule-based detection without requiring model retraining or GPU resources?"
+**Input**: User description: "llmXive follow-up: extending 'A Survey of Large Audio Language Models: Generalization, Trustworthine'"
 
 ## User Scenarios & Testing
 
-### User Story 1 - CPU-Only Latent Embedding Extraction (Priority: P1)
+### User Story 1 - CPU-Only Embedding Extraction Pipeline (Priority: P1)
 
-A researcher needs to extract fixed-dimensional latent embeddings from a dataset of [N_samples] audio-text pairs using a frozen, lightweight audio encoder (e.g., distilled Whisper Base) running entirely on a CPU-only environment to prepare data for safety analysis without requiring GPU hardware.
+As a researcher, I need to extract fixed-dimensional latent embeddings from a dataset of audio samples using a frozen, lightweight audio encoder (e.g., distilled Whisper Base) on a CPU-only environment, so that I can generate the feature vectors required for downstream analysis without exceeding the available RAM or compute time limits of the free-tier CI runner.
 
-**Why this priority**: This is the foundational data acquisition step. Without embeddings, no subsequent analysis or classification can occur. It directly addresses the core constraint of "no GPU resources" and enables the entire study.
+**Why this priority**: This is the foundational data engineering step. Without successfully extracting embeddings within the resource constraints, no classification or statistical analysis can occur. It addresses the core "Compute Feasibility" constraint.
 
-**Independent Test**: The system can be tested by running the extraction pipeline on a subset of 100 benign audio files on a standard 2-core CPU runner and verifying that fixed-size vector outputs are generated without CUDA errors or OOM crashes within 15 minutes.
+**Independent Test**: The pipeline can be fully tested by running the extraction script on a representative subset of samples on a local CPU machine with ≤ 7 GB RAM, verifying that the output is a valid matrix of floats with the expected dimensions and that the process completes within a proportional time limit.
 
 **Acceptance Scenarios**:
 
-1. **Given** a directory of 100 benign audio files, **When** the extraction script runs on a CPU-only runner, **Then** it produces a JSON file containing 100 fixed-dimensional vectors without triggering any GPU/CUDA errors.
-2. **Given** a standard 2-core CPU environment with 7 GB RAM, **When** processing a batch of 32 audio samples sequentially, **Then** the total memory usage per batch never exceeds 6 GB and the process completes within 3 hours.
+1. **Given** a CSV manifest of [deferred] audio file paths and labels, **When** the extraction script runs on a CPU-only runner with 2 cores, **Then** it outputs a single `.npy` or `.parquet` file containing [deferred] embedding vectors, the process completes without OOM (Out Of Memory) errors, and the throughput is ≥ 10 samples/hour.
+2. **Given** the extraction process is running, **When** the memory usage is monitored, **Then** the peak RAM usage remains ≤ 6.5 GB ([deferred] of the 7 GB limit), ensuring a safety margin for the environment.
+3. **Given** a sample of 100 adversarial audio files, **When** processed, **Then** the resulting embeddings show no NaN or Inf values, indicating numerical stability in the frozen encoder.
 
 ---
 
-### User Story 2 - Lightweight Binary Classifier Training (Priority: P2)
+### User Story 2 - Lightweight Binary Classifier Training & Evaluation (Priority: P2)
 
-A researcher needs to train a simple, interpretable binary classifier (Logistic Regression) on the extracted embeddings to distinguish between jailbreak and benign samples, using an 80/20 train/test split, to evaluate if latent-space anomalies are detectable.
+As a researcher, I need to train a simple binary classifier (Logistic Regression) on the extracted embeddings to distinguish between "jailbreak" and "benign" labels, and evaluate its performance (Precision, Recall, FPR) on a held-out test set, so that I can determine if latent-space anomalies are a viable proxy for detecting cross-modal jailbreaks.
 
-**Why this priority**: This implements the core hypothesis testing mechanism. It transforms raw embeddings into a testable model for detecting adversarial inputs, fulfilling the "lightweight detection" goal.
+**Why this priority**: This is the core hypothesis test. It directly answers the research question: "Do specific statistical anomalies... correlate with cross-modal jailbreak attempts?" It is the primary scientific output.
 
-**Independent Test**: The system can be tested by training the classifier on the [N_samples]-sample subset and verifying that the model converges (loss stabilizes) and outputs probability scores for the held-out test set within 5 minutes on CPU.
+**Independent Test**: The model training and evaluation can be tested independently by feeding a pre-computed embedding matrix and label vector into the training script, verifying that the model converges and produces a confusion matrix with calculated metrics.
 
 **Acceptance Scenarios**:
 
-1. **Given** the extracted embeddings with [N_samples] training labels, **When** the Logistic Regression model is trained, **Then** the training process completes without GPU acceleration, outputs a model artifact file with non-zero weights, and achieves a training loss < 1.0.
-2. **Given** a held-out test set of [N_samples] samples, **When** the trained model performs inference, **Then** it produces a CSV file with predicted probabilities and binary flags for every sample.
+1. **Given** the embedding matrix and ground-truth labels are loaded, **When** the Logistic Regression model is trained with a 80/20 train-test split, **Then** the model outputs a confusion matrix and the Recall for the "jailbreak" class is calculated.
+2. **Given** the trained model, **When** it predicts on the held-out test set, **Then** the False Positive Rate (FPR) is calculated and reported alongside Recall.
+3. **Given** the results, **When** compared to a majority-class baseline (always predicting "benign"), **Then** the lightweight classifier demonstrates a statistically significant improvement (via Binomial Test) in detection capability with p < 0.05.
 
 ---
 
-### User Story 3 - Performance Evaluation and Resource Profiling (Priority: P3)
+### User Story 3 - Statistical Validation & Sensitivity Analysis (Priority: P3)
 
-A researcher needs to evaluate the classifier's performance (precision, recall, F1-score) against a stratified random baseline classifier and verify that the total analysis pipeline (extraction + training + inference) fits within the 6-hour, 7 GB RAM, 2-core CPU constraint to confirm feasibility for edge deployment.
+As a researcher, I need to perform a sensitivity analysis on the classification decision threshold and apply multiple-comparison corrections if multiple hypotheses are tested, so that the findings are methodologically robust and not artifacts of arbitrary cutoff choices or statistical noise.
 
-**Why this priority**: This validates the research success criteria and confirms the "compute feasibility" constraint, ensuring the method is practically deployable as a "defense-in-depth" layer on edge devices.
+**Why this priority**: This ensures the scientific validity of the results, addressing the "Methodological Soundness" requirements regarding threshold justification and multiplicity. It prevents the rejection of the spec by the methodology panel.
 
-**Independent Test**: The system can be tested by running the full evaluation script and verifying that the output report contains calculated metrics and resource usage logs, confirming the total runtime is [N_samples] dependent but within the 6-hour limit.
+**Independent Test**: The analysis script can be tested by running it against a synthetic dataset with known properties, verifying that the sensitivity sweep produces a trend line and that the p-values are correctly adjusted.
 
 **Acceptance Scenarios**:
 
-1. **Given** the model predictions and ground truth labels, **When** the evaluation script runs, **Then** it generates a report containing Precision, Recall, and F1-score values, explicitly comparing them to a stratified random baseline classifier (predicting labels proportional to training set class distribution).
-2. **Given** the full pipeline execution on a 2-core CPU runner, **When** the job completes, **Then** the resource log confirms total RAM usage < 7 GB and total wall-clock time < 6 hours.
+1. **Given** the trained classifier scores, **When** the decision threshold is swept across values {0.3, 0.4, 0.5, 0.6, 0.7}, **Then** a report is generated showing how Recall and FPR vary across these thresholds.
+2. **Given** multiple performance metrics are calculated, **When** the statistical significance is evaluated, **Then** the Bonferroni correction is applied if ≥ 2 distinct performance metrics are reported, and the adjusted p-value is explicitly stated.
+3. **Given** the final results, **When** the threshold of 0.5 is used, **Then** the justification for this default is documented, and the sensitivity analysis confirms that minor deviations do not drastically alter the headline "high recall" conclusion.
+
+---
 
 ### Edge Cases
 
-- What happens if the audio encoder fails to process a corrupted audio file? (System must skip the file, log the error, and continue with the remaining dataset to ensure robustness).
-- How does the system handle a dataset where the number of jailbreak samples is significantly lower than expected? (System must still train the classifier but flag a potential class imbalance issue in the results report).
-- How does the system behave if the latent embedding dimension changes between encoder versions? (System must validate input dimensionality against the expected shape before training and fail gracefully if mismatched).
+- What happens when the dataset contains audio files with missing metadata or corrupted headers? (System must skip and log, not crash).
+- How does the system handle the scenario where the frozen encoder produces identical embeddings for distinct adversarial inputs (embedding collapse)?
+- What happens if the test set contains zero "jailbreak" samples due to random split variance? (System must enforce a stratified split to ensure class balance).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST extract latent embeddings from audio inputs using a frozen, lightweight encoder (e.g., distilled Whisper Base) running in CPU-only mode without invoking CUDA or GPU libraries. (See US-1)
-- **FR-002**: System MUST train a binary Logistic Regression classifier on the extracted embeddings using an 80/20 train/test split to distinguish between jailbreak and benign inputs. (See US-2)
-- **FR-003**: System MUST evaluate the classifier's performance by calculating Precision, Recall, and F1-score, and explicitly compare these metrics against a stratified random baseline classifier. (See US-3)
-- **FR-004**: System MUST profile and log the total RAM usage and wall-clock time of the entire pipeline to ensure it remains within 7 GB RAM and 6 hours on a 2-core CPU runner. (See US-3)
-- **FR-005**: System MUST handle corrupted or unprocessable audio files by skipping them, logging the specific error, and continuing processing of the remaining dataset without crashing. (See US-1)
-- **FR-006**: System MUST calculate and report the Mahalanobis distance of each sample from the benign class centroid to serve as the primary metric for the raw anomaly correlation hypothesis. (See Research Question)
-- **FR-007**: System MUST verify that the source benchmark's labeling methodology did not utilize the same or a correlated encoder's latent space statistics to define the 'jailbreak' class, ensuring ground truth independence. (See US-2)
+- **FR-001**: System MUST extract latent embeddings from the [deferred] audio samples using a frozen, CPU-compatible audio encoder (e.g., Whisper Base) without fine-tuning. (See US-1)
+- **FR-002**: System MUST train a binary classifier (Logistic Regression) on the extracted embeddings to distinguish between "jailbreak" and "benign" classes. (See US-2)
+- **FR-003**: System MUST evaluate the classifier using a stratified 80/20 train-test split to ensure class balance in the test set. (See US-2)
+- **FR-004**: System MUST compute Precision, Recall, and False Positive Rate (FPR) on the held-out test set. (See US-2)
+- **FR-005**: System MUST perform a sensitivity analysis by sweeping the classification threshold over the set {0.3, 0.4, 0.5, 0.6, 0.7} and report the variation in Recall and FPR. (See US-3)
+- **FR-006**: System MUST apply a Binomial Test to determine if the detection accuracy of the lightweight classifier is statistically significantly higher than the expected accuracy of a majority-class baseline (p < 0.05). (See US-2)
+- **FR-007**: System MUST ensure all inference and training steps complete within 6 hours on a 2-core CPU, 7 GB RAM environment. (See US-1)
 
 ### Key Entities
 
-- **AudioEmbedding**: A fixed-dimensional vector representation of an audio input, derived from a frozen encoder.
-- **SafetyLabel**: A binary classification (jailbreak vs. benign) derived from external benchmark metadata, independent of embedding statistics.
-- **ClassifierModel**: A trained Logistic Regression instance mapping embeddings to safety labels.
-- **ResourceLog**: A record of memory and time consumption for the analysis pipeline.
-- **AnomalyScore**: A scalar value representing the Mahalanobis distance of a sample from the benign centroid.
+- **Audio Sample**: A unit of data consisting of an audio file path and a ground-truth label ("jailbreak" or "benign").
+- **Embedding Vector**: A fixed-dimensional numerical representation of an audio sample generated by the frozen encoder.
+- **Classifier Model**: A lightweight binary classifier (Logistic Regression) trained to map embedding vectors to labels.
+- **Performance Metrics**: A set of calculated values (Precision, Recall, FPR, p-value) summarizing the model's effectiveness.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The recall rate of the lightweight classifier is measured against the ground truth labels of the held-out test set to verify detection capability. (See US-2, US-3)
-- **SC-002**: The total inference and training time is measured against the 6-hour maximum constraint to confirm CPU-only feasibility. (See US-3)
-- **SC-003**: The peak RAM usage during the full pipeline execution is measured against the 7 GB limit to ensure edge-device compatibility. (See US-3)
-- **SC-004**: The performance improvement (F1-score delta) of the latent-space classifier is measured against a stratified random baseline classifier to quantify the value of the anomaly detection approach. (See US-3)
-- **SC-005**: The Pearson correlation coefficient (r) between the Mahalanobis distance from the benign centroid and the presence of jailbreak labels is measured against the threshold p < 0.05 or effect size r > 0.3 to validate the core hypothesis. (See Research Question, FR-006)
+- **SC-001**: Recall for the "jailbreak" class is measured against the baseline of a majority-class predictor (always predicting "benign") to determine if the method provides a viable detection signal. (See US-2)
+- **SC-002**: The variation in Recall and FPR across the threshold sweep {0.3, 0.4, 0.5, 0.6, 0.7} is measured to assess the robustness of the decision boundary. (See US-3)
+- **SC-003**: Statistical significance (p-value from Binomial Test) is measured against the standard alpha level of 0.05 to validate the improvement over the majority-class baseline. (See US-3)
+- **SC-004**: Peak memory usage is measured against the 7 GB limit to confirm CPU-only feasibility. (See US-1)
+- **SC-005**: Total execution time is measured against the 6-hour limit to confirm the method fits the free-tier CI constraints. (See US-1)
 
 ## Assumptions
 
-- **Assumption about data availability**: Publicly available labeled datasets (e.g., LALM benchmarks) contain a sufficient number of labeled cross-modal jailbreak samples and benign samples accessible via direct download. Specific dataset names and counts are deferred to the implementation phase.
-- **Assumption about model compatibility**: The chosen lightweight audio encoder (e.g., distilled Whisper Base) can be loaded and executed in full precision on a CPU without requiring specific hardware acceleration or quantization libraries that demand CUDA.
-- **Assumption about dataset-variable fit**: The selected benchmark datasets contain the necessary semantic labels (jailbreak vs. benign) that are independent of the latent embedding statistics, ensuring no circularity in the validation.
-- **Assumption about methodological framing**: Since the study uses observational data (no random assignment of adversarial attacks), findings will be framed as associational correlations between embedding anomalies and jailbreak labels, not causal effects.
-- **Assumption about computational limits**: The total dataset size ([N_samples] samples) and the complexity of the Logistic Regression model will fit within the 7 GB RAM and 6-hour time budget of a standard GitHub Actions free-tier runner.
-- **Assumption about threshold justification**: Any decision cutoffs for anomaly detection (if derived post-hoc) will be justified by community standards or sensitivity analysis, though the primary method (Logistic Regression) uses probabilistic thresholds determined by the training data.
+- The public benchmark repositories (AudioBench, ALFRED) contain the required known cross-modal jailbreak samples and benign samples with reliable ground-truth labels.
+- The chosen frozen audio encoder (e.g., distilled Whisper Base) is available via a CPU-optimized library (e.g., `transformers` with `torch` CPU backend) and does not require CUDA.
+- The "jailbreak" vs. "benign" labels provided by the benchmark repositories are independent of the *current experiment's* model training (avoiding circular validation), but the latent embeddings generated by the frozen encoder *must* contain statistical signal correlated with these labels for the detection hypothesis to be valid.
+- The dataset size (a sufficiently large sample) and embedding dimensionality will fit within the 7 GB RAM limit when loaded in batches or as a single matrix.
+- The statistical anomalies in the latent space, if they exist, are detectable by linear models (Logistic Regression) without requiring complex non-linear feature engineering.
+- The "threshold of 0.5" is a standard community default for binary classification, but the sensitivity analysis (FR-005) is required to justify its stability for this specific task.
