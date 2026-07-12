@@ -2,77 +2,76 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and file formats used throughout the project. It ensures strict adherence to the **Single Source of Truth** principle and provides the contracts for the `contracts/` directory.
+This document defines the data structures, schemas, and file formats used throughout the project. The data model supports the pipeline from raw dataset download to final statistical reporting.
 
-## Core Entities
+## Entities
 
 ### 1. MoleculeRecord
+
 Represents a single chemical compound with computed metrics.
 
-| Field | Type | Description | Source |
+| Attribute | Type | Description | Source |
 | :--- | :--- | :--- | :--- |
 | `cid` | `int` | PubChem Compound ID | Dataset |
-| `smiles` | `str` | Canonical SMILES string | Dataset (Stored alongside LZ) |
-| `shannon_entropy` | `float` | Entropy of vertex degree distribution | Computed |
-| `entropy_per_atom` | `float` | Normalized entropy (Entropy / Atom Count) | Computed |
-| `atom_count` | `int` | Number of atoms in the molecule | Computed |
-| `lz_length` | `int` | Byte length of compressed SMILES | Computed |
-| `sa_score` | `float` | Synthetic Accessibility Score (1-10) | RDKit |
-| `qed_score` | `float` | Quantitative Estimate of Drug-likeness (0-1) | RDKit |
-| `is_valid` | `bool` | Flag indicating if RDKit parsing succeeded | Computed |
-| `timed_out` | `bool` | Flag indicating if processing exceeded 60s | Computed |
+| `smiles` | `str` | Canonical SMILES string | Dataset |
+| `shannon_entropy` | `float` | Shannon entropy of vertex degree distribution | Computed |
+| `lzma_length` | `int` | Compressed byte count of SMILES (using `lzma`) | Computed |
+| `sa_score` | `float` | Synthetic Accessibility Score (1-10) | Computed (RDKit) |
+| `qed_score` | `float` | Quantitative Estimate of Drug-likeness (0-1) | Computed (RDKit) |
+| `mw` | `float` | Molecular Weight | Computed (RDKit, for control analysis) |
+| `atom_count` | `int` | Total number of atoms | Computed (RDKit, for control analysis) |
+| `is_valid` | `bool` | Whether the molecule was successfully processed | Runtime |
+| `error_reason` | `str` | Error message if invalid | Runtime |
+| `rdkit_version` | `str` | RDKit version used for canonicalization | Runtime |
 
 ### 2. CorrelationResult
-Represents the statistical outcome of a metric pair comparison.
 
-| Field | Type | Description |
+Represents the statistical relationship between two metrics.
+
+| Attribute | Type | Description |
 | :--- | :--- | :--- |
-| `metric_x` | `str` | Name of the first metric (e.g., "shannon_entropy") |
-| `metric_y` | `str` | Name of the second metric (e.g., "sa_score") |
-| `pearson_r` | `float` | Correlation coefficient |
-| `pearson_p_value` | `float` | Unadjusted p-value (Pearson) |
-| `spearman_r` | `float` | Correlation coefficient (Spearman) |
-| `spearman_p_value` | `float` | Unadjusted p-value (Spearman) |
-| `adjusted_p_value` | `float` | Bonferroni-corrected p-value |
-| `ci_lower` | `float` | 95% CI lower bound (bootstrap) |
-| `ci_upper` | `float` | 95% CI upper bound (bootstrap) |
+| `metric_pair` | `str` | Identifier (e.g., "entropy_sa") |
+| `pearson_r` | `float` | Pearson correlation coefficient |
+| `spearman_rho` | `float` | Spearman rank correlation coefficient |
+| `p_value` | `float` | Raw p-value (Pearson) |
+| `adjusted_p_value` | `float` | Bonferroni-adjusted p-value |
+| `ci_lower` | `float` | Lower bound of 95% CI (bootstrap) |
+| `ci_upper` | `float` | Upper bound of 95% CI (bootstrap) |
 | `n` | `int` | Sample size used |
-| `partial_r` | `float` | Partial correlation controlling for atom count (optional) |
+| `partial_r` | `float` | Partial correlation (controlling for MW, Atom Count) |
+| `partial_p_value` | `float` | P-value for partial correlation |
 
 ### 3. BootstrapSample
-Represents a single iteration of the resampling process.
 
-| Field | Type | Description |
+Represents a single iteration of resampling.
+
+| Attribute | Type | Description |
 | :--- | :--- | :--- |
-| `iteration_id` | `int` | Unique ID for the iteration (0-999) |
-| `metric_pair` | `str` | Identifier for the pair (e.g., "entropy_sa") |
-| `correlation` | `float` | Correlation coefficient for this sample |
+| `iteration_id` | `int` | Iteration number (0–999) |
+| `metric_pair` | `str` | Identifier |
+| `resampled_correlation` | `float` | Correlation for this iteration |
 
 ## File Formats
 
-### Input Data
-- **Format**: Parquet
-- **Location**: `data/raw/pubchem_subset.parquet`
-- **Schema**: `cid` (int64), `smiles` (string)
-- **Checksum**: Recorded in `state/`
+### Raw Data (`data/raw/`)
+- **Format**: Parquet (from HuggingFace)
+- **Content**: `cid`, `smiles`, other raw fields.
+- **Schema**: Defined by the source dataset.
 
-### Processed Data
+### Processed Metrics (`data/processed/metrics.csv`)
 - **Format**: CSV
-- **Location**: `data/processed/metrics.csv`
-- **Schema**: `MoleculeRecord` (includes `smiles` and `lz_length` side-by-side)
+- **Content**: `MoleculeRecord` table.
+- **Headers**: `cid,smiles,shannon_entropy,lzma_length,sa_score,qed_score,mw,atom_count,is_valid,error_reason,rdkit_version`
 
-### Output Reports
-- **Format**: JSON
-- **Location**: `reports/stats.json`
-- **Schema**: List of `CorrelationResult` objects.
+### Correlation Results (`data/processed/correlations.csv`)
+- **Format**: CSV
+- **Content**: `CorrelationResult` table.
+- **Headers**: `metric_pair,pearson_r,spearman_rho,p_value,adjusted_p_value,ci_lower,ci_upper,n,partial_r,partial_p_value`
 
-- **Format**: PNG
-- **Location**: `reports/figures/`
-- **Naming**: `entropy_sa.png`, `entropy_qed.png`, `lz_sa.png`, `lz_qed.png`
+### Bootstrap Data (`data/processed/bootstrap.pkl`)
+- **Format**: Pickle (or JSON for portability)
+- **Content**: List of `BootstrapSample` objects.
 
-## Data Flow
-
-1. **Ingestion**: `data/raw/pubchem_subset.parquet` (Raw)
-2. **Transformation**: `code/metrics.py` computes derived fields (with timeout).
-3. **Output**: `data/processed/metrics.csv` (Derived)
-4. **Analysis**: `code/analysis.py` reads `metrics.csv`, generates `reports/stats.json` and `reports/figures/`.
+### Final Report (`reports/analysis_report.html`)
+- **Format**: HTML
+- **Content**: Statistical tables, scatter plots, and narrative.

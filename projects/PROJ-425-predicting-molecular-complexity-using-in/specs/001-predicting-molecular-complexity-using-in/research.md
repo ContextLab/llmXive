@@ -2,80 +2,101 @@
 
 ## Overview
 
-This research phase validates the feasibility of the data sources, confirms the variable fit, and outlines the statistical methodology to ensure the study meets the rigorous requirements of the specification and constitution.
+This research phase validates the dataset strategy, methodological rigor, and computational feasibility for the project "Predicting Molecular Complexity Using Information Theory". The primary goal is to confirm that the selected data sources contain the necessary variables (SMILES, and implicitly structure for SA/QED) and that the proposed statistical methods (Pearson/Spearman correlation, bootstrap, multiple-comparison correction, partial correlation) are robust and feasible within the CI constraints.
 
 ## Dataset Strategy
 
-The specification requests molecules from "PubChem CID 1-5000". Direct API access for [deferred] individual requests is prone to rate limiting and timeout failures on free-tier CI runners. Furthermore, the verified HuggingFace dataset (`sagawa/pubchem-10m-canonicalized`) does not contain a contiguous range of CIDs 1-5000. To satisfy **Constitution Principle III (Data Hygiene)** and **Principle I (Reproducibility)**, and to avoid the selection bias of early CIDs, we will use a **stratified random sample** from the verified dataset.
+The spec requires a dataset of molecules (SMILES) to compute information-theoretic metrics and compare them against Synthetic Accessibility (SA) and Quantitative Estimate of Drug-likeness (QED).
 
-| Dataset Name | Description | Verified URL | Selection Rationale |
-|:--- |:--- |:--- |:--- |
-| **PubChem 10M Canonicalized** | Large-scale dataset of canonicalized SMILES and CIDs from PubChem. | ` | Contains the required `smiles` and `cid` fields. Pre-canonicalized SMILES ensures consistent LZ compression. We will use a **stratified random sample** of [deferred] valid entries to ensure chemical diversity and representativeness, addressing the bias concern of CID 1-5000. |
+### Verified Datasets Selection
 
-**Variable Fit Verification**:
-- **Required**: `smiles` (string), `cid` (int).
-- **Derived**: `shannon_entropy` (graph), `lz_length` (string), `sa_score` (RDKit), `qed_score` (RDKit).
-- **Fit**: The dataset provides the raw `smiles` and `cid`. All other variables are computable via RDKit. **No mismatch exists.**
+The spec mentions "PubChem CID 1-5000" as a target. However, direct API scraping (FR-001) is prone to rate limits and instability. To ensure reproducibility and robustness (Constitution I), we will use a verified HuggingFace dataset that provides canonicalized SMILES and CIDs.
 
-**Data Loading Strategy**:
-- Use `datasets.load_dataset` or `pandas.read_parquet` with `columns=['smiles', 'cid']` in **chunks** to minimize memory overhead during the initial load.
-- **Checksum**: A checksum of the downloaded file will be computed and recorded in `state/` to satisfy Constitution Principle III.
-- **Sampling**: A stratified random sample of [deferred] valid rows (where `smiles` is not null and can be converted to an RDKit Mol object) will be extracted.
-- **Citation Verification**: The Reference-Validator Agent will verify the dataset URL before execution to satisfy Constitution Principle II.
+**Selected Dataset**: `sagawa/pubchem-10m-canonicalized`
+- **URL**: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized
+- **Rationale**: This dataset contains canonicalized SMILES strings from PubChem. It is large enough to sample a representative subset (e.g., random n=1,000–5,000) to simulate a broad chemical space analysis.
+- **Variable Fit**:
+  - `smiles`: Available. Used for LZMA compression and RDKit graph conversion.
+  - `cid`: Available. Used for identification.
+  - *Missing Variables*: The dataset does **not** contain pre-computed SA or QED scores.
+  - *Resolution*: SA and QED will be computed on-the-fly using `rdkit` (FR-003) for every molecule in the sample. This is computationally feasible on CPU. RDKit's SA Score implementation (`rdkit.Chem.SA_Score`) relies only on 2D graph topology (atom types, bond orders) and a fragment database, which is fully derivable from the canonical SMILES in the dataset. No 3D coordinates or external PubChem context are required.
+  - *Missing Variables*: Shannon Entropy and LZ Length are not present.
+  - *Resolution*: These will be computed on-the-fly (FR-002).
 
-## Statistical Methodology
+**Dataset Scope & Limitations**:
+The original spec targeted CID 1-5000 (historical compounds). The verified dataset is a random sample of a large number of molecules. This is a **mismatch in scope**. The analysis will proceed on the random sample to ensure statistical validity, with findings framed as applicable to "general chemical space" rather than the specific CID 1-5000 range. This deviation is documented in the final report.
 
-### 1. Metric Computation
-- **Shannon Entropy**: Calculated on the distribution of vertex degrees in the molecular graph (adjacency matrix derived from RDKit).
- - **Normalization**: To address the confounding by molecular size, we will compute **Per-Atom Entropy** ($H / N_{atoms}$) in addition to raw entropy.
- - $H = -\sum p(d) \log_2 p(d)$, where $p(d)$ is the frequency of degree $d$.
-- **Lempel-Ziv (LZ)**: Compressed byte length of the canonical SMILES string.
- - Use `zlib.compress(smiles.encode('utf-8'))` and take `len()`.
- - **Note**: This measures the complexity of the *canonical SMILES representation*, not the absolute graph complexity. The specific RDKit version for canonicalization is recorded.
- - **Raw SMILES and LZ length are stored side-by-side** in the processed CSV for verification.
-- **SA & QED**: Standard RDKit implementations (`rdkit.Chem.QED.default` and `rdkit.Chem.QED.descriptors`).
+### Dataset Loading Strategy
 
-### 2. Correlation Analysis
-- **Primary Method**: Pearson correlation coefficient ($r$) and p-value.
-- **Robustness Check**: **Spearman's rank correlation** will be computed for all pairs to account for non-normal distributions and non-linear relationships.
-- **Pairs**: (Entropy, SA), (Entropy, QED), (LZ, SA), (LZ, QED).
-- **Framing**: Explicitly labeled as **associational**. No causal claims.
-- **Partial Correlation**: To address the circular validation risk (SA includes a topological complexity term), we will compute **partial correlations** controlling for **molecular weight** or **atom count**. This tests whether information-theoretic measures provide *incremental* predictive power beyond standard size metrics.
+1.  **Load**: Use `datasets.load_dataset("parquet", data_files="...")` to stream the verified parquet file.
+2.  **Sample**: Select a **random** subset of rows (e.g., `df.sample(n=1000, random_state=42)`) to ensure a representative sample and eliminate selection bias (addressing concern `methodology-45becbc0`).
+3.  **Filter**: Remove rows with missing or invalid SMILES (as per FR-001 edge case handling).
+4.  **Process**: Iterate in chunks to compute metrics.
+5.  **Verify**: Compute SHA-256 of the downloaded file and compare against the HuggingFace dataset manifest to satisfy Constitution Principle II (Verified Accuracy). Checksums recorded in `state/projects/PROJ-425-predicting-molecular-complexity-using-in/artifact_hashes.yaml`.
 
-### 3. Robustness & Validation
-- **Bootstrap Resampling**: 1,000 iterations.
- - Resample rows with replacement.
- - Recalculate $r$ for each iteration.
- - Compute 95% Confidence Interval (CI) using the percentile method (2.5th and 97.5th percentiles).
-- **Multiple-Comparison Correction**:
- - Apply **Bonferroni correction** (or Holm-Bonferroni) to the four p-values.
- - Adjusted $\alpha = 0.05 / 4 = 0.0125$.
-- **Collinearity Handling**:
- - Compute correlation between Entropy and LZ.
- - Calculate **Variance Inflation Factors (VIF)** if both are considered in a joint model.
- - **Strategy**: If VIF is high (>5), the study will **not** use them as joint predictors. Instead, they will be reported as **distinct definitions of complexity** (graph topology vs. string redundancy), and their individual correlations with SA/QED will be compared.
+## Methodological Rigor
 
-### 4. Timeout & Error Handling
-- **Per-Molecule Timeout**: A reasonable timeout is enforced for each molecule's processing (graph conversion, metric calculation).
-- **Retry Mechanism**: A retry mechanism with exponential backoff (max 3 attempts) is implemented for dataset loading to satisfy the robustness intent of FR-001.
-- **Logging**: Timeouts and invalid entries are logged and skipped, with counts reported in the final output.
+### Statistical Approach
 
-### 5. Success Criteria Mapping
-- **SC-001/002**: Correlation $r > 0.5$ (hypothesized).
-- **SC-003**: 95% CI does not include zero.
-- **SC-004**: Adjusted p-value < 0.05.
-- **SC-005/006**: Runtime < 45 min, Memory < 4 GB (enforced by chunking and sampling).
+1.  **Correlation**: 
+    - **Primary**: Pearson correlation coefficient ($r$) between:
+        - Shannon Entropy (vertex degrees) vs. SA
+        - Shannon Entropy (vertex degrees) vs. QED
+        - LZMA Length vs. SA
+        - LZMA Length vs. QED
+    - **Robustness Check**: Spearman's rank correlation ($\rho$) to account for non-normality and non-linearity in molecular property distributions (addressing concern `scientific_soundness-90e6e299`).
 
-## Decision Log
+2.  **Multiple-Comparison Correction**:
+    - Since multiple distinct hypothesis tests are performed, the family-wise error rate (FWER) must be controlled (FR-006).
+    - **Method**: Bonferroni correction ($\alpha_{adj} = \alpha / 4$) or Holm-Bonferroni. We will use Bonferroni for simplicity and strictness, reporting adjusted p-values.
 
-| Decision | Rationale | Impact |
-|:--- |:--- |:--- |
-| **Use HuggingFace PubChem dataset** | Avoids API rate limits and ensures reproducibility. | High reliability, no external API dependency during CI. |
-| **Stratified Random Sample** | Avoids selection bias of CID 1-5000; ensures representativeness. | Results generalize better to chemical space. |
-| **Per-Atom Entropy & Partial Correlation** | Addresses confounding by molecular size and circular validation risk. | More accurate assessment of incremental predictive power. |
-| **Spearman Correlation** | Robust to non-normal distributions of complexity metrics. | Valid p-values for non-Gaussian data. |
-| **Collinearity Handling (VIF)** | Prevents unstable estimates from highly correlated predictors. | Clearer interpretation of distinct complexity definitions. |
-| **Use Bonferroni Correction** | Conservative control of Family-Wise Error Rate (FWER). | Reduces Type I errors; aligns with SC-004. |
-| **Frame as Associational** | Observational study; no randomization. | Prevents causal overreach; aligns with US-1 acceptance criteria. |
-| **Timeout & Retry Logic** | Ensures robustness against hangs and transient failures. | Prevents CI job failures. |
-| **Checksum & Citation Verification** | Satisfies Constitution Principles II and III. | Ensures data integrity and accuracy. |
+3.  **Bootstrap Resampling**:
+ - **Iterations**: [deferred] (FR-005).
+    - **Purpose**: Generate confidence intervals for $r$ and assess stability (SC-003).
+    - **Method**: Resample rows with replacement, recompute $r$, store distribution.
+
+4.  **Control Analysis (Incremental Power)**:
+    - **Risk**: SA score includes a topological complexity component (Bertz CT), which may cause a tautological correlation with Shannon Entropy (vertex degrees) (addressing concern `scientific_soundness-11f8a6be`).
+    - **Mitigation**: Perform **partial correlation** analysis controlling for Molecular Weight (MW) and Atom Count. This isolates the *incremental* predictive power of the information-theoretic metrics beyond standard size/complexity metrics (addressing concerns `methodology-0e3fbbff` and `scientific_soundness-11f8a6be`).
+    - **Output**: Report partial correlation coefficients and p-values.
+
+5.  **Causal Framing**:
+    - The study is observational. All results will be explicitly labeled as "associational" (US-1, SC-001). No causal claims will be made.
+
+### Measurement Validity
+
+- **SA Score**: Calculated using `rdkit.Chem.SA_Score`. This relies only on the 2D molecular graph derived from SMILES. No 3D coordinates or external context are required (addressing concern `data_resources-06e81f63`). The dataset contains valid SMILES sufficient for this calculation.
+- **QED**: Calculated using `rdkit.Chem.QED.qed`. Standard implementation.
+- **Shannon Entropy**: Calculated from the degree distribution of the molecular graph.
+- **LZMA Length**: Calculated using **`lzma`** (LZMA2 algorithm) on the canonical SMILES string. `lzma` is a pure LZ77 variant, avoiding the Huffman coding component of `zlib` (DEFLATE) that could conflate symbol frequency with structural complexity (addressing concern `methodology-b0d68b8a`).
+- **Canonicalization Sensitivity**: The LZMA metric is defined as "Complexity of RDKit-canonical SMILES". Results are interpreted within this specific algorithmic context. We acknowledge that different canonicalization algorithms might yield different LZMA lengths, but we standardize on RDKit's implementation for reproducibility (addressing concern `scientific_soundness-c378a7ba`). The specific RDKit version used will be logged.
+
+### Statistical Rigor Checks
+
+- **Collinearity**: Shannon Entropy and LZMA Length may be correlated. Partial correlation controls for this in the control analysis.
+- **Power**: With $n \approx 1000$, the study has high power to detect moderate correlations ($r > 0.3$).
+- **Missing Data**: Invalid SMILES will be skipped. The final $n$ will be reported.
+
+### Versioning & Logging
+
+- **RDKit Version**: The specific RDKit version used for canonicalization and metric calculation will be logged in the output report and metadata to satisfy Constitution Principle VI.
+
+## Compute Feasibility
+
+- **CPU Only**: All operations (graph generation, compression, correlation) are CPU-bound and lightweight. No GPU required.
+- **Memory**: Processing a substantial number of molecules in chunks ensures memory usage stays well below GB.
+- **Time**:
+  - Download: < 1 min.
+ - Metric Computation: ~s per molecule (RDKit graph + `lzma` compression). A large ensemble of molecules [deferred] ([deferred]).
+ - Bootstrap: multiple iterations on [deferred] points. Correlation is $O(N)$. Total ≈ –15 mins.
+  - Total Estimated Time: < 30 mins. (Well within 45 min limit).
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| Dataset lacks valid SMILES | High | Filter invalid rows; log count; proceed with valid subset. |
+| RDKit timeout on complex molecules | Medium | Set a reasonable timeout per molecule; skip and log. |
+| Memory spike during bootstrap | Medium | Perform bootstrap in batches or use efficient numpy operations. |
+| Rate limits on HuggingFace | Low | Use `huggingface_hub` with retry logic; cache locally. |
+| Dataset Scope Mismatch | Medium | Explicitly document the deviation from CID 1-5000 and frame results as "general chemical space". |

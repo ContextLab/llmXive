@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MoleculeRecord"
+description: "Schema for a single molecule record with computed metrics."
+type: "object"
+properties:
+  cid:
+    type: "integer"
+    description: "PubChem Compound ID"
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string"
+  shannon_entropy:
+    type: "number"
+    description: "Shannon entropy of vertex degree distribution"
+  lzma_length:
+    type: "integer"
+    description: "Compressed byte count of SMILES (using lzma)"
+  sa_score:
+    type: "number"
+    description: "Synthetic Accessibility Score (1-10)"
+  qed_score:
+    type: "number"
+    description: "Quantitative Estimate of Drug-likeness (0-1)"
+  mw:
+    type: "number"
+    description: "Molecular Weight (for control analysis)"
+  atom_count:
+    type: "integer"
+    description: "Total number of atoms (for control analysis)"
+  is_valid:
+    type: "boolean"
+    description: "Whether the molecule was successfully processed"
+  error_reason:
+    type: "string"
+    description: "Error message if invalid"
+  rdkit_version:
+    type: "string"
+    description: "RDKit version used for canonicalization"
+required:
+  - "cid"
+  - "smiles"
+  - "shannon_entropy"
+  - "lzma_length"
+  - "sa_score"
+  - "qed_score"
+  - "mw"
+  - "atom_count"
+  - "is_valid"
+  - "rdkit_version"
+additionalProperties: false

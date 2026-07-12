@@ -44,7 +44,7 @@
 
 **Why this priority**: While statistical numbers are essential, visual confirmation is required for human interpretation and publication. This is a supporting feature to the core analysis.
 
-**Independent Test**: The system must generate scatter plots with regression lines, 95% confidence intervals, and annotated p-values for all four metric pairs.
+**Independent Test**: The system must generate scatter plots with regression lines, confidence intervals, and annotated p-values for all four metric pairs.
 
 **Acceptance Scenarios**:
 
@@ -56,7 +56,7 @@
 
 ### Edge Cases
 
-- **What happens when** the PubChem API rate limits the request? The system must implement a retry mechanism with exponential backoff (a limited number of retries, wait 2-10 seconds) before failing the job.
+- **What happens when** the PubChem API rate limits the request? The system must implement a retry mechanism with exponential backoff (a limited number of retries, wait a short to moderate duration) before failing the job.
 - **How does the system handle** molecules with extremely large molecular weights or complex structures that might cause RDKit to hang or consume excessive memory? The system must set a timeout of 60 seconds per molecule; if exceeded, the molecule is skipped and logged as "timeout".
 - **What happens when** the dataset size exceeds the 4 GB RAM limit of the CI runner? The system must process the dataset in chunks (e.g., a defined batch size) and aggregate results incrementally to stay within memory bounds.
 
@@ -68,7 +68,7 @@
 - **FR-002**: System MUST compute Shannon entropy based on the distribution of vertex degrees in the molecular graph and Lempel-Ziv compressed byte counts of the canonical SMILES string (using RDKit v2023.09 or later) for every valid SMILES string. (See US-1)
 - **FR-003**: System MUST calculate Synthetic Accessibility (SA) and Quantitative Estimate of Drug-likeness (QED) scores using RDKit's standard implementations for every valid molecule. (See US-1)
 - **FR-004**: System MUST perform Pearson correlation analysis between (Shannon Entropy, SA), (Shannon Entropy, QED), (LZ, SA), and (LZ, QED), explicitly framing results as associational. (See US-1)
-- **FR-005**: System MUST execute exactly 1,000 bootstrap resampling iterations to generate 95% confidence intervals for all correlation coefficients. (See US-2)
+- **FR-005**: System MUST execute a sufficient number of bootstrap resampling iterations to generate 95% confidence intervals for all correlation coefficients. (See US-2)
 - **FR-006**: System MUST apply a multiple-comparison correction (e.g., Bonferroni) to all p-values generated from the four correlation tests. (See US-2)
 - **FR-007**: System MUST generate scatter plots with linear regression lines, 95% confidence intervals, and annotated statistical metrics (r, p, n) for all metric pairs. (See US-3)
 - **FR-008**: System MUST process the dataset in chunks such that peak memory usage remains ≤ 4 GB. (See US-1)

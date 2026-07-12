@@ -1,4 +1,4 @@
-resolved_at: '2026-07-12T16:14:54.388383+00:00'
+resolved_at: '2026-07-12T16:40:36.162616+00:00'
 datasets:
 - intent: SMILES
   status: verified
@@ -33,11 +33,11 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&response-content-type=text%2Fplain&Expires=1783876348&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNDBtLnR4dCUzQitmaWxlbmFtZSUzRCUyMnNtaWxlczQwbS50eHQlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODc2MzQ4fX19XX0_&Signature=MEUCIBIksDf-gwDwYIyD0YvlwOT1BnXwJKbOvGMONyieGZrRAiEAtsXmkygZZm0Q98QDR8YB3qAKlKbNw2ZeCaUajHUT0bU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&response-content-type=text%2Fplain&user_id=public&Expires=1783877870&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNDBtLnR4dCUzQitmaWxlbmFtZSUzRCUyMnNtaWxlczQwbS50eHQlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODc3ODcwfX19XX0_&Signature=MEUCIQDR2Ucq3mAQLCyK-cNDMYegOnHNKSW0NBZliRzrnUc0BQIgZmPlUP06q1~Yo-VcACcAWJvXhSRtUgVEYqYU2w55SIo_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&Expires=1783876349&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0bS50eHQlM0IrZmlsZW5hbWUlM0QlMjJzbWlsZXM0bS50eHQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzg3NjM0OX19fV19&Signature=MEQCICS~Ba8WoxvbXsCqGaNdbxwoyQXlg~u4cMSiAdF8pfNXAiABGHuglMHsleRGR4Y~JmzFiwqZWw9uhoaqBlzdCAzMow__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?response-content-type=text%2Fplain&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&Expires=1783877871&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0bS50eHQlM0IrZmlsZW5hbWUlM0QlMjJzbWlsZXM0bS50eHQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzg3Nzg3MX19fV19&Signature=MEQCIEK4VXX0nvTjVeaj~otNi23U425RnfIScK17ibNfJC~eAiB5dAtgUk716ow4ZfaBr~dfnaF3JQxrUIjMmlHK5A8QKA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -45,35 +45,35 @@ datasets:
     source: huggingface
     status: verified
     format: csv
+  - url: https://figshare.com/articles/journal_contribution/Implementasi_Algoritma_K-Means_untuk_Klasterisasi_Wilayah_Wisata_Unggulan_di_Jawa_Barat_Berdasarkan_Data_Kunjungan_Wisatawan_Tahun_2014-2024/32968958
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Juzu_i_3_Tarihi_Daga_Kafin_2011_Zuwa_2026_Don_Tsararraki_Masu_Zuwa_Hausa/32968961
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Rall_data_Data_bse_of_mosquitoes_collected_during_the_study_implementation/32899568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/ACTIVE_OR_PASSIVE_STREAMS_OF_INCOME_AND_REVENUE_GENERATION_/32824976
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/SF1_miRNA_Differential_Expression_and_Sample_Clustering_Analysis_in_endometriosis/32968895
-    source: figshare
+  - url: https://pubs.rsc.org/ct/article/120735
+    source: zenodo
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Assistive_Technology_for_Aging_in_Place_in_Korea_Coded_Dataset_of_Government_Provision_Portfolio_N_187_and_Research_Literature_N_130_/32968940
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/figure/Native_Species_Responses_to_i_Lantana_camara_i_Allelopathy_Implications_for_Restoring_Invaded_Forest_Landscapes/32968943
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: HTTP 403
   - url: https://pubs.rsc.org/ct/article/208076
     source: zenodo
     status: wrong_format
     reason: HTTP 403
   - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
-    source: zenodo
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://pubs.rsc.org/ct/article/120735
     source: zenodo
     status: wrong_format
     reason: HTTP 403
@@ -142,23 +142,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Implementasi_Algoritma_K-Means_untuk_Klasterisasi_Wilayah_Wisata_Unggulan_di_Jawa_Barat_Berdasarkan_Data_Kunjungan_Wisatawan_Tahun_2014-2024/32968958
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Juzu_i_3_Tarihi_Daga_Kafin_2011_Zuwa_2026_Don_Tsararraki_Masu_Zuwa_Hausa/32968961
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Rall_data_Data_bse_of_mosquitoes_collected_during_the_study_implementation/32899568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/ACTIVE_OR_PASSIVE_STREAMS_OF_INCOME_AND_REVENUE_GENERATION_/32824976
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/SF1_miRNA_Differential_Expression_and_Sample_Clustering_Analysis_in_endometriosis/32968895
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Assistive_Technology_for_Aging_in_Place_in_Korea_Coded_Dataset_of_Government_Provision_Portfolio_N_187_and_Research_Literature_N_130_/32968940
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/figure/Native_Species_Responses_to_i_Lantana_camara_i_Allelopathy_Implications_for_Restoring_Invaded_Forest_Landscapes/32968943
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -166,11 +166,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7837964
+  - url: https://zenodo.org/records/6379663
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6379663
+  - url: https://zenodo.org/records/7837964
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -178,10 +178,18 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5758806
+  - url: https://zenodo.org/records/2579682
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20798927
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20798927
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21324542
     source: datacite
     status: wrong_format
@@ -191,14 +199,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21324507
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21324507
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21324484
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -228,31 +228,31 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644d439797a3b0904a5408ee/bfd168ffc7b989cd5190192535085fe2052dcb5d5733c22218a211f19a114195?response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES.csv%3B+filename%3D%22PubChem10M_SELFIES.csv%22%3B&Expires=1783876409&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZDQzOTc5N2EzYjA5MDRhNTQwOGVlL2JmZDE2OGZmYzdiOTg5Y2Q1MTkwMTkyNTM1MDg1ZmUyMDUyZGNiNWQ1NzMzYzIyMjE4YTIxMWYxOWExMTQxOTVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTLmNzdiUzQitmaWxlbmFtZSUzRCUyMlB1YkNoZW0xME1fU0VMRklFUy5jc3YlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzg3NjQwOX19fV19&Signature=MEUCIGkR3en2PJNUjXrCjDb5fQaBBLxzpm~NFjxaazZB2NQaAiEA-siFPQ6NE5gVTUENMeAfFB0j0dpEyt6nRlNepysVaLQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644d439797a3b0904a5408ee/bfd168ffc7b989cd5190192535085fe2052dcb5d5733c22218a211f19a114195?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES.csv%3B+filename%3D%22PubChem10M_SELFIES.csv%22%3B&user_id=public&response-content-type=text%2Fcsv&Expires=1783877943&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZDQzOTc5N2EzYjA5MDRhNTQwOGVlL2JmZDE2OGZmYzdiOTg5Y2Q1MTkwMTkyNTM1MDg1ZmUyMDUyZGNiNWQ1NzMzYzIyMjE4YTIxMWYxOWExMTQxOTVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTLmNzdiUzQitmaWxlbmFtZSUzRCUyMlB1YkNoZW0xME1fU0VMRklFUy5jc3YlMjIlM0ImdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzg3Nzk0M319fV19&Signature=MEUCIQCvQx~Oqn8PCTAIwTylyg-hbhYCuSbsj0Jwmf2t~a82XwIgLSaQUGXZYj4NepClUXy0h7xK~go-rP07CychRTNjLHA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644ed4c5a00f4b11d39aaac7/d43fe0e1abeffe5259c320645710e98605e42616aa50b4403d6cfa37ae862ab7?user_id=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES_Tokenized.csv%3B+filename%3D%22PubChem10M_SELFIES_Tokenized.csv%22%3B&X-Xet-Cas-Uid=public&Expires=1783876409&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZWQ0YzVhMDBmNGIxMWQzOWFhYWM3L2Q0M2ZlMGUxYWJlZmZlNTI1OWMzMjA2NDU3MTBlOTg2MDVlNDI2MTZhYTUwYjQ0MDNkNmNmYTM3YWU4NjJhYjdcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTX1Rva2VuaXplZC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJQdWJDaGVtMTBNX1NFTEZJRVNfVG9rZW5pemVkLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODc2NDA5fX19XX0_&Signature=MEUCIAVNEhr4gDZznzdDmfr23cktns73jgzGgSK2kSzwJAbLAiEA8CdbI813d8E7ID3AHk7P43AHk97dZ8I3sRmPfA6GFNs_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644ed4c5a00f4b11d39aaac7/d43fe0e1abeffe5259c320645710e98605e42616aa50b4403d6cfa37ae862ab7?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES_Tokenized.csv%3B+filename%3D%22PubChem10M_SELFIES_Tokenized.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&Expires=1783877944&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZWQ0YzVhMDBmNGIxMWQzOWFhYWM3L2Q0M2ZlMGUxYWJlZmZlNTI1OWMzMjA2NDU3MTBlOTg2MDVlNDI2MTZhYTUwYjQ0MDNkNmNmYTM3YWU4NjJhYjdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTX1Rva2VuaXplZC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJQdWJDaGVtMTBNX1NFTEZJRVNfVG9rZW5pemVkLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODc3OTQ0fX19XX0_&Signature=MEQCICksQmXcK70I7oqpRXa0ym9WuHIbKyLEbblwjgFU2PUYAiBvz9M8pxZYAHf6ROsOt7TjiTxAxzuJ2Hyd7Cyr2WJwWg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
+  - url: https://figshare.com/articles/journal_contribution/Implementasi_Algoritma_K-Means_untuk_Klasterisasi_Wilayah_Wisata_Unggulan_di_Jawa_Barat_Berdasarkan_Data_Kunjungan_Wisatawan_Tahun_2014-2024/32968958
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Content_Writing-_The_Wheel_of_Digital_Marketing/32968949
+  - url: https://figshare.com/articles/book/Juzu_i_3_Tarihi_Daga_Kafin_2011_Zuwa_2026_Don_Tsararraki_Masu_Zuwa_Hausa/32968961
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Rall_data_Data_bse_of_mosquitoes_collected_during_the_study_implementation/32899568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/ACTIVE_OR_PASSIVE_STREAMS_OF_INCOME_AND_REVENUE_GENERATION_/32824976
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/SF1_miRNA_Differential_Expression_and_Sample_Clustering_Analysis_in_endometriosis/32968895
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -337,23 +337,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/book/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
+  - url: https://figshare.com/articles/journal_contribution/Implementasi_Algoritma_K-Means_untuk_Klasterisasi_Wilayah_Wisata_Unggulan_di_Jawa_Barat_Berdasarkan_Data_Kunjungan_Wisatawan_Tahun_2014-2024/32968958
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Content_Writing-_The_Wheel_of_Digital_Marketing/32968949
+  - url: https://figshare.com/articles/book/Juzu_i_3_Tarihi_Daga_Kafin_2011_Zuwa_2026_Don_Tsararraki_Masu_Zuwa_Hausa/32968961
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Rall_data_Data_bse_of_mosquitoes_collected_during_the_study_implementation/32899568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/ACTIVE_OR_PASSIVE_STREAMS_OF_INCOME_AND_REVENUE_GENERATION_/32824976
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/SF1_miRNA_Differential_Expression_and_Sample_Clustering_Analysis_in_endometriosis/32968895
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -434,23 +434,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/book/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
+  - url: https://figshare.com/articles/journal_contribution/Implementasi_Algoritma_K-Means_untuk_Klasterisasi_Wilayah_Wisata_Unggulan_di_Jawa_Barat_Berdasarkan_Data_Kunjungan_Wisatawan_Tahun_2014-2024/32968958
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Content_Writing-_The_Wheel_of_Digital_Marketing/32968949
+  - url: https://figshare.com/articles/book/Juzu_i_3_Tarihi_Daga_Kafin_2011_Zuwa_2026_Don_Tsararraki_Masu_Zuwa_Hausa/32968961
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Rall_data_Data_bse_of_mosquitoes_collected_during_the_study_implementation/32899568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/ACTIVE_OR_PASSIVE_STREAMS_OF_INCOME_AND_REVENUE_GENERATION_/32824976
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/SF1_miRNA_Differential_Expression_and_Sample_Clustering_Analysis_in_endometriosis/32968895
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -462,11 +462,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15024519
+  - url: https://zenodo.org/records/16736314
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16736314
+  - url: https://zenodo.org/records/15024519
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

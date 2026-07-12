@@ -2,62 +2,66 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- pip (package manager)
-- Git
+- Python 3.11 or higher
+- `pip`
+- (Optional) `conda` for environment management
 
-## Setup
+## Installation
 
-1. **Clone the repository** (if not already done):
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-425-predicting-molecular-complexity-using-in
-   ```
+1.  **Clone the repository** (if not already done):
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-425-predicting-molecular-complexity-using-in
+    ```
 
-2. **Create and activate a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` includes `rdkit`, `pandas`, `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `seaborn`, `datasets`.*
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: Ensure `rdkit` is installed. If using conda, `conda install -c conda-forge rdkit` is recommended.*
 
 ## Running the Analysis
 
-Execute the full pipeline (download, compute, analyze, visualize):
+The full pipeline can be executed via the main script:
 
 ```bash
 python code/main.py
 ```
 
-### What this does:
-1. **Downloads** a stratified random sample of [deferred] molecules from the verified HuggingFace dataset.
-2. **Computes** Shannon Entropy (raw and per-atom), LZ Length, SA Score, and QED Score for each.
-3. **Performs** Pearson and Spearman correlation, 1,000-iteration bootstrap resampling, and multiple-comparison correction.
-4. **Generates** plots and a JSON report.
+This script performs the following steps in order:
+1.  **Download**: Fetches the dataset from the verified HuggingFace URL (`sagawa/pubchem-10m-canonicalized`) and verifies the SHA-256 checksum.
+2.  **Sample**: Selects a random subset of molecules (e.g., [deferred]–[deferred]) to ensure representativeness.
+3.  **Compute**: Calculates Shannon Entropy, LZMA Length (using `lzma`), SA, QED, MW, and Atom Count for each molecule.
+4.  **Analyze**: Performs Pearson and Spearman correlation, partial correlation (controlling for MW/Atom Count), bootstrap resampling (1,000 iterations), and multiple-comparison correction.
+5.  **Visualize**: Generates scatter plots.
+6.  **Report**: Outputs a JSON summary and an HTML report.
 
-## Expected Outputs
+### Output Files
 
-- **Console**: Progress logs, summary statistics.
-- **`data/processed/metrics.csv`**: Full dataset with all metrics (including `smiles` and `lz_length`).
-- **`reports/stats.json`**: Correlation coefficients, p-values, CIs, and partial correlations.
-- **`reports/figures/`**: Four scatter plots with regression lines.
-
-## Troubleshooting
-
-- **Memory Error**: Ensure you are not running other heavy processes. The script uses chunked processing during the initial load.
-- **RDKit Import Error**: Ensure `rdkit` is installed correctly. On some systems, it may require `conda` or specific wheel installation.
-- **Dataset Load Error**: Verify internet connection. The script fetches data from HuggingFace. If the download fails, it will retry with exponential backoff.
-- **Timeout Errors**: If many molecules timeout, check for network issues or extremely complex structures. These are logged and skipped.
+After completion, check the `data/processed/` and `reports/` directories:
+- `data/processed/metrics.csv`: Computed metrics for all molecules.
+- `data/processed/correlations.csv`: Final correlation statistics (including partial correlations).
+- `reports/analysis_report.html`: Human-readable report with plots.
 
 ## Verification
 
-To verify the results manually:
-1. Check `reports/stats.json` for the correlation coefficients (both Pearson and Spearman).
-2. Open `reports/figures/entropy_sa.png` to visually inspect the relationship.
-3. Ensure the `adjusted_p_value` in the JSON is below the Bonferroni-corrected threshold for significant findings.
-4. Verify the `smiles` and `lz_length` columns in `data/processed/metrics.csv` to confirm they are stored side-by-side.
+To verify the installation and basic functionality:
+
+```bash
+python -m pytest tests/unit/
+```
+
+This runs unit tests for metric calculation and error handling.
+
+## Troubleshooting
+
+- **RDKit Import Error**: Ensure `rdkit` is installed correctly. Try `pip install rdkit-pypi` or use `conda`.
+- **Memory Error**: Reduce the sample size in `code/config.py` (e.g., `SAMPLE_SIZE = 500`).
+- **Dataset Download Failed**: Check internet connection and ensure the HuggingFace URL is accessible. The script includes retry logic.
+- **Checksum Mismatch**: If the downloaded file checksum does not match the HuggingFace manifest, the script will abort to ensure data integrity.

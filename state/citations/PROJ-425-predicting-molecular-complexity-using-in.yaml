@@ -1,11 +1,22 @@
-- artifact_hash: a00ef1d346bff5fc15b7e45e88f643edf99a7198f60c6c0a5b6dbae9f1536dc5
+- artifact_hash: 6bef6c7b3940dbf2978d0465de0e534705bc74d866a976f03ebc6e7784860cdc
+  artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "sagawa/pubchem-10m-canonicalized \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized
+  verified_at: '2026-07-12T16:58:57.865497Z'
+- artifact_hash: 3e4ac3a85949d1564a30112c9d9d2a2160ddbbe4707343bcdbc08152d2e1b310
   artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: train-00000-of-00001-e9b227f8c7259c8b.parquet
+  fetched_title: "sagawa/pubchem-10m-canonicalized \xB7 Datasets at Hugging Face"
   kind: url
-  value: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet`
+  value: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6312e7b5bbaa385279d3e10b/06521683174da62c0d7a38ec22d401a0ddc1b06fa0bb9dab63b4ad55428703db?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-e9b227f8c7259c8b.parquet%3B+filename%3D%22train-00000-of-00001-e9b227f8c7259c8b.parquet%22%3B&user_id=public&Expires=1783877019&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMxMmU3YjViYmFhMzg1Mjc5ZDNlMTBiLzA2NTIxNjgzMTc0ZGE2MmMwZDdhMzhlYzIyZDQwMWEwZGRjMWIwNmZhMGJiOWRhYjYzYjRhZDU1NDI4NzAzZGJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtZTliMjI3ZjhjNzI1OWM4Yi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtZTliMjI3ZjhjNzI1OWM4Yi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM4NzcwMTl9fX1dfQ__&Signature=MEYCIQDgLqSPIt1X%7EtCpAPc4bJtIXX8JKs9riZFNDcoDjqYBAgIhALBxpX%7EXTcJhra2JcR3bgxHd3C9Bund3MVabKrs0D5Vb&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-12T16:23:39.062159Z'
+  verified_against_url: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized
+  verified_at: '2026-07-12T16:59:24.666823Z'

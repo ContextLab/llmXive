@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResult"
+description: "Schema for statistical correlation results."
+type: "object"
+properties:
+  metric_pair:
+    type: "string"
+    description: "Identifier for the pair of metrics (e.g., 'entropy_sa')"
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient"
+  spearman_rho:
+    type: "number"
+    description: "Spearman rank correlation coefficient"
+  p_value:
+    type: "number"
+    description: "Raw p-value (Pearson)"
+  adjusted_p_value:
+    type: "number"
+    description: "Bonferroni-adjusted p-value"
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% CI (bootstrap)"
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% CI (bootstrap)"
+  n:
+    type: "integer"
+    description: "Sample size used"
+  partial_r:
+    type: "number"
+    description: "Partial correlation (controlling for MW, Atom Count)"
+  partial_p_value:
+    type: "number"
+    description: "P-value for partial correlation"
+required:
+  - "metric_pair"
+  - "pearson_r"
+  - "spearman_rho"
+  - "p_value"
+  - "adjusted_p_value"
+  - "ci_lower"
+  - "ci_upper"
+  - "n"
+  - "partial_r"
+  - "partial_p_value"
+additionalProperties: false
