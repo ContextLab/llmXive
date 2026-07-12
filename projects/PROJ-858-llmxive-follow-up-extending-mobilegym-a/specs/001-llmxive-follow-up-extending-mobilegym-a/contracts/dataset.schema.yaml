@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MobileGym Task Parameter Schema"
+description: "Schema for a single task parameter configuration used in training and evaluation."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task instance."
+  app_name:
+    type: string
+    description: "Name of the application (e.g., 'settings', 'mail')."
+  initial_state:
+    type: object
+    description: "Dictionary of initial state variables for the task."
+    additionalProperties: true
+  goal_description:
+    type: string
+    description: "Natural language description of the goal."
+  difficulty_estimate:
+    type: number
+    description: "Estimated difficulty score (0.0 to 1.0) based on historical data."
+    minimum: 0.0
+    maximum: 1.0
+  intrinsic_complexity:
+    type: integer
+    description: "Static count of required state transitions for this task (used for sensitivity analysis)."
+    minimum: 0
+  ema_estimates:
+    type: object
+    description: "Exponential Moving Average of success rates for this task (used by scheduler)."
+    additionalProperties:
+      type: number
+required:
+  - task_id
+  - app_name
+  - initial_state
+  - goal_description
+  - intrinsic_complexity
+additionalProperties: false

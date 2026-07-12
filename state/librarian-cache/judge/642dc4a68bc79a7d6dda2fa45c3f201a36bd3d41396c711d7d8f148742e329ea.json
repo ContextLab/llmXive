@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.26114",
+  "judged_at": "2026-07-12T22:39:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mobilegym: a verifiable and highly parallel simulation platform for mo\" computer science",
+  "rationale": "The paper is the foundational methods paper (category d) and the primary empirical study (category e) for the \"MobileGym\" platform explicitly named in the user's research question, serving as the canonical reference for any follow-up work extending this specific simulation environment.",
+  "relevant": true
+}

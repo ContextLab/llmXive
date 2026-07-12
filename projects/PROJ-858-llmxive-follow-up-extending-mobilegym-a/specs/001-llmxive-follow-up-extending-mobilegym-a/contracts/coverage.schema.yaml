@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "State Coverage Vector Schema"
+description: "Schema for the binary state coverage vector and associated metadata."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the training run."
+  step_id:
+    type: integer
+    description: "Global step counter within the run."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8061 timestamp of the update."
+  coverage_vector:
+    type: array
+    description: "Binary array where 0 is unexplored and 1 is explored."
+    items:
+      type: integer
+      enum: [0, 1]
+    minItems: 1
+  triggered_vars:
+    type: array
+    description: "List of variable names that transitioned to 1 in this step."
+    items:
+      type: string
+  mode:
+    type: string
+    enum: ["static_random", "state_guided"]
+    description: "The training mode active during this step."
+  ema_estimates:
+    type: object
+    description: "Exponential Moving Average of success rates for selected tasks."
+    additionalProperties:
+      type: number
+  metrics_triggered:
+    type: object
+    description: "Specific coverage metrics (e.g., dark_mode transition) that triggered the scheduler selection for this step. Required for Constitution Principle VI traceability."
+    additionalProperties:
+      type: number
+required:
+  - run_id
+  - step_id
+  - timestamp
+  - coverage_vector
+  - triggered_vars
+  - mode
+  - metrics_triggered
+additionalProperties: false

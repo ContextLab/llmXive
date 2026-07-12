@@ -1,0 +1,107 @@
+resolved_at: '2026-07-12T22:47:37.837004+00:00'
+datasets:
+- intent: GRPO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nbd22/Llama-3.1-8B-Instruct-GRPO-gsm8k-deepseek-completions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12115
+      parsed: true
+  - url: https://huggingface.co/datasets/minchyeom/SmolInstruct-GRPO/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Goastro/mlx-grpo-dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1751
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nbd22/Llama-3.1-8B-Instruct-GRPO-gsm8k-deepseek-completions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/minchyeom/SmolInstruct-GRPO/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Goastro/mlx-grpo-dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/AlistairPullen/gsm8k-grpo-format/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard/fblgit__miniclaus-qw1.5B-UNAMGS-GRPO-details/resolve/main/fblgit__miniclaus-qw1.5B-UNAMGS-GRPO/samples_leaderboard_bbh_boolean_expressions_2025-02-04T21-22-38.882227.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/book/Eko_University_of_Medical_and_Health_Sciences_2026_2027_Application_Form_07047903330_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32969519
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Methodische_Grundlagen_des_Recovery-Kompass_Herkunft_und_wissenschaftliche_Fundierung_der_drei_S_ulen/32969498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Greenfield_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32969513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Dominion_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32969510
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Mass_photometry_and_thioflavin_T_data_for_aggregation_of_P301L_tau_with_and_without_small-molecule_inhibitors/32661216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17470860
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20179922
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16602468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18417185
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20130523
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.12886
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.11549
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.00155
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2602.17686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.08716
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

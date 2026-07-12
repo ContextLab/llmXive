@@ -5,36 +5,78 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mo"
 
-## Summary of the prior work
-MobileGym introduces a lightweight, browser-hosted mobile simulation platform that uses structured JSON state to enable deterministic verification and high-throughput parallel rollouts for mobile GUI agents. By replacing heavyweight emulators with a state-manipulatable environment, it facilitates scalable online Reinforcement Learning (RL) and provides a benchmark (MobileGym-Bench) with 416 parameterized tasks across 28 apps. The study validates that agents trained in this simulated environment retain over 95% of their performance gains when transferred to real devices.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a "State-Guided Curriculum" that dynamically adjusts task difficulty based on an agent's real-time state-space coverage (rather than static parameterization) significantly accelerate RL convergence and improve Sim-to-Real transfer robustness compared to MobileGym's current static training set?
+## Research question
 
-This matters because MobileGym currently relies on fixed train/test splits; however, RL agents often waste compute on tasks they have already mastered or get stuck on "hard" tasks that are solvable only via specific state configurations. A dynamic curriculum could optimize the CPU-tractable parallel rollouts by focusing agent exploration on unvisited state transitions, potentially reducing the total number of required rollouts by 50% while increasing the diversity of learned policies for real-world deployment.
+Does a dynamic "State-Guided Curriculum" that prioritizes task parameterization based on real-time agent state-space coverage accelerate Reinforcement Learning convergence and improve Sim-to-Real transfer robustness in mobile GUI agents compared to static random sampling?
+
+## Motivation
+
+Mobile GUI agents currently rely on static task splits that may waste computational resources on mastered scenarios or fail to adequately challenge agents with under-explored state transitions. A curriculum that adapts to the agent's specific learning trajectory could optimize the efficiency of parallel rollouts, potentially reducing the compute budget required for robust policy training while enhancing generalization to real-world device interactions.
+
+## Related work
+
+- [MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research](https://arxiv.org/abs/2605.26114) — This work establishes the foundational browser-hosted simulation environment and static benchmark (MobileGym-Bench) with 416 parameterized tasks, serving as the necessary substrate for the proposed dynamic curriculum extension.
+
+## Expected results
+
+The State-Guided Curriculum agent is expected to reach a target success rate (e.g., 50% on the test set) with significantly fewer environment steps (e.g., 40% reduction) than the static baseline. Additionally, the curriculum-trained agent should demonstrate higher Sim-to-Real transfer robustness, evidenced by lower performance variance across complex apps with high state-dependency, confirming that targeted state exploration yields more generalizable policies.
 
 ## Methodology sketch
-**Data:** Utilize the existing MobileGym-Bench task templates (256 test + 160 train) and the underlying JSON state schema. No new app development is required.
 
-**Procedure:**
-1.  **Instrumentation:** Extend the MobileGym judging mechanism to log a "State Coverage Vector" for every parallel rollout, tracking which specific state variables (e.g., `app_settings.dark_mode`, `message_list.unread_count`) have been successfully transitioned from their initial values.
-2.  **Algorithm Design:** Implement a CPU-tractable curriculum scheduler (e.g., a simple bandit algorithm or entropy-based selector) that runs on the host server. This scheduler will dynamically select the next batch of task parameters for the parallel workers. It will prioritize tasks where the agent's current policy has low "state novelty" (high uncertainty in transition outcomes) or where the current success rate is near a "sweet spot" (e.g., 30-70% success) to maximize learning signal.
-3.  **Experiment:** Train two agents using Group Relative Policy Optimization (GRPO) on Qwen3-VL-4B-Instruct: one using MobileGym's original static random sampling, and one using the proposed dynamic State-Guided Curriculum. Both will run for a fixed wall-clock time (e.g., 24 hours) on a single 64-core CPU server to ensure fairness and CPU-tractability.
+- **Data Acquisition**: Download the MobileGym source code and MobileGym-Bench task definitions (256 test + 160 train tasks) from the official repository associated with the arXiv preprint to ensure reproducibility.
+- **Instrumentation**: Extend the MobileGym environment's JSON state handler to compute a binary "State Coverage Vector" after every parallel rollout, tracking transitions of specific variables (e.g., `app_settings.dark_mode`, `message_list.unread_count`) from their initial states.
+- **Curriculum Scheduler Implementation**: Develop a CPU-tractable scheduler (e.g., an entropy-based selector or multi-armed bandit) that ingests the coverage vectors and dynamically selects the next batch of task parameters, prioritizing states with low novelty or success rates in the 30-70% "sweet spot."
+- **Training Execution**: Train two Qwen3-VL-4B-Instruct agents using Group Relative Policy Optimization (GRPO) on a 64-core CPU runner:
+  - Baseline: Static random sampling of task parameters.
+  - Experimental: Dynamic sampling via the State-Guided Curriculum.
+  - Constraint: Both runs capped at 6 hours wall-clock time to adhere to GHA limits.
+- **Evaluation & Validation**:
+  - **Convergence Metric**: Plot success rate vs. total environment steps for both agents; the experimental agent should reach the target plateau earlier.
+  - **Transfer Robustness**: Evaluate both policies on a held-out real-device transfer subset (simulated via MobileGym's high-fidelity mode) and compare the variance of success rates across apps.
+  - **Independence Check**: The validation metrics (final success rate on held-out tasks and transfer variance) are measured on datasets and metrics distinct from the state-coverage vector used to generate the curriculum, ensuring no circular validation.
 
-**Expected Result:** The State-Guided Curriculum agent will achieve the same target success rate (e.g., 50% on the test set) in significantly fewer total environment steps (e.g., 40% reduction) compared to the static baseline. Furthermore, on the real-device transfer subset, the curriculum-trained agent is expected to show higher robustness (lower variance in performance) across apps with complex state dependencies, demonstrating that focusing on state-space coverage yields more generalizable policies than random task sampling.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: None found in the provided context.
+- Closest match: None (this is a specific extension of MobileGym focusing on dynamic curriculum scheduling based on state coverage, distinct from the base platform creation).
+- Verdict: NOT a duplicate
 
-- **MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research** — Dingbang Wu, Rui Hao, Haiyang Wang, Shuzhe Wu, Han Xiao, Zhenghong Li, Bojiang Zhou, Zheng Ju, Zichen Liu, Lue Fan, Zhaoxiang Zhang. https://arxiv.org/abs/2605.26114.
 
-```bibtex
-@article{orig_arxiv_2605_26114,
-  title = {MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research},
-  author = {Dingbang Wu and Rui Hao and Haiyang Wang and Shuzhe Wu and Han Xiao and Zhenghong Li and Bojiang Zhou and Zheng Ju and Zichen Liu and Lue Fan and Zhaoxiang Zhang},
-  year = {2026},
-  eprint = {2605.26114},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.26114},
-  url = {https://arxiv.org/abs/2605.26114}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T22:39:31Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mo" computer science
+**Verified citation count**: 1
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mo" computer science | 0 |
+| 1 | MobileGym simulation platform verification | 2 |
+| 2 | highly parallel mobile robot simulation | 3 |
+| 3 | verifiable reinforcement learning environments for robotics | 0 |
+| 4 | scalable robotics simulation frameworks | 0 |
+| 5 | parallelized mobile robot training environments | 0 |
+| 6 | formal verification of robotics simulators | 0 |
+| 7 | distributed simulation for mobile agents | 0 |
+| 8 | reproducible robotics benchmarking platforms | 0 |
+| 9 | high-throughput mobile robot training | 0 |
+| 10 | concurrent mobile robot simulation architectures | 0 |
+| 11 | verifiable deep reinforcement learning for mobile robots | 0 |
+| 12 | parallel execution environments for robot learning | 0 |
+| 13 | mobile robot simulation with formal guarantees | 0 |
+| 14 | scalable parallel training for embodied AI | 0 |
+| 15 | verification methods for robotics simulation fidelity | 0 |
+| 16 | high-performance computing in mobile robotics simulation | 0 |
+| 17 | parallelizable environments for robot policy learning | 0 |
+| 18 | mobile robot simulation for large-scale reinforcement learning | 0 |
+| 19 | trustworthy robotics simulation platforms | 0 |
+| 20 | distributed mobile robot training infrastructure | 0 |
+
+### Verified citations
+
+1. **MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research** (2026). Dingbang Wu, Rui Hao, Haiyang Wang, Shuzhe Wu, Han Xiao, et al.. arXiv. [2605.26114](https://arxiv.org/abs/2605.26114). PDF-sampled: No.

@@ -1,0 +1,580 @@
+{
+  "fetched_at": "2026-07-12T22:39:31Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mo\"",
+      "target_n": 5
+    },
+    "duration_seconds": 59.068,
+    "ended_at": "2026-07-12T22:39:31Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "MobileGym simulation platform verification"
+        ],
+        [
+          2,
+          "highly parallel mobile robot simulation"
+        ],
+        [
+          3,
+          "verifiable reinforcement learning environments for robotics"
+        ],
+        [
+          4,
+          "scalable robotics simulation frameworks"
+        ],
+        [
+          5,
+          "parallelized mobile robot training environments"
+        ],
+        [
+          6,
+          "formal verification of robotics simulators"
+        ],
+        [
+          7,
+          "distributed simulation for mobile agents"
+        ],
+        [
+          8,
+          "reproducible robotics benchmarking platforms"
+        ],
+        [
+          9,
+          "high-throughput mobile robot training"
+        ],
+        [
+          10,
+          "concurrent mobile robot simulation architectures"
+        ],
+        [
+          11,
+          "verifiable deep reinforcement learning for mobile robots"
+        ],
+        [
+          12,
+          "parallel execution environments for robot learning"
+        ],
+        [
+          13,
+          "mobile robot simulation with formal guarantees"
+        ],
+        [
+          14,
+          "scalable parallel training for embodied AI"
+        ],
+        [
+          15,
+          "verification methods for robotics simulation fidelity"
+        ],
+        [
+          16,
+          "high-performance computing in mobile robotics simulation"
+        ],
+        [
+          17,
+          "parallelizable environments for robot policy learning"
+        ],
+        [
+          18,
+          "mobile robot simulation for large-scale reinforcement learning"
+        ],
+        [
+          19,
+          "trustworthy robotics simulation platforms"
+        ],
+        [
+          20,
+          "distributed mobile robot training infrastructure"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "MobileGym simulation platform verification": 2,
+        "highly parallel mobile robot simulation": 3,
+        "llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mo\" computer science": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "mobile robot verifiable simulation parallel",
+      "MobileGym benchmark robot learning",
+      "parallelizable environment robot training",
+      "simulation fidelity mobile robotics evaluation",
+      "verifiable RL mobile platform reproducibility"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.26114"
+      ]
+    },
+    "per_query_hit_count": {
+      "MobileGym benchmark robot learning": 3,
+      "llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mo\" computer science": 3,
+      "mobile robot verifiable simulation parallel": 3,
+      "parallelizable environment robot training": 3,
+      "simulation fidelity mobile robotics evaluation": 3,
+      "verifiable RL mobile platform reproducibility": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1006.3652",
+          "rationale": "The paper focuses on discrete event and agent-based simulation for human-centric retail systems (fitting rooms), which is an off-domain application compared to the user's question about \"MobileGym,\" a verifiable simulation platform for mobile robotics or autonomous agents. While both involve simulation, the paper does not address the specific mechanism, domain (mobile robotics/LLM agents), or canonical methodology of the MobileGym platform, failing to meet any of the inclusion criteria (a-f).",
+          "title": "Modelling Reactive and Proactive Behaviour in Simulation"
+        },
+        {
+          "primary_pointer": "1204.3052",
+          "rationale": "The paper focuses on low-level GPU optimization for matrix exponentiation, which is a distinct computational construct from the user's question regarding a verifiable simulation platform for mobile robotics (MobileGym). While both involve \"highly parallel\" computing, the paper does not address the specific domain (mobile robotics simulation), the mechanism (verifiable simulation environments), or the variables (mobile robot control/physics) required for the user's literature review, falling unde",
+          "title": "Heterogeneous Highly Parallel Implementation of Matrix Exponentiation Using GPU"
+        },
+        {
+          "primary_pointer": "2110.04412",
+          "rationale": "The paper focuses on physics-based simulation of viscoelastic fluids for 3D printing robots, which is a distinct domain from the user's question regarding \"MobileGym,\" a verifiable simulation platform for Large Language Models (LLMs) and mobile agents. While both involve \"simulation\" and \"mobile\" systems, the underlying mechanisms (fluid dynamics vs. LLM reasoning/verification), variables, and empirical populations are entirely different, failing to meet any inclusion criteria (a-f) and falling ",
+          "title": "Mobile 3D Printing Robot Simulation with Viscoelastic Fluids"
+        },
+        {
+          "primary_pointer": "2102.02465",
+          "rationale": "The paper focuses on security architectures (TrustZone/TEE) and developer tooling for mobile apps, which is a distinct construct from the user's question regarding a \"verifiable and highly parallel simulation platform\" for mobile robotics (MobileGym). While both involve mobile computing, the paper does not measure the same mechanism (simulation/verification), address the same variables (parallel simulation throughput or verifiability), or provide a baseline for the specific domain of mobile robo",
+          "title": "LEAP: TrustZone Based Developer-Friendly TEE for Intelligent Mobile Apps"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T22:38:32Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"mobilegym: a verifiable and highly parallel simulation platform for mo\" computer science",
+      "raw": "llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mo\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the paper, a parallel Tabu Search algorithm for the Resource Constrained Project Scheduling Problem is proposed. To deal with this NP-hard combinatorial problem many optimizations have been performed. For example, a resource evaluation algorithm is selected by a heuristic and an effective Tabu List was designed. In addition to that, a capacity-indexed resource evaluation algorithm was proposed and the GPU (Graphics Processing Unit) version uses a homogeneous model to reduce the required communication bandwidth. According to the experiments, the GPU version outperforms the optimized parallel CPU version with respect to the computational time and the quality of solutions. In comparison with other existing heuristics, the proposed solution often gives better quality solutions.",
+          "claimed_authors": [
+            "Libor Bukata",
+            "Premysl Sucha",
+            "Zdenek Hanzalek"
+          ],
+          "claimed_title": "Solving the Resource Constrained Project Scheduling Problem Using the Parallel Tabu Search Designed for the CUDA Platform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.04556"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Solving the Resource Constrained Project Scheduling Problem Using the Parallel Tabu Search Designed for the CUDA Platform')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The system design and algorithm development of mobile 3D printing robots need a realistic simulation. They require a mobile robot simulation platform to interoperate with a physics-based material simulation for handling interactions between the time-variant deformable 3D printing materials and other simulated rigid bodies in the environment, which is not available for roboticists yet. To bridge this gap and enable the real-time simulation of mobile 3D printing processes, we develop a simulation framework that includes particle-based viscoelastic fluid simulation and particle-to-mesh conversion in the widely adopted Gazebo robotics simulator, avoiding the bottlenecks of traditional additive manufacturing simulation approaches. This framework is the first of its kind that enables the simulation of robot arms or mobile manipulators together with viscoelastic fluids. The method is tested using various material properties and multiple collaborating robots to demonstrate its simulation ability for the robots to plan and control the printhead trajectories and to visually sense at the same time the printed fluid materials as a free-form mesh. The scalability as a function of available material particles in the simulation was also studied. A simulation with an average of 5 FPS was achieved on a regular desktop computer.",
+          "claimed_authors": [
+            "Uljad Berdica",
+            "Yuewei Fu",
+            "Yuchen Liu",
+            "Emmanouil Angelidis",
+            "Chen Feng"
+          ],
+          "claimed_title": "Mobile 3D Printing Robot Simulation with Viscoelastic Fluids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.04412"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Mobile 3D Printing Robot Simulation with Viscoelastic Fluids')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Chunks and Tasks, a parallel programming model built on abstractions for both data and work. The application programmer specifies how data and work can be split into smaller pieces, chunks and tasks, respectively. The Chunks and Tasks library maps the chunks and tasks to physical resources. In this way we seek to combine user friendliness with high performance. An application programmer can express a parallel algorithm using a few simple building blocks, defining data and work objects and their relationships. No explicit communication calls are needed; the distribution of both work and data is handled by the Chunks and Tasks library. This makes efficient implementation of complex applications that require dynamic distribution of work and data easier. At the same time, Chunks and Tasks imposes restrictions on data access and task dependencies that facilitates the development of high performance parallel back ends. We discuss the fundamental abstractions underlying the programming model, as well as performance and fault resilience considerations. We also present a pilot C++ library implementation for clusters of multicore machines and demonstrate its performance for sparse blocked matrix-matrix multiplication.",
+          "claimed_authors": [
+            "Emanuel H. Rubensson",
+            "Elias Rudberg"
+          ],
+          "claimed_title": "Chunks and Tasks: a programming model for parallelization of dynamic algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.7427"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Chunks and Tasks: a programming model for parallelization of dynamic algorithms')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, model-free reinforcement learning algorithms have been shown to solve challenging problems by learning from extensive interaction with the environment. A significant issue with transferring this success to the robotics domain is that interaction with the real world is costly, but training on limited experience is prone to overfitting. We present a method for learning to navigate, to a fixed goal and in a known environment, on a mobile robot. The robot leverages an interactive world model built from a single traversal of the environment, a pre-trained visual feature encoder, and stochastic environmental augmentation, to demonstrate successful zero-shot transfer under real-world environmental variations without fine-tuning.",
+          "claimed_authors": [
+            "Jake Bruce",
+            "Niko Suenderhauf",
+            "Piotr Mirowski",
+            "Raia Hadsell",
+            "Michael Milford"
+          ],
+          "claimed_title": "One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.10137"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "ROBEL is an open-source platform of cost-effective robots designed for reinforcement learning in the real world. ROBEL introduces two robots, each aimed to accelerate reinforcement learning research in different task domains: D'Claw is a three-fingered hand robot that facilitates learning dexterous manipulation tasks, and D'Kitty is a four-legged robot that facilitates learning agile legged locomotion tasks. These low-cost, modular robots are easy to maintain and are robust enough to sustain on-hardware reinforcement learning from scratch with over 14000 training hours registered on them to date. To leverage this platform, we propose an extensible set of continuous control benchmark tasks for each robot. These tasks feature dense and sparse task objectives, and additionally introduce score metrics as hardware-safety. We provide benchmark scores on an initial set of tasks using a variety of learning-based methods. Furthermore, we show that these results can be replicated across copies of the robots located in different institutions. Code, documentation, design files, detailed assembly instructions, final policies, baseline details, task videos, and all supplementary materials required to reproduce the results are available at www.roboticsbenchmarks.org.",
+          "claimed_authors": [
+            "Michael Ahn",
+            "Henry Zhu",
+            "Kristian Hartikainen",
+            "Hugo Ponte",
+            "Abhishek Gupta",
+            "Sergey Levine",
+            "Vikash Kumar"
+          ],
+          "claimed_title": "ROBEL: Robotics Benchmarks for Learning with Low-Cost Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.11639"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='ROBEL: Robotics Benchmarks for Learning with Low-Cost Robots')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Through many recent successes in simulation, model-free reinforcement learning has emerged as a promising approach to solving continuous control robotic tasks. The research community is now able to reproduce, analyze and build quickly on these results due to open source implementations of learning algorithms and simulated benchmark tasks. To carry forward these successes to real-world applications, it is crucial to withhold utilizing the unique advantages of simulations that do not transfer to the real world and experiment directly with physical robots. However, reinforcement learning research with physical robots faces substantial resistance due to the lack of benchmark tasks and supporting source code. In this work, we introduce several reinforcement learning tasks with multiple commercially available robots that present varying levels of learning difficulty, setup, and repeatability. On these tasks, we test the learning performance of off-the-shelf implementations of four reinforcement learning algorithms and analyze sensitivity to their hyper-parameters to determine their readiness for applications in various real-world tasks. Our results show that with a careful setup of the task interface and computations, some of these implementations can be readily applicable to physical robots. We find that state-of-the-art learning algorithms are highly sensitive to their hyper-parameters and their relative ordering does not transfer across tasks, indicating the necessity of re-tuning them for each task for best performance. On the other hand, the best hyper-parameter configuration from one task may often result in effective learning on held-out tasks even with different robots, providing a reasonable default. We make the benchmark tasks publicly available to enhance reproducibility in real-world reinforcement learning.",
+          "claimed_authors": [
+            "A. Rupam Mahmood",
+            "Dmytro Korenkevych",
+            "Gautham Vasan",
+            "William Ma",
+            "James Bergstra"
+          ],
+          "claimed_title": "Benchmarking Reinforcement Learning Algorithms on Real-World Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.07731"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Benchmarking Reinforcement Learning Algorithms on Real-World Robots')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robots playing soccer often rely on hard-coded behaviors that struggle to generalize when the game environment change. In this paper, we propose a temporal logic based approach that allows robots' behaviors and goals to adapt to the semantics of the environment. In particular, we present a hierarchical representation of soccer in which the robot selects the level of operation based on the perceived semantic characteristics of the environment, thus modifying dynamically the set of rules and goals to apply. The proposed approach enables the robot to operate in unstructured environments, just as it happens when humans go from soccer played on an official field to soccer played on a street. Three different use cases set in different scenarios are presented to demonstrate the effectiveness of the proposed approach.",
+          "claimed_authors": [
+            "Vincenzo Suriani",
+            "Emanuele Musumeci",
+            "Daniele Nardi",
+            "Domenico Daniele Bloisi"
+          ],
+          "claimed_title": "Play Everywhere: A Temporal Logic based Game Environment Independent Approach for Playing Soccer with Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.12628"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Play Everywhere: A Temporal Logic based Game Environment Independent Approach for Playing Soccer with Robots')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Purpose - The purpose of this paper is to present a CAD-based human-robot interface that allows non-expert users to teach a robot in a manner similar to that used by human beings to teach each other.\n  Design/methodology/approach - Intuitive robot programming is achieved by using CAD drawings to generate robot programs off-line. Sensory feedback allows minimization of the effects of uncertainty, providing information to adjust the robot paths during robot operation.\n  Findings - It was found that it is possible to generate a robot program from a common CAD drawing and run it without any major concerns about calibration or CAD model accuracy.\n  Research limitations/implications - A limitation of the proposed system has to do with the fact that it was designed to be used for particular technological applications.\n  Practical implications - Since most manufacturing companies have CAD packages in their facilities today, CAD-based robot programming may be a good option to program robots without the need for skilled robot programmers.\n  Originality/value - The paper proposes a new CAD-based robot programming system. Robot programs are directly generated from a CAD drawing running on a commonly available 3D CAD package (Autodesk Inventor) and not from a commercial, computer aided robotics (CAR) software, making it a simple CAD integrated solution. This is a low-cost and low-setup time system where no advanced robot programming skills are required to operate it. In summary, robot programs are generated with a high-level of abstraction from the robot language.",
+          "claimed_authors": [
+            "Pedro Neto",
+            "Nuno Mendes",
+            "Ricardo Araújo",
+            "J. Norberto Pires",
+            "A. Paulo Moreira"
+          ],
+          "claimed_title": "High-level robot programming based on CAD: dealing with unpredictable environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.2086"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='High-level robot programming based on CAD: dealing with unpredictable environments')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In a rapidly evolving digital landscape autonomous tools and robots are becoming commonplace. Recognizing the significance of this development, this paper explores the integration of Large Language Models (LLMs) like Generative pre-trained transformer (GPT) into human-robot teaming environments to facilitate variable autonomy through the means of verbal human-robot communication. In this paper, we introduce a novel framework for such a GPT-powered multi-robot testbed environment, based on a Unity Virtual Reality (VR) setting. This system allows users to interact with robot agents through natural language, each powered by individual GPT cores. By means of OpenAI's function calling, we bridge the gap between unstructured natural language input and structure robot actions. A user study with 12 participants explores the effectiveness of GPT-4 and, more importantly, user strategies when being given the opportunity to converse in natural language within a multi-robot environment. Our findings suggest that users may have preconceived expectations on how to converse with robots and seldom try to explore the actual language and cognitive capabilities of their robot collaborators. Still, those users who did explore where able to benefit from a much more natural flow of communication and human-like back-and-forth. We provide a set of lessons learned for future research and technical implementations of similar systems.",
+          "claimed_authors": [
+            "Younes Lakhnati",
+            "Max Pascher",
+            "Jens Gerken"
+          ],
+          "claimed_title": "Exploring Large Language Models to Facilitate Variable Autonomy for Human-Robot Teaming",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.07214"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Exploring Large Language Models to Facilitate Variable Autonomy for Human-Robot Teaming')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in large language models (LLMs) have spurred interest in using them for generating robot programs from natural language, with promising initial results. We investigate the use of LLMs to generate programs for service mobile robots leveraging mobility, perception, and human interaction skills, and where accurate sequencing and ordering of actions is crucial for success. We contribute CodeBotler, an open-source robot-agnostic tool to program service mobile robots from natural language, and RoboEval, a benchmark for evaluating LLMs' capabilities of generating programs to complete service robot tasks. CodeBotler performs program generation via few-shot prompting of LLMs with an embedded domain-specific language (eDSL) in Python, and leverages skill abstractions to deploy generated programs on any general-purpose mobile robot. RoboEval evaluates the correctness of generated programs by checking execution traces starting with multiple initial states, and checking whether the traces satisfy temporal logic properties that encode correctness for each task. RoboEval also includes multiple prompts per task to test for the robustness of program generation. We evaluate several popular state-of-the-art LLMs with the RoboEval benchmark, and perform a thorough analysis of the modes of failures, resulting in a taxonomy that highlights common pitfalls of LLMs at generating robot programs. We release our code and benchmark at https://amrl.cs.utexas.edu/codebotler/.",
+          "claimed_authors": [
+            "Zichao Hu",
+            "Francesca Lucchetti",
+            "Claire Schlesinger",
+            "Yash Saxena",
+            "Anders Freeman",
+            "Sadanand Modak",
+            "Arjun Guha",
+            "Joydeep Biswas"
+          ],
+          "claimed_title": "Deploying and Evaluating LLMs to Program Service Mobile Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.11183"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Deploying and Evaluating LLMs to Program Service Mobile Robots')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative world models hold significant potential for simulating interactions with visuomotor policies in varied environments. Frontier video models can enable generation of realistic observations and environment interactions in a scalable and general manner. However, the use of video models in robotics has been limited primarily to in-distribution evaluations, i.e., scenarios that are similar to ones used to train the policy or fine-tune the base video model. In this report, we demonstrate that video models can be used for the entire spectrum of policy evaluation use cases in robotics: from assessing nominal performance to out-of-distribution (OOD) generalization, and probing physical and semantic safety. We introduce a generative evaluation system built upon a frontier video foundation model (Veo). The system is optimized to support robot action conditioning and multi-view consistency, while integrating generative image-editing and multi-view completion to synthesize realistic variations of real-world scenes along multiple axes of generalization. We demonstrate that the system preserves the base capabilities of the video model to enable accurate simulation of scenes that have been edited to include novel interaction objects, novel visual backgrounds, and novel distractor objects. This fidelity enables accurately predicting the relative performance of different policies in both nominal and OOD conditions, determining the relative impact of different axes of generalization on policy performance, and performing red teaming of policies to expose behaviors that violate physical or semantic safety constraints. We validate these capabilities through 1600+ real-world evaluations of eight Gemini Robotics policy checkpoints and five tasks for a bimanual manipulator.",
+          "claimed_authors": [
+            " Gemini Robotics Team",
+            "Krzysztof Choromanski",
+            "Coline Devin",
+            "Yilun Du",
+            "Debidatta Dwibedi",
+            "Ruiqi Gao",
+            "Abhishek Jindal",
+            "Thomas Kipf",
+            "Sean Kirmani",
+            "Isabel Leal",
+            "Fangchen Liu",
+            "Anirudha Majumdar",
+            "Andrew Marmon",
+            "Carolina Parada",
+            "Yulia Rubanova",
+            "Dhruv Shah",
+            "Vikas Sindhwani",
+            "Jie Tan",
+            "Fei Xia",
+            "Ted Xiao",
+            "Sherry Yang",
+            "Wenhao Yu",
+            "Allan Zhou"
+          ],
+          "claimed_title": "Evaluating Gemini Robotics Policies in a Veo World Simulator",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.10675"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Evaluating Gemini Robotics Policies in a Veo World Simulator')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We address the problem of controlling a mobile robot to explore a partially known environment. The robot's objective is the maximization of the amount of information collected about the environment. We formulate the problem as a partially observable Markov decision process (POMDP) with an information-theoretic objective function, and solve it applying forward simulation algorithms with an open-loop approximation. We present a new sample-based approximation for mutual information useful in mobile robotics. The approximation can be seamlessly integrated with forward simulation planning algorithms. We investigate the usefulness of POMDP based planning for exploration, and to alleviate some of its weaknesses propose a combination with frontier based exploration. Experimental results in simulated and real environments show that, depending on the environment, applying POMDP based planning for exploration can improve performance over frontier exploration.",
+          "claimed_authors": [
+            "Mikko Lauri",
+            "Risto Ritala"
+          ],
+          "claimed_title": "Planning for robotic exploration based on forward simulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1502.02474"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='Planning for robotic exploration based on forward simulation')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ARMrayan Multimedia Mobile CMS (Content Management System) is the first mobile CMS that gives the opportunity to users for creating multimedia J2ME mobile applications with their desired content, design and logo; simply, without any need for writing even a line of code. The low-level programming and compatibility problems of the J2ME, along with UI designing difficulties, makes it hard for most people -even programmers- to broadcast their content to the widespread mobile phones used by nearly all people. This system provides user-friendly, PC-based tools for creating a tree index of pages and inserting multiple multimedia contents (e.g. sound, video and picture) in each page for creating a J2ME mobile application. The output is a stand-alone Java mobile application that has a user interface, shows texts and pictures and plays music and videos regardless of the type of devices used as long as the devices support the J2ME platform. Bitmap fonts have also been used thus Middle Eastern languages can be easily supported on all mobile phone devices. We omitted programming concepts for users in order to simplify multimedia content-oriented mobile application designing for use in educational, cultural or marketing centers. Ordinary operators can now create a variety of multimedia mobile applications such as tutorials, catalogues, books, and guides in minutes rather than months. Simplicity and power has been the goal of this CMS. In this paper, we present the software engineered-designed concepts of the ARMrayan MCMS along with the implementation challenges faces and solutions adapted.",
+          "claimed_authors": [
+            "Ali Reza Manashty",
+            "Mohammad Reza Ahmadzadeh Raji",
+            "Zahra Forootan Jahromi",
+            "Amir Rajabzadeh"
+          ],
+          "claimed_title": "ARMrayan Multimedia Mobile CMS: a Simplified Approach towards Content-Oriented Mobile Application Designing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.5347"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='ARMrayan Multimedia Mobile CMS: a Simplified Approach towards Content-Oriented Mobile Application Designing')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "ARM TrustZone is widely deployed on commercial-off-the-shelf mobile devices for secure execution. However, many Apps cannot enjoy this feature because it brings many constraints to App developers. Previous works have been proposed to build a secure execution environment for developers on top of TrustZone. Unfortunately, these works are still not fully-fledged solutions for mobile Apps, especially for emerging intelligent Apps. To this end, we propose LEAP, which is a lightweight developer-friendly TEE solution for mobile Apps. LEAP enables isolated codes to execute in parallel and access peripheral (e.g., mobile GPUs) with ease, flexibly manages system resources upon different workloads, and offers the auto DevOps tool to help developers prepare the codes running on it. We implement the LEAP prototype on the off-the-shelf ARM platform and conduct extensive experiments on it. The experimental results show that Apps can be adapted to run with LEAP easily and efficiently. Compared to the state-of-the-art work along this research line, LEAP can achieve an average 3.57x speedup in supporting intelligent Apps using mobile GPU acceleration.",
+          "claimed_authors": [
+            "Lizhi Sun",
+            "Shuocheng Wang",
+            "Hao Wu",
+            "Yuhang Gong",
+            "Fengyuan Xu",
+            "Yunxin Liu",
+            "Hao Han",
+            "Sheng Zhong"
+          ],
+          "claimed_title": "LEAP: TrustZone Based Developer-Friendly TEE for Intelligent Mobile Apps",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.02465"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='LEAP: TrustZone Based Developer-Friendly TEE for Intelligent Mobile Apps')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "At the start of the second decade of 21th century, the time has come to make the Smart Houses a reality for regular use. The different parts of a Smart House are researched but there are still distances from an applicable system, using the modern technology. In this paper we present an overview of the Smart House subsystems necessary for controlling the house using a mobile application efficiently and securely. The sequence diagram of the mobile application connecting to the server application and also the use-cases possible are presented. The challenges faced in designing the mobile application and illustrating the updated house top plane view in that application, are discussed and solutions are adapted for it. Finally the designed mobile application was implemented and the important sections of it were described, such as the interactive house top view map which indicates the status of the devices using predefined icons. The facilities to manage the scheduled tasks and defined rules are also implemented in this mobile application that was developed for use in Windows Mobile platform. This application has the capability of connecting to the main server using GPRS mobile internet and SMS. This system is expected to be an important step towards a unified system structure that can be used efficiently in near future regular houses.",
+          "claimed_authors": [
+            "Amir Rajabzadeh",
+            "Ali Reza Manashty",
+            "Zahra Forootan Jahromi"
+          ],
+          "claimed_title": "A Mobile Application for Smart House Remote Control System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.5557"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MobileGym: A Verifiable and Highly Parallel Simula', candidate_title='A Mobile Application for Smart House Remote Control System')",
+        "failed_at": "2026-07-12T22:39:03Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dingbang Wu",
+            "Rui Hao",
+            "Haiyang Wang",
+            "Shuzhe Wu",
+            "Han Xiao",
+            "Zhenghong Li",
+            "Bojiang Zhou",
+            "Zheng Ju",
+            "Zichen Liu",
+            "Lue Fan",
+            "Zhaoxiang Zhang"
+          ],
+          "title": "MobileGym: A Verifiable and Highly Parallel Simulation Platform for Mobile GUI Agent Research",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.26114",
+        "summary": "We present MobileGym, a browser-hosted, lightweight, fully controllable environment for everyday mobile use, targeting interaction fidelity without replicating proprietary backends. It enables two capabilities previously out of reach for everyday apps: verifiable outcome signals through deterministic state-based judging over structured JSON state, and scalable online RL through low-cost parallel rollouts. The full environment state is captured, configured, forked, and compared as structured JSON, and a single server can host hundreds of parallel instances, with about 400 MB memory per instance and about 3 s cold start. A layered state model and a declarative task-definition framework keep state programmability and task creation practical at scale, and a single programmatic judging mechanism delivers both deterministic evaluation verdicts and dense RL rewards. The accompanying MobileGym-Bench provides 416 parameterized task templates, including 256 test and 160 train templates, over 28 apps, with deterministic judges and a structured AnswerSheet protocol that avoids free-text matching failures. In a Sim-to-Real case study, GRPO on Qwen3-VL-4B-Instruct gains +12.8 percentage points on the 256-task test set, and on a 59-task real-device signal subset, real-device execution retains 95.1% of the simulation-side training gain. Project page: https://mobilegym.github.io.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.26114",
+          "http_status": 200,
+          "pdf_sample_score": 0.2213,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T22:39:08Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"mobilegym: a verifiable and highly parallel simulation platform for mo\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

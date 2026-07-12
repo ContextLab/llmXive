@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.04412",
+  "judged_at": "2026-07-12T22:39:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mobilegym: a verifiable and highly parallel simulation platform for mo\" computer science",
+  "rationale": "The paper focuses on physics-based simulation of viscoelastic fluids for 3D printing robots, which is a distinct domain from the user's question regarding \"MobileGym,\" a verifiable simulation platform for Large Language Models (LLMs) and mobile agents. While both involve \"simulation\" and \"mobile\" systems, the underlying mechanisms (fluid dynamics vs. LLM reasoning/verification), variables, and empirical populations are entirely different, failing to meet any inclusion criteria (a-f) and falling ",
+  "relevant": false
+}
