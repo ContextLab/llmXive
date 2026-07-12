@@ -7,89 +7,83 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Execute Controlled Benchmark Suite (Priority: P1)
+### User Story 1 - Execute Controlled Benchmark Suite (US-1) (Priority: P1)
 
-**Description**: As a researcher, I need to systematically generate code for the HumanEval dataset using a continuous gradient of prompt variants (ranging from ~50 to ~400 tokens) on a single CPU-compatible model (`Salesforce/codegen-350M-multi`) so that I can collect the raw correctness (pass@1) and exact token count data required to map the trade‑off curve. The experiment uses programmatic elaboration to create a dense set of data points rather than just three discrete conditions.
+**Description**: As a researcher, I need to systematically generate code for the HumanEval dataset using a continuous gradient of prompt variants (ranging from ~50 to ~400 tokens) on a single CPU‑compatible model (`Salesforce/codegen-350M-multi`) so that I can collect the raw correctness (pass@1, pass@10) and exact token count data required to map the trade‑off curve. The experiment uses programmatic elaboration to create a dense set of data points rather than just three discrete conditions.
 
 **Why this priority**: This is the foundational data collection step. Without generating code across a gradient of prompt lengths and running the unit tests, no statistical analysis regarding the "point of diminishing returns" can be drawn. It represents the core experimental loop and must run entirely within the CI time limit.
 
-**Independent Test**: Can be fully tested by running the generation script on a subset of problems (e.g., 10) with 5 distinct token-count targets and verifying that the output directory contains generated code files, a log of exact token counts for each target, and a JSON report of pass@1 scores for all variants.
+**Independent Test**: Can be fully tested by running the generation script on a subset of problems (e.g., 10) with Multiple distinct token‑count targets. and verifying that the output directory contains generated code files, a log of exact token counts for each target, and a JSON report of pass@1 and pass@10 scores for all variants.
 
 **Acceptance Scenarios**:
+1. **Given** the HumanEval dataset is available locally, **When** the system processes the first 10 problems with 5 distinct prompt elaboration levels (targeting ~50, 100, 200, 300, 400 tokens), **Then** the system generates code, executes the unit tests, and records pass@1 (0/1), pass@10 (0/1), and the *exact* measured token count for each problem/variant pair.
+2. **Given** the system has completed the "Minimal" prompt variants, **When** the system switches to the "Verbose" prompt template for the same problems, **Then** the generated code differs due to context, and the system records distinct token counts and pass@1/pass@10 scores without crashing.
+3. **Given** the generation process encounters a timeout or execution error during unit testing, **When** the system retries up to 3 times, **Then** the system logs the failure, marks the specific problem/prompt combination as "failed" (pass@1 = 0, pass@10 = 0), and proceeds to the next item rather than halting the batch.
+4. **Given** the system detects that processing the full set of problems with 5 variants each will exceed the 6‑hour runtime limit, **When** the system switches to the fallback mode, **Then** it randomly samples exactly 100 problems and proceeds with the analysis on this subset.
 
-1. **Given** the HumanEval dataset is available locally, **When** the system processes the first 10 problems with 5 distinct prompt elaboration levels (targeting ~50, 100, 200, 300, 400 tokens), **Then** the system generates code, executes the unit tests, and records pass@1 (0/1) and the *exact* measured token count for each problem/variant pair.
-2. **Given** the system has completed the "Minimal" prompt variants, **When** the system switches to the "Verbose" prompt template for the same problems, **Then** the generated code differs due to context, and the system records distinct token counts and pass@1 scores without crashing.
-3. **Given** the generation process encounters a timeout or execution error during unit testing, **When** the system retries up to 3 times, **Then** the system logs the failure, marks the specific problem/prompt combination as "failed" (pass@1 = 0), and proceeds to the next item rather than halting the batch.
-4. **Given** the system detects that processing the full 164 problems with 5 variants each will exceed the 6-hour runtime limit, **When** the system switches to the fallback mode, **Then** it randomly samples exactly 100 problems and proceeds with the analysis on this subset.
+### User Story 2 - Perform Statistical Analysis and Visualization (US-2) (Priority: P2)
 
----
-
-### User Story 2 - Perform Statistical Analysis and Visualization (Priority: P2)
-
-**Description**: As a researcher, I need the system to compute statistical metrics (Generalized Linear Mixed Model and repeated‑measures ANOVA) and generate plots (pass@1 rate vs. prompt token count) based on the collected data so that I can identify the non‑linear trade‑off curve, locate the vertex (optimal point), and determine if the relationship is statistically significant.
+**Description**: As a researcher, I need the system to compute statistical metrics (Generalized Linear Mixed Model and Cochran’s Q test) and generate plots (pass@1 rate vs. prompt token count) based on the collected data so that I can identify the non‑linear trade‑off curve, locate the vertex (optimal point) via grid search, and determine if the relationship is statistically significant.
 
 **Why this priority**: This transforms raw data into the research findings. It answers the core research question regarding the shape of the relationship (linear vs. non‑linear) and identifies if a specific "optimal" prompt size exists, directly addressing the "diminishing returns" hypothesis.
 
-**Independent Test**: Can be fully tested by providing a pre‑generated CSV of dummy results (pass@1 scores per token bin) and verifying that the analysis script outputs a PDF/Markdown report containing the GLMM coefficients, repeated‑measures ANOVA p‑values, and a plot of the performance curve with a fitted regression line.
+**Independent Test**: Can be fully tested by providing a pre‑generated CSV of dummy results (pass@1 scores per token bin) and verifying that the analysis script outputs a PDF/Markdown report containing the GLMM coefficients, Cochran’s Q test p‑value, and a plot of the performance curve with the identified optimal bin.
 
 **Acceptance Scenarios**:
-
-1. **Given** a complete dataset of pass@1 scores and exact token counts for all sampled problems, **When** the analysis script runs, **Then** it fits a Generalized Linear Mixed Model (GLMM) with a logit link (`PassScore ~ TokenCount + TokenCount^2 + (1|ProblemID)`) to identify the vertex (optimal point) of the curve by transforming log‑odds to probability.
-2. **Given** the data is aggregated into token‑count bins, **When** the script performs a repeated‑measures ANOVA, **Then** it outputs the F‑statistic and p‑value indicating if the differences in pass rates across the prompt conditions are statistically significant for binary repeated measures.
+1. **Given** a complete dataset of pass@1 scores, pass@10 scores, and exact token counts for all sampled problems, **When** the analysis script runs, **Then** it fits a Generalized Linear Mixed Model (GLMM) with a logit link (`PassScore ~ TokenCount + (1|ProblemID)`) to assess significance, and performs a grid search to find the token bin with the highest observed pass rate.
+2. **Given** the data is aggregated into token‑count bins, **When** the script performs Cochran’s Q test, **Then** it outputs the test statistic and p‑value indicating if the differences in pass rates across the prompt conditions are statistically significant.
 3. **Given** the latency data is collected, **When** the system compares the token counts, **Then** it generates a CSV or JSON summary table comparing the mean inference time per token to quantify the cost efficiency of verbosity.
-4. **Given** the primary analysis is complete, **When** the system performs a sensitivity check on the vertex location, **Then** it re‑runs the GLMM with a different random seed and verifies that the location of the vertex (optimal token count) remains stable within a 95% confidence interval.
+4. **Given** the primary analysis is complete, **When** the system performs a sensitivity check, **Then** it re‑runs the grid-search analysis with a ±5% variation in the token count bins and verifies that the location of the optimal bin remains stable.
 
----
-
-### User Story 3 - Generate Final Research Report (Priority: P3)
+### User Story 3 - Generate Final Research Report (US-3) (Priority: P3)
 
 **Description**: As a researcher, I need the system to compile the statistical findings, visualizations, and methodology details into a single Markdown report so that the results are ready for review and publication.
 
 **Why this priority**: This delivers the final artifact of the research phase. While the data and analysis are critical, the structured report is the deliverable that validates the project completion and documents the methodological soundness (e.g., framing findings as associational).
 
 **Acceptance Scenarios**:
-
-1. **Given** the statistical analysis is complete, **When** the report generator runs, **Then** it includes a "Results" section with the GLMM coefficients, vertex calculation, and repeated‑measures ANOVA results.
-2. **Given** the visualizations are generated, **When** the report is rendered, **Then** it includes the "Prompt Token Count vs. Pass@1 Rate" chart with the fitted GLMM curve and confidence intervals.
+1. **Given** the statistical analysis is complete, **When** the report generator runs, **Then** it includes a "Results" section with the GLMM coefficients, the identified optimal prompt bin (from grid search), and Cochran’s Q test results.
+2. **Given** the visualizations are generated, **When** the report is rendered, **Then** it includes the "Prompt Token Count vs. Pass@1 Rate" chart with the fitted GLMM curve and the highlighted optimal bin.
 3. **Given** the analysis reveals a null result (no significant non‑linear effect), **When** the report is generated, **Then** it explicitly states the null hypothesis was not rejected and discusses the implications for prompt design guidelines.
 
 ### Edge Cases
 
 - **What happens when** a generated code snippet causes an infinite loop or hangs during unit test execution?
-  - *Handling*: The execution environment MUST enforce a strict timeout of 10 seconds per test case. If exceeded, the test is marked as "Time Out" and contributes to the failure rate (pass@1 = 0), preventing the runner from hanging indefinitely.
+  - *Handling*: The execution environment MUST enforce a strict timeout of 10 seconds per test case. If exceeded, the test is marked as "Time Out" and contributes to the failure rate (pass@1 = 0, pass@10 = 0), preventing the runner from hanging indefinitely.
 - **How does the system handle** a model loading failure or OOM error on the GitHub Actions free‑tier runner?
   - *Handling*: The system MUST implement a memory check before loading the model. If the model exceeds available RAM, the system MUST abort with a clear error message indicating the resource constraint, rather than crashing the CI job silently.
 - **What happens when** the token count for a "Verbose" prompt exceeds the model's maximum context window?
-  - *Handling*: The system MUST truncate the prompt to the model's maximum limit (e.g., the context window size for CodeGen-350M) and log a warning, ensuring the experiment continues without crashing, while noting the truncation in the dataset to preserve data integrity.
-- **What happens when** the semantic elaboration logic inadvertently changes the task definition?
-  - *Handling*: The system MUST exclude any prompt variant that fails the semantic spot-check (FR-010) from the analysis to prevent confounding variables.
+  - *Handling*: The system MUST truncate the prompt to the model's maximum limit (e.g., the context window size for CodeGen‑350M) and log a warning, ensuring the experiment continues without crashing, while noting the truncation in the dataset to preserve data integrity. The truncation override applies to the ±10 token tolerance constraint in all cases where truncation occurs.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST attempt to sample the full HumanEval dataset. If the estimated runtime (based on linear extrapolation of the first 10 problems) exceeds the 6-hour limit, the system MUST fallback to randomly sampling exactly 100 problems (See US-1).
-- **FR-002**: System MUST construct a gradient of prompt variants for every sampled problem, programmatically adding neutral, semantically consistent elaborations to create target token counts of 50, 100, 200, 300, and 400 tokens (within ±10 tokens of the target) while preserving the core task definition (See US-1).
+- **FR-001**: System MUST attempt to sample the full HumanEval dataset. If the estimated runtime (based on linear extrapolation of the first 10 problems) exceeds the 6‑hour limit, the system MUST fallback to randomly sampling a modest set of problems (See US-1).
+- **FR-002**: System MUST construct a gradient of prompt variants for every sampled problem, programmatically adding neutral, semantically consistent elaborations to create target token counts spanning a range from short to progressively longer prompts. The actual token count MUST be within ±10 tokens of the target, UNLESS the prompt is truncated to fit the model's maximum context window, in which case the tolerance constraint is waived and the actual count is recorded as the truncated length (See US-1).
 - **FR-003**: System MUST measure the *exact* token count for every generated prompt using the `Salesforce/codegen-350M-multi` tokenizer before inference to ensure accurate variable measurement (See US-1).
-- **FR-004**: System MUST execute the generated code against the standard HumanEval unit tests. For each problem and prompt variant, the system MUST generate a single code sample to calculate pass@1, enforcing a 10‑second timeout per test case (See US-1).
+- **FR-004**: System MUST execute the generated code against the standard HumanEval unit tests. For each problem and prompt variant, the system MUST generate code samples to calculate pass@1 and pass@10, enforcing a 10‑second timeout per test case (See US-1).
 - **FR-005**: System MUST record the total inference latency (in seconds) and total tokens used for every generation attempt to enable cost‑benefit analysis (See US-1).
-- **FR-006**: System MUST fit a Generalized Linear Mixed Model (GLMM) with a logit link (`PassScore ~ TokenCount + TokenCount^2 + (1|ProblemID)`) to the binary pass@1 outcomes. The system MUST transform the fitted log‑odds back to probability space using the inverse logit function and perform numerical optimization to locate the vertex (optimal prompt size) of the performance curve, treating 'problem_id' as a random effect (See US-2).
-- **FR-007**: System MUST perform a repeated‑measures ANOVA to assess statistical significance of differences in pass rates across the prompt token conditions (See US-2).
-- **FR-008**: System MUST generate a summary report containing the GLMM coefficients, vertex calculation, repeated‑measures ANOVA results, and visualizations of the trade‑off curves with confidence intervals (See US-3).
+- **FR-006**: System MUST fit a Generalized Linear Mixed Model (GLMM) with a logit link (`PassScore ~ TokenCount + (1|ProblemID)`) to the binary pass@1 outcomes to assess statistical significance. Additionally, the system MUST identify the "optimal prompt size" by performing a grid search over the observed token bins to find the bin with the highest observed pass@1 and pass@10 rates (See US-2).
+- **FR-007**: System MUST perform Cochran’s Q test to assess whether the observed differences in pass@1 and pass@10 rates across the five prompt‑token conditions are statistically significant for the within‑subject design (See US-2).
+- **FR-008**: System MUST generate a summary report containing the GLMM coefficients, the identified optimal prompt bin (from grid search), Cochran’s Q test results, and visualizations of the trade‑off curves with confidence intervals, explicitly including pass@10 metrics (See US-3).
 - **FR-009**: System MUST frame all findings regarding the relationship between prompt length and code quality as **associational** (not causal) in the final report, as the design varies prompt length but does not randomize model architecture or task difficulty to isolate causal mechanisms beyond the controlled variables (See US-2).
-- **FR-010**: System MUST validate the semantic equivalence of the elaborated prompts by performing a spot‑check on at least 5% (minimum 5 samples) of the generated variants to ensure the elaboration did not alter the task intent; variants failing this check are excluded from the analysis (See US-2).
-- **FR-011**: System MUST perform a sensitivity analysis on the vertex location by re-running the GLMM with different random seeds (at least 5 iterations) and reporting the standard deviation of the optimal token count to ensure the peak is not an artifact of stochastic convergence (See US-2).
+- **FR-010**: System MUST validate the semantic equivalence of the elaborated prompts by performing a random spot‑check on [deferred] of the generated variants using a fixed random seed of 42; variants failing this check are excluded from the analysis (See US-2).
+- **FR-011**: System MUST perform a sensitivity analysis on the "optimal point" determination by re‑running the grid‑search (or the GLMM) with a ±5% variation in the token count bins to verify the stability of the identified peak (See US-2).
+- **FR-012**: System MUST enforce a strict timeout of 10 seconds per unit test case. If a test exceeds this limit, it MUST be marked as failed (pass@1 = 0, pass@10 = 0) and the process MUST continue without hanging (See Edge Cases).
+- **FR-013**: System MUST implement a memory check before loading the model. If available RAM is insufficient, the system MUST abort with a specific error message rather than crashing silently (See Edge Cases).
+- **FR-014**: System MUST detect when a prompt exceeds the model's context window, truncate it to the maximum limit, log a warning with the truncation details, and proceed with the experiment (See Edge Cases).
 
-### Non-Functional Requirements
+### Non‑Functional Requirements
 
-- **NFR-001**: The total inference time and analysis pipeline MUST complete within 6 hours on a GitHub Actions ubuntu‑latest runner with a modest number of CPU cores and ~7 GB RAM (See US-1).
+- **NFR-001**: The total inference time and analysis pipeline MUST complete within 6 hours on a GitHub Actions ubuntu‑latest runner with 2 CPU cores and ~7 GB RAM (See US-1).
 - **NFR-002**: The system MUST NOT utilize GPU acceleration, 8‑bit/4‑bit quantization, or CUDA‑specific libraries, ensuring compatibility with CPU‑only free‑tier runners (See US-1).
 
 ### Key Entities
 
 - **PromptVariant**: Represents the specific configuration of a prompt applied to a problem. Attributes: `variant_id`, `target_token_count`, `actual_token_count`, `text_content`, `semantic_drift_flag`.
-- **GenerationResult**: Represents the output of a single model inference. Attributes: `problem_id`, `model_name`, `variant_id`, `pass_score_1` (0 or 1), `latency_ms`, `generated_tokens`.
-- **AnalysisMetric**: Represents a computed statistical value. Attributes: `metric_type` (GLMM, repeated‑measures ANOVA), `coefficient`, `p_value`, `vertex_value` (optimal token count), `confidence_interval`.
+- **GenerationResult**: Represents the output of a single model inference. Attributes: `problem_id`, `model_name`, `variant_id`, `pass_score_1` (0 or 1), `pass_score_10` (0 or 1), `latency_ms`, `generated_tokens`.
+- **AnalysisMetric**: Represents a computed statistical value. Attributes: `metric_type` (GLMM, CochranQ), `coefficient`, `p_value`, `optimal_bin` (optimal token range), `confidence_interval`.
 
 ## Success Criteria
 
@@ -99,25 +93,27 @@
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The non‑linear relationship between prompt length and pass@1 is measured against the p‑value of the quadratic term in the GLMM (logit link) to assess the strength of the curvature (See US-2).
-- **SC-002**: The statistical significance of the prompt size effect is measured against the p‑value from the repeated‑measures ANOVA test (alpha = 0.05) to determine if differences between conditions are non‑random (See US-2).
-- **SC-003**: The existence of diminishing returns is measured by the sign and significance of the quadratic coefficient in the GLMM; a significant negative quadratic term (p < 0.05, coefficient < 0) indicates a peak (optimal point) followed by a decline, within the 95% confidence interval of the vertex (See US-2).
-- **SC-004**: The percentage of valid problems is measured against the total sampled problems to verify that at least 95% of the sampled problems contain the required variables (problem description, function signatures, unit tests) from the HumanEval source; any problem missing these variables is logged as an error and excluded, ensuring the dataset validity is confirmed (See US-1).
-- **SC-005**: The computational feasibility is measured by ensuring the total runtime of the generation and analysis pipeline does not exceed 6 hours on a GitHub Actions ubuntu‑latest runner with several CPU cores and ~7 GB RAM (See NFR-001).
-- **SC-006**: The methodological soundness is measured by the explicit framing of results as associational in the final report, avoiding causal claims where random assignment of model architecture or task difficulty was not performed (See FR‑009).
-- **SC-007**: The completeness of the final report is measured by verifying that it includes the GLMM vertex calculation, repeated‑measures ANOVA results, and the required visualizations as specified in FR‑008 (See US-3).
-- **SC-008**: The clarity of the report's conclusions is measured by the explicit statement of the null hypothesis status (rejected or not rejected) and the discussion of implications for prompt design guidelines (See US-3).
-- **SC-009**: The stability of the optimal point is measured by the standard deviation of the vertex location across 5 independent GLMM runs with different random seeds; a standard deviation ≤ 15 tokens is required to confirm the peak is robust (See FR-011).
+- **SC-001**: The non‑linear relationship between prompt length and pass@1 is measured against the p‑value of the TokenCount term in the GLMM (logit link) to assess the strength of the effect (See FR-006).
+- **SC-002**: The statistical significance of the prompt size effect is measured against the p‑value from Cochran’s Q test (alpha = 0.05) to determine if differences between conditions are non‑random (See FR-007).
+- **SC-003**: The existence of diminishing returns is measured by identifying the token bin with the highest pass@1 rate via grid search; a significant drop in pass rates for bins beyond this peak (p < 0.05) indicates diminishing returns (See FR-006).
+- **SC-004**: The validity of the dataset is measured by verifying that [deferred] of the sampled problems contain the required variables (problem description, function signature, unit tests) from the HumanEval source; any problem missing these variables is logged as an error and excluded, ensuring the dataset validity is maintained (See FR-001).
+- **SC-005**: The computational feasibility is measured by ensuring the total runtime of the generation and analysis pipeline does not exceed 6 hours on a GitHub Actions ubuntu‑latest runner with 2 CPU cores and ~7 GB RAM (See NFR-001).
+- **SC-006**: The methodological soundness is measured by the explicit framing of results as associational in the final report, avoiding causal claims where random assignment of model architecture or task difficulty was not performed (See FR-009).
+- **SC-007**: The robustness of the optimal point is measured by the variance in the optimal bin location across the sensitivity analysis bins; the optimal bin must remain within a ±10 token window across the sensitivity sweep to be considered stable (See FR-011).
+- **SC-008**: The completeness of the final research report is measured by verifying that it contains the GLMM coefficients, the identified optimal prompt bin, Cochran’s Q test results, and the required visualizations (See FR-008).
+- **SC-009**: The content validity of the final research report is measured by verifying that it explicitly includes pass@10 analysis results and visualizations alongside pass@1, as required by FR-008 and FR-006 (See FR-008).
+- **SC-010**: The final research report is measured by verifying that it includes all required sections (Methodology, Results, Discussion) and explicitly addresses the research question regarding the prompt size trade-off, ensuring the report meets the deliverable standards of US-3 (See US-3, FR-008).
 
 ## Assumptions
 
-- The HumanEval dataset (publicly available on GitHub) contains all necessary variables: problem descriptions, function signatures, and unit tests required to compute pass@k for a representative sample size.
+- The HumanEval dataset (publicly available on GitHub) contains all necessary variables: problem descriptions, function signatures, and unit tests required to compute pass@1 and pass@10 for a representative sample size.
 - The `Salesforce/codegen-350M-multi` model can be loaded entirely into the ~7 GB RAM of a GitHub Actions free‑tier runner in default precision without requiring GPU acceleration, 8‑bit quantization, or CUDA.
 - The analysis is observational; findings regarding the relationship between prompt length and code quality will be framed as associational, not causal, as the experimental design varies prompt length but does not randomize model architecture or task difficulty in a way that isolates causal mechanisms beyond the controlled variables.
-- A sample size of 164 problems (falling back to 100 if necessary) is hypothesized to be sufficient to detect a moderate effect size (Cohen's w ≥ 0.3) with ≥80% power at alpha = 0.05 for a within‑subjects design with 5 conditions and binary outcomes. Note: If the true effect size is small, the study may be underpowered.
-- The "Verbose" prompt construction logic is robust enough that adding reasoning instructions and examples does not alter the semantic intent of the original task, ensuring that any performance change is due to length/verbosity rather than task definition drift (validated by FR‑010).
+- A sample size of 164 problems (falling back to 100 if necessary) is hypothesized to be sufficient to detect a moderate effect size (Cohen’s w ≥ 0.3) with ≥80 % power at alpha = 0.05 for a within‑subjects design with 5 conditions and binary outcomes. Note: If the true effect size is small, the study may be underpowered.
+- The "Verbose" prompt construction logic is robust enough that adding reasoning instructions and examples does not alter the semantic intent of the original task, ensuring that any performance change is due to length/verbosity rather than task definition drift (validated by FR-010).
 - The unit tests in HumanEval are deterministic and can be executed reliably in a sandboxed environment without external network dependencies.
 - The latency measurements will exclude network overhead and focus solely on model inference time, assuming the local loading of the model is stable.
 - The tokenization of the "elaborated" text by the `codegen-350M` tokenizer will yield the expected gradient of token counts (50 to 400) without significant deviation from the target ranges.
-- The use of pass@1 (single sample) introduces stochastic variance that may obscure the true "diminishing returns" curve; the GLMM vertex location is interpreted with this variance in mind, and the study acknowledges that a decline in pass@1 may reflect noise rather than a true performance drop if the confidence interval is wide.
-- The GitHub Actions free-tier runner provides sufficient CPU cycles to complete the inference of ~500-800 samples (100 problems * 5 variants) within the 6-hour window, assuming an average inference time of < 30 seconds per sample.
+- The use of pass@1 and pass@10 introduces stochastic variance that may obscure the true "diminishing returns" curve; the identified optimal bin is interpreted with this variance in mind, and the study acknowledges that a decline in pass rates may reflect noise rather than a true performance drop if the confidence interval is wide.
+- The specific elaboration strategy (adding neutral, semantically consistent text) is sufficient to increase token count without introducing new semantic constraints or changing the problem's difficulty level.
+- **Methodological Justification**: Although the original idea suggested quadratic regression and repeated-measures ANOVA, GLMM and Cochran's Q were selected because the outcome variable (pass/fail) is binary. GLMM handles the binary nature and random effects (problem ID) correctly, while Cochran's Q is the appropriate non-parametric test for repeated measures on binary data. This change is essential for statistical validity, not scope creep.

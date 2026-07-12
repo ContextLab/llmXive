@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T21:39:10.387894Z'
-current_stage: specified
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-777-analyzing-the-trade-off-between-prompt-s
-last_run_id: f3d884ec-79c6-46a2-b806-4c30e2a3d31e
+last_run_id: bef8299f-3d6c-4876-951b-8d6766f5ea17
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-777-analyzing-the-trade-off-between-prompt-s/specs/001-analyzing-the-trade-off-between-prompt-s
 title: "Analyzing the Trade\u2011off Between Prompt Size and Code Generation Quality"
-updated_at: '2026-07-12T13:01:52.786232Z'
+updated_at: '2026-07-12T13:17:26.721786Z'
