@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-835-llmxive-follow-up-extending-a-survey-of
-last_run_id: 5ac924ed-d291-407d-8ab7-ed38f77381ce
+last_run_id: 616419d7-260c-4f8f-8476-2b71b572ac4e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/specs/001-llmxive-follow-up-extending-a-survey-of
 title: 'llmXive follow-up: extending "A Survey of Large Audio Language Models: Generalization,
   Trustworthine"'
-updated_at: '2026-07-12T09:03:56.383355Z'
+updated_at: '2026-07-12T09:29:46.757931Z'

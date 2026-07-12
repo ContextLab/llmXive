@@ -1,12 +1,28 @@
-transformers>=4.35.0
-torch-cpu
-scikit-learn>=1.3.0
-pandas>=2.0.0
-numpy>=1.24.0
-librosa>=0.10.0
-datasets>=2.14.0
-psutil>=5.9.0
-pyyaml>=6.0
-ruff>=0.3.0
-black>=24.3.0
-pre-commit>=3.6.0
+# Core dependencies
+torch==2.1.0+cpu
+transformers==4.36.0
+scikit-learn==1.3.2
+pandas==2.1.3
+soundfile==0.12.1
+datasets==2.15.0
+
+# Data handling
+pyarrow==14.0.1
+parquet==1.3.0
+
+# Utilities
+numpy==1.26.2
+scipy==1.11.4
+pyyaml==6.0.1
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Linting and formatting
+ruff==0.1.6
+black==23.11.0
+
+# Additional utilities
+tqdm==4.66.1
+psutil==5.9.6

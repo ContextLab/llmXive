@@ -1,12 +1,34 @@
-transformers>=4.35.0
-torch-cpu>=2.0.0
-scikit-learn>=1.3.0
+# LLMXive Follow-up: Extending "A Survey of Large Audio Language Models"
+# Python 3.11 Environment
+# Core dependencies pinned for reproducibility and CPU-only execution
+
+# Deep Learning Framework (CPU-only build)
+torch --index-url https://download.pytorch.org/whl/cpu
+transformers>=4.40.0
+accelerate>=0.27.0
+
+# Data Processing & Analysis
 pandas>=2.0.0
 numpy>=1.24.0
+scikit-learn>=1.4.0
+
+# Audio I/O
+soundfile>=0.12.0
 librosa>=0.10.0
-datasets>=2.14.0
-psutil>=5.9.0
+
+# Dataset Access
+datasets>=2.18.0
+huggingface-hub>=0.21.0
+
+# Utilities & Configuration
 pyyaml>=6.0.0
-ruff>=0.1.0
-black>=23.0.0
-pytest>=7.4.0
+tqdm>=4.66.0
+pytest>=8.0.0
+pytest-cov>=4.1.0
+
+# Linting & Formatting (for T003 reference)
+ruff>=0.3.0
+black>=24.0.0
+
+# Logging & Profiling
+psutil>=5.9.0

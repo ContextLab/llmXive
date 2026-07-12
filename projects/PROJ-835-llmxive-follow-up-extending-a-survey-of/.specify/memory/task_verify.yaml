@@ -1,8 +1,11 @@
-T001 Create project structure per implementation plan (`projects/PROJ-835-llmxive-follow-up-extending-a-survey-of/code/`): 2
-? T002 Initialize Python project with `requirements.txt` (transformers, torch-cpu,
-  scikit-learn, pandas, numpy, librosa, datasets, psutil)
+? T007a [P] Implement `src/utils/stats.py` Mahalanobis distance calculation logic
+  using `LedoitWolf` covariance estimator (FR-006)
 : 2
-T003 [P] Configure linting (ruff) and formatting (black) tools: 2
-T004 Create `config.py` with global paths, random seeds, and memory limits (limited capacity): 2
-T005 [P] Implement `utils/memory_monitor.py` to track peak RAM and enforce hard limits: 2
-T006 [P] Implement `utils/logging.py` for structured logging of pipeline steps: 2
+T007b [P] Save the implemented Mahalanobis utility to `src/utils/stats.py` with proper documentation: 2
+T008 Configure error handling and logging infrastructure (global logger with file and console handlers): 2
+T009 Setup environment configuration to enforce CPU-only execution (`os.environ["CUDA_VISIBLE_DEVICES"]=""`): 2
+T010 [P] [US1] Contract test for embedding output schema in `tests/contract/test_embedding_schema.py`: 2
+? T011b [US1] Implement `src/data/verify_labels.py` to perform an automated check
+  for the *absence* of latent-space correlation in dataset metadata; fail the pipeline
+  if such correlation is detected (FR-007)
+: 2
