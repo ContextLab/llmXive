@@ -1,4 +1,4 @@
-- artifact_hash: 6e056a61a2eb68793dc42194e9f8c48407c1252e97accb3485756e9c7477934d
+- artifact_hash: 03cff49148221c85e08c6d8cd884456600bf28a10ecd0a0dcc475da69cc04dda
   artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,16 +7,28 @@
   kind: url
   value: https://huggingface.co/datasets/omnineura/Omni-Doc-1/resolve/main/data/train-00000-of-00001.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/671f301d4282b96d28019b48/72539c2804febb87d900072c14f416144ce3395553e1dd7b77e1b8e27a49c7bd?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783749442&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcxZjMwMWQ0MjgyYjk2ZDI4MDE5YjQ4LzcyNTM5YzI4MDRmZWJiODdkOTAwMDcyYzE0ZjQxNjE0NGNlMzM5NTU1M2UxZGQ3Yjc3ZTFiOGUyN2E0OWM3YmRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzc0OTQ0Mn19fV19&Signature=MEUCIQCM4qfsMvyT-sXMRQbI7zjPxmsmY50x0hkbGk-N2CQhUQIgUnIw5gSJc3T02cX3toUT%7EflSnk6Zps%7EnXliK8Lr%7ERnM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T04:57:22.521265Z'
-- artifact_hash: bbc6d79ea70701dd5d11628d07a2e9e6755d4ca4db9dacd1f5c3ae7ffa70d898
-  artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/671f301d4282b96d28019b48/72539c2804febb87d900072c14f416144ce3395553e1dd7b77e1b8e27a49c7bd?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783869675&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcxZjMwMWQ0MjgyYjk2ZDI4MDE5YjQ4LzcyNTM5YzI4MDRmZWJiODdkOTAwMDcyYzE0ZjQxNjE0NGNlMzM5NTU1M2UxZGQ3Yjc3ZTFiOGUyN2E0OWM3YmRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mzg2OTY3NX19fV19&Signature=MEUCIQCOSLCkgKA%7ESMtmkaaid-OefJqdJ5IVRhkyBeGGAddClAIgb0jWoJnzfFUBdqXJySSsvbjO0eH1jCCwf9tHgqER8y0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-12T14:21:15.638978Z'
+- artifact_hash: 03cff49148221c85e08c6d8cd884456600bf28a10ecd0a0dcc475da69cc04dda
+  artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Qwen/Qwen2-VL-2B-Instruct \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/Qwen/Qwen2-VL-2B-Instruct`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/Qwen/Qwen2-VL-2B-Instruct
+  verified_at: '2026-07-12T14:21:15.638978Z'
+- artifact_hash: 8e37789b0f575a12c4ceba9e0e4a0f32cf2deeb7c0c31907f65ede104e115fc7
+  artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: cpu
+  fetched_title: '[1605.03992] Fast Approximation of Small p-values in Permutation
+    Tests by Partitioning the Permutations'
   kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-11T04:57:35.861321Z'
+  value: https://arxiv.org/abs/1605.03992
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/1605.03992
+  verified_at: '2026-07-12T14:51:25.969897Z'

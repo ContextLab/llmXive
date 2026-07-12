@@ -1,25 +1,36 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Latent Vector Schema"
-description: "Schema for encoded latent vectors of image regions"
+title: "Latent Vector Metadata Schema"
+description: "Schema for metadata associated with latent vectors, including timing and source info."
 type: "object"
 properties:
-  id:
+  vector_id:
     type: "string"
-    description: "Unique identifier for the latent vector"
-  region_id:
+    description: "Unique identifier for the latent vector."
+  source_region:
+    type: "object"
+    properties:
+      image_id:
+        type: "string"
+      region_id:
+        type: "string"
+    required:
+      - image_id
+      - region_id
+  encoding_time_ms:
+    type: "number"
+    minimum: 0
+    description: "Time taken to encode the region in milliseconds."
+  model_version:
     type: "string"
-    description: "Reference to the RegionAnnotation id"
-  vector:
-    type: "array"
-    items:
-      type: "number"
-    description: "Flattened latent vector (dimension D)"
-  modality:
+    description: "Version of the VAE model used."
+  device:
     type: "string"
-    enum: ["text", "image"]
-    description: "Ground truth modality label"
-  source_image_id:
-    type: "string"
-    description: "Reference to the source document id"
-required: ["id", "region_id", "vector", "modality", "source_image_id"]
-additionalProperties: false
+    enum:
+      - "cpu"
+    description: "Device used for encoding."
+required:
+  - vector_id
+  - source_region
+  - encoding_time_ms
+  - model_version
+  - device

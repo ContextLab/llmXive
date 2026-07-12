@@ -1,32 +1,58 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Evaluation Metrics Schema"
-description: "Schema for analysis results and metrics"
+title: "Analysis Metrics Schema"
+description: "Schema for the final analysis metrics including statistical significance."
 type: "object"
 properties:
-  metric_name:
-    type: "string"
-    description: "Name of the metric (e.g., 'accuracy', 'ssim', 'f1', 'ocr_accuracy')"
-  value:
-    type: "number"
-    description: "Value of the metric"
-  p_value:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "P-value for statistical significance (if applicable)"
-  threshold:
-    type: "number"
-    description: "Threshold used for the metric (if applicable)"
-  sample_size:
-    type: "integer"
-    minimum: 1
-    description: "Number of samples used in the calculation"
-  confidence_interval:
+  metrics:
     type: "array"
     items:
-      type: "number"
-    minItems: 2
-    maxItems: 2
-    description: "95% confidence interval [lower, upper]"
-required: ["metric_name", "value", "sample_size"]
-additionalProperties: false
+      type: "object"
+      properties:
+        metric_name:
+          type: "string"
+          description: "Name of the metric (e.g., 'accuracy', 'ssim')."
+        value:
+          type: "number"
+          description: "The computed value of the metric."
+        target_threshold:
+          type: "number"
+          description: "The target threshold defined in the spec."
+        p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Unadjusted p-value."
+        p_value_adjusted:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Bonferroni-corrected p-value."
+        is_significant:
+          type: "boolean"
+          description: "Whether the result is significant after correction."
+        power:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Statistical power of the test."
+        conclusion:
+          type: "string"
+          enum:
+            - "confirmed"
+            - "inconclusive"
+            - "rejected"
+          description: "Final conclusion based on metrics and power."
+        family:
+          type: "string"
+          description: "The correction family (e.g., 'separability', 'fidelity')."
+      required:
+        - metric_name
+        - value
+        - p_value
+        - p_value_adjusted
+        - is_significant
+        - conclusion
+        - family
+required:
+  - metrics
+description: "This schema validates the final output of the statistical analysis pipeline."
