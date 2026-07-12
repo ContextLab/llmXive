@@ -223,10 +223,6 @@
   \ (detect binary vs continuous only [UNRESOLVED-CLAIM: c_3169acd4 \u2014 status=not_enough_info],\
   \ no extra test\u2011type handling) (verify detector returns correct type)."
 : 1
-? "T022 Implement outcome\u2011type detection heuristics in `src/audit/test_type_detector.py`\
-  \ (detect binary vs continuous only, no extra test\u2011type handling) (verify detector\
-  \ returns correct type)."
-: 1
 ? "T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two\u2011\
   proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline\
   \ per FR\u2011012) (verify reconstructed values match known fixtures). [UNRESOLVED-CLAIM:\
@@ -351,6 +347,10 @@
 : 1
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\
+  \ required by FR\u2011012. **DEPENDS ON:** T025."
+: 1
+? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
+  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
   \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_3c394da2 \u2014 status=not_enough_info]\
   \ **DEPENDS ON:** T025."
 : 1
@@ -362,6 +362,11 @@
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\
   \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_4a1b573f \u2014 status=not_enough_info]\
+  \ **DEPENDS ON:** T025."
+: 1
+? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
+  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
+  \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_4d616c9e \u2014 status=not_enough_info]\
   \ **DEPENDS ON:** T025."
 : 1
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to verify that any\
