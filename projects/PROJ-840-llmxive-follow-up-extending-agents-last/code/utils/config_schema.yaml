@@ -1,0 +1,39 @@
+# Configuration schema for llmXive ALE Extension
+# This file defines the structure for all configuration options
+
+model:
+  path: "models/llama-7b.Q4_K_M.gguf"
+  quantization: "Q4_K_M"
+  max_context_length: 4096
+  n_gpu_layers: 0  # Set to -1 for full GPU offload, 0 for CPU only
+
+checkpoint:
+  interval_n: 5  # Generate state summary every N steps
+  enabled: true
+  compression_method: "truncation"  # Options: truncation, abstraction
+
+logging:
+  level: "INFO"
+  file: "logs/pipeline.log"
+  max_file_size_mb: 100
+  backup_count: 5
+
+data_paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  figures: "figures"
+
+normalization:
+  float_tolerance: 1e-6
+  timestamp_stripping: true
+  id_canonicalization: true
+
+stats:
+  test: "mcnemar"
+  correction: "bonferroni"
+  alpha: 0.05
+
+runner:
+  max_memory_gb: 7
+  timeout_hours: 6
+  cpu_only: true

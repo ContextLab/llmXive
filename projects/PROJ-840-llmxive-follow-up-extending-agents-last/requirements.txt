@@ -1,0 +1,9 @@
+llama-cpp-python
+datasets
+scikit-learn
+pandas
+pyyaml
+pytest
+statsmodels
+numpy
+scipy

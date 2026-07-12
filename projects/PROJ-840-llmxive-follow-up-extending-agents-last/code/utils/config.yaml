@@ -1,0 +1,36 @@
+# Configuration for llmXive Pipeline
+# This file is loaded by code/utils/config.py
+# It matches the structure defined in code/utils/config_schema.yaml
+
+model_config:
+  model_path: "models/llama-7b.Q4_K_M.gguf"
+  n_ctx: 4096
+  n_threads: 4
+  quantization: "Q4_K_M"
+
+checkpoint_config:
+  # Interval N for context checkpointing (FR-003)
+  interval_n: 5
+  # Compression ratio target (0.0 to 1.0)
+  compression_ratio: 0.5
+  # Template for summary injection
+  summary_template: "Step {step}: {action}. State: {state_snippet}."
+
+logging_config:
+  level: "INFO"
+  file: "logs/pipeline.log"
+  enable_memory_monitor: true
+  memory_threshold_gb: 7.0
+  timeout_hours: 6.0
+
+data_paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  figures: "figures"
+  golden_subset: "data/raw/golden_subset.json"
+
+pipeline_config:
+  seed: 42
+  enable_determinism: true
+  max_steps_per_task: 50
+  batch_size: 1

@@ -1,0 +1,7 @@
+T008 [P] [US1] Contract test for parser normalization in `tests/unit/test_heuristics.py`: 2
+? T009 [P] [US1] Integration test for classification accuracy on golden set in `tests/integration/test_classification_golden.py`
+: 2
+? T011 [US1] Implement Normalization Protocol in `code/classification/heuristics.py`
+  (Float tolerance MUST be exactly **1e-6**, timestamp/ID stripping, reference canonicalization)
+  (FR-001)
+: 1

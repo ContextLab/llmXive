@@ -1,1 +1,33 @@
-[]
+- artifact_hash: b5e1eca8f944bd60ed227f9e64efd68d5798788558fb58e1d5b4f05a819a2391
+  artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/CONTRIBUTING.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-username/PROJ-840-llmxive-follow-up-extending-agents-last.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-username/PROJ-840-llmxive-follow-up-extending-agents-last
+  verified_at: '2026-07-12T12:52:00.062805Z'
+- artifact_hash: 29b87296a6c686d86b7769c3aac59a8485eeb60a4f0eab1a46b103d182696d21
+  artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/CHANGELOG.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Keep a Changelog
+  fetched_title: Keep a Changelog
+  kind: url
+  value: https://keepachangelog.com/en/1.0.0/
+  verification_status: verified
+  verified_against_url: https://keepachangelog.com/en/1.0.0/
+  verified_at: '2026-07-12T12:52:01.417440Z'
+- artifact_hash: 29b87296a6c686d86b7769c3aac59a8485eeb60a4f0eab1a46b103d182696d21
+  artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/CHANGELOG.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Semantic Versioning
+  fetched_title: Semantic Versioning 2.0.0 | Semantic Versioning
+  kind: url
+  value: https://semver.org/spec/v2.0.0.html
+  verification_status: verified
+  verified_against_url: https://semver.org/spec/v2.0.0.html
+  verified_at: '2026-07-12T12:52:01.417440Z'
