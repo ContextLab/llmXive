@@ -1,0 +1,55 @@
+[
+  {
+    "url": "https://example.com/test1",
+    "domain": "example.com",
+    "year": 2024,
+    "is_binary": true,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "conversion_control": 0.10,
+    "conversion_treatment": 0.12,
+    "p_value_reported": 0.03,
+    "reconstructed_p_value": 0.03,
+    "reconstructed_effect_size": 0.02,
+    "test_type": "z-test"
+  },
+  {
+    "url": "https://example.com/test2",
+    "domain": "example.com",
+    "year": 2024,
+    "is_binary": true,
+    "n_control": 100,
+    "n_treatment": 10000,
+    "conversion_control": 0.10,
+    "conversion_treatment": 0.12,
+    "reconstructed_p_value": 0.03,
+    "reconstructed_effect_size": 0.02,
+    "test_type": "z-test"
+  },
+  {
+    "url": "https://example.com/test3",
+    "domain": "example.com",
+    "year": 2024,
+    "is_binary": true,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "conversion_control": 0.10,
+    "conversion_treatment": 0.12,
+    "reconstructed_p_value": 0.15,
+    "reconstructed_effect_size": 0.02,
+    "test_type": "z-test"
+  },
+  {
+    "url": "https://example.com/test4",
+    "domain": "example.com",
+    "year": 2024,
+    "is_binary": true,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "conversion_control": 0.10,
+    "conversion_treatment": 0.12,
+    "reconstructed_p_value": 0.03,
+    "reconstructed_effect_size": 0.10,
+    "test_type": "z-test"
+  }
+]

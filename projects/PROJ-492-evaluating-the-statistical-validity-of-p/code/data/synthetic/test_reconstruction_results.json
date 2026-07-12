@@ -1,0 +1,18 @@
+{
+  "https://example.com/test1": {
+    "p_value": 0.03,
+    "effect_size": 0.02
+  },
+  "https://example.com/test2": {
+    "p_value": 0.03,
+    "effect_size": 0.02
+  },
+  "https://example.com/test3": {
+    "p_value": 0.03,
+    "effect_size": 0.02
+  },
+  "https://example.com/test4": {
+    "p_value": 0.03,
+    "effect_size": 0.02
+  }
+}

@@ -262,6 +262,15 @@
   size discrepancies, writing `output/audit_report.json`). **DEPENDS ON:** T023."
 : 1
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_b60fadb6\
+  \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F% [UNRESOLVED-CLAIM:\
+  \ c_3c17fe71 \u2014 status=not_enough_info]) **and verify that sample\u2011size\
+  \ mismatch entries are excluded from aggregate prevalence estimates ** per FR\u2011\
+  004b (generate `AuditRecord` objects with data_quality_warning messages for sample\u2011\
+  size discrepancies, writing `output/audit_report.json`). **DEPENDS ON:** T023. <!--\
+  \ SKIPPED: non-mapping output -->"
+: 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_ec0a1ff1\
   \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F% [UNRESOLVED-CLAIM:\
   \ c_6b4d3f70 \u2014 status=not_enough_info]) **and verify that sample\u2011size\
@@ -299,13 +308,6 @@
   \ prevalence estimates ** per FR\u2011004b (generate `AuditRecord` objects with\
   \ data_quality_warning messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
   \ **DEPENDS ON:** T023."
-: 2
-? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
-  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
-  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
-  \ prevalence estimates ** per FR\u2011004b (generate `AuditRecord` objects with\
-  \ data_quality_warning messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
-  \ **DEPENDS ON:** T023. <!-- SKIPPED: non-mapping output -->"
 : 2
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
@@ -495,6 +497,12 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
   \ ** (constraint\u2011preservation\u20112958f04c) (verify files are created and\
+  \ contain \u2265\u202F10\u202F000 records [UNRESOLVED-CLAIM: c_b374a8a3 \u2014 status=not_enough_info]).\
+  \ **DEPENDS ON:** T006\u2011T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
+  \ ** (constraint\u2011preservation\u20112958f04c) (verify files are created and\
   \ contain \u2265\u202F10\u202F000 records [UNRESOLVED-CLAIM: c_e124d0f5 \u2014 status=not_enough_info]).\
   \ **DEPENDS ON:** T006\u2011T012."
 : 1
@@ -517,6 +525,11 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   \ c_b23e306e \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]."
+: 1
+? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM:\
+  \ c_b60fadb6 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
+  \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
+  \ (verify all tests pass) [DEPENDS ON: T025]. <!-- FAILED: unspecified -->"
 : 1
 ? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM:\
   \ c_ec0a1ff1 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
@@ -599,10 +612,25 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487 [UNRESOLVED-CLAIM:\
+  \ c_a1f26eff \u2014 status=verified]) ** (constraint\u2011preservation\u2011ba913176)\
+  \ (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS\
+  \ ON:** T010. <!-- FAILED: unspecified -->"
+: 1
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
   \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
   preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
   \ condition). **DEPENDS ON:** T010."
 : 2
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
+  preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
+  \ condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->"
+: 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
@@ -809,6 +837,11 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
 ? "T050b **[P]** Verify that the publication year is extracted for each summary during\
   \ extraction (T020c) [UNRESOLVED-CLAIM: c_c1bc8ba5 \u2014 status=not_enough_info]\
   \ and present in the input to `subgroup_analysis.py`. (depends on T020c)"
+: 1
+? "T051 Unit tests for subgroup analysis covering groups with \u2265\u202F10 summaries\
+  \ [UNRESOLVED-CLAIM: c_ceb01b51 \u2014 status=not_enough_info] and verifying correct\
+  \ Fisher p\u2011values with Bonferroni correction (tests/unit/test_subgroup_analysis.py)\
+  \ (verify test passes)."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
