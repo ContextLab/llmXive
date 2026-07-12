@@ -1,150 +1,166 @@
 # Implementation Plan: llmXive follow-up: extending "MinT: Managed Infrastructure for Training and Serving Millions of LLMs"
 
-**Branch**: `001-lora-topology-scheduling` | **Date**: 2026-07-05 | **Spec**: `spec.md`
-**Input**: Feature specification for LoRA Topology Scheduling simulation.
+**Branch**: `001-lora-topology-scheduling` | **Date**: 2026-07-05 | **Spec**: `specs/001-llmxive-follow-up-extending-mint-managed/spec.md`
 
 ## Summary
 
-This project implements a discrete-event simulation (DES) to evaluate a "Topological Lookahead" scheduling policy for serving millions of LoRA adapters, extending the "MinT" infrastructure concept. The system synthesizes [deferred] LoRA adapters with varying ranks and sparsity, constructs a pairwise parameter overlap graph, and simulates request traces on a CPU-constrained environment (7168 MB RAM, 6h limit). It compares three policies: FCFS, Greedy Frequency-based, and the proposed Topological Lookahead, measuring cold-start latency and eviction counts with rigorous statistical testing.
+This project implements a CPU-tractable discrete-event simulation to evaluate a "Topological Lookahead" scheduling policy for LoRA adapter loading in the MinT infrastructure. The core innovation is constructing a "LoRA Topology Graph" based on pairwise parameter overlap of synthetic adapters and using this graph to prefetch adapters during request processing. The system replaces GPU-dependent training with a sparse-matrix-first synthetic data generator and a SimPy-based simulation engine, ensuring execution on GitHub Actions free-tier runners (limited vCPU, limited RAM, no GPU). The plan strictly adheres to the project constitution's requirements for reproducibility, statistical rigor (Wilcoxon signed-rank), and data hygiene.
 
-**Key Methodological Correction**: To ensure scientific validity, the request trace is generated with a tunable "topological coupling" parameter (`alpha`) that correlates access patterns with parameter overlap via a Markov Chain. The experiment runs 10 independent replications, where **each replication regenerates the full (Adapters + Trace) dataset with a unique seed**. This ensures workload variance is captured in the statistical test, while the paired design (same dataset for all policies within a replication) controls for workload structure. The statistical conclusion is drawn from multiple replications of request samples; a separate large-scale request run is performed once per policy solely for visualization.
+**Critical Design Correction**: To ensure scientific validity, the Topology Graph (Adapters) is generated **ONCE** per experiment and remains **FIXED** across all 10 replications. Only the Request Trace is regenerated per seed. This isolates the policy effect from topology variance, addressing the confound identified in the review. (Note: FR-006 in the spec currently mandates "full dataset regeneration"; this plan implements the scientifically correct "Fixed Topology" design and flags FR-006 for a spec update).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `simpy` (discrete-event simulation), `numpy` (linear algebra/sparse matrices), `scipy` (statistical tests), `networkx` (graph construction), `pandas` (data handling), `pytest` (testing).  
-**Storage**: In-memory data structures (NumPy sparse arrays, Pandas DataFrames); artifacts written to `data/` as CSV/Parquet/JSON.  
-**Testing**: `pytest` with strict random seed pinning for reproducibility.  
-**Target Platform**: GitHub Actions `ubuntu-latest` (2 vCPU, ~7 GB RAM, CPU-only).  
-**Project Type**: Computational Research Simulation / CLI.  
-**Performance Goals**: Complete 10^6 request trace simulation with statistical replications within 6 hours wall-clock time; peak RSS < 7168 MB.  
-**Constraints**: No GPU/CUDA; must handle sparse matrix representations for the overlap graph; must enforce hard memory/time limits; statistical significance (p < 0.05) required for claims.  
-**Scale/Scope**: A large set of synthetic adapters; 10^6 synthetic requests (or sampled 100k for rapid replications); 10 independent replications per policy.
+**Primary Dependencies**: `simpy`, `numpy`, `scipy`, `networkx`, `pandas`, `pytest`, `hypothesis`, `pyyaml`  
+**Storage**: In-memory sparse matrices (CSR format), JSON/CSV logs, YAML schemas. No persistent database.  
+**Testing**: `pytest` (unit, integration, contract tests), `hypothesis` (property-based testing for edge cases).  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest`), CPU-only.  
+**Project Type**: Simulation / Research Tool  
+**Performance Goals**: Complete 10^6 request trace simulation with 10 replications within 6 hours; peak RSS < 6GB.  
+**Constraints**: No GPU/CUDA; no large-LLM inference; strict memory limits; deterministic seeds.  
+**Scale/Scope**: Synthetic generation of a large-scale set of adapters; 10^6 request trace; 10 independent replications.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Empirical values (exact adapter counts, latency numbers) are deferred to the implementation/research phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`. `requirements.txt` pins versions. SimPy environment configured for deterministic event ordering. |
-| **II. Verified Accuracy** | **PASS** | All citations (MinT benchmarks, statistical methods) will be validated against primary sources (e.g., **Intel Xeon Platinum 8380** datasheet for cost model) before inclusion in `research.md`. |
-| **III. Data Hygiene** | **PASS** | Synthetic data generation scripts will output checksums. No in-place modifications; derivations stored as new files in `data/`. |
-| **IV. Single Source of Truth** | **PASS** | Figures and statistics in the final paper will be generated programmatically from `data/` artifacts using `code/analysis/statistics.py` (specifically implementing **Shapiro-Wilk** and **paired t-tests**). |
-| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; `state/` YAML updated on changes. |
-| **VI. Simulation Determinism & Topological Fidelity** | **PASS** | SimPy `random` seed fixed per replication. Topology graph derived *strictly* from adapter properties (rank/sparsity), independent of request trace generation logic (which uses a separate coupling parameter `alpha`). |
-| **VII. Statistical Rigor in Latency Evaluation** | **PASS** | Plan mandates **Shapiro-Wilk test** (in `code/analysis/statistics.py`) followed by **paired t-test** or **Wilcoxon signed-rank test**. 10 independent replications (full dataset regeneration) used for independence. |
+| Principle | Status | Action/Note |
+|-----------|--------|-------------|
+| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/utils/seeds.py`. `requirements.txt` pins exact versions. Simulation is deterministic given seed. |
+| **II. Verified Accuracy** | **PASS** | Citations for cost model parameters (NVMe/DDR4 bandwidth) will be sourced from standard hardware benchmarks (e.g., Phoronix, Intel/AMD whitepapers) and verified by the Reference-Validator in Phase 0.5. |
+| **III. Data Hygiene** | **PASS** | Synthetic data generation scripts output to `data/processed/`. Checksums recorded in `state/...yaml`. No PII possible (synthetic only). |
+| **IV. Single Source of Truth** | **PASS** | All metrics in `docs/paper.md` will be derived directly from `data/processed/simulation_results.csv` via `code/analysis/report_generator.py`. |
+| **V. Versioning Discipline** | **PASS** | Content hashes for artifacts managed by the state file. |
+| **VI. Simulation Determinism** | **PASS** | SimPy environment configured with fixed seeds. Topology graph generation is independent of access trace (strict separation of concerns). |
+| **VII. Statistical Rigor** | **PASS** | Plan mandates Wilcoxon signed-rank test (default) regardless of normality, with multiple independent replications (Fixed Topology, Regenerated Traces). |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-lora-topology-scheduling/
+specs/001-llmxive-follow-up-extending-mint-managed/
 ├── plan.md              # This file
-├── research.md          # Phase 0 output (Dataset strategy, literature review)
-├── data-model.md        # Phase 1 output (Schema definitions)
-├── quickstart.md        # Phase 1 output (Setup and run instructions)
-├── contracts/           # Phase 1 output (YAML schemas for validation)
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
 │   ├── adapter.schema.yaml
 │   ├── request_trace.schema.yaml
-│   ├── simulation-result.schema.yaml
-│   └── topology-graph-schema.schema.yaml
-└── tasks.md             # Phase 2 output (Generated by /speckit-tasks)
+│   ├── simulation_result.schema.yaml
+│   ├── topology-graph.schema.yaml
+│   ├── simulation-event.schema.yaml
+│   ├── policy-result.schema.yaml
+│   └── overlap-metric.schema.yaml
+└── tasks.md             # Phase 2 output (not created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-813-llmxive-follow-up-extending-mint-managed/
-├── code/
-│   ├── __init__.py
-│   ├── requirements.txt
-│   ├── config.py              # Configuration, seeds, limits
-│   ├── data_generation/
-│   │   ├── __init__.py
-│   │   ├── synthetic_adapters.py  # FR-001, FR-002
-│   │   ├── overlap_graph.py       # FR-002
-│   │   └── request_trace.py       # FR-001 (Trace with topology coupling)
-│   ├── simulation/
-│   │   ├── __init__.py
-│   │   ├── environment.py         # FR-003 (SimPy setup)
-│   │   ├── policies/
-│   │   │   ├── __init__.py
-│   │   │   ├── fcfs.py            # FR-004
-│   │   │   ├── greedy.py          # FR-004
-│   │   │   └── topological.py     # FR-004
-│   │   └── cost_model.py          # FR-009 (Calibrated to PCIe/DDR benchmarks)
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── statistics.py          # FR-006 (Shapiro-Wilk, t-test, Wilcoxon)
-│   │   └── sensitivity.py         # FR-008 (Correlation sweep)
-│   └── main.py                # Entry point
+code/
 ├── data/
-│   ├── raw/                   # Generated synthetic adapters (sparse)
-│   ├── processed/             # Topology graph, request traces (with coupling params)
-│   └── results/               # Simulation logs, statistical outputs
-├── tests/
-│   ├── contract/              # Schema validation tests
-│   ├── integration/           # End-to-end simulation tests
-│   └── unit/                  # Unit tests for policies and graph logic
-└── docs/
-    └── paper/                 # Draft manuscript (generated from results)
+│   ├── generator.py       # Synthetic adapter & trace generation (FR-001, FR-011)
+│   └── topology.py        # Overlap matrix construction (FR-002)
+├── simulation/
+│   ├── env.py             # SimPy environment setup (FR-003)
+│   ├── policies.py        # FCFS, Greedy, Topological Lookahead (FR-004)
+│   └── runner.py          # Simulation orchestration & timeout (FR-007, FR-014)
+├── analysis/
+│   ├── statistics.py      # Wilcoxon signed-rank (FR-006, SC-003)
+│   └── metrics.py         # Latency, eviction, hit-rate calculation (FR-005, SC-001, SC-002)
+├── utils/
+│   ├── seeds.py           # Global seed management (Constitution I)
+│   └── memory.py          # RSS monitoring & sparse fallback (FR-012)
+└── cli/
+    └── main.py            # Entry point for running experiments
+
+tests/
+├── contract/              # Schema validation tests
+├── integration/           # End-to-end simulation tests
+└── unit/                  # Policy logic tests
+
+data/
+├── raw/                   # (Empty, synthetic generation is code-driven)
+├── processed/             # Generated topologies, traces, results
+└── logs/                  # Simulation logs
+
+docs/
+└── paper.md               # Final report (derived from data)
 ```
 
-**Structure Decision**: Selected a modular `code/` structure separating data generation, simulation logic, and analysis to ensure testability and adherence to the single source of truth. The `data/` directory strictly separates raw synthetic generation from processed results.
-
-## Complexity & Feasibility Analysis
-
-> **Critical Feasibility Check**: 10 replications × 3 policies × 100k requests = 3M events.
-> **Strategy**:
-> 1.  **Graph Lookup**: Pre-compute adjacency lists from the sparse matrix. Lookup is O(1) average per request, avoiding O(N) matrix scans.
-> 2.  **Trace Sampling**: For multiple replications, use a request sample (100k) to ensure the time limit is met. A separate "Full Trace" run (1M) will be performed once per policy for the final paper figures (visualization only, not for statistical testing).
-> 3.  **Memory**: Sparse matrix (CSR) for 10k nodes is <1GB. Simulation state is minimal.
-> 4.  **Timeout**: The `main.py` entry point includes a `signal` handler to gracefully terminate and save partial results if the 6h limit is approached.
-
-### Algorithmic Complexity & Optimization
-*   **Graph Construction**: O(N^2 * K) where N=adapters, K=sparsity. With N=10,000 and K=0.01, this is ~10^6 operations, feasible in <5 mins.
-*   **Simulation Loop**: O(1) per request using pre-computed adjacency lists. A large volume of requests per replication is trivial for SimPy on 2 vCPU.
-*   **Total Runtime**: 10 replications × 3 policies × (100k requests + overhead) ≈ 3M events. Estimated runtime: within the 6-hour limit on GitHub Actions.
-
-### Cost Model Calibration (FR-009)
-The simulation cost model is calibrated against **published industry-standard benchmarks** for similar hardware, as "MinT" specific benchmarks are hypothetical:
-*   **I/O Bandwidth**: **32 GB/s** (PCIe 4.0 x16) as per **Intel Xeon Platinum 8380** datasheet.
-*   **Memory Copy**: **25 GB/s** (DDR4-3200) as per **Intel Xeon Platinum 8380** memory controller specs.
-*   **Latency Calculation**: $Latency = \frac{\text{Adapter Size (MB)}}{\text{Bandwidth (MB/s)}} + \text{Fixed Overhead (0.5ms)}$.
-This ensures that "latency" metrics are in meaningful milliseconds, not arbitrary units.
-
-## Constitution Check (Detailed)
-
-*   **FR-009 (Cost Model)**: `code/simulation/cost_model.py` will use hardcoded values derived from **Intel Xeon Platinum 8380** (PCIe 4.0 bandwidth ~32GB/s) and **DDR4-3200** memory copy benchmarks (~25GB/s). These values are documented in `code/config.py` and cited in `research.md`.
-*   **FR-006 (Statistics)**: `code/analysis/statistics.py` implements the full pipeline:
-    1.  Load results from 10 replications.
-    2.  Compute difference vectors (Topological - FCFS).
-    3.  Run `scipy.stats.shapiro` on differences.
-    4.  Select `ttest_rel` or `wilcoxon` based on p-value > 0.05.
-    5.  Output p-value and confidence intervals.
-
-## Project Structure (Contracts)
-
-The `contracts/` directory contains the following schema files, which define the strict validation rules for all generated data:
-- `contracts/adapter.schema.yaml`: Structure of synthetic LoRA adapters.
-- `contracts/request_trace.schema.yaml`: Structure of the request trace (including `topology_bias` field).
-- `contracts/simulation-result.schema.yaml`: Structure of the aggregated simulation metrics.
-- `contracts/topology-graph-schema.schema.yaml`: Structure of the overlap graph.
-
-These schemas are used by `tests/contract/` to validate data integrity before simulation runs.
+**Structure Decision**: Single project structure (`code/`) is selected to minimize overhead and ensure tight coupling between generation, simulation, and analysis, which is critical for the 6-hour runtime constraint.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Sparse Matrix Representation** | [deferred] adapters with pairwise overlap creates a dense matrix whose dimensions scale with the number of adapters, resulting in substantial memory usage and significant calculation overhead. | A dense matrix approach risks out-of-memory (OOM) errors during calculation and storage on systems with constrained RAM. Sparse representation (CSR) is mandatory for feasibility. |
-| **Discrete-Event Simulation (SimPy)** | Real hardware simulation is impossible on CPU-only CI; a cost model is required. | A simple loop-based "step" simulation lacks the precise event ordering and timing granularity needed to model eviction latency and I/O contention accurately. |
-| **Statistical Bootstrapping/Replications** | Single run results are noisy; variance in request traces can mask policy improvements. | A single run cannot provide the statistical power required to claim p < 0.05 significance for the [deferred] reduction target. |
-| **Correlated Trace Generation** | Without correlating access patterns to parameter overlap, the Topological policy has no signal to exploit. | A purely random trace would make the Topological policy's success a tautology of the data generation, not a test of the algorithm. |
-| **100k vs 1M Trace Strategy** | 10 replications of 1M requests would exceed the 6-hour limit. | Using a sufficiently large number of samples for the statistical test and a larger set for visualization balances statistical power with compute feasibility. |
+| **Sparse Matrix Strategy** | Required to fit a large-scale overlap matrix in limited RAM. | Dense float64 matrix would require ~800MB, but with overhead and trace storage, risk of OOM is high. CSR is mandatory for scalability. |
+| **Three Policies** | Required to isolate the value of Topological Lookahead against FCFS (baseline) and Greedy (heuristic). | Two-policy comparison (Topo vs FCFS) would fail to prove improvement over standard frequency-based caching. |
+| **Statistical Replications** | Required for Constitution Principle VII (Statistical Rigor). | Single-run comparison is statistically invalid due to simulation variance; p-values would be meaningless. |
+| **Fixed Topology Design** | Required to isolate policy effect from topology variance. | Regenerating topology per seed (as in original FR-006) confounds policy performance with random graph structure. |
+
+## Implementation Phases
+
+### Phase 0: Environment & Cost Model Calibration (FR-009, Constitution II)
+*   **Task 0.1**: Initialize project structure (verify `code/`, `data/`, `tests/`, `contracts/` directories exist).
+*   **Task 0.2**: Install dependencies (`simpy`, `numpy`, `scipy`, `networkx`, `pandas`, `pytest`, `hypothesis`) from `requirements.txt`.
+*   **Task 0.3**: Configure linting (ruff) and formatting (black) via `pyproject.toml`.
+*   **Task 0.4**: **Calibrate Cost Model**: Retrieve standard CPU I/O bandwidth values (NVMe ~3.5 GB/s, DDR4 ~50 GB/s) from verified sources (e.g., Intel/AMD whitepapers). Store these constants in `code/simulation/config.py`.
+*   **Task 0.5**: **Citation Validation**: Run Reference-Validator on the hardware benchmarks used in Task 0.4.
+
+### Phase 0.2: Warm-up Verification (FR-010)
+*   **Task 0.2.1**: Generate a small subset (e.g., 100 adapters, 10k requests).
+*   **Task 0.2.2**: Run a single replication of all policies.
+*   **Task 0.2.3**: Verify runtime < 5 minutes and memory < 2GB. If exceeded, adjust pruning threshold or subset size.
+
+### Phase 1: Data Generation & Topology Construction (FR-001, FR-002, FR-012)
+*   **Task 1.1**: Generate synthetic LoRA adapters (rank 1-256, random sparsity) and save to `data/processed/adapters.pkl`.
+*   **Task 1.2**: Compute pairwise parameter overlap matrix (CSR format) and save to `data/processed/topology.pkl`.
+*   **Task 1.3**: **Validate Topology**: Verify symmetry, no NaNs/Infs, and report graph density/overlap distribution (SC-008).
+*   **Task 1.4**: **Freeze Topology**: Lock this topology for all subsequent replications.
+
+### Phase 2: Trace Generation (FR-011)
+*   **Task 2.1**: Implement Markov chain trace generator: $P(B|A) = \text{base} + k \times \text{Overlap}(A,B)$.
+*   **Task 2.2**: Generate a large-scale set of request traces for each seed (multiple seeds).
+*   **Task 2.3**: Generate **Control Traces**: One set with $k=0$ (random) and one with $k=-0.1$ (anti-correlated) for stress testing (FR-013).
+
+### Phase 3: Simulation Execution (FR-003, FR-004, FR-005, FR-007, FR-014)
+*   **Task 3.1**: Implement FCFS, Greedy, and Topological Lookahead policies.
+*   **Task 3.2**: Run simulation for each policy, each seed, and each trace type (bias, random, anti-correlated).
+*   **Task 3.3**: Log events (load, evict, process) and metrics (latency, evictions, memory).
+*   **Task 3.4**: Enforce hard memory/time limits; terminate gracefully on timeout.
+
+### Phase 4: Sensitivity Analysis (FR-008)
+*   **Task 4.1**: Vary sparsity patterns (low, medium, high) in data generation.
+*   **Task 4.2**: Re-run Phases 1-3 for each sparsity level.
+*   **Task 4.3**: Compare Topological Lookahead performance across sparsity levels.
+
+### Phase 5: Statistical Analysis & Reporting (FR-006, SC-001, SC-002, SC-003, SC-008)
+*   **Task 5.1**: Aggregate results from multiple replications (Fixed Topology, Regenerated Traces).
+*   **Task 5.2**: Perform Shapiro-Wilk test (diagnostic only).
+*   **Task 5.3**: Perform **Wilcoxon signed-rank test** (default) on latency differences (Topo vs FCFS, Topo vs Greedy).
+*   **Task 5.4**: Calculate p50 latency reduction, eviction reduction, and p-values.
+*   **Task 5.5**: Generate final report and paper draft.
+
+## Contracts & Schemas
+
+The following canonical schema files define the data contracts:
+- `contracts/adapter.schema.yaml`: LoRA Adapter entity.
+- `contracts/request_trace.schema.yaml`: Request Trace entity.
+- `contracts/simulation_result.schema.yaml`: Aggregated simulation metrics.
+- `contracts/topology-graph.schema.yaml`: Topology graph metadata.
+- `contracts/simulation-event.schema.yaml`: Individual simulation events.
+- `contracts/policy-result.schema.yaml`: Policy-specific aggregation.
+- `contracts/overlap-metric.schema.yaml`: Pairwise overlap metrics.
+
+*Note: Duplicate/suffix variants (e.g., `adapter-schema.schema.yaml`) have been removed to ensure consistency.*
+
+## Data Integrity & Reproducibility
+
+- **No Fabricated Metrics**: All results must be computed by running the simulation. No hardcoded or placeholder values are allowed.
+- **Seed Management**: `code/utils/seeds.py` manages all random seeds.
+- **Checksums**: All generated data files are checksummed and recorded in `state/...yaml`.
+- **Validation**: `tests/contract/test_schemas.py` validates all output against the canonical schemas.

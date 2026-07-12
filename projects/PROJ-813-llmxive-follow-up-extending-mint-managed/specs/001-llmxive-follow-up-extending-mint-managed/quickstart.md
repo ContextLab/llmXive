@@ -4,83 +4,97 @@
 
 *   Python 3.11+
 *   Git
-*   Access to a GitHub Actions runner (or local machine with 7GB+ RAM)
+*   Substantial RAM (recommended for full runs)
 
 ## Installation
 
-1.  **Clone the repository** (if not already done):
+1.  **Clone and Setup**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-813-llmxive-follow-up-extending-mint-managed/code
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
+    cd projects/PROJ-813-llmxive-follow-up-extending-mint-managed
     python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    source venv/bin/activate
     ```
 
-3.  **Install dependencies**:
+2.  **Verify Project Structure**:
+    Ensure the following directories exist. If not, create them:
+    ```bash
+    mkdir -p code/data code/simulation code/analysis tests code/utils data/raw data/processed data/logs docs
+    ```
+
+3.  **Install Dependencies**:
+    Create `requirements.txt` with the following content:
+    ```text
+    simpy>=4.0.0
+    numpy>=1.24.0
+    scipy>=1.10.0
+    networkx>=3.0.0
+    pandas>=2.0.0
+    pytest>=7.0.0
+    hypothesis>=6.0.0
+    pyyaml>=6.0.0
+    ```
+    Then install:
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins versions for reproducibility.*
+
+4.  **Configure Linting & Formatting**:
+    Create `pyproject.toml` with the following content:
+    ```toml
+    [tool.black]
+    line-length = 88
+    target-version = ['py311']
+
+    [tool.ruff]
+    line-length = 88
+    select = ["E", "F", "W", "I"]
+    ignore = []
+    ```
+    Install and run:
+    ```bash
+    pip install ruff black
+    ruff check code/
+    black --check code/
+    ```
+
+5.  **Verify Environment**:
+    ```bash
+    pytest tests/unit/test_env.py -v
+    ```
 
 ## Running the Simulation
 
-The simulation is designed to run end-to-end on a CPU-only environment.
-
-### 1. Generate Synthetic Data
-Generate adapters and the topology graph.
+### Step 1: Generate Synthetic Data
 ```bash
-python -m data_generation.synthetic_adapters --seed 42 --num-adapters 10000
-python -m data_generation.overlap_graph --seed 42
+python code/data/generator.py --seed <random_value> --adapters 1000 --trace-size 100000
 ```
+*Outputs to `data/processed/topology.pkl` and `data/processed/trace.npy`.*
 
-Generate the request trace with a specific topological coupling coefficient (e.g., 0.8 for high correlation).
+### Step 2: Run Simulation (Single Policy)
 ```bash
-python -m data_generation.request_trace --seed 42 --num-requests 100000 --topology-bias 0.8
+python code/simulation/runner.py --policy FCFS --seed 42
 ```
+*Outputs to `data/processed/results_fcfs_42.csv`.*
 
-### 2. Run Simulations
-Run the simulation for each policy (FCFS, Greedy, Topological) with a specific seed.
-*Note: The same seed and trace are used for all policies to ensure a paired design.*
+### Step 3: Run Full Experiment (All Policies)
 ```bash
-# Run FCFS
-python -m simulation.main --policy fcfs --seed 42 --replications 10
-
-# Run Greedy
-python -m simulation.main --policy greedy --seed 42 --replications 10
-
-# Run Topological Lookahead
-python -m simulation.main --policy topological --seed 42 --replications 10
+python code/cli/main.py --replications 10 --policy all
 ```
+*Runs FCFS, Greedy, and Topological Lookahead across multiple seeds.*
 
-### 3. Run Statistical Analysis
+### Step 4: Statistical Analysis
 ```bash
-python -m analysis.statistics --input data/results/summary_metrics.csv
+python code/analysis/statistics.py --input data/processed/results_*.csv
 ```
+*Outputs `data/processed/statistical_report.json` with p-values and confidence intervals.*
 
 ## Validation
 
-To ensure the system meets the acceptance criteria:
-
-1.  **Check Memory**: Monitor RSS usage during simulation. The resource usage must remain within the designated system capacity limits.
+*   **Memory Check**: Monitor `top` or `htop` during `runner.py`. Should not exceed a manageable memory footprint.
+*   **Time Check**: Full 10-replication run should complete in < 6 hours.
+*   **Schema Check**:
     ```bash
-    # Example using `time` and `ps` (Linux)
-    /usr/bin/time -v python -m simulation.main --policy topological --seed 42
+    pytest tests/contract/test_schemas.py
     ```
-2.  **Check Time**: Ensure the full run completes within 6 hours.
-3.  **Check Graph Validity**:
-    ```bash
-    python -c "from code.data_generation.overlap_graph import validate_graph; validate_graph('data/processed/topology_graph.npz')"
-    ```
-4.  **Check Statistical Significance**: The output of `analysis.statistics` must report a p-value < 0.05 for the Topological vs. FCFS comparison to claim success.
-5.  **Check Coupling**: Verify that the `topology_bias` field in the results matches the input parameter.
-
-## Troubleshooting
-
-*   **OOM Error**: Reduce `--num-adapters` or increase sparsity in `synthetic_adapters.py`.
-*   **Timeout**: Reduce `--num-requests` (e.g., to 50k) or `--replications` for testing; scale up for final run.
-*   **Non-Deterministic Results**: Ensure `--seed` is pinned and `simpy` random state is not overridden.
-*   **No Improvement**: If the Topological policy shows no improvement, check the `--topology-bias` parameter. If it is 0.0, the trace is random and the policy has no signal to exploit.
+*   **Directory Check**: Verify `code/`, `data/`, `tests/` directories exist and contain the expected files.

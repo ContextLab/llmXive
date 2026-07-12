@@ -1,2 +1,67 @@
-resolved_at: '2026-07-11T16:34:07.137379+00:00'
-datasets: []
+resolved_at: '2026-07-12T21:55:15.735370+00:00'
+datasets:
+- intent: FCFS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/online_resource/Entrop-IA_v5_Simulaciones_interactivas_para_la_ense_anza_de_la_entrop_a_/32969417
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Reproducing_a_horrific_place_Carceral_humanism_and_prison_expansion_in_Aotearoa_New_Zealand/32969423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/UX_method_extaction_from_So_Many_Methods_So_Little_Guidance_Investigating_UX/32411973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Symbolic_Externalization_from_Deep_Prehistory_to_Artificial_Intelligence_b_i_A_Deep_Symbolic_Systems_Model_Account_Tested_Against_Cave_Stratigraphy_Verified_Oral_Tradition_and_Current_AI_Systems_Research_i_/32969408
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Semantic_Fidelity_Project_Article_Visuals/32969375
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/9681
+    source: zenodo
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''beei.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/15532779
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7403024
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12556562
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3958954
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21317887
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21317887
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304049
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21304049
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21268402
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

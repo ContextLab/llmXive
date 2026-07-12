@@ -2,72 +2,54 @@
 
 ## Overview
 
-This document defines the data structures used throughout the simulation pipeline. All data is generated synthetically and processed in memory before being persisted to `data/` in standardized formats (Parquet, JSON, NumPy `.npz`).
+This document defines the data structures used for synthetic generation, simulation state, and result aggregation. All data is ephemeral (in-memory) or stored in `data/processed/` as CSV/JSON/Parquet.
 
 ## Entities
 
 ### 1. LoRA Adapter
-Represents a single low-rank adaptation module.
-*   **ID**: Unique string identifier (e.g., `adapter_00001`).
-*   **Rank**: Integer, range [1, 256].
-*   **Sparsity**: Float, ratio of non-zero parameters (0.0 to 1.0).
-*   **Parameter Vector**: Sparse representation of weights (stored as CSR format in `data/raw/adapters.npz`).
-*   **Generated At**: Timestamp.
+Represents a synthetic low-rank adaptation module.
+*   **ID**: Unique integer (0 to N-1).
+*   **Rank**: Integer (1-256).
+*   **Sparsity**: Float (0.0-1.0, proportion of zero weights).
+*   **Vector**: Sparse representation of weights (not stored explicitly in logs, only in topology matrix).
 
-### 2. Topology Graph
-A weighted graph where nodes are adapters and edges represent parameter overlap.
+### 2. Request Trace
+A sequence of adapter requests.
+*   **Timestamp**: Float (simulated time).
+*   **AdapterID**: Integer (target adapter).
+*   **ClusterID**: Integer (logical group for analysis).
+*   **IsHotspot**: Boolean (true if requested frequently).
+
+### 3. Topology Graph
+A weighted adjacency matrix.
 *   **Nodes**: Adapter IDs.
-*   **Edges**: Weighted by overlap metric (e.g., Jaccard similarity of non-zero indices).
-*   **Storage**: Sparse adjacency matrix (CSR) stored in `data/processed/topology_graph.npz`.
-*   **Properties**: Symmetric, no self-loops (or self-loop weight = 1.0).
+*   **Edges**: Overlap score (0.0-1.0).
+*   **Storage**: `scipy.sparse.csr_matrix`.
+*   **Note**: Generated ONCE per experiment and **FIXED** across all replications.
 
-### 3. Request Trace
-A sequence of adapter requests simulating workload.
-*   **Fields**:
-    *   `request_id`: Unique integer (0 to $10^6-1$).
-    *   `adapter_id`: String ID of the requested adapter.
-    *   `timestamp`: Simulated time (float).
-    *   `hotspot_cluster`: Integer ID indicating the cluster of the request (for analysis).
-    *   `topology_bias`: Float (0.0 to 1.0) indicating the coupling coefficient used for this trace generation. This field is critical for the sensitivity analysis.
-*   **Storage**: Parquet file `data/processed/request_trace.parquet`.
-
-### 4. Simulation Log
-Records of events during the simulation run.
-*   **Fields**:
-    *   `event_id`: Integer.
-    *   `timestamp`: Simulated time.
-    *   `event_type`: String (`LOAD`, `EVICTION`, `REQUEST`, `CACHE_HIT`).
-    *   `adapter_id`: String (if applicable).
-    *   `memory_usage`: Integer (MB).
-    *   `latency`: Float (ms).
-*   **Storage**: Parquet file `data/results/simulation_log_{policy}_{seed}.parquet`.
-
-### 5. Results Summary
-Aggregated metrics per policy run.
-*   **Fields**:
-    *   `policy`: String (`FCFS`, `GREEDY`, `TOPOLOGICAL`).
-    *   `seed`: Integer.
-    *   `total_requests`: Integer.
-    *   `total_latency_ms`: Float.
-    *   `p50_latency_ms`: Float.
-    *   `p99_latency_ms`: Float.
-    *   `cache_hit_rate`: Float.
-    *   `eviction_count`: Integer.
-    *   `total_loads`: Integer.
-    *   `topology_bias`: Float (The coupling coefficient used for this run).
-*   **Storage**: CSV `data/results/summary_metrics.csv`.
+### 4. Simulation Result
+Aggregated metrics per run.
+*   **RunID**: Unique identifier.
+*   **Seed**: Random seed used.
+*   **Policy**: String ("FCFS", "Greedy", "Topological").
+*   **TotalLatency**: Float (ms).
+*   **EvictionCount**: Integer.
+*   **HitRate**: Float (0.0-1.0).
+*   **ColdStartLatency**: Float (p50, p95).
+*   **DeltaSize**: Float (Average size of non-overlapping delta loaded, in bytes).
 
 ## Data Flow
 
-1.  **Generation**: `synthetic_adapters.py` -> `data/raw/adapters.npz`.
-2.  **Graph Construction**: `overlap_graph.py` reads `adapters.npz` -> `data/processed/topology_graph.npz`.
-3.  **Trace Generation**: `request_trace.py` (with `--topology-bias` parameter) -> `data/processed/request_trace.parquet`.
-4.  **Simulation**: `main.py` reads graph, trace, config -> runs SimPy -> writes `simulation_log_*.parquet`.
-5.  **Analysis**: `statistics.py` reads logs -> computes metrics -> writes `summary_metrics.csv`.
+1.  **Generation**: `code/data/generator.py` creates Adapters and Trace.
+2.  **Topology**: `code/data/topology.py` computes Overlap Matrix from Adapters (Fixed).
+3.  **Simulation**: `code/simulation/runner.py` consumes Trace + Topology + Policy.
+4.  **Analysis**: `code/analysis/statistics.py` aggregates Results across Replications.
 
-## Constraints
+## Storage Formats
 
-*   **Memory**: All intermediate data structures must fit within 7168 MB.
-*   **Determinism**: Random seeds must be recorded in the metadata of each output file.
-*   **Immutability**: Raw data files are never overwritten; new runs create new timestamped files.
-*   **Correlation**: The `topology_bias` field in the trace must match the coupling coefficient used during generation to ensure valid sensitivity analysis.
+*   **Intermediate**: Pickled sparse matrices (`.pkl`) for topology (fast load).
+*   **Trace**: `.npy` (NumPy binary) for compactness.
+*   **Results**: `.csv` for easy inspection and plotting (using `pandas`).
+*   **Schemas**: Defined in `contracts/` for validation.
+
+**Pandas Usage**: The `pandas` library is explicitly used for I/O operations (reading/writing CSV/Parquet) and for aggregating simulation results into DataFrames for statistical analysis.

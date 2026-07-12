@@ -1,49 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Simulation Result Schema"
+description: "Defines the aggregated metrics from a simulation run."
 type: "object"
 properties:
-  request_id:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  seed:
     type: "integer"
-    description: "Sequential ID of the request."
+    description: "Random seed used for this replication."
   policy:
     type: "string"
-    enum:
-      - "FCFS"
-      - "GREEDY"
-      - "TOPOLOGICAL"
     description: "Scheduling policy used."
-  latency_ms:
+    enum: ["FCFS", "Greedy", "Topological Lookahead"]
+  total_latency_ms:
     type: "number"
-    minimum: 0.0
-    description: "Total latency in milliseconds."
-  is_cold_start:
-    type: "boolean"
-    description: "Whether the adapter had to be loaded from disk."
+    description: "Total wall-clock time in milliseconds."
   eviction_count:
     type: "integer"
-    minimum: 0
-    description: "Cumulative eviction count."
-  memory_usage_mb:
+    description: "Total number of cache evictions."
+  hit_rate:
     type: "number"
-    minimum: 0.0
-    maximum: 7168.0
-    description: "Current memory usage in MB (must be < 7168)."
-  network_latency_component:
+    description: "Cache hit rate (0.0-1.0)."
+  p50_latency_ms:
     type: "number"
-    minimum: 0.0
-    description: "The T_net component of the total latency."
-  topology_bias:
+    description: "Median cold-start latency."
+  p95_latency_ms:
     type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "The coupling coefficient (alpha) used for the trace generation."
+    description: "95th percentile cold-start latency."
+  p_value:
+    type: ["number", "null"]
+    description: "P-value from statistical comparison (if applicable)."
+  is_significant:
+    type: ["boolean", "null"]
+    description: "True if p < 0.05."
+  delta_size_bytes:
+    type: "number"
+    description: "Average size of non-overlapping delta loaded (bytes)."
 required:
-  - request_id
+  - run_id
+  - seed
   - policy
-  - latency_ms
-  - is_cold_start
+  - total_latency_ms
   - eviction_count
-  - memory_usage_mb
-  - network_latency_component
-  - topology_bias
+  - hit_rate
+  - p50_latency_ms
+  - p95_latency_ms
+  - delta_size_bytes
 additionalProperties: false
