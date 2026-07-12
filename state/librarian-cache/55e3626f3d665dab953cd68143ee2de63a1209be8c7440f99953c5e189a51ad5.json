@@ -1,0 +1,610 @@
+{
+  "fetched_at": "2026-07-12T17:03:18Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real\"",
+      "target_n": 5
+    },
+    "duration_seconds": 58.397,
+    "ended_at": "2026-07-12T17:03:18Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "large-scale in-the-wild automatic speech recognition"
+        ],
+        [
+          2,
+          "scaling laws for robust speech recognition models"
+        ],
+        [
+          3,
+          "real-world noisy speech recognition using large language models"
+        ],
+        [
+          4,
+          "domain generalization in automatic speech recognition"
+        ],
+        [
+          5,
+          "massive dataset training for speech-to-text systems"
+        ],
+        [
+          6,
+          "unsupervised pretraining for wild speech recognition"
+        ],
+        [
+          7,
+          "robust ASR under distribution shift and environmental noise"
+        ],
+        [
+          8,
+          "self-supervised learning for large-scale speech recognition"
+        ],
+        [
+          9,
+          "end-to-end speech recognition with large-scale real data"
+        ],
+        [
+          10,
+          "speech recognition model scaling and performance limits"
+        ],
+        [
+          11,
+          "handling long-tail distribution in speech recognition datasets"
+        ],
+        [
+          12,
+          "large language model adaptation for speech recognition"
+        ],
+        [
+          13,
+          "in-the-wild audio understanding with foundation models"
+        ],
+        [
+          14,
+          "scaling real-world speech corpora for ASR"
+        ],
+        [
+          15,
+          "noise-robust speech recognition via data scaling"
+        ],
+        [
+          16,
+          "transfer learning for in-the-wild speech recognition"
+        ],
+        [
+          17,
+          "large-scale multi-domain speech recognition"
+        ],
+        [
+          18,
+          "automatic speech recognition generalization to unseen environments"
+        ],
+        [
+          19,
+          "foundation models for robust speech processing"
+        ],
+        [
+          20,
+          "data-centric approaches to scaling speech recognition"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "large-scale in-the-wild automatic speech recognition": 5,
+        "llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "speech recognition domain shift robustness open-set",
+      "LibriLight CommonVoice VoxPopuli self-supervised pretraining",
+      "unsupervised domain adaptation speech representation learning",
+      "word error rate in-the-wild evaluation benchmark",
+      "catastrophic forgetting continual learning speech models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2109.14357"
+      ]
+    },
+    "per_query_hit_count": {
+      "LibriLight CommonVoice VoxPopuli self-supervised pretraining": 3,
+      "catastrophic forgetting continual learning speech models": 3,
+      "llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real\" computer science": 3,
+      "speech recognition domain shift robustness open-set": 3,
+      "unsupervised domain adaptation speech representation learning": 3,
+      "word error rate in-the-wild evaluation benchmark": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2605.10772",
+          "rationale": "The paper focuses on Large Language-Vision Models (LLVM) applied to Synthetic Aperture Radar (SAR) imagery for target recognition, which is a distinct domain (computer vision/remote sensing) from the user's question regarding Large Language Models (LLMs) and Automatic Speech Recognition (ASR). While both involve \"large models\" and \"recognition,\" the underlying mechanisms (visual vs. audio), data modalities, and specific tasks do not satisfy the criteria for same-mechanism evidence, shared variab",
+          "title": "Towards a Large Language-Vision Question Answering Model for MSTAR Automatic Target Recognition"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T17:02:19Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"mega-asr: towards in-the-wild^2 speech recognition via scaling up real\" computer science",
+      "raw": "llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent research in speech processing exhibits a growing interest in unsupervised and self-supervised representation learning from unlabelled data to alleviate the need for large amounts of annotated data. We investigate several popular pre-training methods and apply them to Flemish Dutch. We compare off-the-shelf English pre-trained models to models trained on an increasing amount of Flemish data. We find that the most important factors for positive transfer to downstream speech recognition tasks include a substantial amount of data and a matching pre-training domain. Ideally, we also finetune on an annotated subset in the target language. All pre-trained models improve linear phone separability in Flemish, but not all methods improve Automatic Speech Recognition. We experience superior performance with wav2vec 2.0 and we obtain a 30% WER improvement by finetuning the multilingually pre-trained XLSR-53 model on Flemish Dutch, after integration into an HMM-DNN acoustic model.",
+          "claimed_authors": [
+            "Jakob Poncelet",
+            "Hugo Van hamme"
+          ],
+          "claimed_title": "Comparison of Self-Supervised Speech Pre-Training Methods on Flemish Dutch",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.14357"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Comparison of Self-Supervised Speech Pre-Training Methods on Flemish Dutch')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conventional deep neural network (DNN)-based speech enhancement (SE) approaches aim to minimize the mean square error (MSE) between enhanced speech and clean reference. The MSE-optimized model may not directly improve the performance of an automatic speech recognition (ASR) system. If the target is to minimize the recognition error, the recognition results should be used to design the objective function for optimizing the SE model. However, the structure of an ASR system, which consists of multiple units, such as acoustic and language models, is usually complex and not differentiable. In this study, we proposed to adopt the reinforcement learning algorithm to optimize the SE model based on the recognition results. We evaluated the propsoed SE system on the Mandarin Chinese broadcast news corpus (MATBN). Experimental results demonstrate that the proposed method can effectively improve the ASR results with a notable 12.40% and 19.23% error rate reductions for signal to noise ratio at 0 dB and 5 dB conditions, respectively.",
+          "claimed_authors": [
+            "Yih-Liang Shen",
+            "Chao-Yuan Huang",
+            "Syu-Siang Wang",
+            "Yu Tsao",
+            "Hsin-Min Wang",
+            "Tai-Shih Chi"
+          ],
+          "claimed_title": "Reinforcement Learning Based Speech Enhancement for Robust Speech Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.04224"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Reinforcement Learning Based Speech Enhancement for Robust Speech Recognition')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Silence is a part of human-to-human communication, which can be a clue for human emotion perception. For automatic emotion recognition by a computer, it is not clear whether silence is useful to determine human emotion within a speech. This paper presents an investigation of the effect of using silence feature in dimensional emotion recognition. Since the silence feature is extracted per utterance, we grouped the silence feature with high statistical functions from a set of acoustic features. The result reveals that the silence features affect the arousal dimension more than other emotion dimensions. The proper choice of a threshold factor in the calculation of silence feature improved the performance of dimensional speech emotion recognition performance, in terms of a concordance correlation coefficient. On the other side, improper choice of that factor leads to a decrease in performance by using the same architecture.",
+          "claimed_authors": [
+            "Bagus Tris Atmaja",
+            "Masato Akagi"
+          ],
+          "claimed_title": "The Effect of Silence Feature in Dimensional Speech Emotion Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.01277"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='The Effect of Silence Feature in Dimensional Speech Emotion Recognition')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sensing human motions through Inertial Measurement Units (IMUs) embedded in personal devices has enabled significant applications in health and wellness. Labeled IMU data is scarce, however, unlabeled or weakly labeled IMU data can be used to model human motions. For video or text modalities, the \"pretrain and adapt\" approach utilizes large volumes of unlabeled or weakly labeled data to build a strong feature extractor, followed by adaptation to specific tasks using limited labeled data. However, pretraining methods are poorly understood for IMU data, and pipelines are rarely evaluated on out-of-domain tasks. We propose PRIMUS: a method for PRetraining IMU encoderS that uses a novel pretraining objective that is empirically validated based on downstream performance on both in-domain and out-of-domain datasets. The PRIMUS objective effectively enhances downstream performance by combining self-supervision, multimodal, and nearest-neighbor supervision. With fewer than 500 labeled samples per class, PRIMUS improves test accuracy by up to 15%, compared to state-of-the-art baselines. To benefit the broader community, we have open-sourced our code at github.com/nokia-bell-labs/pretrained-imu-encoders.",
+          "claimed_authors": [
+            "Arnav M. Das",
+            "Chi Ian Tang",
+            "Fahim Kawsar",
+            "Mohammad Malekzadeh"
+          ],
+          "claimed_title": "PRIMUS: Pretraining IMU Encoders with Multimodal Self-Supervision",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.15127"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='PRIMUS: Pretraining IMU Encoders with Multimodal Self-Supervision')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural architecture search (NAS) has fostered various fields of machine learning. Despite its prominent dedications, many have criticized the intrinsic limitations of high computational cost. We aim to ameliorate this by proposing a pretraining scheme that can be generally applied to controller-based NAS. Our method, locality-based self-supervised classification task, leverages the structural similarity of network architectures to obtain good architecture representations. We incorporate our method into neural architecture optimization (NAO) to analyze the pretrained embeddings and its effectiveness and highlight that adding metric learning loss brings a favorable impact on NAS. Our code is available at \\url{https://github.com/Multi-Objective-NAS/self-supervised-nas}.",
+          "claimed_authors": [
+            "Kwanghee Choi",
+            "Minyoung Choe",
+            "Hyelee Lee"
+          ],
+          "claimed_title": "Pretraining Neural Architecture Search Controllers with Locality-based Self-Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.08157"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Pretraining Neural Architecture Search Controllers with Locality-based Self-Supervised Learning')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-supervised methods, wherein an agent learns representations solely by observing the results of its actions, become crucial in environments which do not provide a dense reward signal or have labels. In most cases, such methods are used for pretraining or auxiliary tasks for \"downstream\" tasks, such as control, exploration, or imitation learning. However, it is not clear which method's representations best capture meaningful features of the environment, and which are best suited for which types of environments. We present a small-scale study of self-supervised methods on two visual environments: Flappy Bird and Sonic The Hedgehog. In particular, we quantitatively evaluate the representations learned from these tasks in two contexts: a) the extent to which the representations capture true state information of the agent and b) how generalizable these representations are to novel situations, like new levels and textures. Lastly, we evaluate these self-supervised features by visualizing which parts of the environment they focus on. Our results show that the utility of the representations is highly dependent on the visuals and dynamics of the environment.",
+          "claimed_authors": [
+            "Evan Racah",
+            "Christopher Pal"
+          ],
+          "claimed_title": "Supervise Thyself: Examining Self-Supervised Representations in Interactive Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.11951"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Supervise Thyself: Examining Self-Supervised Representations in Interactive Environments')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Unsupervised representation learning for speech processing has matured greatly in the last few years. Work in computer vision and natural language processing has paved the way, but speech data offers unique challenges. As a result, methods from other domains rarely translate directly. We review the development of unsupervised representation learning for speech over the last decade. We identify two primary model categories: self-supervised methods and probabilistic latent variable models. We describe the models and develop a comprehensive taxonomy. Finally, we discuss and compare models from the two categories.",
+          "claimed_authors": [
+            "Lasse Borgholt",
+            "Jakob Drachmann Havtorn",
+            "Joakim Edin",
+            "Lars Maaløe",
+            "Christian Igel"
+          ],
+          "claimed_title": "A Brief Overview of Unsupervised Neural Speech Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.01829"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='A Brief Overview of Unsupervised Neural Speech Representation Learning')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The utilization of face masks is an essential healthcare measure, particularly during times of pandemics, yet it can present challenges in communication in our daily lives. To address this problem, we propose a novel approach known as the human-in-the-loop StarGAN (HL-StarGAN) face-masked speech enhancement method. HL-StarGAN comprises discriminator, classifier, metric assessment predictor, and generator that leverages an attention mechanism. The metric assessment predictor, referred to as MaskQSS, incorporates human participants in its development and serves as a \"human-in-the-loop\" module during the learning process of HL-StarGAN. The overall HL-StarGAN model was trained using an unsupervised learning strategy that simultaneously focuses on the reconstruction of the original clean speech and the optimization of human perception. To implement HL-StarGAN, we curated a face-masked speech database named \"FMVD,\" which comprises recordings from 34 speakers in three distinct face-masked scenarios and a clean condition. We conducted subjective and objective tests on the proposed HL-StarGAN using this database. The outcomes of the test results are as follows: (1) MaskQSS successfully predicted the quality scores of face mask voices, outperforming several existing speech assessment methods. (2) The integration of the MaskQSS predictor enhanced the ability of HL-StarGAN to transform face mask voices into high-quality speech; this enhancement is evident in both objective and subjective tests, outperforming conventional StarGAN and CycleGAN-based systems.",
+          "claimed_authors": [
+            "Syu-Siang Wang",
+            "Jia-Yang Chen",
+            "Bo-Ren Bai",
+            "Shih-Hau Fang",
+            "Yu Tsao"
+          ],
+          "claimed_title": "Unsupervised Face-Masked Speech Enhancement Using Generative Adversarial Networks With Human-in-the-Loop Assessment Metrics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.01939"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Unsupervised Face-Masked Speech Enhancement Using Generative Adversarial Networks With Human-in-the-Loop Assessment Metrics')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Unsupervised domain adaptation (UDA) aims to learn transferable representation across domains. Recently a few UDA works have successfully applied Transformer-based methods and achieved state-of-the-art (SOTA) results. However, it remains challenging when there exists a large domain gap between the source and target domain. Inspired by humans' exceptional transferability abilities to adapt knowledge from familiar to uncharted domains, we try to apply the universally existing organizational structure in the human functional brain networks, i.e., the core-periphery principle to design the Transformer and improve its UDA performance. In this paper, we propose a novel brain-inspired robust core-periphery constrained transformer (RCCT) for unsupervised domain adaptation, which brings a large margin of performance improvement on various datasets. Specifically, in RCCT, the self-attention operation across image patches is rescheduled by an adaptively learned weighted graph with the Core-Periphery structure (CP graph), where the information communication and exchange between images patches are manipulated and controlled by the connection strength, i.e., edge weight of the learned weighted CP graph. Besides, since the data in domain adaptation tasks can be noisy, to improve the model robustness, we intentionally add perturbations to the patches in the latent space to ensure generating robust learned weighted core-periphery graphs. Extensive evaluations are conducted on several widely tested UDA benchmarks. Our proposed RCCT consistently performs best compared to existing works, including 88.3\\% on Office-Home, 95.0\\% on Office-31, 90.7\\% on VisDA-2017, and 46.0\\% on DomainNet.",
+          "claimed_authors": [
+            "Xiaowei Yu",
+            "Zeyu Zhang",
+            "Dajiang Zhu",
+            "Tianming Liu"
+          ],
+          "claimed_title": "Robust Core-Periphery Constrained Transformer for Domain Adaptation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13515"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Robust Core-Periphery Constrained Transformer for Domain Adaptation')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The success of the multilingual automatic speech recognition systems empowered many voice-driven applications. However, measuring the performance of such systems remains a major challenge, due to its dependency on manually transcribed speech data in both mono- and multilingual scenarios. In this paper, we propose a novel multilingual framework -- eWER3 -- jointly trained on acoustic and lexical representation to estimate word error rate. We demonstrate the effectiveness of eWER3 to (i) predict WER without using any internal states from the ASR and (ii) use the multilingual shared latent space to push the performance of the close-related languages. We show our proposed multilingual model outperforms the previous monolingual word error rate estimation method (eWER2) by an absolute 9\\% increase in Pearson correlation coefficient (PCC), with better overall estimation between the predicted and reference WER.",
+          "claimed_authors": [
+            "Shammur Absar Chowdhury",
+            "Ahmed Ali"
+          ],
+          "claimed_title": "Multilingual Word Error Rate Estimation: e-WER3",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.00649"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Multilingual Word Error Rate Estimation: e-WER3')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Efficient high-performance decoding of topological stabilizer codes has the potential to crucially improve the balance between logical failure rates and the number and individual error rates of the constituent qubits. High-threshold maximum-likelihood decoders require an explicit error model for Pauli errors to decode a specific syndrome, whereas lower-threshold heuristic approaches such as minimum weight matching are \"error agnostic\". Here we consider an intermediate approach, formulating a decoder that depends on the bias, i.e., the relative probability of phase-flip to bit-flip errors, but is agnostic to error rate. Our decoder is based on counting the number and effective weight of the most likely error chains in each equivalence class of a given syndrome. We use Metropolis-based Monte Carlo sampling to explore the space of error chains and find unique chains, that are efficiently identified using a hash table. Using the error-rate invariance the decoder can sample chains effectively at an error rate which is higher than the physical error rate and without the need for \"thermalization\" between chains in different equivalence classes. Applied to the surface code and the XZZX code, the decoder matches maximum-likelihood decoders for moderate code sizes or low error rates. We anticipate that, because of the compressed information content per syndrome, it can be taken full advantage of in combination with machine-learning methods to extrapolate Monte Carlo-generated data.",
+          "claimed_authors": [
+            "Karl Hammar",
+            "Alexei Orekhov",
+            "Patrik Wallin Hybelius",
+            "Anna Katariina Wisakanto",
+            "Basudha Srivastava",
+            "Anton Frisk Kockum",
+            "Mats Granath"
+          ],
+          "claimed_title": "Error-rate-agnostic decoding of topological stabilizer codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.01977"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Error-rate-agnostic decoding of topological stabilizer codes')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_authors": [
+            "Giang Nguyen"
+          ],
+          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual learning (CL) is a setting in which an agent has to learn from an incoming stream of data during its entire lifetime. Although major advances have been made in the field, one recurring problem which remains unsolved is that of Catastrophic Forgetting (CF). While the issue has been extensively studied empirically, little attention has been paid from a theoretical angle. In this paper, we show that the impact of CF increases as two tasks increasingly align. We introduce a measure of task similarity called the NTK overlap matrix which is at the core of CF. We analyze common projected gradient algorithms and demonstrate how they mitigate forgetting. Then, we propose a variant of Orthogonal Gradient Descent (OGD) which leverages structure of the data through Principal Component Analysis (PCA). Experiments support our theoretical findings and show how our method can help reduce CF on classical CL datasets.",
+          "claimed_authors": [
+            "Thang Doan",
+            "Mehdi Bennani",
+            "Bogdan Mazoure",
+            "Guillaume Rabusseau",
+            "Pierre Alquier"
+          ],
+          "claimed_title": "A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.04003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning is often criticized by two serious issues which rarely exist in natural nervous systems: overfitting and catastrophic forgetting. It can even memorize randomly labelled data, which has little knowledge behind the instance-label pairs. When a deep network continually learns over time by accommodating new tasks, it usually quickly overwrites the knowledge learned from previous tasks. Referred to as the {\\it neural variability}, it is well-known in neuroscience that human brain reactions exhibit substantial variability even in response to the same stimulus. This mechanism balances accuracy and plasticity/flexibility in the motor learning of natural nervous systems. Thus it motivates us to design a similar mechanism named {\\it artificial neural variability} (ANV), which helps artificial neural networks learn some advantages from ``natural'' neural networks. We rigorously prove that ANV plays as an implicit regularizer of the mutual information between the training data and the learned model. This result theoretically guarantees ANV a strictly improved generalizability, robustness to label noise, and robustness to catastrophic forgetting. We then devise a {\\it neural variable risk minimization} (NVRM) framework and {\\it neural variable optimizers} to achieve ANV for conventional network architectures in practice. The empirical studies demonstrate that NVRM can effectively relieve overfitting, label noise memorization, and catastrophic forgetting at negligible costs. \\footnote{Code: \\url{https://github.com/zeke-xie/artificial-neural-variability-for-deep-learning}.",
+          "claimed_authors": [
+            "Zeke Xie",
+            "Fengxiang He",
+            "Shaopeng Fu",
+            "Issei Sato",
+            "Dacheng Tao",
+            "Masashi Sugiyama"
+          ],
+          "claimed_title": "Artificial Neural Variability for Deep Learning: On Overfitting, Noise Memorization, and Catastrophic Forgetting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.06220"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Mega-ASR: Towards In-the-wild^2 Speech Recognition', candidate_title='Artificial Neural Variability for Deep Learning: On Overfitting, Noise Memorization, and Catastrophic Forgetting')",
+        "failed_at": "2026-07-12T17:02:52Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jakob Poncelet",
+            "Hugo Van hamme"
+          ],
+          "title": "Comparison of Self-Supervised Speech Pre-Training Methods on Flemish Dutch",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2109.14357",
+        "summary": "Recent research in speech processing exhibits a growing interest in unsupervised and self-supervised representation learning from unlabelled data to alleviate the need for large amounts of annotated data. We investigate several popular pre-training methods and apply them to Flemish Dutch. We compare off-the-shelf English pre-trained models to models trained on an increasing amount of Flemish data. We find that the most important factors for positive transfer to downstream speech recognition tasks include a substantial amount of data and a matching pre-training domain. Ideally, we also finetune on an annotated subset in the target language. All pre-trained models improve linear phone separability in Flemish, but not all methods improve Automatic Speech Recognition. We experience superior performance with wav2vec 2.0 and we obtain a 30% WER improvement by finetuning the multilingually pre-trained XLSR-53 model on Flemish Dutch, after integration into an HMM-DNN acoustic model.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2109.14357",
+          "http_status": 200,
+          "pdf_sample_score": 0.1905,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T17:02:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yih-Liang Shen",
+            "Chao-Yuan Huang",
+            "Syu-Siang Wang",
+            "Yu Tsao",
+            "Hsin-Min Wang",
+            "Tai-Shih Chi"
+          ],
+          "title": "Reinforcement Learning Based Speech Enhancement for Robust Speech Recognition",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1811.04224",
+        "summary": "Conventional deep neural network (DNN)-based speech enhancement (SE) approaches aim to minimize the mean square error (MSE) between enhanced speech and clean reference. The MSE-optimized model may not directly improve the performance of an automatic speech recognition (ASR) system. If the target is to minimize the recognition error, the recognition results should be used to design the objective function for optimizing the SE model. However, the structure of an ASR system, which consists of multiple units, such as acoustic and language models, is usually complex and not differentiable. In this study, we proposed to adopt the reinforcement learning algorithm to optimize the SE model based on the recognition results. We evaluated the propsoed SE system on the Mandarin Chinese broadcast news corpus (MATBN). Experimental results demonstrate that the proposed method can effectively improve the ASR results with a notable 12.40% and 19.23% error rate reductions for signal to noise ratio at 0 dB and 5 dB conditions, respectively.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1811.04224",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T17:02:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Erik McDermott",
+            "Hasim Sak",
+            "Ehsan Variani"
+          ],
+          "title": "A Density Ratio Approach to Language Model Fusion in End-To-End Automatic Speech Recognition",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2002.11268",
+        "summary": "This article describes a density ratio approach to integrating external Language Models (LMs) into end-to-end models for Automatic Speech Recognition (ASR). Applied to a Recurrent Neural Network Transducer (RNN-T) ASR model trained on a given domain, a matched in-domain RNN-LM, and a target domain RNN-LM, the proposed method uses Bayes' Rule to define RNN-T posteriors for the target domain, in a manner directly analogous to the classic hybrid model for ASR based on Deep Neural Networks (DNNs) or LSTMs in the Hidden Markov Model (HMM) framework (Bourlard & Morgan, 1994). The proposed approach is evaluated in cross-domain and limited-data scenarios, for which a significant amount of target domain text data is used for LM training, but only limited (or no) {audio, transcript} training data pairs are used to train the RNN-T. Specifically, an RNN-T model trained on paired audio & transcript data from YouTube is evaluated for its ability to generalize to Voice Search data. The Density Ratio method was found to consistently outperform the dominant approach to LM and end-to-end ASR integration, Shallow Fusion.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2002.11268",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T17:02:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ahmed Baruwa",
+            "Mojeed Abisiga",
+            "Ibrahim Gbadegesin",
+            "Afeez Fakunle"
+          ],
+          "title": "Leveraging End-to-End Speech Recognition with Neural Architecture Search",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1912.05946",
+        "summary": "Deep neural networks (DNNs) have been demonstrated to outperform many traditional machine learning algorithms in Automatic Speech Recognition (ASR). In this paper, we show that a large improvement in the accuracy of deep speech models can be achieved with effective Neural Architecture Optimization at a very low computational cost. Phone recognition tests with the popular LibriSpeech and TIMIT benchmarks proved this fact by displaying the ability to discover and train novel candidate models within a few hours (less than a day) many times faster than the attention-based seq2seq models. Our method achieves test error of 7% Word Error Rate (WER) on the LibriSpeech corpus and 13% Phone Error Rate (PER) on the TIMIT corpus, on par with state-of-the-art results.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1912.05946",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T17:03:00Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"mega-asr: towards in-the-wild^2 speech recognition via scaling up real\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

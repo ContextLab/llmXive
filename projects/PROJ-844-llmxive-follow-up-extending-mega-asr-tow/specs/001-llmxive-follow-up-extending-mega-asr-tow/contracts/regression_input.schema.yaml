@@ -1,0 +1,43 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Regression Input Schema
+description: Schema for the flattened dataset used to train the collapse prediction model. Includes Human-Validated Collapse Margin (HVCM) as the target to break circularity.
+type: object
+properties:
+  collapse_id:
+    type: string
+    description: Foreign key to the CollapseIntensity table.
+  model_name:
+    type: string
+    description: Name of the ASR model.
+  snr:
+    type: number
+    description: SNR value (feature).
+  rt60:
+    type: number
+    description: RT60 value (feature).
+  snr_sq:
+    type: number
+    description: SNR squared (feature).
+  rt60_sq:
+    type: number
+    description: RT60 squared (feature).
+  snr_rt60:
+    type: number
+    description: Interaction term (SNR * RT60).
+  target_hvcm:
+    type: number
+    description: Target variable for regression (Human-Validated Collapse Margin).
+  p_value_adjusted:
+    type: number
+    description: Adjusted p-value for the interaction term (Bonferroni/FDR corrected).
+required:
+  - collapse_id
+  - model_name
+  - snr
+  - rt60
+  - snr_sq
+  - rt60_sq
+  - snr_rt60
+  - target_hvcm
+  - p_value_adjusted
+additionalProperties: false

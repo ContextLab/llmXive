@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.04224",
+  "judged_at": "2026-07-12T17:03:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mega-asr: towards in-the-wild^2 speech recognition via scaling up real\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (optimizing speech enhancement specifically for ASR robustness) and measures the same dependent variable (ASR error rate) in the same domain (speech recognition), even though it uses reinforcement learning rather than the specific \"Mega-ASR\" scaling approach mentioned in the user's query. It provides essential prior work on the problem of aligning enhancement objectives with recognition performance, which is a c",
+  "relevant": true
+}

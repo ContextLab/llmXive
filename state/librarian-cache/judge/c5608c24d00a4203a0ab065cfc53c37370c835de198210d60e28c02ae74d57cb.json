@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.10772",
+  "judged_at": "2026-07-12T17:03:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mega-asr: towards in-the-wild^2 speech recognition via scaling up real\" computer science",
+  "rationale": "The paper focuses on Large Language-Vision Models (LLVM) applied to Synthetic Aperture Radar (SAR) imagery for target recognition, which is a distinct domain (computer vision/remote sensing) from the user's question regarding Large Language Models (LLMs) and Automatic Speech Recognition (ASR). While both involve \"large models\" and \"recognition,\" the underlying mechanisms (visual vs. audio), data modalities, and specific tasks do not satisfy the criteria for same-mechanism evidence, shared variab",
+  "relevant": false
+}

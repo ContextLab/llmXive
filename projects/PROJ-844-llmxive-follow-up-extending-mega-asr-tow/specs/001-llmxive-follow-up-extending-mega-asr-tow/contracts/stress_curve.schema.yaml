@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Stress Curve Record Schema
+description: Schema for a single record in the stress curve dataset, linking a clip, distortion vector, and ASR result.
+type: object
+properties:
+  record_id:
+    type: string
+    description: Unique identifier for the record.
+  clip_id:
+    type: string
+    description: Foreign key to the AudioClip table.
+  vector_id:
+    type: string
+    description: Foreign key to the DistortionVector table.
+  model_name:
+    type: string
+    description: Name of the ASR model used (e.g., 'whisper-tiny').
+  asr_hypothesis:
+    type: string
+    description: The transcribed text output from the ASR model.
+  wer:
+    type: number
+    description: Word Error Rate calculated against the clean transcript.
+    minimum: 0.0
+  sss_raw:
+    type: number
+    description: Raw cosine similarity score between clean transcript and ASR hypothesis.
+    minimum: -1.0
+    maximum: 1.0
+  sss_normalized:
+    type: number
+    description: SSS normalized to the clean baseline (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
+  is_collapsed:
+    type: boolean
+    description: True if sss_normalized < 0.5 AND wer > 2 * baseline_wer.
+required:
+  - record_id
+  - clip_id
+  - vector_id
+  - model_name
+  - asr_hypothesis
+  - wer
+  - sss_raw
+  - sss_normalized
+  - is_collapsed
+additionalProperties: false

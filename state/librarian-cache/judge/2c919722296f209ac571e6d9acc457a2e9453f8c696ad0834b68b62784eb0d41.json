@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2109.14357",
+  "judged_at": "2026-07-12T17:03:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mega-asr: towards in-the-wild^2 speech recognition via scaling up real\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (self-supervised speech pre-training methods like wav2vec 2.0 and XLSR) and measures the same dependent variable (Automatic Speech Recognition performance/WER) within the same domain (speech recognition), even though it focuses on a specific low-resource language (Flemish Dutch) rather than the \"in-the-wild\" scaling aspect of the user's specific title. It provides essential empirical evidence on the effectivenes",
+  "relevant": true
+}

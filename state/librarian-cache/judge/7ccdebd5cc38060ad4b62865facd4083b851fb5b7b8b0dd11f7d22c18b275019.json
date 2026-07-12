@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2002.11268",
+  "judged_at": "2026-07-12T17:03:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mega-asr: towards in-the-wild^2 speech recognition via scaling up real\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the core mechanism of integrating external Language Models into end-to-end Automatic Speech Recognition (ASR) systems, which is the central technical challenge of the user's \"Mega-ASR\" scaling and in-the-wild speech recognition question. Even though it proposes a specific \"Density Ratio\" method rather than the user's specific scaling approach, it provides the canonical empirical baseline and alternative methodology for the same domain ",
+  "relevant": true
+}

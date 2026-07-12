@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.05946",
+  "judged_at": "2026-07-12T17:03:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mega-asr: towards in-the-wild^2 speech recognition via scaling up real\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core domain (Automatic Speech Recognition) and measures the same dependent variable (accuracy/WER) using a specific mechanism (Neural Architecture Search) that is directly relevant to the user's interest in scaling and optimizing ASR models. While it does not address the specific \"in-the-wild\" or \"Mega-ASR\" scaling context of the user's follow-up, it provides the canonical empirical baseline and methodological evidence for imp",
+  "relevant": true
+}
