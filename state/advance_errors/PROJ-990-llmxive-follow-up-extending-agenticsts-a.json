@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-990-llmxive-follow-up-extending-agenticsts-a",
+  "stage": "clarified",
+  "last_error": "research.md reference is unreachable: 'https://huggingface.co/datasets/agentic-sts/trajectories-v1' (HTTP 401). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "last_seen": "2026-07-12T00:19:28.005919+00:00",
+  "count": 1
+}

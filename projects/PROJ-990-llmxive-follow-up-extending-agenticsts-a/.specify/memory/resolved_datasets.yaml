@@ -1,0 +1,81 @@
+resolved_at: '2026-07-12T00:15:04.880543+00:00'
+datasets:
+- intent: SHA-256
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/resolve/main/bounded_null.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10280
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/PolloLOL/SHA-256-Proyect/ea3e28aa90a17aa505e01b25d38fb805e298431f/collisions.csv?%2Fdatasets%2FPolloLOL%2FSHA-256-Proyect%2Fresolve%2Fmain%2Fcollisions.csv=&etag=%22132eda3ab509aeb0ec46ba19933e01f792e7e5dd%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/resolve/main/bounded_null.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/_07065145132_Jimoh_Babalola_University_Ilorin_Kwara_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_fo/32965052
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Leadership_University_Abuja_FCT_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purchase_r/32965019
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/thesis/Youth_Perceptions_of_Substance_Use_A_Reflexive_Thematic_Analysis_of_Impacts_on_Well-being_and_Life_Goals/32964929
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_Ver_Claude_Fable5_Data_177_The_Structure_of_the_Emergence_of_Infinite_Why_in_Structural_Psychology_Observational_Record_/32964917
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Juzuu_2-_Kumbukumbu_ya_Historia_Kwa_Ajili_ya_Vizazi_Vijavyo_Swahili/32964911
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3590903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19552870
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19426733
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19996327
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19378696
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249911
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249911
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315655
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315655
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21314839
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

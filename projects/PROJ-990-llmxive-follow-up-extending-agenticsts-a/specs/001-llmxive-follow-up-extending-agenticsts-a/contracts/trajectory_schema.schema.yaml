@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Parsed Trajectory Schema"
+description: "Schema for data/processed/parsed_trajectories.csv"
+type: "object"
+properties:
+  trajectory_id:
+    type: "string"
+    description: "Unique ID for the game run."
+  turn_id:
+    type: "integer"
+    description: "Sequential turn number."
+    minimum: 0
+  health_ratio:
+    type: "number"
+    description: "Current health / Max health."
+    minimum: 0.0
+    maximum: 1.0
+  enemy_threat:
+    type: "number"
+    description: "Normalized threat level."
+    minimum: 0.0
+    maximum: 1.0
+  deck_size:
+    type: "integer"
+    description: "Number of cards in deck."
+    minimum: 1
+  entropy:
+    type: "number"
+    description: "Shannon entropy of move distribution."
+    minimum: 0.0
+  kl_divergence:
+    type: "number"
+    description: "Utility (Surprise) for this turn."
+    minimum: 0.0
+  actual_move:
+    type: "string"
+    description: "The move taken."
+  outcome:
+    type: "string"
+    description: "Win/Loss outcome."
+    enum:
+      - "win"
+      - "loss"
+  layer_id:
+    type: "string"
+    description: "Unique ID for the memory layer."
+  layer_utility:
+    type: "number"
+    description: "Target utility score for this layer."
+    minimum: 0.0
+  layer_features:
+    type: "string"
+    description: "JSON string of layer-specific features."
+required:
+  - trajectory_id
+  - turn_id
+  - health_ratio
+  - enemy_threat
+  - deck_size
+  - entropy
+  - kl_divergence
+  - actual_move
+  - outcome
+  - layer_id
+  - layer_utility
+  - layer_features
+additionalProperties: false

@@ -9,42 +9,42 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does a dynamic memory compression policy, which adaptively selects typed memory layers based on real-time game-state entropy, yield significantly higher win rates and token efficiency than a static "all-layers" retrieval baseline in long-horizon LLM agents operating under strict context budgets?
+How does the optimal balance between memory retrieval fidelity and token economy in long-horizon LLM agents scale with the stochasticity of the decision environment, and under what conditions does dynamic adaptation outperform static retrieval?
 
 ## Motivation
 
-The foundational AgenticSTS work demonstrates that *structured* memory layers improve performance over raw transcripts, but it relies on a static retrieval contract that may waste cognitive capacity on irrelevant data during low-complexity game phases. A dynamic policy that matches memory retrieval intensity to the stochasticity of the current decision context could unlock further gains in both decision quality and token economy, addressing a critical gap in how agents manage limited context windows in extended tasks.
+Static memory retrieval strategies in long-horizon agents often waste context budget on irrelevant information during low-complexity phases, while risking critical data loss during high-stochasticity moments. This research addresses the gap in understanding whether an entropy-driven dynamic policy can autonomously tune retrieval density to match environmental volatility, thereby maximizing win rates while strictly minimizing token consumption.
 
 ## Related work
 
-- [Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering](https://arxiv.org/abs/2604.08224) — This review establishes that modern agent capabilities rely on reorganizing runtime memory rather than changing weights, providing the theoretical basis for manipulating retrieval schemas dynamically.
-- [Continuum Memory Architectures for Long-Horizon LLM Agents](https://arxiv.org/abs/2601.09913) — The authors critique stateless RAG approaches for failing to capture temporal dependencies, highlighting the need for architectures that can adapt memory density to the evolving complexity of a task.
-- [Stateless Decision Memory for Enterprise AI Agents](https://arxiv.org/abs/2604.20158) — This work documents the dominance of fixed retrieval pipelines in regulated domains, underscoring the lack of adaptive strategies for managing context windows in high-stakes, long-horizon decision making.
-- [LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning](https://arxiv.org/abs/2604.14140) — By benchmarking planning capabilities over extended horizons, this paper confirms that reasoning quality degrades without effective memory management, motivating the search for entropy-based selection criteria.
+- [Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering](https://arxiv.org/abs/2604.08224) — This review establishes that agent performance relies on runtime memory reorganization rather than weight updates, providing the theoretical basis for dynamic retrieval schemas.
+- [Continuum Memory Architectures for Long-Horizon LLM Agents](https://arxiv.org/abs/2601.09913) — The authors critique stateless RAG approaches for failing to capture temporal dependencies, highlighting the need for architectures that adapt memory density to evolving task complexity.
+- [LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning](https://arxiv.org/abs/2604.14140) — By benchmarking planning over extended horizons, this work confirms that reasoning quality degrades without effective memory management, motivating the search for context-aware selection criteria.
+- [Stateless Decision Memory for Enterprise AI Agents](https://arxiv.org/abs/2604.20158) — This paper documents the dominance of fixed retrieval pipelines in regulated domains, underscoring the lack of adaptive strategies for managing context windows in high-stakes decision making.
 
 ## Expected results
 
-We expect the dynamic policy to achieve a win rate statistically indistinguishable from or higher than the static full-retrieval baseline while reducing average prompt token usage by 30–50%. Confirmation of this hypothesis will require demonstrating that the reduction in tokens does not correlate with a drop in win rate across a held-out test set of game trajectories, proving that adaptive pruning preserves critical strategic information.
+We expect the dynamic policy to achieve a win rate statistically indistinguishable from or higher than the static full-retrieval baseline while reducing average prompt token usage by 30–50%. Confirmation will require demonstrating that the reduction in tokens does not correlate with a drop in win rate across a held-out test set of game trajectories, proving that adaptive pruning preserves critical strategic information specifically in high-entropy states.
 
 ## Methodology sketch
 
-- **Data Preparation**: Parse the 298 existing AgenticSTS trajectories to extract per-turn game metrics (health ratio, enemy threat level, deck size, entropy of possible moves) and the corresponding "information utility" of each typed memory layer as inferred from the original static retrieval logs.
-- **Model Training**: Train a lightweight, CPU-tractable classifier (e.g., a shallow decision tree or logistic regression model) on a training split of the trajectories to predict the utility of each memory layer based on the current game state features.
-- **Policy Implementation**: Implement a dynamic retrieval agent that, for each turn in a held-out test set, queries the trained model to select only the top-$k$ predicted high-utility layers, where $k$ is constrained by a hard token budget.
+- **Data Preparation**: Parse the 298 existing AgenticSTS trajectories to extract per-turn game metrics (health ratio, enemy threat level, deck size) and compute the Shannon entropy of the possible move distribution as a proxy for environmental stochasticity.
+- **Policy Training**: Train a lightweight, CPU-tractable classifier (e.g., a shallow decision tree or logistic regression model) on a training split of the trajectories to predict the "utility" of each memory layer based on current game state features and entropy.
+- **Dynamic Agent Implementation**: Implement a retrieval agent that, for each turn in a held-out test set, queries the trained model to select only the top-$k$ predicted high-utility layers, where $k$ is dynamically constrained by a hard token budget.
 - **Simulation & Baseline Comparison**: Re-simulate the game runs for the test set using the dynamic policy, comparing outcomes against two baselines: (1) the original static "all-layers" retrieval and (2) a "no-store" random retrieval baseline.
 - **Statistical Analysis**: Calculate win rates and average token consumption for each condition; apply a paired t-test (or Wilcoxon signed-rank test if normality assumptions fail) to determine if the dynamic policy's win rate is non-inferior to the static baseline while significantly reducing token usage.
 - **Independence Check**: Ensure the evaluation target (win rate) is measured independently of the predictor (game state features) by using the game engine's ground-truth outcome logic rather than derived metrics that might be mathematically coupled to the input features.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: [None in current corpus].
+- Reviewed existing ideas: None in current corpus.
 - Closest match: N/A (This is a direct extension of the provided AgenticSTS preprint, not a duplicate of an existing fleshed-out idea in the project).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-05T21:37:19Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T23:35:29Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents" computer science
 **Verified citation count**: 6
@@ -53,27 +53,7 @@ We expect the dynamic policy to achieve a win rate statistically indistinguishab
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents" computer science | 0 |
-| 1 | bounded memory architectures for long-horizon LLM agents | 5 |
-| 2 | long-horizon planning in large language model agents | 0 |
-| 3 | testbeds for evaluating LLM agent memory constraints | 0 |
-| 4 | context window limitations in agentic LLM systems | 0 |
-| 5 | memory management strategies for autonomous AI agents | 0 |
-| 6 | persistent state handling in long-duration LLM interactions | 0 |
-| 7 | AgenticSTS evaluation framework extensions | 0 |
-| 8 | retrieval-augmented memory for LLM agents | 0 |
-| 9 | hierarchical memory systems for long-horizon tasks | 0 |
-| 10 | cognitive architectures for bounded-memory LLM agents | 0 |
-| 11 | episodic memory mechanisms in generative agents | 0 |
-| 12 | scaling LLM agents to extended time horizons | 0 |
-| 13 | memory compression techniques for long-context agents | 0 |
-| 14 | benchmarking long-term autonomy in language models | 0 |
-| 15 | stateful LLM agents with limited context windows | 0 |
-| 16 | external memory augmentation for agentic workflows | 0 |
-| 17 | continual learning in long-horizon LLM agent environments | 0 |
-| 18 | resource-constrained reasoning for autonomous agents | 0 |
-| 19 | multi-step planning under memory constraints | 0 |
-| 20 | iterative refinement of agent state in bounded memory | 0 |
+| 0 (initial) | llmXive follow-up: extending "AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents" computer science | 6 |
 
 ### Verified citations
 
