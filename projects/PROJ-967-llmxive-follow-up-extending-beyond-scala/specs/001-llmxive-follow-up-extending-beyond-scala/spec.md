@@ -87,7 +87,7 @@ As a researcher, I need to train a CPU-based Random Forest regressor to predict 
 
 ## Assumptions
 
-- The Z-Reward evaluation dataset and the specific inference outputs (logits/scores) for the 27B teacher and 9B student models are available in the public repository or a specified archive accessible by the GitHub Actions runner.
+- The Z-Reward evaluation dataset and the specific inference outputs (logits/scores) for the large-scale teacher and smaller student models are available in the public repository or a specified archive accessible by the GitHub Actions runner.
 - The human annotations provided in the dataset are independent of the teacher model's internal reasoning chains, satisfying the requirement for non-circular validation.
 - The dataset size (number of samples) is sufficiently small (or can be sampled) to fit within the RAM limit of the free-tier GitHub Actions runner when loaded into a Pandas DataFrame.
 - The Random Forest implementation (via `scikit-learn`) is computationally efficient enough to train on the available CPU cores within the CI runner's resource budget.

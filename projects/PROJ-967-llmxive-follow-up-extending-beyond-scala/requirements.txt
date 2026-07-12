@@ -1,0 +1,10 @@
+# Core dependencies for llmXive Follow-up: Teacher Entanglement vs. Scalar Distillation Loss
+# Python 3.11+ compatible
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+requests>=2.31.0
+huggingface_hub>=0.16.0
+pytest>=7.4.0
+black>=23.0.0
+ruff>=0.0.290

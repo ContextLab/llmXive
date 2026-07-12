@@ -1,0 +1,13 @@
+? 'T001a [P] Create project directories: Create directories `data/raw`, `data/processed`,
+  `code`, `tests`, `results`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/`'
+: 2
+? 'T001b [P] Create empty project files: Create empty files `code/requirements.txt`,
+  `.gitignore`, `pytest.ini` in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/`'
+: 2
+? 'T001c [P] Define file content requirements: Specify content for `requirements.txt`
+  (Python 3.11, pinned deps), `.gitignore` (data/raw, results, __pycache__), and `pytest.ini`
+  (python_files, addopts) in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/`'
+: 2
+? T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/`
+: 2
+T004 Setup data directory structure (`data/raw`, `data/processed`) and `.gitignore` for large files: 2

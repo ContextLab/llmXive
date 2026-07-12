@@ -1,0 +1,3 @@
+# This file ensures the directory is tracked by git even if empty.
+# It should be ignored by .gitignore rules for data/results if necessary,
+# but kept here to ensure directory existence on clone.

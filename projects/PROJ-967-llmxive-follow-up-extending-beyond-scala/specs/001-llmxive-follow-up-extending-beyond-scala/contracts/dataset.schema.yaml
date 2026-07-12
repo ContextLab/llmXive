@@ -1,0 +1,49 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Z-Reward Dataset Schema
+description: Schema for the raw input data from the Z-Reward evaluation dataset.
+type: object
+required:
+  - sample_id
+  - teacher_scores
+  - student_score
+  - human_annotations
+  - primary_dimension
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample."
+  teacher_scores:
+    type: array
+    description: "Teacher model scores for 4 dimensions: Alignment, Realism, Aesthetics, Plausibility."
+    minItems: 4
+    maxItems: 4
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+  student_score:
+    type: number
+    description: "Scalar score from the student model."
+    minimum: 0
+    maximum: 1
+  human_annotations:
+    type: array
+    description: "Human annotated scores for 4 dimensions."
+    minItems: 4
+    maxItems: 4
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+  primary_dimension:
+    type: string
+    description: "The dimension used for fidelity loss calculation (e.g., 'alignment'). Defaults to 'alignment' if missing."
+    enum:
+      - alignment
+      - realism
+      - aesthetics
+      - plausibility
+  prompt:
+    type: string
+    description: "The text prompt used for generation."
+    nullable: true

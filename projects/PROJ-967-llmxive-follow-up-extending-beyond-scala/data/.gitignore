@@ -1,0 +1,9 @@
+# Data directories - exclude raw and processed data from version control
+raw/
+processed/
+# Ignore temporary files
+*.tmp
+*.temp
+# Ignore hidden files
+.*
+!.gitignore
