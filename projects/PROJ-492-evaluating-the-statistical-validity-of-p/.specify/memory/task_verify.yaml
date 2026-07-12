@@ -296,11 +296,18 @@
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
   %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
+  \ prevalence estimates ** per FR\u2011004b (generate `AuditRecord` objects with\
+  \ data_quality_warning messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ **DEPENDS ON:** T023."
+: 2
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
+  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
   \ prevalence estimates [UNRESOLVED-CLAIM: c_a26a857b \u2014 status=not_enough_info]\
   \ ** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
   \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
   \ **DEPENDS ON:** T023."
-: 1
+: 2
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
   %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
@@ -636,9 +643,12 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   \ \u2014 status=not_enough_info] (depends on T026) (verify test passes, otherwise\
   \ raise `ERR-800`) [DEPENDS ON: T026]."
 : 1
-? "T031 **[P]** Run Monte\u2011Carlo validation (from T062) as part of pipeline start\u2011\
-  up; {{claim:c_a1bb18b6}} (T031 runs T062 module internally). **DEPENDS ON:** T062."
-: 2
+? "T029 Evaluate inconsistency\u2011detection component on syntheticvalidation dataset\
+  \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
+  \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_4f935f2d \u2014 status=not_enough_info]\
+  \ (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON:\
+  \ T026]."
+: 1
 ? "T034 Create analysis notebook `notebooks/statistical_consistency_verification.ipynb`\
   \ that documents any p\u2011value discrepancies >0.05 (1905.08726 [UNRESOLVED-CLAIM:\
   \ c_957f09e4 \u2014 status=not_enough_info], https://arxiv.org/abs/1905.08726 [UNRESOLVED-CLAIM:\
