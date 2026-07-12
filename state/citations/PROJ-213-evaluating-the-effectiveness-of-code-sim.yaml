@@ -20,18 +20,18 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/openai_humaneval/datasets
   verified_at: '2026-06-29T06:03:45.528820Z'
-- artifact_hash: a9ad7d7f4dd0bb7cc6fcfc21665bbdb79275944aecc6bab9b51ae62fe21d664d
+- artifact_hash: e731418ab3edd8ffc6414e406c25f1b940e05bc5f59eb11f9a1f3e3726c8c173
   artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Language model benchmark - Wikipedia
+  fetched_title: null
   kind: url
-  value: https://en.wikipedia.org/wiki/Language_model_benchmark
-  verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/Language_model_benchmark
-  verified_at: '2026-06-29T07:06:11.359954Z'
-- artifact_hash: 21c8894799340de63d60874ea7123b26bc9faa261c79055c37d4821ce12c318e
+  value: https://huggingface.co/datasets/openai_humaneval
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/openai_humaneval/datasets
+  verified_at: '2026-07-12T12:41:31.787493Z'
+- artifact_hash: 974b5412bc515b98f1a0aad3c83b3ef07f240592af9848c6dc5b51bbf9f25e56
   artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://arxiv.org/abs/2410.12381
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2410.12381
-  verified_at: '2026-07-10T14:08:22.661862Z'
+  verified_at: '2026-07-12T12:53:11.506391Z'

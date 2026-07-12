@@ -1,9 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Metric Record Schema
-description: |
-  JSON schema for calibration and covariate shift metric records.
-  Used to validate outputs from code/03_evaluation.py and code/04_statistical_analysis.py.
-  Includes robustness verification fields (rho_diff) per SC-002.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metric Record Schema"
+description: "Schema for JSON structure of calibration and covariate shift metrics over time. Includes fields for robustness verification (SC-002) via rho difference calculations."
 type: object
 required:
   - year
@@ -25,77 +22,71 @@ required:
 properties:
   year:
     type: integer
-    description: The calendar year of the test split.
-    minimum: 1990
+    description: "Calendar year of the test snapshot (e.g., 1995, 1996)."
+    minimum: 1994
   model_type:
     type: string
-    description: The classifier type used (e.g., 'LogisticRegression', 'RandomForest').
+    description: "Type of model used for evaluation."
     enum:
-      - LogisticRegression
-      - RandomForest
+      - logistic_regression
+      - random_forest
   ece_5:
     type: number
-    description: Expected Calibration Error with 5 bins.
+    description: "Expected Calibration Error with 5 bins."
     minimum: 0.0
     maximum: 1.0
   ece_10:
     type: number
-    description: Expected Calibration Error with 10 bins.
+    description: "Expected Calibration Error with 10 bins."
     minimum: 0.0
     maximum: 1.0
   ece_20:
     type: number
-    description: Expected Calibration Error with 20 bins.
+    description: "Expected Calibration Error with 20 bins."
     minimum: 0.0
     maximum: 1.0
   brier:
     type: number
-    description: Brier Score (Mean Squared Error of probabilities).
+    description: "Brier Score (Mean Squared Error of probabilities)."
     minimum: 0.0
     maximum: 1.0
   pca_shift:
     type: number
-    description: PCA-based covariate shift magnitude.
+    description: "PCA-based covariate shift metric between train and test distributions."
     minimum: 0.0
   key_feature_shift:
     type: number
-    description: Mean shift magnitude of key features.
+    description: "Mean shift of key features between train and test distributions."
     minimum: 0.0
   rho_5:
     type: number
-    description: Spearman correlation between covariate shift and ECE (5 bins).
-    minimum: -1.0
-    maximum: 1.0
+    description: "Spearman rank correlation between covariate shift and calibration error for 5-bin ECE."
   rho_10:
     type: number
-    description: Spearman correlation between covariate shift and ECE (10 bins).
-    minimum: -1.0
-    maximum: 1.0
+    description: "Spearman rank correlation between covariate shift and calibration error for 10-bin ECE."
   rho_20:
     type: number
-    description: Spearman correlation between covariate shift and ECE (20 bins).
-    minimum: -1.0
-    maximum: 1.0
+    description: "Spearman rank correlation between covariate shift and calibration error for 20-bin ECE."
   rho_diff_5_10:
     type: number
-    description: Absolute difference |rho_5 - rho_10| for robustness check.
+    description: "Absolute difference between rho_5 and rho_10. Used for robustness verification (SC-002)."
     minimum: 0.0
   rho_diff_10_20:
     type: number
-    description: Absolute difference |rho_10 - rho_20| for robustness check.
+    description: "Absolute difference between rho_10 and rho_20. Used for robustness verification (SC-002)."
     minimum: 0.0
   max_rho_diff:
     type: number
-    description: Maximum of (rho_diff_5_10, rho_diff_10_20) to verify SC-002.
+    description: "Maximum absolute difference among rho differences. Used to verify consistency across binning strategies."
     minimum: 0.0
   p_value_wls:
     type: number
-    description: P-value from Weighted Least Squares regression of ECE over time.
+    description: "P-value from Weighted Least Squares regression of ECE over time."
     minimum: 0.0
     maximum: 1.0
   change_point_year:
     type: integer
     nullable: true
-    description: Year identified as a change point by BIC-based detection.
-    minimum: 1990
+    description: "Year identified as a change point via BIC-based detection. Null if no significant change point found."
+    minimum: 1994
 additionalProperties: false

@@ -1,3 +1,2 @@
-"""
-Main package for the Quantifying Calibration Drift project.
-"""
+# llmXive project: Quantifying Calibration Drift
+# This package contains the implementation of the calibration drift analysis pipeline.

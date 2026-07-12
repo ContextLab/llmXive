@@ -1,187 +1,197 @@
-"""
-Power Analysis and Sample Size Justification Module.
-
-This module calculates the minimum detectable effect (MDE) for the specified
-sample size (n=164) at power >= 0.8, and documents the constraint mismatch
-with the specification requirement of n >= 200.
-"""
 import math
 import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Tuple
 
-# Constants based on typical statistical assumptions for this type of study
-# Assuming a two-tailed test for difference in proportions (pass@1) or means (latency)
-DEFAULT_ALPHA = 0.05
-DEFAULT_POWER = 0.80
-DEFAULT_SIGMA = 1.0  # Standard deviation estimate for standardized effect size
-
-# Specification requirements
-SPEC_REQUIRED_N = 200
-ACTUAL_N = 164  # HumanEval size
-
-def calculate_minimum_detectable_effect(n: int, alpha: float = DEFAULT_ALPHA, power: float = DEFAULT_POWER) -> float:
+def calculate_minimum_detectable_effect(n: int, power: float = 0.8, alpha: float = 0.05) -> float:
     """
-    Calculates the Minimum Detectable Effect (MDE) for a given sample size,
-    alpha level, and power.
-
-    Uses the approximation for a two-sample z-test (or large-sample t-test):
-    MDE = (Z_alpha/2 + Z_beta) * sqrt(2 / n) * sigma
-
-    For a paired test (Wilcoxon/Signed-Rank approximated to normal for large n):
-    MDE ≈ (Z_alpha/2 + Z_beta) * sqrt(1 / n) * sigma (simplified for paired)
-
-    Here we use the standard approximation for a paired difference test:
-    MDE = (Z_{1-alpha/2} + Z_{power}) * sigma / sqrt(n)
-
+    Calculate the minimum detectable effect size (Cohen's d) for a paired design
+    given sample size n, target power, and significance level alpha.
+    
+    Uses the approximation for paired t-test power:
+    d = (z_{1-alpha/2} + z_{power}) / sqrt(n)
+    
     Args:
         n: Sample size (number of pairs)
-        alpha: Significance level (Type I error)
-        power: Statistical power (1 - Type II error)
-
+        power: Target statistical power (default 0.8)
+        alpha: Significance level (default 0.05)
+        
     Returns:
-        Minimum Detectable Effect (standardized, assuming sigma=1)
+        Minimum detectable effect size (Cohen's d)
     """
-    # Critical values from standard normal distribution
-    # Z for alpha/2 (two-tailed)
-    z_alpha = 1.96 if alpha == 0.05 else 2.576 # Approx for 0.05 and 0.01
-    if alpha == 0.05:
-        z_alpha = 1.959963984540054
+    # Critical z-values (standard normal distribution)
+    # z_{1-alpha/2} for two-tailed test
+    z_alpha = 1.96 if alpha == 0.05 else 2.576  # Approximation for common alphas
     
-    # Z for power (1 - beta)
-    # For power=0.8, beta=0.2, Z_beta ≈ 0.8416
-    z_beta = 0.8416212335729143 if power == 0.80 else 1.2815515655446004 # Approx for 0.8 and 0.9
-
-    # Standardized MDE (Cohen's d equivalent for paired)
-    # Formula: (Z_alpha/2 + Z_beta) / sqrt(n)
-    mde = (z_alpha + z_beta) / math.sqrt(n)
+    # z_{power}
+    z_power = 0.84 if power == 0.8 else 1.28  # Approximation for common powers
     
-    return mde
+    # Effect size formula for paired design
+    d = (z_alpha + z_power) / math.sqrt(n)
+    return d
 
-def generate_power_analysis_report(n: int = ACTUAL_N) -> Dict[str, Any]:
+def generate_power_analysis_report(
+    n_actual: int,
+    n_required: int,
+    target_power: float = 0.8,
+    alpha: float = 0.05
+) -> Dict[str, Any]:
     """
-    Generates a comprehensive power analysis report for the current project constraints.
-
+    Generate a comprehensive power analysis report documenting the sample size
+    justification and any constraint mismatches.
+    
+    Args:
+        n_actual: Actual sample size available (e.g., 164 for HumanEval)
+        n_required: Required sample size per specification (e.g., 200)
+        target_power: Target statistical power
+        alpha: Significance level
+        
     Returns:
-        Dictionary containing MDE, power, sample size, and constraint mismatch details.
+        Dictionary containing power analysis results
     """
-    mde = calculate_minimum_detectable_effect(n)
+    mde_actual = calculate_minimum_detectable_effect(n_actual, target_power, alpha)
+    mde_required = calculate_minimum_detectable_effect(n_required, target_power, alpha)
     
-    # Calculate MDE for the spec requirement (n=200) for comparison
-    mde_spec = calculate_minimum_detectable_effect(SPEC_REQUIRED_N)
+    # Calculate power mismatch
+    constraint_mismatch = n_actual < n_required
     
-    # Constraint mismatch calculation
-    constraint_mismatch = {
-        "spec_requirement": SPEC_REQUIRED_N,
-        "actual_sample_size": n,
-        "difference": SPEC_REQUIRED_N - n,
-        "power_at_spec": DEFAULT_POWER,
-        "power_at_actual": DEFAULT_POWER, # We fix power and see MDE change
-        "mde_at_spec": mde_spec,
-        "mde_at_actual": mde,
-        "mde_increase_factor": mde / mde_spec if mde_spec > 0 else float('inf'),
-        "status": "CONFLICT" if n < SPEC_REQUIRED_N else "OK"
-    }
-
     report = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "analysis_type": "Power Analysis for Code Simplification Evaluation",
-        "parameters": {
-            "alpha": DEFAULT_ALPHA,
-            "power": DEFAULT_POWER,
-            "standard_deviation_assumption": DEFAULT_SIGMA
+        "sample_size": {
+            "actual": n_actual,
+            "required_by_spec": n_required,
+            "constraint_mismatch": constraint_mismatch,
+            "mismatch_reason": f"Specification FR-010 requires n≥{n_required}, but HumanEval dataset provides n={n_actual}"
         },
-        "sample_size_analysis": {
-            "n_current": n,
-            "n_spec_required": SPEC_REQUIRED_N,
-            "minimum_detectable_effect_current": round(mde, 4),
-            "minimum_detectable_effect_spec": round(mde_spec, 4),
-            "interpretation": f"With n={n}, we can detect an effect size of {mde:.4f} standard deviations with {DEFAULT_POWER*100}% power. "
-                            f"This is {mde/mde_spec:.2f}x larger than the effect size detectable with the spec-required n={SPEC_REQUIRED_N}."
+        "power_analysis": {
+            "target_power": target_power,
+            "significance_level": alpha,
+            "minimum_detectable_effect_actual": round(mde_actual, 4),
+            "minimum_detectable_effect_required": round(mde_required, 4),
+            "interpretation": (
+                f"With n={n_actual}, the minimum detectable effect size is {mde_actual:.4f} "
+                f"(Cohen's d) at {target_power*100}% power and α={alpha}. "
+                f"This is larger than the {mde_required:.4f} achievable with n={n_required}."
+            )
         },
-        "constraint_mismatch": constraint_mismatch,
-        "recommendation": "Proceed with n=164 but explicitly document reduced sensitivity to small effects in the final report."
+        "mitigation": {
+            "strategy": "document_limitation",
+            "description": "Document the reduced statistical power in the final report and note that the study is underpowered to detect small effect sizes.",
+            "recommendation": "Interpret non-significant results with caution; focus on effect size estimates rather than binary significance decisions."
+        },
+        "metadata": {
+            "generated_at": datetime.utcnow().isoformat() + "Z",
+            "dataset": "HumanEval",
+            "statistical_test": "Paired Wilcoxon signed-rank test (per spec FR-005)"
+        }
     }
-
+    
     return report
 
 def write_research_section3(report: Dict[str, Any]) -> str:
     """
-    Formats the power analysis report into the required text for research.md Section 3.
-
+    Format the power analysis report as Markdown content for research.md Section 3.
+    
     Args:
-        report: The dictionary generated by generate_power_analysis_report.
-
+        report: Power analysis report dictionary
+        
     Returns:
-        Formatted string content for Section 3 of research.md.
+        Markdown string formatted for research.md Section 3
     """
     lines = [
-        "## Section 3: Power Analysis",
+        "## Section 3: Power Analysis and Sample Size Justification",
         "",
-        "This section documents the power analysis and sample size justification for the evaluation of code simplification.",
+        "### FR-010 Compliance: Sample Size Requirements",
         "",
-        "### Parameters",
-        f"- **Significance Level (Alpha)**: {report['parameters']['alpha']}",
-        f"- **Target Power**: {report['parameters']['power']}",
-        f"- **Assumed Standard Deviation**: {report['parameters']['standard_deviation_assumption']} (Standardized)",
+        f"- **Actual Sample Size (n)**: {report['sample_size']['actual']}",
+        f"- **Required Sample Size (per FR-010)**: n ≥ {report['sample_size']['required_by_spec']}",
+        f"- **Constraint Mismatch**: {report['sample_size']['constraint_mismatch']}",
         "",
-        "### Sample Size Justification",
-        f"The HumanEval dataset contains **{report['sample_size_analysis']['n_current']}** problems.",
-        f"The specification (FR-010) requires a minimum sample size of **{report['sample_size_analysis']['n_spec_required']}**.",
+        "### Constraint Mismatch Details",
         "",
-        "### Minimum Detectable Effect (MDE)",
-        f"- **With n={report['sample_size_analysis']['n_current']}**: MDE = **{report['sample_size_analysis']['minimum_detectable_effect_current']}** (Cohen's d)",
-        f"- **With n={report['sample_size_analysis']['n_spec_required']}**: MDE = **{report['sample_size_analysis']['minimum_detectable_effect_spec']}** (Cohen's d)",
+        f"**Issue**: {report['sample_size']['mismatch_reason']}",
         "",
-        f"Using n=164 allows us to detect effects of size {report['sample_size_analysis']['minimum_detectable_effect_current']:.4f} with power ≥ 0.8.",
-        f"This is approximately {report['sample_size_analysis']['interpretation'].split()[-3]} larger than the sensitivity achievable with the required n=200.",
+        "### Power Analysis Results",
         "",
-        "### Constraint Mismatch (FR-010)",
-        "There is a **constraint mismatch** between the available dataset size and the specification requirement:",
+        "| Parameter | Value |",
+        "|-----------|-------|",
+        f"| Target Power | {report['power_analysis']['target_power']} |",
+        f"| Significance Level (α) | {report['power_analysis']['significance_level']} |",
+        f"| Minimum Detectable Effect (n={report['sample_size']['actual']}) | {report['power_analysis']['minimum_detectable_effect_actual']} |",
+        f"| Minimum Detectable Effect (n={report['sample_size']['required_by_spec']}) | {report['power_analysis']['minimum_detectable_effect_required']} |",
         "",
-        "| Field | Value |",
-        "| :--- | :--- |",
-        f"| Spec Requirement (n) | {report['constraint_mismatch']['spec_requirement']} |",
-        f"| Actual Sample Size (n) | {report['constraint_mismatch']['actual_sample_size']} |",
-        f"| Difference | {report['constraint_mismatch']['difference']} |",
-        f"| Status | {report['constraint_mismatch']['status']} |",
-        f"| MDE Increase Factor | {report['constraint_mismatch']['mde_increase_factor']:.2f}x |",
+        "### Interpretation",
+        "",
+        report['power_analysis']['interpretation'],
         "",
         "### Mitigation Strategy",
-        "1. **Documentation**: Explicitly state in the final report that the study is powered to detect medium-to-large effects, but may lack power to detect small effects (d < {0:.4f}).".format(report['sample_size_analysis']['minimum_detectable_effect_current']),
-        "2. **Limitation Note**: The inability to meet n≥200 is due to the fixed size of the HumanEval benchmark. Results should be interpreted with this limitation in mind.",
-        "3. **Confidence Intervals**: Report confidence intervals alongside p-values to better convey the precision of the estimates.",
-        ""
+        "",
+        f"- **Strategy**: {report['mitigation']['strategy']}",
+        f"- **Description**: {report['mitigation']['description']}",
+        f"- **Recommendation**: {report['mitigation']['recommendation']}",
+        "",
+        "### Notes",
+        "",
+        "- This analysis assumes a paired design (Wilcoxon signed-rank test) as specified in FR-005.",
+        "- The minimum detectable effect is calculated using Cohen's d approximation for paired t-tests.",
+        "- For Wilcoxon tests, the rank-biserial correlation may be reported as a supplementary effect size measure.",
+        "",
+        f"*Generated: {report['metadata']['generated_at']}*"
     ]
+    
     return "\n".join(lines)
 
 def main():
     """
-    Main entry point to generate the power analysis report and save it.
+    Main entry point to generate power analysis report and write to research.md Section 3.
     """
-    output_dir = Path("data")
-    output_dir.mkdir(exist_ok=True)
+    # Configuration from spec FR-010 and HumanEval dataset characteristics
+    N_ACTUAL = 164  # HumanEval problem count
+    N_REQUIRED = 200  # Per FR-010 specification
+    TARGET_POWER = 0.8
+    ALPHA = 0.05
     
     # Generate report
-    report = generate_power_analysis_report()
+    report = generate_power_analysis_report(N_ACTUAL, N_REQUIRED, TARGET_POWER, ALPHA)
     
-    # Save JSON report for programmatic use
-    json_path = output_dir / "power_analysis_report.json"
-    with open(json_path, "w") as f:
-        json.dump(report, f, indent=2)
-    print(f"Power analysis report saved to: {json_path}")
-    
-    # Generate and print Section 3 content for research.md
+    # Write Section 3 content
     section3_content = write_research_section3(report)
-    print("\n--- Content for research.md Section 3 ---\n")
-    print(section3_content)
-    print("\n--- End Section 3 Content ---\n")
     
-    # Optional: Write to a temporary file for easy copy-paste if needed
-    # (In a real pipeline, this might be merged into the main research.md)
-    # For this task, we ensure the logic exists to produce the content.
-    return report
+    # Save to research.md (append or create)
+    research_path = Path("research.md")
+    
+    if research_path.exists():
+        # Read existing content
+        content = research_path.read_text()
+        # Find Section 3 position or append
+        if "## Section 3:" in content:
+            # Replace existing Section 3
+            parts = content.split("## Section 3:")
+            if len(parts) > 1:
+                # Find next section start
+                next_section_idx = parts[1].find("\n## Section")
+                if next_section_idx != -1:
+                    new_content = parts[0] + "## Section 3:" + section3_content + "\n\n" + parts[1][next_section_idx:]
+                else:
+                    new_content = parts[0] + "## Section 3:" + section3_content
+            else:
+                new_content = content + "\n\n## Section 3:" + section3_content
+        else:
+            new_content = content + "\n\n" + section3_content
+    else:
+        # Create new research.md with Section 3
+        new_content = "# Research Documentation\n\n" + section3_content
+    
+    research_path.write_text(new_content)
+    print(f"✓ Power analysis report written to research.md Section 3")
+    print(f"✓ Constraint mismatch documented: n={N_ACTUAL} vs required n≥{N_REQUIRED}")
+    
+    # Also save raw report to state for verification
+    state_dir = Path("state")
+    state_dir.mkdir(exist_ok=True)
+    report_path = state_dir / "power_analysis_report.json"
+    report_path.write_text(json.dumps(report, indent=2))
+    print(f"✓ Raw report saved to {report_path}")
 
 if __name__ == "__main__":
     main()

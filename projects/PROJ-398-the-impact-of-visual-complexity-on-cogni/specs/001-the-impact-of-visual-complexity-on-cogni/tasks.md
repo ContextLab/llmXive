@@ -41,16 +41,18 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. This phase now includes all data fetching tasks to ensure data availability before implementation.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. This phase now includes all data fetching tasks to ensure data availability before implementation.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `src/lib/utils.py` containing `set_global_seed()` and checksum utilities
 - [ ] T005 [P] Create base directory structure for `data/stimuli/`, `data/processed/`, and `data/measurements/` with READMEs
 - [ ] T014 [US0] **Fetch Real Stimuli (Pilot)**: Implement `src/metrics/fetch_stimuli.py` to Download a representative set of real background images from the **HuggingFace 'video-conference-backgrounds' dataset**. **Specific Source**: Use `datasets.load_dataset('HuggingFaceM4/video-conference-backgrounds', split='train')` to fetch raw images. **Clarification**: This dataset provides raw images; the Human Pilot Study (T011-T012) will generate the human ratings required for SC-001. **Dependency**: Must be completed before T010-T013 and T019.
-- [ ] T014b [US0] **Verify Stimuli**: Implement `src/metrics/verify_stimuli.py` to compute and record the checksum of the downloaded stimuli in `state/artifact_hashes`. Verify that the downloaded images are indeed meeting backgrounds (e.g., by checking for human faces or common office elements) to satisfy SC-001.
+- [ ] T014b [US0] **Verify Stimuli Checksum**: Implement `src/metrics/verify_stimuli.py` to compute and record the SHA-256 checksum of the downloaded stimuli in `state/artifact_hashes`. **Constraint**: This task MUST ONLY compute checksums. **Dependency**: Must run immediately after T014.
+- [ ] T014c [US0] **Validate Stimulus Content**: Implement `src/metrics/validate_stimuli.py` to verify that downloaded images are meeting backgrounds using a specific heuristic: run a lightweight face detector (e.g., `opencv-face`) and require >0 faces or common office elements (e.g., detected text) to satisfy SC-001. **Dependency**: Must run immediately after T014b.
 - [ ] T032 [US2] **Fetch Real Meeting Clips (Main Study)**: Implement `src/experiment/fetch_clips.py` to download real meeting background frames/clips from the **Verified HuggingFace 'video-conference-backgrounds' dataset**. **Specific Source**: Use `datasets.load_dataset('HuggingFaceM4/video-conference-backgrounds', split='train')`. **Clarification**: While the dataset provides frames, these will be used as the visual stimuli for the main study (US-2). If video clips are strictly required by the experimental design, this task will fetch the corresponding video files if available in the dataset; otherwise, static frames will be presented as stimuli. **Dependency**: Must be completed before T029.
 - [ ] T032b [US2] **Verify Clips & Record Source**: Implement `src/experiment/verify_clips.py` to compute the SHA-256 checksum of the downloaded clips, record the specific dataset URL and version ID in `state/artifact_hashes` and `research.md` to satisfy Constitution Principle II (Verified Accuracy). **Dependency**: Must run immediately after T032.
+- [ ] T032c [US2] **Curate Meeting Backgrounds**: Implement `src/experiment/curate_clips.py` to filter the fetched clips to ensure they strictly meet the "meeting background" criteria defined in the methodology (e.g., excluding non-meeting scenes, verifying face presence) before use in the main study. **Dependency**: Must run after T032b.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -64,12 +66,12 @@
 
 ### Implementation for User Story 0
 
-- [ ] T010 [US0] Implement `src/metrics/validate.py` to compute correlation between human ratings and automated metrics (entropy, variance, object count)
-- [ ] T011 [US0] Implement `src/experiment/pilot_interface.py` (Flask) to present images and collect complexity ratings from participants (Local UI only).
-- [ ] T011b [US0] **Recruitment Logic**: Implement `src/experiment/recruitment.py` to facilitate participant recruitment (e.g., Prolific/MTurk integration logic, invitation email generation, participant management state) for the n=20 cohort.
-- [ ] T011c [US0] **Data Ingestion**: Implement `src/experiment/ingest.py` to handle the data ingestion pipeline for external participants (parsing Prolific/MTurk exports) and saving to `data/measurements/human_ratings.csv`.
 - [ ] T012 [US0] Implement data persistence for human ratings: save to `data/measurements/human_ratings.csv` with `image_id`, `participant_id`, `complexity_score`. **Dependency**: T014.
-- [ ] T013 [US0] Generate validation report (scatter plot + p-value) in `data/derived/pilot_validation_report.md`
+- [ ] T010 [US0] Implement `src/metrics/validate.py` to compute correlation between human ratings and automated metrics (entropy, variance, object count). **Dependency**: T012.
+- [ ] T013 [US0] Generate validation report (scatter plot + p-value) in `data/derived/pilot_validation_report.md`. **Dependency**: T010.
+- [ ] T011 [US0] Implement `src/experiment/pilot_interface.py` (Flask) to present images and collect complexity ratings from participants (Local UI only).
+- [ ] T011b [US0] **Recruitment State Manager**: Implement `src/experiment/recruitment.py` to manage local recruitment state (participant IDs, status) and generate static invitation email templates for the n=20 cohort. **Clarification**: This task creates the local scaffolding for recruitment; external platform integration (Prolific/MTurk) is handled via manual export ingestion in T011c. The output of this task feeds directly into T011c to ensure a continuous data flow.
+- [ ] T011c [US0] **Data Ingestion**: Implement `src/experiment/ingest.py` to parse external recruitment exports (CSV format: `participant_id, completion_code, complexity_score`) and map them to the internal schema (`image_id`, `participant_id`, `complexity_score`) for `data/measurements/human_ratings.csv`. **Dependency**: T011b. This task must ensure the ingestion process seamlessly links with T011b's state management to support the "Independent Test" flow.
 
 ### Tests for User Story 0
 
@@ -96,7 +98,7 @@
 - [ ] T020 [US1] Add logic to handle images with no detectable objects gracefully (return 0 count, no crash)
 - [ ] T021 [US1] Implement data persistence: save computed metrics to `data/processed/metrics.csv` with `frame_id`, `entropy`, `color_variance`, `object_count`
 - [ ] T022 [US1] **Validate against human**: Implement `src/metrics/validate_against_human.py` to re-run correlation check on the full pilot dataset (US0) and flag if r < 0.5 (SC-001). **Dependency**: Requires T010 (US0) and T012 (US0) to be complete. **Note**: This task explicitly depends on the completion of US0.
-- [ ] T023 [US1] **Fallback Object Detection**: Implement a fallback mechanism in `src/metrics/extract.py` using **SSD MobileNet V2** (CPU-compatible) if YOLOv8n fails, ensuring the output remains 'object detection counts' as required by FR-001.
+- [ ] T023 [US1] **Fallback Object Detection**: Implement a fallback mechanism in `src/metrics/extract.py` using **torchvision.models.ssd300_vgg16** (CPU-compatible) if YOLOv8n fails, ensuring the output remains 'object detection counts' as required by FR-001. **Constraint**: MUST verify that this fallback model meets NFR-001 constraints (30s for 10 images, <2GB RAM) during implementation. **Output Mapping**: Must map SSD output to the `BackgroundFrame` schema.
 
 ### Tests for User Story 1
 
@@ -120,7 +122,7 @@
 
 - [ ] T027 [US2] Implement `src/experiment/counterbalance.py` to generate Latin Square designs for clip ordering (FR-002c)
 - [ ] T028 [US2] Implement `src/experiment/tasks.py` to handle the baseline reaction-time task (FR-002b) and experimental trials
-- [ ] T029 [US2] Implement `src/experiment/server.py` (Flask) to present clips, capture NASA-TLX scores, and record reaction times (FR-002). **Dependency**: Requires T032 (clips) to be complete.
+- [ ] T029 [US2] Implement `src/experiment/server.py` (Flask) to present clips, capture NASA-TLX scores, and record reaction times (FR-002). **Dependency**: Requires T032 (clips) to be complete. **Requirement**: MUST load the counterbalanced sequence generated by T027 and present clips in that exact order to satisfy FR-002c. The server MUST NOT present clips randomly; it must strictly enforce the pre-calculated order.
 - [ ] T030 [US2] Add logic to flag incomplete records (missing TLX or RT) for exclusion in the generated dataset
 - [ ] T031 [US2] Save generated participant sessions to `data/measurements/raw/participant_sessions.csv` with `participant_id`, `clip_id`, `nasa_tlx_score`, `reaction_time`, `accuracy`, `baseline_rt`, `rt_difference`
 
@@ -147,8 +149,8 @@
 - [ ] T038 [US3] Implement VIF calculation in `src/analysis/models.py`; if VIF > 5, flag instability and trigger PCA fallback (FR-003)
 - [ ] T039 [US3] Implement PCA fallback mechanism in `src/analysis/models.py`: If VIF > 5, combine predictors via PCA to reduce multicollinearity
 - [ ] T040 [US3] Implement Benjamini-Hochberg correction for multiple hypothesis tests in `src/analysis/corrections.py` (FR-004)
-- [ ] T041 [US3] Implement `src/analysis/sensitivity.py` to sweep p-value thresholds across a range of conventional significance levels and report effect size stability. **Output Requirement**: Must explicitly calculate and report **BOTH** the **count of significant predictors** AND the **standard deviation of effect sizes** across thresholds. This metric MUST be written to `data/derived/sensitivity_report.csv` in columns named `count_significant_predictors` and `sd_effect_size`.
-- [ ] T042 [US3] Implement `src/analysis/null_sim.py` to run a null-simulation (effect size = 0) to calculate and report the observed family-wise error rate (FWER) (FR-007)
+- [ ] T041 [P] [US3] Implement `src/analysis/sensitivity.py` to sweep p-value thresholds across a range of conventional significance levels and report effect size stability. **Output Requirement**: Must explicitly calculate and report **BOTH** the **count of significant predictors** AND the **standard deviation of effect sizes** (column name: `sd_effect_size`) across thresholds. This metric MUST be written to `data/derived/sensitivity_report.csv` in columns named `count_significant_predictors` and `sd_effect_size`.
+- [ ] T042 [P] [US3] Implement `src/analysis/null_sim.py` to run a null-simulation (effect size = 0) to calculate and report the observed family-wise error rate (FWER) (FR-007). **Requirement**: MUST isolate this simulation from the main analysis pipeline and explicitly label all output artifacts as "Pipeline Validation" to distinguish from primary outcomes.
 - [ ] T043 [US3] Implement `src/analysis/report_gen.py` to generate the final report with fixed effect estimates, confidence intervals, adjusted p-values, VIF scores, and FWER
 
 ### Tests for User Story 3
@@ -169,7 +171,7 @@
 - [ ] T045 [P] Update `docs/data-model.md` with new entity attributes and metric definitions
 - [ ] T046 [P] Update `docs/contracts/` with final API/Interface definitions
 - [ ] T047 [P] Additional unit tests for edge cases (skewed distributions, attention check failures) in `tests/`
-- [ ] T048a [P] **Automated Reproducibility Script**: Implement `src/cli/validate_quickstart.py`. This script MUST: 1) Spin up a fresh temp directory, 2) Install dependencies, 3) Run T014 (Fetch HuggingFaceM4/video-conference-backgrounds), T019 (Extract Metrics), T036-T043 (Analysis) on a **real, small, pre-seeded subset** of the actual project data (e.g., 5 images from the fetched stimuli, 2 simulated participants) to validate the pipeline, and 4) Verify checksums of derived artifacts against `state/artifact_hashes`. **Note**: This uses real data (subset) to satisfy Constitution Principle I, not mock data.
+- [ ] T048a [P] **Automated Reproducibility Script**: Implement `src/cli/validate_quickstart.py`. This script MUST: 1) Spin up a fresh temp directory, 2) Install dependencies, 3) **Pin the random seed** for both the data subset selection (e.g., 'select first 5 images sorted by filename') and all analysis steps, 4) Run T014 (Fetch HuggingFaceM4/video-conference-backgrounds), T019 (Extract Metrics), T036-T043 (Analysis) on a **real, small, pre-seeded subset** of the actual project data (e.g., 5 images from the fetched stimuli, 2 simulated participants) to validate the pipeline, and 5) Verify checksums of derived artifacts against `state/artifact_hashes`. **Note**: This uses real data (subset) to satisfy Constitution Principle I, not mock data.
 - [ ] T048b [P] **Automated Reproducibility Test**: Implement `tests/test_quickstart.py` to assert that T048a exits with code 0 and produces the expected artifacts (`data/derived/performance_log.txt`, `data/derived/sensitivity_report.csv`, etc.).
 
 ---
@@ -209,7 +211,7 @@
 - Once Foundational phase completes, US1 and US2 can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
-- US3 (Analysis) depends on data generation from US1 and US2, so it must run sequentially after them
+- US3 (Analysis) depends on data generation from US1 and US2, so it must run sequentially after them. **Note**: T041 and T042 are marked [P] as they are independent of each other.
 
 ---
 
@@ -276,3 +278,7 @@ With multiple developers:
 - **CRITICAL**: Dataset fetch tasks (T014, T032) must use real, reachable URLs or Python-package-based fetch (e.g., `datasets.load_dataset`), not "download from UCI" without specifics.
 - **CRITICAL**: NFR-001 compliance is achieved by processing 1080p input but performing internal inference on 640x640 resized copies, with total pipeline time (I/O+Resize+Inference) <30s (per T019 description).
 - **CRITICAL**: T048a must use a real, small subset of project data for reproducibility, not mock data, to satisfy Constitution Principle I.
+- **CRITICAL**: T041 must explicitly output `sd_effect_size` column.
+- **CRITICAL**: T029 must enforce the counterbalanced sequence from T027.
+- **CRITICAL**: T023 fallback must meet NFR-001 constraints.
+- **CRITICAL**: T042 must isolate and label pipeline validation results.

@@ -1,7 +1,17 @@
-? "T003 [P] Create power/sample-size justification in research.md Section 3 (FR-010:\
-  \ document minimum detectable effect forn=164 at power\u22650.8; include constraint_mismatch\
-  \ field noting spec requires n\u2265200)"
-: 2
+? 'T001 [P] Verify {{claim:c_c8fb960d}} availability and version from HuggingFace
+  Datasets; record version in data/README.md with explicit output format: research.md
+  Section 1 must include dataset_name, version_number, fetch_date, source_url'
+: 1
+? T001a [P] Generate MD5/SHA256 checksums for {{claim:c_c8fb960d}} files; record checksums
+  in state/map.json under data/raw/ with artifact_id, checksum, timestamp, hash fields
+  (Constitution Principle III)
+: 1
+? "T003a [P] Document power analysis constraint mismatch in research.md Section 3:\
+  \ spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381 [UNRESOLVED-CLAIM:\
+  \ c_7f09d437 \u2014 status=not_enough_info], https://arxiv.org/abs/2410.12381 [UNRESOLVED-CLAIM:\
+  \ c_7f09d437 \u2014 status=not_enough_info]); propose mitigation (document limitation\
+  \ in final report, note reduced power)"
+: 1
 ? "T003a [P] Document power analysis constraint mismatch in research.md Section 3:\
   \ spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381 [UNRESOLVED-CLAIM:\
   \ c_f989d5e9 \u2014 status=not_enough_info], https://arxiv.org/abs/2410.12381 [UNRESOLVED-CLAIM:\
@@ -12,6 +22,10 @@
   \ spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381, https://arxiv.org/abs/2410.12381\
   \ [UNRESOLVED-CLAIM: c_bedf0b6e \u2014 status=not_enough_info]); propose mitigation\
   \ (document limitation in final report, note reduced power)"
+: 1
+? "T004 [P] Document statistical design in research.md Section 4 (Wilcoxon for pass@1\
+  \ and latency per spec FR-005, Bonferroni for 2 hypotheses [UNRESOLVED-CLAIM: c_1337c086\
+  \ \u2014 status=not_enough_info]) <!-- FAILED: unspecified -->"
 : 1
 ? 'T004 [P] Document statistical design in research.md Section 4 (Wilcoxon for pass@1
   and latency per spec FR-005, Bonferroni for 2 hypotheses) <!-- FAILED: unspecified
@@ -24,4 +38,8 @@
 'T005 Create project structure per implementation plan: data/raw/, data/processed/, data/logs/, code/, tests/, state/': 1
 ? T006 [P] Initialize Python version project with requirements.txt dependencies (datasets,
   transformers, llama-cpp-python, ast, scipy, matplotlib, pandas, pytest)
+: 1
+? 'T007 [P] Configure linting and formatting tools (ruff, black) with concrete deliverables:
+  create.ruff.toml ({{claim:c_8aff098e}}), pyproject.toml with black version pin ({{claim:c_8371c8ed}});
+  verification: run ruff code/ --exit-zero and black --check code/ with zero warnings/errors'
 : 1

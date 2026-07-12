@@ -52,12 +52,12 @@
 - Section 4: Statistical design (test names, hypotheses, correction method)
 - Section 5: Constitutional compliance checklist (seeds, checksums, citation verification)
 
-- [X] T001 [P] Verify HumanEval dataset availability and version from HuggingFace Datasets; record version in data/README.md with explicit output format: research.md Section 1 must include dataset_name, version_number, fetch_date, source_url
-- [X] T001a [P] Generate MD5/SHA256 checksums for HumanEval dataset files; record checksums in state/map.json under data/raw/ with artifact_id, checksum, timestamp, hash fields (Constitution Principle III)
+- [ ] T001 [P] Verify {{claim:c_c8fb960d}} availability and version from HuggingFace Datasets; record version in data/README.md with explicit output format: research.md Section 1 must include dataset_name, version_number, fetch_date, source_url
+- [ ] T001a [P] Generate MD5/SHA256 checksums for {{claim:c_c8fb960d}} files; record checksums in state/map.json under data/raw/ with artifact_id, checksum, timestamp, hash fields (Constitution Principle III)
 - [X] T002 [P] Verify StarCoder-1.3B 4-bit GGUF model source and CPU feasibility; document in research.md Section 2 with model_name, quantization_level, estimated_ram_gb, estimated_runtime_hours
-- [ ] T003 [P] Create power/sample-size justification in research.md Section 3 (FR-010: document minimum detectable effect forn=164 at power≥0.8; include constraint_mismatch field noting spec requires n≥200)
-- [ ] T003a [P] Document power analysis constraint mismatch in research.md Section 3: spec FR-010 requires n≥200 but {{claim:c_c9ee2ab8}} (2410.12381 [UNRESOLVED-CLAIM: c_f989d5e9 — status=not_enough_info], https://arxiv.org/abs/2410.12381 [UNRESOLVED-CLAIM: c_f989d5e9 — status=not_enough_info]); propose mitigation (document limitation in final report, note reduced power)
-- [ ] T004 [P] Document statistical design in research.md Section 4 (Wilcoxon for pass@1 and latency per spec FR-005, Bonferroni for 2 hypotheses) <!-- FAILED: unspecified -->
+- [X] T003 [P] Create power/sample-size justification in research.md Section 3 (FR-010: document minimum detectable effect forn=164 at power≥0.8; include constraint_mismatch field noting spec requires n≥200)
+- [ ] T003a [P] Document power analysis constraint mismatch in research.md Section 3: spec FR-010 requires n≥200 but {{claim:c_c9ee2ab8}} (2410.12381 [UNRESOLVED-CLAIM: c_7f09d437 — status=not_enough_info], https://arxiv.org/abs/2410.12381 [UNRESOLVED-CLAIM: c_7f09d437 — status=not_enough_info]); propose mitigation (document limitation in final report, note reduced power)
+- [ ] T004 [P] Document statistical design in research.md Section 4 (Wilcoxon for pass@1 and latency per spec FR-005, Bonferroni for 2 hypotheses [UNRESOLVED-CLAIM: c_1337c086 — status=not_enough_info]) <!-- FAILED: unspecified -->
 - [ ] T004a [P] Implement Reference-Validator Agent verification gate for external citations in code/verify_citations.py (Constitution Principle II: verify all citations before Phase 1; fail if unreachable/mismatch)
 
 ---
@@ -68,7 +68,7 @@
 
 - [ ] T005 Create project structure per implementation plan: data/raw/, data/processed/, data/logs/, code/, tests/, state/
 - [ ] T006 [P] Initialize Python version project with requirements.txt dependencies (datasets, transformers, llama-cpp-python, ast, scipy, matplotlib, pandas, pytest)
-- [~] T007 [P] Configure linting and formatting tools (ruff, black) with concrete deliverables: create.ruff.toml (ruff==0.1.0), pyproject.toml with black version pin (black==23.0.0); verification: run ruff code/ --exit-zero and black --check code/ with zero warnings/errors
+- [ ] T007 [P] Configure linting and formatting tools (ruff, black) with concrete deliverables: create.ruff.toml ({{claim:c_8aff098e}}), pyproject.toml with black version pin ({{claim:c_8371c8ed}}); verification: run ruff code/ --exit-zero and black --check code/ with zero warnings/errors
 - [~] T008 [P] Create quickstart.md in specs/001-eval-code-simplification/ with setup instructions and CLI usage examples
 
 ---
@@ -113,12 +113,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Implement HumanEval dataset download in code/download.py (FR-001: load from datasets.load_dataset('openai_humaneval'))
+- [ ] T016 [P] [US1] Implement {{claim:c_c8fb960d}} download in code/download.py (FR-001: load from datasets.load_dataset('openai_humaneval'))
 - [ ] T017 [US1] Implement AST-based simplification pipeline in code/simplify.py (FR-002: dead-code removal, boolean reduction)
 - [ ] T018 [US1] Implement parse failure logging in code/simplify.py (FR-007: log to data/logs/parse_failures.log with problem_id, error_type, timestamp, stack_trace; VERIFY all fields present in output; DEPENDS ON T017)
 - [ ] T019 [US1] Implement semantic change detection in code/simplify.py (FR-008: run test harness, write to data/logs/flagged_snippets.csv with problem_id, error_type, code_diff; VERIFY all fields present in output; DEPENDS ON T017)
-- [ ] T020 [US1] Implement CPU-only inference runner in code/inference.py (FR-003: 4-bit StarCoder-1.3B via llama.cpp on CPU, respecting 7GB RAM limit; NO CUDA/device_map="cuda"; DEPENDS ON T016-T017)
-- [ ] T021 [US1] Implement per-sample timeout enforcement in code/inference.py (FR-009: 30-second timeout, log failure with inference_time_ms=30000; DEPENDS ON T020)
+- [ ] T020 [US1] Implement CPU-only inference runner in code/inference.py (FR-003: 4-bit StarCoder-1.3B via llama.cpp on CPU, respecting 7GB RAM limit [UNRESOLVED-CLAIM: c_416da1da — status=not_enough_info]; NO CUDA/device_map="cuda"; DEPENDS ON T016-T017)
+- [ ] T021 [US1] Implement per-sample timeout enforcement in code/inference.py (FR-009: 30-second timeout, log failure with inference_time_ms=30000 [UNRESOLVED-CLAIM: c_666785a1 — status=not_enough_info]; DEPENDS ON T020)
 - [ ] T022 [US1] Implement paired benchmark execution in code/main.py (orchestrate raw and simplified runs with matching problem IDs; DEPENDS ON T016-T021)
 - [ ] T023 [US1] Create result table generation in code/main.py (output data/processed/results_raw.csv and data/processed/results_simplified.csv with problem_id, pass@1, token_count, inference_time_ms; DEPENDS ON T022)
 
@@ -165,7 +165,7 @@
 - T035: Use Bonferroni correction for 2 hypotheses (accuracy, latency) per spec FR-005 (token reduction is descriptive, not gating hypothesis)
 - T036: Use Cohen's d per spec FR-006 (rank-biserial may be supplementary for Wilcoxon but Cohen's d is required)
 - T037a: Implement SC-003 gating check per spec (verify token reduction threshold before analysis proceeds)
-- T038a: Implement SC-005 under-sampled validation per spec (calculate drop rate, enforce 5% threshold)
+- T038a: Implement SC-005 under-sampled validation per spec (calculate drop rate, enforce 5% threshold [UNRESOLVED-CLAIM: c_e71916e7 — status=not_enough_info])
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -195,7 +195,7 @@
 
 **⚠️ ORDERING**: Tests (T041-T043) require implementation tasks complete; remove [P] if tests depend on implementation
 
-- [ ] T041 [US3] Run unit tests for all modules in code/ (tests/unit/); PASS CRITERIA: pytest exit code 0, minimum 80% coverage, all tests pass
+- [ ] T041 [US3] Run unit tests for all modules in code/ (tests/unit/); PASS CRITERIA: pytest exit code 0, minimum 80% coverage [UNRESOLVED-CLAIM: c_622f6dc1 — status=not_enough_info], all tests pass
 - [ ] T042 [US3] Run contract tests for data schemas (tests/contract/); PASS CRITERIA: pytest exit code 0, all schema validations pass
 - [ ] T043 [US3] Run integration tests for full pipeline (tests/integration/); PASS CRITERIA: pytest exit code 0, end-to-end pipeline completes successfully
 - [ ] T044 [P] Documentation updates in README.md with concrete sections: project overview, setup instructions, CLI usage, expected outputs, known limitations; ACCEPTANCE: all sections present, no dead links
@@ -261,7 +261,7 @@ Task: "Contract test for data schema validation in tests/contract/test_data_sche
 Task: "Integration test for full benchmark pipeline in tests/integration/test_benchmark_pipeline.py"
 
 # Launch foundational tasks for User Story 1:
-Task: "Implement HumanEval dataset download in code/download.py"
+Task: "Implement {{claim:c_c8fb960d}} download in code/download.py"
 Task: "Implement AST-based simplification pipeline in code/simplify.py"
 Task: "Implement CPU-only inference runner in code/inference.py"
 ```
@@ -308,16 +308,16 @@ Due to data dependencies, sequential execution is required:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Feasibility Check**: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within 7GB RAM limit; HumanEval (the complete problem set) can be processed within maximum job duration limit
+- **Feasibility Check**: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within 7GB RAM limit [UNRESOLVED-CLAIM: c_416da1da — status=not_enough_info]; HumanEval (the complete problem set) can be processed within maximum job duration limit
 - **Avoid**: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Path**: T016 → T017 → T020 → T023 → T028 → T033-T040 (download → simplify → infer → results → metrics → report)
-- **Statistical Test Clarification**: Wilcoxon signed-rank test for pass@1 (per spec FR-005; plan.md uses McNemar's - follow spec, flag plan for amendment); Wilcoxon for continuous latency metrics; Bonferroni for 2 hypotheses (accuracy, latency)
+- **Statistical Test Clarification**: Wilcoxon signed-rank test for pass@1 (per spec FR-005; plan.md uses McNemar's - follow spec, flag plan for amendment); Wilcoxon for continuous latency metrics; Bonferroni for 2 hypotheses [UNRESOLVED-CLAIM: c_1337c086 — status=not_enough_info] (accuracy, latency)
 - **Token Reduction Clarification**: SC-003 is GATING per spec - analysis proceeds ONLY IF token reduction threshold achieved (T037a implements gating check); plan's descriptive approach contradicts spec and requires amendment
 - **Effect Size Clarification**: Cohen's d required per spec FR-006; rank-biserial may be supplementary for Wilcoxon
 - **Drop Rate Clarification**: SC-005 requires experiment marked under-sampled if >5% drop rate (T038a implements threshold validation); plan's remediation allows proceeding but spec is authoritative
 - **Constitutional Compliance**: Random seeds pinned (T009a), dataset checksums recorded (T001a), citation verification gate (T004a)
 - **Plan Amendment Flags**:
- 1. plan.md uses McNemar's for pass@1 [UNRESOLVED-CLAIM: c_b3f77e6f — status=not_enough_info] and 3 hypotheses for Bonferroni; spec FR-005 requires Wilcoxon and 2 hypotheses - tasks follow spec, plan flagged for amendment
+ 1. plan.md uses McNemar's for pass@1 and 3 hypotheses for Bonferroni; spec FR-005 requires Wilcoxon and 2 hypotheses - tasks follow spec, plan flagged for amendment
  2. plan.md SC-003 describes token reduction as descriptive; spec SC-003 requires gating - tasks follow spec, plan flagged for amendment
  3. plan.md SC-005 allows proceeding with >5% drop rate; spec SC-005 requires under-sampled status - tasks follow spec, plan flagged for amendment
- 4. plan.md uses 164 problems [UNRESOLVED-CLAIM: c_3cd96b0f — status=not_enough_info]; spec FR-010 requires n≥200 - tasks document constraint mismatch, plan flagged for amendment
+ 4. plan.md uses 164 problems [UNRESOLVED-CLAIM: c_56207708 — status=not_enough_info]; spec FR-010 requires n≥200 - tasks document constraint mismatch, plan flagged for amendment

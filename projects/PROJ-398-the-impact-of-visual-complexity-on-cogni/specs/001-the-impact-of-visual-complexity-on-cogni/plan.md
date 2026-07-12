@@ -11,7 +11,7 @@ This project investigates the impact of visual complexity (entropy, variance, ob
 3.  **Main Study**: A web-based experimental session presenting counterbalanced clips, collecting NASA-TLX and reaction-time data.
 4.  **Statistical Analysis**: Linear Mixed-Effects Models (LMM) via `statsmodels`, with Benjamini-Hochberg correction, VIF checks, and sensitivity analysis sweeps.
 
-All components are designed to run on a GitHub Actions free-tier runner (2 CPU, 7GB RAM, no GPU).
+All components are designed to run on a GitHub Actions free-tier runner (limited CPU and memory resources, no GPU).
 
 > **Note on Dataset**: The project uses a **verified, checksummed local archive of real meeting background video frames** (derived from a public repository subset). No procedural generation or synthetic images are used. Real human data will be collected via the web app for the dependent variables (NASA-TLX/RT). **No fabricated or simulated data is used for the final hypothesis test.**
 

@@ -1,163 +1,256 @@
 """
-Metrics module for quantifying calibration drift and covariate shift.
+metrics.py - Calibration and Covariate Shift Metrics
 
 Implements:
-- PCA Shift: Projects features onto principal components and measures the
-  mean shift of the projection magnitude between train and test sets.
-- Key Feature Shift: Measures the mean absolute difference of specific
-  feature means between train and test sets.
-
-Note: Wasserstein distance is explicitly NOT implemented per project plan
-(Plan Complexity Tracking) as it is statistically invalid for high-dimensional
-raw feature vectors without dimensionality reduction.
+- Expected Calibration Error (ECE)
+- Brier Score
+- PCA-based Covariate Shift
+- Key Feature Mean Shift
+- Spearman Correlation
 """
+
 import numpy as np
 from sklearn.decomposition import PCA
-from typing import List, Optional, Tuple, Union
+from sklearn.metrics import brier_score_loss
+from scipy.stats import spearmanr
+from typing import List, Optional, Tuple, Union, Dict, Any
+import logging
 
-# Type aliases for clarity
-FeatureArray = np.ndarray
-FloatArray = np.ndarray
+logger = logging.getLogger(__name__)
+
+
+def expected_calibration_error(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    n_bins: int = 10
+) -> float:
+    """
+    Calculate Expected Calibration Error (ECE) with specified number of bins.
+
+    Args:
+        y_true: True binary labels (0 or 1)
+        y_prob: Predicted probabilities for the positive class
+        n_bins: Number of bins for calibration (default 10)
+
+    Returns:
+        ECE value as a float
+    """
+    y_true = np.asarray(y_true)
+    y_prob = np.asarray(y_prob)
+
+    # Bin boundaries
+    bin_boundaries = np.linspace(0, 1, n_bins + 1)
+    ece = 0.0
+    total_samples = len(y_true)
+
+    for i in range(n_bins):
+        # Define bin range
+        lower = bin_boundaries[i]
+        upper = bin_boundaries[i + 1]
+
+        # Identify samples in this bin
+        if i == n_bins - 1:
+            # Include right edge for the last bin
+            in_bin = (y_prob >= lower) & (y_prob <= upper)
+        else:
+            in_bin = (y_prob >= lower) & (y_prob < upper)
+
+        bin_size = np.sum(in_bin)
+
+        if bin_size > 0:
+            # Average predicted probability in the bin
+            avg_confidence = np.mean(y_prob[in_bin])
+            # Actual accuracy (fraction of positives) in the bin
+            avg_accuracy = np.mean(y_true[in_bin])
+            # Weighted absolute difference
+            ece += (bin_size / total_samples) * np.abs(avg_accuracy - avg_confidence)
+
+    return float(ece)
+
+
+def brier_score(
+    y_true: np.ndarray,
+    y_prob: np.ndarray
+) -> float:
+    """
+    Calculate Brier Score (Mean Squared Error of probabilities).
+
+    Args:
+        y_true: True binary labels
+        y_prob: Predicted probabilities
+
+    Returns:
+        Brier Score as a float
+    """
+    return float(brier_score_loss(y_true, y_prob))
 
 
 def pca_shift(
-    train_features: FeatureArray,
-    test_features: FeatureArray,
+    train_features: np.ndarray,
+    test_features: np.ndarray,
     n_components: Union[int, float] = 0.95
 ) -> float:
     """
-    Calculate PCA-based covariate shift between train and test feature sets.
-    
-    This metric projects both datasets onto the principal components derived
-    from the training data, then calculates the Euclidean distance between
-    the mean projection vectors.
-    
-    Formula Reference:
-    1. Fit PCA on train_features to obtain components (W).
-    2. Project train: Z_train = (train - mean_train) @ W
-    3. Project test:  Z_test  = (test  - mean_train) @ W  (using train mean for consistency)
-    4. Shift = || mean(Z_train) - mean(Z_test) ||_2
-    
+    Calculate PCA-based covariate shift.
+
+    This method projects both train and test features onto the principal
+    components of the training data, then computes the Euclidean distance
+    between the mean projections.
+
+    Formula:
+    1. Fit PCA on train_features
+    2. Project train_features and test_features onto the same components
+    3. Compute Euclidean distance between mean(train_projected) and mean(test_projected)
+
     Args:
-        train_features: 2D array of shape (n_samples_train, n_features)
-        test_features: 2D array of shape (n_samples_test, n_features)
-        n_components: Number of components or variance ratio to retain (default 0.95).
-    
+        train_features: Training feature matrix (n_samples, n_features)
+        test_features: Test feature matrix (n_samples, n_features)
+        n_components: Number of components or variance threshold (default 0.95)
+
     Returns:
-        float: The Euclidean distance (L2 norm) between the mean projections.
-    
-    Raises:
-        ValueError: If input dimensions mismatch or n_components is invalid.
+        PCA shift value (Euclidean distance between mean projections)
     """
+    train_features = np.asarray(train_features)
+    test_features = np.asarray(test_features)
+
     if train_features.shape[1] != test_features.shape[1]:
         raise ValueError(
-            f"Feature dimensions mismatch: train has {train_features.shape[1]}, "
-            f"test has {test_features.shape[1]}"
+            f"Feature dimension mismatch: train={train_features.shape[1]}, "
+            f"test={test_features.shape[1]}"
         )
-    
-    if train_features.shape[0] == 0 or test_features.shape[0] == 0:
-        raise ValueError("Input arrays cannot be empty.")
-    
-    # Ensure float64 for numerical stability
-    X_train = np.asarray(train_features, dtype=np.float64)
-    X_test = np.asarray(test_features, dtype=np.float64)
-    
-    # Fit PCA on training data
-    pca = PCA(n_components=n_components)
-    # We fit only on train to establish the reference space
-    pca.fit(X_train)
-    
-    # Transform both sets using the train-derived components
-    # Note: We use the same centering (mean of train) for both to measure shift relative to the model's view
-    # However, standard practice for shift detection often centers both by their own means to see distributional drift
-    # in the component space. The Plan specifies "projection", implying the geometric distance in the subspace.
-    # Standard Covariate Shift via PCA usually compares the means in the reduced space.
-    # Let's center both by the training mean to see how the test distribution has moved relative to the training origin.
-    
-    # Center test data using training mean (to detect shift in the learned space)
-    X_test_centered = X_test - X_train.mean(axis=0)
-    X_train_centered = X_train - X_train.mean(axis=0)
-    
-    Z_train = pca.transform(X_train_centered)
-    Z_test = pca.transform(X_test_centered)
-    
-    # Calculate mean of projections
-    mean_train_proj = np.mean(Z_train, axis=0)
-    mean_test_proj = np.mean(Z_test, axis=0)
-    
+
+    # Handle edge case of single feature or zero variance
+    if train_features.shape[1] == 0:
+        return 0.0
+
+    # Initialize PCA
+    # If n_components is a float, it represents variance ratio
+    # If int, it represents number of components
+    try:
+        pca = PCA(n_components=n_components)
+        pca.fit(train_features)
+    except ValueError as e:
+        # Fallback if variance threshold is too high for data rank
+        logger.warning(f"PCA variance threshold {n_components} too high, using min(n_features, n_samples): {e}")
+        n_comp = min(train_features.shape[0], train_features.shape[1], train_features.shape[1])
+        if n_comp <= 0:
+            return 0.0
+        pca = PCA(n_components=n_comp)
+        pca.fit(train_features)
+
+    # Transform both sets
+    train_proj = pca.transform(train_features)
+    test_proj = pca.transform(test_features)
+
+    # Compute means
+    train_mean = np.mean(train_proj, axis=0)
+    test_mean = np.mean(test_proj, axis=0)
+
     # Euclidean distance between means
-    shift = np.linalg.norm(mean_train_proj - mean_test_proj)
-    
+    shift = np.linalg.norm(test_mean - train_mean)
+
     return float(shift)
 
 
 def key_feature_shift(
-    train_features: FeatureArray,
-    test_features: FeatureArray,
-    feature_names: List[str]
+    train_features: np.ndarray,
+    test_features: np.ndarray,
+    feature_names: Optional[List[str]] = None,
+    key_features: Optional[List[int]] = None
 ) -> float:
     """
     Calculate Key Feature Mean Shift.
-    
-    Measures the mean absolute difference in feature means between train and test
-    sets for a specified list of features.
-    
-    Formula Reference:
-    Shift = (1 / |K|) * sum(|mean(train_k) - mean(test_k)|) for k in Key Features
-    
+
+    This computes the mean shift for specific key features. If no specific
+    features are provided, it defaults to the first 5 features (or all if fewer).
+    Alternatively, if feature_names are provided, it can identify key features
+    by index.
+
+    Formula:
+    For each key feature j:
+      shift_j = |mean(train_j) - mean(test_j)|
+    Final metric = mean(shift_j) for all key features
+
     Args:
-        train_features: 2D array of shape (n_samples_train, n_features)
-        test_features: 2D array of shape (n_samples_test, n_features)
-        feature_names: List of feature names corresponding to the columns in the arrays.
-                       The order must match the column order in the arrays.
-    
+        train_features: Training feature matrix (n_samples, n_features)
+        test_features: Test feature matrix (n_samples, n_features)
+        feature_names: Optional list of feature names (for logging)
+        key_features: Optional list of column indices to treat as "key" features.
+                     If None, defaults to first 5 features.
+
     Returns:
-        float: The average absolute difference in means across the specified features.
-    
-    Raises:
-        ValueError: If feature_names length does not match number of columns.
-        IndexError: If feature_names contains names not found (if mapping is used), 
-                    but here we assume positional matching.
+        Average mean shift across key features
     """
+    train_features = np.asarray(train_features)
+    test_features = np.asarray(test_features)
+
     if train_features.shape[1] != test_features.shape[1]:
         raise ValueError(
-            f"Feature dimensions mismatch: train has {train_features.shape[1]}, "
-            f"test has {test_features.shape[1]}"
+            f"Feature dimension mismatch: train={train_features.shape[1]}, "
+            f"test={test_features.shape[1]}"
         )
-    
-    if len(feature_names) != train_features.shape[1]:
-        raise ValueError(
-            f"Length of feature_names ({len(feature_names)}) must match "
-            f"number of columns ({train_features.shape[1]})"
-        )
-    
-    if train_features.shape[0] == 0 or test_features.shape[0] == 0:
-        raise ValueError("Input arrays cannot be empty.")
-    
-    X_train = np.asarray(train_features, dtype=np.float64)
-    X_test = np.asarray(test_features, dtype=np.float64)
-    
-    # Calculate means for all features
-    mean_train = X_train.mean(axis=0)
-    mean_test = X_test.mean(axis=0)
-    
-    # Calculate absolute differences for all features (since feature_names implies we care about the set)
-    # If feature_names was a subset, we would index. Here we assume the list covers the columns of interest
-    # or the whole set if the list matches the column count.
-    # The task says "feature_names=...", implying we might pass a subset.
-    # However, the signature implies we are given the names to identify columns.
-    # Since we don't have a dict mapping name->index here, we assume the input arrays are already 
-    # ordered such that feature_names[i] corresponds to column i.
-    # If the user wants a subset, they should pass only those columns in the arrays.
-    # To be safe and strictly follow "Key Feature", we calculate the mean over the provided list.
-    # Since we can't map names to indices without a schema here, we assume the input arrays 
-    # correspond 1:1 with the provided feature_names list in order.
-    
-    abs_diff = np.abs(mean_train - mean_test)
-    
-    # If the user passed a subset of names, they should have sliced the arrays.
-    # If they passed all names, we average over all.
-    # We return the average absolute shift.
-    shift = np.mean(abs_diff)
-    
-    return float(shift)
+
+    n_features = train_features.shape[1]
+
+    if n_features == 0:
+        return 0.0
+
+    # Determine key features
+    if key_features is not None:
+        # Validate indices
+        key_features = [i for i in key_features if 0 <= i < n_features]
+        if not key_features:
+            logger.warning("No valid key features provided. Using all features.")
+            key_features = list(range(n_features))
+    else:
+        # Default to first 5 features
+        key_features = list(range(min(5, n_features)))
+
+    shifts = []
+    for idx in key_features:
+        train_mean = np.mean(train_features[:, idx])
+        test_mean = np.mean(test_features[:, idx])
+        shift = abs(train_mean - test_mean)
+        shifts.append(shift)
+
+    avg_shift = float(np.mean(shifts))
+
+    if feature_names and len(feature_names) >= n_features:
+        key_names = [feature_names[i] for i in key_features if i < len(feature_names)]
+        logger.debug(f"Key Feature Shift computed on: {key_names}")
+
+    return avg_shift
+
+
+def spearman_correlation(
+    x: np.ndarray,
+    y: np.ndarray
+) -> Tuple[float, float]:
+    """
+    Calculate Spearman rank correlation and p-value.
+
+    Args:
+        x: First array of values
+        y: Second array of values
+
+    Returns:
+        Tuple of (correlation_coefficient, p_value)
+    """
+    x = np.asarray(x)
+    y = np.asarray(y)
+
+    if len(x) != len(y):
+        raise ValueError(f"Array lengths must match: x={len(x)}, y={len(y)}")
+
+    if len(x) < 2:
+        return 0.0, 1.0
+
+    rho, p_value = spearmanr(x, y)
+
+    # Handle NaN results (e.g., constant input)
+    if np.isnan(rho):
+        rho = 0.0
+    if np.isnan(p_value):
+        p_value = 1.0
+
+    return float(rho), float(p_value)

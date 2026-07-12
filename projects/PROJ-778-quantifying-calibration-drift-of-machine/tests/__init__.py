@@ -1,3 +1,1 @@
-"""
-Test suite for the Calibration Drift Research Pipeline.
-"""
+# Test suite for the calibration drift analysis pipeline.

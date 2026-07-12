@@ -41,7 +41,7 @@
 - [ ] T004 Create `contracts/dataset_schema.yaml` defining expected columns for Adult/CPS datasets (Columns: 'age', 'workclass', 'education', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'income'; Types: int, str, float).
 - [ ] T005 Create `contracts/metric_record_schema.yaml` defining JSON structure for calibration/covariate metrics (Fields: year, model_type, ece_5, ece_10, ece_20, brier, pca_shift, key_feature_shift, rho_5, rho_10, rho_20, **rho_diff_5_10, rho_diff_10_20, max_rho_diff**, p_value_wls, change_point_year). Note: Added rho_diff fields to satisfy SC-002 robustness verification.
 - [X] T006 [P] Implement `code/utils/config.py` for path and parameter configuration
-- [~] T007 Create `code/utils/metrics.py` with stub functions: `pca_shift(train_features, test_features, n_components=0.95)`, `key_feature_shift(train_features, test_features, feature_names=...)`. **Implement PCA Shift and Key Feature Shift on raw feature vectors**. Implements Plan's PCA shift override of FR-004. Include formula reference for PCA projection and Key Feature Mean Shift. **Do NOT implement wasserstein_dist**.
+- [ ] T007 Create `code/utils/metrics.py` with stub functions: `pca_shift(train_features, test_features, n_components=0.95)`, `key_feature_shift(train_features, test_features, feature_names=...)`. **Implement PCA Shift and Key Feature Shift on raw feature vectors**. Implements Plan's PCA shift override of FR-004. Include formula reference for PCA projection and Key Feature Mean Shift. **Do NOT implement wasserstein_dist**.
 - [~] T008 Create `code/utils/shift_detection.py` with stub function: `detect_change_point_bic(metrics, alpha=0.05)`. **Implement BIC-based detection**, not fixed block-size. Implements Plan's BIC-based detection override of FR-006 (see Plan Complexity Tracking).
 - [~] T009 Setup environment configuration management (`.env` or `config.yaml` for data paths)
 
@@ -68,8 +68,8 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Unit test for schema validation logic in `tests/unit/test_schema_validation.py`: Implement `test_schema_validation_rejects_mismatched_columns` to assert that a schema mismatch >10% triggers an abort with a clear error message.
-- [ ] T011 [P] [US1] Integration test for data download and model serialization in `tests/integration/test_data_pipeline.py`: Verify that `data/models/` contains `logistic_regression.pkl` and `random_forest.pkl` and that `data/processed/` contains yearly splits for the test datasets (mocked for this test). Assert files are loadable and non-empty.
+- [~] T010 [P] [US1] Unit test for schema validation logic in `tests/unit/test_schema_validation.py`: Implement `test_schema_validation_rejects_mismatched_columns` to assert that a schema mismatch >10% triggers an abort with a clear error message.
+- [~] T011 [P] [US1] Integration test for data download and model serialization in `tests/integration/test_data_pipeline.py`: Verify that `data/models/` contains `logistic_regression.pkl` and `random_forest.pkl` and that `data/processed/` contains yearly splits for the test datasets (mocked for this test). Assert files are loadable and non-empty.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -83,11 +83,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/03_evaluation.py`: Load fixed models and iterate through yearly test splits. **This task must precede metric calculation tasks.**
-- [ ] T020 [US2] Implement `code/utils/metrics.py`: Calculate ECE with 5, 10, and 20 bins (FR-010).
-- [ ] T021 [US2] Implement `code/utils/metrics.py`: Calculate Brier Score.
-- [ ] T022 [US2] Implement `code/utils/metrics.py`: Calculate covariate shift using **PCA-based shift** and **Key Feature Shift** on the common feature subset. **Do NOT implement raw Wasserstein distance** as it is statistically invalid for high-dimensional data per Plan Complexity Tracking. Implements Plan's architectural override of FR-004.
-- [ ] T024 [US2] Implement `code/03_evaluation.py`: Compute and store metrics (ECE_5, ECE_10, ECE_20, Brier, PCA_Shift, Key_Feature_Shift, **rho_5, rho_10, rho_20, rho_diff_5_10, rho_diff_10_20, max_rho_diff**) for each year to `data/processed/metrics_records.json` using the schema defined in T005. Explicitly compute Spearman correlation (rho) for each binning strategy to satisfy T027's robustness check.
+- [~] T023 [US2] Implement `code/03_evaluation.py`: Load fixed models and iterate through yearly test splits. **This task must precede metric calculation tasks.**
+- [~] T020 [US2] Implement `code/utils/metrics.py`: Calculate ECE with 5, 10, and 20 bins (FR-010).
+- [~] T021 [US2] Implement `code/utils/metrics.py`: Calculate Brier Score.
+- [~] T022 [US2] Implement `code/utils/metrics.py`: Calculate covariate shift using **PCA-based shift** and **Key Feature Shift** on the common feature subset. **Do NOT implement raw Wasserstein distance** as it is statistically invalid for high-dimensional data per Plan Complexity Tracking. Implements Plan's architectural override of FR-004.
+- [~] T024 [US2] Implement `code/03_evaluation.py`: Compute and store metrics (ECE_5, ECE_10, ECE_20, Brier, PCA_Shift, Key_Feature_Shift, **rho_5, rho_10, rho_20, rho_diff_5_10, rho_diff_10_20, max_rho_diff**) for each year to `data/processed/metrics_records.json` using the schema defined in T005. Explicitly compute Spearman correlation (rho) for each binning strategy to satisfy T027's robustness check.
 - [ ] T025 [US2] Implement logic to handle missing years gracefully (log warning, skip year) as per Edge Cases.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

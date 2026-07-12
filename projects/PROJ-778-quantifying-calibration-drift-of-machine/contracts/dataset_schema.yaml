@@ -1,90 +1,89 @@
-# Dataset Schema for Calibration Drift Analysis
-# Defines expected columns and types for Adult/CPS datasets
-# Used for validation during data acquisition and preprocessing
-
-schema_version: "1.0"
-description: "Schema for UCI Adult and IPUMS CPS datasets used in calibration drift analysis"
-
+version: "1.0"
+description: >-
+  Expected schema for Adult and CPS datasets used in calibration drift analysis.
+  Defines columns and their expected data types (int, str, float).
 datasets:
-  - name: "adult_cps"
-    description: "Combined schema for Adult and CPS datasets"
-    source_reference: "UCI Adult / IPUMS CPS"
-    
+  - name: "Adult"
+    source: "UCI Machine Learning Repository"
     columns:
       - name: "age"
         type: "int"
-        description: "Age of the individual in years"
-        required: true
-        
+        description: "Continuous variable for age"
       - name: "workclass"
         type: "str"
-        description: "Type of employer (e.g., Private, Self-emp, Gov)"
-        required: true
-        
+        description: "Employment sector (e.g., Private, Self-emp-not-inc)"
       - name: "education"
         type: "str"
-        description: "Education level (e.g., Bachelors, HS-grad, Masters)"
-        required: true
-        
+        description: "Highest level of education achieved"
       - name: "occupation"
         type: "str"
-        description: "Occupation type (e.g., Tech-supp, Prof-specialty, Sales)"
-        required: true
-        
+        description: "General category of job"
       - name: "relationship"
         type: "str"
-        description: "Relationship status (e.g., Husband, Wife, Not-in-family)"
-        required: true
-        
+        description: "Relationship status within household"
       - name: "race"
         type: "str"
-        description: "Race category (e.g., White, Black, Asian-Pac-Islander)"
-        required: true
-        
+        description: "Racial group"
       - name: "sex"
         type: "str"
-        description: "Gender (e.g., Male, Female)"
-        required: true
-        
+        description: "Gender"
       - name: "capital-gain"
         type: "int"
-        description: "Capital gains in dollars"
-        required: true
-        
+        description: "Capital gains amount"
       - name: "capital-loss"
         type: "int"
-        description: "Capital losses in dollars"
-        required: true
-        
+        description: "Capital losses amount"
       - name: "hours-per-week"
         type: "int"
         description: "Average hours worked per week"
-        required: true
-        
       - name: "native-country"
         type: "str"
-        description: "Country of origin (e.g., United-States, Mexico, Canada)"
-        required: true
-        
+        description: "Country of origin"
       - name: "income"
         type: "str"
-        description: "Income bracket (e.g., <=50K, >50K) - target variable"
-        required: true
-    
-    constraints:
-      age:
-        min: 17
-        max: 90
-      capital-gain:
-        min: 0
-      capital-loss:
-        min: 0
-      hours-per-week:
-        min: 1
-        max: 168
-        
-    validation_rules:
-      - "All required columns must be present"
-      - "Data types must match specified types"
-      - "Numeric fields must be within specified ranges"
-      - "Categorical fields should have valid values from known domains"
+        description: "Target variable (>50K or <=50K)"
+  - name: "CPS"
+    source: "IPUMS Current Population Survey"
+    columns:
+      - name: "age"
+        type: "int"
+        description: "Continuous variable for age"
+      - name: "workclass"
+        type: "str"
+        description: "Employment sector"
+      - name: "education"
+        type: "str"
+        description: "Highest level of education achieved"
+      - name: "occupation"
+        type: "str"
+        description: "General category of job"
+      - name: "relationship"
+        type: "str"
+        description: "Relationship status within household"
+      - name: "race"
+        type: "str"
+        description: "Racial group"
+      - name: "sex"
+        type: "str"
+        description: "Gender"
+      - name: "capital-gain"
+        type: "int"
+        description: "Capital gains amount"
+      - name: "capital-loss"
+        type: "int"
+        description: "Capital losses amount"
+      - name: "hours-per-week"
+        type: "int"
+        description: "Average hours worked per week"
+      - name: "native-country"
+        type: "str"
+        description: "Country of origin"
+      - name: "income"
+        type: "str"
+        description: "Target variable (>50K or <=50K)"
+validation_rules:
+  - rule: "non_null"
+    columns: ["age", "workclass", "education", "occupation", "relationship", "race", "sex", "income"]
+  - rule: "positive_range"
+    columns: ["age", "hours-per-week"]
+    min: 0
