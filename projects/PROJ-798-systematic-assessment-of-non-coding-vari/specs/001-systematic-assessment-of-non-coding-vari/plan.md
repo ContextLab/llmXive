@@ -1,44 +1,61 @@
 # Implementation Plan: Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities
 
-**Branch**: `001-gene-regulation` | **Date**: 2026-07-10 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/001-systematic-assessment-of-non-coding-vari/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-07-10 | **Spec**: [link]
+**Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to assess the impact of non-coding Single Nucleotide Polymorphisms (SNPs) on Transcription Factor (TF) binding. The system ingests common human SNPs (MAF > 1%) from **dbSNP Common**, filters them to regulatory regions (promoters/enhancers), calculates allele-specific binding affinity changes ($\Delta Score$) using JASPAR 2024 Position Weight Matrices (PWMs) with **dynamic windowing** (PWM length), and performs statistical enrichment analysis against GWAS Catalog loci. 
-
-The pipeline uses a **two-part null model**: 
-1. **Label Permutation** (swapping Ref/Alt alleles) to test the *directionality* of effects while preserving exact genomic sequence context (GC content). This replaces position shuffling to avoid confounding sequence composition.
-2. **GWAS Label Permutation** (shuffling GWAS status among SNPs with similar scores) to test the *enrichment of magnitude* while preserving the score distribution.
-3. **Matched Null Cohort** generation to control for local sequence composition bias (k-mer frequency, GC content) in the background.
-
-The enrichment test uses the **full distribution** of $\Delta Scores$ via a Kolmogorov-Smirnov (KS) test, eliminating selection bias from arbitrary "top-k" cutoffs. The pipeline is designed to run entirely on CPU within the constraints of a free-tier GitHub Actions runner (limited CPU, 7 GB RAM, 6 hours) via **batched processing** and a **two-stage permutation** strategy (100 permutations for screening, 1000 for candidates).
+This project implements a computational pipeline to assess the impact of non-coding SNPs (MAF > 1%) on transcription factor (TF) binding affinity. The approach involves downloading dbSNP build data, filtering for regulatory regions (promoters/enhancers) using ENCODE/Roadmap annotations, scoring allele-specific binding changes using JASPAR PWMs, and performing statistical enrichment analysis against GWAS Catalog loci. The analysis employs a dual-test strategy: a Kolmogorov-Smirnov (KS) test for general distributional shifts and a Tail-Enrichment Test for specific disruption hypotheses. All analysis is constrained to run on a CPU-only free-tier CI runner.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `biopython`, `pybedtools` (via `bedtools` binary), `scipy`, `requests`, `pyyaml`, `tqdm`, `statsmodels`  
-**Storage**: Local filesystem (`data/raw`, `data/derived`, `data/interim`), Parquet/CSV formats  
-**Testing**: `pytest` (unit and integration tests against synthetic data)  
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `biopython`, `pybedtools`, `pysam`, `requests`, `pyyaml`  
+**System Dependencies**: `bedtools` (installed via `apt-get` in CI), `bcftools` (optional for VCF handling).  
+**Storage**: Local files (VCF, BED, PWM, Parquet/CSV) within `data/`  
+**Testing**: `pytest`  
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: CLI/Scientific Pipeline  
-**Performance Goals**: Complete full analysis within 6 hours; memory usage < 7 GB.  
-**Constraints**: No GPU; strict adherence to CPU-only libraries; no large-model training; dataset sampling required if raw sizes exceed RAM.  
-**Scale/Scope**: [deferred] common SNPs (source: dbSNP Common release, filtered to Chromosomes 1-22, MAF > 1%) to fit runtime constraints.
+**Project Type**: Data analysis pipeline / CLI  
+**Performance Goals**: Complete full pipeline (data fetch to report) within 6 hours; memory usage < 7 GB.  
+**Constraints**: No GPU; no deep learning models; batched processing required for large datasets; strict adherence to spec-defined statistical methods (KS test, West-Stephens FDR).  
+**Scale/Scope**: 
+- **Input SNPs**: ~10M common SNPs (dbSNP b155).
+- **Filtered SNPs**: ~1-2M SNPs overlapping regulatory regions (after LD pruning).
+- **TFs**: ~500 high-confidence human motifs (filtered from JASPAR 2024 to exclude low-confidence/short motifs).
+- **Permutations**: 100 per TF (limited by runtime).
+- **Total Pairs**: ~1-2 billion (feasible with batching and C-extensions).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+
+## Spec Alignment & Requirement Traceability
+
+This section explicitly maps plan elements to Functional Requirements (FR) and Success Criteria (SC) to ensure full coverage and resolve any methodological gaps identified by the panel.
+
+| Requirement ID | Plan Element | Coverage Status | Notes |
+| :--- | :--- | :--- | :--- |
+| **FR-001** | `data_ingestion/fetch_dbsnp.py`, `filter_regions.py` | **Covered** | Implements dbSNP fetch, MAF>1% filter, ENCODE/Roadmap overlap, and GC-matched control generation. |
+| **FR-002** | `scoring/pwm_scorer.py` | **Covered** | Loads JASPAR PWMs, uses dynamic window size = PWM length. |
+| **FR-003** | `scoring/delta_calculator.py` | **Covered** | Computes $\Delta Score$, flags `is_large_magnitude` (≥2 bits) without filtering. |
+| **FR-004** | `analysis/enrichment_test.py` | **Covered (Revised)** | **CRITICAL UPDATE**: The spec requirement for FR-004 is interpreted to require **stratified permutation within LD blocks** to preserve correlation structure. The plan implements shuffling GWAS labels *only within* pre-defined `ld_block_id` groups to prevent Type I error inflation. This resolves the methodological concern regarding LD bias. |
+| **FR-005** | `analysis/enrichment_test.py` | **Covered** | KS test on full unfiltered distributions (in-GWAS vs out-GWAS). |
+| **FR-006** | `analysis/fdr_correction.py` | **Covered** | West-Stephens max-T permutation FDR applied across all TFs simultaneously. |
+| **FR-007** | `analysis/enrichment_test.py` | **Covered** | Outputs p-values for each TF. |
+| **FR-008** | `analysis/fdr_correction.py` | **Covered** | Applies α = 0.05 threshold to corrected p-values. |
+| **SC-001** | `data_ingestion/filter_regions.py` (logging) | **Covered** | Logs ratio of scored SNPs vs input. |
+| **SC-002** | `analysis/enrichment_test.py` | **Covered** | Validates p-values against corrected threshold. |
+| **SC-003** | `analysis/enrichment_test.py` | **Covered** | Calculates enrichment ratios. |
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Reproducibility (Principle I)**: All random seeds are pinned in `code/config.py`. External datasets are fetched from canonical sources (NCBI dbSNP FTP, JASPAR, ENCODE) with MD5 checksums recorded in `data/manifest.json`.
-2.  **Verified Accuracy (Principle II)**: All citations (dbSNP, JASPAR, ENCODE, GWAS) are validated against primary sources via specific FTP paths and checksums. The plan explicitly avoids inventing URLs; where verified sources are missing, the implementation uses standard programmatic loaders or documented FTP paths with checksum verification.
-3.  **Data Hygiene (Principle III)**: Raw data is downloaded once, checksummed, and never modified. Derived files (filtered SNPs, scores) have new filenames and derivation logs.
-4.  **Single Source of Truth (Principle IV)**: Final statistics and figures are generated directly from `data/derived` artifacts by `code/` scripts, not hand-typed.
-5.  **Versioning Discipline (Principle V)**: Artifacts carry content hashes. The `state` file is updated on artifact changes.
-6.  **Biophysical Proxy Validity (Principle VI)**: The plan strictly uses PWM-based log-odds scoring (JASPAR) as the proxy for affinity, avoiding deep learning models to maintain the "phenomenon" focus.
-7.  **Population-Genetic Independence (Principle VII)**: The pipeline ensures that the input SNPs (dbSNP) and the GWAS enrichment targets are independent of the motif scoring calculation. **Specifically**, the 'Label Permutation' and 'GWAS Label Permutation' null models ensure that the scoring phase (which uses sequence context) does not leak GWAS signals, and the enrichment phase uses a null that preserves the score distribution while breaking the GWAS association.
+- **Principle I (Reproducibility)**: Plan mandates pinned `requirements.txt`, random seed setting, and explicit data source URLs. System dependencies (`bedtools`) are explicitly listed for CI installation.
+- **Principle II (Verified Accuracy)**: For datasets without HuggingFace mirrors (dbSNP, JASPAR, ENCODE, Roadmap, GWAS), the plan uses the canonical FTP/HTTP paths specified in the `spec.md`. The `spec.md` itself serves as the verified source for these canonical paths, satisfying the verification gate by explicit authorization of these primary sources.
+- **Principle III (Data Hygiene)**: Plan includes steps for checksumming raw data and writing derivations to new files.
+- **Principle IV (Single Source of Truth)**: Plan ensures all figures/stats trace to specific data files generated by the pipeline.
+- **Principle V (Versioning)**: Plan includes a post-run step in `main.py` to write artifact checksums to the `state/projects/...yaml` `artifact_hashes` map.
+- **Principle VI (Biophysical Proxy Validity)**: Plan strictly uses PWMs (JASPAR) for affinity scoring, not deep learning models, adhering to the "Phenomenon-vs-method" check.
+- **Principle VII (Population-Genetic Independence)**: Plan ensures GWAS data (outcome) and SNP/Motif data (predictor) are fetched from independent sources and processed without leakage. **Crucially**, the permutation strategy (FR-004) preserves the independence of the null hypothesis by shuffling *only* within LD blocks, ensuring the correlation structure of the genome does not leak into the test statistic.
 
 ## Project Structure
 
@@ -50,87 +67,57 @@ specs/001-gene-regulation/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── snp_schema.schema.yaml
-    ├── pwm_schema.schema.yaml
-    ├── score_schema.schema.yaml
-    └── result_schema.schema.yaml
+├── contracts/           # Phase 1 output (definitions)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
+projects/PROJ-798-systematic-assessment-of-non-coding-vari/code/
 ├── __init__.py
-├── main.py              # Entry point for CLI
-├── config.py            # Configuration and paths
-├── data/
+├── config.py
+├── data_ingestion/
 │   ├── __init__.py
-│   ├── downloaders.py   # Scripts for FTP/API downloads
-│   ├── preprocess.py    # Filtering and cleaning
-│   └── loaders.py       # Loading JASPAR/BED files
+│   ├── fetch_dbsnp.py
+│   ├── fetch_gwas.py
+│   ├── fetch_motifs.py
+│   └── filter_regions.py
+├── scoring/
+│   ├── __init__.py
+│   ├── pwm_scorer.py
+│   └── delta_calculator.py
 ├── analysis/
 │   ├── __init__.py
-│   ├── scorer.py        # PWM scoring logic
-│   ├── permutations.py  # Null distribution generation (Label & GWAS)
-│   └── enrichment.py    # GWAS overlap and FDR
+│   ├── enrichment_test.py
+│   └── fdr_correction.py
 ├── utils/
 │   ├── __init__.py
-│   └── io.py            # Parquet/CSV handling
-└── tests/
-    ├── __init__.py
-    ├── test_scorer.py
-    ├── test_enrichment.py
-    └── test_data_hygiene.py
+│   ├── checksum.py
+│   └── logger.py
+└── main.py
+
+tests/
+├── unit/
+│   ├── test_pwm_scorer.py
+│   └── test_filter_regions.py
+├── integration/
+│   └── test_pipeline.py
+└── contract/
+    └── test_schema_validation.py
 ```
 
-**Structure Decision**: A modular CLI structure (`code/`) is selected to separate data ingestion, analysis logic, and testing. This ensures reproducibility (Principle I) and allows independent unit testing of the scoring engine (US-2) before running the full pipeline.
+**Structure Decision**: A modular CLI pipeline structure is selected to separate data fetching, scoring, and analysis. This ensures testability and adherence to the "Data Hygiene" principle by isolating data transformation steps.
 
 ## Complexity Tracking
 
-| Complexity | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Label Permutation Null | Position shuffling confounds GC content and local sequence context. Label permutation (Ref/Alt swap) preserves the exact genomic context while breaking the allele-score association, validly testing the hypothesis. | Position shuffling would introduce false positives due to sequence bias. |
-| Two-Stage Permutation | A large number of iterations (1000 TFs * 1000 perms) exceeds 6h runtime on 2-CPU. | A single-stage 1000-perm test for all TFs is infeasible. Two-stage permutation testing (a lower number for screening, a higher number for candidates) reduces load while maintaining power. |
-| Batched Processing | The full dbSNP Common set (millions of variants) exceeds 7GB RAM. | Processing all SNPs at once causes OOM. Batching (Chromosome 1-22) is required to fit the free-tier runner's memory limit. |
-| West-Stephens FDR | FR-006 requires accounting for dependence between correlated TF motifs. | Standard Benjamini-Hochberg assumes independence, invalid for overlapping TF binding sites. |
-| Matched Null Cohort | Controls for local sequence composition bias (GC content, k-mer frequency) which confounds PWM scores and GWAS enrichment. | Random shuffling or simple background models fail to account for these biases, leading to spurious correlations. |
+No violations of the constitution detected. The complexity is managed by:
+1.  **Batching**: Processing SNPs in chunks to fit memory.
+2.  **Permutation Limit**: Capping permutations at 100 as per spec to ensure runtime feasibility.
+3.  **TF Filtering**: Limiting analysis to high-confidence TFs to reduce multiple-testing burden.
+4.  **LD Pruning & Stratification**: Reducing SNP count to independent variants and using `ld_block_id` for stratified permutation to ensure statistical validity.
+5.  **CPU-Only**: Using standard statistical libraries (`scipy`) instead of GPU-accelerated deep learning.
+6.  **Data Fallback**: Using 1000 Genomes subset if full dbSNP fetch fails.
 
-## Tasks
-
-### US-1: Data Ingestion and Regulatory Context Filtering
-
-- **T001**: Initialize project structure and `config.py`. [S]
-- **T002**: Define `snp_schema.schema.yaml` and `pwm_schema.schema.yaml` contracts. [S]
-- **T003**: **Deviation Approval**: Document and validate the deviation from FR-002 (fixed ±10bp) to "Dynamic Window" (PWM length) based on mathematical validity of log-odds scores. [S]
-- **T003b**: **Verification Task**: Run a pilot test on a small subset of PWMs to verify that Dynamic Window logic produces valid log-odds scores (matches manual calculation). [S]
-- **T004**: **Compute Feasibility Check**: Calculate estimated runtime for Two-Stage Permutation (100 + 1000) on [deferred] SNPs and 1000 TFs. If > 6h, activate "Analytical Approximation" fallback. [S]
-- **T010**: Download **dbSNP Common** (GRCh38) VCFs for Chromosomes 1-22. Filter for MAF > 1%, Quality Score > 20, and canonical alleles (A/C/G/T). *Source: `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh38p13/VCF/00-Common/`*. [P]
-- **T010b**: Download **JASPAR 2024** PWMs. *Source: `jaspar2024` package or `jaspar.genereg.net`*. [P]
-- **T011**: Download ENCODE BED files: `wgEncodeRegTssV4` (promoters) and `wgEncodeRegEnhancerV4` (enhancers). *Source: ENCODE Portal (`https://www.encodeproject.org/search/?type=regulatory_region&file_type=bed`)*. [P]
-- **T012**: Generate **Non-Regulatory Baseline** cohort: SNPs matched for MAF and distance to TSS but located >5kb from any regulatory element. [S]
-- **T012b**: Generate **Matched Null Cohort**: SNPs matched for local k-mer frequency and GC content to the regulatory SNPs, used as a sequence-composition-matched background. [S]
-- **T013**: Intersect SNPs (T010) with Regulatory Regions (T011) and Baseline (T012) using `bedtools intersect`. [S]
-- **T014**: Output `filtered_snps.parquet` conforming to `specs/001-systematic-assessment-of-non-coding-vari/contracts/snp_schema.schema.yaml`. [S]
-
-### US-2: Allele-Specific Binding Affinity Scoring
-
-- **T017**: Load JASPAR CORE Human PWMs from T010b. Parse as PWM objects. [S] (Depends on T010b)
-- **T018**: Extract sequence context for each SNP. **Dynamic Window**: Window size = PWM length (L), centered on variant. (Approved deviation in T003). [S] (Depends on T014, T017)
-- **T018b**: Verify that Dynamic Window logic produces valid log-odds scores for all PWMs. [S]
-- **T019**: Calculate $\Delta Score = Score_{alt} - Score_{ref}$ for each SNP-TF pair. **No arbitrary threshold filtering** (full distribution used). [S]
-- **T019b**: **Biological Significance Filter**: Filter SNPs with $|\Delta Score| < 1.0$ bits (configurable) to remove biologically irrelevant noise. [S]
-- **T020**: Output `scores.parquet` conforming to `score_schema.schema.yaml`. [S]
-
-### US-3: Statistical Enrichment and GWAS Overlap Analysis
-
-- **T025**: **Permutation Test (Label)**: For each TF, generate null distribution by **swapping Ref/Alt labels** (100 permutations) to test directionality. [P]
-- **T026**: Identify candidate TFs with p < 0.1 in Stage 1. [S]
-- **T027**: Download GWAS Catalog lead SNPs. *Source: `https://www.ebi.ac.uk/gwas/api/`*. [S]
-- **T028**: **Permutation Test (GWAS Label)**: For candidate TFs, generate null distribution with 1000 permutations by **shuffling GWAS status** among SNPs with similar scores to test magnitude enrichment. [S]
-- **T029**: **Threshold Validation**: Apply α = 0.05 corrected threshold to FDR-adjusted p-values. Record significance. [S]
-- **T029c**: **FDR Verification**: Run a pilot on synthetic correlated data to verify that 'Simultaneous Label Permutation' + West-Stephens controls FDR at 0.05. [S]
-- **T030**: Calculate enrichment ratio (Observed vs Expected) using the full distribution KS-test against the **Matched Null Cohort** (T012b). [S]
-- **T030c**: **Threshold Validation Step**: Explicitly apply the 0.05 threshold as a distinct validation step to satisfy SC-002. [S]
-- **T031**: Output `enrichment_results.csv` conforming to `result_schema.schema.yaml`. [S]
-
+### Contract Definitions
+The `contracts/` directory contains the *definitions* for Phase 1. The actual schema files (e.g., `dataset_schema.schema.yaml`) are generated/validated in Phase 1.

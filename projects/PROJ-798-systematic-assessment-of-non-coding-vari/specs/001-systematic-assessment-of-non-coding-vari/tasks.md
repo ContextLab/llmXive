@@ -39,8 +39,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create `code/config.py` defining paths, random seeds, MAF threshold (a low-frequency cutoff), and `fixed_window_bp = 10` (strictly enforced per FR-002)
-- [ ] T005b [P] [US1] Add validation logic in `code/config.py` to assert `fixed_window_bp == 10` on startup to ensure spec compliance
+- [ ] T005 [P] Create `code/config.py` defining paths, random seeds, MAF threshold (a low-frequency cutoff), and `DEFAULT_WINDOW` (optional fallback for error cases). **CRITICAL**: The scoring engine MUST derive the window size dynamically from the loaded PWM length for each TF, NOT from this config constant. This config key is for documentation/fallback only.
+- [ ] T005b [P] [US1] Add validation logic in `code/config.py` to assert that the scoring module correctly reads the PWM length to determine window size, ensuring spec compliance with dynamic windowing (FR-002). Do NOT assert a fixed value; assert that the scoring module's `get_window_size(tf_id)` function returns `len(pwm)` for the given TF.
 - [ ] T006 [P] Implement `code/utils.py` with genome coordinate helpers, FASTA memory-mapped I/O wrappers, and checksum verification functions
 - [ ] T007 [P] Create `code/__init__.py` and module structure for `data_ingestion`, `scoring`, and `statistics`
 - [ ] T008 Setup `tests/unit/`, `tests/integration/`, and `tests/contract/` directories with `__init__.py` files
@@ -58,13 +58,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/data_ingestion.py` to download common human SNPs (MAF > 1%) from **dbSNP** (primary source) using `bcftools` or FTP. **URL**: `ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606/VCF/current/`. **Constraint**: If dbSNP is unavailable, switch to fallback (T010a) and log source lineage to `data/raw/source_log.txt`.
+- [ ] T010 [US1] Implement `code/data_ingestion.py` to download common human SNPs (MAF > 1%) from **dbSNP** (primary source) using `bcftools` or FTP. **URL**: `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`. **Constraint**: If dbSNP is unavailable, switch to fallback (T010a) and log source lineage to `data/raw/source_log.txt`.
 - [ ] T010a [US1] Implement `code/data_ingestion.py` to download Genomes Phase 3 VCF (common SNPs) as a fallback source. **URL**: `ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/ALL.chr*.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz`.
-- [ ] T010b [US1] Implement `code/data_ingestion.py` to download JASPAR PWMs (CORE collection) for human TFs. **URL**: `http://jaspar.genereg.net/download/data/2024/CORE/JASPAR2024_CORE_human_redundant.pfm`. Save to `data/raw/jaspar_pwm.txt`.
+- [ ] T010b [US1] Implement `code/data_ingestion.py` to download JASPAR PWMs (CORE collection) for human TFs. **URL**: `. Save to `data/raw/jaspar_pwm.txt`.
 - [ ] T010c [US1] Implement selection logic in `code/data_ingestion.py` to prioritize dbSNP (T010) and fallback to 1000 Genomes (T010a) if dbSNP unavailable; log source lineage to `data/raw/source_log.txt`.
-- [ ] T011 [US1] Implement `code/data_ingestion.py` to download ENCODE/Roadmap promoter and enhancer BED files. **URL**: `https://www.encodeproject.org/files/ENCFF001DQA/` (Promoter) and `https://www.encodeproject.org/files/ENCFF001DQB/` (Enhancer) or specific `wgEnRegTss...bed.gz` patterns from ENCODE portal.
+- [ ] T011 [US1] Implement `code/data_ingestion.py` to download ENCODE/Roadmap promoter and enhancer BED files. **URL**: ` (Promoter) and ` (Enhancer) or specific `wgEnRegTss...bed.gz` patterns from ENCODE portal.
 - [ ] T012 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude SNPs with MAF < 1% and non-ACGT alleles (handle N/indels).
 - [ ] T013 [US1] Implement overlap logic in `code/data_ingestion.py` using `pybedtools` to intersect SNPs with regulatory regions (≥1bp overlap). **Dependency**: Requires T010 (or T010a) producing `data/raw/snps_raw.vcf` AND T011 producing `data/raw/regulatory_regions.bed`.
+- [ ] T013b [US1] Implement `code/data_ingestion.py` to generate a GC-matched non-regulatory control set. Logic: Select random genomic regions, match GC content within ±2% of the filtered regulatory SNPs, and ensure no overlap with regulatory regions. Save to `data/derived/gc_matched_controls.parquet`.
 - [ ] T014 [US1] Save filtered SNPs to `data/derived/filtered_snps.parquet`; **Run pydantic/JSONSchema validator against `specs/001-gene-regulation/contracts/snp_schema.schema.yaml` before saving**.
 - [ ] T015 [US1] Implement `tests/unit/test_data_ingestion.py` to verify MAF filtering and non-ACGT exclusion logic
 - [ ] T016 [US1] Implement `tests/integration/test_ingestion_pipeline.py` to verify overlap logic against a small synthetic BED/SNP set
@@ -75,17 +76,18 @@
 
 ## Phase 4: User Story 2 - Allele-Specific Binding Affinity Scoring (Priority: P2)
 
-**Goal**: Calculate the difference in binding affinity ($\Delta Score$) between reference and alternate alleles for every SNP-TF pair within a **fixed ±10bp context window** (per FR-002).
+**Goal**: Calculate the difference in binding affinity ($\Delta Score$) between reference and alternate alleles for every SNP-TF pair within a **dynamic context window** where the window size equals the PWM length (per FR-002).
 
 **Independent Test**: Run the scorer on a small, manually verified subset of SNPs and compare the calculated $\Delta Score$ against a manual calculation to ensure mathematical correctness.
 
 ### Implementation for User Story 2
 
 - [ ] T017 [US2] Implement `code/scoring.py` to load JASPAR PWMs (from T010b output `data/raw/jaspar_pwm.txt`) and convert them to scoring matrices. **Dependency**: Requires T010b completion.
-- [ ] T018 [US2] Implement `code/scoring.py` to extract genomic sequences from a reference FASTA (using `pyfaidx` memory-mapped access) based on SNP coordinates and **fixed 10bp window** (per FR-002). **Dependency**: Requires T014 (filtered SNPs) and T017 (PWMs). **Validation**: Assert window size == `config.fixed_window_bp`.
+- [ ] T018 [US2] Implement `code/scoring.py` to extract genomic sequences from a reference FASTA (using `pyfaidx` memory-mapped access) based on SNP coordinates and **dynamic window size equal to the PWM length** for the specific TF being scored. **Dependency**: Requires T014 (filtered SNPs) and T017 (PWMs). **Validation**: Assert that the window size used matches the `len(pwm)` for the current TF.
 - [ ] T019 [US2] Implement `code/scoring.py` to calculate log-odds scores for both reference and alternate allele sequences
 - [ ] T020 [US2] Implement `code/scoring.py` to compute $\Delta Score = Score_{alt} - Score_{ref}$ for all valid SNP-TF pairs
-- [ ] T021 [US2] Save scoring results to `data/derived/scores.parquet` with columns: `snp_id`, `tf_id`, `ref_score`, `alt_score`, `delta_score`, `window_size`
+- [ ] T020b [US2] Implement `code/scoring.py` to calculate and output a boolean flag `is_large_magnitude` where true if the absolute $\Delta Score$ is ≥ 2 bits. This flag is for reporting purposes only and MUST NOT be used to filter the input data for statistical tests (per FR-003).
+- [ ] T021 [US2] Save scoring results to `data/derived/scores.parquet` with columns: `snp_id`, `tf_id`, `ref_score`, `alt_score`, `delta_score`, `window_size`, `is_large_magnitude`
 - [ ] T022 [US2] Implement `tests/unit/test_scoring.py` to verify log-odds calculation and $\Delta Score$ logic on known sequences
 - [ ] T023 [US2] Implement `tests/integration/test_scoring_pipeline.py` to verify end-to-end sequence extraction and scoring flow
 
@@ -101,11 +103,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement `code/statistics.py` to perform stratified label permutation test (n=1000) shuffling SNP positions **within the same regulatory region ID (stratum)** to generate null distributions; use random seed from `config.py`
+- [ ] T024 [P] [US3] Implement `code/statistics.py` to perform stratified label permutation test (n=100) shuffling SNP positions **within the same LD block ID (stratum)** to generate null distributions; use random seed from `config.py`. This preserves local sequence context and GC content (per FR-004).
 - [ ] T025 [US3] Implement `code/statistics.py` to calculate p-values for each TF's observed $\Delta Score$ distribution against its null distribution, **apply multiple testing correction**, and **verify/flag TFs where adjusted p-value < 0.05** (per SC-002).
+- [ ] T025a [US3] Implement `code/statistics.py` to perform a **Kolmogorov-Smirnov (KS) test** on the **FULL unfiltered distribution** of scores for SNPs *inside* GWAS loci against the distribution of scores for SNPs *outside* GWAS loci (or the matched control set), as required by FR-005 and FR-007.
 - [ ] T026 [US3] Implement `code/statistics.py` to identify high-impact SNPs (top configurable % by $|\Delta Score|$)
-- [ ] T027 [US3] Implement `code/statistics.py` to download/load GWAS Catalog lead SNPs (BED format) from `https://www.ebi.ac.uk/gwas/api/v1/summary_statistics?file_type=summary_statistics&file_format=bed` (filtering specifically for 'lead' variants) and calculate overlap enrichment ratios.
-- [ ] T028 [US3] Implement `code/statistics.py` to apply **Storey-Tibshirani FDR correction** (primary) as authorized by FR-006, and verify it satisfies dependence structure requirements. **Fallback**: West-Stephens max-T only if Storey-Tibshirani is inapplicable.
+- [ ] T027 [US3] Implement `code/statistics.py` to download/load **GWAS Catalog lead SNPs** (BED format) from `ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/` (filtering specifically for 'lead' variants) and calculate overlap enrichment ratios. **Note**: Ensure the data source is filtered for lead SNPs, not generic summary statistics. Use the file with the most recent modification timestamp available at runtime.
+- [ ] T028 [US3] Implement `code/statistics.py` to apply **West-Stephens max-T permutation FDR** method to the p-values generated from the permutation tests across all TFs. This method MUST preserve the joint distribution of scores across correlated TF motifs by permuting the GWAS status labels across the entire dataset simultaneously for each permutation iteration (per FR-006).
 - [ ] T029 [US3] Save final results to `data/derived/enrichment_results.parquet` including p-values, FDR, enrichment ratios, and high-impact SNP lists
 - [ ] T030 [US3] Implement `tests/unit/test_statistics.py` to verify permutation logic and FDR calculation
 - [ ] T031 [US3] Implement `tests/integration/test_enrichment_pipeline.py` to verify end-to-end statistical analysis on synthetic data
@@ -135,8 +138,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -203,9 +206,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

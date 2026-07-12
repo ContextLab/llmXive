@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SNP Filtered Schema"
-description: "Schema for filtered SNPs located within regulatory regions."
+description: "Schema for filtered SNPs located within regulatory regions. Includes LD block and stratum IDs for stratified permutation testing."
 type: "object"
 properties:
   snp_id:
@@ -40,6 +40,12 @@ properties:
   overlap_region_id:
     type: "string"
     description: "ID of the overlapping regulatory region."
+  ld_block_id:
+    type: "string"
+    description: "Identifier for the Linkage Disequilibrium (LD) block this SNP belongs to. Used for stratified permutation to preserve local correlation structure."
+  stratum_id:
+    type: "string"
+    description: "Composite ID for GC-content and TSS-distance bin. Used for stratified permutation to control for genomic confounders."
 required:
   - snp_id
   - chromosome
@@ -50,4 +56,6 @@ required:
   - quality_score
   - regulatory_type
   - overlap_region_id
+  - ld_block_id
+  - stratum_id
 additionalProperties: false

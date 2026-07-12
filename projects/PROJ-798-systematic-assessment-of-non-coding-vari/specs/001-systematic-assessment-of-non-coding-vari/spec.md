@@ -1,8 +1,8 @@
 # Feature Specification: Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities
 
-**Feature Branch**: `001-gene-regulation`  
-**Created**: 2026-07-10  
-**Status**: Draft  
+**Feature Branch**: `001-gene-regulation`
+**Created**: 2026-07-10
+**Status**: Draft
 **Input**: User description: "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities"
 
 ## User Scenarios & Testing
@@ -63,18 +63,18 @@ The researcher must be able to aggregate $\Delta Score$ distributions per TF, pe
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download common human SNPs (MAF > 1%) from dbSNP build 155 (GRCh38) via the explicit FTP path `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/` and filter them to those located within annotated regulatory regions (promoters/enhancers) using ENCODE v4 (URL: `https://www.encodeproject.org/files/ENCFF000...`) and Roadmap Epigenomics BED files. Additionally, the system MUST generate a non-regulatory control set of SNPs from random genomic regions matched for GC content (within ±2% of the matched SNP's GC%) to establish a valid baseline and mitigate ascertainment bias. (See US-1)
-- **FR-002**: System MUST load JASPAR 2024 PWMs for human TFs and calculate binding affinity scores for both reference and alternate alleles of each filtered SNP using a **dynamic context window** where the window size equals the PWM length (centered on the variant). (See US-2)
-- **FR-003**: System MUST compute the difference in binding affinity ($\Delta Score = Score_{alt} - Score_{ref}$) for every valid SNP-TF pair, and ONLY flag results as 'biologically significant' if the absolute $\Delta Score$ is ≥ 2 bits. (See US-2)
-- **FR-004**: System MUST perform a permutation test (n=100) by **shuffling SNP labels** (swapping ref/alt scores within the same SNP) to generate a null distribution for each TF's $\Delta Score$ distribution, preserving the local sequence context and GC content. (See US-3)
-- **FR-005**: System MUST assess the enrichment of $\Delta Scores$ in GWAS loci using a **Kolmogorov-Smirnov (KS) test** on the FULL distribution of scores (not a top-k subset) against the null distribution, cross-referencing with GWAS Catalog lead SNPs from `ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/` (downloaded on [DATE]), ensuring the test accounts for the baseline regulatory enrichment. (See US-3)
-- **FR-006**: System MUST apply a **West-Stephens max-T permutation FDR** method to the p-values generated from the permutation tests across all TFs. This method MUST preserve the joint distribution of scores across correlated TF motifs by permuting SNP labels across all TFs simultaneously, and MUST use the Benjamini-Hochberg procedure for initial correction if West-Stephens is not fully implemented, to control the false discovery rate. (See US-3)
+- **FR-001**: System MUST download common human SNPs (MAF > 1%) from dbSNP build 155 (GRCh38) via the explicit FTP path `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/` and filter them to those located within annotated regulatory regions (promoters/enhancers) using ENCODE v4 (source: ` manifest for promoters and enhancers) and Roadmap Epigenomics BED files. Additionally, the system MUST generate a non-regulatory control set of SNPs from random genomic regions matched for GC content (within ±2% of the matched SNP's GC%) to establish a valid baseline and mitigate ascertainment bias. (See US-1)
+- **FR-002**: The research question is to determine the efficacy of position weight matrices in predicting transcription factor binding sites. The method involves loading JASPAR PWMs for human transcription factors and performing motif scanning. References: [DOI/Author-Year]. and calculate binding affinity scores for both reference and alternate alleles of each filtered SNP using a **dynamic context window** where the window size equals the PWM length (centered on the variant). (See US-2)
+- **FR-003**: System MUST compute the difference in binding affinity ($\Delta Score = Score_{alt} - Score_{ref}$) for every valid SNP-TF pair, and output a boolean flag `is_large_magnitude` where true if the absolute $\Delta Score$ is ≥ 2 bits. This flag is for reporting purposes only and MUST NOT be used to filter the input data for statistical tests. (See US-2)
+- **FR-004**: System MUST perform a permutation test (n=100) by **randomly reassigning the 'in-GWAS' or 'out-of-GWAS' status labels** to SNPs while preserving the total count of GWAS and non-GWAS SNPs, to generate a null distribution for each TF's $\Delta Score$ distribution, preserving the local sequence context and GC content. (See US-3)
+- **FR-005**: System MUST assess the enrichment of $\Delta Scores$ in GWAS loci using a **Kolmogorov-Smirnov (KS) test** on the **FULL unfiltered distribution** of scores for SNPs *inside* GWAS loci against the distribution of scores for SNPs *outside* GWAS loci (or the matched control set), cross-referencing with GWAS Catalog lead SNPs from `ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/` (source: file with most recent modification timestamp available at runtime), ensuring the test accounts for the baseline regulatory enrichment. (See US-3)
+- **FR-006**: System MUST apply a **West-Stephens max-T permutation FDR** method to the p-values generated from the permutation tests across all TFs. This method MUST preserve the joint distribution of scores across correlated TF motifs by permuting the GWAS status labels across the entire dataset simultaneously for each permutation iteration, ensuring the unit of permutation is consistent with FR-004. (See US-3)
 - **FR-007**: System MUST calculate and output a p-value for each TF indicating the statistical significance of the enrichment test (KS statistic) derived from the comparison of the observed distribution against the null distribution. (See US-3)
 - **FR-008**: System MUST apply a significance threshold of α = 0.05 (corrected for multiple testing) to the output p-values to determine which TFs are significantly enriched. (See US-3)
 
 ### Non-Functional Requirements
 
-- **NFR-001**: The full analysis pipeline (data fetch to final report) MUST complete within 6 hours on a standard free-tier CI runner (2 CPU, 7GB RAM) by utilizing batched processing and limiting permutation counts to 100 per TF. (See Assumptions)
+- **NFR-001**: The full analysis pipeline (data fetch to final report) MUST complete within 6 hours on a standard free-tier CI runner (2 CPU, 7GB RAM) by utilizing batched processing and limiting permutation counts to a sufficient number per TF. (See Assumptions)
 - **NFR-002**: The memory usage of the affinity scoring and permutation steps MUST remain within the available RAM limits of standard CI runners to ensure no OOM failures. (See Assumptions)
 
 ### Key Entities
@@ -102,7 +102,7 @@ The researcher must be able to aggregate $\Delta Score$ distributions per TF, pe
 - **Assumption about data availability**: The dbSNP FTP server (build 155) and JASPAR database are accessible and provide the required datasets (common SNPs, human PWMs) in a format parseable by standard Python libraries (biopython, pandas) without requiring proprietary credentials.
 - **Assumption about computational constraints**: The total dataset of common SNPs (MAF > 1%) from dbSNP build 155 (source: dbSNP Common release, size [deferred]) will fit within the 7 GB RAM limit of the free-tier CI runner when processed in batches or via memory-mapped files; no GPU is required or available for this analysis.
 - **Assumption about methodology**: The use of Position Weight Matrices (PWMs) from JASPAR is an accepted and valid proxy for TF binding affinity changes, despite ignoring chromatin accessibility and cooperative binding effects, as per the study's scope.
-- **Assumption about threshold justification**: The "2 bits" cutoff for biological significance is a standard threshold in the field for log-odds score changes; a sensitivity analysis sweeping this cutoff over {1.5, 2.0, 2.5} bits will be performed to verify result robustness.
+- **Assumption about threshold justification**: The "2 bits" cutoff for biological significance is a standard threshold in the field for log-odds score changes; a sensitivity analysis sweeping this cutoff over a range of bit values will be performed to verify result robustness.
 - **Assumption about inference framing**: Since this is an observational study using existing GWAS data, all conclusions regarding "disruption" and "enrichment" will be framed as associational, not causal, in the final report.
 - **Assumption about dataset-variable fit**: The ENCODE/Roadmap BED files provided contain the necessary regulatory annotations to accurately define the "regulatory regions" for the SNPs; if a specific tissue context is required but missing, the analysis will default to a union of all available enhancer/promoter annotations.
-- **Assumption about runtime**: The reduction of permutation counts to 100 per TF and the use of batched processing will ensure the analysis completes within the 6-hour runtime constraint on a 2-CPU runner.
+- **Assumption about runtime**: The reduction of permutation counts to a manageable subset per TF and the use of batched processing will ensure the analysis completes within the 6-hour runtime constraint on a 2-CPU runner.

@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SNP Dataset Schema"
+description: "Schema for the filtered and scored SNP dataset used in the analysis. Includes LD block and stratification IDs for robust permutation testing."
+type: "object"
+properties:
+  chromosome:
+    type: "string"
+    description: "Chromosome identifier (e.g., 'chr1')."
+  position:
+    type: "integer"
+    description: "1-based genomic position."
+  reference_allele:
+    type: "string"
+    pattern: "^[ACGT]$"
+    description: "Reference nucleotide."
+  alternate_allele:
+    type: "string"
+    pattern: "^[ACGT]$"
+    description: "Alternate nucleotide."
+  maf:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Minor Allele Frequency."
+  gc_content:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "GC content of the local context window."
+  is_regulatory:
+    type: "boolean"
+    description: "True if overlapping a promoter/enhancer."
+  is_gwas_lead:
+    type: "boolean"
+    description: "True if present in GWAS Catalog lead SNPs."
+  ld_block_id:
+    type: "string"
+    description: "Identifier for the LD block this SNP belongs to (preserves correlation structure)."
+  stratum_id:
+    type: "string"
+    description: "Composite ID for GC-content and TSS-distance bin (used for stratified permutation)."
+  delta_score:
+    type: "number"
+    description: "Difference in binding affinity (Alt - Ref)."
+  is_large_magnitude:
+    type: "boolean"
+    description: "True if absolute delta_score >= 2 bits."
+required:
+  - chromosome
+  - position
+  - reference_allele
+  - alternate_allele
+  - maf
+  - gc_content
+  - is_regulatory
+  - is_gwas_lead
+  - ld_block_id
+  - stratum_id
+  - delta_score
+  - is_large_magnitude
+additionalProperties: false

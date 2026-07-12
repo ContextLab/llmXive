@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Enrichment Result Schema"
+description: "Schema for the statistical enrichment results per Transcription Factor. Includes both KS and Tail-Enrichment test results."
+type: "object"
+properties:
+  motif_id:
+    type: "string"
+    description: "Unique identifier for the PWM (e.g., MA0001.1)."
+  tf_name:
+    type: "string"
+    description: "Name of the Transcription Factor."
+  ks_statistic:
+    type: "number"
+    description: "Kolmogorov-Smirnov test statistic."
+  p_value_ks_observed:
+    type: "number"
+    description: "Raw p-value from the KS test."
+  p_value_ks_corrected:
+    type: "number"
+    description: "West-Stephens max-T permutation FDR corrected p-value for KS test."
+  tail_proportion_observed:
+    type: "number"
+    description: "Observed proportion of SNPs with |DeltaScore| >= 2 bits."
+  tail_p_value:
+    type: "number"
+    description: "P-value from the Tail-Enrichment (Proportion) test."
+  is_significant_ks:
+    type: "boolean"
+    description: "True if p_value_ks_corrected < 0.05."
+  is_significant_tail:
+    type: "boolean"
+    description: "True if tail_p_value < 0.05."
+  permutation_count:
+    type: "integer"
+    description: "Number of permutations used (fixed at 100)."
+  n_snps_tested:
+    type: "integer"
+    description: "Total number of SNPs scored for this TF."
+required:
+  - motif_id
+  - tf_name
+  - ks_statistic
+  - p_value_ks_observed
+  - p_value_ks_corrected
+  - tail_proportion_observed
+  - tail_p_value
+  - is_significant_ks
+  - is_significant_tail
+  - permutation_count
+  - n_snps_tested
+additionalProperties: false

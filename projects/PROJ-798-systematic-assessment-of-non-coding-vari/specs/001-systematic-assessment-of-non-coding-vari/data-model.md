@@ -1,83 +1,55 @@
 # Data Model: Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities
 
-## 1. Overview
+## 1. Core Entities
 
-This document defines the data structures, schemas, and flow for the project. All artifacts adhere to the **Data Hygiene** principle (checksums, immutable raw data, derived artifacts).
+### 1.1 SNP (Variant)
+Represents a genomic variant.
+- `chromosome` (str): Chromosome identifier (e.g., "chr1").
+- `position` (int): 1-based genomic position.
+- `reference_allele` (str): Reference nucleotide (A, C, G, T).
+- `alternate_allele` (str): Alternate nucleotide (A, C, G, T).
+- `maf` (float): Minor Allele Frequency.
+- `gc_content` (float): GC content of the local context window.
+- `is_regulatory` (bool): True if overlapping a promoter/enhancer.
+- `is_gwas_lead` (bool): True if present in GWAS Catalog lead SNPs.
+- `ld_block_id` (str): Identifier for the LD block this SNP belongs to (derived from index SNP proximity).
+- `stratum_id` (str): Composite ID for GC-content and TSS-distance bin (used for stratified permutation).
 
-## 2. Entity Definitions
+### 1.2 PWM (Motif)
+Represents a Transcription Factor binding motif.
+- `motif_id` (str): Unique identifier (e.g., "MA0001.1").
+- `tf_name` (str): Transcription Factor name.
+- `matrix` (list of list of float): Position Weight Matrix (4 x L).
+- `length` (int): Length of the motif (L).
 
-### 2.1 SNP (Variant)
-A genomic variant characterized by chromosome, position, reference allele, alternate allele, Minor Allele Frequency (MAF), and Quality Score.
-- **Source**: dbSNP (Common)
-- **Filter**: MAF > 0.01, Alleles in {A, C, G, T}, Quality Score > 20.
+### 1.3 AffinityScore
+Result of scoring a SNP against a PWM.
+- `snp_id` (str): Unique identifier for the SNP (e.g., "chr1:12345:A:G").
+- `motif_id` (str): The PWM used.
+- `score_ref` (float): Log-odds score for reference allele.
+- `score_alt` (float): Log-odds score for alternate allele.
+- `delta_score` (float): $Score_{alt} - Score_{ref}$.
+- `is_large_magnitude` (bool): True if $|\Delta Score| \ge 2$.
 
-### 2.2 RegulatoryRegion
-A genomic interval annotated as a promoter or enhancer.
-- **Source**: ENCODE/Roadmap
-- **Attributes**: Chromosome, Start, End, Strand, Type (Promoter/Enhancer).
+### 1.4 EnrichmentResult
+Statistical test output per TF.
+- `motif_id` (str): The TF tested.
+- `ks_statistic` (float): KS test statistic.
+- `p_value_observed` (float): Raw p-value from KS test.
+- `p_value_corrected` (float): West-Stephens FDR corrected p-value.
+- `is_significant` (bool): True if $p_{corrected} < 0.05$.
 
-### 2.3 PWM (Position Weight Matrix)
-A matrix representing the binding preference of a TF.
-- **Source**: JASPAR 2024
-- **Attributes**: TF ID, Name, Matrix (4 x L), Log-odds thresholds.
+## 2. Data Flow
 
-### 2.4 AffinityScore
-The log-odds score of a sequence matching a PWM.
-- **Attributes**: Sequence, PWM_ID, Score (float), Type (Ref/Alt).
+1.  **Raw Input**: VCF (dbSNP), BED (ENCODE), Matrix (JASPAR), BED (GWAS).
+2.  **Intermediate**:
+    - `filtered_snps.parquet`: SNPs with regulatory flags, LD block IDs, and strata.
+    - `scores.parquet`: All SNP-TF $\Delta Score$ pairs.
+    - `null_distributions.npy`: Permutation results (stratified).
+3.  **Final Output**:
+    - `results_summary.csv`: Aggregated enrichment results.
+    - `report.md`: Human-readable summary.
 
-### 2.5 DeltaScore
-The difference in affinity between alternate and reference alleles.
-- **Attributes**: SNP_ID, PWM_ID, DeltaScore (float).
+## 3. Schema Definitions
 
-### 2.6 EnrichmentResult
-The statistical result of the GWAS overlap test.
-- **Attributes**: PWM_ID, Observed_Overlap, Expected_Overlap, Enrichment_Ratio, P_Value, FDR_Adjusted_P.
-
-## 3. Artifact Flow
-
-1.  **Raw Data**: `data/raw/snp_common.vcf.gz`, `data/raw/pwm_jaspar.txt`, `data/raw/regulatory_regions.bed`.
-2.  **Derived Data**:
-    - `data/derived/filtered_snps.parquet`: SNPs within regulatory regions, MAF > 1%.
-    - `data/derived/scores.parquet`: $\Delta Score$ for all valid SNP-TF pairs.
-    - `data/derived/null_distributions.parquet`: Permutation results.
-    - `data/derived/enrichment_results.csv`: Final statistical outputs.
-3.  **Reports**: `paper/figures/`, `paper/results.md`.
-
-## 4. Schema Definitions
-
-### 4.1 Filtered SNPs Schema
-- `snp_id`: string (rsID)
-- `chromosome`: string (chr1, chr2...)
-- `position`: integer (1-based)
-- `ref_allele`: string (A/C/G/T)
-- `alt_allele`: string (A/C/G/T)
-- `maf`: float (0.01 - 0.5)
-- `quality_score`: float (Phred-scaled quality score)
-- `regulatory_type`: string (promoter/enhancer)
-- `overlap_region_id`: string (BED region ID)
-
-### 4.2 Delta Score Schema
-- `snp_id`: string
-- `pwm_id`: string
-- `delta_score`: float
-- `score_ref`: float
-- `score_alt`: float
-- `context_sequence`: string
-
-### 4.3 Enrichment Schema
-- `pwm_id`: string
-- `tf_name`: string
-- `n_snps_tested`: integer
-- `observed_gwas_overlap`: integer
-- `expected_gwas_overlap`: float
-- `enrichment_ratio`: float
-- `p_value_raw`: float
-- `p_value_fdr`: float
-- `significance`: boolean (True if FDR < 0.05)
-
-## 5. Constraints & Validation
-
-- **Alleles**: Must be A, C, G, T. Any other character causes exclusion.
-- **Coordinates**: 1-based, GRCh38.
-- **MAF**: Strictly > 0.01.
-- **Permutations**: Must be constrained to the same regulatory region type (for baseline comparison).
+See `contracts/` for detailed YAML schemas.
