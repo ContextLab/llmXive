@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Extraction and Feature Engineering (Priority: P1)
 
-**Journey**: The system ingests the Intern-Atlas graph snapshot and external retraction/replication databases to compute topological features (Bottleneck Resolution Ratio, Branching Entropy) for every method node published between 2010 and 2018, resulting in a structured dataset ready for modeling.
+**Journey**: The system ingests the Intern-Atlas graph snapshot and external retraction/replication databases to compute topological features (Bottleneck Resolution Ratio, Branching Entropy) for every method node published in a defined historical period, resulting in a structured dataset ready for modeling.
 
 **Why this priority**: Without a clean, labeled dataset derived from the graph and external truth sources, no analysis or prediction is possible. This is the foundational data pipeline.
 
@@ -102,7 +102,7 @@
 - The Intern-Atlas graph snapshot contains typed edges (e.g., `improves`, `extends`, `replaces`) for at least 80% of the nodes published between 2010 and 2018.
 - The edge types in the Intern-Atlas graph are derived from human-annotated metadata or a validated ontology, not from LLM inference on paper text, to prevent semantic leakage with the retraction label.
 - The Retraction Watch Database and Replication Index contain sufficient records for papers published between 2010 and 2018 to create a balanced or near-balanced dataset for binary classification.
-- The "Bottleneck Resolution Ratio" and "Branching Entropy" are computable within the ~7 GB RAM limit of the CI runner using standard Python libraries (networkx, numpy) without requiring GPU acceleration.
+- The "Bottleneck Resolution Ratio" and "Branching Entropy" are computable within the standard RAM constraints of the CI runner using standard Python libraries (networkx, numpy) without requiring GPU acceleration.
 - The relationship between graph topology and retraction status is associational, not causal, given the observational nature of the data (no random assignment of research methods).
 - The dataset fits within the disk limit of the CI runner; if the graph is larger, a random sample of [deferred] nodes will be used for the analysis.
 - The classification threshold of 0.5 is used as the default, with sensitivity analysis performed to justify any deviation (as per FR-008).

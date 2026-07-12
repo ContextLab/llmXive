@@ -1,58 +1,73 @@
-# Data Model: llmXive follow-up: extending "Intern-Atlas"
+# Data Model: Extending Intern-Atlas
 
-## Entities & Relationships
+This document defines the schema for the core entities used in the llmXive follow-up study: `MethodNode`, `RetractionLabel`, and `TopologicalFeatures`.
+
+## Entity Relationship Diagram
+
+```mermaid
+erDiagram
+ MethodNode ||--o{ TopologicalFeatures: "has"
+ MethodNode ||--o{ RetractionLabel: "may_have"
+ MethodNode {
+ string doi "Primary Identifier"
+ string title "Method Title"
+ string year "Publication Year (2010-2018)"
+ string field_of_study "Research Domain"
+ string venue "Publication Venue"
+ int citation_count "Total Citations"
+ }
+ TopologicalFeatures {
+ float bottleneck_resolution_ratio "Ratio of improves/replaces edges to total outgoing"
+ float branching_entropy "Shannon entropy of downstream method types"
+ int outgoing_edge_count "Total outgoing edges"
+ int improves_count "Count of 'improves' edges"
+ int replaces_count "Count of 'replaces' edges"
+ }
+ RetractionLabel {
+ string reason "Retraction reason (e.g., methodological error, fraud)"
+ int status_code "0=Robust, 1=Fragile, 2=Retraction-Only"
+ date retraction_date "Date of retraction"
+ string journal "Journal of retraction"
+ }
+```
+
+## Entity Definitions
 
 ### MethodNode
-- **Description**: A node representing a research method in the Intern-Atlas graph.
-- **Attributes**:
-  - `paper_id` (str): Unique identifier (DOI or internal ID).
-  - `title` (str): Paper title.
-  - `year` (int): Publication year.
-  - `outgoing_edges` (list): List of edge objects.
-  - `incoming_citations` (int): Total citation count.
-  - `field_of_study` (str): Subject area.
-  - `venue` (str): Journal/Conference name.
+Represents a scientific method or paper within the Intern-Atlas graph.
 
-### RetractionLabel
-- **Description**: External truth label mapped to a MethodNode.
-- **Attributes**:
-  - `paper_id` (str): Matched ID.
-  - `status` (int): 0 (Robust), 1 (Fragile), 2 (Retraction-Only).
-  - `source` (str): "Retraction Watch" or "Replication Index".
-  - `retraction_reason` (str): Reason for retraction.
+| Field | Type | Description | Constraints |
+|:--- |:--- |:--- |:--- |
+| `doi` | string | Digital Object Identifier | Unique, non-null |
+| `title` | string | Title of the method/paper | Non-null |
+| `year` | int | Publication year | Range: 2010-2018 |
+| `field_of_study` | string | Research domain | Non-null |
+| `venue` | string | Publication venue (journal/conference) | Non-null |
+| `citation_count` | int | Total number of citations | >= 0 |
 
 ### TopologicalFeatures
-- **Description**: Derived record for analysis.
-- **Attributes**:
-  - `paper_id` (str): Primary key.
-  - `bottleneck_resolution_ratio` (float): Calculated BRR.
-  - `branching_entropy` (float): Calculated BE.
-  - `citation_count` (int): Total citations.
-  - `publication_year` (int): Year.
-  - `retraction_status` (int): Label (0, 1, 2).
-  - `field_of_study` (str): Field.
-  - `venue` (str): Venue.
-  - **Note**: BRR and BE are mathematically coupled (derived from same edge distribution). High correlation is expected. **If VIF > 5, the model will be re-run using only 'branching_entropy' or a composite metric, and this will be reported as a sensitivity analysis.**
+Derived metrics calculated from the graph structure surrounding a `MethodNode`.
 
-### ModelResult
-- **Description**: Output of model training/evaluation.
-- **Attributes**:
-  - `model_type` (str): "Topological" or "Baseline".
-  - `auc_roc` (float): Area Under ROC Curve.
-  - `precision` (float).
-  - `recall` (float).
-  - `f1_score` (float).
-  - `stability_flag` (bool): True if VIF > 5 or MI > 0.1.
-  - `structural_coupling_handled` (bool): True if the model was re-run due to high VIF.
+| Field | Type | Description | Constraints |
+|:--- |:--- |:--- |:--- |
+| `doi` | string | Foreign Key to MethodNode | Unique per node |
+| `bottleneck_resolution_ratio` | float | (improves + replaces edges) / total outgoing edges | Range: [0.0, 1.0] |
+| `branching_entropy` | float | Shannon entropy of downstream method types | >= 0.0 |
+| `outgoing_edge_count` | int | Total outgoing edges in the graph | >= 0 |
+| `improves_count` | int | Count of outgoing 'improves' edges | >= 0 |
+| `replaces_count` | int | Count of outgoing 'replaces' edges | >= 0 |
 
-## Data Flow
-1. **Raw Input**: `intern-atlas-snapshot.graphml`, `retraction-watch-dump.csv`.
-2. **Intermediate**: `nodes_filtered.csv` (2010-2018).
-3. **Derived**: `features_2010_2018.csv` (merged with labels, fuzzy matching applied).
-4. **Output**: `model_results.json`, `plots/`.
+### RetractionLabel
+Ground truth label indicating the robustness status of a method, mapped from retraction databases.
 
-## Constraints
-- **Date Range**: 2010-01-01 to 2018-12-31.
-- **Edge Types**: Only human-annotated `improves`/`replaces`/`extends` allowed for BRR calculation. **Exclude** any edge types linked to retraction outcomes (e.g., 'retracted').
-- **Label Logic**: Strict mapping based on retraction reason.
-- **Matching**: Exact DOI first, then Levenshtein >= 0.85.
+| Field | Type | Description | Constraints |
+|:--- |:--- |:--- |:--- |
+| `doi` | string | Foreign Key to MethodNode | Unique per node (if exists) |
+| `reason` | string | Specific reason for retraction | Matches constants (e.g., "methodological error") |
+| `status_code` | int | Categorical label | 0=Robust, 1=Fragile, 2=Retraction-Only |
+| `retraction_date` | date | Date the retraction was issued | Optional |
+| `journal` | string | Journal where retraction appeared | Optional |
+
+## JSON Schema Reference
+
+The formal JSON Schema for these entities is defined in `data-model.schema.json`.

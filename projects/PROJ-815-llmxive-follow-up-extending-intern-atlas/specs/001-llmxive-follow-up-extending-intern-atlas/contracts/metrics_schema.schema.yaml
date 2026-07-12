@@ -1,0 +1,132 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelMetricsSchema
+description: Schema for the final results metrics file.
+type: object
+properties:
+  topological_model:
+    type: object
+    properties:
+      auc_roc:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      precision:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      f1_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      coefficients:
+        type: object
+        description: "Map of feature name to coefficient value."
+      stability_flag:
+        type: boolean
+        description: "True if VIF > 5 or MI > 0.1."
+    required:
+      - auc_roc
+      - precision
+      - recall
+      - f1_score
+      - coefficients
+      - stability_flag
+  baseline_model:
+    type: object
+    properties:
+      auc_roc:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      precision:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      f1_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      coefficients:
+        type: object
+        description: "Map of feature name to coefficient value."
+    required:
+      - auc_roc
+      - precision
+      - recall
+      - f1_score
+      - coefficients
+  robustness:
+    type: object
+    properties:
+      permutation_test:
+        type: object
+        properties:
+          n_iterations:
+            type: integer
+            enum: [100]
+            description: "Number of permutation iterations (must be 100 per FR-007)."
+          mean_permuted_auc:
+            type: number
+          std_dev_permuted_auc:
+            type: number
+          observed_auc:
+            type: number
+          is_significant:
+            type: boolean
+            description: "True if observed_auc > mean + 2*std."
+        required:
+          - n_iterations
+          - mean_permuted_auc
+          - std_dev_permuted_auc
+          - observed_auc
+          - is_significant
+      threshold_sweep:
+        type: array
+        items:
+          type: object
+          properties:
+            threshold:
+              type: number
+              enum: [0.3, 0.5, 0.7]
+            fpr:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+            fnr:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+          required:
+            - threshold
+            - fpr
+            - fnr
+      collinearity:
+        type: object
+        properties:
+          vif_bottleneck:
+            type: number
+          vif_entropy:
+            type: number
+          mi_bottleneck_entropy:
+            type: number
+        required:
+          - vif_bottleneck
+          - vif_entropy
+          - mi_bottleneck_entropy
+    required:
+      - permutation_test
+      - threshold_sweep
+      - collinearity
+required:
+  - topological_model
+  - baseline_model
+  - robustness
+additionalProperties: false

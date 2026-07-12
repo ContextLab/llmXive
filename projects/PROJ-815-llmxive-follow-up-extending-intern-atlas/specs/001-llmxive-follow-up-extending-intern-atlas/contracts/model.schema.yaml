@@ -32,16 +32,15 @@ properties:
   stability_flag:
     type: boolean
     description: True if VIF > 5 or MI > 0.1, indicating potential instability.
-  structural_coupling_handled:
-    type: boolean
-    description: True if the model was re-run due to high VIF between BRR and BE.
   permutation_count:
     type: integer
-    description: Number of permutations performed (should be 1000).
-    minimum: 1000
+    description: Number of permutations performed (must be 100 per FR-007).
+    enum:
+      - 100
+    minimum: 100
   permutation_mean_auc:
     type: number
-    description: Mean AUC from permutation test (n=1000).
+    description: Mean AUC from permutation test (n=100).
     minimum: 0.0
     maximum: 1.0
   permutation_std_auc:
@@ -69,9 +68,9 @@ properties:
     example:
       - "field_of_study"
       - "publication_venue"
-  is_synthetic_analysis:
+  covariate_adjustment_applied:
     type: boolean
-    description: True if the analysis was run on synthetic data (Code Validation Mode).
+    description: True if the mandatory covariate adjustment (FR-012) was performed.
 required:
   - model_type
   - auc_roc
@@ -79,7 +78,6 @@ required:
   - recall
   - f1_score
   - stability_flag
-  - structural_coupling_handled
   - permutation_count
   - permutation_mean_auc
   - permutation_std_auc
@@ -87,4 +85,5 @@ required:
   - vif_be
   - mi_score
   - stratification_keys
-  - is_synthetic_analysis
+  - covariate_adjustment_applied
+additionalProperties: false

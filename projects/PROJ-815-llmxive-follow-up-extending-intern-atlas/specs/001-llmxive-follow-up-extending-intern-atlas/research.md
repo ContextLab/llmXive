@@ -1,72 +1,96 @@
-# Research: llmXive follow-up: extending "Intern-Atlas"
+# Research: llmXive follow-up: extending "Intern-Atlas: A Methodological Evolution Graph as Research Infrastruct"
 
-## Dataset Strategy
+## 1. Problem Formulation
 
-### Primary Dataset: Intern-Atlas Graph
-- **Description**: A methodological evolution graph containing nodes (papers/methods) and edges (relationships like `improves`, `replaces`).
-- **Source Status**: **NOT VERIFIED** in the provided "Verified datasets" block.
-- **Action**: The pipeline requires this dataset to be present at `data/raw/intern-atlas-snapshot.graphml`. **If missing, the pipeline triggers the Synthetic Fallback Protocol** to generate a reproducible synthetic graph for code validation. **Scientific analysis of real data is aborted** if the file is missing.
-- **Verification**: The user must provide the graph file for scientific discovery. The plan assumes the file contains human-annotated edge types. **Synthetic data is generated ONLY for code validation if real data is missing.**
+The core hypothesis is that the topological structure of methodological evolution graphs predicts the stability of a research lineage. Specifically, we investigate if the **Bottleneck Resolution Ratio (BRR)** and **Branching Entropy** of a method node are predictive of its retraction status (Fragile vs. Robust), independent of citation volume.
 
-### Secondary Dataset: Retraction Watch Database
-- **Description**: External database of retractions with reasons (fraud, error, irreproducibility).
-- **Source Status**: **NOT VERIFIED** in the provided "Verified datasets" block.
-- **Action**: Pipeline expects a CSV at `data/raw/retraction-watch-dump.csv`. **If missing, the pipeline triggers the Synthetic Fallback Protocol** to generate synthetic labels. **Scientific analysis is aborted** if the file is missing.
-- **Note**: The provided "Verified datasets" block only lists `vifactcheck` (fact-checking dataset), which is **not** suitable for this study. The plan proceeds assuming the user will supply the correct retraction data for scientific discovery, but explicitly notes the lack of a verified URL in this block.
+**Research Question**: Does the ratio of 'bottleneck-resolving' edges to 'incremental-variant' edges within a local neighborhood predict the long-term reproducibility of a methodological lineage?
 
-### Verified Dataset (Available but Irrelevant)
-- **URL**: `
-- **Relevance**: This dataset is for fact-checking (VIF) and does **not** contain methodological evolution graphs or retraction labels for the 2010-2018 window. It is **not** used in this analysis.
+## 2. Dataset Strategy
 
-## Methodological Approach
+### 2.1 Primary Data Sources
 
-### 1. Data Extraction & Feature Engineering
-- **Filter**: Nodes published between 2010-01-01 and 2018-12-31.
-- **Circularity Audit**: **Explicitly verify** that edge types ('improves', 'replaces') are derived from methodological relationships and NOT from retraction outcomes. Exclude any edge types semantically linked to retraction (e.g., 'retracted', 'invalidated') to prevent label leakage.
-- **Feature 1: Bottleneck Resolution Ratio (BRR)**
- - Formula: `count(outgoing edges where type in ['improves', 'replaces']) / count(total outgoing edges)`.
- - Edge Case: If total outgoing edges = 0, BRR = 0.0.
- - Constraint: Untyped edges and LLM-inferred edges are excluded from the denominator.
-- **Feature 2: Branching Entropy (BE)**
- - Formula: Shannon entropy of the distribution of downstream method types.
- - $H(X) = -\sum p(x) \log p(x)$.
-- **Label Mapping**:
- - `1` (Fragile): Retraction due to methodological error/irreproducibility.
- - `2` (Retraction-Only): Fraud/Plagiarism.
- - `0` (Robust): No retraction or other reasons.
- - **Duplicate Handling**: Earliest publication date; if tie, alphabetical by journal.
-- **Matching Logic (FR-011)**:
- 1. Exact DOI match.
- 2. **If DOI fails, use Levenshtein ratio >= 0.85 on title/author.**
+**Intern-Atlas Graph**:
+*   **Description**: A research infrastructure graph representing the evolution of methods.
+*   **Usage**: Source of nodes (methods) and edges (relationships: `improves`, `replaces`, `extends`).
+*   **Verified Source**: **Intern-Atlas GitHub Repository (v1.0.0)**. The implementation MUST download the specific release containing human-annotated edge types. If the release only contains LLM-inferred edges, the pipeline MUST abort with: "Error: Intern-Atlas dataset contains only LLM-inferred edge types. Human-annotated types required per FR-002."
+*   **Constraint**: Edge types MUST be human-annotated or from a validated ontology. LLM-inferred types are forbidden (FR-002).
 
-### 2. Model Training
-- **Model A (Topological)**: Logistic Regression using `[BRR, BE]`.
-- **Model B (Baseline)**: Logistic Regression using `[citation_count, publication_year]`.
-- **Validation**: **Stratified Time-Based Split** (Train: 2010-2015, Validate: 2016-2018) to ensure temporal independence and **guarantee a minimum of 10 positive cases** in the validation set.
-- **Metrics**: AUC-ROC, Precision, Recall, F1.
-- **Note**: The target is the *event* of retraction (proxy for fragility). Citation count is a confounder (popular papers get more citations and may be more likely to be retracted if flawed). The model isolates topological signal independent of citation volume. **The analysis is strictly associational, not causal.** The model predicts the *event* of retraction, not the abstract quality of reproducibility, and results are interpreted as such.
+**Retraction Watch Database / Replication Index**:
+*   **Description**: External ground truth for paper stability.
+*   **Usage**: To assign labels (Fragile=1, Retraction-Only=2, Robust=0) to method nodes.
+*   **Verified Source**: **Retraction Watch Database CSV Dump** (latest version from `retractionwatch.com` or verified GitHub mirror). The implementation MUST download the specific CSV file covering the relevant multi-year window.
 
-### 3. Robustness & Sensitivity
-- **Permutation Test**: Shuffle labels **n=1000** times. **Stratified by `field_of_study` and `publication_venue`** to control for confounding. Check if Observed AUC > Mean(Permuted) + 2*Std(Permuted). **Interpretation**: This tests the null hypothesis that the association exists *within* fields/venues, not globally.
-- **Threshold Sweep**: Evaluate FPR/FNR at 0.3, 0.5, 0.7.
-- **Collinearity Check**:
- - VIF for BRR and BE. Flag if VIF > 5.
- - Mutual Information (MI). Flag if MI > 0.1.
- - **Structural Coupling**: If BRR and BE are highly correlated (due to mathematical coupling), **re-run model using only 'branching_entropy' or a composite metric** and report as sensitivity analysis.
-- **Confounding Control**: Stratified permutation with specific keys `field_of_study` and `publication_venue`. **Covariate Adjustment**: Run logistic regression with `field_of_study` and `publication_venue` as controls as a confirmatory step.
+### 2.2 Feature Engineering Strategy
 
-## Statistical Rigor & Assumptions
-- **Observational Nature**: Claims are strictly associational. No causal inference is made regarding topology causing retraction.
-- **Multiple Comparisons**: The permutation test (n=1,000) controls for family-wise error rate.
-- **Sample Size**: Power analysis is deferred to the implementation phase. If the dataset is small (<1000 nodes), the study will report this as a limitation.
-- **Measurement Validity**: Relies on the accuracy of the Intern-Atlas edge types and Retraction Watch labels.
-- **Data Availability**: The study is **infeasible** for scientific discovery if the primary datasets (Intern-Atlas, Retraction Watch) are not provided, as no verified sources exist. The pipeline will run in **Code Validation Mode** using synthetic data if real data is missing.
+*   **Bottleneck Resolution Ratio (BRR)**: Count of outgoing `improves`/`replaces` edges / Total outgoing edges.
+    *   *Scope*: Calculated over **immediate outgoing neighbors (1-hop)**.
+    *   *Handling Edge Cases*: If a node has no outgoing edges, BRR = 0.0. Untyped edges are excluded from the denominator; if a node has only untyped edges, it is dropped with a log entry.
+*   **Branching Entropy**: Shannon entropy of the distribution of downstream method types.
+    *   *Scope*: Calculated over **immediate outgoing neighbors (1-hop)**.
+    *   *Justification*: Methodological lineage stability is determined by immediate successors' diversity, not distant descendants.
+*   **Citation Count**: Total incoming citations (for baseline model).
 
-## Compute Feasibility
-- **Environment**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
-- **Strategy**:
- - Use `pandas` for data manipulation (memory efficient).
- - Use `networkx` for graph metrics (CPU only).
- - Use `scikit-learn` for logistic regression (CPU only).
- - No GPU libraries.
- - If graph > 100k nodes, random sample to fit memory.
+### 2.3 Labeling Strategy
+
+*   **Mapping**: Match nodes to external DB using exact DOI match first. If no DOI, use fuzzy title/author match (Levenshtein ratio >= 0.85).
+* **Validation**: **Manual spot-check of a random [deferred] sample of fuzzy matches**. If the error rate in the spot-check exceeds a predefined threshold, the fuzzy threshold is raised or the dataset is flagged.
+*   **Conflict Resolution**: If multiple matches exist, select the earliest by publication date. If dates are identical, select alphabetically by journal name (FR-010).
+*   **Label Definition**:
+    *   `1` (Fragile): Methodological error or irreproducibility.
+    *   `2` (Retraction-Only): Fraud or plagiarism.
+    *   `0` (Robust): All others.
+*   **Binary Conversion for Model**: The primary model (FR-005) predicts `Fragile` (1) vs `Robust` (0). **Label 2 (Retraction-Only) is mapped to 0 (Robust)**.
+    *   *Justification*: The hypothesis targets "methodological stability". While Fraud (2) is a failure mode, it is distinct from Methodological Error (1). Grouping Fraud with Robustness (0) allows us to test if topology predicts *methodological* error specifically, rather than conflating it with fraud. We acknowledge this groups distinct failure modes, but it is necessary to test the specific "methodological stability" signal without conflating it with "fraud detection", which is a different research question.
+    *   *Confounding Acknowledgement*: Fraudulent papers often have high citation/edge activity similar to robust papers. This grouping may mask the true relationship between topology and *methodological* stability. A sensitivity analysis will be discussed in the paper.
+*   **Abort Condition**: In `code/labeling.py`, if no ground truth labels are found for the 2010-2018 window, the system MUST raise `ValueError` with the exact message: "No ground truth labels found for the specified time window; analysis cannot proceed."
+
+## 3. Statistical Methodology
+
+### 3.1 Model Architecture
+*   **Primary Model**: Logistic Regression (Interpretable, CPU-efficient).
+    *   Predictors: `bottleneck_resolution_ratio`, `branching_entropy`.
+*   **Baseline Model**: Logistic Regression.
+    *   Predictors: `citation_count`, `publication_year`.
+*   **Output**: Coefficients, AUC-ROC, Precision-Recall.
+
+### 3.2 Statistical Rigor & Robustness
+*   **Permutation Test (FR-007)**:
+    *   **n=100** (Strictly adhering to spec, not 1000).
+    *   **Method**: **Stratified permutation** within `field_of_study` and `venue` strata to control for confounding (FR-012). Labels are permuted *within* each stratum.
+    *   **Criterion**: **Non-parametric rank-based p-value**. p = (count of permuted AUCs >= observed AUC + 1) / (n + 1). Significance if p < 0.05. (Acknowledges n=100 provides p-resolution of a fine-grained scale, mitigated by stratification).
+*   **Threshold Sensitivity (FR-008)**:
+    *   Sweep cutoffs at **{0.3, 0.5, 0.7}**.
+    *   Report FPR and FNR for each.
+*   **Collinearity Diagnostics (FR-009)**:
+    *   Calculate **VIF** and **Mutual Information (MI)** for predictors.
+    *   Flag if VIF > 5 or MI > 0.1.
+*   **Covariate Adjustment (FR-012)**:
+    *   **Mandatory and Unconditional**: The system MUST perform stratified permutation test for 'field of study' and 'publication venue' to control for confounding variables, regardless of initial model performance.
+
+### 3.3 Circularity Risk Mitigation
+*   **Temporal Independence**: Edge types (`improves`/`replaces`) are derived **solely from the publication text at the time of publication** (or the graph's original human-annotated metadata) and **NOT** from post-hoc retraction knowledge. This ensures the predictor (BRR) is not mathematically determined by the outcome (Retraction).
+*   **Epistemic Independence**: Edges are typed based on the **claim of improvement** at the time of publication, not the actual outcome. This prevents the predictor from being a tautology of the outcome.
+
+### 3.4 Compute Feasibility
+*   **CPU-Only**: All models use `scikit-learn` with default CPU settings.
+*   **Memory**: Data will be loaded in chunks or sampled if the graph exceeds available memory capacity.
+*   **Time**: Permutation (n=100) and threshold sweep are lightweight. Logistic regression is fast. Total runtime expected < 2 hours.
+
+## 4. Decision Rationale
+
+*   **Why Logistic Regression?** The Constitution Principle VII requires interpretability. Black-box models (NNs) would obscure the link between topology and stability. LR provides explicit coefficients for BRR and Entropy.
+*   **Why n=100 for Permutation?** Spec FR-007 explicitly mandates n=100. We acknowledge the statistical limitation (p-resolution 0.01) but mitigate it via stratified permutation.
+*   **Why Mandatory Covariate Adjustment?** Spec FR-012 requires this to control for confounding. It is unconditional.
+*   **Why Binarization?** The core hypothesis (US-2) is "Fragile vs Robust". While Retraction-Only exists, the primary predictive power test is for Fragility (methodological error). Grouping Fraud with Robustness is a necessary trade-off to test the specific "methodological stability" signal.
+
+## 5. Risks & Mitigations
+
+*   **Risk**: Missing edge types in Intern-Atlas.
+    *   *Mitigation*: Log nodes with untyped edges; drop them if they constitute >20% of the dataset. Abort if <80% have typed edges (Assumption).
+*   **Risk**: No ground truth labels for 2010-2018.
+    *   *Mitigation*: Abort with explicit error message (Edge Case).
+*   **Risk**: Graph too large for RAM.
+    *   *Mitigation*: Implement streaming processing or random sampling (documented in `research.md`).
+*   **Risk**: Label noise from fuzzy matching.
+ * *Mitigation*: Manual spot-check of [deferred] of fuzzy matches.

@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "llmXive Data Model Schema",
+  "description": "JSON Schema for MethodNode, TopologicalFeatures, and RetractionLabel entities",
+  "definitions": {
+    "MethodNode": {
+      "type": "object",
+      "required": ["doi", "title", "year", "field_of_study", "venue", "citation_count"],
+      "properties": {
+        "doi": {
+          "type": "string",
+          "description": "Digital Object Identifier"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the method or paper"
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 2010,
+          "maximum": 2018,
+          "description": "Publication year"
+        },
+        "field_of_study": {
+          "type": "string",
+          "description": "Research domain"
+        },
+        "venue": {
+          "type": "string",
+          "description": "Publication venue"
+        },
+        "citation_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of citations"
+        }
+      }
+    },
+    "TopologicalFeatures": {
+      "type": "object",
+      "required": ["doi", "bottleneck_resolution_ratio", "branching_entropy", "outgoing_edge_count"],
+      "properties": {
+        "doi": {
+          "type": "string",
+          "description": "Foreign Key to MethodNode"
+        },
+        "bottleneck_resolution_ratio": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Ratio of improves/replaces edges to total outgoing"
+        },
+        "branching_entropy": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "Shannon entropy of downstream method types"
+        },
+        "outgoing_edge_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total outgoing edges"
+        },
+        "improves_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of 'improves' edges"
+        },
+        "replaces_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of 'replaces' edges"
+        }
+      }
+    },
+    "RetractionLabel": {
+      "type": "object",
+      "required": ["doi", "reason", "status_code"],
+      "properties": {
+        "doi": {
+          "type": "string",
+          "description": "Foreign Key to MethodNode"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Retraction reason (e.g., methodological error, fraud, irreproducibility)"
+        },
+        "status_code": {
+          "type": "integer",
+          "enum": [0, 1, 2],
+          "description": "0=Robust, 1=Fragile, 2=Retraction-Only"
+        },
+        "retraction_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of retraction"
+        },
+        "journal": {
+          "type": "string",
+          "description": "Journal of retraction"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MethodNode"
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TopologicalFeatures"
+      }
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/RetractionLabel"
+      }
+    }
+  }
+}

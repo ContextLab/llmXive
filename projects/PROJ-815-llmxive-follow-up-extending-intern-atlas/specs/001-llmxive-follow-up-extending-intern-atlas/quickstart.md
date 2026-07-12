@@ -1,55 +1,68 @@
-# Quickstart: llmXive follow-up: extending "Intern-Atlas"
+# Quickstart: llmXive follow-up: extending "Intern-Atlas: A Methodological Evolution Graph as Research Infrastruct"
 
 ## Prerequisites
-- Python 3.11+
-- `pip`
-- Access to `intern-atlas-snapshot.graphml` and `retraction-watch-dump.csv` (must be placed in `data/raw/` for scientific analysis).
+
+*   Python 3.11+
+*   Git
+*   Access to the Intern-Atlas graph snapshot (downloaded manually or via script if URL is verified).
+*   Access to Retraction Watch Database (downloaded manually or via script if URL is verified).
 
 ## Installation
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies
-pip install -r requirements.txt
-```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-815-llmxive-follow-up-extending-intern-atlas
+    ```
 
-## Data Preparation
-1. **CRITICAL**: Ensure `data/raw/intern-atlas-snapshot.graphml` exists for scientific analysis. If missing, the pipeline will **automatically generate synthetic data** for code validation only.
-2. **CRITICAL**: Ensure `data/raw/retraction-watch-dump.csv` exists for scientific analysis. If missing, the pipeline will **automatically generate synthetic labels** for code validation only.
-3. Run the extraction script:
-   ```bash
-   python code/data/extract_intern_atlas.py
-   python code/data/merge_retractions.py
-   python code/data/compute_features.py
-   ```
-   *Output*: `data/processed/features_2010_2018.csv`.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-## Running the Analysis
-1. Train models:
-   ```bash
-   python code/models/train_baseline.py
-   python code/models/train_topological.py
-   ```
-2. Run robustness tests:
-   ```bash
-   python code/analysis/robustness_tests.py
-   python code/analysis/sensitivity_analysis.py
-   ```
-3. View results:
-   - Check `data/processed/model_results.json`.
-   - Check `data/processed/plots/` for visualizations.
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Testing
-```bash
-pytest tests/
-```
-*Note: Unit tests use synthetic data to validate pipeline logic. Scientific analysis requires real data.*
+4.  **Verify data availability**:
+    Ensure `data/raw/intern-atlas-graph.parquet` (or equivalent) and `data/raw/retraction-database.csv` exist. If not, download them from the verified sources and place them in `data/raw/`.
+
+## Running the Pipeline
+
+The pipeline is orchestrated by `code/main.py`.
+
+1.  **Run the full pipeline**:
+    ```bash
+    python code/main.py
+    ```
+    This will:
+    *   Extract and filter the graph (2010-2018).
+    *   Compute features (BRR, Entropy).
+    *   Map to retraction labels.
+    *   Train models (Topological & Baseline).
+    *   Run robustness checks (Permutation n=100, Threshold Sweep, VIF/MI).
+    *   Output results to `results/metrics.yaml`.
+
+2.  **Run a specific step** (e.g., feature engineering only):
+    ```bash
+    python code/features.py --input data/raw/filtered-graph.parquet --output data/derived/features.csv
+    ```
+
+3.  **Run tests**:
+    ```bash
+    pytest tests/
+    ```
+
+## Expected Output
+
+*   `results/metrics.yaml`: Contains AUC-ROC, coefficients, VIF, MI, and FPR/FNR for each threshold.
+*   `results/plots/`: Contains PR curves and threshold sensitivity plots.
+*   `data/derived/labeled_dataset.csv`: The final dataset used for modeling.
 
 ## Troubleshooting
-- **"Primary dataset not found"**: The Intern-Atlas graph is not in the verified dataset list. The pipeline will **automatically generate synthetic data** for code validation. **Scientific analysis aborted.**
-- **"No retraction data found"**: The Retraction Watch database is missing. The pipeline will **automatically generate synthetic labels**. **Scientific analysis aborted.**
-- **Memory Error**: Reduce the sample size in `code/utils/constants.py` or ensure the graph is filtered to 2010-2018 before processing.
-- **Edge Type Error**: Check that `intern-atlas-snapshot.graphml` contains valid edge types (not LLM-inferred or retraction-linked).
-- **"Validation set has too few positive cases"**: The stratified split failed to find enough retractions. The pipeline will report a limitation or abort.
+
+*   **"No ground truth labels found"**: Ensure the retraction database covers the 2010-2018 window.
+*   **"Memory Error"**: The graph may be too large. Check `code/config.py` for sampling parameters.
+*   **"VIF > 5"**: This is a warning flag, not a failure. The model is still run, but the result is flagged as potentially unstable in the report.

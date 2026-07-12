@@ -1,0 +1,217 @@
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: 'retraction label mappings: 0=Robust, 1=Fragile, 2=Retraction-Only'
+  claim_id: c_b391da6f
+  context: 'Task T004: Create code/utils/constants.py defining constants for date
+    ranges (2010-2018), edge types (improves, replaces, extends), and retraction label
+    mappings (0=Robust, 1=Fragile, 2=Retraction-Only)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define constants for date ranges (2010-2018), edge types (improves, replaces,
+    extends), and retraction label mappings (0=Robust, 1=Fragile, 2=Retraction-Only)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:49:01Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Levenshtein fuzzy match threshold ratio >= 0.85
+  claim_id: c_12860e98
+  context: 'Task T015: Implement code/data/merge_retractions.py: Map nodes to retraction
+    databases using exact DOI match first, then Levenshtein fuzzy match (ratio >=
+    0.85) for title/author'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Map nodes to retraction databases using exact DOI match first, then Levenshtein
+    fuzzy match (ratio >= 0.85) for title/author
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:49:30Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Stratified Permutation Test n=100 iterations
+  claim_id: c_4017aab6
+  context: 'Task T031: Implement code/analysis/robustness_tests.py: Perform Stratified
+    Permutation Test with exactly n=100 iterations (as per FR-007 and Plan.md Phase
+    2 T010)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Stratified Permutation Test with exactly n=100 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:50:48Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: threshold sweep set 0.3, 0.5, 0.7
+  claim_id: c_b753ae60
+  context: 'Task T032: Implement code/analysis/sensitivity_analysis.py: Run threshold
+    sweep over the specific set {0.3, 0.5, 0.7} (as per FR-008 and SC-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run threshold sweep over the specific set {0.3, 0.5, 0.7}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:51:11Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: abort if VIF > 5 or MI > 0.1
+  claim_id: c_e266bcb8
+  context: 'Task T032: ...calculate VIF and MI for predictors; If VIF > 5 or MI >
+    0.1, the script MUST ABORT with a clear error message'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5 or MI > 0.1, the script MUST ABORT
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:51:11Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: plot resolution DPI=300
+  claim_id: c_abdd79db
+  context: 'Task T037: ...use PNG format with DPI=300 resolution as per SC-002'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save plots with DPI=300 resolution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:51:46Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: calculate bottleneck_resolution_ratio and branching_entropy
+  claim_id: c_d9448ed5
+  context: 'T014 [P] [US1] Implement code/data/compute_features.py: Calculate bottleneck_resolution_ratio
+    (improves/replaces edges / total outgoing) and branching_entropy (Shannon entropy
+    of downstream method types); handle nodes with 0 outgoing edges gracefully'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_bottleneck_resolution_ratio_and_branching_entropy
+  kind: entity_fact
+  raw_text: Calculate bottleneck_resolution_ratio (improves/replaces edges / total
+    outgoing) and branching_entropy (Shannon entropy of downstream method types)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:53:30Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: map nodes to retraction databases using Levenshtein ratio >= 0.85
+  claim_id: c_3c40be29
+  context: 'T015 [P] [US1] Implement code/data/merge_retractions.py: Map nodes to
+    retraction databases using exact DOI match first, then Levenshtein fuzzy match
+    (ratio >= 0.85) for title/author; implement duplicate resolution (earliest date,
+    then alphabetical journal)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Map nodes to retraction databases using exact DOI match first, then Levenshtein
+    fuzzy match (ratio >= 0.85) for title/author
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:53:30Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: 'assign retraction labels based on reason: methodological error=1, fraud=2,
+    other=0, irreproducibility=1'
+  claim_id: c_a7da6811
+  context: T016 [US1] Implement label mapping logic in code/data/merge_retractions.py
+    to assign label 1 (Fragile), 2 (Retraction-Only), or 0 (Robust) based on retraction
+    reason (FR-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign label 1 (Fragile) for methodological error, label 2 (Retraction-Only)
+    for fraud, label 0 (Robust) for other, and label 1 (Fragile) for irreproducibility
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:54:09Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: perform stratified permutation test with 100 iterations
+  claim_id: c_e1e7b52c
+  context: 'T031 [US3] Implement code/analysis/robustness_tests.py: Perform Stratified
+    Permutation Test with exactly n=100 iterations (as per FR-007 and Plan.md Phase
+    2 T010) shuffling labels within strata of ''field of study'' and ''publication
+    venue'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Stratified Permutation Test with exactly n=100 iterations shuffling
+    labels within strata of field of study and publication venue
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:54:48Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: run threshold sweep on 0.3, 0.5, 0.7 with abort on VIF > 5 or MI > 0.1
+  claim_id: c_2964868b
+  context: 'T032 [US3] Implement code/analysis/sensitivity_analysis.py: Run threshold
+    sweep over the specific set {0.3, 0.5, 0.7} (as per FR-008 and SC-002); calculate
+    and report FPR/FNR for each; calculate VIF and MI for predictors; If VIF > 5 or
+    MI > 0.1, the script MUST ABORT'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run threshold sweep over the specific set {0.3, 0.5, 0.7} and abort if
+    VIF > 5 or MI > 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:55:01Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: save threshold sensitivity plot with 300 DPI
+  claim_id: c_5a77f465
+  context: 'T037 [P] Generate plots: Save PR curve to data/processed/plots/pr_curve.png,
+    Permutation distribution to data/processed/plots/permutation_dist.png, and Threshold
+    sensitivity plot to data/processed/plots/threshold_sweep.png (MUST explicitly
+    label points {0.3, 0.5, 0.7} on x-axis, include legend for FPR/FNR values from
+    threshold_sweep_metrics.json, and use PNG format with DPI=300 resolution as per
+    SC-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save threshold sensitivity plot to data/processed/plots/threshold_sweep.png
+    with DPI=300 resolution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:55:35Z'

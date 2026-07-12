@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: TopologicalFeaturesSchema
+description: Schema for the derived dataset containing topological features and labels.
+type: object
+properties:
+  paper_id:
+    type: string
+    description: "Unique identifier for the paper."
+  bottleneck_resolution_ratio:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of bottleneck-resolving edges to total outgoing edges."
+  branching_entropy:
+    type: number
+    minimum: 0.0
+    description: "Shannon entropy of downstream method types."
+  citation_count:
+    type: integer
+    minimum: 0
+    description: "Total number of incoming citations."
+  label:
+    type: integer
+    enum: [0, 1]
+    description: "Binary label: 1 for Fragile (methodological error), 0 for Robust (includes Retraction-Only)."
+  field_of_study:
+    type: string
+    description: "Field of study for covariate adjustment."
+  venue:
+    type: string
+    description: "Publication venue for covariate adjustment."
+required:
+  - paper_id
+  - bottleneck_resolution_ratio
+  - branching_entropy
+  - citation_count
+  - label
+  - field_of_study
+  - venue
+additionalProperties: false

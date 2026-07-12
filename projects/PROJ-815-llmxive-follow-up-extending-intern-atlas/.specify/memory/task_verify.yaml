@@ -1,0 +1,19 @@
+? 'T001 Create project structure: `mkdir -p projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/{code/data,code/models,code/analysis,code/utils,data/raw,data/processed,tests/unit,tests/integration}`'
+: 1
+? 'T002 Initialize Python 3.11 project: Create `projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/requirements.txt`.
+  **Source of truth**: Run `pip freeze > requirements.txt` after installing the base
+  dependencies listed in the spec (pandas, numpy, scikit-learn, networkx, requests,
+  pyyaml, seaborn, matplotlib, python-Levenshtein) to ensure deterministic version
+  pins.'
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+? T005 [P] Implement `code/utils/graph_utils.py` with helper functions for graph loading,
+  edge filtering, and metadata validation; **MUST include function `abort_if_llm_inferred()`
+  that halts execution with a clear error if any edge type is detected as LLM-inferred**
+  (per FR-002).
+: 1
+? 'T006 [P] Create `docs/fallback_protocol.md` explicitly stating: **1. Trigger**:
+  Missing ground truth labels. **2. Action**: Abort with message "No ground truth
+  labels found for the specified time window; analysis cannot proceed." **3. Constraint**:
+  NO synthetic data generation is permitted.'
+: 1
