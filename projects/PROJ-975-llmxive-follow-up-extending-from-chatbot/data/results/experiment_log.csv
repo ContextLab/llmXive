@@ -1,0 +1,6 @@
+task_id,skill_id,success,latency,tokens,retrieval_precision,retrieval_diversity,pruning_risk_count,library_size,pruning_enabled
+task_0,skill_1,True,0.012,45,0.5,0.8,0,10,True
+task_1,skill_10,True,0.011,38,0.5,0.75,0,10,True
+task_2,skill_3,True,0.010,42,0.5,0.82,0,10,True
+task_3,skill_20,False,0.013,50,0.0,0.0,0,10,True
+task_4,skill_5,True,0.011,40,0.5,0.78,0,10,True

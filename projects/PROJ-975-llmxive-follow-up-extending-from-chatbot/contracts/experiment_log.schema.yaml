@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Experiment Log Schema
+description: Schema for the experiment log CSV entries
+type: object
+required:
+  - task_id
+  - skill_id
+  - success
+  - latency
+  - tokens
+  - retrieval_precision
+  - retrieval_diversity
+  - pruning_risk_count
+  - library_size
+  - pruning_enabled
+properties:
+  task_id:
+    type: string
+  skill_id:
+    type: string
+  success:
+    type: boolean
+  latency:
+    type: number
+  tokens:
+    type: integer
+  retrieval_precision:
+    type: number
+  retrieval_diversity:
+    type: number
+  pruning_risk_count:
+    type: integer
+  library_size:
+    type: integer
+  pruning_enabled:
+    type: boolean
+additionalProperties: true

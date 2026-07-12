@@ -1,0 +1,24 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Task Schema
+description: Schema for a single task in the llmXive experiment
+type: object
+required:
+  - id
+  - description
+  - ground_truth_path
+properties:
+  id:
+    type: string
+    description: Unique identifier for the task
+  description:
+    type: string
+    description: Natural language description of the task
+  ground_truth_path:
+    type: array
+    description: List of skill IDs that form the solution path
+    items:
+      type: string
+  created_at:
+    type: number
+    description: Unix timestamp of creation
+additionalProperties: true

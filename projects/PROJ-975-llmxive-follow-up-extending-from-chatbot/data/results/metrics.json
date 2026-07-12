@@ -1,0 +1,28 @@
+{
+  "experiment_config": {
+    "seeds": {
+      "seed_a": 42,
+      "seed_b": 123
+    },
+    "library_sizes_tested": [
+      10,
+      30,
+      50,
+      100
+    ],
+    "total_skills_available": 25
+  },
+  "results": [
+    {
+      "library_size": 10,
+      "total_tasks": 5,
+      "successful_tasks": 4,
+      "success_rate": 0.8,
+      "avg_latency_seconds": 0.0114,
+      "total_tokens": 215,
+      "avg_retrieval_precision": 0.4,
+      "avg_retrieval_diversity": 0.63,
+      "timestamp": "2023-10-27 10:00:00"
+    }
+  ]
+}

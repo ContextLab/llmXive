@@ -1,0 +1,84 @@
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: synthetic dataset contains 500 multi-step tasks and 100 overlapping skills
+  claim_id: c_2eb18040
+  context: '## 3. Data Generation (User Story 1) Generate the synthetic dataset containing
+    500 multi-step tasks and 100 overlapping skills.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate the synthetic dataset containing 500 multi-step tasks and 100
+    overlapping skills.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T17:41:04Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: embedding calculations require at least 8GB RAM
+  claim_id: c_6f56bb25
+  context: '## Prerequisites - Python 3.9+ - pip (Python package installer) - At least
+    8GB RAM (for embedding calculations)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Embedding_calculations_require_at_least_8GB_RAM
+  kind: magnitude
+  raw_text: At least 8GB RAM (for embedding calculations)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T17:41:35Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: skills.json contains 100 Python skill definitions with embeddings
+  claim_id: c_a22bf2c0
+  context: '**Expected Outputs:** - `data/raw/skills.json`: 100 Python skill definitions
+    with embeddings'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 100 Python skill definitions with embeddings
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T17:41:52Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: tasks.json contains 500 multi-step tasks with ground-truth solution paths
+  claim_id: c_5969827a
+  context: '- `data/raw/tasks.json`: 500 multi-step tasks with ground-truth solution
+    paths'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 500 multi-step tasks with ground-truth solution paths
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T17:42:13Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: main experiment runs across library sizes 10, 30, 50, and 100
+  claim_id: c_61793a69
+  context: '## 5. Main Experiment (User Story 2 - With Pruning) Run the main experiment
+    across varying library sizes (10, 30, 50, 100) with the ''Safe Pruning'' heuristic
+    enabled.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the main experiment across varying library sizes (10, 30, 50, 100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T17:43:19Z'
