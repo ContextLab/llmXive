@@ -584,13 +584,6 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
-  \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
-  preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
-  \ condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->"
-: 1
-? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
-  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
-  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
   \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) [UNRESOLVED-CLAIM:\
   \ c_3921ca49 \u2014 status=not_enough_info] ** (constraint\u2011preservation\u2011\
   ba913176) (verify JSON file exists, contains numeric N, and satisfies condition).\
