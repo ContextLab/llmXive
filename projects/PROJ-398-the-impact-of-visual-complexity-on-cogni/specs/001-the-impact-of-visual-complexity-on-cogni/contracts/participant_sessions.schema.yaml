@@ -12,9 +12,10 @@ properties:
   stimulus_id:
     type: "string"
     description: "Reference to BackgroundFrame.frame_id."
-  task_difficulty:
-    type: "number"
-    description: "Self-reported difficulty level (0-1)."
+  task_condition:
+    type: "string"
+    enum: ["1-back", "2-back"]
+    description: "Objective task difficulty condition."
   nasa_tlx_score:
     type: "number"
     description: "Subjective cognitive load score (0-100)."
@@ -34,7 +35,7 @@ required:
   - session_id
   - participant_id
   - stimulus_id
-  - task_difficulty
+  - task_condition
   - nasa_tlx_score
   - reaction_time_ms
   - accuracy_pct

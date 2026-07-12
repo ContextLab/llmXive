@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ParticipantSession Schema"
+description: "Schema for a single participant's session data in the main study."
+type: "object"
+properties:
+  session_id:
+    type: "string"
+    description: "Unique identifier for the session."
+  participant_id:
+    type: "string"
+    description: "Anonymized participant ID."
+  clip_id:
+    type: "string"
+    description: "Identifier for the background clip shown."
+  task_condition:
+    type: "string"
+    enum: ["1-back", "2-back"]
+    description: "Objective task difficulty condition (1-back = low, 2-back = high)."
+  nasa_tlx_total:
+    type: "number"
+    description: "Total NASA-TLX score (0-100)."
+  reaction_time_mean:
+    type: "number"
+    description: "Mean reaction time in milliseconds."
+  reaction_time_accuracy:
+    type: "number"
+    description: "Accuracy percentage (0-1)."
+  baseline_rt_mean:
+    type: "number"
+    description: "Baseline reaction time in milliseconds."
+  is_baseline_trial:
+    type: "boolean"
+    description: "True if this is the baseline control condition."
+required:
+  - session_id
+  - participant_id
+  - clip_id
+  - task_condition
+  - nasa_tlx_total
+  - reaction_time_mean
+  - reaction_time_accuracy
+  - baseline_rt_mean
+  - is_baseline_trial

@@ -20,7 +20,15 @@ properties:
   object_count:
     type: integer
     description: "Number of objects detected by YOLOv8n."
-    minimum: 0
+  texture_score:
+    type: "number"
+    description: "Aggregate magnitude of Gabor filter responses."
+  lbp_entropy:
+    type: "number"
+    description: "Entropy of the Local Binary Pattern histogram."
+  complexity_score:
+    type: ["number", "null"]
+    description: "Optional composite complexity score (from PCA)."
   checksum:
     type: string
     description: "SHA-256 checksum of the source image file."
@@ -30,5 +38,6 @@ required:
   - entropy
   - color_variance
   - object_count
+  - texture_score
+  - lbp_entropy
   - checksum
-additionalProperties: false

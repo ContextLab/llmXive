@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ParticipantSession"
+type: object
+properties:
+  session_id:
+    type: string
+    description: "Unique session ID"
+  participant_id:
+    type: string
+    description: "Anonymous participant ID"
+  baseline_rt_mean:
+    type: number
+    description: "Mean reaction time (ms) during baseline task"
+  baseline_rt_accuracy:
+    type: number
+    description: "Accuracy percentage during baseline task"
+  trials:
+    type: array
+    items:
+      type: object
+      properties:
+        trial_id:
+          type: string
+        frame_id:
+          type: string
+        nasa_tlx_score:
+          type: number
+          description: "Overall NASA-TLX score"
+        rt_mean:
+          type: number
+          description: "Mean reaction time (ms) for post-task"
+        rt_accuracy:
+          type: number
+          description: "Accuracy percentage for post-task"
+        order_index:
+          type: integer
+          description: "Position in the counterbalanced sequence"
+      required:
+        - trial_id
+        - frame_id
+        - nasa_tlx_score
+        - rt_mean
+        - rt_accuracy
+        - order_index
+  attention_check_passed:
+    type: boolean
+    description: "Whether the participant passed attention checks"
+required:
+  - session_id
+  - participant_id
+  - baseline_rt_mean
+  - baseline_rt_accuracy
+  - trials
+  - attention_check_passed

@@ -16,24 +16,33 @@ properties:
     type: "number"
     description: "NASA-TLX cognitive load score (0-100)."
   reaction_time_ms:
-    type: "number"
-    description: "Mean reaction time in milliseconds for the post-task."
+    type: number
+    description: "Mean reaction time in milliseconds."
+    minimum: 0
+  accuracy_pct:
+    type: number
+    description: "Accuracy percentage of the reaction-time task."
+    minimum: 0
+    maximum: 100
+  task_condition:
+    type: string
+    enum: ["1-back", "2-back"]
+    description: "Objective task difficulty condition (1-back = low, 2-back = high)."
   baseline_reaction_time_ms:
-    type: "number"
-    description: "Mean reaction time from the baseline condition."
-  task_difficulty:
-    type: "integer"
-    description: "Self-reported task difficulty (1-7)."
-  is_baseline:
-    type: "boolean"
+    type: number
+    description: "Baseline reaction time from the control condition."
+    minimum: 0
+  is_baseline_trial:
+    type: boolean
     description: "True if this is the baseline control condition."
 required:
-  - "participant_id"
-  - "session_id"
-  - "stimulus_id"
-  - "nasa_tlx_score"
-  - "reaction_time_ms"
-  - "baseline_reaction_time_ms"
-  - "task_difficulty"
-  - "is_baseline"
+  - session_id
+  - participant_id
+  - clip_id
+  - nasa_tlx_score
+  - reaction_time_ms
+  - accuracy_pct
+  - task_condition
+  - baseline_reaction_time_ms
+  - is_baseline_trial
 additionalProperties: false

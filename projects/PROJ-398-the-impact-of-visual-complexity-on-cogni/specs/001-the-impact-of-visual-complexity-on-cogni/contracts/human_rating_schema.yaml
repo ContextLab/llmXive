@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HumanRating"
+type: object
+properties:
+  rating_id:
+    type: string
+    description: "Unique ID for the rating record"
+  participant_id:
+    type: string
+    description: "Anonymous ID of the pilot participant"
+  frame_id:
+    type: string
+    description: "Reference to BackgroundFrame"
+  complexity_score:
+    type: integer
+    minimum: 1
+    maximum: 10
+    description: "Human rating of visual complexity (1-10)"
+  role:
+    type: string
+    enum: ["Pilot_Ground_Truth"]
+    description: "Explicitly marks this data as pilot ground truth, never to be used as main study outcome."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of the rating"
+required:
+  - rating_id
+  - participant_id
+  - frame_id
+  - complexity_score
+  - role
+  - timestamp

@@ -54,7 +54,7 @@ The system must present meeting clips to participants and capture their cognitiv
 1. **Given** a participant viewing a specific meeting clip, **When** the clip ends, **Then** the system immediately presents the NASA-TLX questionnaire and records the score.
 2. **Given** a participant performing a reaction-time task *after* the clip, **When** the task completes, **Then** the system records the mean reaction time and accuracy percentage for that specific trial.
 3. **Given** a participant with missing data on a specific trial, **When** the data is aggregated, **Then** the system flags the record for exclusion rather than imputing a default value.
-4. **Given** a set of clips with varying complexity, **When** presented to a participant, **Then** the order of clips is counterbalanced (e.g., Latin Square design) to control for order effects.
+4. **Given** a set of clips with varying complexity, **When** presented to a participant, **Then** the order of clips is counterbalanced to control for order effects.
 5. **Given** a participant at the start of the session, **When** the session begins, **Then** the system administers a baseline reaction-time task (low-complexity or neutral stimulus) to establish a reference point for that participant.
 
 ---
@@ -65,7 +65,9 @@ The system must execute linear mixed-effects models to correlate visual complexi
 
 **Why this priority**: This synthesizes the data to answer the research question, providing the final evidence for the gap analysis.
 
-**Independent Test**: Can be fully tested by running the analysis script on a pre-generated synthetic dataset with known correlations to verify code logic, AND separately running it on the real human dataset to generate the primary research outcome.
+**Independent Test**: 
+1. **Pipeline Validation**: Can be tested by running the analysis script on a pre-generated synthetic dataset with known correlations to verify the code executes correctly and reproduces expected parameters.
+2. **Hypothesis Testing**: Can be tested by running the analysis script on the actual collected participant data (NASA-TLX/reaction time) to produce the final inference on the research question.
 
 **Acceptance Scenarios**:
 
@@ -75,6 +77,23 @@ The system must execute linear mixed-effects models to correlate visual complexi
 4. **Given** the set of predictors, **When** the model is prepared, **Then** the system calculates Variance Inflation Factors (VIF) for each; if any VIF > 5, the system either combines predictors via PCA or flags the instability in the report.
 5. **Given** a synthetic dataset generated with a true effect size of 0 (for pipeline validation only), **When** the system runs a null-simulation, **Then** it calculates and reports the observed family-wise error rate (FWER) to verify the code's ability to control Type I errors. **This step validates the statistical pipeline, not the scientific hypothesis.**
 6. **Given** the sensitivity analysis sweep (alpha thresholds {0.01, 0.05, 0.1}), **When** the report is generated, **Then** it explicitly lists the count of significant predictors for each threshold and the standard deviation of the effect sizes.
+7. **Scientific Validation**: **Given** the actual collected human data (NASA-TLX scores and reaction times), **When** the LMM is executed, **Then** the system outputs the final statistical inference regarding the relationship between visual complexity and cognitive load, distinguishing this from the synthetic pipeline validation.
+
+---
+
+### User Story 4 - Conduct Main Study with Real Human Participants (Priority: P3)
+
+The system must orchestrate the collection of real human data to test the hypothesis, ensuring that the final analysis is based on empirical observations (NASA-TLX, reaction time) rather than synthetic simulations.
+
+**Why this priority**: Synthetic data can validate code, but only real human data can answer the research question about cognitive load. This story ensures the study is scientifically valid.
+
+**Independent Test**: Can be tested by recruiting a cohort of real participants, collecting their NASA-TLX and reaction time data, and verifying that the final analysis report is generated from this real dataset, not a synthetic one.
+
+**Acceptance Scenarios**:
+
+1. **Given** a recruitment pool of real participants, **When** they complete the study, **Then** the system stores their real NASA-TLX scores and reaction times linked to the specific background complexity metrics.
+2. **Given** the real dataset, **When** the statistical analysis (US-3) is run, **Then** the output explicitly identifies the data source as "Real Human Data" and not "Synthetic Simulation".
+3. **Given** the real data, **When** the hypothesis test is concluded, **Then** the system outputs a definitive statement on whether the relationship between visual complexity and cognitive load was detected.
 
 ---
 
@@ -91,13 +110,14 @@ The system must execute linear mixed-effects models to correlate visual complexi
 - **FR-001**: System MUST compute image entropy, color variance, and object detection counts for every background frame using a CPU-compatible pipeline (See US-1).
 - **FR-002**: System MUST present meeting clips in a counterbalanced order and capture NASA-TLX scores and post-task reaction-time metrics for each participant (See US-2).
 - **FR-002b**: System MUST administer a baseline reaction-time task (low-complexity control condition) to every participant before the experimental trials to establish a reference point (See US-2).
-- **FR-002c**: System MUST generate a counterbalanced (Latin Square) presentation order for the stimuli to control for order effects (See US-2).
+- **FR-002c**: System MUST generate a counterbalanced presentation order for the stimuli to control for order effects (See US-2).
 - **FR-003**: System MUST execute linear mixed-effects models with background complexity as the predictor and cognitive load as the outcome, controlling for participant ID and task difficulty, and MUST compute Variance Inflation Factors (VIF) to detect multicollinearity (See US-3).
 - **FR-004**: System MUST apply a multiple-comparison correction (e.g., Benjamini-Hochberg) when reporting significance for >1 hypothesis test (See US-3).
 - **FR-005**: System MUST perform a sensitivity analysis sweeping the p-value significance threshold (α) over a defined range (e.g., {0.01, 0.05, 0.1}) and report the variation in the count of significant predictors (See US-3).
-- **FR-005b**: System MUST define 'stability' in the sensitivity analysis as the standard deviation of the effect sizes across the swept thresholds (See US-3).
+- **FR-005b**: System MUST define 'stability' in the sensitivity analysis as the suite of results including both the count of significant predictors AND the standard deviation of the effect sizes across the swept thresholds (See US-3).
 - **FR-006**: System MUST ingest human-rated complexity scores from a pilot study and compute the correlation between these scores and the automated metrics (See US-0, US-1).
-- **FR-007**: System MUST run a null-simulation (where the true effect size is 0) using synthetic data to calculate and report the observed family-wise error rate (FWER) and compare it to the nominal alpha level (See US-3). **This validates the pipeline's statistical properties, not the primary hypothesis.**
+- **FR-007**: System MUST run a null-simulation (where the true effect size is 0) to calculate and report the observed family-wise error rate (FWER) and compare it to the nominal alpha level for PIPELINE VALIDATION ONLY (See US-3).
+- **FR-008**: System MUST process ACTUAL collected participant data (NASA-TLX scores and reaction times) to produce the final hypothesis test inference, distinguishing this from synthetic validation (See US-3, US-4).
 
 ### Non-Functional Requirements
 
@@ -130,7 +150,7 @@ The system must execute linear mixed-effects models to correlate visual complexi
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
 
 - **SC-001**: Visual complexity metrics (entropy, variance, object count) are measured against human-rated complexity scores from a pilot study (n=20) to validate metric sensitivity and avoid circular validation (See US-0, FR-006).
-- **SC-002**: The system outputs a p-value for the correlation coefficient between visual complexity and NASA-TLX scores; success is defined as the system correctly flagging significance when p < 0.05 (adjusted) (See US-3).
+- **SC-002**: The system outputs a p-value for the correlation coefficient between visual complexity and NASA-TLX scores; the study concludes whether the relationship between visual complexity and cognitive load exists based on this data (See US-3, US-4).
 - **SC-003**: The reaction-time difference between high-complexity and low-complexity conditions is measured against the baseline reaction time (defined as the mean reaction time during the baseline condition for the same participant) to quantify the cognitive load impact (See US-2, FR-002b).
 - **SC-004**: The system MUST apply a multiple-comparison correction (e.g., Benjamini-Hochberg) and report adjusted p-values, ensuring the procedure controls FWER at the nominal alpha level (0.05) as verified by the null-simulation in FR-007 (See US-3, FR-007).
 - **SC-005**: The stability of the effect size is measured across the sensitivity analysis sweep (alpha thresholds {0.01, 0.05, 0.1}) by calculating the standard deviation of effect sizes to confirm robustness of the finding (See US-3, FR-005b).
@@ -143,4 +163,4 @@ The system must execute linear mixed-effects models to correlate visual complexi
 - The NASA-TLX scale is a validated instrument for measuring cognitive load in this context, and the self-report data will be treated as the primary subjective metric.
 - The sample size (50-100 participants) is sufficient to detect an effect size of Cohen's d > 0.5 with power ≥ 0.80 (calculated via G*Power prior to data collection).
 - Any decision cutoffs introduced during analysis (e.g., for outlier removal) will be justified by community standards and subjected to the required sensitivity analysis.
-- The study requires real human participants for the main data collection; no synthetic data will be used for the primary outcome variables (NASA-TLX, reaction time).
+- The study requires real human participants for the main data collection; no synthetic data will be used for the primary outcome variables (NASA-TLX, reaction time) in the final hypothesis test.

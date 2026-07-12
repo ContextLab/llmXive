@@ -1,47 +1,71 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AnalysisResult"
-description: "Schema for the output of the linear mixed-effects model and sensitivity analysis."
+description: "Canonical schema for the output of the statistical model; attributes include fixed effect estimates, p-values (adjusted), confidence intervals, effect sizes, VIF scores, and FWER."
 type: "object"
 properties:
   model_id:
     type: "string"
-    description: "Identifier for the specific model run."
-  predictor:
+    description: "Unique identifier for the model run."
+  predictors:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of predictors used (e.g., entropy, variance)."
+  fixed_effects:
+    type: "object"
+    description: "Fixed effect estimates, p-values, CIs for each predictor."
+    additionalProperties:
+      type: "object"
+      properties:
+        estimate:
+          type: "number"
+          description: "Coefficient estimate."
+        std_err:
+          type: "number"
+          description: "Standard error."
+        p_value:
+          type: "number"
+          description: "Unadjusted p-value."
+        p_value_adj:
+          type: "number"
+          description: "Benjamini-Hochberg adjusted p-value."
+        ci_lower:
+          type: "number"
+          description: "Lower bound of 95% CI."
+        ci_upper:
+          type: "number"
+          description: "Upper bound of 95% CI."
+        vif:
+          type: "number"
+          description: "Variance Inflation Factor."
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      alpha_thresholds:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of alpha values swept (e.g., [0.01, 0.05, 0.1])."
+      significant_counts:
+        type: "array"
+        items:
+          type: "integer"
+        description: "Count of significant predictors at each alpha."
+      effect_size_sd:
+        type: "number"
+        description: "Standard deviation of effect sizes across thresholds."
+  fwer:
+    type: "number"
+    description: "Observed Family-Wise Error Rate from null simulation (pipeline validation only)."
+  data_source:
     type: "string"
-    description: "Name of the predictor variable (e.g., 'entropy')."
-  estimate:
-    type: "number"
-    description: "Fixed effect estimate (coefficient)."
-  std_error:
-    type: "number"
-    description: "Standard error of the estimate."
-  p_value:
-    type: "number"
-    description: "Raw p-value."
-  p_value_adj:
-    type: "number"
-    description: "Benjamini-Hochberg adjusted p-value."
-  ci_lower:
-    type: "number"
-    description: "Lower bound of 95% confidence interval."
-  ci_upper:
-    type: "number"
-    description: "Upper bound of 95% confidence interval."
-  vif:
-    type: "number"
-    description: "Variance Inflation Factor for the predictor."
-  effect_size:
-    type: "number"
-    description: "Cohen's d or similar effect size metric."
-  sensitivity_sd:
-    type: "number"
-    description: "Standard deviation of effect sizes across alpha sweep (FR-005b)."
+    enum: ["Real Human Data", "Synthetic Simulation"]
+    description: "Explicitly marks the data source to distinguish pipeline validation from hypothesis testing."
 required:
-  - "model_id"
-  - "predictor"
-  - "estimate"
-  - "p_value"
-  - "p_value_adj"
-  - "vif"
-  - "effect_size"
+  - model_id
+  - predictors
+  - fixed_effects
+  - sensitivity_analysis
+  - fwer
+  - data_source
 additionalProperties: false

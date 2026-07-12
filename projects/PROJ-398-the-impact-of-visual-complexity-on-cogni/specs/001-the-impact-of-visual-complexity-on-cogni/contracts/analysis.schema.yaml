@@ -2,11 +2,15 @@
 # to resolve schema redundancy and ensure a single source of truth.
 # Do not use.
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results Schema (DEPRECATED)"
+title: "AnalysisResult Schema (DEPRECATED)"
 description: "This schema is deprecated. Use contracts/analysis_result.schema.yaml instead."
 type: "object"
 properties:
-  model_formula:
+  model_id:
     type: "string"
+  predictor:
+    type: "string"
+  fixed_effect_estimate:
+    type: "number"
 required:
-  - model_formula
+  - model_id

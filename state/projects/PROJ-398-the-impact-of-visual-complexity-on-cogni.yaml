@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-398-the-impact-of-visual-complexity-on-cogni
-last_run_id: cb140b29-40c3-43d6-928d-9d368efd5275
+last_run_id: aabacf79-6b84-4600-bca3-4a4f43d278a8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni
 title: The Impact of Visual Complexity on Cognitive Load During Remote Meetings
-updated_at: '2026-07-12T01:51:27.752614Z'
+updated_at: '2026-07-12T01:53:57.647014Z'

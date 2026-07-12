@@ -22,11 +22,21 @@ items:
       type: integer
       description: "Number of objects detected by YOLOv8n. Must be >= 0."
       minimum: 0
+    texture_score:
+      type: number
+      description: "Aggregate magnitude of Gabor filter responses."
+      minimum: 0
+    lbp_entropy:
+      type: number
+      description: "Entropy of the Local Binary Pattern histogram."
+      minimum: 0
     metric_source:
       type: string
       description: "Source of the metric calculation."
       enum:
         - "YOLOv8n"
+        - "Edge-Based"
+        - "Texture-Based"
     checksum:
       type: string
       description: "SHA-256 checksum of the raw image file."
@@ -36,6 +46,8 @@ items:
     - entropy
     - color_variance
     - object_count
+    - texture_score
+    - lbp_entropy
     - metric_source
     - checksum
   additionalProperties: false

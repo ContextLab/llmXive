@@ -24,5 +24,4 @@ required:
   - image_id
   - participant_id
   - complexity_score
-  - timestamp
 additionalProperties: false

@@ -9,32 +9,31 @@ properties:
   clip_id:
     type: "string"
     description: "Reference to the BackgroundFrame used in this session."
-  task_difficulty:
-    type: "number"
-    description: "Self-reported task difficulty level (0.0 to 1.0)."
-    minimum: 0.0
-    maximum: 1.0
+  task_condition:
+    type: string
+    enum: ["1-back", "2-back"]
+    description: "Objective task difficulty condition (1-back = low, 2-back = high)."
   nasa_tlx_score:
-    type: "number"
+    type: number
     description: "NASA-TLX global score (0-100)."
     minimum: 0
     maximum: 100
   reaction_time_ms:
-    type: "number"
+    type: number
     description: "Mean reaction time in milliseconds. Must be > 0."
     exclusiveMinimum: 0
   accuracy_pct:
-    type: "number"
+    type: number
     description: "Accuracy percentage (0.0 - 100.0)."
     minimum: 0
     maximum: 100
   attention_check_passed:
-    type: "boolean"
+    type: boolean
     description: "Whether the participant passed the attention check."
 required:
   - participant_id
   - clip_id
-  - task_difficulty
+  - task_condition
   - nasa_tlx_score
   - reaction_time_ms
   - accuracy_pct

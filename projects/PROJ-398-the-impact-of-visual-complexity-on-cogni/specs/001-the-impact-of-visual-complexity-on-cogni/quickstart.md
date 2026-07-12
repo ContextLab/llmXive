@@ -1,91 +1,91 @@
-# Quickstart: The Impact of Visual Complexity on Cognitive Load During Remote Meetings
+# Quickstart: Visual Complexity & Cognitive Load
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to a GitHub Actions runner (or local CPU environment)
+-   Python 3.11+
+-   `pip` (Python package manager)
+-   `git`
+-   Access to the verified stimulus archive (downloaded via `code/stimuli/download.py` or placed manually in `data/stimuli/`).
 
-## Installation
+## Environment Setup
 
-1. **Clone and Setup**:
-   ```bash
-   git checkout 001-visual-complexity-cognitive-load
-   cd projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/code/
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
+1.  **Clone and Navigate**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-398-the-impact-of-visual-complexity-on-cogni
+    ```
 
-2. **Verify Dependencies**:
-   Ensure `ultralytics` (YOLOv8n) and `statsmodels` are installed.
-   ```bash
-   python -c "import ultralytics; import statsmodels; print('OK')"
-   ```
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins versions for `ultralytics` (CPU), `streamlit`, `statsmodels`, etc.*
 
 ## Running the Pipeline
 
-### Step 1: Generate/Prepare Stimuli (if not present)
-If `data/stimuli/` is empty, place a set of background images there.
+### Step 1: Acquire and Verify Stimuli (P0)
+**CRITICAL**: This project uses **real-world meeting background frames** only. No synthetic images are generated.
+Download the verified archive and compute checksums.
 ```bash
-# Example: Download sample images (replace with actual source)
-# mkdir -p ../../data/stimuli
-# cp /path/to/public/images/*.jpg ../../data/stimuli/
+python code/stimuli/download.py --source verified_archive_v1
 ```
+*Output*: `data/stimuli/` (real images) and `data/metadata/stimuli.json` (checksums).
+*Verification*: The script verifies SHA-256 hashes against the manifest in `data/metadata/stimuli_manifest.json`.
 
-### Step 2: Extract Visual Metrics (FR-001)
-Run the CPU-compatible metric extraction.
+### Step 2: Compute Automated Metrics (P1)
+Run the metric extraction pipeline on the verified real images.
 ```bash
-python -m metrics.extract_visual --input ../../data/stimuli --output ../../data/processed/stimulus_metrics.json
+python code/stimuli/compute_metrics.py
 ```
-*Expected*: JSON file with `entropy`, `color_variance`, `object_count` for each image.
+*Output*: Updates `data/metadata/stimuli.json` with entropy, variance, and object counts.
 
-### Step 3: Run Pilot Study (US-0)
-Start the Streamlit app for human ratings.
+### Step 3: Run Human Pilot (P0)
+Start the Streamlit app to collect human ratings (requires a sufficient number of participants).
 ```bash
-streamlit run study/app.py -- --mode pilot
+streamlit run code/pilot/app.py
 ```
-*Action*: Recruit a cohort of participants to rate images 1-10.
-*Output*: `data/raw/pilot_ratings.json`.
+*Action*: Open browser, rate images. Data saves to `data/measurements/pilot_ratings.json`.
 
-### Step 4: Validate Pilot Metrics (FR-006)
+### Step 4: Validate Metrics (P1)
 Check correlation between human ratings and automated metrics.
 ```bash
-python -m metrics.validate_pilot --ratings ../../data/raw/pilot_ratings.json --metrics ../../data/processed/stimulus_metrics.json
+python code/pilot/validate.py
 ```
-*Success*: Correlation $r > 0.5$. If not, flag for review.
+*Output*: `reports/validation_report.md` (includes scatter plot and r-value).
 
-### Step 5: Run Main Study (US-2)
-Start the main experiment interface.
+### Step 5: Run Main Study (P2/P4)
+Start the main study app (requires real participants).
 ```bash
-streamlit run study/app.py -- --mode main
+streamlit run code/main_study/app.py
 ```
-*Action*: Participants view clips, complete NASA-TLX and RT tasks.
-*Output*: `data/raw/participant_logs/*.json`.
+*Action*: Participants complete the study. Data saves to `data/measurements/main_study_sessions.json`.
 
-### Step 6: Statistical Analysis (US-3)
-Run the full analysis pipeline.
+### Step 6: Statistical Analysis (P3)
+Run the full analysis pipeline (LMM, VIF, Sensitivity, Null Simulation).
 ```bash
-python -m analysis.models --input ../../data/processed/analysis_dataset.parquet --output ../../data/analysis/model_results.json
+python code/analysis/lmm.py
+python code/analysis/sensitivity.py
+python code/analysis/null_simulation.py
 ```
-*Includes*: LMM, VIF check, Benjamini-Hochberg correction, Sensitivity Analysis.
-
-### Step 7: Null Simulation (FR-007)
-Validate the pipeline with synthetic data.
-```bash
-python -m utils.synthetic_data --run_null_sim --output ../../data/analysis/null_sim_results.json
-```
-*Success*: Observed FWER $\approx$ 0.05.
+*Output*: `data/processed/analysis_results.json` and `reports/final_analysis.md`.
 
 ## Testing
 
-Run the contract tests:
+Run the test suite to verify correctness:
 ```bash
-pytest tests/contract/ -v
+pytest code/tests/ -v
 ```
 
-## Troubleshooting
+## Reproducibility Check
 
-- **YOLOv8n too slow?** Ensure you are not accidentally loading a GPU model. Check `ultralytics` logs for `device='cpu'`.
-- **Memory Error?** Reduce the batch size in `extract_visual.py`.
-- **Missing Data?** The pipeline flags records with missing NASA-TLX or RT for exclusion (do not impute).
+To ensure reproducibility on a fresh runner:
+1.  Delete `data/` and `reports/`.
+2.  Run `code/stimuli/download.py` to fetch the verified archive.
+3.  Verify checksums in `state/` match.
+4.  Run `code/stimuli/compute_metrics.py` and analysis scripts; verify results match `data/processed/analysis_results.json`.

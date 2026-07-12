@@ -12,11 +12,10 @@ properties:
   stimulus_id:
     type: string
     description: "Foreign key to Stimulus Metadata."
-  task_difficulty:
-    type: number
-    description: "Self-reported task difficulty level (0.0 to 1.0)."
-    minimum: 0.0
-    maximum: 1.0
+  task_condition:
+    type: string
+    enum: ["1-back", "2-back"]
+    description: "Objective task difficulty condition (1-back = low, 2-back = high)."
   nasa_tlx_score:
     type: number
     description: "NASA-TLX cognitive load score."
@@ -44,7 +43,7 @@ required:
   - session_id
   - participant_id
   - stimulus_id
-  - task_difficulty
+  - task_condition
   - nasa_tlx_score
   - reaction_time_ms
   - accuracy_pct

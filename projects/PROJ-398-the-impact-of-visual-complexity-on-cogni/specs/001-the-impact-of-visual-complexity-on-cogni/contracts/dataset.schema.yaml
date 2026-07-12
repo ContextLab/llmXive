@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BackgroundFrame Metrics Schema"
+description: "Schema for the computed visual complexity metrics of a single background frame."
+type: "object"
+properties:
+  frame_id:
+    type: "string"
+    description: "Unique identifier for the image frame."
+  entropy:
+    type: "number"
+    description: "Shannon entropy of the grayscale image."
+  color_variance:
+    type: "number"
+    description: "Variance of the RGB color channels."
+  object_count:
+    type: "integer"
+    description: "Number of objects detected by YOLOv8n."
+  texture_score:
+    type: "number"
+    description: "Aggregate magnitude of Gabor filter responses."
+  lbp_entropy:
+    type: "number"
+    description: "Entropy of the Local Binary Pattern histogram."
+required:
+  - frame_id
+  - entropy
+  - color_variance
+  - object_count
+  - texture_score
+  - lbp_entropy

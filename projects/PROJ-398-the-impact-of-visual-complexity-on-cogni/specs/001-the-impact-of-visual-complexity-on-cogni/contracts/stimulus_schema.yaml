@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BackgroundFrame"
+type: object
+properties:
+  frame_id:
+    type: string
+    description: "Unique identifier for the stimulus (e.g., 'stim_001.png')"
+  entropy:
+    type: number
+    description: "Shannon entropy of the image (float)"
+  color_variance:
+    type: number
+    description: "Variance of color channels (float)"
+  object_count:
+    type: integer
+    description: "Number of objects detected by YOLOv8n"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the raw image file (for reproducibility)"
+required:
+  - frame_id
+  - entropy
+  - color_variance
+  - object_count
+  - checksum
