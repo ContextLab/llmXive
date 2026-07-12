@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: BES Run Output Schema
+description: Schema for the aggregated output of a BES run (symbolic or neural).
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the experimental run."
+  method:
+    type: string
+    enum:
+      - symbolic
+      - neural
+    description: "The method used (symbolic-guided or learned-verifier baseline)."
+  total_instances:
+    type: integer
+    description: "Total number of puzzle instances processed."
+  excluded_instances:
+    type: integer
+    description: "Number of instances excluded due to symbolic planner failure (FR-006)."
+  success_count:
+    type: integer
+    description: "Number of instances with a valid solution found."
+  success_rate:
+    type: number
+    description: "Success rate (success_count / (total_instances - excluded_instances))."
+  mean_time:
+    type: number
+    description: "Mean wall-clock time per instance (seconds)."
+  std_time:
+    type: number
+    description: "Standard deviation of wall-clock time."
+  p_value_z:
+    type: number
+    description: "P-value from the TOST (success rate equivalence test)."
+  p_value_t:
+    type: number
+    description: "P-value from the t-test (cost comparison)."
+  significance:
+    type: boolean
+    description: "True if p < 0.05 for the primary hypothesis."
+  logical_contradiction_rate:
+    type: number
+    description: "Rate of 'CONTRADICTION_DETECTED' errors in the symbolic planner."
+required:
+  - run_id
+  - method
+  - total_instances
+  - success_count
+  - success_rate
+  - mean_time
+  - p_value_z
+  - p_value_t
+  - significance
+  - logical_contradiction_rate
+additionalProperties: false

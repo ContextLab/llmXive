@@ -1,0 +1,35 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Puzzle Instance Schema
+description: Schema for a single logic/arithmetic puzzle instance with deterministic verification.
+type: object
+properties:
+  puzzle_id:
+    type: string
+    description: "Unique identifier for the puzzle instance (e.g., UUID)."
+  puzzle_type:
+    type: string
+    description: "Category of the puzzle (e.g., 'sudoku_4x4', 'pathfinding_grid')."
+  constraints:
+    type: string
+    description: "Formal string representation of the puzzle rules."
+  initial_state:
+    type: string
+    description: "Starting configuration of the puzzle."
+  target_state:
+    type: string
+    description: "Goal configuration of the puzzle."
+  verifier_script:
+    type: string
+    description: "Relative path to the deterministic Python verification script."
+  complexity_score:
+    type: integer
+    description: "Numeric score (N) for scaling analysis."
+required:
+  - puzzle_id
+  - puzzle_type
+  - constraints
+  - initial_state
+  - target_state
+  - verifier_script
+  - complexity_score
+additionalProperties: false
