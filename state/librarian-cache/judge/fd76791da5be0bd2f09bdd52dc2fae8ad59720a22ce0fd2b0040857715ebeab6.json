@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2007.09774",
+  "judged_at": "2026-07-12T00:28:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"learning to foresee: unveiling the unlocking efficiency of on-policy d\" linguistics",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology survey for the domain of natural language state representations in Reinforcement Learning, which is the core mechanism underlying the user's query about \"On-Policy D\" (likely referring to On-Policy Decision Making or similar RL frameworks) in linguistics. It also meets criterion (f) by providing the canonical alternative-vocabulary cluster (\"natural language state representation\") for the user's specific focus on how LLMs process l",
+  "relevant": true
+}

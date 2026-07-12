@@ -1,0 +1,71 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Analysis Results Schema"
+description: "Schema for the aggregated analysis results across all variants and seeds."
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: "Unique identifier for the full experiment."
+  variants:
+    type: array
+    items:
+      type: object
+      properties:
+        variant_name:
+          type: string
+          enum: ["opd", "standard_rl", "low_rank_rl", "random_projection", "random_walk_prior"]
+        seeds:
+          type: array
+          items:
+            type: integer
+          description: "List of seeds used."
+        steps_to_80pct:
+          type: array
+          items:
+            type: integer
+          description: "Steps to [deferred] accuracy for each seed."
+        mean_steps:
+          type: number
+        std_steps:
+          type: number
+        final_alignment_scores:
+          type: array
+          items:
+            type: number
+        early_alignment_scores:
+          type: array
+          items:
+            type: number
+        relevance_score_mean:
+          type: number
+          description: "Mean relevance score (diagnostic only)."
+      required:
+        - variant_name
+        - seeds
+        - steps_to_80pct
+        - mean_steps
+        - std_steps
+  statistical_tests:
+    type: object
+    properties:
+      comparison:
+        type: string
+        description: "Description of the comparison (e.g., 'Low-Rank RL vs Standard RL')."
+      test_type:
+        type: string
+        enum: ["wilcoxon", "t-test"]
+      p_value:
+        type: number
+      significant:
+        type: boolean
+        description: "True if p_value < 0.05."
+    required:
+      - comparison
+      - test_type
+      - p_value
+      - significant
+required:
+  - experiment_id
+  - variants
+  - statistical_tests
+additionalProperties: false

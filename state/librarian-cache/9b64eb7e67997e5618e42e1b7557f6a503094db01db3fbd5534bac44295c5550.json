@@ -1,0 +1,631 @@
+{
+  "fetched_at": "2026-07-12T00:28:08Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy D\"",
+      "target_n": 5
+    },
+    "duration_seconds": 77.108,
+    "ended_at": "2026-07-12T00:28:08Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "on-policy reinforcement learning efficiency in language models"
+        ],
+        [
+          2,
+          "foresight mechanisms in on-policy natural language generation"
+        ],
+        [
+          3,
+          "unlocking efficiency in on-policy LLM training dynamics"
+        ],
+        [
+          4,
+          "predictive planning in on-policy language model optimization"
+        ],
+        [
+          5,
+          "sample efficiency improvements for on-policy LLM fine-tuning"
+        ],
+        [
+          6,
+          "lookahead strategies for on-policy reinforcement learning in NLP"
+        ],
+        [
+          7,
+          "trajectory prediction in on-policy language model policies"
+        ],
+        [
+          8,
+          "efficient on-policy exploration for large language models"
+        ],
+        [
+          9,
+          "anticipatory learning in on-policy neural language generation"
+        ],
+        [
+          10,
+          "reducing sample complexity in on-policy LLM training"
+        ],
+        [
+          11,
+          "on-policy policy gradient methods for language understanding"
+        ],
+        [
+          12,
+          "foresight-guided action selection in language model agents"
+        ],
+        [
+          13,
+          "efficiency of on-policy algorithms in generative linguistics"
+        ],
+        [
+          14,
+          "temporal difference learning with foresight in LLMs"
+        ],
+        [
+          15,
+          "on-policy distillation for efficient language model adaptation"
+        ],
+        [
+          16,
+          "predictive modeling in on-policy reinforcement learning for text"
+        ],
+        [
+          17,
+          "lookahead reward shaping in on-policy language model training"
+        ],
+        [
+          18,
+          "efficient on-policy search strategies for natural language tasks"
+        ],
+        [
+          19,
+          "foresight-based credit assignment in on-policy LLMs"
+        ],
+        [
+          20,
+          "on-policy learning with predictive state representations in linguistics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy D\" linguistics": 0,
+        "on-policy reinforcement learning efficiency in language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "on-policy language model training dynamics",
+      "LLM pretraining next-token prediction entropy",
+      "gradient noise scale language model convergence",
+      "perplexity reduction on-policy optimization efficiency",
+      "training loss landscape language model generalization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2509.16679"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM pretraining next-token prediction entropy": 3,
+      "gradient noise scale language model convergence": 3,
+      "llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy D\" linguistics": 3,
+      "on-policy language model training dynamics": 3,
+      "perplexity reduction on-policy optimization efficiency": 3,
+      "training loss landscape language model generalization": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2602.12375",
+          "rationale": "The paper focuses on exploration mechanisms in general Reinforcement Learning (specifically using ensemble errors for value bonuses) and does not address the specific domain of Large Language Models (LLMs), the \"Learning to Foresee\" framework, or the linguistic efficiency of on-policy decoding mentioned in the user's query. It fails to meet criteria (a) or (b) as it studies a different algorithmic mechanism in a different domain (classic RL/Atari vs. LLM decoding), and it is not a foundational r",
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2211.10168",
+          "rationale": "The paper focuses on robotic instruction-following and action correction via reinforcement learning, which is a distinct domain from the user's question regarding the linguistic analysis of \"on-policy\" learning efficiency in Large Language Models (LLMs). While both involve reinforcement learning, the paper does not measure the same biological/algorithmic mechanism (on-policy efficiency in LLMs), nor does it study the same empirical population (linguistic data vs. robotic environments), failing t",
+          "title": "Language-Conditioned Reinforcement Learning to Solve Misunderstandings with Action Corrections"
+        },
+        {
+          "primary_pointer": "1808.04096",
+          "rationale": "The paper focuses on safety mechanisms and human-in-the-loop overrides in reinforcement learning (specifically \"Directed Policy Gradient\"), which is a distinct construct from the user's question regarding \"on-policy\" learning efficiency and \"unlocking\" mechanisms in the context of LLM pre-training or linguistics. While both involve \"on-policy\" terminology, the paper does not measure the same biological/algorithmic mechanism, domain variables, or empirical population as the user's specific inquir",
+          "title": "Directed Policy Gradient for Safe Reinforcement Learning with Human Advice"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T00:26:51Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"learning to foresee: unveiling the unlocking efficiency of on-policy d\" linguistics",
+      "raw": "llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Efficiency of On-Policy D\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+          "claimed_authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "claimed_title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21676"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='How do language models learn facts? Dynamics, curricula and hallucinations')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+          "claimed_authors": [
+            "Feilong Chen",
+            "Duzhen Zhang",
+            "Minglun Han",
+            "Xiuyi Chen",
+            "Jing Shi",
+            "Shuang Xu",
+            "Bo Xu"
+          ],
+          "claimed_title": "VLP: A Survey on Vision-Language Pre-training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09061"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='VLP: A Survey on Vision-Language Pre-training')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
+          "claimed_authors": [
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
+          ],
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Building on the foundations of language modeling in natural language processing, Next Token Prediction (NTP) has evolved into a versatile training objective for machine learning tasks across various modalities, achieving considerable success. As Large Language Models (LLMs) have advanced to unify understanding and generation tasks within the textual modality, recent research has shown that tasks from different modalities can also be effectively encapsulated within the NTP framework, transforming the multimodal information into tokens and predict the next one given the context. This survey introduces a comprehensive taxonomy that unifies both understanding and generation within multimodal learning through the lens of NTP. The proposed taxonomy covers five key aspects: Multimodal tokenization, MMNTP model architectures, unified task representation, datasets \\& evaluation, and open challenges. This new taxonomy aims to aid researchers in their exploration of multimodal intelligence. An associated GitHub repository collecting the latest papers and repos is available at https://github.com/LMM101/Awesome-Multimodal-Next-Token-Prediction",
+          "claimed_authors": [
+            "Liang Chen",
+            "Zekun Wang",
+            "Shuhuai Ren",
+            "Lei Li",
+            "Haozhe Zhao",
+            "Yunshui Li",
+            "Zefan Cai",
+            "Hongcheng Guo",
+            "Lei Zhang",
+            "Yizhe Xiong",
+            "Yichi Zhang",
+            "Ruoyu Wu",
+            "Qingxiu Dong",
+            "Ge Zhang",
+            "Jian Yang",
+            "Lingwei Meng",
+            "Shujie Hu",
+            "Yulong Chen",
+            "Junyang Lin",
+            "Shuai Bai",
+            "Andreas Vlachos",
+            "Xu Tan",
+            "Minjia Zhang",
+            "Wen Xiao",
+            "Aaron Yee",
+            "Tianyu Liu",
+            "Baobao Chang"
+          ],
+          "claimed_title": "Next Token Prediction Towards Multimodal Intelligence: A Comprehensive Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.18619"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='Next Token Prediction Towards Multimodal Intelligence: A Comprehensive Survey')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multilingual data from the web is essential for LLM pretraining. Yet, scraping it is expensive, and research groups repeatedly crawl the same content. For example, we found that over 40\\% of tokens across major Arabic web corpora are duplicated between sources. In this work, we propose to use this wasteful redundancy as a quality signal to create high-quality pretraining datasets. Our key insight is that cross-source agreement functions as a free, model-free quality filter: content retained by multiple independent pipelines is more likely to represent high-quality text. Crucially, this signal requires no additional computation beyond standard deduplication, which is already performed at scale when pretraining language models. So, we propose MixMinMatch, a method that combines multiple existing web corpora, performs cross-dataset MinHash deduplication, and identifies documents independently recovered by multiple sources. We apply MixMinMatch to Arabic, Turkish, and Hindi, producing corpora that match or exceed the quality of the best single-source baselines, while providing up to 4$\\times$ more unique tokens. On Arabic, our matched subset achieves a 4.5\\% relative improvement over ArabicWeb24, while on Turkish, we improve over FineWeb-2 by 5.5\\%. We release the datasets at: https://huggingface.co/collections/AdaMLLab/mixminmatch",
+          "claimed_authors": [
+            "Sultan Alrashed",
+            "Francesco Orabona"
+          ],
+          "claimed_title": "Mix, MinHash, and Match: Cross-Source Agreement for Multilingual Pretraining Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.18834"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='Mix, MinHash, and Match: Cross-Source Agreement for Multilingual Pretraining Datasets')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite its popularity in the reinforcement learning community, a provably convergent policy gradient method for continuous space-time control problems with nonlinear state dynamics has been elusive. This paper proposes proximal gradient algorithms for feedback controls of finite-time horizon stochastic control problems. The state dynamics are nonlinear diffusions with control-affine drift, and the cost functions are nonconvex in the state and nonsmooth in the control. The system noise can degenerate, which allows for deterministic control problems as special cases. We prove under suitable conditions that the algorithm converges linearly to a stationary point of the control problem, and is stable with respect to policy updates by approximate gradient steps. The convergence result justifies the recent reinforcement learning heuristics that adding entropy regularization or a fictitious discount factor to the optimization objective accelerates the convergence of policy gradient methods. The proof exploits careful regularity estimates of backward stochastic differential equations.",
+          "claimed_authors": [
+            "Christoph Reisinger",
+            "Wolfgang Stockinger",
+            "Yufei Zhang"
+          ],
+          "claimed_title": "Linear convergence of a policy gradient method for some finite horizon continuous time control problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.11758"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='Linear convergence of a policy gradient method for some finite horizon continuous time control problems')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hydrodynamic excitations corresponding to sound and shear modes in fluids are characterised by gapless dispersion relations. In the hydrodynamic gradient expansion, their frequencies are represented by power series in spatial momenta. We investigate the analytic structure and convergence properties of the hydrodynamic series by studying the associated spectral curve in the space of complexified frequency and complexified spatial momentum. For the strongly coupled ${\\cal N}=4$ supersymmetric Yang-Mills plasma, we use the holographic duality methods to demonstrate that the derivative expansions have finite non-zero radii of convergence. Obstruction to the convergence of hydrodynamic series arises from level-crossings in the quasinormal spectrum at complex momenta.",
+          "claimed_authors": [
+            "Sašo Grozdanov",
+            "Pavel K. Kovtun",
+            "Andrei O. Starinets",
+            "Petar Tadić"
+          ],
+          "claimed_title": "On the convergence of the gradient expansion in hydrodynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.01018"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='On the convergence of the gradient expansion in hydrodynamics')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explicit topology optimization methods have received ever-increasing interest in recent years. In particular, a 188-line Matlab code of the two-dimensional (2D) Moving Morphable Component (MMC)-based topology optimization method was released by Zhang et al. (Struct Multidiscip Optim 53(6):1243-1260, 2016). The present work aims to propose an efficient and easy-to-extend 256-line Matlab code of the MMC method for three-dimensional (3D) topology optimization implementing some new numerical techniques. To be specific, by virtue of the function aggregation technique, accurate sensitivity analysis, which is also easy-to-extend to other problems, is achieved. Besides, based on an efficient identification algorithm for load transmission path, the degrees of freedoms (DOFs) not belonging to the load transmission path are removed in finite element analysis (FEA), which significantly accelerates the optimization process. As a result, compared to the corresponding 188-line 2D code, the performance of the optimization results, the computational efficiency of FEA, and the convergence rate and the robustness of optimization process are greatly improved. For the sake of completeness, a refined 218-line Matlab code implementing the 2D-MMC method is also provided.",
+          "claimed_authors": [
+            "Zongliang Du",
+            "Tianchen Cui",
+            "Chang Liu",
+            "Weisheng Zhang",
+            "Yilin Guo",
+            "Xu Guo"
+          ],
+          "claimed_title": "An efficient and easy-to-extend Matlab code of the Moving Morphable Component (MMC) method for three-dimensional topology optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.02491"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='An efficient and easy-to-extend Matlab code of the Moving Morphable Component (MMC) method for three-dimensional topology optimization')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces and investigates a regularity condition in the asymptotic sense for optimization problems whose objective functions are polynomial. Under this regularity condition, the normalization argument in asymptotic analysis enables us to see the solution existence as well as the solution stability of these problems. We prove a Frank-Wolfe type theorem for regular optimization problems and an Eaves type theorem for non-regular pseudoconvex optimization problems. Moreover, we show results on the stability such as upper semicontinuity and local upper-Hölder stability of the solution map of polynomial optimization problems. At the end of the paper, we discuss the genericity of the regularity condition.",
+          "claimed_authors": [
+            "Vu Trung Hieu"
+          ],
+          "claimed_title": "On the solution existence and stability of polynomial optimization problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.06100"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='On the solution existence and stability of polynomial optimization problems')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In optimizing real-world structures, due to fabrication or budgetary restraints, the design variables may be restricted to a set of standard engineering choices. Such variables, commonly called categorical variables, are discrete and unordered in essence, precluding the utilization of gradient-based optimizers for the problems containing them. In this paper, incorporating the Gumbel-Softmax (GSM) method, we propose a new gradient-based optimizer for handling such variables in the optimal design of large-scale frame structures. The GSM method provides a means to draw differentiable samples from categorical distributions, thereby enabling sensitivity analysis for the variables generated from such distributions. The sensitivity information can greatly reduce the computational cost of traversing high-dimensional and discrete design spaces in comparison to employing gradient-free optimization methods. In addition, since the developed optimizer is gradient-based, it can naturally handle the simultaneous optimization of categorical and continuous design variables. Through three numerical case studies, different aspects of the proposed optimizer are studied and its advantages over population-based optimizers, specifically a genetic algorithm, are demonstrated.",
+          "claimed_authors": [
+            "Mehran Ebrahimi",
+            "Hyunmin Cheong",
+            "Pradeep Kumar Jayaraman",
+            "Farhad Javid"
+          ],
+          "claimed_title": "Optimal design of frame structures with mixed categorical and continuous design variables using the Gumbel-Softmax method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2501.00258"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='Optimal design of frame structures with mixed categorical and continuous design variables using the Gumbel-Softmax method')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural network training relies on our ability to find \"good\" minimizers of highly non-convex loss functions. It is well-known that certain network architecture designs (e.g., skip connections) produce loss functions that train easier, and well-chosen training parameters (batch size, learning rate, optimizer) produce minimizers that generalize better. However, the reasons for these differences, and their effects on the underlying loss landscape, are not well understood. In this paper, we explore the structure of neural loss functions, and the effect of loss landscapes on generalization, using a range of visualization methods. First, we introduce a simple \"filter normalization\" method that helps us visualize loss function curvature and make meaningful side-by-side comparisons between loss functions. Then, using a variety of visualizations, we explore how network architecture affects the loss landscape, and how training parameters affect the shape of minimizers.",
+          "claimed_authors": [
+            "Hao Li",
+            "Zheng Xu",
+            "Gavin Taylor",
+            "Christoph Studer",
+            "Tom Goldstein"
+          ],
+          "claimed_title": "Visualizing the Loss Landscape of Neural Nets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.09913"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='Visualizing the Loss Landscape of Neural Nets')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When language models (LMs) are trained to forget (or \"unlearn'') a skill, how precisely does their behavior change? We study the behavior of transformer LMs in which tasks have been forgotten via fine-tuning on randomized labels. Such LMs learn to generate near-random predictions for individual examples in the \"training'' set used for forgetting. Across tasks, however, LMs exhibit extreme variability in whether LM predictions change on examples outside the training set. In some tasks (like entailment classification), forgetting generalizes robustly, and causes models to produce uninformative predictions on new task instances; in other tasks (like physical commonsense reasoning and scientific question answering) forgetting affects only the training examples, and models continue to perform the \"forgotten'' task accurately even for examples very similar to those that appeared in the training set. Dataset difficulty is not predictive of whether a behavior can be forgotten; instead, generalization in forgetting is (weakly) predicted by the confidence of LMs' initial task predictions and the variability of LM representations of training data, with low confidence and low variability both associated with greater generalization. Perhaps most surprisingly, random-label forgetting appears to be somewhat insensitive to the contents of the training set: for example, models trained on science questions with random labels continue to answer other science questions accurately, but begin to produce random labels on entailment classification tasks. Finally, we show that even generalizable forgetting is shallow: linear probes trained on LMs' representations can still perform tasks reliably after forgetting. Our results highlight the difficulty and unpredictability of performing targeted skill removal from models via fine-tuning.",
+          "claimed_authors": [
+            "Eric Zhang",
+            "Leshem Chosen",
+            "Jacob Andreas"
+          ],
+          "claimed_title": "Unforgettable Generalization in Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.02228"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning to Foresee: Unveiling the Unlocking Effic', candidate_title='Unforgettable Generalization in Language Models')",
+        "failed_at": "2026-07-12T00:27:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Keliang Liu",
+            "Dingkang Yang",
+            "Ziyun Qian",
+            "Weijie Yin",
+            "Yuchi Wang",
+            "Hongsheng Li",
+            "Jun Liu",
+            "Peng Zhai",
+            "Yang Liu",
+            "Lihua Zhang"
+          ],
+          "title": "Reinforcement Learning Meets Large Language Models: A Survey of Advancements and Applications Across the LLM Lifecycle",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.16679",
+        "summary": "In recent years, training methods centered on Reinforcement Learning (RL) have markedly enhanced the reasoning and alignment performance of Large Language Models (LLMs), particularly in understanding human intents, following user instructions, and bolstering inferential strength. Although existing surveys offer overviews of RL augmented LLMs, their scope is often limited, failing to provide a comprehensive summary of how RL operates across the full lifecycle of LLMs. We systematically review the theoretical and practical advancements whereby RL empowers LLMs, especially Reinforcement Learning with Verifiable Rewards (RLVR). First, we briefly introduce the basic theory of RL. Second, we thoroughly detail application strategies for RL across various phases of the LLM lifecycle, including pre-training, alignment fine-tuning, and reinforced reasoning. In particular, we emphasize that RL methods in the reinforced reasoning phase serve as a pivotal driving force for advancing model reasoning to its limits. Next, we collate existing datasets and evaluation benchmarks currently used for RL fine-tuning, spanning human-annotated datasets, AI-assisted preference data, and program-verification-style corpora. Subsequently, we review the mainstream open-source tools and training frameworks available, providing clear practical references for subsequent research. Finally, we analyse the future challenges and trends in the field of RL-enhanced LLMs. This survey aims to present researchers and practitioners with the latest developments and frontier trends at the intersection of RL and LLMs, with the goal of fostering the evolution of LLMs that are more intelligent, generalizable, and secure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.16679",
+          "http_status": 200,
+          "pdf_sample_score": 0.2828,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T00:27:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Brielen Madureira",
+            "David Schlangen"
+          ],
+          "title": "An Overview of Natural Language State Representation for Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.09774",
+        "summary": "A suitable state representation is a fundamental part of the learning process in Reinforcement Learning. In various tasks, the state can either be described by natural language or be natural language itself. This survey outlines the strategies used in the literature to build natural language state representations. We appeal for more linguistically interpretable and grounded representations, careful justification of design decisions and evaluation of the effectiveness of different approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2007.09774",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T00:27:36Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"learning to foresee: unveiling the unlocking efficiency of on-policy d\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

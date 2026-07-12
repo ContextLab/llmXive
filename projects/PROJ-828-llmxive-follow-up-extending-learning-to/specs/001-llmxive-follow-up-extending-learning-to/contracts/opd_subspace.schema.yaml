@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "OPD Stable Subspace Schema"
+description: "Schema for the stable subspace matrix derived from OPD training."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the OPD run."
+  variant:
+    type: string
+    enum: ["opd"]
+    description: "Variant type."
+  rank_k:
+    type: integer
+    description: "Number of top singular vectors retained."
+  explained_variance_ratio:
+    type: array
+    items:
+      type: number
+    description: "Array of explained variance ratios for each singular vector."
+  cumulative_variance:
+    type: number
+    description: "Cumulative explained variance (target >= 0.80)."
+  subspace_matrix_path:
+    type: string
+    description: "Relative path to the numpy array file containing the subspace matrix."
+    pattern: "^results/.+\\.npy$"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the subspace matrix file."
+required:
+  - run_id
+  - variant
+  - rank_k
+  - explained_variance_ratio
+  - cumulative_variance
+  - subspace_matrix_path
+  - checksum
+additionalProperties: false

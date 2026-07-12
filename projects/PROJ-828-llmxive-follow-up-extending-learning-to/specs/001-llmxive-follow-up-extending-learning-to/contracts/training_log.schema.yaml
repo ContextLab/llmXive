@@ -1,0 +1,62 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Training Log Schema"
+description: "Schema for the training progress log of a single variant."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the training run."
+  variant:
+    type: string
+    enum: ["opd", "standard_rl", "low_rank_rl", "random_projection", "random_walk_prior"]
+    description: "Variant type."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  steps:
+    type: array
+    items:
+      type: object
+      properties:
+        step:
+          type: integer
+        accuracy:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        loss:
+          type: number
+        alignment_score:
+          type: number
+          minimum: -1.0
+          maximum: 1.0
+          description: "Cosine similarity with baseline (for RL variants)."
+        relevance_score:
+          type: number
+          minimum: -1.0
+          maximum: 1.0
+          description: "Cosine similarity with OPD subspace (for low_rank_rl)."
+        memory_usage_mb:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - step
+        - accuracy
+        - loss
+        - timestamp
+  convergence_step:
+    type: integer
+    description: "Step at which [deferred] accuracy was reached."
+  final_alignment_score:
+    type: number
+    description: "Final cosine similarity with the random baseline (for low_rank_rl)."
+required:
+  - run_id
+  - variant
+  - seed
+  - steps
+  - convergence_step
+  - final_alignment_score
+additionalProperties: false

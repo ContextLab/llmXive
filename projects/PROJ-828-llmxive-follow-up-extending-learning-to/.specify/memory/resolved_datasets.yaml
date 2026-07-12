@@ -1,0 +1,309 @@
+resolved_at: '2026-07-12T00:37:57.592018+00:00'
+datasets:
+- intent: GSM8K
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/codelion/gsm8k-synth/resolve/main/gsm8k_synth.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/codelion/gsm8k-synth/resolve/main/gsm8k_synth.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/skrishna/gsm8k_only_answer/ff5ae986e89102894e6d9ba4a055c02393793df0/test.json?%2Fdatasets%2Fskrishna%2Fgsm8k_only_answer%2Fresolve%2Fmain%2Ftest.json=&etag=%22e9feab9670cce1f6bcad4e5ad65ec0158c03a1d8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/MU-NLPC/Calc-gsm8k/resolve/main/data/test-00000-of-00001-cd73a5a625e99cb9.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/vW_KG_Generativity_Gradient_Structural_Mathematical_Outline_v6_v10_post_v10_/32965151
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Tonine_Iredia_University_of_Communication_Benin_City_Edo_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_ca/32965172
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Isaac_Balami_University_of_Aeronautics_and_Management_Lagos_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants/32965166
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Data_for_b_b_Artificial_light_at_night_causes_unequal_and_species-specific_shifts_in_infection_risk_by_a_generalist_marine_parasite_b_/31975452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Kevin_Eze_University_Mgbowo_Enugu_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_pu/32965163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13294003
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17587991
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11126655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753555
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753643
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21311787
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21311787
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19126970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19126970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310038
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TinyLlama
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-step-50K-105b/resolve/main/2023-09-12T12-30-04.204611/details_harness|arc:challenge|25_2023-09-12T12-30-04.204611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-intermediate-step-240k-503b/resolve/main/2023-09-18T13-31-42.519724/details_harness|arc:challenge|25_2023-09-18T13-31-42.519724.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_BEE-spoke-data__TinyLlama-1.1bee/resolve/main/2023-09-22T04-13-14.200799/details_harness|arc:challenge|25_2023-09-22T04-13-14.200799.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-step-50K-105b/resolve/main/2023-09-12T12-30-04.204611/details_harness|arc:challenge|25_2023-09-12T12-30-04.204611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-intermediate-step-240k-503b/resolve/main/2023-09-18T13-31-42.519724/details_harness|arc:challenge|25_2023-09-18T13-31-42.519724.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_BEE-spoke-data__TinyLlama-1.1bee/resolve/main/2023-09-22T04-13-14.200799/details_harness|arc:challenge|25_2023-09-22T04-13-14.200799.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mychen76/color_terms_tinyllama2/resolve/main/data/test-00000-of-00001-9c968e7b09f65349.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-Chat-v0.1/resolve/main/2023-10-03T10-21-28.182244/details_harness|arc:challenge|25_2023-10-03T10-21-28.182244.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/vW_KG_Generativity_Gradient_Structural_Mathematical_Outline_v6_v10_post_v10_/32965151
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Tonine_Iredia_University_of_Communication_Benin_City_Edo_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_ca/32965172
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Isaac_Balami_University_of_Aeronautics_and_Management_Lagos_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants/32965166
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Data_for_b_b_Artificial_light_at_night_causes_unequal_and_species-specific_shifts_in_infection_risk_by_a_generalist_marine_parasite_b_/31975452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Kevin_Eze_University_Mgbowo_Enugu_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_pu/32965163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18002666
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19905906
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17132334
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15459625
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17671171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21282030
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21282030
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21216109
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FP16
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_OpenBuddy__openbuddy-llama2-13b-v8.1-fp16/resolve/main/2023-07-25T10:11:44.944856/details_harness|arc:challenge|25_2023-07-25T10:11:44.944856.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_The-Face-Of-Goonery__Huginn-13b-FP16/resolve/main/2023-08-09T13:30:49.317288/details_harness|arc:challenge|25_2023-08-09T13:30:49.317288.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_bhenrym14__airoboros-33b-gpt4-1.4.1-lxctx-PI-16384-fp16/resolve/main/2023-08-09T13:44:06.910726/details_harness|arc:challenge|25_2023-08-09T13:44:06.910726.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_OpenBuddy__openbuddy-llama2-13b-v8.1-fp16/resolve/main/2023-07-25T10:11:44.944856/details_harness|arc:challenge|25_2023-07-25T10:11:44.944856.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_The-Face-Of-Goonery__Huginn-13b-FP16/resolve/main/2023-08-09T13:30:49.317288/details_harness|arc:challenge|25_2023-08-09T13:30:49.317288.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_bhenrym14__airoboros-33b-gpt4-1.4.1-lxctx-PI-16384-fp16/resolve/main/2023-08-09T13:44:06.910726/details_harness|arc:challenge|25_2023-08-09T13:44:06.910726.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/vW_KG_Generativity_Gradient_Structural_Mathematical_Outline_v6_v10_post_v10_/32965151
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Tonine_Iredia_University_of_Communication_Benin_City_Edo_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_ca/32965172
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Isaac_Balami_University_of_Aeronautics_and_Management_Lagos_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants/32965166
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Data_for_b_b_Artificial_light_at_night_causes_unequal_and_species-specific_shifts_in_infection_risk_by_a_generalist_marine_parasite_b_/31975452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Kevin_Eze_University_Mgbowo_Enugu_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_pu/32965163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18344503
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20384204
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20371757
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10964095
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5241425
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21302857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21302658
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21297880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21297880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
