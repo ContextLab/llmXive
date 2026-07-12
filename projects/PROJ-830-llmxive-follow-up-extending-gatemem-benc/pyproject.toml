@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gatemem-gatekeeper"
+version = "0.1.0"
+description = "GateMem Gatekeeper Extension for Privacy-Preserving Retrieval"
+requires-python = ">=3.11"
+dependencies = [
+    "transformers",
+    "torch",
+    "scikit-learn",
+    "pandas",
+    "pytest",
+    "sentence-transformers"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

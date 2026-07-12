@@ -1,0 +1,13 @@
+transformers==4.40.0
+torch==2.3.0+cpu
+scikit-learn==1.4.2
+pandas==2.2.2
+pytest==8.1.1
+sentence-transformers==3.0.0
+datasets==2.19.0
+ruff==0.4.2
+black==24.4.0
+pydantic==2.7.1
+python-dotenv==1.0.1
+scipy==1.13.1
+statsmodels==0.14.2

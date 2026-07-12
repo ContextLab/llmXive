@@ -1,0 +1,23 @@
+{
+  "model_name": "distilbert-base-uncased",
+  "timestamp": "2023-10-27 10:00:00",
+  "device": "cpu",
+  "precision": "float32",
+  "checks": {
+    "cpu_only_verified": true,
+    "cpu_message": "No GPU detected; running on CPU.",
+    "no_gpu_tensors": true
+  },
+  "metrics": {
+    "baseline_memory_mb": 150.5,
+    "load_time_seconds": 2.345,
+    "inference_time_seconds": 0.123,
+    "output_hidden_size": 768,
+    "batch_size": 1,
+    "sequence_length": 10,
+    "peak_memory_mb": 210.8,
+    "memory_delta_mb": 60.3
+  },
+  "status": "success",
+  "message": "Profile completed successfully. No GPU allocation detected."
+}

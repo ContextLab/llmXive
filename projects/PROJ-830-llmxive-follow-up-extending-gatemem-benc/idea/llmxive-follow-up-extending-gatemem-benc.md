@@ -5,30 +5,81 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
 
-## Summary of the prior work
-GateMem introduces a benchmark for evaluating LLM agents in multi-principal shared-memory environments, jointly assessing utility, access control, and active forgetting across domains like healthcare and education. The study reveals that current methods, including long-context prompting and retrieval-based systems, fail to simultaneously achieve high utility, robust authorization, and reliable data deletion, often leaking unauthorized or deleted information. This highlights a critical gap in deploying memory agents for institutional settings where governance is as important as recall.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a lightweight, rule-based "gatekeeper" module that preprocesses queries and sanitizes retrieved context reduce memory leakage in shared-agent systems without the computational overhead of fine-tuning large models?
-This direction matters because GateMem shows that current end-to-end approaches are either too costly (long-context) or insecure (retrieval leaks); a CPU-tractable, modular governance layer could provide an immediate, deployable fix for institutions unable to afford massive inference costs while ensuring compliance.
+## Research question
+
+Does decoupling memory governance (access control and active forgetting) from the primary reasoning model via a lightweight, rule-based pre-filtering "gatekeeper" significantly reduce unauthorized information leakage and improve deletion compliance in multi-principal shared-memory agents, without compromising retrieval utility?
+
+## Motivation
+
+Current end-to-end approaches for shared-memory agents, such as long-context prompting or retrieval-augmented generation, struggle to simultaneously satisfy utility, security, and compliance requirements, often leaking sensitive data or failing to forget deleted information. A modular, CPU-tractable governance layer could provide an immediate, deployable solution for institutional settings (e.g., healthcare, education) where computational resources are constrained but data governance is legally mandated.
+
+## Related work
+
+- [GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memory Agents](https://arxiv.org/abs/2606.18829) — Establishes the baseline benchmark showing that current methods fail to balance utility, access control, and forgetting, identifying the specific leakage gaps this project aims to close.
+- [Governed Shared Memory for Multi-Agent LLM Systems](https://arxiv.org/abs/2606.24535) — Formalizes the "fleet-memory" problem and identifies four foundational failure modes including unauthorized leaks, providing the theoretical framework for defining the gatekeeper's validation rules.
+- [Governed Memory: A Production Architecture for Multi-Agent Workflows](https://arxiv.org/abs/2603.17787) — Highlights structural challenges in enterprise AI where agents act on shared entities without common governance, supporting the need for a centralized, lightweight governance module.
+
+## Expected results
+
+The proposed gatekeeper architecture is expected to achieve a statistically significant reduction in unauthorized leakage (Access Control score) and higher deletion compliance (Forgetting score) compared to standard retrieval baselines, while maintaining utility within a 5-10% margin. The primary evidence will be the trade-off curve showing that a CPU-only pre-filter can resolve the "utility-security" conflict observed in GateMem without the inference costs of fine-tuning large models.
 
 ## Methodology sketch
-**Data:** Reuse the GateMem dataset (medical, office, education, household episodes) focusing specifically on the "leak-target" annotations and authorization boundary cases.
-**Procedure:** Construct a CPU-only pipeline where a small, frozen transformer (e.g., DistilBERT) or even a heuristic regex/logic engine acts as a "Gatekeeper" to (1) validate user roles against query intent before retrieval and (2) filter retrieved memory chunks against explicit deletion logs before passing them to a standard LLM agent. Compare this "Gatekeeper + Agent" setup against the baselines in GateMem using the same metrics (Utility, Access Control, Forgetting).
-**Expected Result:** The proposed method will demonstrate a significant reduction in unauthorized information leakage (Access Control score) and improved deletion compliance (Forgetting score) compared to standard retrieval baselines, while maintaining comparable utility at a fraction of the inference cost, proving that governance can be decoupled from the primary reasoning model.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the GateMem dataset (medical, office, education, household episodes) via the official repository; parse the `leak-target` annotations and authorization boundary cases.
+- **Gatekeeper Construction**: Implement a CPU-only pipeline using a frozen DistilBERT model (for semantic intent classification) and a deterministic regex/logic engine (for role-checking and deletion-log matching) as the pre-filter.
+- **Baseline Setup**: Replicate the standard retrieval-based agent setup from the GateMem paper using the same LLM backbone (e.g., Llama-3-8B via quantized CPU inference) and retrieval index.
+- **Integration**: Insert the gatekeeper module between the user query and the retrieval engine to validate user roles and filter retrieved chunks against the active deletion log before they reach the LLM.
+- **Execution**: Run the "Gatekeeper + Agent" and baseline systems on the test set, ensuring all inference is performed on CPU (no GPU) to simulate the target deployment environment.
+- **Metric Calculation**: Compute the three core metrics: Utility (answer helpfulness), Access Control (rate of unauthorized data exposure), and Forgetting (rate of successfully suppressed deleted data).
+- **Statistical Analysis**: Apply a paired t-test (or Wilcoxon signed-rank test if non-normal) to compare the Access Control and Forgetting scores between the baseline and the gatekeeper-enhanced system across all domains.
+- **Cost Profiling**: Measure total inference latency and CPU memory usage for both setups to quantify the computational overhead (or savings) of the gatekeeper approach.
+- **Error Analysis**: Manually inspect cases where the gatekeeper incorrectly blocks valid queries (false positives) to refine the rule set and assess the utility trade-off.
 
-- **GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memory Agents** — Zhe Ren, Yibo Yang, Yimeng Chen, Zijun Zhao, Benshuo Fu, Zhihao Shu, Bingjie Zhang, Yangyang Xu, Dandan Guo, Shuicheng Yan. https://arxiv.org/abs/2606.18829.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_18829,
-  title = {GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memory Agents},
-  author = {Zhe Ren and Yibo Yang and Yimeng Chen and Zijun Zhao and Benshuo Fu and Zhihao Shu and Bingjie Zhang and Yangyang Xu and Dandan Guo and Shuicheng Yan},
-  year = {2026},
-  eprint = {2606.18829},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.18829},
-  url = {https://arxiv.org/abs/2606.18829}
-}
-```
+- Reviewed existing ideas: GateMem: Benchmarking Memory Governance, Governed Shared Memory for Multi-Agent LLM Systems, Adaptive Migration Decision for Multi-Tenant Memory Systems, Governed Memory: A Production Architecture.
+- Closest match: GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memory Agents (similarity sketch: direct extension of the same dataset and problem space, but distinct in proposing a specific lightweight architectural solution rather than just benchmarking).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T01:58:18Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo" computer science | 0 |
+| 1 | memory governance in multi-tenant systems | 5 |
+| 2 | shared memory resource allocation benchmarks | 0 |
+| 3 | memory isolation mechanisms for multi-principal environments | 0 |
+| 4 | cross-process memory management strategies | 0 |
+| 5 | memory throttling and governance frameworks | 0 |
+| 6 | benchmarking memory overhead in shared architectures | 0 |
+| 7 | secure memory sharing protocols for concurrent principals | 0 |
+| 8 | dynamic memory governance in cloud computing | 0 |
+| 9 | memory contention resolution in multi-tenant workloads | 0 |
+| 10 | resource governance policies for shared memory pools | 0 |
+| 11 | memory accounting and billing in multi-user systems | 0 |
+| 12 | hardware-assisted memory isolation techniques | 0 |
+| 13 | performance evaluation of memory sharing mechanisms | 0 |
+| 14 | memory safety and governance in heterogeneous computing | 0 |
+| 15 | multi-tenant memory scheduling algorithms | 0 |
+| 16 | memory governance challenges in serverless architectures | 0 |
+| 17 | benchmarking frameworks for memory resource management | 0 |
+| 18 | fine-grained memory access control in shared environments | 0 |
+| 19 | memory governance for AI model inference in multi-tenant settings | 0 |
+| 20 | comparative analysis of memory isolation strategies | 0 |
+
+### Verified citations
+
+1. **GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memory Agents** (2026). Zhe Ren, Yibo Yang, Yimeng Chen, Zijun Zhao, Benshuo Fu, et al.. arXiv. [2606.18829](https://arxiv.org/abs/2606.18829). PDF-sampled: No.
+2. **Governed Memory: A Production Architecture for Multi-Agent Workflows** (2026). Hamed Taheri. arXiv. [2603.17787](https://arxiv.org/abs/2603.17787). PDF-sampled: No.
+3. **Adaptive Migration Decision for Multi-Tenant Memory Systems** (2025). Hyungjun Cho, Igjae Kim, Kwanghoon Choi, Hongjin Kim, Wonjae Lee, et al.. arXiv. [2505.09164](https://arxiv.org/abs/2505.09164). PDF-sampled: No.
+4. **Governed Shared Memory for Multi-Agent LLM Systems** (2026). Yanki Margalit, Nurit Cohen-Inger, Erni Avram, Ran Taig, Oded Margalit. arXiv. [2606.24535](https://arxiv.org/abs/2606.24535). PDF-sampled: No.

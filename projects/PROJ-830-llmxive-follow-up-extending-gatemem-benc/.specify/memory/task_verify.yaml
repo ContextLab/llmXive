@@ -1,0 +1,27 @@
+? 'T001 Create project structure: Execute `mkdir -p projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/{gatekeeper,metrics,analysis,data}
+  projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/data/{raw,processed,logs}
+  projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/tests/{unit,integration,contract}
+  projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/paper projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts`'
+: 1
+? 'T002 Initialize Python 3.11 project: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/requirements.txt`
+  containing pinned versions of `transformers`, `torch` (CPU), `scikit-learn`, `pandas`,
+  `pytest`, `sentence-transformers`'
+: 1
+? 'T002a [P] Create dependency verification script: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/verify_deps.py`
+  that parses `requirements.txt` and asserts absence of GPU libraries (bitsandbytes,
+  CUDA) and validates CPU-only flags; output must be a log file `scripts/verify_deps.log`'
+: 1
+? 'T002b [P] Profile DistilBERT model: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/profile_model.py`
+  that explicitly loads the frozen DistilBERT model in default precision on CPU, verifies
+  no GPU allocation, and outputs a profile report to `data/logs/model_profile.json`'
+: 1
+? 'T002c [P] Validate frozen model weights: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/validate_model_weights.py`
+  that loads the specific frozen DistilBERT weights used for intent classification,
+  runs a forward pass on CPU, and confirms no GPU tensors or quantization libraries
+  are required; output must be `data/logs/model_validation.json`'
+: 1
+? 'T002d [P] Validate sentence-transformers compatibility: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/validate_sentence_transformers.py`
+  that verifies the specific sentence-transformers model variant selected for leakage
+  detection is CPU-only and does not require quantization libraries; output must be
+  `data/logs/sentence_transformers_validation.json`'
+: 1

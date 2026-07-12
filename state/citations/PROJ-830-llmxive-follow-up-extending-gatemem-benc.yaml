@@ -1,0 +1,22 @@
+- artifact_hash: aaa55f9b24d4e050d0e6118f49ca65e23be703765a4fbe508ce638917a036357
+  artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Ray368/GateMem \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/Ray368/GateMem
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/Ray368/GateMem
+  verified_at: '2026-07-12T02:09:50.790079Z'
+- artifact_hash: 902511e8828adc29b64249c83bae32c6e55f77c79f2c46c22fe027f502944c32
+  artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-12T02:10:07.028662Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.17787",
+  "judged_at": "2026-07-12T01:58:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"gatemem: benchmarking memory governance in multi-principal shared-memo\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same core mechanism (memory governance in multi-agent/shared-memory systems) and addresses the specific domain variables (multi-principal workflows, shared memory architecture) referenced in the user's question about extending \"GateMem.\"",
+  "relevant": true
+}

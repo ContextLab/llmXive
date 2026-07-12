@@ -1,0 +1,4 @@
+# Development dependencies for PROJ-830-llmxive-follow-up-extending-gatemem-benc
+# Linting and Formatting tools
+ruff==0.4.8
+black==24.4.2

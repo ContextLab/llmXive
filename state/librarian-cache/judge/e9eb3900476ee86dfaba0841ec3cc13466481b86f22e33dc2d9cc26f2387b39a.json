@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2104.14833",
+  "judged_at": "2026-07-12T01:58:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"gatemem: benchmarking memory governance in multi-principal shared-memo\" computer science",
+  "rationale": "The paper addresses network capacity planning in 5G telecommunications infrastructure, which is an entirely different domain from the user's question regarding memory governance and benchmarking in Large Language Models (LLMs). Although both involve \"multi-tenant\" or \"multi-principal\" scenarios, the underlying mechanisms (radio resource allocation vs. model memory management) and empirical populations (cellular networks vs. AI systems) are distinct, failing the \"off-domain entirely\" rejection ru",
+  "relevant": false
+}
