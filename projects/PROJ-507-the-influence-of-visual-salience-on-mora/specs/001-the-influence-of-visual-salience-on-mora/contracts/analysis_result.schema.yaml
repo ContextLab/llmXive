@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Result Schema"
-description: "Schema for the output of the Linear Mixed-Effects Model."
+description: "Schema for the output of the Repeated-Measures ANOVA."
 type: "object"
 properties:
   analysis_id:
@@ -9,18 +9,11 @@ properties:
   model_type:
     type: "string"
     enum:
-      - "Linear_Mixed_Effects_Model"
+      - "Repeated_Measures_ANOVA"
     description: "Type of statistical model used."
-  fixed_effects:
-    type: "object"
-    description: "Dictionary of fixed effect coefficients."
-    additionalProperties:
-      type: "number"
-  random_effects_variance:
-    type: "object"
-    description: "Dictionary of random effect variances."
-    additionalProperties:
-      type: "number"
+  f_statistic:
+    type: "number"
+    description: "F-statistic for the main effect of salience."
   p_value:
     type: "number"
     description: "Raw p-value for the main effect of salience."
@@ -29,29 +22,32 @@ properties:
     description: "Bonferroni-corrected p-value."
   effect_size:
     type: "number"
-    description: "Partial eta-squared or marginal R-squared."
+    description: "Partial eta-squared."
   ci_lower:
     type: "number"
     description: "Lower bound of the 95% confidence interval."
   ci_upper:
     type: "number"
     description: "Upper bound of the 95% confidence interval."
-  convergence_status:
+  sphericity_violated:
+    type: "boolean"
+    description: "Whether Mauchly's test indicated a violation of sphericity."
+  correction_applied:
     type: "string"
     enum:
-      - "converged"
-      - "warning"
-      - "failed"
-    description: "Convergence status of the model."
+      - "none"
+      - "greenhouse-geisser"
+      - "huynh-feldt"
+    description: "The correction applied if sphericity was violated."
 required:
   - "analysis_id"
   - "model_type"
-  - "fixed_effects"
-  - "random_effects_variance"
+  - "f_statistic"
   - "p_value"
   - "p_value_corrected"
   - "effect_size"
   - "ci_lower"
   - "ci_upper"
-  - "convergence_status"
+  - "sphericity_violated"
+  - "correction_applied"
 additionalProperties: false

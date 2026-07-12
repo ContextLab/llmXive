@@ -1,4 +1,4 @@
-resolved_at: '2026-07-11T14:58:00.637359+00:00'
+resolved_at: '2026-07-12T10:43:52.964632+00:00'
 datasets:
 - intent: ANOVA
   status: verified
@@ -15,28 +15,24 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/dataset/Supplementary_Materials_for_Revealing_Nonlinear_and_Spatially_Heterogeneous_Drivers_of_Ecosystem_Health_during_Coal_Resource-Exhausted_City_Transformation_Evidence_from_Xuzhou_China/32964020
+  - url: https://figshare.com/articles/dataset/U_S_Water_Quality_Home_Safety_Data_by_ZIP_Code/31939155
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Spread_of_i_Chlamydia_pneumoniae_i_ST16_during_the_2024_2025_outbreak_in_France/32964017
+  - url: https://figshare.com/articles/online_resource/IMPLEMENTASI_INTRUSION_DETECTION_SYSTEM_MENGGUNAKAN_ALGORITMA_RANDOM_FOREST_UNTUK_DETEKSI_ANOMALI_TRAFIK_JARINGAN_PADA_SISTEM_INFORMASI_AKADEMIK_BERDASARKAN_ISO_IEC_27005/32968223
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Leveraging_Digital_Innovations_in_Tourism_Marketing_A_Study_of_Destination_Promotion_Strategies/32963942
+  - url: https://figshare.com/articles/book/M_s_all_de_la_cooperaci_n_al_desarrollo_los_derechos_sexuales_y_reproductivos_en_Bolivia_Ecuador_y_Per_/32968214
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Cilt_2-_Tarihsel_Ar_iv_Ter_rizm_1979_dan_2026_ya_Humeyni_ve_Hamenei_TR/32963981
+  - url: https://figshare.com/articles/dataset/Data_and_Appendix_for_Original_Research_Paper_Distinct_influence_of_emotional_stimuli_and_betting_outcomes_on_risk-taking_in_a_game_of_chance_/28874675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Exploring_thiazole_conjugates_as_cholinesterase_inhibitors_for_Alzheimer_s_disease_treatment/32964011
+  - url: https://figshare.com/articles/dataset/Comparative_Analysis_of_Machine_Learning_Models_for_Sentiment_Classification_of_MSME_Product_Reviews/32968142
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10437571
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15804920
@@ -47,7 +43,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10011805
+  - url: https://zenodo.org/records/10437571
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -55,23 +51,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://fair.unifg.it//handle/11369/363316
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21310227
+  - url: https://zenodo.org/records/21320734
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21310227
+  - url: https://zenodo.org/records/21320734
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21310457
+  - url: https://zenodo.org/records/21304518
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21310457
+  - url: https://zenodo.org/records/21304518
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,39 +90,35 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Supplementary_Materials_for_Revealing_Nonlinear_and_Spatially_Heterogeneous_Drivers_of_Ecosystem_Health_during_Coal_Resource-Exhausted_City_Transformation_Evidence_from_Xuzhou_China/32964020
+  - url: https://figshare.com/articles/dataset/U_S_Water_Quality_Home_Safety_Data_by_ZIP_Code/31939155
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Spread_of_i_Chlamydia_pneumoniae_i_ST16_during_the_2024_2025_outbreak_in_France/32964017
+  - url: https://figshare.com/articles/online_resource/IMPLEMENTASI_INTRUSION_DETECTION_SYSTEM_MENGGUNAKAN_ALGORITMA_RANDOM_FOREST_UNTUK_DETEKSI_ANOMALI_TRAFIK_JARINGAN_PADA_SISTEM_INFORMASI_AKADEMIK_BERDASARKAN_ISO_IEC_27005/32968223
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Leveraging_Digital_Innovations_in_Tourism_Marketing_A_Study_of_Destination_Promotion_Strategies/32963942
+  - url: https://figshare.com/articles/book/M_s_all_de_la_cooperaci_n_al_desarrollo_los_derechos_sexuales_y_reproductivos_en_Bolivia_Ecuador_y_Per_/32968214
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Cilt_2-_Tarihsel_Ar_iv_Ter_rizm_1979_dan_2026_ya_Humeyni_ve_Hamenei_TR/32963981
+  - url: https://figshare.com/articles/dataset/Data_and_Appendix_for_Original_Research_Paper_Distinct_influence_of_emotional_stimuli_and_betting_outcomes_on_risk-taking_in_a_game_of_chance_/28874675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Exploring_thiazole_conjugates_as_cholinesterase_inhibitors_for_Alzheimer_s_disease_treatment/32964011
+  - url: https://figshare.com/articles/dataset/Comparative_Analysis_of_Machine_Learning_Models_for_Sentiment_Classification_of_MSME_Product_Reviews/32968142
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.11591/eei.v9i2.1972
+  - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: HTTP 415'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14352943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -130,23 +126,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://unige.iris.cineca.it/handle/11567/929442
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21310283
+  - url: https://zenodo.org/records/21320347
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21310283
+  - url: https://zenodo.org/records/21320347
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21308578
+  - url: https://zenodo.org/records/21319002
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21308578
+  - url: https://zenodo.org/records/21319002
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

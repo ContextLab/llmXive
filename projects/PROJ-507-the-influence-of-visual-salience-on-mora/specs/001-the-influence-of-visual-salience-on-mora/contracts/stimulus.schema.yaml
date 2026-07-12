@@ -1,45 +1,45 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Stimulus Variant Schema"
-description: "Schema for a manipulated visual stimulus used in the experiment."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Stimulus Schema
+description: Defines the structure of a single stimulus record in the experiment.
+type: object
 properties:
   stimulus_id:
-    type: "string"
-    description: "Unique identifier for the stimulus (e.g., SCN_001_LOW)."
+    type: string
+    description: "Unique identifier for the stimulus (e.g., 'scenario_001_salience_high')."
   scenario_id:
-    type: "string"
-    description: "Foreign key to the parent scenario."
+    type: string
+    description: "Identifier for the base scenario (e.g., 'scenario_001')."
   salience_level:
-    type: "string"
+    type: string
     enum:
-      - "low"
-      - "medium"
-      - "high"
-    description: "The level of visual salience manipulation."
+      - low
+      - medium
+      - high
+    description: "The level of visual salience manipulation applied."
+  file_path:
+    type: string
+    description: "Relative path to the image file (e.g., 'data/processed/stimuli/scenario_001_high.png')."
   manipulation_params:
-    type: "object"
+    type: object
     properties:
-      contrast_factor:
-        type: "number"
-        description: "Multiplier for contrast adjustment."
       brightness_factor:
-        type: "number"
-        description: "Multiplier for brightness adjustment."
+        type: number
+        description: "Multiplicative factor for brightness (e.g., 1.2 for high)."
+      contrast_factor:
+        type: number
+        description: "Multiplicative factor for contrast (e.g., 1.5 for high)."
     required:
-      - "contrast_factor"
-      - "brightness_factor"
-  image_path:
-    type: "string"
-    description: "Relative path to the image file in data/processed/."
-  semantic_preservation_score:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Score indicating semantic preservation (e.g., SSIM, IoU)."
+      - brightness_factor
+      - contrast_factor
+  created_at:
+    type: string
+    format: date-time
+    description: "Timestamp of stimulus generation."
 required:
-  - "stimulus_id"
-  - "scenario_id"
-  - "salience_level"
-  - "manipulation_params"
-  - "image_path"
+  - stimulus_id
+  - scenario_id
+  - salience_level
+  - file_path
+  - manipulation_params
+  - created_at
 additionalProperties: false

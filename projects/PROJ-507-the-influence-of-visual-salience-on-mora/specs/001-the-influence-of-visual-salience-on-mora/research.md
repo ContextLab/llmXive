@@ -1,103 +1,75 @@
 # Research: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
-## 1. Problem Statement & Hypothesis
+## Research Question
+Does increasing the visual salience (via luminance contrast/brightness) of a target object in a morally ambiguous scenario significantly increase the blame attributed to that object by observers?
 
-**Research Question**: Does increasing the visual salience (luminance contrast/brightness) of a target object in a morally ambiguous scenario increase the blame attributed to the agent associated with that object?
+## Theoretical Background
+Visual salience drives attentional capture. In moral psychology, the "focalist" hypothesis suggests that attention to an agent increases the perceived responsibility for an outcome. This study tests whether manipulating low-level visual features (salience) causally alters high-level moral judgments (blame).
 
-**Hypothesis**: Higher visual salience of the causal agent/object will lead to higher blame ratings (1-7 Likert scale) compared to lower salience variants, controlling for semantic content.
+## Dataset Strategy
 
-## 2. Dataset Strategy
+### Primary Verified Datasets
+The project relies on the following verified dataset for the primary visual stimuli. This dataset contains the necessary semantic content (social scenarios) required to test the hypothesis.
 
-### Source Selection
-The project relies on open visual datasets containing social or conflict scenarios.
-*   **Primary Candidate**: Visual Genome (VG) or similar dataset with moral/social tags.
-    *   **Status**: **VERIFIED SOURCE REQUIRED**.
-    *   **Action**: Phase 0.1 will search for a verified URL in the `# Verified datasets` block. If found, it will be used. If not, the project **halts** and generates a "Data Gap Report".
-    *   **Fallback**: None. The plan rejects the use of random public domain images or synthetic geometric scenes as they lack the required semantic content (moral ambiguity) to answer the research question.
+- **Visual Genome**: `https://homes.cs.washington.edu/~ranjay/visualgenome/data/dataset.json` (or verified HuggingFace mirror `visual_genome`).
+  - **Usage**: Serves as the source for base scenarios. The dataset contains images of scenes with associated object and relationship annotations.
+  - **Selection Criteria**: We will programmatically filter for scenarios containing "social conflict" or "accident" keywords in the metadata to narrow the candidate pool. **Note**: Visual Genome does not inherently contain "morally ambiguous" labels. Therefore, the project will not rely on dataset metadata alone for this property.
+  - **Validation**: To ensure construct validity, a **mandatory human coding step** (FR-008) will be performed on this subset. Two independent annotators will label selected images as 'morally ambiguous'. Only scenarios achieving ≥80% inter-rater reliability (Cohen's κ ≥ 0.8) will be included in the final stimulus set. Ambiguity is NOT assumed from dataset creators; it is empirically validated by the study's protocol. **The pilot phase IS this human coding run.**
 
-**Verified Datasets Used for Analysis**:
-*   **None**. The plan does not use external pre-computed statistics (like 'ANOVA (json)') for validation as they introduce category errors. Validation relies entirely on synthetic data with known ground truth.
+### Secondary References
+The following datasets are cited for methodological reference or code validation only and are NOT used for primary stimuli or core statistical analysis of the research question.
 
-### Data Suitability & Mismatch
-*   **Visual Genome**: Contains images but **no verified URL** in the provided block. The plan cannot rely on a direct API call to VG in the CI environment without a verified source.
-*   **Gap**: The spec requires "morally ambiguous images." The available verified datasets (if any) do not contain images.
-*   **Resolution**: The implementation will use a **verified subset** of an open dataset if found. If not, the project halts. No simulated or placeholder images will be used for the main analysis.
+- **ANOVA Reference Data**: `https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json`
+  - **Usage**: Used strictly for unit-testing the statistical pipeline (e.g., verifying that the `statsmodels` ANOVA implementation produces expected output formats on synthetic data). It is not used for the actual hypothesis testing.
+- **CPU-only Text Data**: `https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet`
+  - **Usage**: Referenced only for potential metadata extraction logic or text-based filtering scripts if needed. It is not used for visual stimuli or behavioral analysis.
 
-## 3. Methodology
+## Methodology
 
-### Phase 0.1: Dataset Verification & Ingestion
-*   **Input**: List of potential dataset sources.
-*   **Process**:
-    1.  Check `# Verified datasets` block for a URL matching the criteria (images with social/conflict tags).
-    2.  If found, download and checksum the dataset.
-    3.  If not found, generate "Data Gap Report" and halt.
-*   **Output**: `data/raw/verified_dataset_info.json`.
+### Experimental Design
+- **Design**: Within-subject, repeated-measures design.
+- **Independent Variable**: Visual Salience (3 levels: Low, Medium, High).
+- **Dependent Variable**: Blame Rating (1-7 Likert scale).
+- **Participants**: Real recruited pilot cohort (N=20-30).
+- **Procedure**:
+  1. Ingest images from the verified Visual Genome dataset.
+  2. **Human Coding**: Recruit annotators to label a subset of images for moral ambiguity (FR-008). Exclude non-ambiguous scenarios.
+  3. Generate multiple variants per valid image (Low, Med, High salience) using PIL.
+  4. Present variants in randomized order to the pilot cohort.
+  5. Collect blame ratings.
 
-### Phase 0.5: Human Coding Pilot (FR-008)
-*   **Input**: Subset of raw images (N=10).
-*   **Process**:
-    1.  Deploy a local annotation tool (e.g., Label Studio or CSV-based).
-    2.  Recruit N=2 independent annotators (real humans).
-    3.  Calculate Cohen's kappa.
-    4.  If kappa < 0.8, exclude scenarios or re-code.
-*   **Output**: `data/processed/human_coding_results.csv`.
+### Statistical Analysis Plan
+1. **Data Cleaning**: Exclude straight-liners (FR-007).
+2. **Assumption Checking**:
+   - Normality of residuals (Shapiro-Wilk).
+   - Sphericity (Mauchly's test). If violated, apply Greenhouse-Geisser or Huynh-Feldt correction (FR-004).
+3. **Primary Test**: Repeated-measures ANOVA (FR-004) on real pilot data.
+   - Null Hypothesis ($H_0$): No difference in mean blame ratings across salience levels.
+   - Alternative Hypothesis ($H_1$): At least one salience level differs.
+4. **Post-hoc Tests**: Bonferroni-corrected pairwise t-tests (FR-005).
+   - Comparisons: Low vs. Medium, Medium vs. High, Low vs. High.
+   - Correction: Adjust $\alpha$ to $0.05 / 3 \approx 0.0167$.
+5. **Effect Size**: Calculate partial eta-squared ($\eta_p^2$) and 95% Confidence Intervals (FR-006).
 
-### Phase 1: Data Preparation & Salience Manipulation (FR-001)
-*   **Input**: Raw images (subset).
-*   **Process**:
-    1.  **Metadata Filtering**: Filter for 'social' or 'conflict' tags (simulated for prototype, real for full study).
-    2.  **Manipulation**: Use `Pillow` to adjust `brightness` and `contrast` parameters.
-        *   Low: Original.
-        *   Medium: +[deferred] contrast/brightness in target region.
-        *   High: +[deferred] contrast/brightness in target region.
-    3.  **Validation**: Calculate pixel-wise difference and verify semantic preservation (SSIM).
-*   **Output**: 3 variants per scenario (Low, Medium, High).
+### Power & Sample Size
+- **Assumption**: Medium effect size ($f = 0.25$).
+- **Limitation**: Pilot study may be underpowered. The analysis will explicitly report power limitations and wider CIs if $N$ is small (Edge Case).
 
-### Phase 2: Survey Deployment Pilot (FR-002, FR-003)
-*   **Design**: Within-subject, randomized order.
-*   **Process**:
-    1.  Deploy a functional survey interface (e.g., local server or sandbox) to N=10 real participants.
-    2.  Collect blame ratings and metadata.
-    3.  **Data Cleaning (FR-007)**: Implement logic to detect "straight-lining" (identical ratings across all items).
-*   **Output**: `data/survey/pilot_responses.csv` with real human data.
+## Decision Rationale
 
-### Phase 3: Statistical Analysis & Pipeline Validation (FR-004, FR-005, FR-006)
-*   **Model**: **Linear Mixed-Effects Model (LMM)**.
-    *   **Rationale**: A standard repeated-measures ANOVA treats 'Scenario' as a fixed effect or ignores its variability. Given the design (20 scenarios x 3 levels), the effect of salience may vary significantly by scenario. An LMM with random intercepts for `Scenario` and `Participant` properly accounts for this nested structure, preventing biased estimates and inflated Type I errors.
-    *   **Formula**: `Rating ~ Salience + (1 | Participant) + (1 | Scenario)`
-    *   **Fixed Effect**: Salience (3 levels: Low, Medium, High).
-    *   **Random Effects**: Random intercepts for `Participant` and `Scenario`.
-    *   **Dependent Variable**: Blame Rating (1-7).
-*   **Assumptions**:
-    *   **Sphericity**: Not required for LMM, but residuals will be checked for normality and homoscedasticity.
-    *   **Multiple Comparisons**: Bonferroni correction for pairwise contrasts (Low vs Med, Med vs High, Low vs High).
-*   **Effect Size**: Calculate partial eta-squared ($\eta_p^2$) or marginal R-squared and 95% Confidence Intervals.
-*   **Validation Strategy**:
-    *   **Pipeline Validation (Synthetic Data)**:
-        *   **Positive Control**: Generate synthetic data with an **injected effect** (e.g., d=0.5). The pipeline must **correctly reject** the null hypothesis, proving sensitivity.
-        *   **Null Control**: Generate synthetic data with **no effect** (Rating = Base + Noise). The pipeline must **fail to reject** the null hypothesis, proving specificity and Type I error control.
-        *   **Scope**: This phase validates the **analysis pipeline's ability to detect effects** and control error rates. It does **not** validate the scientific hypothesis (that salience affects blame) which requires real empirical data.
-*   **Output**: `data/analysis/results.json` and a console report.
+### Why CPU-only?
+The project is constrained to GitHub Actions free-tier runners with limited CPU and RAM resources. Deep learning models for image generation or analysis are infeasible. `Pillow` provides sufficient control for luminance manipulation without GPU requirements.
 
-## 4. Statistical Rigor & Feasibility
+### Why Human Coding for Pilot?
+Construct validity requires that the "morally ambiguous" label is empirically validated, not assumed. The pilot *is* the human coding run (FR-008) to ensure the dependent variable (blame in an ambiguous context) is real and not synthetic. This resolves the risk of circular validation and ensures the dataset matches the research question's semantic requirements.
 
-*   **Multiple Comparison Correction**: Bonferroni correction will be applied to the 3 pairwise contrasts (FR-005).
-*   **Power Analysis**: The plan acknowledges the limitation of the sample size (pilot). The analysis will report the achieved power or note the limitation if the sample size is small.
-*   **Causal Inference**: The design is experimental (within-subject manipulation), allowing causal claims *within the constraints of the simulation*.
-*   **Collinearity**: Not applicable (Salience levels are mutually exclusive experimental conditions).
-*   **Compute Feasibility**:
-    *   **Memory**: Image processing for ~60 images is negligible (<100 MB).
-    *   **CPU**: LMM on 150 rows is fast.
-    *   **Time**: Total runtime < 5 minutes.
-    *   **No GPU**: All operations (Pillow, statsmodels) are CPU-native.
+### Why Bonferroni?
+With only 3 pairwise comparisons, Bonferroni is appropriate and conservative (Assumption). It controls the family-wise error rate (SC-003).
 
-## 5. Risks & Mitigations
+### Why Real Data (Not Simulation)?
+Using simulated or placeholder images fails construct validity because moral ambiguity is a semantic property of complex scenes. The analysis must be performed on real behavioral data from real participants responding to real stimuli to answer the research question. The pilot is an empirical test, not a code validation simulation.
 
-*   **Risk**: No verified image dataset URL.
-    *   **Mitigation**: Halt project. Do not proceed with unverified data.
-*   **Risk**: "Human coding" cannot be performed in CI.
-    *   **Mitigation**: Phase 0.5 explicitly includes a real human coding pilot task.
-*   **Risk**: Real survey data collection is external.
-    *   **Mitigation**: Phase 2.5 explicitly includes a real survey deployment pilot task.
-*   **Risk**: Pipeline validation is circular.
-    *   **Mitigation**: Use **Positive Control** (injected effect) and **Null Control** (no effect) synthetic datasets to validate sensitivity and specificity. Explicitly state that this validates the *pipeline*, not the *hypothesis*.
+## Limitations
+- **Dataset**: The pilot relies on a small, manually curated subset of the Visual Genome dataset.
+- **Power**: Small sample size may limit detection of small effects.
+- **Generalizability**: Pilot results are preliminary; full study requires larger N and broader image diversity.

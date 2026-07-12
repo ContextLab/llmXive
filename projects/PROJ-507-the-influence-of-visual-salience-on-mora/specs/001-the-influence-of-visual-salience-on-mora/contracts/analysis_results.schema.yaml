@@ -1,0 +1,95 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: Defines the structure of the statistical analysis output.
+type: object
+properties:
+  anova_table:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Source of variation (e.g., 'salience', 'Error')."
+      df:
+        type: number
+        description: "Degrees of freedom."
+      F:
+        type: number
+        description: "F-statistic."
+      p_value:
+        type: number
+        description: "P-value (corrected if necessary)."
+      partial_eta_squared:
+        type: number
+        description: "Effect size (partial eta-squared)."
+      ci_lower:
+        type: number
+        description: "Lower bound of 95% CI for effect size."
+      ci_upper:
+        type: number
+        description: "Upper bound of 95% CI for effect size."
+    required:
+      - source
+      - df
+      - F
+      - p_value
+      - partial_eta_squared
+  sphericity_test:
+    type: object
+    properties:
+      mauchly_w:
+        type: number
+        description: "Mauchly's W statistic."
+      p_value:
+        type: number
+        description: "P-value for sphericity test."
+      correction_applied:
+        type: string
+        enum:
+          - none
+          - greenhouse-geisser
+          - huynh-feldt
+        description: "Type of correction applied if sphericity violated."
+    required:
+      - mauchly_w
+      - p_value
+      - correction_applied
+  post_hoc_tests:
+    type: array
+    items:
+      type: object
+      properties:
+        comparison:
+          type: string
+          description: "e.g., 'low vs medium'."
+        t_statistic:
+          type: number
+        p_value:
+          type: number
+          description: "Bonferroni-corrected p-value."
+        significant:
+          type: boolean
+      required:
+        - comparison
+        - t_statistic
+        - p_value
+        - significant
+  metadata:
+    type: object
+    properties:
+      n_participants:
+        type: integer
+      n_responses:
+        type: integer
+      analysis_date:
+        type: string
+        format: date-time
+    required:
+      - n_participants
+      - n_responses
+      - analysis_date
+required:
+  - anova_table
+  - sphericity_test
+  - post_hoc_tests
+  - metadata
+additionalProperties: false
