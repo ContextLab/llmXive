@@ -1,0 +1,18 @@
+{
+  "total_sequences": 0,
+  "strata_counts": {
+    "Static-High": 0,
+    "Static-Low": 0,
+    "Fast-High": 0,
+    "Fast-Low": 0
+  },
+  "selected_counts": {
+    "Static-High": 0,
+    "Static-Low": 0,
+    "Fast-High": 0,
+    "Fast-Low": 0
+  },
+  "seed": 42,
+  "motion_threshold": 50.0,
+  "texture_threshold": 0.5
+}

@@ -1,0 +1,40 @@
+{
+  "directory_structure": {
+    "required": [
+      "data/raw",
+      "data/processed",
+      "data/stratified",
+      "data/features",
+      "data/results"
+    ],
+    "validated": true
+  },
+  "directory_contents": {
+    "raw": {
+      "exists": true,
+      "files": 0,
+      "subdirs": []
+    },
+    "stratified": {
+      "exists": true,
+      "files": 0,
+      "subdirs": []
+    },
+    "features": {
+      "exists": true,
+      "files": 0,
+      "subdirs": []
+    },
+    "results": {
+      "exists": true,
+      "files": 1,
+      "subdirs": []
+    }
+  },
+  "strata_status": {
+    "Static-High": false,
+    "Static-Low": false,
+    "Fast-High": false,
+    "Fast-Low": false
+  }
+}
