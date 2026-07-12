@@ -1,0 +1,27 @@
+# llmXive Project: Edit-Compass & EditReward-Compass Benchmark
+# Python 3.11 Environment
+# Pinning specific versions to ensure reproducibility and CPU-only compatibility
+
+# Core ML & Transformers (CPU Only)
+torch==2.2.2+cpu
+transformers>=4.40.0
+sentence-transformers>=2.7.0
+
+# LLM Inference (GGUF/CPU)
+llama-cpp-python>=0.2.70
+
+# Image Processing & Metrics
+scikit-image>=0.22.0
+lpips>=0.1.4
+
+# Statistical Analysis
+statsmodels>=0.14.1
+numpy>=1.26.0
+scipy>=1.12.0
+pandas>=2.2.0
+
+# Utilities
+pydantic>=2.6.0
+requests>=2.31.0
+tqdm>=4.66.0
+PyYAML>=6.0.1

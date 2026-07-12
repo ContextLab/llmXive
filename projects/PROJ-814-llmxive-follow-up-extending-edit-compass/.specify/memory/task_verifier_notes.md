@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a [P] Create directory `src/services`** — No evidence of a `src/services` directory was provided; the artifact list is empty, so the required directory was not created. The implementer must add the missing `src/services` folder to satisfy the task.
+- **T001c [P] Create directory `src/models`** — No evidence of a `src/models` directory was provided; the claim lacks any artifact showing the directory exists (and is non‑empty). The required directory must be created and visible in the repository for the task to be considered complete.
+- **T001d [P] Create directory `src/utils`** — No evidence was presented that a `src/utils` directory actually exists in the project; the only artifacts shown relate to dataset handling and analysis, not to the required directory creation. The implementer must add the `src/utils` folder (non‑empty) to satisfy task T001d.
+- **T001e [P] Create directory `src/data-models`** — No evidence of a `src/data-models` directory was provided; the claim lacks any artifact showing the directory exists (or contains any files). The implementer must create the directory in the repository and show its presence (e.g., a file tree listing or a placeholder file inside).
+- **T001f [P] Create directory `tests/unit`** — No evidence of a `tests/unit` directory was provided; the artifact list is empty, so the required directory does not exist. The implementer must create the `tests/unit` folder in the repository.
+- **T001g [P] Create directory `tests/contract`** — No evidence of a `tests/contract` directory was provided; the artifact list is empty, so the required directory has not been shown to exist.

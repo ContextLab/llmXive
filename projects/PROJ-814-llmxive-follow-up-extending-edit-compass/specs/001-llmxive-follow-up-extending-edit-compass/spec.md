@@ -86,8 +86,8 @@ The system MUST perform a preliminary independence check, followed by a multiple
 
 - **SC-001**: The correlation coefficient between Human Preference and Logic Consistency Score must exceed the correlation between Human Preference and Fidelity Score by at least 0.1, with a p-value < 0.05 for the difference, to confirm Logic is the stronger predictor. (See FR-006)
 - **SC-002**: The statistical significance of the predictors is measured against a corrected alpha threshold (FDR ≤ 0.05 via Benjamini-Hochberg) to ensure findings are not due to chance. (See FR-007)
-- **SC-003**: The analysis runtime is measured against the explicit time limit of 6 hours to ensure feasibility on the GitHub Actions free-tier runner. (See FR-008)
-- **SC-004**: The memory consumption is measured against a predefined RAM limit of 7 GB during the peak of the VLM inference batch to ensure stability. (See FR-008)
+- **SC-003**: The analysis runtime is measured against an explicit time limit to ensure feasibility on the GitHub Actions free-tier runner. (See FR-008)
+- **SC-004**: The memory consumption is measured against a predefined RAM limit to ensure stability during the peak of the VLM inference batch. (See FR-008)
 - **SC-005**: The dataset variable fit is measured by verifying that the Edit-Compass dataset contains all required variables (instruction, source image, edited image, human score, category) for the analysis; if any are missing, the system MUST report a specific error and halt. (See FR-001)
 
 ## Assumptions

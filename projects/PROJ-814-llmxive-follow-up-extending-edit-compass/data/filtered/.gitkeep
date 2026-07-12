@@ -1,0 +1,3 @@
+# This directory is reserved for filtered dataset subsets.
+# It is created by task T001i as part of the project setup.
+# Do not commit large data files here; use .gitignore rules for data.

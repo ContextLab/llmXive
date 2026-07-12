@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 42818b8b6c9dd7adb3d572fcf1150957407a3955f1efb21e452d2c9d6a989fb8
+  artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/yourorg/llmxive-followup.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/yourorg/llmxive-followup
+  verified_at: '2026-07-12T06:44:36.917216Z'
