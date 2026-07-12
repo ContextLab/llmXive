@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.19264",
+  "judged_at": "2026-07-12T18:37:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"the mirage of optimizing training policies: monotonic inference polici\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it investigates the same core mechanism of \"inference policies\" for LLMs (specifically comparing iterative Gibbs sampling against standard autoregressive generation) and offers a foundational methodological alternative to the \"monotonic\" policies critiqued in the user's referenced work. It provides the necessary canonical prior work on structured inference strategies that a literature review on optimizing LLM training/inference policies would require.",
+  "relevant": true
+}

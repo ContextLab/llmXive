@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.23419",
+  "judged_at": "2026-07-12T18:36:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"claw-swe-bench: a benchmark for evaluating openclaw-style agent harnes\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides the canonical, up-to-date empirical baseline and evaluation framework for the specific domain of LLM agents solving software engineering tasks (SWE-bench), which is the exact mechanism and population the user's \"Claw-SWE-Bench\" follow-up research aims to extend and evaluate.",
+  "relevant": true
+}

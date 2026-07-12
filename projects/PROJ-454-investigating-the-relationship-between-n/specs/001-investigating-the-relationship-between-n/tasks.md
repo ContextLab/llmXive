@@ -15,7 +15,7 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
+- **Single project**: `code/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
@@ -54,8 +54,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup `utils/resource_monitor.py` to log RAM/Disk usage and enforce <7GB RAM / <14GB Disk limits
-- [ ] T005 [P] Implement `utils/entropy_utils.py` with CPU-optimized Sample Entropy and Approximate Entropy algorithms (no CUDA, float64 precision)
-- [ ] T006 [P] Setup `utils/stats_utils.py` for Partial Pearson Correlation, Multiple Linear Regression (OLS), and FDR correction (Benjamini-Hochberg). **Note**: Bonferroni is excluded from setup as it is only used for secondary validation.
+- [ ] T005 [P] Implement `utils/entropy_utils.py` with CPU-optimized Sample Entropy and Approximate Entropy algorithms (no CUDA, standard floating-point precision)
+- [ ] T006 [P] Setup `utils/stats_utils.py` for Multiple Linear Regression (OLS) and FDR correction (Benjamini-Hochberg). **Note**: Bonferroni is excluded as the Plan deviates to OLS/FDR.
 - [ ] T007 Create base data schemas in `specs/001-neural-entropy-cognitive-flexibility/contracts/` (`dataset.schema.yaml`, `entropy_output.schema.yaml`, `correlation_results.schema.yaml`, `output.schema.yaml`)
 - [ ] T008 Configure logging infrastructure to track data flow and exclusion reasons
 - [ ] T009 Setup environment configuration management for dataset URLs and thresholds
@@ -79,12 +79,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/01_download_data.py`: Fetch OpenNeuro datasets (ds, ds), verify metadata contains 'wcst_perseverative_errors' and 'age >= 50', verify variable fit. **Input**: OpenNeuro API. **Output**: `data/raw/` parquet files with checksums. (FR-001, FR-010, FR-011)
-- [ ] T012b [US1] Extract and convert behavioral scores from `data/raw/` parquet files to `data/processed/behavioral_scores.csv`. **Input**: `data/raw/`. **Output**: `data/processed/behavioral_scores.csv`. (Ordering Fix: T020/T020a dependency)
-- [ ] T013 [US1] Implement `code/02_preprocess_eeg.py`: Bandpass (low-frequency cutoff), Notch (50/60Hz), Bad channel interpolation, ICA artifact removal, s non-overlapping epochs. **Input**: `data/raw/`. **Output**: `data/processed/` epoched data. (FR-002, US-1)
-- [ ] T014 [US1] Implement SNR calculation in `code/02_preprocess_eeg.py`: Calculate **Median SNR of preprocessed data relative to 1-45 Hz band power** (per SC-001). **Input**: `data/processed/` epoched data. **Output**: `data/processed/snr_metrics.json`. (SC-001, FR-002)
-- [ ] T016 [US1] Add data quality checks to `code/02_preprocess_eeg.py`: Exclude participants with <60s valid EEG, >20% corrupted segments, **OR SNR < 5dB** (consuming T014 output). **Input**: `data/raw/`, `data/processed/snr_metrics.json`. **Output**: `data/processed/exclusion_log.csv`. (Edge Cases, SC-001)
-- [ ] T015 [US1] Implement `code/03_compute_entropy.py`: Compute **both** Sample Entropy and Approximate Entropy for Delta, Theta, Alpha, Beta, Gamma bands. **Include both in primary output**. **Input**: `data/processed/` epoched data. **Output**: `data/processed/entropy_metrics.csv`. (FR-003, FR-012)
+- [ ] T012 [US1] Implement `code/01_download_data.py`: Fetch OpenNeuro datasets (ds, ds003104). **Verify variable fit**: Check metadata for 'wcst_perseverative_errors' column and 'age >= 50'. **Input**: OpenNeuro API. **Output**: `data/raw/` parquet files with checksums. (FR-001, FR-010, FR-011)
+- [ ] T012b [US1] Extract and convert behavioral scores from `data/raw/` parquet files to `data/processed/behavioral_scores.csv`. **Critical**: Must explicitly **verify WCST column existence** (referencing T012's variable-fit check) before extraction. **If missing, halt with 'DATASET_VARIABLE_MISMATCH' error**. **Input**: `data/raw/` (after T012 variable-fit check). **Output**: `data/processed/behavioral_scores.csv`. (Ordering Fix: T012b depends on T012 variable-fit check)
+- [ ] T013 [US1] Implement the preprocessing script for EEG data: Bandpass (1-45 Hz), Notch (50/60Hz), Bad channel interpolation, ICA artifact removal, 2s non-overlapping epochs. **Input**: `data/raw/`. **Output**: `data/processed/` epoched data. (FR-002, US-1)
+- [ ] T014 [US1] Implement SNR calculation in `code/02_preprocess_eeg.py`: Calculate **Median SNR of preprocessed data relative to 1-45 Hz band power** (per SC-001). **Formula**: `median(signal_power_1-45Hz) / median(noise_power_residual)`. **Input**: `data/processed/` epoched data. **Output**: `data/processed/snr_metrics.json`. (SC-001, FR-002)
+- [ ] T016 [US1] Add data quality checks to `code/02_preprocess_eeg.py`: Exclude participants with <60s valid EEG, >20% corrupted segments, **OR SNR < 5dB** (consuming T014 output). **Use the exact SNR calculation method from T014/SC-001 (median SNR relative to 1-45 Hz band power)**. **Input**: `data/raw/`, `data/processed/snr_metrics.json`. **Output**: `data/processed/exclusion_log.csv`. (Edge Cases, SC-001)
+- [ ] T015 [US1] Implement `code/compute_entropy.py`: Compute **both** Sample Entropy and Approximate Entropy for Delta, Theta, Alpha, Beta, Gamma bands. **Include both in primary output**. **Input**: `data/processed/` epoched data. **Output**: `data/processed/entropy_metrics.csv`. (FR-003, FR-012)
 - [ ] T017 [US1] Add resource monitoring calls in `02_preprocess_eeg.py` and `03_compute_entropy.py` to ensure <7GB RAM usage. **Input**: Running scripts. **Output**: `logs/resource_usage.log`. (FR-008)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -93,9 +93,9 @@
 
 ## Phase 4: User Story 2 - Statistical Correlation Analysis (Priority: P2)
 
-**Goal**: Perform Partial Pearson Correlation (Spec FR-004) with covariates and FDR correction (Spec FR-005). Include OLS and Bonferroni as secondary validation.
+**Goal**: Perform Multiple Linear Regression (OLS) with covariates and FDR correction (Spec FR-005, Plan Deviation).
 
-**Independent Test**: Can be fully tested by running the correlation pipeline on computed entropy values and behavioral scores, verifying that p-values are FDR-corrected and effect sizes (partial r) are reported with 95% confidence intervals.
+**Independent Test**: Can be fully tested by running the regression pipeline on computed entropy values and behavioral scores, verifying that p-values are FDR-corrected and effect sizes (partial r) are reported with 95% confidence intervals.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -104,13 +104,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020a [US2] Implement `code/04_regression_analysis.py`: Perform **Partial Pearson Correlation** between Entropy metrics and WCST perseverative errors, controlling for age, education, task accuracy. **Input**: `data/processed/entropy_metrics.csv`, `data/processed/behavioral_scores.csv`. **Output**: `data/processed/correlation_results_partial.csv`. (FR-004, Edge Cases, SC-002)
-- [ ] T020b [US2] Implement **Multiple Linear Regression (OLS)** between Entropy metrics and WCST errors as **exploratory deviation** (per Plan). **Input**: `data/processed/entropy_metrics.csv`, `data/processed/behavioral_scores.csv`. **Output**: `data/processed/correlation_results_ols.csv`. (Plan: OLS)
-- [ ] T021 [US2] Implement Benjamini-Hochberg FDR correction in `code/04_regression_analysis.py` for all tests (Multiple bands × 2 entropy measures) on `correlation_results_partial.csv`. **Explicitly reference FR-012** if test count is reduced due to collinearity. **Input**: `data/processed/correlation_results_partial.csv`. **Output**: `data/processed/correlation_results_fdr.csv`. (FR-005, FR-012, SC-002)
-- [ ] T022 [US2] Implement Bonferroni correction in `code/04_regression_analysis.py` on `correlation_results_partial.csv` as **secondary validation** (per Constitution Principle VII). **Input**: `data/processed/correlation_results_partial.csv`. **Output**: `data/processed/correlation_results_bonferroni.csv`. (Constitution: Principle VII)
+- [ ] T020a [US2] Implement `code/04_regression_analysis.py`: Perform **Multiple Linear Regression (OLS)** between Entropy metrics and WCST errors. **This is the primary and only statistical test** per Plan deviation (replaces Partial Pearson). Controls: Age, Education, Task Accuracy, Neurological Condition, Medication. **Input**: `data/processed/entropy_metrics.csv`, `data/processed/behavioral_scores.csv`. **Output**: `data/processed/correlation_results_ols.csv`. (Plan: OLS, FR-004 deviation)
+- [ ] T021 [US2] Implement Benjamini-Hochberg FDR correction in `code/04_regression_analysis.py`. **Logic**: 1. **Calculate VIF for all predictors in OLS model first**. 2. **If VIF > 5, drop Approximate Entropy (ApEn) and re-run OLS**. 3. Apply FDR to remaining tests (5 bands × remaining metrics). **Input**: `data/processed/correlation_results_ols.csv`. **Output**: `data/processed/correlation_results_fdr.csv`. (FR-005, FR-012, SC-002)
 - [ ] T023 [US2] Calculate effect sizes (partial r) and classify (≥ 0.3 = clinically meaningful) in `code/04_regression_analysis.py`. **Input**: `data/processed/correlation_results_fdr.csv`. **Output**: `data/processed/effect_sizes.json`. (SC-002)
 - [ ] T024 [US2] Generate acknowledgement log stating that "Power analysis sample size requirements are deferred to implementation with explicit acknowledgement" as per Spec Assumptions. **Input**: Running script. **Output**: `logs/power_analysis.log`. (Spec Assumptions)
 - [ ] T025 [US3] Add explicit "Associational" disclaimer and covariate control summary to final report. **Input**: `data/processed/`. **Output**: `logs/methodology_notes.md`. (FR-009, SC-005, Plan: Constitution Amendment Request)
+- [ ] T022 [US2] Implement `code/04_regression_analysis.py` to calculate Bonferroni-corrected p-values **for historical comparison only** to track the Constitution Amendment Request (Principle VII). **Explicitly state in output that this is NOT the primary method** and is for tracking the amendment process. **Input**: `data/processed/correlation_results_ols.csv`. **Output**: `data/processed/correlation_results_bonferroni_historical.csv`. (Plan: Constitution Amendment tracking)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,12 +128,12 @@
 ### Implementation for User Story 3
 
 - [ ] T027 [US3] Implement sensitivity analysis in `code/04_regression_analysis.py` excluding participants with neurological conditions/medications. **Input**: `data/processed/correlation_results_fdr.csv` (from T021), `data/processed/behavioral_scores.csv`. **Output**: `data/processed/sensitivity_exclusion_results.csv`. (FR-006)
-- [ ] T028 [US3] Implement threshold sensitivity sweep in `code/04_regression_analysis.py`. **Primary**: Sweep over **absolute differences** {0.0, 0.05, 0.1} as required by Spec FR-007. **Secondary**: Optional relative sweep. **Input**: `data/processed/entropy_metrics.csv`, `data/processed/correlation_results_fdr.csv`. **Output**: `data/processed/sensitivity_threshold_results.csv`. (FR-007)
+- [ ] T028 [US3] Implement threshold sensitivity sweep in `code/04_regression_analysis.py`. **Cutoffs to sweep**: 1. **Artifact rejection threshold** (range: 15% to 25% amplitude deviation). 2. **SNR threshold** (range: dB to 7 dB). **Sweep values**: {0.0, 0.05, 0.1} absolute difference from baseline. **Input**: `data/processed/entropy_metrics.csv`, `data/processed/correlation_results_fdr.csv`. **Output**: `data/processed/sensitivity_threshold_results.csv`. (FR-007, US-3)
 - [ ] T029 [US3] Generate `sensitivity_report.json` comparing results across exclusion scenarios and threshold sweeps. **Required fields**: scenario, r_value, p_value, n_excluded. **Input**: `data/processed/sensitivity_exclusion_results.csv`, `data/processed/sensitivity_threshold_results.csv`. **Output**: `data/processed/sensitivity_report.json`. (SC-003)
-- [ ] T030 [US3] Implement `code/05_generate_report.py` to produce final report with correlation matrices, effect sizes, **FDR-corrected p-values (primary)**, Bonferroni (secondary), and sensitivity comparisons. **Explicitly state that FDR correction was used to satisfy Spec FR-005**. **Input**: `data/processed/`. **Output**: `reports/final_report.md`. (FR-007, SC-003)
+- [ ] T030 [US3] Implement `code/05_generate_report.py` to produce final report with correlation matrices, effect sizes, **FDR-corrected p-values (primary)**, and sensitivity comparisons. **Explicitly state that FDR correction was used to satisfy Spec FR-005**. **Input**: `data/processed/`. **Output**: `reports/final_report.md`. (FR-007, SC-003)
 - [ ] T031 [US3] Add explicit "Associational" disclaimer and covariate control summary to final report. **Input**: `reports/final_report.md`. **Output**: `reports/final_report.md` (updated). (FR-009, SC-005)
-- [ ] T032a [US3] Validate **CSV data artifacts** (`correlation_results_partial.csv`, `correlation_results_fdr.csv`) against `correlation_results.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_log.csv.txt`. (Contract Test)
-- [ ] T032b [US3] Validate **JSON artifacts** (`sensitivity_report.json`) against `output.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_log.json.txt`. (Contract Test)
+- [ ] T032a [US3] Validate **CSV data artifacts** (`correlation_results_fdr.csv`) against `specs/001-neural-entropy-cognitive-flexibility/contracts/correlation_results.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_log.csv.txt`. (Contract Test)
+- [ ] T032b [US3] Validate **JSON artifacts** (`sensitivity_report.json`) against `specs/001-neural-entropy-cognitive-flexibility/contracts/output.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_log.json.txt`. (Contract Test)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -245,5 +244,5 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All tasks must run on CPU-only CI (limited core count, GB RAM, 14GB disk, 6h limit). No GPU, no 8-bit models.
 - **Data Integrity**: No fake data. Use real OpenNeuro datasets with verified behavioral scores.
-- **Methodology Note**: Primary hypothesis testing uses Partial Pearson (Spec FR-004) with FDR correction (Spec FR-005). OLS and Bonferroni are secondary/exploratory.
-- **Spec-Plan Consistency Note**: Tasks T020a/T020b and T021/T022 implement both Spec and Plan requirements, with Spec requirements as primary.
+- **Methodology Note**: Primary hypothesis testing uses **Multiple Linear Regression (OLS)** with **FDR correction** (Plan deviation from Spec FR-004/Constitution VII). Partial Pearson and Bonferroni are removed as primary methods; Bonferroni is retained only for historical tracking (T022).
+- **Spec-Plan Consistency Note**: Tasks reflect Plan's deviation to OLS and FDR. T020a implements OLS (Primary). T021 implements FDR with VIF check. T028 specifies exact cutoffs. T012b enforces variable-fit check. T022 tracks Constitution Amendment.

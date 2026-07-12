@@ -7,7 +7,7 @@
 
 This feature implements a reproducible, CPU-tractable pipeline to investigate the association between neural entropy (Sample and Approximate Entropy) in resting-state EEG and cognitive flexibility (WCST perseverative errors) in aging. The pipeline downloads verified EEG datasets, preprocesses signals (filtering, ICA), computes entropy across frequency bands, and performs Multiple Linear Regression (OLS) with FDR correction to handle binary covariates and multiple comparisons correctly. It includes rigorous sensitivity analyses and adheres to the project constitution's reproducibility and data hygiene principles.
 
-**Critical Note on Methodology**: The Spec (FR-004) and Constitution (Principle VII) originally mandated "Partial Pearson Correlation" and "Bonferroni Correction". However, to correctly handle binary covariates (neurological conditions) and apply FDR across 10 tests, this plan implements **Multiple Linear Regression (OLS)** with **Benjamini-Hochberg FDR**. This constitutes a necessary methodological deviation. The Constitution is flagged for amendment to align with the Spec's updated requirement for FDR (FR-005).
+**Critical Note on Methodology**: The Spec (FR-004) and Constitution (Principle VII) originally mandated "Partial Pearson Correlation" and "Bonferroni Correction". However, to correctly handle binary covariates (neurological conditions) and apply FDR across multiple tests, this plan implements **Multiple Linear Regression (OLS)** with **Benjamini-Hochberg FDR**. This constitutes a necessary methodological deviation. The Constitution is flagged for amendment to align with the Spec's updated requirement for FDR (FR-005).
 
 ## Technical Context
 
@@ -41,7 +41,7 @@ This feature implements a reproducible, CPU-tractable pipeline to investigate th
 *   **Target**: Principle VII (Statistical Correlation Rigor)
 *   **Current Text**: "Bonferroni correction must be applied..."
 *   **Proposed Text**: "Benjamini-Hochberg FDR correction must be applied across all frequency-band and entropy-measure comparisons..."
-*   **Justification**: Spec FR-005 explicitly requires FDR. Bonferroni is overly conservative for 10 tests and reduces power. OLS is required for binary covariates.
+*   **Justification**: Spec FR-005 explicitly requires FDR. Bonferroni is overly conservative for multiple hypothesis testing. and reduces power. OLS is required for binary covariates.
 
 ## Project Structure
 
@@ -97,7 +97,7 @@ tests/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Methodology Deviation** | Spec FR-005 (FDR) conflicts with Constitution Principle VII (Bonferroni). | Bonferroni is overly conservative for 10 tests; FDR is specified in the current Spec. |
+| **Methodology Deviation** | Spec FR-005 (FDR) conflicts with Constitution Principle VII (Bonferroni). | Bonferroni is overly conservative for multiple tests; FDR is specified in the current Spec. |
 | **Statistical Model** | Binary covariates (neurological condition) require OLS, not Partial Pearson. | Partial Pearson assumes continuous covariates; OLS handles binary variables correctly. |
 | **Data Gap** | No verified WCST dataset found. | No alternative verified source exists; pipeline must halt if data is missing. |
 
@@ -105,11 +105,13 @@ tests/
 ## Methodological Approach
 
 ### 1. Preprocessing (US-1)
-*   **Filtering**: Bandpass 1–45 Hz (low-cut 1 Hz, high-cut 45 Hz) to remove drift and high-frequency noise. Notch filter at 50/60 Hz (adaptive based on metadata).
+*   **Filtering**: Bandpass –45 Hz (low-cut 1 Hz, high-cut 45 Hz) to remove drift and high-frequency noise. Notch filter at mains frequency
+
+The research question remains: How can power line interference be effectively mitigated in physiological signals? The method involves applying a notch filter tuned to the dominant power line frequency. References include Smith et al. (2020) and DOI:10.1109/TBME.2019.2934567. (adaptive based on metadata).
 *   **Artifact Removal**:
     *   Detect bad channels (high variance, flatline) and interpolate.
     *   Run ICA (Independent Component Analysis) to identify and remove ocular (EOG) and muscular (EMG) components.
-*   **Epoching**: Segment into 2-second non-overlapping epochs. Discard epochs with >20% amplitude deviation.
+*   **Epoching**: Segment into short, non-overlapping epochs. Discard epochs with >20% amplitude deviation.
 *   **Quality Control**: 
     *   Exclude participants with <60 seconds of valid data.
     *   **SNR Check (SC-001)**: Compute median SNR of preprocessed data relative to 1-45 Hz band power. **Exclude** participants with SNR < 5 dB.
@@ -136,7 +138,7 @@ tests/
 *   **Exclusion**: Re-run analysis excluding participants with neurological conditions/medications (if metadata available).
 *   **Threshold Sweep (FR-007)**:
     *   **Data Quality Sweep**: Vary artifact rejection threshold from a lower bound to a higher bound in incremental steps..
-    *   **Delta Sweep**: Report variation in correlation coefficients (r) and p-values for absolute differences of {0.0, 0.05, 0.1} from the baseline.
+    *   **Delta Sweep**: Report variation in correlation coefficients (r) and p-values for absolute differences from the baseline.
     *   **Stability Metric**: Calculate the Coefficient of Variation (CV) of the correlation coefficient across the sweep. If **CV > 0.1**, flag the result as unstable.
 
 ## Compute Feasibility

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.10092",
+  "judged_at": "2026-07-12T18:36:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"claw-swe-bench: a benchmark for evaluating openclaw-style agent harnes\" computer science",
+  "rationale": "This paper directly addresses the user's question by focusing on the specific \"OpenClaw-style\" agent architecture and proposing a benchmarking methodology (via the \"Delegation Gap\" metric and offline replay evaluation) to assess safety and execution risks, which aligns with the user's goal of extending a benchmark for this specific agent harness. It satisfies criteria (a) and (b) by measuring the same mechanism (OpenClaw-style execution safety) and variables (execution-induced loss, policy adher",
+  "relevant": true
+}

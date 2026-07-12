@@ -5,36 +5,79 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes"
 
-## Summary of the prior work
-Claw-SWE-Bench introduces a standardized benchmark and adapter protocol to evaluate heterogeneous OpenClaw-style agent harnesses on multilingual coding tasks, demonstrating that harness design and model choice significantly impact Pass@1 scores and API costs. The work establishes a fair evaluation framework with fixed prompts, runtime budgets, and patch extraction procedures across 350 GitHub issues, revealing that optimized adapters can boost performance from 19.1% to 73.4% on the full benchmark. It also releases a cost-aware "Lite" subset for rapid validation, treating harness architecture and economic efficiency as primary axes for future agent research.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Does optimizing the *stateful context compression strategy* within the agent harness yield greater improvements in Pass@1 and cost-efficiency than optimizing the underlying LLM backbone for long-horizon coding tasks?
+## Research question
 
-**Rationale:** While the prior work establishes that adapter design is critical, it primarily focuses on the "direct-diff" to "full adapter" transition without deeply analyzing how different context management policies (e.g., sliding windows vs. semantic summarization vs. retrieval-augmented truncation) interact with the fixed runtime budget. Since context management is a logic-heavy, CPU-bound operation distinct from the GPU-dependent LLM inference, isolating this variable allows for a rigorous, GPU-free investigation into whether smarter state management can outperform raw model scaling in constrained environments.
+Does optimizing the stateful context compression strategy within an agent harness yield greater improvements in Pass@1 and cost-efficiency than optimizing the underlying LLM backbone for long-horizon coding tasks?
+
+## Motivation
+
+While prior work establishes that adapter design is critical for agent performance, it has not isolated the specific impact of context management policies (e.g., retrieval vs. summarization) against the baseline of model scaling. Understanding whether CPU-bound logic optimization can outperform GPU-dependent model scaling is essential for deploying efficient, cost-aware coding agents in resource-constrained environments.
+
+## Related work
+
+- [Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks](https://arxiv.org/abs/2606.12344) — Establishes the baseline benchmark and adapter protocol, demonstrating that harness design significantly impacts Pass@1, though it does not deeply analyze context compression strategies.
+- [SWE-ABS: Adversarial Benchmark Strengthening Exposes Inflated Success Rates on Test-based Benchmark](https://arxiv.org/abs/2603.00520) — Highlights that current SWE-bench leaderboards are approaching saturation and that performance metrics can be inflated, underscoring the need for more robust evaluation dimensions like cost-efficiency and context handling.
+- [SWE-bench Goes Live!](https://arxiv.org/abs/2505.23419) — Confirms the issue-resolving task as a critical benchmark for LLMs, providing the foundational dataset structure that this project extends by filtering for long-context instances.
+
+## Expected results
+
+We expect that retrieval-based and diff-aware context strategies will significantly outperform naive truncation and semantic summarization on long-horizon tasks, achieving comparable or superior Pass@1 scores with 40-60% lower token consumption. This would confirm that intelligent context management is a more cost-effective lever for performance gains than simply increasing LLM parameter counts in constrained settings.
 
 ## Methodology sketch
-**Data:** Utilize the existing Claw-SWE-Bench Lite (80 instances) and the full benchmark's 350 instances, filtering specifically for issues with file histories exceeding 500 lines to ensure context is the bottleneck.
 
-**Procedure:**
-1.  **Control Group:** Run the baseline OpenClaw harness with a fixed, small-parameter LLM (e.g., a 1B instruction-tuned model runnable on CPU) using a naive "first-N-lines" context truncation strategy.
-2.  **Experimental Groups:** Implement three distinct CPU-tractable context compression modules within the harness: (a) *Semantic Summarization* (using lightweight rule-based or small-model abstractive summarization of file changes), (b) *Relevance Retrieval* (TF-IDF/BM25 based retrieval of relevant code snippets relative to the issue description), and (c) *Sliding Window with Diff-Awareness* (prioritizing lines adjacent to the predicted diff).
-3.  **Execution:** Run all configurations on the benchmark with identical API call limits and runtime budgets, measuring Pass@1, total tokens consumed (proxy for cost), and the number of successful patch extractions.
+- **Data Acquisition**: Download the Claw-SWE-Bench Lite (80 instances) and full benchmark (350 instances) from the official repository; filter for issues with file histories >500 lines to ensure context is the bottleneck.
+- **Baseline Implementation**: Implement a control harness using a small, CPU-runnable 1B parameter LLM with a naive "first-N-lines" context truncation strategy.
+- **Experimental Modules**: Develop three distinct context compression modules: (a) TF-IDF/BM25 relevance retrieval of code snippets relative to the issue description, (b) Sliding window with diff-awareness prioritizing lines adjacent to predicted changes, and (c) Rule-based semantic summarization of file changes.
+- **Execution Protocol**: Run all configurations on the filtered dataset with identical API call limits and runtime budgets (e.g., 60 minutes per instance) on a standard CPU-only environment.
+- **Measurement**: Record Pass@1 success rates, total tokens consumed (proxy for cost), and the number of successful patch extractions for each configuration.
+- **Statistical Analysis**: Apply a paired t-test or Wilcoxon signed-rank test to compare the Pass@1 and cost metrics between the baseline and each experimental strategy, controlling for instance difficulty.
+- **Validation Independence**: Validate performance against the ground-truth test cases provided in the benchmark, which are independent of the context compression logic used to generate the patches.
 
-**Expected Result:** We hypothesize that the *Relevance Retrieval* and *Diff-Aware Sliding Window* strategies will significantly outperform the naive truncation and potentially the *Semantic Summarization* approach in Pass@1, while reducing token usage by 40-60%. This would demonstrate that for long-horizon coding agents, optimizing the CPU-based context retrieval logic is a more cost-effective lever for performance gains than simply increasing the LLM parameter count.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: Claw-SWE-Bench extension, SWE-bench saturation analysis, OpenClaw execution surfaces.
+- Closest match: Claw-SWE-Bench extension (similarity sketch: shares the benchmark and harness focus, but this project uniquely isolates context compression strategies as the primary variable against model scaling).
+- Verdict: NOT a duplicate
 
-- **Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks** — {'name': 'Mengyu Zheng', 'kind': 'human'}, {'name': 'Kai Han', 'kind': 'human'}, {'name': 'Boxun Li', 'kind': 'human'}, {'name': 'Haiyang Xu', 'kind': 'human'}, {'name': 'Yuchuan Tian', 'kind': 'human'}, {'name': 'Wei He', 'kind': 'human'}, {'name': 'Hang Zhou', 'kind': 'human'}, {'name': 'Jianyuan Guo', 'kind': 'human'}, {'name': 'Hailin Hu', 'kind': 'human'}, {'name': 'Lin Ma', 'kind': 'human'}, {'name': 'Chao Xu', 'kind': 'human'}, {'name': 'Guohao Dai', 'kind': 'human'}, {'name': 'Lixue Xia', 'kind': 'human'}, {'name': 'Yunchao Wei', 'kind': 'human'}, {'name': 'Yunhe Wang', 'kind': 'human'}, {'name': 'Yu Wang', 'kind': 'human'}, {'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-30T07:24:42.483513Z'}. https://arxiv.org/abs/2606.12344.
 
-```bibtex
-@article{orig_arxiv_2606_12344,
-  title = {Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks},
-  author = {\{'name': 'Mengyu Zheng', 'kind': 'human'\} and \{'name': 'Kai Han', 'kind': 'human'\} and \{'name': 'Boxun Li', 'kind': 'human'\} and \{'name': 'Haiyang Xu', 'kind': 'human'\} and \{'name': 'Yuchuan Tian', 'kind': 'human'\} and \{'name': 'Wei He', 'kind': 'human'\} and \{'name': 'Hang Zhou', 'kind': 'human'\} and \{'name': 'Jianyuan Guo', 'kind': 'human'\} and \{'name': 'Hailin Hu', 'kind': 'human'\} and \{'name': 'Lin Ma', 'kind': 'human'\} and \{'name': 'Chao Xu', 'kind': 'human'\} and \{'name': 'Guohao Dai', 'kind': 'human'\} and \{'name': 'Lixue Xia', 'kind': 'human'\} and \{'name': 'Yunchao Wei', 'kind': 'human'\} and \{'name': 'Yunhe Wang', 'kind': 'human'\} and \{'name': 'Yu Wang', 'kind': 'human'\} and \{'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-30T07:24:42.483513Z'\}},
-  year = {2026},
-  eprint = {2606.12344},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.12344},
-  url = {https://arxiv.org/abs/2606.12344}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T18:36:41Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes" computer science | 0 |
+| 1 | OpenClaw-style agent benchmarking | 2 |
+| 2 | Software engineering agent evaluation frameworks | 0 |
+| 3 | Automated software maintenance agent benchmarks | 0 |
+| 4 | LLM-based software engineering task suites | 0 |
+| 5 | Open-source agent harness for code repair | 0 |
+| 6 | Benchmarking autonomous software developers | 0 |
+| 7 | Code generation agent performance evaluation | 0 |
+| 8 | Software engineering task automation metrics | 0 |
+| 9 | Agent-driven code base modification benchmarks | 0 |
+| 10 | Reproducible agent evaluation for software tasks | 0 |
+| 11 | Large language model software engineering agents | 0 |
+| 12 | Automated bug fixing agent assessment | 0 |
+| 13 | Software development lifecycle agent benchmarks | 0 |
+| 14 | Evaluating autonomous code refactoring agents | 0 |
+| 15 | Agent frameworks for software repository management | 0 |
+| 16 | Software engineering problem solving with LLMs | 0 |
+| 17 | Benchmarking AI agents on real-world code tasks | 0 |
+| 18 | Open-source LLM agent architectures for software | 0 |
+| 19 | Comparative analysis of software engineering agents | 0 |
+| 20 | Metrics for autonomous code generation and repair | 0 |
+
+### Verified citations
+
+1. **SWE-bench Goes Live!** (2025). Linghao Zhang, Shilin He, Chaoyun Zhang, Yu Kang, Bowen Li, et al.. arXiv. [2505.23419](https://arxiv.org/abs/2505.23419). PDF-sampled: No.
+2. **Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks** (2026). Mengyu Zheng, Kai Han, Boxun Li, Haiyang Xu, Yuchuan Tian, et al.. arXiv. [2606.12344](https://arxiv.org/abs/2606.12344). PDF-sampled: No.
+3. **SWE-ABS: Adversarial Benchmark Strengthening Exposes Inflated Success Rates on Test-based Benchmark** (2026). Boxi Yu, Yang Cao, Yuzhong Zhang, Liting Lin, Junjielong Xu, et al.. arXiv. [2603.00520](https://arxiv.org/abs/2603.00520). PDF-sampled: No.
+4. **Execution Is the New Attack Surface: Survivability-Aware Agentic Crypto Trading with OpenClaw-Style Local Executors** (2026). Ailiya Borjigin, Igor Stadnyk, Ben Bilski, Serhii Hovorov, Sofiia Pidturkina. arXiv. [2603.10092](https://arxiv.org/abs/2603.10092). PDF-sampled: No.

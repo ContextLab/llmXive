@@ -1143,6 +1143,10 @@
     "classified_at": "2026-07-07T07:24:32Z",
     "verdict": false
   },
+  "PROJ-904-llmxive-follow-up-extending-claw-swe-ben::1.6.0": {
+    "classified_at": "2026-07-12T18:36:26Z",
+    "verdict": false
+  },
   "PROJ-908-llmxive-follow-up-extending-qwen-agentwo::1.6.0": {
     "classified_at": "2026-07-08T07:16:23Z",
     "verdict": false
@@ -1269,6 +1273,10 @@
   },
   "PROJ-993-llmxive-follow-up-extending-evopolicygym::1.6.0": {
     "classified_at": "2026-07-12T10:08:48Z",
+    "verdict": false
+  },
+  "PROJ-997-llmxive-follow-up-extending-the-mirage-o::1.6.0": {
+    "classified_at": "2026-07-12T18:37:24Z",
     "verdict": false
   }
 }

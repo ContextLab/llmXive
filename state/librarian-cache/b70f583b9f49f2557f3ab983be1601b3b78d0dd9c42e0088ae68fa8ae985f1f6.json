@@ -1,0 +1,598 @@
+{
+  "fetched_at": "2026-07-12T18:37:43Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monotonic Inference Polici\"",
+      "target_n": 5
+    },
+    "duration_seconds": 46.618,
+    "ended_at": "2026-07-12T18:37:43Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "monotonic inference policies in large language models"
+        ],
+        [
+          2,
+          "limitations of training policy optimization for LLMs"
+        ],
+        [
+          3,
+          "inference-time optimization versus training-time optimization in LLMs"
+        ],
+        [
+          4,
+          "training policy mirage in generative models"
+        ],
+        [
+          5,
+          "static inference policies for large language models"
+        ],
+        [
+          6,
+          "non-optimality of training-time alignment strategies"
+        ],
+        [
+          7,
+          "inference-only improvements for LLM performance"
+        ],
+        [
+          8,
+          "disconnect between training objectives and inference outcomes in LLMs"
+        ],
+        [
+          9,
+          "policy optimization failures in large language model training"
+        ],
+        [
+          10,
+          "monotonicity constraints in LLM inference strategies"
+        ],
+        [
+          11,
+          "training-free optimization methods for large language models"
+        ],
+        [
+          12,
+          "evaluating the efficacy of training policy adjustments in LLMs"
+        ],
+        [
+          13,
+          "inference policy design without retraining"
+        ],
+        [
+          14,
+          "theoretical limits of training policy optimization in generative AI"
+        ],
+        [
+          15,
+          "stability of inference policies across different training regimes"
+        ],
+        [
+          16,
+          "alternative approaches to LLM alignment beyond training optimization"
+        ],
+        [
+          17,
+          "robustness of monotonic inference strategies in LLMs"
+        ],
+        [
+          18,
+          "comparative analysis of training versus inference policy adjustments"
+        ],
+        [
+          19,
+          "diminishing returns in LLM training policy optimization"
+        ],
+        [
+          20,
+          "structural constraints on LLM inference policy improvement"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monotonic Inference Polici\" computer science": 0,
+        "monotonic inference policies in large language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "inference compute budget scaling laws",
+      "LLM training policy non-monotonic reward",
+      "test-time compute allocation strategies",
+      "inference-time scaling dynamic policy optimization",
+      "diminishing returns compute scaling regime"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.19264"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM training policy non-monotonic reward": 3,
+      "diminishing returns compute scaling regime": 3,
+      "inference compute budget scaling laws": 3,
+      "inference-time scaling dynamic policy optimization": 3,
+      "llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monotonic Inference Polici\" computer science": 3,
+      "test-time compute allocation strategies": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving human-like qualities (emotional intelligence, conversational coherence) in LLMs, which is a distinct construct from the user's specific question regarding \"monotonic inference policies\" and the optimization of training policies. It fails to address the specific mechanism, variable, or domain (training policy optimization dynamics) mentioned in the user's query, falling under the rejection rule for distinct constructs sharing only broad homony",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's question regarding \"monotonic inference policies\" and the optimization of training policies. There is no overlap in the specific mechanism (policy monotonicity vs. personality traits), variables, or empirical domain, and the paper does not serve as a foundational reference or baseline for the user's specific topic.",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The candidate paper investigates a specific architectural limitation of LLMs regarding character-level understanding, which is a distinct construct from the user's question about optimizing training policies and the monotonicity of inference policies. While both topics concern LLMs, the paper does not measure the same mechanism, variables, or empirical baselines related to training policy optimization or inference policy behavior, failing to satisfy any of the inclusion criteria (a-f).",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        },
+        {
+          "primary_pointer": "2403.09676",
+          "rationale": "The paper focuses on AI safety, deception, and governance, which is a distinct construct from the user's question regarding the optimization of training policies and the monotonicity of inference policies. There is no measurable connection to the specific mechanism (training policy optimization), variables (monotonicity), or empirical setting described in the user's query, failing all inclusion criteria (a-f) and falling under the \"Distinct construct\" rejection rule.",
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T18:36:56Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"the mirage of optimizing training policies: monotonic inference polici\" computer science",
+      "raw": "llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monotonic Inference Polici\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks exhibit empirical neural scaling laws, with error decreasing as a power law with increasing model or data size, across a wide variety of architectures, tasks, and datasets. This universality suggests that scaling laws may result from general properties of natural learning tasks. We develop a mathematical model intended to describe natural datasets using percolation theory. Two distinct criticality regimes emerge, each yielding optimal power-law neural scaling laws. These regimes, corresponding to power-law-distributed discrete subtasks and a dominant data manifold, can be associated with previously proposed theories of neural scaling, thereby grounding and unifying prior works. We test the theory by training regression models on toy datasets derived from percolation theory simulations. We suggest directions for quantitatively predicting language model scaling.",
+          "claimed_authors": [
+            "Ari Brill"
+          ],
+          "claimed_title": "Neural Scaling Laws Rooted in the Data Distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.07942"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Neural Scaling Laws Rooted in the Data Distribution')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that the cross-entropy loss curves of neural language models empirically adhere to a scaling law with learning rate (LR) annealing over training steps: $$L(s) = L_0 + A\\cdot S_1^{-α} - C\\cdot S_2,$$ where $L(s)$ is the validation loss at step $s$, $S_1$ is the area under the LR curve, $S_2$ is the LR annealing area, and $L_0$, $A$, $C$, $α$ are constant parameters. This formulation takes into account two factors: (1) power-law scaling over data size, and (2) the additional loss reduction during LR annealing. Therefore, this formulation can describe the full loss curve at each step, rather than the single loss point at the end of training. Applying the scaling law with LR annealing and fitting only one or two training curves, we can accurately predict the loss at any given step across any learning rate scheduler (LRS). This approach significantly reduces computational cost in formulating scaling laws while providing more accuracy and expressiveness for training dynamics. Extensive experiments demonstrate that our findings hold across a range of hyper-parameters and model architectures, and our equation can extend to scaling effect of model sizes. Moreover, our formulation provides accurate theoretical verification and explanation for empirical results observed in numerous previous studies, particularly those focusing on LR schedule and annealing. We believe that this work is promising to enhance the understanding of LLM training dynamics while greatly democratizing scaling laws, and it can guide researchers in refining training strategies (e.g. critical LRS) for further LLMs.",
+          "claimed_authors": [
+            "Howe Tissue",
+            "Venus Wang",
+            "Lu Wang"
+          ],
+          "claimed_title": "Scaling Law with Learning Rate Annealing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.11029"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Scaling Law with Learning Rate Annealing')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the era of Explainable Artificial Intelligence, there is a renewed focus on single trees for their ease of interpretation. This paper introduces Simultaneous Latent Budget Trees, a probabilistic machine learning framework for classification trees in the presence of a stratification factor such as a temporal, spatial, or demographic variable, acting as a control variable or potential confounder. Standard tree growth procedures are not designed to optimize a conditional split rule. A model-based split rule is proposed in which child nodes are interpreted as latent components of a simultaneous mixture model, such as the Simultaneous Latent Budget Model and its constrained versions, fitted to the parent node. Mixing parameters drive the observations, differently for each group, to the child nodes whereas latent budgets parameters update the response classes profile of each level of the control variable. Parameters are estimated by least squares considering a neural network perspective of the model. An informative tree structure can be interactively visualized with interpretation aids on the node and the paths, including visual pruning and decision tree selection procedure. Suitable measures are proposed to handle an unbalanced response class distribution. The proposed methodology is applied to investigate gender-related differences in disease progression of Amyotrophic Lateral Sclerosis. The SLBT library with the various tree-based algorithms is available in the linked GitHub repository.",
+          "claimed_authors": [
+            "Simultaneous Latent Budget Trees for Stratified Classification Cristian Buoncompagni",
+            "Stefano Pellegrino",
+            "Giulia Vannucci",
+            "Raffaele Dubbioso",
+            "Roberta Siciliano"
+          ],
+          "claimed_title": "Simultaneous Latent Budget Trees for Stratified Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.13295"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Simultaneous Latent Budget Trees for Stratified Classification')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inverse Reinforcement Learning (IRL) learns a reward function to explain expert demonstrations. Modern IRL methods often use the adversarial (minimax) formulation that alternates between reward and policy optimization, which often lead to unstable training. Recent non-adversarial IRL approaches improve stability by jointly learning reward and policy via energy-based formulations but lack formal guarantees. This work bridges this gap. We first present a unified view showing canonical non-adversarial methods explicitly or implicitly maximize the likelihood of expert behavior, which is equivalent to minimizing the expected return gap. This insight leads to our main contribution: Trust Region Reward Optimization (TRRO), a framework that guarantees monotonic improvement in this likelihood via a Minorization-Maximization process. We instantiate TRRO into Proximal Inverse Reward Optimization (PIRO), a practical and stable IRL algorithm. Theoretically, TRRO provides the IRL counterpart to the stability guarantees of Trust Region Policy Optimization (TRPO) in forward RL. Empirically, PIRO matches or surpasses state-of-the-art baselines in reward recovery, policy imitation with high sample efficiency on MuJoCo and Gym-Robotics benchmarks and a real-world animal behavior modeling task.",
+          "claimed_authors": [
+            "Yang Chen",
+            "Menglin Zou",
+            "Jiaqi Zhang",
+            "Yitan Zhang",
+            "Junyi Yang",
+            "Gael Gendron",
+            "Libo Zhang",
+            "Jiamou Liu",
+            "Michael J. Witbrock"
+          ],
+          "claimed_title": "Trust Region Reward Optimization and Proximal Inverse Reward Optimization Algorithm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.23135"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Trust Region Reward Optimization and Proximal Inverse Reward Optimization Algorithm')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The composition of training data, governed by the diversity of sources and their mixing strategy, is a cornerstone of Large Language Model (LLM) pre-training. Online Data Mixing (ODM), the technique of adaptively adjusting data mixtures during training, has emerged as a promising direction to improve efficiency. However, existing methods are constrained by their reliance on a singular optimization perspective, which fundamentally overlooks the need for complex LLM pre-training to consider the dynamic data composition from multiple dimensions. To overcome this limitation, we introduce the Holistic Data Scheduler (HDS), a novel online data mixing framework. HDS formulates the data scheduling challenge as a reinforcement learning problem in a continuous control space and leverages the Soft Actor-Critic (SAC) algorithm for its stability and sample efficiency in exploring the high-dimensional policy space. At the core of HDS lies a novel multi-objective, holistic reward function that integrates three critical perspectives: a data-driven reward for quality, a loss-driven reward capturing inter-domain influence, and a model-driven reward based on weight norms. To validate our design and determine its optimal configuration, we conducted systematic experiments on LLMs of various sizes. On The Pile benchmark, HDS reaches the final validation perplexity of the next best method with 44% fewer training iterations. Furthermore, it achieves a 7.2% improvement on the MMLU 0-shot task along with consistent gains on other benchmarks, showcasing its ability to enhance both training efficiency and final model capability.",
+          "claimed_authors": [
+            "Chenhao Dang",
+            "Jing Ma",
+            "Mingjie Liao"
+          ],
+          "claimed_title": "Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.24133"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling test-time compute has emerged as a key ingredient for enabling large language models (LLMs) to solve difficult problems, but comes with high latency and inference cost. We introduce sleep-time compute, which allows models to \"think\" offline about contexts before queries are presented: by anticipating what queries users might ask and pre-computing useful quantities, we can significantly reduce the compute requirements at test-time. To demonstrate the efficacy of our method, we create modified versions of two reasoning tasks - Stateful GSM-Symbolic and Stateful AIME. We find that sleep-time compute can reduce the amount of test-time compute needed to achieve the same accuracy by ~ 5x on Stateful GSM-Symbolic and Stateful AIME and that by scaling sleep-time compute we can further increase accuracy by up to 13% on Stateful GSM-Symbolic and 18% on Stateful AIME. Furthermore, we introduce Multi-Query GSM-Symbolic, which extends GSM-Symbolic by including multiple related queries per context. By amortizing sleep-time compute across related queries about the same context using Multi-Query GSM-Symbolic, we can decrease the average cost per query by 2.5x. We then conduct additional analysis to understand when sleep-time compute is most effective, finding the predictability of the user query to be well correlated with the efficacy of sleep-time compute. Finally, we conduct a case-study of applying sleep-time compute to a realistic agentic SWE task.",
+          "claimed_authors": [
+            "Kevin Lin",
+            "Charlie Snell",
+            "Yu Wang",
+            "Charles Packer",
+            "Sarah Wooders",
+            "Ion Stoica",
+            "Joseph E. Gonzalez"
+          ],
+          "claimed_title": "Sleep-time Compute: Beyond Inference Scaling at Test-time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13171"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Sleep-time Compute: Beyond Inference Scaling at Test-time')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Test-time training (TTT) adapts language models through gradient-based updates at inference. But is adaptation the right strategy? We study compute-optimal test-time strategies for verifiable execution-grounded (VEG) tasks, domains like GPU kernel optimization where a deterministic evaluator provides dense, continuous reward signals. Using KernelBench as our testbed and a 120B-parameter model (GPT-OSS-120B with LoRA adaptation), we find that search outperforms minimal adaptation (1-5 gradient steps): Best-of-N sampling achieves 90% task success (18/20 tasks) at K=64 across the full KernelBench L1 eval set while TTT's best checkpoint reaches only 30.6% (3-seed mean), with TTT's \"equivalent K\" falling below 1, worse than single-sample inference. The failure mode is over-sharpening: gradient updates collapse diversity toward mediocre solutions rather than discovering optimal ones. Our main contribution is surprisal-guided selection: selecting the highest-surprisal (lowest-confidence) correct sample yields 80% success vs. 50% for most-confident selection, a 30% improvement. Extending to surprisal-guided-top3 matches oracle performance at 100%. This zero-cost strategy, validated through length-controlled analysis, recovers oracle performance. For dense-reward VEG tasks, compute should be allocated to sample diversity and intelligent selection rather than gradient adaptation. The surprisal-guided selection principle may generalize to other execution-grounded domains where optimal solutions occupy the distribution tail.",
+          "claimed_authors": [
+            "Jarrod Barnes"
+          ],
+          "claimed_title": "Surprisal-Guided Selection: Compute-Optimal Test-Time Strategies for Execution-Grounded Code Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.07670"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Surprisal-Guided Selection: Compute-Optimal Test-Time Strategies for Execution-Grounded Code Generation')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Nancy Grace Roman Space Telescope is poised to revolutionize our scientific understanding of exoplanets, dark matter, dark energy, and general astrophysics, including through an innovative community approach to defining and executing sky surveys. The Roman Observations Time Allocation Committee (ROTAC) was convened to recommend time allocations for the three Core Community Surveys (CCS) using the Wide Field Instrument (WFI): the High Latitude Wide Area Survey, the High Latitude Time Domain Survey, and the Galactic Bulge Time Domain Survey, as well as balance the time allocation for the General Astrophysics Surveys. Each CCS had a corresponding Definition Committee that collected community input and designed proposals for a nominal (in-guide) survey, as well as underguide and overguide options with smaller and larger time allocations, respectively. These options explored different ways of fulfilling the mission science requirements while maximizing general astrophysics science goals enabled by the surveys. In this report, the ROTAC lays out its recommendations for the three CCS observing designs and the WFI time allotment for CCS (74.5%) and the General Astrophysics Surveys (25.5%).",
+          "claimed_authors": [
+            "Roman Observations Time Allocation Committee",
+            "Core Community Survey Definition Committees"
+          ],
+          "claimed_title": "Roman Observations Time Allocation Committee: Final Report and Recommendations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.10574"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Roman Observations Time Allocation Committee: Final Report and Recommendations')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose an inference-time scaling approach for pretrained flow models. Recently, inference-time scaling has gained significant attention in LLMs and diffusion models, improving sample quality or better aligning outputs with user preferences by leveraging additional computation. For diffusion models, particle sampling has allowed more efficient scaling due to the stochasticity at intermediate denoising steps. On the contrary, while flow models have gained popularity as an alternative to diffusion models--offering faster generation and high-quality outputs in state-of-the-art image and video generative models--efficient inference-time scaling methods used for diffusion models cannot be directly applied due to their deterministic generative process. To enable efficient inference-time scaling for flow models, we propose three key ideas: 1) SDE-based generation, enabling particle sampling in flow models, 2) Interpolant conversion, broadening the search space and enhancing sample diversity, and 3) Rollover Budget Forcing (RBF), an adaptive allocation of computational resources across timesteps to maximize budget utilization. Our experiments show that SDE-based generation, particularly variance-preserving (VP) interpolant-based generation, improves the performance of particle sampling methods for inference-time scaling in flow models. Additionally, we demonstrate that RBF with VP-SDE achieves the best performance, outperforming all previous inference-time scaling approaches.",
+          "claimed_authors": [
+            "Jaihoon Kim",
+            "Taehoon Yoon",
+            "Jisung Hwang",
+            "Minhyuk Sung"
+          ],
+          "claimed_title": "Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.19385"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interest in components with detailed structures increased with the progress in advanced manufacturing techniques in recent years. Parts with graded lattice elements can provide interesting mechanical, thermal, and acoustic properties compared to parts where only coarse features are included. One of these improvements is better global buckling resistance of the component. However, thin features are prone to local buckling. Normally, analyses with high computational effort are conducted on high-resolution finite element meshes to optimize parts with good global and local stability. Until recently, works focused only on either global or local buckling behavior. We use two-scale optimization based on asymptotic homogenization of elastic properties and local buckling behavior to reduce the effort of full-scale analyses. For this, we present an approach for concurrent local and global buckling optimization of parameterized graded lattice structures. It is based on a worst-case model for the homogenized buckling load factor, which acts as a safeguard against pure local buckling. Cross-modes residing on both scales are not detected. We support our theory with numerical examples and validations on dehomogenized designs, which show the capabilities of our method, and discuss the advantages and limitations of the worst-case model.",
+          "claimed_authors": [
+            "Daniel Hübner",
+            "Fabian Wein",
+            "Michael Stingl"
+          ],
+          "claimed_title": "Two-Scale Optimization of Graded Lattice Structures respecting Buckling on Micro- and Macroscale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.08710"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Two-Scale Optimization of Graded Lattice Structures respecting Buckling on Micro- and Macroscale')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mass public quarantining, colloquially known as a lock-down, is a non-pharmaceutical intervention to check spread of disease. This paper presents ESOP (Epidemiologically and Socio-economically Optimal Policies), a novel application of active machine learning techniques using Bayesian optimization, that interacts with an epidemiological model to arrive at lock-down schedules that optimally balance public health benefits and socio-economic downsides of reduced economic activity during lock-down periods. The utility of ESOP is demonstrated using case studies with VIPER (Virus-Individual-Policy-EnviRonment), a stochastic agent-based simulator that this paper also proposes. However, ESOP is flexible enough to interact with arbitrary epidemiological simulators in a black-box manner, and produce schedules that involve multiple phases of lock-downs.",
+          "claimed_authors": [
+            "Amit Chandak",
+            "Debojyoti Dey",
+            "Bhaskar Mukhoty",
+            "Purushottam Kar"
+          ],
+          "claimed_title": "Epidemiologically and Socio-economically Optimal Policies via Bayesian Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.11257"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Epidemiologically and Socio-economically Optimal Policies via Bayesian Optimization')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dramatic increases in the capabilities of neural network models in recent years are driven by scaling model size, training data, and corresponding computational resources. To develop the exceedingly large networks required in modern applications, such as large language models (LLMs), model training is distributed across tens of thousands of hardware accelerators (e.g. GPUs), requiring orchestration of computation and communication across large computing clusters. In this work, we demonstrate that careful consideration of hardware configuration and parallelization strategy is critical for effective (i.e. compute- and cost-efficient) scaling of model size, training data, and total computation. We conduct an extensive empirical study of the performance of large-scale LLM training workloads across model size, hardware configurations, and distributed parallelization strategies. We demonstrate that: (1) beyond certain scales, overhead incurred from certain distributed communication strategies leads parallelization strategies previously thought to be sub-optimal in fact become preferable; and (2) scaling the total number of accelerators for large model training quickly yields diminishing returns even when hardware and parallelization strategies are properly optimized, implying poor marginal performance per additional unit of power or GPU-hour.",
+          "claimed_authors": [
+            "Jared Fernandez",
+            "Luca Wehrstedt",
+            "Leonid Shamis",
+            "Mostafa Elhoushi",
+            "Kalyan Saladi",
+            "Yonatan Bisk",
+            "Emma Strubell",
+            "Jacob Kahn"
+          ],
+          "claimed_title": "Hardware Scaling Trends and Diminishing Returns in Large-Scale Distributed Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.13055"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Hardware Scaling Trends and Diminishing Returns in Large-Scale Distributed Training')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While deep neural networks have demonstrated groundbreaking performance in various settings, these models often suffer from \\emph{catastrophic forgetting} when trained on new tasks in sequence. Several works have empirically demonstrated that increasing the width of a neural network leads to a decrease in catastrophic forgetting but have yet to characterize the exact relationship between width and continual learning. We design one of the first frameworks to analyze Continual Learning Theory and prove that width is directly related to forgetting in Feed-Forward Networks (FFN). Specifically, we demonstrate that increasing network widths to reduce forgetting yields diminishing returns. We empirically verify our claims at widths hitherto unexplored in prior studies where the diminishing returns are clearly observed as predicted by our theory.",
+          "claimed_authors": [
+            "Etash Guha",
+            "Vihan Lakshman"
+          ],
+          "claimed_title": "On the Diminishing Returns of Width for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.06398"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='On the Diminishing Returns of Width for Continual Learning')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Maximal strength increases with body weight, this is why scoring methods have been developed in order to fairly scale powerlifting performances based on athletes' body weight. The International Powerlifting Federation (IPF) Good Lift (GL) system, introduced in 2020, is a scaling method based on a Von Bertalanffy function. It is specifically tailored to elite powerlifters; defined as those achieving at least 84% of the current world record in their weight class, according to the IPF's \"Golden Standard\". A key assumption of the GL system is a principle of diminishing returns, stating that performance gains decrease as body weight increases. However, data from the Open Powerlifting database reveals the presence of a phase of increasing returns below a certain body weight threshold. To capture this initial phase, we propose a new scoring system based on a logistic function. This approach is designed to establish strength standards for the general population and for athletes not specialised in powerlifting.",
+          "claimed_authors": [
+            "Jean C. Peyen",
+            "Ruheyan Nuermaimaiti",
+            "Joshua Cunningham"
+          ],
+          "claimed_title": "Discussing Diminishing Returns: A New Scoring System for Powerlifting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.13040"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monoto', candidate_title='Discussing Diminishing Returns: A New Scoring System for Powerlifting')",
+        "failed_at": "2026-07-12T18:37:24Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sanghyeok Choi",
+            "Henry Gouk",
+            "Esmeralda S. Whitammer"
+          ],
+          "title": "Structured Inference with Large Language Gibbs",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.19264",
+        "summary": "The knowledge encoded in large language models (LLMs) can serve as a substrate for structured reasoning over variables describing a complex world, but accessing this knowledge in a probabilistically coherent manner poses a difficult inference problem. We propose Large Language Gibbs, a scheme for structured probabilistic inference that uses conditional distributions of an LLM as transition operators. Rather than sampling structured objects through single-pass autoregressive generation, we iteratively resample individual variables conditioned on others using an LLM's next-token conditionals. This approach avoids order-dependent biases and produces a stationary distribution that reflects a compromise between all local conditionals. We apply this approach to sampling from synthetic distributions, consistent reasoning tasks, and Bayesian structure learning. The results suggest that the use of LLM conditionals in MCMC is a practical alternative to one-pass generation for structured probabilistic inference under a world prior accessible through noisy LLM conditionals.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.19264",
+          "http_status": 200,
+          "pdf_sample_score": 0.2284,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T18:37:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"the mirage of optimizing training policies: monotonic inference polici\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

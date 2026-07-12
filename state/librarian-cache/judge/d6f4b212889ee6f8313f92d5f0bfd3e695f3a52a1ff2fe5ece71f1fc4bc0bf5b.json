@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.00520",
+  "judged_at": "2026-07-12T18:36:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"claw-swe-bench: a benchmark for evaluating openclaw-style agent harnes\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same domain (SWE-Bench agent performance) and the same underlying mechanism (the reliability of test-based evaluation metrics) that the user's question about \"Claw-SWE-Bench\" and agent harnesses investigates. It provides the necessary empirical baseline and critical context regarding inflated success rates that any literature review on SWE-Bench evaluation frameworks must cite.",
+  "relevant": true
+}

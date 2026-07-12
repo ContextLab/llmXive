@@ -1,0 +1,567 @@
+{
+  "fetched_at": "2026-07-12T18:36:41Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes\"",
+      "target_n": 5
+    },
+    "duration_seconds": 42.578,
+    "ended_at": "2026-07-12T18:36:41Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "OpenClaw-style agent benchmarking"
+        ],
+        [
+          2,
+          "Software engineering agent evaluation frameworks"
+        ],
+        [
+          3,
+          "Automated software maintenance agent benchmarks"
+        ],
+        [
+          4,
+          "LLM-based software engineering task suites"
+        ],
+        [
+          5,
+          "Open-source agent harness for code repair"
+        ],
+        [
+          6,
+          "Benchmarking autonomous software developers"
+        ],
+        [
+          7,
+          "Code generation agent performance evaluation"
+        ],
+        [
+          8,
+          "Software engineering task automation metrics"
+        ],
+        [
+          9,
+          "Agent-driven code base modification benchmarks"
+        ],
+        [
+          10,
+          "Reproducible agent evaluation for software tasks"
+        ],
+        [
+          11,
+          "Large language model software engineering agents"
+        ],
+        [
+          12,
+          "Automated bug fixing agent assessment"
+        ],
+        [
+          13,
+          "Software development lifecycle agent benchmarks"
+        ],
+        [
+          14,
+          "Evaluating autonomous code refactoring agents"
+        ],
+        [
+          15,
+          "Agent frameworks for software repository management"
+        ],
+        [
+          16,
+          "Software engineering problem solving with LLMs"
+        ],
+        [
+          17,
+          "Benchmarking AI agents on real-world code tasks"
+        ],
+        [
+          18,
+          "Open-source LLM agent architectures for software"
+        ],
+        [
+          19,
+          "Comparative analysis of software engineering agents"
+        ],
+        [
+          20,
+          "Metrics for autonomous code generation and repair"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "OpenClaw-style agent benchmarking": 2,
+        "llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "agent benchmark software engineering LLM task",
+      "SWE-bench OpenClaw autonomous agent evaluation",
+      "software maintenance codebase repair agent",
+      "agent trajectory success rate code generation",
+      "tool-use reliability software agent benchmarking"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.00520"
+      ]
+    },
+    "per_query_hit_count": {
+      "SWE-bench OpenClaw autonomous agent evaluation": 3,
+      "agent benchmark software engineering LLM task": 3,
+      "agent trajectory success rate code generation": 3,
+      "llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes\" computer science": 3,
+      "software maintenance codebase repair agent": 3,
+      "tool-use reliability software agent benchmarking": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T18:35:58Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"claw-swe-bench: a benchmark for evaluating openclaw-style agent harnes\" computer science",
+      "raw": "llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T18:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T18:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T18:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ability of Generative AI (GAI) technology to automatically check, synthesize and modify software engineering artifacts promises to revolutionize all aspects of software engineering. Using GAI for software engineering tasks is consequently one of the most rapidly expanding fields of software engineering research, with over a hundred LLM-based code models having been published since 2021. However, the overwhelming majority of existing code models share a major weakness - they are exclusively trained on the syntactic facet of software, significantly lowering their trustworthiness in tasks dependent on software semantics. To address this problem, a new class of \"Morescient\" GAI is needed that is \"aware\" of (i.e., trained on) both the semantic and static facets of software. This, in turn, will require a new generation of software observation platforms capable of generating large quantities of execution observations in a structured and readily analyzable way. In this paper, we present a vision and roadmap for how such \"Morescient\" GAI models can be engineered, evolved and disseminated according to the principles of open science.",
+          "claimed_authors": [
+            "Marcus Kessel",
+            "Colin Atkinson"
+          ],
+          "claimed_title": "Morescient GAI for Software Engineering (Extended Version)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.04710"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Morescient GAI for Software Engineering (Extended Version)')",
+        "failed_at": "2026-07-12T18:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have rapidly gained popularity and are being embedded into professional applications due to their capabilities in generating human-like content. However, unquestioned reliance on their outputs and recommendations can be problematic as LLMs can reinforce societal biases and stereotypes. This study investigates how LLMs, specifically OpenAI's GPT-4 and Microsoft Copilot, can reinforce gender and racial stereotypes within the software engineering (SE) profession through both textual and graphical outputs. We used each LLM to generate 300 profiles, consisting of 100 gender-based and 50 gender-neutral profiles, for a recruitment scenario in SE roles. Recommendations were generated for each profile and evaluated against the job requirements for four distinct SE positions. Each LLM was asked to select the top 5 candidates and subsequently the best candidate for each role. Each LLM was also asked to generate images for the top 5 candidates, providing a dataset for analysing potential biases in both text-based selections and visual representations. Our analysis reveals that both models preferred male and Caucasian profiles, particularly for senior roles, and favoured images featuring traits such as lighter skin tones, slimmer body types, and younger appearances. These findings highlight underlying societal biases influence the outputs of LLMs, contributing to narrow, exclusionary stereotypes that can further limit diversity and perpetuate inequities in the SE field. As LLMs are increasingly adopted within SE research and professional practices, awareness of these biases is crucial to prevent the reinforcement of discriminatory norms and to ensure that AI tools are leveraged to promote an inclusive and equitable engineering culture rather than hinder it.",
+          "claimed_authors": [
+            "Muneera Bano",
+            "Hashini Gunatilake",
+            "Rashina Hoda"
+          ],
+          "claimed_title": "What Does a Software Engineer Look Like? Exploring Societal Stereotypes in LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.03569"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='What Does a Software Engineer Look Like? Exploring Societal Stereotypes in LLMs')",
+        "failed_at": "2026-07-12T18:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One source of software project challenges and failures is the systematic errors introduced by human cognitive biases. Although extensively explored in cognitive psychology, investigations concerning cognitive biases have only recently gained popularity in software engineering (SE) research. This paper therefore systematically maps, aggregates and synthesizes the literature on cognitive biases in software engineering to generate a comprehensive body of knowledge, understand state of the art research and provide guidelines for future research and practise. Focusing on bias antecedents, effects and mitigation techniques, we identified 65 articles, which investigate 37 cognitive biases, published between 1990 and 2016. Despite strong and increasing interest, the results reveal a scarcity of research on mitigation techniques and poor theoretical foundations in understanding and interpreting cognitive biases. Although bias-related research has generated many new insights in the software engineering community, specific bias mitigation techniques are still needed for software professionals to overcome the deleterious effects of cognitive biases on their work.",
+          "claimed_authors": [
+            "Rahul Mohanani",
+            "Iflaah Salman",
+            "Burak Turhan",
+            "Pilar Rodriguez",
+            "Paul Ralph"
+          ],
+          "claimed_title": "Cognitive Biases in Software Engineering: A Systematic Mapping Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.03869"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Cognitive Biases in Software Engineering: A Systematic Mapping Study')",
+        "failed_at": "2026-07-12T18:36:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Efficient maintenance has always been essential for the successful application of engineering systems. However, the challenges to be overcome in the implementation of Industry 4.0 necessitate new paradigms of maintenance optimization. Machine learning techniques are becoming increasingly used in engineering and maintenance, with reinforcement learning being one of the most promising. In this paper, we propose a gamma degradation process together with a novel maintenance model in which repairs are increasingly imperfect, i.e., the beneficial effect of system repairs decreases as more repairs are performed, reflecting the degradational behavior of real-world systems. To generate maintenance policies for this system, we developed a reinforcement-learning-based agent using a Double Deep Q-Network architecture. This agent presents two important advantages: it works without a predefined preventive threshold, and it can operate in a continuous degradation state space. Our agent learns to behave in different scenarios, showing great flexibility. In addition, we performed an analysis of how changes in the main parameters of the environment affect the maintenance policy proposed by the agent. The proposed approach is demonstrated to be appropriate and to significatively improve long-run cost as compared with other common maintenance strategies.",
+          "claimed_authors": [
+            "Alberto Pliego Marugán",
+            "Jesús M. Pinar-Pérez",
+            "Fausto Pedro García Márquez"
+          ],
+          "claimed_title": "A reinforcement learning agent for maintenance of deteriorating systems with increasingly imperfect repairs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.20725"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='A reinforcement learning agent for maintenance of deteriorating systems with increasingly imperfect repairs')",
+        "failed_at": "2026-07-12T18:36:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper is about understanding the nature of bug fixing by analyzing thousands of bug fix transactions of software repositories. It then places this learned knowledge in the context of automated program repair. We give extensive empirical results on the nature of human bug fixes at a large scale and a fine granularity with abstract syntax tree differencing. We set up mathematical reasoning on the search space of automated repair and the time to navigate through it. By applying our method on 14 repositories of Java software and 89,993 versioning transactions, we show that not all probabilistic repair models are equivalent.",
+          "claimed_authors": [
+            "Matias Martinez",
+            "Martin Monperrus"
+          ],
+          "claimed_title": "Mining Software Repair Models for Reasoning on the Search Space of Automated Program Fixing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.3414"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Mining Software Repair Models for Reasoning on the Search Space of Automated Program Fixing')",
+        "failed_at": "2026-07-12T18:36:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many ML-based approaches have been proposed to automatically detect, localize, and repair software vulnerabilities. While ML-based methods are more effective than program analysis-based vulnerability analysis tools, few have been integrated into modern IDEs, hindering practical adoption. To bridge this critical gap, we propose AIBugHunter, a novel ML-based software vulnerability analysis tool for C/C++ languages that is integrated into Visual Studio Code. AIBugHunter helps software developers to achieve real-time vulnerability detection, explanation, and repairs during programming. In particular, AIBugHunter scans through developers' source code to (1) locate vulnerabilities, (2) identify vulnerability types, (3) estimate vulnerability severity, and (4) suggest vulnerability repairs. In this article, we propose a novel multi-objective optimization (MOO)-based vulnerability classification approach and a transformer-based estimation approach to help AIBugHunter accurately identify vulnerability types and estimate severity. Our empirical experiments on a large dataset consisting of 188K+ C/C++ functions confirm that our proposed approaches are more accurate than other state-of-the-art baseline methods for vulnerability classification and estimation. Furthermore, we conduct qualitative evaluations including a survey study and a user study to obtain software practitioners' perceptions of our AIBugHunter tool and assess the impact that AIBugHunter may have on developers' productivity in security aspects. Our survey study shows that our AIBugHunter is perceived as useful where 90% of the participants consider adopting our AIBugHunter. Last but not least, our user study shows that our AIBugHunter could possibly enhance developers' productivity in combating cybersecurity issues during software development.",
+          "claimed_authors": [
+            "Michael Fu",
+            "Chakkrit Tantithamthavorn",
+            "Trung Le",
+            "Yuki Kume",
+            "Van Nguyen",
+            "Dinh Phung",
+            "John Grundy"
+          ],
+          "claimed_title": "AIBugHunter: A Practical Tool for Predicting, Classifying and Repairing Software Vulnerabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.16615"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='AIBugHunter: A Practical Tool for Predicting, Classifying and Repairing Software Vulnerabilities')",
+        "failed_at": "2026-07-12T18:36:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Training agentic models for terminal-based tasks critically depends on high-quality terminal trajectories that capture realistic long-horizon interactions across diverse domains. However, constructing such data at scale remains challenging due to two key requirements: \\textbf{\\emph{Executability}}, since each instance requires a suitable and often distinct Docker environment; and \\textbf{\\emph{Verifiability}}, because heterogeneous task outputs preclude unified, standardized verification. To address these challenges, we propose \\textbf{TerminalTraj}, a scalable pipeline that (i) filters high-quality repositories to construct Dockerized execution environments, (ii) generates Docker-aligned task instances, and (iii) synthesizes agent trajectories with executable validation code. Using TerminalTraj, we curate 32K Docker images and generate 50,733 verified terminal trajectories across eight domains. Models trained on this data with the Qwen2.5-Coder backbone achieve consistent performance improvements on TerminalBench (TB), with gains of up to 20\\% on TB~1.0 and 10\\% on TB~2.0 over their respective backbones. Notably, \\textbf{TerminalTraj-32B} achieves strong performance among models with fewer than 100B parameters, reaching 35.30\\% on TB~1.0 and 22.00\\% on TB~2.0, and demonstrates improved test-time scaling behavior. All code and data are available at https://github.com/Wusiwei0410/TerminalTraj.",
+          "claimed_authors": [
+            "Siwei Wu",
+            "Yizhi Li",
+            "Yuyang Song",
+            "Wei Zhang",
+            "Yang Wang",
+            "Riza Batista-Navarro",
+            "Xian Yang",
+            "Mingjie Tang",
+            "Bryan Dai",
+            "Jian Yang",
+            "Chenghua Lin"
+          ],
+          "claimed_title": "Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.01244"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments')",
+        "failed_at": "2026-07-12T18:36:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-07-12T18:36:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have shown promise in automating code generation and software engineering tasks, yet they often struggle with complex, multi-file projects due to context limitations and knowledge gaps. We propose a novel context engineering workflow that combines multiple AI components: an Intent Translator (GPT-5) for clarifying user requirements, an Elicit-powered semantic literature retrieval for injecting domain knowledge, NotebookLM-based document synthesis for contextual understanding, and a Claude Code multi-agent system for code generation and validation. Our integrated approach leverages intent clarification, retrieval-augmented generation, and specialized sub-agents orchestrated via Claude's agent framework. We demonstrate that this method significantly improves the accuracy and reliability of code assistants in real-world repositories, yielding higher single-shot success rates and better adherence to project context than baseline single-agent approaches. Qualitative results on a large Next.js codebase show the multi-agent system effectively plans, edits, and tests complex features with minimal human intervention. We compare our system with recent frameworks like CodePlan, MASAI, and HyperAgent, highlighting how targeted context injection and agent role decomposition lead to state-of-the-art performance. Finally, we discuss the implications for deploying LLM-based coding assistants in production, along with lessons learned on context management and future research directions.",
+          "claimed_authors": [
+            "Muhammad Haseeb"
+          ],
+          "claimed_title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.08322"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code')",
+        "failed_at": "2026-07-12T18:36:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models for code are advancing fast, yet our ability to evaluate them lags behind. Current benchmarks focus on narrow tasks and single metrics, which hide critical gaps in robustness, interpretability, fairness, efficiency, and real-world usability. They also suffer from inconsistent data engineering practices, limited software engineering context, and widespread contamination issues. To understand these problems and chart a path forward, we combined an in-depth survey of existing benchmarks with insights gathered from a dedicated community workshop. We identified three core barriers to reliable evaluation: the absence of software-engineering-rich datasets, overreliance on ML-centric metrics, and the lack of standardized, reproducible data pipelines. Building on these findings, we introduce BEHELM, a holistic benchmarking infrastructure that unifies software-scenario specification with multi-metric evaluation. BEHELM provides a structured way to assess models across tasks, languages, input and output granularities, and key quality dimensions. Our goal is to reduce the overhead currently required to construct benchmarks while enabling a fair, realistic, and future-proof assessment of LLMs in software engineering.",
+          "claimed_authors": [
+            "Daniel Rodriguez-Cardenas",
+            "Xiaochang Li",
+            "Marcos Macedo",
+            "Antonio Mastropaolo",
+            "Dipin Khati",
+            "Yuan Tian",
+            "Huajie Shao",
+            "Denys Poshyvanyk"
+          ],
+          "claimed_title": "Towards Comprehensive Benchmarking Infrastructure for LLMs In Software Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.21070"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Towards Comprehensive Benchmarking Infrastructure for LLMs In Software Engineering')",
+        "failed_at": "2026-07-12T18:36:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With software maintenance accounting for 50% of the cost of developing software, enhancing code quality and reliability has become more critical than ever. In response to this challenge, this doctoral research proposal aims to explore innovative solutions by focusing on the deployment of agents powered by Large Language Models (LLMs) to perform software maintenance tasks. The iterative nature of agents, which allows for continuous learning and adaptation, can help surpass common challenges in code generation. One distinct challenge is the last-mile problems, errors at the final stage of producing functionally and contextually relevant code. Furthermore, this project aims to surpass the inherent limitations of current LLMs in source code through a collaborative framework where agents can correct and learn from each other's errors. We aim to use the iterative feedback in these systems to further fine-tune the LLMs underlying the agents, becoming better aligned to the task of automated software improvement. Our main goal is to achieve a leap forward in the field of automatic software improvement by developing new tools and frameworks that can enhance the efficiency and reliability of software development.",
+          "claimed_authors": [
+            "Fernando Vallecillos Ruiz"
+          ],
+          "claimed_title": "Agent-Driven Automatic Software Improvement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.16739"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Agent-Driven Automatic Software Improvement')",
+        "failed_at": "2026-07-12T18:36:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Linghao Zhang",
+            "Shilin He",
+            "Chaoyun Zhang",
+            "Yu Kang",
+            "Bowen Li",
+            "Chengxing Xie",
+            "Junhao Wang",
+            "Maoquan Wang",
+            "Yufan Huang",
+            "Shengyu Fu",
+            "Elsie Nallipogu",
+            "Qingwei Lin",
+            "Yingnong Dang",
+            "Saravan Rajmohan",
+            "Dongmei Zhang"
+          ],
+          "title": "SWE-bench Goes Live!",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.23419",
+        "summary": "The issue-resolving task, where a model generates patches to fix real-world bugs, has emerged as a critical benchmark for evaluating the capabilities of large language models (LLMs). While SWE-bench and its variants have become standard in this domain, they suffer from key limitations: they have not been updated since their initial releases, cover a narrow set of repositories, and depend heavily on manual effort for instance construction and environment setup. These factors hinder scalability and introduce risks of overfitting and data contamination. In this work, we present SWE-bench-Live, a live-updatable benchmark designed to overcome these challenges. Our initial release consists of 1,319 tasks derived from real GitHub issues created since 2024, spanning 93 repositories. Each task is accompanied by a dedicated Docker image to ensure reproducible execution. Central to our benchmark is \\method, an automated curation pipeline that streamlines the entire process from instance creation to environment setup, removing manual bottlenecks and enabling scalability and continuous updates. We evaluate a range of state-of-the-art agent frameworks and LLMs on SWE-bench-Live, revealing a substantial performance gap compared to static benchmarks like SWE-bench, even under controlled evaluation conditions. To better understand this discrepancy, we perform detailed analyses across repository origin, issue recency, and task difficulty. By providing a fresh, diverse, and executable benchmark grounded in live repository activity, SWE-bench-Live facilitates rigorous, contamination-resistant evaluation of LLMs and agents in dynamic, real-world software development settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.23419",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T18:36:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mengyu Zheng",
+            "Kai Han",
+            "Boxun Li",
+            "Haiyang Xu",
+            "Yuchuan Tian",
+            "Wei He",
+            "Hang Zhou",
+            "Jianyuan Guo",
+            "Hailin Hu",
+            "Lin Ma",
+            "Chao Xu",
+            "Guohao Dai",
+            "Lixue Xia",
+            "Yunchao Wei",
+            "Yunhe Wang",
+            "Yu Wang"
+          ],
+          "title": "Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.12344",
+        "summary": "General-purpose agents such as OpenClaw are increasingly used as autonomous tool users, but their coding ability is difficult to measure under SWE-bench: a generic agent does not by itself satisfy the clean Docker workspace, patch, and prediction contract required for scoring. We introduce Claw-SWE-Bench, a multilingual SWE-bench-style benchmark and adapter protocol that makes heterogeneous agent harnesses, or claws, comparable under fair settings including a fixed prompt, runtime budget, workspace contract, patch extraction procedure, and evaluator. The full benchmark contains 350 GitHub issue-resolution instances across 8 languages and 43 repositories, drawn from SWE-bench-Multilingual and SWE-bench-Verified-Mini after future-commit cleanup. We also release Claw-SWE-Bench Lite for faster validation, which is an 80-instance subset selected by a cost-aware, rank-aware procedure over 17 calibration columns. On the full benchmark, OpenClaw with a minimal direct-diff adapter scores only $19.1\\%$ Pass@1, whereas the full adapter reaches $73.4\\%$ with the same GLM 5.1 backbone, showing that adapter design is essential for enabling OpenClaw-style harnesses to perform coding tasks effectively. Across an OpenClaw $\\times$ nine-model sweep and a five-claw $\\times$ two-model sweep, model choice changes Pass@1 by $29.4$ pp and harness choice by $27.4$ pp under fixed models; systems with similar accuracy can differ substantially in total API cost. Claw-SWE-Bench therefore treats harness and cost accounting as first-class axes of SWE-style coding-agent evaluation, providing both a full benchmark and a low-cost reference set for reproducible comparison. The data is available at https://github.com/opensquilla/claw-swe-bench and https://huggingface.co/datasets/TokenRhythm/Claw-SWE-Bench.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.12344",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5385,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T18:36:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Boxi Yu",
+            "Yang Cao",
+            "Yuzhong Zhang",
+            "Liting Lin",
+            "Junjielong Xu",
+            "Zhiqing Zhong",
+            "Qinghua Xu",
+            "Guancheng Wang",
+            "Jialun Cao",
+            "Shing-Chi Cheung",
+            "Pinjia He",
+            "Lionel Briand"
+          ],
+          "title": "SWE-ABS: Adversarial Benchmark Strengthening Exposes Inflated Success Rates on Test-based Benchmark",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.00520",
+        "summary": "The SWE-Bench Verified leaderboard is approaching saturation, with the top system achieving 78.80%. However, we show that this performance is inflated. Our re-evaluation reveals that one in five \"solved\" patches from the top-30 agents are semantically incorrect, passing only because weak test suites fail to expose their errors. We present SWE-ABS, an adversarial framework that strengthens test suites through a two-stage pipeline: (1) coverage-driven augmentation using program slicing to target untested code regions, and (2) mutation-driven adversarial testing that synthesizes plausible but incorrect patches to expose semantic blind spots. On SWE-Bench Verified (500 instances), SWE-ABS strengthens 50.2% of instances, a 25.1x improvement over prior work, and rejects 19.71% of previously passing patches. As a result, the top agent's score decreases from 78.80% to 62.20%, leading to significant leaderboard reshuffling, with the previous top-ranked agent dropping to fifth place.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.00520",
+          "http_status": 200,
+          "pdf_sample_score": 0.1933,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T18:36:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ailiya Borjigin",
+            "Igor Stadnyk",
+            "Ben Bilski",
+            "Serhii Hovorov",
+            "Sofiia Pidturkina"
+          ],
+          "title": "Execution Is the New Attack Surface: Survivability-Aware Agentic Crypto Trading with OpenClaw-Style Local Executors",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.10092",
+        "summary": "OpenClaw-style agent stacks turn language into privileged execution: LLM intents flow through tool interception, policy gates, and a local executor. In parallel, skill marketplaces such as skills.sh make capability acquisition as easy as installing skills and CLIs, creating a growing capability supply chain. Together, these trends shift the dominant safety failure mode from \"wrong answers\" to execution-induced loss, where untrusted prompts, compromised skills, or narrative manipulation can trigger real trades and irreversible side effects. We propose Survivability-Aware Execution (SAE), an execution-layer survivability standard for OpenClaw-style systems and skill-enabled agents. SAE sits as middleware between a strategy engine (LLM or non-LLM) and the exchange executor. It defines an explicit execution contract (ExecutionRequest, ExecutionContext, ExecutionDecision) and enforces non-bypassable last-mile invariants: projection-based exposure budgets, cooldown and order-rate limits, slippage bounds, staged execution, and tool/venue allowlists. To make delegated execution testable under supply-chain risk, we operationalize the Delegation Gap (DG) via a logged Intended Policy Spec that enables deterministic out-of-scope labeling and reproducible DG metrics. On an offline replay using official Binance USD-M BTCUSDT/ETHUSDT perpetual data (15m; 2025-09-01--2025-12-01, incl. funding), SAE improves survivability: MDD drops from 0.4643 to 0.0319 (Full; 93.1%), |CVaR_0.99| shrinks from 4.025e-3 to ~1.02e-4 (~97.5%), and DG loss proxy falls from 0.647 to 0.019 (~97.0%). AttackSuccess decreases from 1.00 to 0.728 with zero FalseBlock in this run. Block bootstrap, paired Wilcoxon, and two-proportion tests confirm the shifts. SAE reframes agentic trading safety for the OpenClaw+skills era: treat upstream intent and skills as untrusted, and enforce survivability where actions become side effects.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.10092",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T18:36:32Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"claw-swe-bench: a benchmark for evaluating openclaw-style agent harnes\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
