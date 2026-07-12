@@ -1,0 +1,90 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelResult Schema
+description: Schema for the output of model training and evaluation.
+type: object
+properties:
+  model_type:
+    type: string
+    description: Type of model (Topological or Baseline).
+    enum:
+      - Topological
+      - Baseline
+  auc_roc:
+    type: number
+    description: Area Under the ROC Curve.
+    minimum: 0.0
+    maximum: 1.0
+  precision:
+    type: number
+    description: Precision score.
+    minimum: 0.0
+    maximum: 1.0
+  recall:
+    type: number
+    description: Recall score.
+    minimum: 0.0
+    maximum: 1.0
+  f1_score:
+    type: number
+    description: F1 Score.
+    minimum: 0.0
+    maximum: 1.0
+  stability_flag:
+    type: boolean
+    description: True if VIF > 5 or MI > 0.1, indicating potential instability.
+  structural_coupling_handled:
+    type: boolean
+    description: True if the model was re-run due to high VIF between BRR and BE.
+  permutation_count:
+    type: integer
+    description: Number of permutations performed (should be 1000).
+    minimum: 1000
+  permutation_mean_auc:
+    type: number
+    description: Mean AUC from permutation test (n=1000).
+    minimum: 0.0
+    maximum: 1.0
+  permutation_std_auc:
+    type: number
+    description: Standard deviation of AUC from permutation test.
+    minimum: 0.0
+  vif_brr:
+    type: number
+    description: Variance Inflation Factor for bottleneck_resolution_ratio.
+    minimum: 1.0
+  vif_be:
+    type: number
+    description: Variance Inflation Factor for branching_entropy.
+    minimum: 1.0
+  mi_score:
+    type: number
+    description: Mutual Information between predictors.
+    minimum: 0.0
+    maximum: 1.0
+  stratification_keys:
+    type: array
+    description: Keys used for stratified permutation.
+    items:
+      type: string
+    example:
+      - "field_of_study"
+      - "publication_venue"
+  is_synthetic_analysis:
+    type: boolean
+    description: True if the analysis was run on synthetic data (Code Validation Mode).
+required:
+  - model_type
+  - auc_roc
+  - precision
+  - recall
+  - f1_score
+  - stability_flag
+  - structural_coupling_handled
+  - permutation_count
+  - permutation_mean_auc
+  - permutation_std_auc
+  - vif_brr
+  - vif_be
+  - mi_score
+  - stratification_keys
+  - is_synthetic_analysis
