@@ -37,13 +37,34 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc.yaml` `updated_at` timestamp.
 
-### VI. CPU-First Deployment Validation
+### VI. Governance-Utility Trade-off Validation
 
-Every inference step, including the DistilBERT semantic intent classifier and the Llama-3-8B backbone, MUST be executed on CPU-only hardware to validate the "deployable solution" claim for resource-constrained institutional settings. GPU acceleration is strictly prohibited during the experimental phase to ensure the measured latency and memory usage reflect the target deployment environment (Methodology sketch: Execution).
+Every evaluation of the proposed gatekeeper architecture MUST explicitly report
+the three core metrics defined in the GateMem benchmark: Utility (task success
+rate), Access Control (rate of unauthorized data exposure), and Forgetting
+(rate of successful data deletion). Claims regarding the resolution of the
+trade-off between leakage and utility are only valid if supported by paired
+statistical tests (t-tests or Wilcoxon signed-rank) comparing the gatekeeper
+method against the specified Retrieval-only and Long-Context baselines using
+the same LLM backbone and retrieval index.
 
-### VII. Deterministic Governance Enforcement
+*Justification: Derived from the "Expected results" and "Methodology sketch"
+sections, which mandate the use of GateMem's specific metrics and statistical
+analysis to prove that governance can be decoupled from primary reasoning while
+maintaining task utility within a narrow margin.*
 
-The gatekeeper module MUST utilize a deterministic regex/logic engine for role-checking and deletion-log matching, ensuring that access control and forgetting decisions are reproducible and not subject to the stochastic variance of the underlying LLM (Methodology sketch: Gatekeeper Construction). All "Access Control" and "Forgetting" scores reported must be derived from this deterministic pre-filtering layer before the LLM processes the query.
+### VII. Computational Efficiency and Resource Profiling
+
+Performance claims regarding the "CPU-tractable" nature of the governance layer
+MUST be substantiated by direct measurements of wall-clock inference time and
+peak CPU/RAM usage. These metrics MUST be recorded for both the proposed
+gatekeeper pipeline (utilizing the frozen DistilBERT model and regex logic) and
+the baseline agents to quantify the computational overhead reduction.
+
+*Justification: Derived from the "Motivation" section, which highlights the need
+for a practical alternative in resource-constrained settings, and the
+"Methodology sketch" section, which explicitly lists "Cost Profiling" as a
+required experimental step to measure inference time and resource usage.*
 
 ## Reproducibility Requirements
 

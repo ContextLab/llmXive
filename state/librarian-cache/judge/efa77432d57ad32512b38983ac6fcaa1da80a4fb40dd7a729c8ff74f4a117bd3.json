@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "2503.04971",
-  "judged_at": "2026-07-12T01:58:05Z",
+  "judged_at": "2026-07-12T02:55:17Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"gatemem: benchmarking memory governance in multi-principal shared-memo\" computer science",
-  "rationale": "The paper focuses on incentive mechanisms and resource coordination for multi-tenant Split Federated Learning, which is a distinct construct from the user's query regarding \"Memory Governance\" and \"Shared-Memory\" benchmarking in LLMs. While both involve multi-tenant scenarios, the candidate paper addresses economic incentives and model aggregation in a distributed edge setting, whereas the user's question targets the specific technical mechanism of memory governance and benchmarking within a sha",
+  "rationale": "The paper focuses on incentive mechanisms and resource coordination for multi-tenant Split Federated Learning, which is a distinct construct from the user's query regarding \"Memory Governance\" and \"Shared-Memory\" benchmarking in LLMs. While both involve multi-tenant scenarios, the candidate paper addresses economic incentives and model aggregation in a distributed edge setting, whereas the user's question targets memory management architectures and governance protocols, failing to satisfy the sa",
   "relevant": false
 }

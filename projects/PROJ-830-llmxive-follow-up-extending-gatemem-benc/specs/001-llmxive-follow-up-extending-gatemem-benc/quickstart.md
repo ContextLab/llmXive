@@ -1,86 +1,68 @@
-# Quickstart: GateMem Gatekeeper Extension
+# Quickstart: llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
 
-## 1. Prerequisites
+## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to a GitHub Actions runner (free-tier) or a local machine with similar specs (2 CPU, 7 GB RAM).
+-   Python 3.11 or higher.
+-   Git.
+-   Access to a machine with at least 8 GB RAM (recommended for smooth execution) or a GitHub Actions free-tier runner.
+-   Internet connection (to download datasets and models).
 
-## 2. Installation
+## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repository-url>
+    cd projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: Ensure `torch` is installed without CUDA support (e.g., `pip install torch --index-url https://download.pytorch.org/whl/cpu`).*
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
-## 3. Data Setup
+## Running the Evaluation
 
-1. **Download the dataset**:
-   The script `code/data/loader.py` will automatically download the GateMem dataset from the verified URL.
-   ```bash
-   python code/data/loader.py --download
-   ```
-   This will place the raw data in `data/raw/` and compute checksums.
+The evaluation script runs the Gatekeeper and Baseline pipelines, computes metrics, and generates the report.
 
-2. **Verify data integrity**:
-   ```bash
-   python code/data/loader.py --verify
-   ```
+1.  **Download and Verify Dataset**:
+    ```bash
+    python code/cli/download_data.py
+    ```
+    *This script fetches the GateMem dataset from the verified HuggingFace URL, verifies the existence of all four required domains (medical, office, education, household), and saves them to `data/raw/`. If any domain is missing, the script exits with a clear error.*
 
-## 4. Running the Pipeline
+2.  **Run the full benchmark**:
+    ```bash
+    python code/cli/run_evaluation.py --config config/default.yaml
+    ```
+    *This command executes the following:*
+    -   Downloads and parses the dataset (with domain verification).
+    -   Runs the Gatekeeper pipeline (DistilBERT + Rules).
+    -   Runs the Baseline pipelines (Retrieval-only, Long-Context).
+    -   Computes Access Control, **Utility (Conditional)**, **Overall Success Rate**, and Forgetting scores.
+    -   Profiles CPU/RAM usage and calculates **Cost per Successful Task**.
+    -   Performs statistical analysis (LMM with Episode ID random effect, or fallback **Wilcoxon**).
+    -   Generates `data/processed/results_summary.json`.
+    -   Extracts 50 failure cases to `data/samples/failure_cases.json`.
 
-### 4.1 Full Evaluation
-Run the entire pipeline (Gatekeeper execution, metric calculation, statistical analysis):
-```bash
-python code/main.py --mode full
-```
-This will:
-- Load the dataset.
-- Execute the gatekeeper pipeline for all queries.
-- Calculate Access Control, Forgetting, and Utility scores.
-- Perform statistical tests and generate reports.
-- Output results to `data/processed/evaluation_results.csv`.
+3.  **View the results**:
+    -   Check `data/processed/results_summary.json` for the aggregated metrics.
+    -   Review `data/samples/failure_cases.json` for manual error analysis.
+    -   The console output will display the statistical significance of the differences.
 
-### 4.2 Sensitivity Analysis
-Run the sensitivity analysis for the DistilBERT threshold:
-```bash
-python code/main.py --mode sensitivity --thresholds 0.85 0.90 0.95
-```
+## Troubleshooting
 
-### 4.3 Unit Tests
-Run the test suite:
-```bash
-pytest tests/
-```
+-   **Memory Error**: If you encounter `MemoryError`, ensure you are not running other heavy applications. The script attempts to process data in batches, but the LLM backbone may require significant RAM. Consider reducing the batch size in `config/default.yaml`.
+-   **Model Download Failure**: If the DistilBERT model fails to download, the script will retry once. If it fails again, it exits with code 1. Check your internet connection and HuggingFace token permissions.
+-   **Dataset Missing**: If the dataset cannot be found or a domain is missing, ensure the verified URL is accessible and the `data/raw/` directory exists. The script will explicitly state which domain is missing.
 
-## 5. Expected Outputs
+## Next Steps
 
-- `data/processed/evaluation_results.csv`: Detailed results for each query.
-- `data/processed/metrics_summary.json`: Aggregated metrics (Access Control, Forgetting, Utility).
-- `data/processed/statistical_analysis.json`: P-values, effect sizes, and correction results.
-- `data/logs/pipeline.log`: Execution logs including timing and memory usage.
-
-## 6. Troubleshooting
-
-- **OOM Error**: If you encounter "Out of Memory" errors, ensure you are using the CPU-only version of `torch` and that no GPU libraries are installed. Reduce the batch size in `code/gatekeeper/pipeline.py`.
-- **Timeout**: If the pipeline exceeds 6 hours, check the `data/processed/pipeline.log` for the slowest step. Consider reducing the dataset size for testing (use `--sample-size` flag).
-- **Data Mismatch**: If the checksum verification fails, re-run the download script and ensure the URL has not changed.
-
-## 7. Next Steps
-
-- Review the `research.md` for detailed methodology.
-- Examine the `contracts/` for data schema validation.
-- Contribute to the `paper/` directory with the generated results.
+-   **Manual Review**: Inspect the `data/samples/failure_cases.json` to understand the nature of False Positives and False Negatives.
+-   **Paper Drafting**: Use the metrics from `results_summary.json` to draft the results section of the paper.
+-   **Sensitivity Analysis**: Adjust the DistilBERT threshold or rule engine parameters to explore the trade-off curve between security and utility.

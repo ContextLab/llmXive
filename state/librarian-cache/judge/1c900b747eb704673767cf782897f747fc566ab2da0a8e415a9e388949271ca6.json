@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "1002.1191",
-  "judged_at": "2026-07-12T01:58:13Z",
+  "judged_at": "2026-07-12T02:55:28Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"gatemem: benchmarking memory governance in multi-principal shared-memo\" computer science",
-  "rationale": "The paper focuses on hardware-level fault tolerance and error-correcting codes for physical memory systems, which is a distinct construct from the user's question regarding \"Memory Governance\" and \"Multi-Principal Shared-Memory\" in the context of Large Language Models (LLMs). This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"memory\"), as the mechanisms, domains (hardware reliability vs. software/LLM governance), and variables are entirely unrelated.",
+  "rationale": "The paper focuses on hardware-level fault tolerance and error-correcting codes for physical memory systems, which is a distinct construct from the user's question regarding \"Memory Governance\" and \"Multi-Principal Shared-Memory\" in the context of Large Language Models (LLMs). This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"memory\"), as the mechanisms (hardware redundancy vs. software governance/benchmarking) and domains (computer architecture vs. AI/LL",
   "relevant": false
 }

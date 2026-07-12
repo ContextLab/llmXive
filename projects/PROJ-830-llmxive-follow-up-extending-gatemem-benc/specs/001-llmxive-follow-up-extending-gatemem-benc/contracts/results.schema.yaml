@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Benchmark Results Schema"
+description: "Schema for the aggregated benchmark results including metrics and statistical tests."
+type: "object"
+properties:
+  configuration:
+    type: "string"
+    enum: ["gatekeeper", "baseline_retrieval", "baseline_long_context"]
+    description: "The configuration being evaluated."
+  domain:
+    type: "string"
+    description: "The domain for this result set."
+  total_episodes:
+    type: "integer"
+    minimum: 0
+    description: "Total number of episodes evaluated."
+  access_control_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Rate of unauthorized exposure (Access Control)."
+  conditional_utility_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Task success rate among allowed queries (Conditional Utility)."
+  overall_success_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Overall task success rate (including False Positives)."
+  forgetting_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Deletion compliance rate (Forgetting)."
+  mean_latency_ms:
+    type: "number"
+    minimum: 0.0
+    description: "Mean wall-clock inference time in milliseconds."
+  mean_peak_ram_mb:
+    type: "number"
+    minimum: 0.0
+    description: "Mean peak RAM usage in megabytes."
+  cost_per_success:
+    type: "number"
+    minimum: 0.0
+    description: "Total time divided by number of successful tasks."
+  statistical_significance:
+    type: "object"
+    properties:
+      p_value:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "P-value from the statistical test (LMM or non-parametric)."
+      confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+        description: "95% Confidence interval for the difference in means."
+      test_method:
+        type: "string"
+        enum: ["LMM", "paired_t_test", "Wilcoxon", "Kruskal-Wallis"]
+        description: "The statistical test method used."
+    required:
+      - "p_value"
+      - "confidence_interval"
+      - "test_method"
+required:
+  - "configuration"
+  - "domain"
+  - "total_episodes"
+  - "access_control_score"
+  - "conditional_utility_score"
+  - "overall_success_rate"
+  - "forgetting_score"
+  - "mean_latency_ms"
+  - "mean_peak_ram_mb"
+  - "cost_per_success"
+additionalProperties: false

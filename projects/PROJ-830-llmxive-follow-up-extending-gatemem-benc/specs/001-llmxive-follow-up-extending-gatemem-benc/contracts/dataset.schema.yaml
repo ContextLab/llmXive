@@ -1,117 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "GateMem Dataset Schema"
-description: "Schema for the raw and processed GateMem dataset used in the gatekeeper extension."
+title: "GateMem Episode Schema"
+description: "Schema for the raw and processed GateMem dataset episodes."
 type: "object"
 properties:
-  metadata:
-    type: "object"
-    properties:
-      dataset_name:
-        type: "string"
-        const: "GateMem"
-      source_url:
-        type: "string"
-        pattern: "^https://huggingface.co/datasets/Ray368/GateMem$"
-      version:
-        type: "string"
-      checksum:
-        type: "string"
-        description: "SHA256 checksum of the raw data file."
-      fallback_strategy:
-        type: "string"
-        description: "Strategy used if required fields are missing (e.g., 'synthetic_injection', 'rule_log_only')."
-    required:
-      - dataset_name
-      - source_url
-      - version
-      - checksum
-  queries:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          description: "Unique query identifier."
-        text:
-          type: "string"
-          description: "The query text."
-        user_role:
-          type: "string"
-          enum:
-            - student
-            - instructor
-            - admin
-            - guest
-        domain:
-          type: "string"
-          enum:
-            - medical
-            - office
-            - education
-            - household
-        timestamp:
-          type: "string"
-          format: date-time
-      required:
-        - id
-        - text
-        - user_role
-        - domain
-  memory_chunks:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-        content:
-          type: "string"
-        origin:
-          type: "string"
-        access_category:
-          type: "string"
-          enum:
-            - sensitive
-            - public
-            - restricted
-        allowed_roles:
-          type: "array"
-          items:
-            type: "string"
-        is_deleted:
-          type: "boolean"
-      required:
-        - id
-        - content
-        - access_category
-        - allowed_roles
-        - is_deleted
-  ground_truth:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        query_id:
-          type: "string"
-        leak_target:
-          type: "string"
-          description: "The string that should not appear in the output (Optional)."
-        is_unauthorized_attempt:
-          type: "boolean"
-        is_deleted_target:
-          type: "boolean"
-      required:
-        - query_id
-        - is_unauthorized_attempt
-        - is_deleted_target
-    required:
-      - query_id
-      - is_unauthorized_attempt
-      - is_deleted_target
+  episode_id:
+    type: "string"
+    description: "Unique identifier for the episode."
+  domain:
+    type: "string"
+    enum: ["medical", "office", "education", "household"]
+    description: "Domain of the episode."
+  user_query:
+    type: "string"
+    description: "The user's input query."
+  memory_context:
+    type: "string"
+    description: "The retrieved or full memory context provided to the LLM."
+  leak_target:
+    type: "string"
+    description: "The specific sensitive information targeted for leakage."
+  role:
+    type: "string"
+    description: "The user's role in the context."
+  deletion_request:
+    type: "boolean"
+    description: "Indicates if this episode contains a deletion request."
+  deletion_log:
+    type: "string"
+    description: "The log of deletion actions (if applicable)."
+  ground_truth_answer:
+    type: "string"
+    description: "The human-annotated correct answer for utility calculation."
+  ground_truth_leak:
+    type: "boolean"
+    description: "Ground truth label indicating if a leak occurred in this episode."
+  ground_truth_deletion:
+    type: "boolean"
+    description: "Ground truth label indicating if deletion was successfully performed."
 required:
-  - metadata
-  - queries
-  - memory_chunks
-  - ground_truth
-additionalProperties: false
+  - "episode_id"
+  - "domain"
+  - "user_query"
+  - "leak_target"
+  - "role"
+  - "ground_truth_leak"
+  - "ground_truth_deletion"
+additionalProperties: true

@@ -1,9 +1,9 @@
-# Tasks: GateMem Gatekeeper Extension
+# Tasks: llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
 
-**Input**: Design documents from `/specs/001-gatekeeper-memory-governance/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/001-llmxive-follow-up-extending-gatemem-benc/`
+**Prerequisites**: plan.md (required), spec.md (required for user stories)
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: Contract tests for dataset and results schemas, integration tests for full pipeline.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -16,112 +16,110 @@
 ## Path Conventions
 
 - **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure: Execute `mkdir -p projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/{gatekeeper,metrics,analysis,data} projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/data/{raw,processed,logs} projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/tests/{unit,integration,contract} projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/paper projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts`
+- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`)
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `datasets`, `transformers`, `scikit-learn`, `statsmodels`, `pandas`, `pyyaml`, `pytest`, `huggingface_hub`)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes data loading, stats logic, rule engine, and CLI skeleton.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Initialize Python 3.11 project: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/requirements.txt` containing pinned versions of `transformers`, `torch` (CPU), `scikit-learn`, `pandas`, `pytest`, `sentence-transformers`
-- [ ] T002a [P] Create dependency verification script: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/verify_deps.py` that parses `requirements.txt` and asserts absence of GPU libraries (bitsandbytes, CUDA) and validates CPU-only flags; output must be a log file `scripts/verify_deps.log`
-- [ ] T002b [P] Profile DistilBERT model: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/profile_model.py` that explicitly loads the frozen DistilBERT model in default precision on CPU, verifies no GPU allocation, and outputs a profile report to `data/logs/model_profile.json`
-- [ ] T002c [P] Validate frozen model weights: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/validate_model_weights.py` that loads the specific frozen DistilBERT weights used for intent classification, runs a forward pass on CPU, and confirms no GPU tensors or quantization libraries are required; output must be `data/logs/model_validation.json`
-- [ ] T002d [P] Validate sentence-transformers compatibility: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/validate_sentence_transformers.py` that verifies the specific sentence-transformers model variant selected for leakage detection is CPU-only and does not require quantization libraries; output must be `data/logs/sentence_transformers_validation.json`
-- [~] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/`
-- [~] T004 Implement data loader: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/data/loader.py` with `fetch_gatemem()` function to download GateMem dataset from verified HuggingFace URL
-- [~] T004a Implement data validation: Extend `loader.py` with `validate_fields()` function to check for `leak-target` and `role` fields in the dataset
-- [~] T004c Implement fallback strategy: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/data/loader.py` function `inject_fallback_data()` that, if `leak-target` is missing, switches to using existing `rule-log` fields in the dataset as ground truth (NO synthetic data generation); output must be a validated dataset file in `data/processed/`
-- [~] T005 [P] Implement data preprocessing: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/data/preprocess.py` with `clean_and_format()` function (Depends on T004 completion)
-- [~] T006 [P] Setup in-memory deletion log structure and role definition parser in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/gatekeeper/rules.py`
-- [~] T007 Create base data models: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/models.py` containing Pydantic/TypedDict definitions for Query, MemoryChunk, DeletionLog, EvaluationResult
-- [~] T008 Configure logging: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/logging_config.py` with error handling and random seed pinning; verify log file creation on run
-- [~] T009 Setup environment config: Create `.env.example` and `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/config.py` with CPU-only validation logic; verify `Config` class raises error if CUDA detected
-- [~] T023a [P] Define rubric: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/contracts/rubric.yaml` containing the standardized LLM-as-a-Judge rubric text (Depends on T001)
+- [ ] T004 Implement `contracts/dataset.schema.yaml` defining GateMem episode structure (leak-target, roles, domains)
+- [ ] T005 Implement `contracts/results.schema.yaml` defining metric output structure (Access Control, Utility, Forgetting, Latency)
+- [ ] T006 [P] Create `src/utils/data_loader.py` with functions to fetch GateMem dataset from HuggingFace/Direct URL and parse JSONL
+- [ ] T006b [US1/US2] [DEPENDS ON T006] Extend `src/utils/data_loader.py` to validate presence of required variables (`outcome`, `predictors`, `covariates`, `leak-target`) against `contracts/dataset.schema.yaml` and raise error if missing
+- [ ] T007 [P] Create `src/utils/profiling.py` for CPU/RAM and wall-clock time instrumentation (using `tracemalloc` or `psutil`)
+- [ ] T008a [P] Create `src/utils/stats.py` implementing Shapiro-Wilk, LMM (statsmodels) with formula `score ~ method + (1|Domain)`, and paired t-test/Wilcoxon fallback logic
+- [ ] T008b [US2] [DEPENDS ON T008a] Extend `src/utils/stats.py` to implement 'domain-stratified analysis' (separate tests per domain) and automatic fallback to paired tests if LMM fails (singular matrix) per Constitution Principle VI
+- [ ] T009 [P] Create `src/gatekeeper/pipeline.py` skeleton with entry points: `run_gatekeeper()`, `run_baseline()`, and `main()` for argument parsing
+- [ ] T010 Create `tests/contract/test_dataset_schema.py` to validate raw data against `dataset.schema.yaml`
+- [ ] T011 Create `tests/contract/test_results_schema.py` to validate output against `results.schema.yaml`
+- [ ] T015a [P] Create `src/gatekeeper/rules.py` with regex-based rule engine for role validation and deletion log checking
+- [ ] T015b [P] Extend `src/gatekeeper/rules.py` to handle malformed deletion log entries by defaulting to 'deny' and logging anomaly to `logs/deletion_errors.log`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Gatekeeper Pipeline Execution (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Evaluate Gatekeeper vs. Baseline on Access Control (Priority: P1) 🎯 MVP
 
-**Goal**: Implement the pre-filtering gatekeeper module that intercepts queries, validates against rules/deletion logs, and passes authorized data to the retrieval engine.
+**Goal**: Execute Gatekeeper and Baseline pipelines to measure unauthorized information leakage rates.
 
-**Independent Test**: Run a single query with an unauthorized role and a deleted target; verify the gatekeeper blocks retrieval before LLM execution.
+**Independent Test**: Run automated evaluation on "medical" and "office" domains; verify Access Control scores are output for both configurations.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [~] T010 [P] [US1] Contract test for gatekeeper blocking unauthorized access in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/tests/contract/test_gatekeeper.py`
-- [~] T011 [P] [US1] Integration test for deletion log priority over role rules in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/tests/integration/test_pipeline.py`
+- [ ] T012 [P] [US1] Contract test: Verify `data/processed/access_control_results.json` matches `results.schema.yaml`
+- [ ] T013 [P] [US1] Integration test: Run full pipeline on "medical" domain subset and assert Access Control score is calculated
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement frozen DistilBERT intent classifier in default precision (CPU-only) in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/gatekeeper/classifier.py`
-- [~] T013 [P] [US1] Implement deterministic rule engine (regex/logic) for deletion log enforcement in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/gatekeeper/rules.py`
-- [~] T014a [US1] Implement gatekeeper pipeline skeleton: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/gatekeeper/pipeline.py` with `run_query()` function scaffold
-- [ ] T014b [US1] Implement gatekeeper pipeline logic: Add `rule_check()`, `classify_intent()`, and timeout enforcement logic to `pipeline.py`; include a unit test in `tests/unit/test_pipeline.py` that triggers `TimeoutError` and logs the event to `data/logs/timeout.log`
+- [ ] T014a [P] [US1] Implement `src/gatekeeper/classifiers.py`: Load frozen DistilBERT intent classifier (CPU-only, default precision) and implement inference wrapper. **Acceptance Criteria**: Verify the model runs on CPU-only runner (no CUDA, memory < 2GB) and logs resource usage. **This verification must pass before T016 can proceed.**
+- [ ] T016 [US1] [DEPENDS ON T014a] Implement `src/gatekeeper/pipeline.py` logic: Filter memory access using Classifier + Rules (AND logic) before LLM step, referencing `contracts/dataset.schema.yaml` for data structure.
+- [ ] T017 [US1] Implement `src/gatekeeper/pipeline.py` logic: "Retrieval-only" and "Long-Context" baseline execution paths using `templates/prompts.yaml`; output `data/processed/baseline_results.json`. **Acceptance Criteria**: Verify that prompt templates and retrieval parameters are IDENTICAL to the Gatekeeper run.
+- [ ] T018 [US1] Implement `src/gatekeeper/metrics.py` function: Calculate Access Control score (unauthorized exposure rate) against ground truth
+- [ ] T019 [US1] Implement `src/cli/run_evaluation.py` logic: Execute US1 pipeline with `--domain medical,office` using existing CLI skeleton
+- [ ] T020 [US1] Add error handling: Log "validation error" for ambiguous `leak-target` and exclude from calculation; handle model load retry logic
+- [ ] T029 [US1/US2] Implement unified sampling logic for failure cases: Select 50 cases (stratified by domain, seed=42) from the combined pool of Access Control and Utility failures. Output to `data/samples/failure_cases.json`. **If a small number of failures exist, output all available. If zero failures exist, create an empty file and log a warning.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Quantitative Metric Calculation (Priority: P2)
+## Phase 4: User Story 2 - Evaluate Gatekeeper vs. Baseline on Task Utility (Priority: P2)
 
-**Goal**: Calculate Access Control, Forgetting, and Utility scores by comparing gatekeeper outputs against GateMem ground-truth annotations.
+**Goal**: Measure task success rates (Utility) and Forgetting compliance to ensure security filters do not degrade performance.
 
-**Independent Test**: Run evaluation on a fixed subset; verify output CSV contains non-null Access Control, Forgetting, and Utility scores.
+**Independent Test**: Run evaluation on "education" and "household" domains; verify Utility and Forgetting scores are calculated and compared against baselines.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Contract test for metric calculation formulas in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/tests/contract/test_metrics.py`
-- [ ] T019 [P] [US2] Integration test for leakage detection against ground truth in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/tests/integration/test_leakage.py`
+- [ ] T021 [P] [US2] Contract test: Verify `data/processed/utility_results.json` contains `conditional_utility` and `overall_success` fields
+- [ ] T022 [P] [US2] Integration test: Run pipeline on "education" domain and assert Utility score matches expected range against ground truth
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement Leakage Detector: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/metrics/leakage_detector.py` with hybrid (Exact + Semantic) detection logic
-- [ ] T023 [US2] Implement Utility Judge: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/metrics/utility_judge.py` using the rubric from T023a to calculate Utility scores (0.0–1.0)
-- [ ] T021 [US2] Implement Access Control score: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/metrics/calculator.py` with `calculate_access_control()` function: `(1 - (empirical_leaks / total_unauthorized_attempts)) * 100`
-- [ ] T022 [US2] Implement Forgetting score: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/metrics/calculator.py` with `calculate_forgetting()` function: `(1 - (empirical_deleted_leaks / total_deleted_targets)) * 100`
-- [ ] T023b [US2] Handle missing annotations: In `calculator.py`, implement logic to skip rows where `leak-target` is null, log count to `data/processed/metrics_summary.json` (key: `exclusion_count`), and return the count in the result dict
-- [ ] T024 [US2] Generate output CSV: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/metrics/calculator.py` function to write all three metrics to `data/processed/metrics.csv`
+- [ ] T023 [P] [US2] Implement `src/gatekeeper/metrics.py` function: Calculate Utility (task success rate against human-annotated ground truth)
+- [ ] T024 [P] [US2] Implement `src/gatekeeper/metrics.py` function: Calculate Forgetting (deletion compliance rate for deletion request episodes)
+- [ ] T025 [US2] Implement `src/gatekeeper/metrics.py` function: Calculate False Positive (valid query blocked) and False Negative (leak allowed) rates
+- [ ] T026a [US2] Define LMM formula in `src/utils/stats.py`: `score ~ method + (1|Domain)` and implement model fitting logic
+- [ ] T026b [US2] [DEPENDS ON T026a] Implement fallback logic in `src/utils/stats.py`: If LMM fails (singular matrix) or data is flat, run paired t-test or Wilcoxon signed-rank test per Constitution Principle VI
+- [ ] T026c [US2] [DEPENDS ON T026a] Implement domain-stratified analysis in `src/utils/stats.py`: Run separate tests per domain and aggregate results if LMM is not feasible
+- [ ] T027 [US2] Implement `src/cli/run_evaluation.py` logic: Execute US2 pipeline on `--domain education,household` using existing CLI skeleton
+- [ ] T028 [US2] [DEPENDS ON T026a, T026b, T026c] Implement `src/cli/run_evaluation.py` logic: Generate paired comparison table (Gatekeeper vs Baseline) for Utility and Forgetting.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Statistical Significance & Cost Profiling (Priority: P3)
+## Phase 5: User Story 3 - Profile Computational Cost and Latency (Priority: P3)
 
-**Goal**: Perform statistical testing (permutation/Wilcoxon) and cost profiling (latency, RAM) to validate hypotheses and feasibility.
+**Goal**: Measure wall-clock inference time and peak CPU/RAM usage to verify computational cost reduction.
 
-**Independent Test**: Run analysis on full test set; verify p-value < 0.05 for Access Control improvement and latency report within 6-hour limit.
+**Independent Test**: Execute pipeline with instrumentation; verify logs contain peak RAM (MB) and wall-clock time for both configurations.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 3
 
-- [ ] T026 [P] [US3] Contract test for statistical significance thresholds in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/tests/contract/test_stats.py`
-- [ ] T027 [P] [US3] Integration test for cost profiling under load in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/tests/integration/test_profiler.py`
+- [ ] T030 [P] [US3] Contract test: Verify `data/processed/performance_results.json` contains `latency_ms` and `peak_ram_mb` fields
+- [ ] T031 [P] [US3] Integration test: Run pipeline on small subset and assert resource logs are generated and non-zero
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement statistical analysis: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/analysis/stats.py` with Permutation tests, Wilcoxon, Bootstrapping functions
-- [ ] T029 [US3] Implement multiple-comparison correction: Add `apply_bonferroni()` and `apply_holm()` functions in `stats.py` for domain analysis
-- [ ] T030a [US3] Implement sensitivity analysis (Semantic): Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/analysis/stats.py` function to sweep the semantic similarity threshold across a range of high values for the Leakage Detector, calculate FP/FN rates, and write the results to `data/processed/sensitivity_analysis.csv` (Depends on T020)
-- [ ] T031 [US3] Implement cost profiler: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/analysis/profiler.py` to track total inference latency and peak CPU memory usage; include logic to enforce a 6-hour timeout and fail the pipeline with a "Compute Exceeded" error if the limit is breached
-- [ ] T032 [US3] Verify utility constraint: Add a function in `code/analysis/stats.py` that returns boolean and logs warning if `baseline_utility - new_utility > 0.10 * baseline_utility`; write result to `data/processed/utility_constraint_check.json`
-- [ ] T034 [US3] Execute correction and output report: Run T029 logic on T028 output (domain-specific results), apply multiple-comparison correction, and write the corrected p-values to `data/processed/corrected_pvalues.csv`; this artifact serves as the primary evidence for SC-004
-- [ ] T033 [US3] Generate final report: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/analysis/profiler.py` function to output report with p-values, effect sizes, confidence intervals, and resource usage logs to `data/processed/final_analysis_report.md`; this report must reference the corrected p-values from `data/processed/corrected_pvalues.csv`
+- [ ] T032 [P] [US3] Integrate `src/utils/profiling.py` into `src/gatekeeper/pipeline.py` to log start/end times and peak memory for each episode
+- [ ] T033 [US3] Implement `src/gatekeeper/pipeline.py` logic: Run Baseline (Long-Context) with profiling enabled
+- [ ] T034 [US3] Implement `src/gatekeeper/pipeline.py` logic: Run Gatekeeper with profiling enabled
+- [ ] T035 [US3] Implement `src/cli/run_evaluation.py` logic: Aggregate profiling data and calculate percentage reduction in latency/RAM for Gatekeeper vs Baseline
+- [ ] T036 [US3] Create final report generator: Output `data/results/final_benchmark_report.md` containing sections: Access Control, Utility, Forgetting, Cost; include tables with headers: Method, Score, StdDev, **Test Statistic**, **Degrees of Freedom**, **Method Used (LMM/Fallback)**, P-Value, Latency (ms), RAM (MB)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -131,11 +129,12 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T035 [P] Update state: Update `state/projects/{PROJECT_ID}.yaml` with artifact hashes for `data/` and `code/` per Principle V (replace {PROJECT_ID} with actual project ID)
-- [ ] T036 Code cleanup and refactoring in `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/`
-- [ ] T037 Performance optimization to ensure full pipeline runs within 6 hours on 2-core CPU
-- [ ] T038 [P] Run `quickstart.md` validation to ensure reproducibility
-- [ ] T039 Generate final research paper draft: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/paper/draft.md` containing sections: Abstract, Methods, Results (with placeholders for metrics), Conclusion
+- [ ] T037 [P] Documentation: Update `quickstart.md` with instructions to run the full benchmark suite
+- [ ] T038 Code cleanup: Refactor imports and ensure type hinting in `src/` modules
+- [ ] T039 [P] Security: Run PII scan on `data/raw/` and `data/processed/` artifacts
+- [ ] T040 [P] Run `pytest` for all unit, integration, and contract tests
+- [ ] T041 Validate `data/results/final_benchmark_report.md` against `contracts/results.schema.yaml`
+- [ ] T042 Verify `data/samples/failure_cases.json` contains exactly 50 entries (or N if N<50) with fixed seed 42
 
 ---
 
@@ -146,21 +145,20 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 to generate outputs
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires US1 and US2 outputs for analysis
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Uses `metrics.py` and `stats.py` from Foundation
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Uses `profiling.py` from Foundation
 
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
+- Models/Utilities before pipeline logic
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -170,7 +168,6 @@
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
 ---
@@ -178,13 +175,13 @@
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for gatekeeper blocking unauthorized access in tests/contract/test_gatekeeper.py"
-Task: "Integration test for deletion log priority over role rules in tests/integration/test_pipeline.py"
+# Launch all tests for User Story 1 together:
+Task: "Contract test: Verify data/processed/access_control_results.json matches results.schema.yaml"
+Task: "Integration test: Run full pipeline on 'medical' domain subset and assert Access Control score is calculated"
 
-# Launch all models for User Story 1 together:
-Task: "Implement frozen DistilBERT intent classifier in code/gatekeeper/classifier.py"
-Task: "Implement deterministic rule engine in code/gatekeeper/rules.py"
+# Launch all models/utilities for User Story 1 together:
+Task: "Implement src/gatekeeper/classifiers.py: Load frozen DistilBERT intent classifier"
+Task: "Implement src/gatekeeper/rules.py: Implement regex-based rule engine"
 ```
 
 ---
@@ -196,15 +193,15 @@ Task: "Implement deterministic rule engine in code/gatekeeper/rules.py"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
+4. **STOP and VALIDATE**: Test User Story 1 independently (Access Control metric)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
+3. Add User Story 2 → Test independently → Deploy/Demo (Utility/Forgetting)
+4. Add User Story 3 → Test independently → Deploy/Demo (Cost profiling)
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -213,9 +210,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+   - Developer A: User Story 1 (Access Control)
+   - Developer B: User Story 2 (Utility/Forgetting)
+   - Developer C: User Story 3 (Profiling)
 3. Stories complete and integrate independently
 
 ---
@@ -228,6 +225,8 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All tasks must run on a multi-core CPU with moderate RAM.. No GPU, no 8-bit/4-bit quantization.
-- **Data Integrity**: Use real GateMem dataset only. No synthetic data fabrication.
+- **Constraint**: All models must run on CPU-only (DistilBERT default precision); no low-bit quantization or CUDA usage.
+- **Constraint**: Dataset must be processed in batches to fit available RAM.
+- **Constraint**: Random seeds fixed to ensure reproducibility.
+- **Statistical Fallback**: If LMM fails (singular matrix) or data is flat, use paired t-tests or Wilcoxon signed-rank tests per Constitution Principle VI.
+- **Critical Dependency**: T016 requires T014a completion. T028 requires T026a/b/c completion. T006b requires T006. T008b requires T008a.

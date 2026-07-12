@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-12T01:58:18Z",
+  "fetched_at": "2026-07-12T02:55:37Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo\"",
       "target_n": 5
     },
-    "duration_seconds": 65.625,
-    "ended_at": "2026-07-12T01:58:18Z",
+    "duration_seconds": 546.757,
+    "ended_at": "2026-07-12T02:55:37Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,79 +19,79 @@
         ],
         [
           2,
-          "shared memory resource allocation benchmarks"
+          "shared memory benchmarking for large language models"
         ],
         [
           3,
-          "memory isolation mechanisms for multi-principal environments"
+          "multi-principal memory access control"
         ],
         [
           4,
-          "cross-process memory management strategies"
+          "memory isolation techniques in shared LLM environments"
         ],
         [
           5,
-          "memory throttling and governance frameworks"
+          "resource governance for concurrent LLM inference"
         ],
         [
           6,
-          "benchmarking memory overhead in shared architectures"
+          "benchmarking memory management in multi-user AI systems"
         ],
         [
           7,
-          "secure memory sharing protocols for concurrent principals"
+          "shared memory consistency in distributed LLM architectures"
         ],
         [
           8,
-          "dynamic memory governance in cloud computing"
+          "memory allocation strategies for multi-tenant LLMs"
         ],
         [
           9,
-          "memory contention resolution in multi-tenant workloads"
+          "secure memory sharing protocols for language models"
         ],
         [
           10,
-          "resource governance policies for shared memory pools"
+          "performance evaluation of memory governance in AI infrastructure"
         ],
         [
           11,
-          "memory accounting and billing in multi-user systems"
+          "contention resolution in shared memory for LLMs"
         ],
         [
           12,
-          "hardware-assisted memory isolation techniques"
+          "multi-tenant memory scheduling for generative AI"
         ],
         [
           13,
-          "performance evaluation of memory sharing mechanisms"
+          "memory efficiency in shared LLM inference servers"
         ],
         [
           14,
-          "memory safety and governance in heterogeneous computing"
+          "isolation mechanisms for shared memory in machine learning"
         ],
         [
           15,
-          "multi-tenant memory scheduling algorithms"
+          "benchmarking resource contention in multi-tenant AI platforms"
         ],
         [
           16,
-          "memory governance challenges in serverless architectures"
+          "memory coherence in distributed LLM training and inference"
         ],
         [
           17,
-          "benchmarking frameworks for memory resource management"
+          "fair memory allocation policies for shared LLM workloads"
         ],
         [
           18,
-          "fine-grained memory access control in shared environments"
+          "security and performance trade-offs in shared LLM memory"
         ],
         [
           19,
-          "memory governance for AI model inference in multi-tenant settings"
+          "memory virtualization for multi-tenant large language models"
         ],
         [
           20,
-          "comparative analysis of memory isolation strategies"
+          "evaluation frameworks for memory governance in AI systems"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "model weights persistent storage data contamination",
-      "GateMem benchmark shared parameter memory governance",
-      "parameter efficiency Mixture-of-Experts MoE routing",
-      "memory leakage cross-task catastrophic forgetting evaluation",
-      "gradient interference weight isolation multi-tenant training"
+      "model parallelism memory governance multi-tenant",
+      "GateMem benchmark shared memory LLM",
+      "context window eviction memory management",
+      "inference throughput latency memory bandwidth",
+      "catastrophic forgetting memory isolation shared weights"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2505.09164"
+        "2606.18829"
       ]
     },
     "per_query_hit_count": {
-      "GateMem benchmark shared parameter memory governance": 3,
-      "gradient interference weight isolation multi-tenant training": 3,
+      "GateMem benchmark shared memory LLM": 3,
+      "catastrophic forgetting memory isolation shared weights": 3,
+      "context window eviction memory management": 0,
+      "inference throughput latency memory bandwidth": 0,
       "llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo\" computer science": 3,
-      "memory leakage cross-task catastrophic forgetting evaluation": 3,
-      "model weights persistent storage data contamination": 3,
-      "parameter efficiency Mixture-of-Experts MoE routing": 3
+      "model parallelism memory governance multi-tenant": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -138,23 +138,23 @@
       "rejections": [
         {
           "primary_pointer": "2503.04971",
-          "rationale": "The paper focuses on incentive mechanisms and resource coordination for multi-tenant Split Federated Learning, which is a distinct construct from the user's query regarding \"Memory Governance\" and \"Shared-Memory\" benchmarking in LLMs. While both involve multi-tenant scenarios, the candidate paper addresses economic incentives and model aggregation in a distributed edge setting, whereas the user's question targets the specific technical mechanism of memory governance and benchmarking within a sha",
+          "rationale": "The paper focuses on incentive mechanisms and resource coordination for multi-tenant Split Federated Learning, which is a distinct construct from the user's query regarding \"Memory Governance\" and \"Shared-Memory\" benchmarking in LLMs. While both involve multi-tenant scenarios, the candidate paper addresses economic incentives and model aggregation in a distributed edge setting, whereas the user's question targets memory management architectures and governance protocols, failing to satisfy the sa",
           "title": "Incentivizing Multi-Tenant Split Federated Learning for Foundation Models at the Network Edge"
         },
         {
           "primary_pointer": "1002.1191",
-          "rationale": "The paper focuses on hardware-level fault tolerance and error-correcting codes for physical memory systems, which is a distinct construct from the user's question regarding \"Memory Governance\" and \"Multi-Principal Shared-Memory\" in the context of Large Language Models (LLMs). This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"memory\"), as the mechanisms, domains (hardware reliability vs. software/LLM governance), and variables are entirely unrelated.",
+          "rationale": "The paper focuses on hardware-level fault tolerance and error-correcting codes for physical memory systems, which is a distinct construct from the user's question regarding \"Memory Governance\" and \"Multi-Principal Shared-Memory\" in the context of Large Language Models (LLMs). This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"memory\"), as the mechanisms (hardware redundancy vs. software governance/benchmarking) and domains (computer architecture vs. AI/LL",
           "title": "Unidirectional Error Correcting Codes for Memory Systems: A Comparative Study"
         },
         {
           "primary_pointer": "2104.14833",
-          "rationale": "The paper addresses network capacity planning in 5G telecommunications infrastructure, which is an entirely different domain from the user's question regarding memory governance and benchmarking in Large Language Models (LLMs). Although both involve \"multi-tenant\" or \"multi-principal\" scenarios, the underlying mechanisms (radio resource allocation vs. model memory management) and empirical populations (cellular networks vs. AI systems) are distinct, failing the \"off-domain entirely\" rejection ru",
+          "rationale": "The paper addresses network capacity planning in 5G telecommunications infrastructure, which is an entirely different domain from the user's question regarding memory governance and benchmarking in Large Language Models (LLMs). While both involve \"multi-tenant\" or \"shared\" systems, the underlying mechanisms (radio resource allocation vs. model memory management) and variables are distinct, failing the \"off-domain entirely\" rejection rule.",
           "title": "Capacity Self-Planning in Small Cell Multi-Tenant 5G Networks"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-12T01:57:12Z",
+    "started_at": "2026-07-12T02:46:30Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"gatemem: benchmarking memory governance in multi-principal shared-memo\" computer science",
       "raw": "llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo\" computer science"
@@ -173,7 +173,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
@@ -192,7 +192,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
@@ -210,145 +210,154 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
+          "claimed_abstract": "Foundation models (FMs) such as GPT-4 exhibit exceptional generative capabilities across diverse downstream tasks through fine-tuning. Split Federated Learning (SFL) facilitates privacy-preserving FM fine-tuning on resource-constrained local devices by offloading partial FM computations to edge servers, enabling device-edge synergistic fine-tuning. Practical edge networks often host multiple SFL tenants to support diversified downstream tasks. However, existing research primarily focuses on single-tenant SFL scenarios, and lacks tailored incentive mechanisms for multi-tenant settings, which are essential to effectively coordinate self-interested local devices for participation in various downstream tasks, ensuring that each SFL tenant's distinct FM fine-tuning requirements (e.g., FM types, performance targets, and fine-tuning deadlines) are met. To address this gap, we propose a novel Price-Incentive Mechanism (PRINCE) that guides multiple SFL tenants to offer strategic price incentives, which solicit high-quality device participation for efficient FM fine-tuning. Specifically, we first develop a bias-resilient global SFL model aggregation scheme to eliminate model biases caused by independent device participation. We then derive a rigorous SFL convergence bound to evaluate the contributions of heterogeneous devices to FM performance improvements, guiding the incentive strategies of SFL tenants. Furthermore, we model inter-tenant device competition as a congestion game for Stackelberg equilibrium (SE) analysis, deriving each SFL tenant's optimal incentive strategy. Extensive simulations involving four representative SFL tenant types (ViT, BERT, Whisper, and LLaMA) across diverse data modalities (text, images, and audio) demonstrate that PRINCE accelerates FM fine-tuning by up to 3.07x compared to state-of-the-art approaches, while consistently meeting fine-tuning performance targets.",
           "claimed_authors": [
-            "Jonathan McDowell",
-            "Doug Tody",
-            "Tamas Budavari",
-            "Markus Dolensky",
-            "Inga Kamp",
-            "Kelly McCusker",
-            "Pavlos Protopapas",
-            "Arnold Rots",
-            "Randy Thompson",
-            "Frank Valdes",
-            "Petr Skoda",
-            "Bruno Rino",
-            "Sebastien Derriere",
-            "Jesus Salgado",
-            "Omar Laurino",
-            "the IVOA Data Access Layer",
-            "Data Model Working Groups"
+            "Songyuan Li",
+            "Jia Hu",
+            "Geyong Min",
+            "Haojun Huang"
           ],
-          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
+          "claimed_title": "Incentivizing Multi-Tenant Split Federated Learning for Foundation Models at the Network Edge",
           "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1204.3055"
+          "claimed_year": 2025,
+          "primary_pointer": "2503.04971"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Incentivizing Multi-Tenant Split Federated Learning for Foundation Models at the Network Edge')",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_abstract": "Pipeline parallelism (PP) has become a standard technique for scaling large language model (LLM) training across multiple devices. However, despite recent progress in reducing memory consumption through activation offloading, existing approaches remain largely heuristic and coarse-grained, often overlooking the fine-grained trade-offs between memory, computation, and scheduling latency. In this work, we revisit the pipeline scheduling problem from a principled optimization perspective. We observe that prevailing strategies either rely on static rules or aggressively offload activations without fully leveraging the interaction between memory constraints and scheduling efficiency. To address this, we formulate scheduling as a constrained optimization problem that jointly accounts for memory capacity, activation reuse, and pipeline bubble minimization. Solving this model yields fine-grained schedules that reduce pipeline bubbles while adhering to strict memory budgets. Our approach complements existing offloading techniques: whereas prior approaches trade memory for time in a fixed pattern, we dynamically optimize the tradeoff with respect to model structure and hardware configuration. Experimental results demonstrate that our method consistently improves both throughput and memory utilization. In particular, we reduce idle pipeline time by up to 50% under the same per-device memory limit, and in some cases, enable the training of larger models within limited memory budgets.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Linqi Song",
-            "Suhas Diggavi"
+            "Hongpei Li",
+            "Han Zhang",
+            "Huikang Liu",
+            "Dongdong Ge",
+            "Yinyu Ye"
           ],
-          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_title": "OptPipe: Memory- and Scheduling-Optimized Pipeline Parallelism for LLM Training",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.02664"
+          "claimed_year": 2025,
+          "primary_pointer": "2510.05186"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='OptPipe: Memory- and Scheduling-Optimized Pipeline Parallelism for LLM Training')",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_abstract": "Multi-tenancy allows diverse agents sharing the infrastructure in the 5 th generation of mobile networks. Such a feature calls for more automated and faster planning procedures in order to adapt the network capacity to the varying traffic demand. To achieve these goals, Small Cells offer network providers more flexible, scalable, and cost-effective solutions compared to macrocell deployments. This paper proposes a novel framework for cell planning in multi-tenant Small Cell networks. In this framework, the tenant's contracted capacity is translated to a set of detailed planning specifications over time and space domains in order to efficiently update the network infrastructure and configuration. Based on this, an algorithm is proposed that considers different actions such as adding/removing channels and adding or relocating small cells. The proposed approach is evaluated considering the deployment of a new tenant, where different sets of planning specifications are tested.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Suhas Diggavi"
+            "Pablo Muñoz",
+            "Oriol Sallent",
+            "Jordi Pérez-Romero"
           ],
-          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2005.07866"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
-        "failed_at": "2026-07-12T01:57:47Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This research contributes to the security design of an advanced smart drone swarm network based on a variant of the Blockchain Governance Game (BGG), which is the theoretical game model to predict the moments of security actions before attacks, and the Strategic Alliance for Blockchain Governance Game (SABGG), which is one of the BGG variants which has been adapted to construct the best strategies to take preliminary actions based on strategic alliance for protecting smart drones in a blockchain-based swarm network. Smart drones are artificial intelligence (AI)-enabled drones which are capable of being operated autonomously without having any command center. Analytically tractable solutions from the SABGG allow us to estimate the moments of taking preliminary actions by delivering the optimal accountability of drones for preventing attacks. This advanced secured swarm network within AI-enabled drones is designed by adapting the SABGG model. This research helps users to develop a new network-architecture-level security of a smart drone swarm which is based on a decentralized network.",
-          "claimed_authors": [
-            "Song-Kyoo Kim"
-          ],
-          "claimed_title": "Advanced Drone Swarm Security by Using Blockchain Governance Game",
+          "claimed_title": "Capacity Self-Planning in Small Cell Multi-Tenant 5G Networks",
           "claimed_venue": "arXiv",
           "claimed_year": 2021,
-          "primary_pointer": "2112.15454"
+          "primary_pointer": "2104.14833"
         },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Advanced Drone Swarm Security by Using Blockchain Governance Game')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Capacity Self-Planning in Small Cell Multi-Tenant 5G Networks')",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Sparse Mixture-of-Experts (MoE) architectures enable efficient scaling of large language models through conditional computation, yet the routing mechanisms responsible for expert selection remain poorly understood. In this work, we introduce routing signatures, a vector representation summarizing expert activation patterns across layers for a given prompt, and use them to study whether MoE routing exhibits task-conditioned structure. Using OLMoE-1B-7B-0125-Instruct as an empirical testbed, we show that prompts from the same task category induce highly similar routing signatures, while prompts from different categories exhibit substantially lower similarity. Within-category routing similarity (0.8435 +/- 0.0879) significantly exceeds across-category similarity (0.6225 +/- 0.1687), corresponding to Cohen's d = 1.44. A logistic regression classifier trained solely on routing signatures achieves 92.5% +/- 6.1% cross-validated accuracy on four-way task classification. To ensure statistical validity, we introduce permutation and load-balancing baselines and show that the observed separation is not explained by sparsity or balancing constraints alone. We further analyze layer-wise signal strength and low-dimensional projections of routing signatures, finding that task structure becomes increasingly apparent in deeper layers. These results suggest that routing in sparse transformers is not merely a balancing mechanism, but a measurable task-sensitive component of conditional computation. We release MOE-XRAY, a lightweight toolkit for routing telemetry and analysis.",
+          "claimed_abstract": "LLM agents increasingly rely on persistent long-term memory, which creates a critical vulnerability that we study here: memory poisoning. An adversary can store untrusted content in one session that later steers a consequential action, such as a payment, a setting change, or data exfiltration, in a future session. Existing defenses base a memory item's authority to act on either its content (detection or trust-scoring) or its derivation history (lineage). We show that both signals are malleable. An attacker can launder an untrusted origin through three channels specific to LLM agents: the agent's own summarization, a trusted-tool echo, and manufactured corroboration. Each makes the content look benign and breaks or flips its derivation edge to ``trusted.'' We formalize malleability for the memory write-retrieve-act pipeline and prove a machine-checked separation theorem. No content- or lineage-based defense is sound under laundering (T1), write-time origin binding is necessary (T2), and non-malleable origin-bound authority with Sybil-resistant corroboration-gated elevation is sufficient (T3). Our construction, TMA-NM (Tamper-evident Memory Authority, Non-Malleable), instantiates non-malleable information-flow control (IFC) for LLM-agent memory. A cross-defense, cross-attack, and cross-model benchmark over eight frontier models shows that existing defenses fail exactly where the theory predicts (up to 68% laundering attack-success), while TMA-NM reaches 0% attack success on both direct and laundering attacks across all models and channels, at full legitimate utility. We release the benchmark, harness, and machine-checked TLA+ models to support reproducibility.",
           "claimed_authors": [
-            "Mynampati Sri Ranganadha Avinash"
+            "Yedidel Louck"
           ],
-          "claimed_title": "Task-Conditioned Routing Signatures in Sparse Mixture-of-Experts Transformers",
+          "claimed_title": "Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2603.11114"
+          "primary_pointer": "2606.24322"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Task-Conditioned Routing Signatures in Sparse Mixture-of-Experts Transformers')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees')",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Mixture-of-Experts (MoE) architectures enable conditional computation by routing inputs to multiple expert subnetworks and are often motivated as a mechanism for scaling large language models. In this project, we instead study MoE behavior in an image classification setting, focusing on predictive performance, expert utilization, and generalization. We compare dense, SoftMoE, and SparseMoE classifier heads on the CIFAR10 dataset under comparable model capacity. Both MoE variants achieve slightly higher validation accuracy than the dense baseline while maintaining balanced expert utilization through regularization, avoiding expert collapse. To analyze generalization, we compute Hessian-based sharpness metrics at convergence, including the largest eigenvalue and trace of the loss Hessian, evaluated on both training and test data. We find that SoftMoE exhibits higher sharpness by these metrics, while Dense and SparseMoE lie in a similar curvature regime, despite all models achieving comparable generalization performance. Complementary loss surface perturbation analyses reveal qualitative differences in non-local behavior under finite parameter perturbations between dense and MoE models, which help contextualize curvature-based measurements without directly explaining validation accuracy. We further evaluate empirical inference efficiency and show that naively implemented conditional routing does not yield inference speedups on modern hardware at this scale, highlighting the gap between theoretical and realized efficiency in sparse MoE models.",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
           "claimed_authors": [
-            "Adam Rokah",
-            "Daniel Veress",
-            "Caleb Caulk",
-            "Sourav Sharan"
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
           ],
-          "claimed_title": "Mixture-of-Experts Models in Vision: Routing, Optimization, and Generalization",
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2601.15021"
+          "primary_pointer": "2606.05868"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Mixture-of-Experts Models in Vision: Routing, Optimization, and Generalization')",
-        "failed_at": "2026-07-12T01:57:47Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Mixture-of-Experts (MoE) language models scale model ability with sparsely activated experts, making this architecture a standard recipe for modern large models. However, sparse activation does not remove the deployment burden of storing and serving all experts, and the available deployment budget can vary substantially across devices, users, and workloads. Existing MoE compression methods are still largely fixed-budget, typically optimizing one compressed endpoint at each chosen target budget. We study a different setting: converting a large pretrained MoE LLM into a nested family of deployable subnetworks across budgets. Our method first ranks expert FFN channels by their importance, then lets each expert learn a discrete action to prune its channels. By gradually increasing cost pressure, a single action-training run exports a series of action masks from high to low budgets, each of which identifies a reliable smaller subnetwork nested in the ranked base model. Moreover, we use a single recovery fine-tune at a mid pruning budget (40%) to recover degraded model quality and transfer the recovered model to other unseen budgets. Overall, our framework surpasses recent MoE compression baselines. Specifically, on Qwen2-57B-A14B, our method retains ~99.8% of base performance while pruning 50% of routed expert parameters even without fine-tuning. For deployment, our pruned subnetworks deliver real memory reduction and throughput gains, and further support realtime online budget switching with kernel-level co-design.",
-          "claimed_authors": [
-            "Fan Mo",
-            "Yuxuan Han",
-            "Geng Zhang",
-            "Wangbo Zhao",
-            "Yang You"
-          ],
-          "claimed_title": "FlexMoE: One-for-All Nested Intra-Expert Pruning for MoE Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2606.27866"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='FlexMoE: One-for-All Nested Intra-Expert Pruning for MoE Language Models')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
@@ -364,7 +373,7 @@
           "primary_pointer": "2211.14177"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
@@ -382,7 +391,7 @@
           "primary_pointer": "2102.07686"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Does the Adam Optimizer Exacerbate Catastrophic Forgetting?')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       },
       {
@@ -402,63 +411,7 @@
           "primary_pointer": "2010.04003"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix')",
-        "failed_at": "2026-07-12T01:57:47Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Foundation models (FMs) such as GPT-4 exhibit exceptional generative capabilities across diverse downstream tasks through fine-tuning. Split Federated Learning (SFL) facilitates privacy-preserving FM fine-tuning on resource-constrained local devices by offloading partial FM computations to edge servers, enabling device-edge synergistic fine-tuning. Practical edge networks often host multiple SFL tenants to support diversified downstream tasks. However, existing research primarily focuses on single-tenant SFL scenarios, and lacks tailored incentive mechanisms for multi-tenant settings, which are essential to effectively coordinate self-interested local devices for participation in various downstream tasks, ensuring that each SFL tenant's distinct FM fine-tuning requirements (e.g., FM types, performance targets, and fine-tuning deadlines) are met. To address this gap, we propose a novel Price-Incentive Mechanism (PRINCE) that guides multiple SFL tenants to offer strategic price incentives, which solicit high-quality device participation for efficient FM fine-tuning. Specifically, we first develop a bias-resilient global SFL model aggregation scheme to eliminate model biases caused by independent device participation. We then derive a rigorous SFL convergence bound to evaluate the contributions of heterogeneous devices to FM performance improvements, guiding the incentive strategies of SFL tenants. Furthermore, we model inter-tenant device competition as a congestion game for Stackelberg equilibrium (SE) analysis, deriving each SFL tenant's optimal incentive strategy. Extensive simulations involving four representative SFL tenant types (ViT, BERT, Whisper, and LLaMA) across diverse data modalities (text, images, and audio) demonstrate that PRINCE accelerates FM fine-tuning by up to 3.07x compared to state-of-the-art approaches, while consistently meeting fine-tuning performance targets.",
-          "claimed_authors": [
-            "Songyuan Li",
-            "Jia Hu",
-            "Geyong Min",
-            "Haojun Huang"
-          ],
-          "claimed_title": "Incentivizing Multi-Tenant Split Federated Learning for Foundation Models at the Network Edge",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2503.04971"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Incentivizing Multi-Tenant Split Federated Learning for Foundation Models at the Network Edge')",
-        "failed_at": "2026-07-12T01:57:47Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Multi-tenancy allows diverse agents sharing the infrastructure in the 5 th generation of mobile networks. Such a feature calls for more automated and faster planning procedures in order to adapt the network capacity to the varying traffic demand. To achieve these goals, Small Cells offer network providers more flexible, scalable, and cost-effective solutions compared to macrocell deployments. This paper proposes a novel framework for cell planning in multi-tenant Small Cell networks. In this framework, the tenant's contracted capacity is translated to a set of detailed planning specifications over time and space domains in order to efficiently update the network infrastructure and configuration. Based on this, an algorithm is proposed that considers different actions such as adding/removing channels and adding or relocating small cells. The proposed approach is evaluated considering the deployment of a new tenant, where different sets of planning specifications are tested.",
-          "claimed_authors": [
-            "Pablo Muñoz",
-            "Oriol Sallent",
-            "Jordi Pérez-Romero"
-          ],
-          "claimed_title": "Capacity Self-Planning in Small Cell Multi-Tenant 5G Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2104.14833"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Capacity Self-Planning in Small Cell Multi-Tenant 5G Networks')",
-        "failed_at": "2026-07-12T01:57:47Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The wide deployment of Deep Neural Networks (DNN) in high-performance cloud computing platforms brought to light multi-tenant cloud field-programmable gate arrays (FPGA) as a popular choice of accelerator to boost performance due to its hardware reprogramming flexibility. Such a multi-tenant FPGA setup for DNN acceleration potentially exposes DNN interference tasks under severe threat from malicious users. This work, to the best of our knowledge, is the first to explore DNN model vulnerabilities in multi-tenant FPGAs. We propose a novel adversarial attack framework: Deep-Dup, in which the adversarial tenant can inject adversarial faults to the DNN model in the victim tenant of FPGA. Specifically, she can aggressively overload the shared power distribution system of FPGA with malicious power-plundering circuits, achieving adversarial weight duplication (AWD) hardware attack that duplicates certain DNN weight packages during data transmission between off-chip memory and on-chip buffer, to hijack the DNN function of the victim tenant. Further, to identify the most vulnerable DNN weight packages for a given malicious objective, we propose a generic vulnerable weight package searching algorithm, called Progressive Differential Evolution Search (P-DES), which is, for the first time, adaptive to both deep learning white-box and black-box attack models. The proposed Deep-Dup is experimentally validated in a developed multi-tenant FPGA prototype, for two popular deep learning applications, i.e., Object Detection and Image Classification. Successful attacks are demonstrated in six popular DNN architectures (e.g., YOLOv2, ResNet-50, MobileNet, etc.)",
-          "claimed_authors": [
-            "Adnan Siraj Rakin",
-            "Yukui Luo",
-            "Xiaolin Xu",
-            "Deliang Fan"
-          ],
-          "claimed_title": "Deep-Dup: An Adversarial Weight Duplication Attack Framework to Crush Deep Neural Network in Multi-Tenant FPGA",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2011.03006"
-        },
-        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"GateMem: Benchmarking Memory Governance in Multi-P', candidate_title='Deep-Dup: An Adversarial Weight Duplication Attack Framework to Crush Deep Neural Network in Multi-Tenant FPGA')",
-        "failed_at": "2026-07-12T01:57:47Z",
+        "failed_at": "2026-07-12T02:55:06Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -488,38 +441,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2606.18829",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2519,
           "query_relevance_score": 0.5385,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T01:57:47Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Hamed Taheri"
-          ],
-          "title": "Governed Memory: A Production Architecture for Multi-Agent Workflows",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2603.17787",
-        "summary": "Enterprise AI deploys dozens of autonomous agent nodes across workflows, each acting on the same entities with no shared memory and no common governance. We identify five structural challenges arising from this memory governance gap: memory silos across agent workflows; governance fragmentation across teams and tools; unstructured memories unusable by downstream systems; redundant context delivery in autonomous multi-step executions; and silent quality degradation without feedback loops. We present Governed Memory, a shared memory and governance layer addressing this gap through four mechanisms: a dual memory model combining open-set atomic facts with schema-enforced typed properties; tiered governance routing with progressive context delivery; reflection-bounded retrieval with entity-scoped isolation; and a closed-loop schema lifecycle with AI-assisted authoring and automated per-property refinement. We validate each mechanism through controlled experiments (N=250, five content types): 99.6% fact recall with complementary dual-modality coverage; 92% governance routing precision; 50% token reduction from progressive delivery; zero cross-entity leakage across 500 adversarial queries; 100% adversarial governance compliance; and output quality saturation at approximately seven governed memories per entity. On the LoCoMo benchmark, the architecture achieves 74.8% overall accuracy, confirming that governance and schema enforcement impose no retrieval quality penalty. The system is in production at Personize.ai.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2603.17787",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3077,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-12T01:57:47Z"
+          "verified_at": "2026-07-12T02:55:06Z"
         }
       },
       {
@@ -545,13 +473,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2505.09164",
           "http_status": 200,
-          "pdf_sample_score": 0.2873,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.8,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T01:57:53Z"
+          "verified_at": "2026-07-12T02:55:12Z"
         }
       },
       {
@@ -580,7 +508,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T01:57:54Z"
+          "verified_at": "2026-07-12T02:55:12Z"
         }
       }
     ]

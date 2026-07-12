@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "2606.24535",
-  "judged_at": "2026-07-12T01:58:15Z",
+  "judged_at": "2026-07-12T02:55:33Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"gatemem: benchmarking memory governance in multi-principal shared-memo\" computer science",
-  "rationale": "This paper directly addresses the user's question by providing the canonical follow-up work on \"GateMem\" that extends the benchmarking of memory governance in multi-principal shared-memory systems, satisfying criteria (a) for same-mechanism evidence and (b) for measuring the specific independent/dependent variables (governance primitives, failure modes) in the same domain (multi-agent LLM systems).",
+  "rationale": "This paper directly addresses the user's question by providing the canonical follow-up work on \"memory governance in multi-principal shared memory\" for LLMs, satisfying criteria (a) and (b) as it measures the same biological/algorithmic mechanism (governance primitives like leakage, stale propagation, and provenance) in the exact same domain (multi-agent LLM systems). It effectively serves as the primary related work for a study extending the \"GateMem\" benchmark.",
   "relevant": true
 }
