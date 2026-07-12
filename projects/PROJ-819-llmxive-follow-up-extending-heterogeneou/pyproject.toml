@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-heterogeneou"
+version = "0.1.0"
+description = "llmXive automated science pipeline follow-up"
+requires-python = ">=3.9"
+dependencies = [
+    "sentence-transformers",
+    "scikit-learn",
+    "numpy",
+    "pandas",
+    "pytest",
+    "cachetools",
+    "statsmodels",
+    "ruff",
+    "black",
+    "pytest-benchmark",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.setuptools.packages.find]
+where = ["code"]

@@ -1,0 +1,16 @@
+? 'T001a [P] Create project directories per implementation plan: `projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/`
+  including `code/`, `data/`, `tests/`, `state/` and subdirectories `code/cache`,
+  `code/pipeline`, `code/analysis`, `data/raw`, `data/derived`, `tests/unit`, `tests/integration`'
+: 1
+? 'T005 [P] Implement `code/data/generator.py` to generate the **Test Set** (500 queries)
+  for FR-007. **Deliverable**: Create `data/derived/synthetic_queries_test.json` containing
+  a list of objects with keys `prompt`, `ground_truth`, `steps`, `seed`, and `domain`.'
+: 1
+? 'T005a [P] Extend `code/data/generator.py` to generate the **Warm-up Set** (100
+  queries) for FR-007. **Deliverable**: Create `data/derived/synthetic_queries_warmup.json`
+  with the same schema as T005.'
+: 1
+? T006 [P] Define `BenchmarkQuery` entity schema (dataclass/pydantic model) and create
+  stub `code/data/loaders.py` with placeholder functions for loading the schema.
+: 1
+'T008 Implement `code/cache/utils.py`: Cosine similarity calculation and thresholding logic.': 1

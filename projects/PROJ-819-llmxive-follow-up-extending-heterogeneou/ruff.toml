@@ -1,0 +1,9 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "B008"]
+target-version = "py39"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

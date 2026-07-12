@@ -1,0 +1,8 @@
+sentence-transformers
+scikit-learn
+numpy
+pandas
+pytest
+cachetools
+statsmodels
+pytest-benchmark
