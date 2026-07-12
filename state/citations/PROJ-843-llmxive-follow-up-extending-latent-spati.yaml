@@ -1,0 +1,11 @@
+- artifact_hash: cfba55a2738aa702e5de748bede0061a00d250d3bb6d330c55e2ff8413686c06
+  artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/google-research-datasets/RealEstate10K
+  verification_status: pending
+  verified_against_url: https://huggingface.co/google-research-datasets/RealEstate10K
+  verified_at: '2026-07-12T16:32:01.680216Z'

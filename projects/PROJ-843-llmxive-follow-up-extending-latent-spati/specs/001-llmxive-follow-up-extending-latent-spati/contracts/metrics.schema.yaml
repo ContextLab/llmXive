@@ -1,0 +1,90 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetricReportSchema"
+description: "Schema for the aggregated performance and statistical metrics."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the pipeline run."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO8601 timestamp of the run completion."
+  environment:
+    type: object
+    properties:
+      cpu_cores:
+        type: integer
+      ram_gb:
+        type: number
+      gpu_available:
+        type: boolean
+        const: false
+    required:
+      - cpu_cores
+      - ram_gb
+      - gpu_available
+  results:
+    type: array
+    items:
+      type: object
+      properties:
+        video_id:
+          type: string
+        subset_id:
+          type: string
+        unified_geometric_error_dense:
+          type: number
+          description: "Photometric Consistency (L1) on held-out frame for Dense method."
+        unified_geometric_error_sparse:
+          type: number
+          description: "Photometric Consistency (L1) on held-out frame for Sparse method."
+        time_sparse_sec:
+          type: number
+          description: "Wall-clock time for sparse method (seconds)."
+        time_dense_sec:
+          type: number
+          description: "Wall-clock time for dense method (seconds)."
+        ram_peak_sparse_mb:
+          type: number
+          description: "Peak RAM usage for sparse method (MB)."
+        ram_peak_dense_mb:
+          type: number
+          description: "Peak RAM usage for dense method (MB)."
+        status:
+          type: string
+          enum: ["success", "unsolvable", "low_texture"]
+      required:
+        - video_id
+        - subset_id
+        - unified_geometric_error_dense
+        - unified_geometric_error_sparse
+        - time_sparse_sec
+        - time_dense_sec
+        - ram_peak_sparse_mb
+        - ram_peak_dense_mb
+        - status
+  anova_summary:
+    type: object
+    properties:
+      interaction_p_value:
+        type: number
+        description: "P-value for the interaction effect (Method x Motion x Texture)."
+      effect_size_f:
+        type: number
+        description: "Cohen's f for the interaction effect."
+      thresholds_tested:
+        type: array
+        items:
+          type: number
+        description: "List of RANSAC thresholds tested (e.g., 0.01, 0.05, 0.1)."
+    required:
+      - interaction_p_value
+      - effect_size_f
+      - thresholds_tested
+required:
+  - run_id
+  - timestamp
+  - environment
+  - results
+  - anova_summary

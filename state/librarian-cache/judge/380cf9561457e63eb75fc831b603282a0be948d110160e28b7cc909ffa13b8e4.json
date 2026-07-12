@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.15725",
+  "judged_at": "2026-07-12T16:14:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"latent spatial memory for video world models\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it directly addresses the core mechanism of \"Latent Spatial Memory\" within the domain of video world models by proposing a disentangled latent action framework that explicitly separates spatial layouts (structure) from visual details, which is the fundamental architectural challenge implied by the user's query about extending spatial memory in this specific field.",
+  "relevant": true
+}

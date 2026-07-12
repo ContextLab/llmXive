@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.25716",
+  "judged_at": "2026-07-12T16:14:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"latent spatial memory for video world models\" computer science",
+  "rationale": "This paper directly addresses the user's research question by proposing a \"Hybrid Memory\" mechanism and a \"spatiotemporal relevance-driven retrieval\" architecture specifically designed to extend video world models' ability to track dynamic subjects during occlusion, which is the core challenge implied by the user's reference to \"Latent Spatial Memory for Video World Models.\" It satisfies criteria (a) and (d) as it provides the same-mechanism evidence and a foundational methodology for the specif",
+  "relevant": true
+}

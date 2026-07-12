@@ -1,0 +1,364 @@
+resolved_at: '2026-07-12T16:21:48.310011+00:00'
+datasets:
+- intent: RealEstate10K
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/DavidYan2001/RealEstate10K/resolve/main/dataset/test.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yangtaointernship/RealEstate10K-subset/resolve/main/frames.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/DavidYan2001/RealEstate10K/resolve/main/dataset/test.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/book/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Content_Writing-_The_Wheel_of_Digital_Marketing/32968949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/ACTIVE_OR_PASSIVE_STREAMS_OF_INCOME_AND_REVENUE_GENERATION_/32824976
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/SF1_miRNA_Differential_Expression_and_Sample_Clustering_Analysis_in_endometriosis/32968895
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.28321
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.22091
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.05102
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.09828
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.02479
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SIFT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/zjd2000/ANN_SIFT/resolve/main/bigann_learn.bvecs.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-vdb/sift-128-euclidean/resolve/main/neighbors/neighbors-vector-emb-pk-idx-expr-None-metric-l2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fzliu/sift1b/resolve/main/bigann_gnd.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/zjd2000/ANN_SIFT/resolve/main/bigann_learn.bvecs.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/fzliu/sift1b/resolve/main/bigann_gnd.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/fzliu/sift1m/resolve/main/sift.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/open-vdb/sift-128-euclidean/resolve/main/neighbors/neighbors-vector-emb-pk-idx-expr-None-metric-l2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/book/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Content_Writing-_The_Wheel_of_Digital_Marketing/32968949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/ACTIVE_OR_PASSIVE_STREAMS_OF_INCOME_AND_REVENUE_GENERATION_/32824976
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/SF1_miRNA_Differential_Expression_and_Sample_Clustering_Analysis_in_endometriosis/32968895
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2633324
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15089542
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10167356
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15195435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10359724
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/41290
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/100072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/58300
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/100549
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/101237
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ORB
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/johnowhitaker/glid3_orbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/alobaidizt/ORBC_embeddings/resolve/main/embeddings.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-orbnet-denali/resolve/main/data/train-00000-of-00013-d5390904849419bc.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/johnowhitaker/glid3_orbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alobaidizt/ORBC_embeddings/resolve/main/embeddings.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-orbnet-denali/resolve/main/data/train-00000-of-00013-d5390904849419bc.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/book/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Content_Writing-_The_Wheel_of_Digital_Marketing/32968949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/ACTIVE_OR_PASSIVE_STREAMS_OF_INCOME_AND_REVENUE_GENERATION_/32824976
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/SF1_miRNA_Differential_Expression_and_Sample_Clustering_Analysis_in_endometriosis/32968895
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scientificamerican.com/article/cultivated-rubber/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scientificamerican.com/article/the-story-of-the-prune/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scientificamerican.com/article/open-air-mining-of-coal-by-electric/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scientificamerican.com/article/multiple-wheel-truck-and-the-pneuma/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF03171955
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315660
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315660
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/3450170/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21299625
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21299625
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RGB
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gokulraja17/rice-rgb-demo/resolve/main/data/test-00000-of-00001-2aca3e15372f6c58.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/maderix/flickr_bw_rgb/resolve/main/data/train-00000-of-00001-1686932800440418.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gokulraja17/rice-rgb-demo2/resolve/main/data/test-00000-of-00001-869371dd5e06c092.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gokulraja17/rice-rgb-demo/resolve/main/data/test-00000-of-00001-2aca3e15372f6c58.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/maderix/flickr_bw_rgb/resolve/main/data/train-00000-of-00001-1686932800440418.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gokulraja17/rice-rgb-demo2/resolve/main/data/test-00000-of-00001-869371dd5e06c092.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/samitizerxu/mini-algae-rgb/resolve/main/data/test-00000-of-00001-db68eb688c8db107.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/samitizerxu/algae-rgb/resolve/main/data/test-00000-of-00001-dcb619a84a3a80d6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/book/EVALUASI_PERFORMA_ALGORITMA_NAIVE_BAYES_DAN_SUPPORT_VECTOR_MACHINE_PADA_ANALISIS_SENTIMEN_ULASAN_PENGGUNA_GOOGLE_CLASSROOM/32968946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Content_Writing-_The_Wheel_of_Digital_Marketing/32968949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/ACTIVE_OR_PASSIVE_STREAMS_OF_INCOME_AND_REVENUE_GENERATION_/32824976
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/SF1_miRNA_Differential_Expression_and_Sample_Clustering_Analysis_in_endometriosis/32968895
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7239598
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10737400
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10737396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4726256
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6913734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Urban_Heat_Watch_UHW_platform_-_https_platform_uhw_gr_b_/31940991/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21319056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21319056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
