@@ -1,13 +1,12 @@
 """
-Monte-Carlo validation module for statistical tests (FR-026).
+Monte-Carlo validation module for statistical test correctness (FR-026).
 
-This module validates the statistical reconstruction logic by running
-Monte-Carlo simulations (10,000 replicates per test) and comparing
-the empirical p-values against the theoretical p-values from scipy.
-
-The absolute difference between empirical and theoretical p-values
-must be <= 0.005 to pass validation.
+This module validates the statistical reconstruction logic by running Monte-Carlo
+simulations for z-test, Fisher's exact test, Welch's t-test, and binomial test.
+It compares empirical p-values against theoretical expectations to ensure the
+absolute difference is <= 0.005.
 """
+
 import logging
 import sys
 import time
@@ -15,21 +14,18 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
 import numpy as np
-from scipy import stats
 
 from code.src.config import SEED, set_rng_seed
-from code.src.utils.logger import get_default_logger, AuditLogger
 from code.src.audit.monte_carlo_core import (
-    run_monte_carlo_validation_core,
     set_seeds,
-    generate_null_binary_data,
-    generate_null_continuous_data,
     simulate_z_test_statistic,
     simulate_fisher_exact_table,
     simulate_welch_t_statistic,
     simulate_binomial_statistic,
     compute_empirical_p_value,
+    run_monte_carlo_validation_core
 )
+from code.src.utils.logger import get_default_logger, AuditLogger
 
 # Constants
 NUM_REPLICATES = 10000
@@ -38,370 +34,373 @@ ALPHA = 0.05
 
 logger = get_default_logger(__name__)
 
+def validate_z_test(
+    n1: int, n2: int, p1: float, p2: float,
+    num_replicates: int = NUM_REPLICATES,
+    seed: int = SEED
+) -> Dict[str, Any]:
+    """
+    Validate two-proportion z-test using Monte-Carlo simulation.
 
-def validate_z_test(n1: int, n2: int, p1: float, p2: float, seed: int = SEED) -> Dict[str, Any]:
-    """
-    Validate the two-proportion z-test using Monte-Carlo simulation.
-    
     Args:
-        n1: Sample size of group 1
-        n2: Sample size of group 2
-        p1: True proportion of group 1 (under null hypothesis, p1 should equal p2)
-        p2: True proportion of group 2
+        n1, n2: Sample sizes for group 1 and 2
+        p1, p2: True proportions for group 1 and 2 (under null hypothesis, p1 approx p2)
+        num_replicates: Number of simulation replicates
         seed: Random seed for reproducibility
-        
+
     Returns:
-        Dictionary containing validation results
+        Dictionary with validation results
     """
-    set_seeds(seed)
-    
-    # Theoretical p-value (assuming null hypothesis is true, we use pooled proportion)
-    # For validation, we simulate under the null hypothesis where p1 = p2 = p_pooled
-    p_pooled = (p1 * n1 + p2 * n2) / (n1 + n2)
-    
-    # Generate null data and run simulation
-    results = run_monte_carlo_validation_core(
-        n1=n1,
-        n2=n2,
-        p_true=p_pooled,
-        num_replicates=NUM_REPLICATES,
-        test_type="z_test",
-        seed=seed
+    set_rng_seed(seed)
+    logger.info(f"Running z-test validation with {num_replicates} replicates...")
+    start_time = time.time()
+
+    # Generate null data and compute empirical p-value
+    # Under null hypothesis, we assume p1 = p2 = pooled proportion
+    pooled_p = (p1 * n1 + p2 * n2) / (n1 + n2)
+
+    empirical_p, z_stats = run_monte_carlo_validation_core(
+        simulate_func=lambda: simulate_z_test_statistic(n1, n2, pooled_p),
+        num_replicates=num_replicates,
+        alpha=ALPHA
     )
+
+    # Theoretical p-value from scipy (using the same pooled proportion)
+    from scipy import stats
+    # Calculate observed counts
+    x1 = int(round(n1 * p1))
+    x2 = int(round(n2 * p2))
     
-    theoretical_p = results.get("theoretical_p", 0.0)
-    empirical_p = results.get("empirical_p", 0.0)
-    abs_diff = abs(theoretical_p - empirical_p)
-    passed = abs_diff <= TOLERANCE
-    
-    return {
-        "test_type": "z_test",
+    # Two-proportion z-test
+    stat, theoretical_p = stats.proportions_ztest([x1, x2], [n1, n2])
+
+    elapsed = time.time() - start_time
+    diff = abs(empirical_p - theoretical_p)
+
+    result = {
+        "test": "z_test",
         "n1": n1,
         "n2": n2,
-        "p_pooled": p_pooled,
-        "theoretical_p": theoretical_p,
-        "empirical_p": empirical_p,
-        "absolute_difference": abs_diff,
-        "passed": passed,
-        "tolerance": TOLERANCE
+        "p1": p1,
+        "p2": p2,
+        "num_replicates": num_replicates,
+        "empirical_p_value": empirical_p,
+        "theoretical_p_value": theoretical_p,
+        "absolute_difference": diff,
+        "passed": diff <= TOLERANCE,
+        "elapsed_seconds": elapsed
     }
 
+    if result["passed"]:
+        logger.info(f"Z-test validation PASSED: diff={diff:.6f} <= {TOLERANCE}")
+    else:
+        logger.warning(f"Z-test validation FAILED: diff={diff:.6f} > {TOLERANCE}")
 
-def validate_fisher_exact(n1: int, n2: int, p1: float, p2: float, seed: int = SEED) -> Dict[str, Any]:
+    return result
+
+def validate_fisher_exact(
+    n1: int, n2: int, p1: float, p2: float,
+    num_replicates: int = NUM_REPLICATES,
+    seed: int = SEED
+) -> Dict[str, Any]:
     """
     Validate Fisher's exact test using Monte-Carlo simulation.
-    
+
     Args:
-        n1: Sample size of group 1
-        n2: Sample size of group 2
-        p1: True proportion of group 1
-        p2: True proportion of group 2
-        seed: Random seed for reproducibility
-        
+        n1, n2: Sample sizes
+        p1, p2: True proportions
+        num_replicates: Number of simulation replicates
+        seed: Random seed
+
     Returns:
-        Dictionary containing validation results
+        Dictionary with validation results
     """
-    set_seeds(seed)
+    set_rng_seed(seed)
+    logger.info(f"Running Fisher's exact test validation with {num_replicates} replicates...")
+    start_time = time.time()
+
+    # Generate contingency table under null
+    x1 = int(round(n1 * p1))
+    x2 = int(round(n2 * p2))
     
-    # Under null hypothesis, use pooled proportion
-    p_pooled = (p1 * n1 + p2 * n2) / (n1 + n2)
-    
-    results = run_monte_carlo_validation_core(
-        n1=n1,
-        n2=n2,
-        p_true=p_pooled,
-        num_replicates=NUM_REPLICATES,
-        test_type="fisher_exact",
-        seed=seed
+    # Run Monte-Carlo simulation for Fisher's exact
+    empirical_p, tables = run_monte_carlo_validation_core(
+        simulate_func=lambda: simulate_fisher_exact_table(n1, n2, x1, x2),
+        num_replicates=num_replicates,
+        alpha=ALPHA
     )
-    
-    theoretical_p = results.get("theoretical_p", 0.0)
-    empirical_p = results.get("empirical_p", 0.0)
-    abs_diff = abs(theoretical_p - empirical_p)
-    passed = abs_diff <= TOLERANCE
-    
-    return {
-        "test_type": "fisher_exact",
+
+    # Theoretical p-value
+    from scipy import stats
+    table = [[x1, n1 - x1], [x2, n2 - x2]]
+    _, theoretical_p = stats.fisher_exact(table, alternative='two-sided')
+
+    elapsed = time.time() - start_time
+    diff = abs(empirical_p - theoretical_p)
+
+    result = {
+        "test": "fisher_exact",
         "n1": n1,
         "n2": n2,
-        "p_pooled": p_pooled,
-        "theoretical_p": theoretical_p,
-        "empirical_p": empirical_p,
-        "absolute_difference": abs_diff,
-        "passed": passed,
-        "tolerance": TOLERANCE
+        "p1": p1,
+        "p2": p2,
+        "num_replicates": num_replicates,
+        "empirical_p_value": empirical_p,
+        "theoretical_p_value": theoretical_p,
+        "absolute_difference": diff,
+        "passed": diff <= TOLERANCE,
+        "elapsed_seconds": elapsed
     }
 
+    if result["passed"]:
+        logger.info(f"Fisher's exact test validation PASSED: diff={diff:.6f} <= {TOLERANCE}")
+    else:
+        logger.warning(f"Fisher's exact test validation FAILED: diff={diff:.6f} > {TOLERANCE}")
 
-def validate_welch_t_test(n1: int, n2: int, mean1: float, mean2: float, 
-                          std1: float, std2: float, seed: int = SEED) -> Dict[str, Any]:
+    return result
+
+def validate_welch_t_test(
+    n1: int, n2: int, mean1: float, mean2: float,
+    std1: float, std2: float,
+    num_replicates: int = NUM_REPLICATES,
+    seed: int = SEED
+) -> Dict[str, Any]:
     """
     Validate Welch's t-test using Monte-Carlo simulation.
-    
+
     Args:
-        n1: Sample size of group 1
-        n2: Sample size of group 2
-        mean1: True mean of group 1
-        mean2: True mean of group 2
-        std1: True standard deviation of group 1
-        std2: True standard deviation of group 2
-        seed: Random seed for reproducibility
-        
+        n1, n2: Sample sizes
+        mean1, mean2: True means
+        std1, std2: True standard deviations
+        num_replicates: Number of simulation replicates
+        seed: Random seed
+
     Returns:
-        Dictionary containing validation results
+        Dictionary with validation results
     """
-    set_seeds(seed)
-    
-    # Under null hypothesis, means should be equal
-    # Use pooled mean for simulation
-    pooled_mean = (mean1 * n1 + mean2 * n2) / (n1 + n2)
-    
-    results = run_monte_carlo_validation_core(
-        n1=n1,
-        n2=n2,
-        mean_true=pooled_mean,
-        std1=std1,
-        std2=std2,
-        num_replicates=NUM_REPLICATES,
-        test_type="welch_t",
-        seed=seed
+    set_rng_seed(seed)
+    logger.info(f"Running Welch's t-test validation with {num_replicates} replicates...")
+    start_time = time.time()
+
+    # Run Monte-Carlo simulation
+    empirical_p, t_stats = run_monte_carlo_validation_core(
+        simulate_func=lambda: simulate_welch_t_statistic(n1, n2, mean1, mean2, std1, std2),
+        num_replicates=num_replicates,
+        alpha=ALPHA
     )
+
+    # Theoretical p-value
+    from scipy import stats
+    # Generate sample data for theoretical test
+    np.random.seed(seed)
+    sample1 = np.random.normal(mean1, std1, n1)
+    sample2 = np.random.normal(mean2, std2, n2)
     
-    theoretical_p = results.get("theoretical_p", 0.0)
-    empirical_p = results.get("empirical_p", 0.0)
-    abs_diff = abs(theoretical_p - empirical_p)
-    passed = abs_diff <= TOLERANCE
-    
-    return {
-        "test_type": "welch_t",
+    stat, theoretical_p = stats.ttest_ind(sample1, sample2, equal_var=False)
+
+    elapsed = time.time() - start_time
+    diff = abs(empirical_p - theoretical_p)
+
+    result = {
+        "test": "welch_t_test",
         "n1": n1,
         "n2": n2,
-        "pooled_mean": pooled_mean,
+        "mean1": mean1,
+        "mean2": mean2,
         "std1": std1,
         "std2": std2,
-        "theoretical_p": theoretical_p,
-        "empirical_p": empirical_p,
-        "absolute_difference": abs_diff,
-        "passed": passed,
-        "tolerance": TOLERANCE
+        "num_replicates": num_replicates,
+        "empirical_p_value": empirical_p,
+        "theoretical_p_value": theoretical_p,
+        "absolute_difference": diff,
+        "passed": diff <= TOLERANCE,
+        "elapsed_seconds": elapsed
     }
 
+    if result["passed"]:
+        logger.info(f"Welch's t-test validation PASSED: diff={diff:.6f} <= {TOLERANCE}")
+    else:
+        logger.warning(f"Welch's t-test validation FAILED: diff={diff:.6f} > {TOLERANCE}")
 
-def validate_binomial_test(n: int, p_null: float, k: int, seed: int = SEED) -> Dict[str, Any]:
+    return result
+
+def validate_binomial_test(
+    n: int, p: float, k: int,
+    num_replicates: int = NUM_REPLICATES,
+    seed: int = SEED
+) -> Dict[str, Any]:
     """
     Validate binomial test using Monte-Carlo simulation.
-    
-    Args:
-        n: Total number of trials
-        p_null: Null hypothesis probability of success
-        k: Observed number of successes
-        seed: Random seed for reproducibility
-        
-    Returns:
-        Dictionary containing validation results
-    """
-    set_seeds(seed)
-    
-    results = run_monte_carlo_validation_core(
-        n=n,
-        p_true=p_null,
-        k_observed=k,
-        num_replicates=NUM_REPLICATES,
-        test_type="binomial",
-        seed=seed
-    )
-    
-    theoretical_p = results.get("theoretical_p", 0.0)
-    empirical_p = results.get("empirical_p", 0.0)
-    abs_diff = abs(theoretical_p - empirical_p)
-    passed = abs_diff <= TOLERANCE
-    
-    return {
-        "test_type": "binomial",
-        "n": n,
-        "p_null": p_null,
-        "k_observed": k,
-        "theoretical_p": theoretical_p,
-        "empirical_p": empirical_p,
-        "absolute_difference": abs_diff,
-        "passed": passed,
-        "tolerance": TOLERANCE
-    }
 
-
-def run_monte_carlo_validation(output_path: Optional[Path] = None, seed: int = SEED) -> Dict[str, Any]:
-    """
-    Run Monte-Carlo validation for all statistical tests.
-    
-    This function validates:
-    1. Two-proportion z-test
-    2. Fisher's exact test
-    3. Welch's t-test
-    4. Binomial test
-    
-    Each test runs NUM_REPLICATES (10,000) simulations and checks that
-    the absolute difference between empirical and theoretical p-values
-    is <= TOLERANCE (0.005).
-    
     Args:
-        output_path: Optional path to write results to JSON
-        seed: Random seed for reproducibility
-        
+        n: Sample size
+        p: True probability
+        k: Observed successes
+        num_replicates: Number of simulation replicates
+        seed: Random seed
+
     Returns:
-        Dictionary containing all validation results and overall status
+        Dictionary with validation results
     """
-    set_seeds(seed)
+    set_rng_seed(seed)
+    logger.info(f"Running binomial test validation with {num_replicates} replicates...")
     start_time = time.time()
-    
-    logger.info(f"Starting Monte-Carlo validation with {NUM_REPLICATES} replicates per test")
-    logger.info(f"Tolerance: {TOLERANCE}")
-    
+
+    # Run Monte-Carlo simulation
+    empirical_p, counts = run_monte_carlo_validation_core(
+        simulate_func=lambda: simulate_binomial_statistic(n, p, k),
+        num_replicates=num_replicates,
+        alpha=ALPHA
+    )
+
+    # Theoretical p-value
+    from scipy import stats
+    # Two-sided binomial test
+    theoretical_p = stats.binom_test(k, n, p, alternative='two-sided')
+
+    elapsed = time.time() - start_time
+    diff = abs(empirical_p - theoretical_p)
+
+    result = {
+        "test": "binomial",
+        "n": n,
+        "p": p,
+        "k": k,
+        "num_replicates": num_replicates,
+        "empirical_p_value": empirical_p,
+        "theoretical_p_value": theoretical_p,
+        "absolute_difference": diff,
+        "passed": diff <= TOLERANCE,
+        "elapsed_seconds": elapsed
+    }
+
+    if result["passed"]:
+        logger.info(f"Binomial test validation PASSED: diff={diff:.6f} <= {TOLERANCE}")
+    else:
+        logger.warning(f"Binomial test validation FAILED: diff={diff:.6f} > {TOLERANCE}")
+
+    return result
+
+def run_monte_carlo_validation(
+    output_path: Optional[Path] = None,
+    seed: int = SEED
+) -> Dict[str, Any]:
+    """
+    Run full Monte-Carlo validation suite for all statistical tests.
+
+    Args:
+        output_path: Optional path to write results JSON
+        seed: Random seed
+
+    Returns:
+        Dictionary with all validation results
+    """
+    set_rng_seed(seed)
+    logger.info("Starting Monte-Carlo validation suite...")
+    total_start = time.time()
+
     results = {
-        "seed": seed,
-        "num_replicates": NUM_REPLICATES,
-        "tolerance": TOLERANCE,
-        "tests": {},
-        "overall_passed": True,
-        "execution_time_seconds": 0.0
+        "summary": {
+            "total_tests": 0,
+            "passed": 0,
+            "failed": 0,
+            "overall_passed": True
+        },
+        "tests": []
     }
-    
-    # Test parameters for validation
-    # These are chosen to represent typical A/B test scenarios
-    test_configs = {
-        "z_test": {
-            "n1": 1000,
-            "n2": 1000,
-            "p1": 0.10,
-            "p2": 0.10  # Under null, p1 = p2
-        },
-        "fisher_exact": {
-            "n1": 500,
-            "n2": 500,
-            "p1": 0.15,
-            "p2": 0.15  # Under null, p1 = p2
-        },
-        "welch_t": {
-            "n1": 800,
-            "n2": 800,
-            "mean1": 50.0,
-            "mean2": 50.0,  # Under null, means are equal
-            "std1": 10.0,
-            "std2": 12.0
-        },
-        "binomial": {
-            "n": 1000,
-            "p_null": 0.05,
-            "k": 50  # Expected under null
-        }
-    }
-    
-    # Run z-test validation
-    logger.info("Validating z-test...")
-    z_config = test_configs["z_test"]
-    z_result = validate_z_test(
-        n1=z_config["n1"],
-        n2=z_config["n2"],
-        p1=z_config["p1"],
-        p2=z_config["p2"],
-        seed=seed
-    )
-    results["tests"]["z_test"] = z_result
-    if not z_result["passed"]:
-        results["overall_passed"] = False
-        logger.warning(f"Z-test validation FAILED: diff={z_result['absolute_difference']:.6f}")
-    else:
-        logger.info(f"Z-test validation PASSED: diff={z_result['absolute_difference']:.6f}")
-    
-    # Run Fisher's exact test validation
-    logger.info("Validating Fisher's exact test...")
-    fisher_config = test_configs["fisher_exact"]
-    fisher_result = validate_fisher_exact(
-        n1=fisher_config["n1"],
-        n2=fisher_config["n2"],
-        p1=fisher_config["p1"],
-        p2=fisher_config["p2"],
-        seed=seed
-    )
-    results["tests"]["fisher_exact"] = fisher_result
-    if not fisher_result["passed"]:
-        results["overall_passed"] = False
-        logger.warning(f"Fisher's exact test validation FAILED: diff={fisher_result['absolute_difference']:.6f}")
-    else:
-        logger.info(f"Fisher's exact test validation PASSED: diff={fisher_result['absolute_difference']:.6f}")
-    
-    # Run Welch's t-test validation
-    logger.info("Validating Welch's t-test...")
-    welch_config = test_configs["welch_t"]
-    welch_result = validate_welch_t_test(
-        n1=welch_config["n1"],
-        n2=welch_config["n2"],
-        mean1=welch_config["mean1"],
-        mean2=welch_config["mean2"],
-        std1=welch_config["std1"],
-        std2=welch_config["std2"],
-        seed=seed
-    )
-    results["tests"]["welch_t"] = welch_result
-    if not welch_result["passed"]:
-        results["overall_passed"] = False
-        logger.warning(f"Welch's t-test validation FAILED: diff={welch_result['absolute_difference']:.6f}")
-    else:
-        logger.info(f"Welch's t-test validation PASSED: diff={welch_result['absolute_difference']:.6f}")
-    
-    # Run binomial test validation
-    logger.info("Validating binomial test...")
-    binom_config = test_configs["binomial"]
-    binom_result = validate_binomial_test(
-        n=binom_config["n"],
-        p_null=binom_config["p_null"],
-        k=binom_config["k"],
-        seed=seed
-    )
-    results["tests"]["binomial"] = binom_result
-    if not binom_result["passed"]:
-        results["overall_passed"] = False
-        logger.warning(f"Binomial test validation FAILED: diff={binom_result['absolute_difference']:.6f}")
-    else:
-        logger.info(f"Binomial test validation PASSED: diff={binom_result['absolute_difference']:.6f}")
-    
-    end_time = time.time()
-    results["execution_time_seconds"] = round(end_time - start_time, 2)
-    
-    logger.info(f"Monte-Carlo validation completed in {results['execution_time_seconds']} seconds")
-    logger.info(f"Overall status: {'PASSED' if results['overall_passed'] else 'FAILED'}")
-    
-    # Write results to file if output_path is provided
+
+    # Test parameters
+    test_configs = [
+        # Z-test configurations (binary outcomes)
+        {"type": "z_test", "n1": 1000, "n2": 1000, "p1": 0.5, "p2": 0.5},
+        {"type": "z_test", "n1": 5000, "n2": 5000, "p1": 0.3, "p2": 0.32},
+        
+        # Fisher's exact test configurations
+        {"type": "fisher_exact", "n1": 500, "n2": 500, "p1": 0.4, "p2": 0.4},
+        {"type": "fisher_exact", "n1": 1000, "n2": 1000, "p1": 0.2, "p2": 0.25},
+        
+        # Welch's t-test configurations (continuous outcomes)
+        {"type": "welch_t_test", "n1": 2000, "n2": 2000, "mean1": 50.0, "mean2": 50.0, "std1": 10.0, "std2": 10.0},
+        {"type": "welch_t_test", "n1": 3000, "n2": 3000, "mean1": 100.0, "mean2": 102.0, "std1": 15.0, "std2": 15.0},
+        
+        # Binomial test configurations
+        {"type": "binomial", "n": 1000, "p": 0.5, "k": 500},
+        {"type": "binomial", "n": 2000, "p": 0.4, "k": 820},
+    ]
+
+    for config in test_configs:
+        test_type = config.pop("type")
+        
+        if test_type == "z_test":
+            result = validate_z_test(
+                n1=config["n1"], n2=config["n2"],
+                p1=config["p1"], p2=config["p2"],
+                num_replicates=NUM_REPLICATES,
+                seed=seed
+            )
+        elif test_type == "fisher_exact":
+            result = validate_fisher_exact(
+                n1=config["n1"], n2=config["n2"],
+                p1=config["p1"], p2=config["p2"],
+                num_replicates=NUM_REPLICATES,
+                seed=seed
+            )
+        elif test_type == "welch_t_test":
+            result = validate_welch_t_test(
+                n1=config["n1"], n2=config["n2"],
+                mean1=config["mean1"], mean2=config["mean2"],
+                std1=config["std1"], std2=config["std2"],
+                num_replicates=NUM_REPLICATES,
+                seed=seed
+            )
+        elif test_type == "binomial":
+            result = validate_binomial_test(
+                n=config["n"], p=config["p"], k=config["k"],
+                num_replicates=NUM_REPLICATES,
+                seed=seed
+            )
+        else:
+            logger.error(f"Unknown test type: {test_type}")
+            continue
+
+        results["tests"].append(result)
+        results["summary"]["total_tests"] += 1
+        
+        if result["passed"]:
+            results["summary"]["passed"] += 1
+        else:
+            results["summary"]["failed"] += 1
+            results["summary"]["overall_passed"] = False
+
+    total_elapsed = time.time() - total_start
+    results["summary"]["total_elapsed_seconds"] = total_elapsed
+
+    # Write results if output path provided
     if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
         import json
-        with open(output_path, 'w', encoding='utf-8') as f:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
             json.dump(results, f, indent=2)
-        logger.info(f"Results written to {output_path}")
-    
+        logger.info(f"Validation results written to {output_path}")
+
     return results
 
-
-def main() -> int:
-    """
-    Main entry point for Monte-Carlo validation.
-    
-    Returns:
-        0 if all tests pass, 1 otherwise
-    """
-    logger.info("=" * 60)
+def main():
+    """Main entry point for Monte-Carlo validation."""
     logger.info("Monte-Carlo Validation Module (FR-026)")
-    logger.info("=" * 60)
-    
-    output_path = Path("code/output/monte_carlo_validation_results.json")
-    results = run_monte_carlo_validation(output_path=output_path)
-    
-    if results["overall_passed"]:
-        logger.info("All Monte-Carlo validations PASSED.")
-        return 0
-    else:
-        logger.error("One or more Monte-Carlo validations FAILED.")
-        return 1
+    logger.info(f"Running with {NUM_REPLICATES} replicates per test")
+    logger.info(f"Acceptance threshold: absolute difference <= {TOLERANCE}")
 
+    output_path = Path("output/monte_carlo_validation_results.json")
+    results = run_monte_carlo_validation(output_path=output_path)
+
+    # Exit with appropriate status
+    if results["summary"]["overall_passed"]:
+        logger.info("All Monte-Carlo validations PASSED")
+        sys.exit(0)
+    else:
+        logger.error("Some Monte-Carlo validations FAILED")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

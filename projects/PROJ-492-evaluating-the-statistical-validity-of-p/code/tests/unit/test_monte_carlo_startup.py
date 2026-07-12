@@ -1,151 +1,57 @@
 """
-Unit Tests for Monte-Carlo Validation Startup Script (T031)
-
-Tests the run_monte_carlo_validation.py script to ensure it:
-1. Runs the Monte-Carlo validation module correctly
-2. Aborts with ERR-801 when tests fail the ≤ 0.005 criterion
-3. Returns success when all tests pass
+Unit tests for the Monte-Carlo Startup Validator (Task T031).
 """
 import pytest
-import sys
-import logging
-from pathlib import Path
 from unittest.mock import patch, MagicMock
+from code.src.audit.monte_carlo_startup_validator import run_startup_validation, main
+from code.src.utils.logger import AuditLogger
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+def test_run_startup_validation_success():
+    """Test that run_startup_validation returns True when T062 passes."""
+    mock_result = {
+        "status": "passed",
+        "tests_passed": 4,
+        "total_tests": 4
+    }
+    
+    with patch('code.src.audit.monte_carlo_startup_validator.run_monte_carlo_validation', return_value=mock_result):
+        result = run_startup_validation()
+        assert result is True
 
-from code.src.cli.run_monte_carlo_validation import (
-    run_monte_carlo_startup_validation,
-    main
-)
-from code.src.utils.logger import get_default_logger
+def test_run_startup_validation_failure():
+    """Test that run_startup_validation returns False when T062 fails."""
+    mock_result = {
+        "status": "failed",
+        "tests_passed": 0,
+        "total_tests": 4
+    }
+    
+    with patch('code.src.audit.monte_carlo_startup_validator.run_monte_carlo_validation', return_value=mock_result):
+        result = run_startup_validation()
+        assert result is False
 
+def test_run_startup_validation_exception():
+    """Test that run_startup_validation handles exceptions gracefully."""
+    with patch('code.src.audit.monte_carlo_startup_validator.run_monte_carlo_validation', side_effect=RuntimeError("Simulated failure")):
+        result = run_startup_validation()
+        assert result is False
 
-class TestMonteCarloStartupValidation:
-    """Tests for the Monte-Carlo validation startup script."""
+def test_run_startup_validation_empty_result():
+    """Test that run_startup_validation returns False for empty result."""
+    with patch('code.src.audit.monte_carlo_startup_validator.run_monte_carlo_validation', return_value=None):
+        result = run_startup_validation()
+        assert result is False
 
-    def test_all_tests_pass_returns_true(self):
-        """When all tests pass, the function returns True."""
-        # Mock the run_monte_carlo_validation to return passing results
-        mock_results = {
-            "z_test": {"passed": True, "absolute_difference": 0.003},
-            "fisher_exact": {"passed": True, "absolute_difference": 0.002},
-            "welch_t_test": {"passed": True, "absolute_difference": 0.004},
-            "binomial_test": {"passed": True, "absolute_difference": 0.001}
-        }
+def test_main_success():
+    """Test that main returns 0 on success."""
+    mock_result = {"status": "passed", "tests_passed": 4, "total_tests": 4}
+    with patch('code.src.audit.monte_carlo_startup_validator.run_monte_carlo_validation', return_value=mock_result):
+        exit_code = main()
+        assert exit_code == 0
 
-        with patch(
-            "code.src.cli.run_monte_carlo_validation.run_monte_carlo_validation",
-            return_value=mock_results
-        ):
-            logger = get_default_logger()
-            result = run_monte_carlo_startup_validation(logger)
-            assert result is True
-
-    def test_one_test_fails_returns_false(self):
-        """When any test fails, the function returns False."""
-        mock_results = {
-            "z_test": {"passed": False, "absolute_difference": 0.015},
-            "fisher_exact": {"passed": True, "absolute_difference": 0.002},
-            "welch_t_test": {"passed": True, "absolute_difference": 0.004},
-            "binomial_test": {"passed": True, "absolute_difference": 0.001}
-        }
-
-        with patch(
-            "code.src.cli.run_monte_carlo_validation.run_monte_carlo_validation",
-            return_value=mock_results
-        ):
-            logger = get_default_logger()
-            result = run_monte_carlo_startup_validation(logger)
-            assert result is False
-
-    def test_null_results_returns_false(self):
-        """When validation returns None, the function returns False."""
-        with patch(
-            "code.src.cli.run_monte_carlo_validation.run_monte_carlo_validation",
-            return_value=None
-        ):
-            logger = get_default_logger()
-            result = run_monte_carlo_startup_validation(logger)
-            assert result is False
-
-    def test_exception_handling_returns_false(self):
-        """When an exception occurs, the function returns False."""
-        with patch(
-            "code.src.cli.run_monte_carlo_validation.run_monte_carlo_validation",
-            side_effect=Exception("Validation failed")
-        ):
-            logger = get_default_logger()
-            result = run_monte_carlo_startup_validation(logger)
-            assert result is False
-
-    def test_main_exits_zero_on_success(self):
-        """Main exits with code 0 when all tests pass."""
-        mock_results = {
-            "z_test": {"passed": True, "absolute_difference": 0.003},
-            "fisher_exact": {"passed": True, "absolute_difference": 0.002}
-        }
-
-        with patch(
-            "code.src.cli.run_monte_carlo_validation.run_monte_carlo_validation",
-            return_value=mock_results
-        ):
-            with patch("code.src.cli.run_monte_carlo_validation.sys.exit") as mock_exit:
-                main()
-                mock_exit.assert_called_once_with(0)
-
-    def test_main_exits_one_on_failure(self):
-        """Main exits with code 1 when validation fails."""
-        mock_results = {
-            "z_test": {"passed": False, "absolute_difference": 0.015}
-        }
-
-        with patch(
-            "code.src.cli.run_monte_carlo_validation.run_monte_carlo_validation",
-            return_value=mock_results
-        ):
-            with patch("code.src.cli.run_monte_carlo_validation.sys.exit") as mock_exit:
-                main()
-                mock_exit.assert_called_once_with(1)
-
-    def test_main_exits_two_on_exception(self):
-        """Main exits with code 2 when an exception occurs."""
-        with patch(
-            "code.src.cli.run_monte_carlo_validation.run_monte_carlo_validation",
-            side_effect=Exception("Unexpected error")
-        ):
-            with patch("code.src.cli.run_monte_carlo_validation.sys.exit") as mock_exit:
-                main()
-                mock_exit.assert_called_once_with(2)
-
-    def test_boundary_condition_exactly_point_zero_zero_five(self):
-        """Test that exactly 0.005 difference is considered passing."""
-        mock_results = {
-            "z_test": {"passed": True, "absolute_difference": 0.005},
-            "fisher_exact": {"passed": True, "absolute_difference": 0.005}
-        }
-
-        with patch(
-            "code.src.cli.run_monte_carlo_validation.run_monte_carlo_validation",
-            return_value=mock_results
-        ):
-            logger = get_default_logger()
-            result = run_monte_carlo_startup_validation(logger)
-            assert result is True
-
-    def test_boundary_condition_just_above_point_zero_zero_five(self):
-        """Test that 0.0050001 difference is considered failing."""
-        mock_results = {
-            "z_test": {"passed": False, "absolute_difference": 0.0050001},
-            "fisher_exact": {"passed": True, "absolute_difference": 0.004}
-        }
-
-        with patch(
-            "code.src.cli.run_monte_carlo_validation.run_monte_carlo_validation",
-            return_value=mock_results
-        ):
-            logger = get_default_logger()
-            result = run_monte_carlo_startup_validation(logger)
-            assert result is False
+def test_main_failure():
+    """Test that main returns 1 on failure."""
+    mock_result = {"status": "failed", "tests_passed": 0, "total_tests": 4}
+    with patch('code.src.audit.monte_carlo_startup_validator.run_monte_carlo_validation', return_value=mock_result):
+        exit_code = main()
+        assert exit_code == 1

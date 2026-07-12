@@ -296,13 +296,6 @@
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
   %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
-  \ prevalence estimates ** per FR\u2011004b (generate `AuditRecord` objects with\
-  \ data_quality_warning messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
-  \ **DEPENDS ON:** T023."
-: 2
-? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
-  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
-  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
   \ prevalence estimates [UNRESOLVED-CLAIM: c_a26a857b \u2014 status=not_enough_info]\
   \ ** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
   \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
@@ -645,7 +638,7 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
 : 1
 ? "T031 **[P]** Run Monte\u2011Carlo validation (from T062) as part of pipeline start\u2011\
   up; {{claim:c_a1bb18b6}} (T031 runs T062 module internally). **DEPENDS ON:** T062."
-: 1
+: 2
 ? "T034 Create analysis notebook `notebooks/statistical_consistency_verification.ipynb`\
   \ that documents any p\u2011value discrepancies >0.05 (1905.08726 [UNRESOLVED-CLAIM:\
   \ c_957f09e4 \u2014 status=not_enough_info], https://arxiv.org/abs/1905.08726 [UNRESOLVED-CLAIM:\
@@ -756,6 +749,13 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   \ c_2f72044d \u2014 status=not_enough_info] (FR\u2011027). (writes `data/subsampled_balanced.csv`).\
   \ **DEPENDS ON:** T006\u2011T012."
 : 1
+? "T045 Implement bias\u2011adjustment module that computes domain\u2011weighted prevalence\
+  \ using domain\u2011weighted averaging (FR\u2011027) **and either subsamples the\
+  \ dominant domain *or* flags a violation** per FR\u2011027 (constraint\u2011preservation\u2011\
+  01844dd3) in `src/audit/bias_adjustment.py` (verify bias\u2011adjusted rate is written\
+  \ and appropriate action taken when any domain exceeds 30\u202F% [UNRESOLVED-CLAIM:\
+  \ c_edbab701 \u2014 status=not_enough_info]). **DEPENDS ON:** T044."
+: 1
 ? "T046 Unit tests for bias\u2011adjustment ensuring no domain exceeds 30\u202F% proportion\
   \ [UNRESOLVED-CLAIM: c_ea6bf183 \u2014 status=not_enough_info] (tests/unit/test_bias_adjustment.py)\
   \ (verify test passes)."
@@ -788,12 +788,6 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   \ extraction (T020c) [UNRESOLVED-CLAIM: c_c1bc8ba5 \u2014 status=not_enough_info]\
   \ and present in the input to `subgroup_analysis.py`. (depends on T020c)"
 : 1
-? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
-  \ that Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
-  \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
-  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 (constraint\u2011\
-  preservation\u2011e62a0df4) (verify module exits with status 0)."
-: 2
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
   \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
