@@ -1,33 +1,34 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "BackgroundFrameMetrics"
-description: "Schema for computed visual complexity metrics per background frame."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Stimulus Metrics Schema
+description: Schema for the computed visual complexity metrics of background images.
+type: object
 properties:
   stimulus_id:
-    type: "string"
-    description: "Unique identifier for the frame."
-  file_path:
-    type: "string"
-    description: "Relative path to the raw image file."
+    type: string
+    description: "Unique identifier for the stimulus (e.g., img_001)."
+  filename:
+    type: string
+    description: "Relative path to the image file."
   entropy:
-    type: "number"
+    type: number
     description: "Shannon entropy of the grayscale image."
+    minimum: 0
   color_variance:
-    type: "number"
-    description: "Variance of the RGB channels."
+    type: number
+    description: "Variance of the HSV saturation channel."
+    minimum: 0
   object_count:
-    type: "integer"
+    type: integer
     description: "Number of objects detected by YOLOv8n."
-  complexity_score:
-    type: ["number", "null"]
-    description: "Optional composite complexity score."
+    minimum: 0
   checksum:
-    type: "string"
-    description: "SHA-256 hash of the raw file."
+    type: string
+    description: "SHA-256 checksum of the source image file."
 required:
   - stimulus_id
-  - file_path
+  - filename
   - entropy
   - color_variance
   - object_count
   - checksum
+additionalProperties: false

@@ -1,6 +1,6 @@
 # Tasks: The Impact of Visual Complexity on Cognitive Load During Remote Meetings
 
-**Input**: Design documents from `/specs/001-visual-complexity-on-cognitive-load/`
+**Input**: Design documents from `/specs/001-visual-complexity-cognitive-load/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US0, US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,7 +43,7 @@
 
 **Purpose**: Resolve contradictions between Spec and Tasks before implementation begins.
 
-- [ ] T000 [P] **Update Spec NFR-001**: Update `specs/001-visual-complexity-cognitive-load/spec.md` NFR-001 to explicitly state: "The system MUST process 10 input images at 1080p (1920x1080) by resizing them to 640x640 for inference to meet the 30s CPU constraint. The input is 1080p, but internal inference resolution is 640x640." This resolves the conflict between NFR-001 and the implementation strategy in T019.
+- [ ] T000 [P] **Update Spec NFR-001**: Update `specs/001-visual-complexity-cognitive-load/spec.md` NFR-001. **Action**: Replace the text "process 10 input images at 1080p (1920x1080) within 30 seconds" with "process 10 input images at 1080p (1920x1080) by resizing them to 640x640 for inference to meet the 30s CPU constraint. The input is 1080p, but internal inference resolution is 640x640." This resolves the conflict between NFR-001 and the implementation strategy in T019.
 
 ---
 
@@ -53,7 +53,7 @@
 
 - [ ] T001a [P] Create code directory structure (`src/lib/`, `src/metrics/`, `src/experiment/`, `src/analysis/`, `tests/`)
 - [ ] T001b [P] Create data directory structure (`data/stimuli/`, `data/processed/`, `data/measurements/`, `data/raw/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`ultralytics`, `opencv-python-headless`, `statsmodels`, `scikit-learn`, `pandas`, `numpy`, `pillow`, `requests`, `flask`) in `requirements.txt`
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`ultralytics`, `opencv-python-headless`, `statsmodels`, `scikit-learn`, `pandas`, `numpy`, `pillow`, `requests`, `flask`, `unsplash-api`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -65,7 +65,6 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `src/lib/utils.py` containing `set_global_seed()` and checksum utilities
-- [ ] T005 [P] Create base directory structure for `data/stimuli/`, `data/processed/`, and `data/measurements/` with READMEs
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,13 +86,13 @@
 
 ### Implementation for User Story 0
 
-- [ ] T014 [US0] **Fetch Real Stimuli**: Implement `src/metrics/fetch_stimuli.py` to Download a representative set of real background images from the NAB dataset. **Specific Source**: Fetch files matching `https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/artificial_anomaly.csv` or the associated image archive if available. If NAB images are not directly available as a zip, use the `ucimlrepo` package to fetch the `NAB` dataset images. Ensure no synthetic/fake data is used. **Dependency**: Must be completed before T010-T013 and T019.
-- [ ] T014b [US0] **Verify Stimuli**: Implement `src/metrics/verify_stimuli.py` to compute and record the checksum of the downloaded NAB stimuli in `state/artifact_hashes`.
-- [ ] T010 [US0] Implement `src/metrics/validate.py` to compute correlation between human ratings and automated metrics (entropy, variance, object count)
-- [ ] T011 [US0] Implement `src/experiment/pilot_interface.py` (Flask) to present images and collect 1-10 complexity ratings from participants (Local UI only).
+- [ ] T014 [US0] **Fetch Real Stimuli**: Implement `src/metrics/fetch_stimuli.py` to Download a representative set of real background images using the **Unsplash Source API**. **Specific Source**: Query `https://source.unsplash.com/1600x900/?office,meeting,background` (or equivalent stable endpoint) to fetch 50 unique images. Ensure no synthetic/fake data is used. **Dependency**: None (This is the producer).
+- [ ] T014b [US0] **Verify Stimuli**: Implement `src/metrics/verify_stimuli.py` to compute and record the checksum of the downloaded Unsplash stimuli in `state/artifact_hashes`.
+- [ ] T010 [US0] Implement `src/metrics/validate.py` to compute correlation between human ratings and automated metrics (entropy, variance, object count). **Dependency**: T014.
+- [ ] T011 [US0] Implement `src/experiment/pilot_interface.py` (Flask) to present images and collect a range of complexity ratings from participants (Local UI only). **Dependency**: T014.
 - [ ] T011b [US0] **Recruitment Logic**: Implement `src/experiment/recruitment.py` to facilitate participant recruitment (e.g., Prolific/MTurk integration logic, invitation email generation, participant management state) for the n=20 cohort.
 - [ ] T011c [US0] **Data Ingestion**: Implement `src/experiment/ingest.py` to handle the data ingestion pipeline for external participants (parsing Prolific/MTurk exports) and saving to `data/measurements/human_ratings.csv`.
-- [ ] T012 [US0] Implement data persistence for human ratings: save to `data/measurements/human_ratings.csv` with `image_id`, `participant_id`, `complexity_score`
+- [ ] T012 [US0] Implement data persistence for human ratings: save to `data/measurements/human_ratings.csv` with `image_id`, `participant_id`, `complexity_score`. **Dependency**: T014.
 - [ ] T013 [US0] Generate validation report (scatter plot + p-value) in `data/derived/pilot_validation_report.md`
 
 **Checkpoint**: At this point, User Story 0 should be fully functional and testable independently
@@ -121,7 +120,6 @@
 - [ ] T020 [US1] Add logic to handle images with no detectable objects gracefully (return 0 count, no crash)
 - [ ] T021 [US1] Implement data persistence: save computed metrics to `data/processed/metrics.csv` with `frame_id`, `entropy`, `color_variance`, `object_count`
 - [ ] T022 [US1] Implement `src/metrics/validate_against_human.py` to re-run correlation check on the full pilot dataset (US0) and flag if r < 0.5 (SC-001)
-- [ ] T023 [US1] Implement fallback edge detection logic (Canny) in `src/metrics/extract.py` for cases where YOLO fails or is unavailable (FR-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -135,19 +133,19 @@
 
 ### Tests for User Story 2
 
-- [ ] T024 [P] [US2] Unit test for Latin Square counterbalancing logic in `tests/test_experiment.py`
+- [ ] T024 [P] [US2] Unit test for Balanced Incomplete Block Design (BIBD) logic in `tests/test_experiment.py`
 - [ ] T025 [P] [US2] Integration test for baseline reaction-time task logic in `tests/test_experiment.py`
 - [ ] T026 [P] [US2] Test for missing data flagging logic (exclusion vs. imputation) in `tests/test_experiment.py`
 
 ### Implementation for User Story 2
 
-- [ ] T032 [US2] **Real Data Fetch**: Implement `src/experiment/fetch_clips.py` to download real meeting background clips from the **MeetingBench** dataset. **Specific Source**: Use the HuggingFace dataset `MeetingBench/meeting-clips-v` (or the specific verified version ID). Ensure the dataset ID is recorded in `research.md`. **Dependency**: Must be completed before T029.
-- [ ] T032b [US2] **Verify Clips & Record Source**: Implement `src/experiment/verify_clips.py` to compute the SHA-256 checksum of the downloaded MeetingBench clips, record the specific dataset URL (`https://huggingface.co/datasets/MeetingBench/meeting-clips-v1`) and version ID in `state/artifact_hashes` and `research.md` to satisfy Constitution Principle II (Verified Accuracy). **Dependency**: Must run immediately after T032.
-- [ ] T027 [US2] Implement `src/experiment/counterbalance.py` to generate Latin Square designs for clip ordering (FR-002c)
-- [ ] T028 [US2] Implement `src/experiment/tasks.py` to handle the baseline reaction-time task (FR-002b) and experimental trials
-- [ ] T029 [US2] Implement `src/experiment/server.py` (Flask) to present clips, capture NASA-TLX scores, and record reaction times (FR-002). **Dependency**: Requires T032 (clips) to be complete.
+- [ ] T032 [US2] **Real Data Fetch**: Implement `src/experiment/fetch_clips.py` to download real meeting background clips from the **nlp4psych** dataset. **Specific Source**: Use the HuggingFace dataset `nlppsych/meeting-backgrounds`. Ensure the dataset ID is recorded in `research.md`. **Dependency**: None (Producer).
+- [ ] T032b [US2] **Verify Clips & Record Source**: Implement `src/experiment/verify_clips.py` to compute the SHA-256 checksum of the downloaded clips, record the specific dataset URL (`https://huggingface.co/datasets/nlppsych/meeting-backgrounds`) and version ID in `state/artifact_hashes` and `research.md` to satisfy Constitution Principle II (Verified Accuracy). **Dependency**: T032.
+- [ ] T027 [US2] Implement `src/experiment/counterbalance.py` to generate **Balanced Incomplete Block Design (BIBD)** for clip ordering (FR-002c). **Dependency**: T032.
+- [ ] T028 [US2] Implement `src/experiment/tasks.py` to handle the baseline reaction-time task (FR-002b) AND compute the **reaction-time difference** metric (high/low complexity vs. baseline) as required by SC-003. **Dependency**: T032.
+- [ ] T029 [US2] Implement `src/experiment/server.py` (Flask) to present clips, capture NASA-TLX scores, and record reaction times (FR-002). **Dependency**: T032.
 - [ ] T030 [US2] Add logic to flag incomplete records (missing TLX or RT) for exclusion in the generated dataset
-- [ ] T031 [US2] Save generated participant sessions to `data/measurements/raw/participant_sessions.csv` with `participant_id`, `clip_id`, `nasa_tlx_score`, `reaction_time`, `accuracy`, `baseline_rt`
+- [ ] T031 [US2] Save generated participant sessions to `data/measurements/raw/participant_sessions.csv` with `participant_id`, `clip_id`, `nasa_tlx_score`, `reaction_time`, `accuracy`, `baseline_rt`, `rt_difference`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -167,13 +165,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Implement data integration logic to merge `data/processed/metrics.csv` and `data/measurements/raw/participant_sessions.csv` into a single analysis-ready dataframe. **Dependency**: Must wait for T021 and T031 completion. Explicitly verify T021 and T031 outputs exist before proceeding.
+- [ ] T036 [US3] Implement data integration logic to merge `data/processed/metrics.csv` and `data/measurements/raw/participant_sessions.csv` into a single analysis-ready dataframe. **Dependency**: Must wait for completion of T021 and T031.
 - [ ] T037 [US3] Implement `src/analysis/models.py` to execute linear mixed-effects models with visual complexity as predictor and cognitive load as outcome (FR-003)
 - [ ] T038 [US3] Implement VIF calculation in `src/analysis/models.py`; if VIF > 5, flag instability and trigger PCA fallback (FR-003)
 - [ ] T039 [US3] Implement PCA fallback mechanism in `src/analysis/models.py`: If VIF > 5, combine predictors via PCA to reduce multicollinearity
 - [ ] T040 [US3] Implement Benjamini-Hochberg correction for multiple hypothesis tests in `src/analysis/corrections.py` (FR-004)
 - [ ] T041 [US3] Implement `src/analysis/sensitivity.py` to sweep p-value thresholds across a range of conventional significance levels and report effect size stability. **Output Requirement**: Must explicitly calculate and report the **standard deviation of effect sizes** across thresholds. This metric MUST be written to `data/derived/sensitivity_report.csv` in a column named `sd_effect_size`.
-- [ ] T042 [US3] Implement `src/analysis/null_sim.py` to run a null-simulation (effect size = 0) to calculate and report the observed family-wise error rate (FWER) (FR-007)
+- [ ] T041b [US3] **Generate Synthetic Null Dataset**: Implement `src/analysis/synthetic_data.py` to generate a synthetic dataset with a true effect size of (null hypothesis) for FR-007. **Output**: `data/synthetic/null_dataset.csv`.
+- [ ] T042 [US3] Implement `src/analysis/null_sim.py` to run a null-simulation (effect size = 0) using the dataset from T041b to calculate and report the observed family-wise error rate (FWER) (FR-007). **Dependency**: T041b.
 - [ ] T043 [US3] Implement `src/analysis/report_gen.py` to generate the final report with fixed effect estimates, confidence intervals, adjusted p-values, VIF scores, and FWER
 
 **Checkpoint**: All user stories should now be independently functional
@@ -188,7 +187,7 @@
 - [ ] T045 [P] Update `docs/data-model.md` with new entity attributes and metric definitions
 - [ ] T046 [P] Update `docs/contracts/` with final API/Interface definitions
 - [ ] T047 [P] Additional unit tests for edge cases (skewed distributions, attention check failures) in `tests/`
-- [ ] T048a [P] **Automated Reproducibility Script**: Implement `src/cli/validate_quickstart.py`. This script MUST: 1) Spin up a fresh temp directory, 2) Install dependencies, 3) Run T014 (Fetch NAB), T019 (Extract Metrics), T036-T043 (Analysis) on a **pre-seeded mock dataset** (skipping US0 Human Pilot which requires real humans), and 4) Verify checksums of derived artifacts against `state/artifact_hashes`.
+- [ ] T048a [P] **Automated Reproducibility Script**: Implement `src/cli/validate_quickstart.py`. This script MUST: 1) Spin up a fresh temp directory, 2) Install dependencies, 3) Run T014 (Fetch Real Stimuli), T010-T013 (Pilot Validation), T019 (Extract Metrics), T036-T043 (Analysis) on a **pre-seeded mock dataset** (skipping US2 Human Data Collection which requires real humans, but validating the *pipeline* logic), and 4) Verify checksums of derived artifacts against `state/artifact_hashes`. **Note**: This validates the *code* reproducibility; US0 validation (T010-T013) is included to ensure the metric validation pipeline works.
 - [ ] T048b [P] **Automated Reproducibility Test**: Implement `tests/test_quickstart.py` to assert that T048a exits with code 0 and produces the expected artifacts (`data/derived/performance_log.txt`, `data/derived/sensitivity_report.csv`, etc.).
 
 ---
@@ -293,6 +292,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: Ensure all YOLO inference is CPU-only; do not use `load_in_8bit` or `device_map="cuda"`.
 - **CRITICAL**: All data must be real or procedurally generated with verified seeds; no hardcoded fake values.
-- **CRITICAL**: Dataset fetch tasks (T014, T032) must use real, reachable URLs or Python-package-based fetch (e.g., `ucimlrepo`, `datasets.load_dataset`), not "download from UCI" without specifics.
+- **CRITICAL**: Dataset fetch tasks (T014, T032) must use real, reachable URLs or Python-package-based fetch (e.g., `ucimlrepo`, `datasets.load_dataset`, `unsplash-api`), not "download from UCI" without specifics.
 - **CRITICAL**: NFR-001 compliance is achieved by processing 1080p input but performing internal inference on 640x640 resized copies, with total pipeline time (I/O+Resize+Inference) <30s (per T000 update).
-- **CRITICAL**: T048a must skip US0 (Human Pilot) and use mock data to ensure automated reproducibility.
+- **CRITICAL**: T048a must run the full pipeline including T014 and T010-T013 to validate the reproducibility of the metric validation step.

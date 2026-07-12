@@ -1,26 +1,27 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: BackgroundFrame
 description: "Represents a single frame from a meeting video with computed visual complexity metrics."
 type: object
 properties:
   frame_id:
     type: string
-    description: "Unique identifier for the frame."
+    description: "Unique identifier for the frame/image."
   entropy:
     type: number
-    description: "Shannon entropy of the grayscale image histogram."
-    minimum: 0
+    description: "Image entropy value (complexity measure)."
   color_variance:
     type: number
-    description: "Standard deviation of RGB channel values."
-    minimum: 0
+    description: "Variance of color channels in the image."
   object_count:
     type: integer
     description: "Number of objects detected by YOLOv8n."
-    minimum: 0
+  image_path:
+    type: string
+    description: "Relative path to the image file in data/stimuli/."
 required:
   - frame_id
   - entropy
   - color_variance
   - object_count
+  - image_path
 additionalProperties: false

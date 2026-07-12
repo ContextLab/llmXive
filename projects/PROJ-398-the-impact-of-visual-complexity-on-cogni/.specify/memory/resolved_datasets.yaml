@@ -1,37 +1,30 @@
-resolved_at: '2026-07-10T09:22:59.942843+00:00'
+resolved_at: '2026-07-12T01:39:18.707108+00:00'
 datasets:
 - intent: CPU-compatible
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.lboro.ac.uk/articles/conference_contribution/Belonging_to_time_design_infrastructure_as_mediator_of_urgency_and_continuity_in_emergency_alerts_and_educational_archives/32924816
+  - url: https://figshare.com/articles/poster/Caritas_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965859
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Emerging_gene-edited_dog_models_for_autism_spectrum_disorder/32907191
+  - url: https://figshare.com/articles/poster/Ajayi_Crowther_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965778
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_New_genus_new_species_and_taxonomic_updates_of_lignicolous_freshwater_fungi_from_Xizang_China_b_/32956001
+  - url: https://figshare.com/articles/presentation/Redeemer_s_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zivahub.uct.ac.za/articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
+  - url: https://figshare.com/articles/dataset/dataset_for_manuscript_From_Resilience_Debt_to_Regime_Shift_The_Synergistic_Collapse_of_Diaoyu_Island_s_Eco-geomorphology_1987_2026_/32347233
     source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
-      port=443): Max retries exceeded with url: /articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://tandf.figshare.com/articles/journal_contribution/Post-fire_forest_recovery_in_the_Amazon_region_2001_2023_A_patch-level_analysis_of_spatiotemporal_patterns_and_compound_drivers/32956006
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3810211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -40,6 +33,10 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -55,15 +52,228 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21286742
+  - url: https://zenodo.org/records/20947432
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21285334
+  - url: https://zenodo.org/records/20947432
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21285334
+  - url: https://zenodo.org/records/21298130
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 108629
+      parsed: true
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/poster/Caritas_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965859
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Ajayi_Crowther_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965778
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Redeemer_s_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/dataset_for_manuscript_From_Resilience_Debt_to_Regime_Shift_The_Synergistic_Collapse_of_Diaoyu_Island_s_Eco-geomorphology_1987_2026_/32347233
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336107
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336216
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336274
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NASA-TLX
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/Caritas_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965859
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Ajayi_Crowther_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965778
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Redeemer_s_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/dataset_for_manuscript_From_Resilience_Debt_to_Regime_Shift_The_Synergistic_Collapse_of_Diaoyu_Island_s_Eco-geomorphology_1987_2026_/32347233
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14063805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3478118
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1435042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5052478
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8220830
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294978
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294978
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294910
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294910
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294906
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FWER
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Caritas_University_2026_2027_Application_07047903330_Form_Confirmed_07047903330/32965880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caritas_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965859
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Ajayi_Crowther_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965778
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Redeemer_s_University_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/dataset_for_manuscript_From_Resilience_Debt_to_Regime_Shift_The_Synergistic_Collapse_of_Diaoyu_Island_s_Eco-geomorphology_1987_2026_/32347233
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.s4v35kn
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12550606
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12736824
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15546537
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5161656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271421
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271421
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.04707
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.03225
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drum.lib.umd.edu/handle/1903/35678
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

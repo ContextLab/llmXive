@@ -1,75 +1,91 @@
 # Quickstart: The Impact of Visual Complexity on Cognitive Load During Remote Meetings
 
-## 1. Prerequisites
+## Prerequisites
 
 - Python 3.11+
-- `pip`
-- (Optional) `git`
+- Git
+- Access to a GitHub Actions runner (or local CPU environment)
 
-## 2. Installation
+## Installation
 
-1.  **Clone the repository** (or navigate to the project root).
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions for CPU-only execution.*
+1. **Clone and Setup**:
+   ```bash
+   git checkout 001-visual-complexity-cognitive-load
+   cd projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/code/
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
-## 3. Running the Pipeline
+2. **Verify Dependencies**:
+   Ensure `ultralytics` (YOLOv8n) and `statsmodels` are installed.
+   ```bash
+   python -c "import ultralytics; import statsmodels; print('OK')"
+   ```
 
-### Step 1: Generate Synthetic Stimuli (Pipeline Validation Only)
-If no `data/stimuli/` exists, run the generation script:
+## Running the Pipeline
+
+### Step 1: Generate/Prepare Stimuli (if not present)
+If `data/stimuli/` is empty, place a set of background images there.
 ```bash
-python code/main.py --action generate_stimuli --count 50
-```
-This creates 50 images in `data/stimuli/` and logs metadata. **These are for code testing only.**
-
-### Step 2: Extract Visual Complexity Metrics
-Run the metric extraction pipeline:
-```bash
-python code/main.py --action extract_metrics --input data/stimuli/ --output data/derived/metrics.json
-```
-*This step runs YOLOvn inference on CPU. Ensure you have ~2GB RAM free.*
-
-### Step 3: Prepare Human Pilot Data (Mandatory for Validation)
-**WARNING**: You MUST collect real human ratings (n=20) for the pilot study to validate metrics.
-- **Do NOT** use `simulate_pilot` for scientific validation.
-- To test the *code logic* only (not validation), you may generate a placeholder file:
-  ```bash
-  python code/main.py --action generate_placeholder_ratings --output data/measurements/pilot_ratings_placeholder.csv
-  ```
-  *Note: The analysis script will reject `pilot_ratings_placeholder.csv` for the validation gate and will output "VALIDATION ONLY - NOT SCIENTIFIC" if used.*
-
-### Step 4: Run Statistical Analysis
-Execute the full analysis pipeline:
-```bash
-python code/main.py --action run_analysis --metrics data/derived/metrics.json --ratings data/measurements/pilot_ratings.csv --output data/derived/model_results.json
-```
-*The script will check the `source` flag in the ratings file. If `source` is not `real`, the output will be marked "VALIDATION ONLY" and will contain no hypothesis test results.*
-
-## 4. Verifying Results
-
-Check the output report:
-```bash
-cat data/derived/model_results.json
-```
-Verify the correlation coefficient (r > 0.5) and the adjusted p-values. **Ensure the report does not state "VALIDATION ONLY".** If it does, the data was synthetic and the results are not scientific findings.
-
-## 5. Running Tests
-
-Ensure all contracts and logic are valid:
-```bash
-pytest tests/ -v
+# Example: Download sample images (replace with actual source)
+# mkdir -p ../../data/stimuli
+# cp /path/to/public/images/*.jpg ../../data/stimuli/
 ```
 
-## 6. Troubleshooting
+### Step 2: Extract Visual Metrics (FR-001)
+Run the CPU-compatible metric extraction.
+```bash
+python -m metrics.extract_visual --input ../../data/stimuli --output ../../data/processed/stimulus_metrics.json
+```
+*Expected*: JSON file with `entropy`, `color_variance`, `object_count` for each image.
 
-- **OOM Error**: If YOLOv8n fails due to memory, reduce the batch size in `code/metrics/extraction.py`.
-- **Schema Validation Fail**: Ensure all JSON files match the schemas in `contracts/`. Run `pytest tests/test_contracts.py` for details.
-- **No Verified Dataset**: The pipeline uses synthetic data for testing. If you have real images, place them in `data/stimuli/` and re-run `extract_metrics`.
-- **Validation Gate Failed**: Ensure `data/measurements/pilot_ratings.csv` contains real human ratings and is flagged as `source: real`.
+### Step 3: Run Pilot Study (US-0)
+Start the Streamlit app for human ratings.
+```bash
+streamlit run study/app.py -- --mode pilot
+```
+*Action*: Recruit a cohort of participants to rate images 1-10.
+*Output*: `data/raw/pilot_ratings.json`.
+
+### Step 4: Validate Pilot Metrics (FR-006)
+Check correlation between human ratings and automated metrics.
+```bash
+python -m metrics.validate_pilot --ratings ../../data/raw/pilot_ratings.json --metrics ../../data/processed/stimulus_metrics.json
+```
+*Success*: Correlation $r > 0.5$. If not, flag for review.
+
+### Step 5: Run Main Study (US-2)
+Start the main experiment interface.
+```bash
+streamlit run study/app.py -- --mode main
+```
+*Action*: Participants view clips, complete NASA-TLX and RT tasks.
+*Output*: `data/raw/participant_logs/*.json`.
+
+### Step 6: Statistical Analysis (US-3)
+Run the full analysis pipeline.
+```bash
+python -m analysis.models --input ../../data/processed/analysis_dataset.parquet --output ../../data/analysis/model_results.json
+```
+*Includes*: LMM, VIF check, Benjamini-Hochberg correction, Sensitivity Analysis.
+
+### Step 7: Null Simulation (FR-007)
+Validate the pipeline with synthetic data.
+```bash
+python -m utils.synthetic_data --run_null_sim --output ../../data/analysis/null_sim_results.json
+```
+*Success*: Observed FWER $\approx$ 0.05.
+
+## Testing
+
+Run the contract tests:
+```bash
+pytest tests/contract/ -v
+```
+
+## Troubleshooting
+
+- **YOLOv8n too slow?** Ensure you are not accidentally loading a GPU model. Check `ultralytics` logs for `device='cpu'`.
+- **Memory Error?** Reduce the batch size in `extract_visual.py`.
+- **Missing Data?** The pipeline flags records with missing NASA-TLX or RT for exclusion (do not impute).

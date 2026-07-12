@@ -27,7 +27,6 @@ items:
       description: "Source of the metric calculation."
       enum:
         - "YOLOv8n"
-        - "Edge-Based"
     checksum:
       type: string
       description: "SHA-256 checksum of the raw image file."

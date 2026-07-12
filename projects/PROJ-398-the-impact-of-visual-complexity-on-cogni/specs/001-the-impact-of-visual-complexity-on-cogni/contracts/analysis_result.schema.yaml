@@ -1,49 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: AnalysisResult
-description: "Represents the output of the statistical model; attributes include fixed effect estimates, p-values (adjusted), confidence intervals, effect sizes, VIF scores, and FWER."
-type: object
+title: "AnalysisResult"
+description: "Schema for the output of the linear mixed-effects model and sensitivity analysis."
+type: "object"
 properties:
   model_id:
-    type: string
-    description: "Unique identifier for the model run."
+    type: "string"
+    description: "Identifier for the specific model run."
   predictor:
-    type: string
-    description: "Name of the predictor variable (e.g., entropy)."
+    type: "string"
+    description: "Name of the predictor variable (e.g., 'entropy')."
   estimate:
-    type: number
+    type: "number"
     description: "Fixed effect estimate (coefficient)."
-  std_err:
-    type: number
+  std_error:
+    type: "number"
     description: "Standard error of the estimate."
   p_value:
-    type: number
-    description: "Unadjusted p-value."
-  p_adj:
-    type: number
+    type: "number"
+    description: "Raw p-value."
+  p_value_adj:
+    type: "number"
     description: "Benjamini-Hochberg adjusted p-value."
-  vif:
-    type: number
-    description: "Variance Inflation Factor for the predictor."
-    minimum: 1
   ci_lower:
-    type: number
-    description: "Lower bound of the 95% confidence interval."
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
   ci_upper:
-    type: number
-    description: "Upper bound of the 95% confidence interval."
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor for the predictor."
   effect_size:
-    type: number
+    type: "number"
     description: "Cohen's d or similar effect size metric."
-  fwer:
-    type: number
-    description: "Observed family-wise error rate from null simulation."
+  sensitivity_sd:
+    type: "number"
+    description: "Standard deviation of effect sizes across alpha sweep (FR-005b)."
 required:
-  - model_id
-  - predictor
-  - estimate
-  - p_value
-  - p_adj
-  - vif
-  - ci_lower
-  - ci_upper
+  - "model_id"
+  - "predictor"
+  - "estimate"
+  - "p_value"
+  - "p_value_adj"
+  - "vif"
+  - "effect_size"
 additionalProperties: false

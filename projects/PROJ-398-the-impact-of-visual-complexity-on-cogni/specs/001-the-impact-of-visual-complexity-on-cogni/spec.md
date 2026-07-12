@@ -61,19 +61,19 @@ The system must present meeting clips to participants and capture their cognitiv
 
 ### User Story 3 - Statistical Analysis and Reporting (Priority: P3)
 
-The system must execute linear mixed-effects models to correlate visual complexity metrics with cognitive load outcomes, controlling for task difficulty and participant ID, while applying multiple-comparison corrections and checking for multicollinearity.
+The system must execute linear mixed-effects models to correlate visual complexity metrics with cognitive load outcomes, controlling for task difficulty and participant ID, while applying multiple-comparison corrections and checking for multicollinearity. **Crucially, this stage distinguishes between 'Pipeline Validation' (using synthetic data to verify code correctness) and 'Primary Hypothesis Testing' (using real human data to answer the research question).**
 
 **Why this priority**: This synthesizes the data to answer the research question, providing the final evidence for the gap analysis.
 
-**Independent Test**: Can be fully tested by running the analysis script on a pre-generated synthetic dataset with known correlations and verifying that the output report correctly identifies the significant predictors, reports adjusted p-values, and includes multicollinearity diagnostics.
+**Independent Test**: Can be fully tested by running the analysis script on a pre-generated synthetic dataset with known correlations to verify code logic, AND separately running it on the real human dataset to generate the primary research outcome.
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of 100 participants and 50 clips, **When** the linear mixed-effects model is run, **Then** the output includes a fixed effect estimate for visual complexity with a 95% confidence interval.
+1. **Given the real human dataset collected in US-2** (containing actual NASA-TLX scores and reaction times from human participants), **When** the linear mixed-effects model is run, **Then** the output includes a fixed effect estimate for visual complexity with a 95% confidence interval. **Note: Synthetic data is strictly excluded from this step; primary outcomes must derive from real human data.**
 2. **Given** multiple hypothesis tests (e.g., testing entropy, variance, and object count separately), **When** the analysis completes, **Then** the system applies a Benjamini-Hochberg correction and reports the adjusted p-values.
 3. **Given** the model results, **When** the report is generated, **Then** it explicitly states the effect size (Cohen's d) and the direction of the association (positive/negative).
 4. **Given** the set of predictors, **When** the model is prepared, **Then** the system calculates Variance Inflation Factors (VIF) for each; if any VIF > 5, the system either combines predictors via PCA or flags the instability in the report.
-5. **Given** the analysis results, **When** the system runs a null-simulation (effect size = 0), **Then** it calculates and reports the observed family-wise error rate (FWER) and compares it to the nominal alpha (0.05).
+5. **Given** a synthetic dataset generated with a true effect size of 0 (for pipeline validation only), **When** the system runs a null-simulation, **Then** it calculates and reports the observed family-wise error rate (FWER) to verify the code's ability to control Type I errors. **This step validates the statistical pipeline, not the scientific hypothesis.**
 6. **Given** the sensitivity analysis sweep (alpha thresholds {0.01, 0.05, 0.1}), **When** the report is generated, **Then** it explicitly lists the count of significant predictors for each threshold and the standard deviation of the effect sizes.
 
 ---
@@ -97,7 +97,7 @@ The system must execute linear mixed-effects models to correlate visual complexi
 - **FR-005**: System MUST perform a sensitivity analysis sweeping the p-value significance threshold (α) over a defined range (e.g., {0.01, 0.05, 0.1}) and report the variation in the count of significant predictors (See US-3).
 - **FR-005b**: System MUST define 'stability' in the sensitivity analysis as the standard deviation of the effect sizes across the swept thresholds (See US-3).
 - **FR-006**: System MUST ingest human-rated complexity scores from a pilot study and compute the correlation between these scores and the automated metrics (See US-0, US-1).
-- **FR-007**: System MUST run a null-simulation (where the true effect size is 0) to calculate and report the observed family-wise error rate (FWER) and compare it to the nominal alpha level (See US-3).
+- **FR-007**: System MUST run a null-simulation (where the true effect size is 0) using synthetic data to calculate and report the observed family-wise error rate (FWER) and compare it to the nominal alpha level (See US-3). **This validates the pipeline's statistical properties, not the primary hypothesis.**
 
 ### Non-Functional Requirements
 
@@ -132,7 +132,7 @@ The system must execute linear mixed-effects models to correlate visual complexi
 - **SC-001**: Visual complexity metrics (entropy, variance, object count) are measured against human-rated complexity scores from a pilot study (n=20) to validate metric sensitivity and avoid circular validation (See US-0, FR-006).
 - **SC-002**: The system outputs a p-value for the correlation coefficient between visual complexity and NASA-TLX scores; success is defined as the system correctly flagging significance when p < 0.05 (adjusted) (See US-3).
 - **SC-003**: The reaction-time difference between high-complexity and low-complexity conditions is measured against the baseline reaction time (defined as the mean reaction time during the baseline condition for the same participant) to quantify the cognitive load impact (See US-2, FR-002b).
-- **SC-004**: The family-wise error rate is measured against the nominal alpha level (0.05) after applying multiple-comparison correction to ensure valid inference (See US-3, FR-007).
+- **SC-004**: The system MUST apply a multiple-comparison correction (e.g., Benjamini-Hochberg) and report adjusted p-values, ensuring the procedure controls FWER at the nominal alpha level (0.05) as verified by the null-simulation in FR-007 (See US-3, FR-007).
 - **SC-005**: The stability of the effect size is measured across the sensitivity analysis sweep (alpha thresholds {0.01, 0.05, 0.1}) by calculating the standard deviation of effect sizes to confirm robustness of the finding (See US-3, FR-005b).
 
 ## Assumptions

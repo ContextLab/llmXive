@@ -4,86 +4,114 @@
 
 **Research Question**: How does the visual complexity of video meeting backgrounds affect cognitive load during remote work, and does this relationship persist when controlling for task difficulty and participant familiarity?
 
-**Hypotheses**:
-- **H1**: Higher visual complexity (measured by entropy, variance, and object count) is positively associated with higher cognitive load (NASA-TLX scores and slower reaction times).
-- **H2**: The relationship between visual complexity and cognitive load remains significant after controlling for task difficulty and participant ID.
-- **H3**: Automated visual complexity metrics correlate significantly (r > 0.5) with human-perceived complexity ratings.
+**Primary Hypothesis (H1)**: Higher visual complexity (measured by entropy, color variance, and object count) is positively associated with higher cognitive load (NASA-TLX scores and slower reaction times).
+
+**Secondary Hypothesis (H2)**: The relationship between visual complexity and cognitive load is moderated by task difficulty (i.e., the effect is stronger for difficult tasks).
+
+**Null Hypothesis (H0)**: There is no significant association between visual complexity metrics and cognitive load outcomes.
 
 ## 2. Dataset Strategy
 
-### 2.1 Verified Sources & Data Validity
+This study relies on two distinct data sources: (1) a set of visual stimuli (background images/clips) and (2) human participant responses.
 
-Per the project constraints, we must cite **ONLY** the verified datasets listed below.
+### 2.1 Visual Stimuli (Predictor Variables)
+The study requires a diverse set of meeting background images.
+*   **Source**: As per the "Verified datasets" block, **NO verified source** was found for a pre-existing "Visual Complexity" or "Meeting Background" dataset.
+*   **Strategy**: The system will **synthesize/generate** the stimuli dataset using public domain image repositories (e.g., Unsplash via API, or curated public domain sets) to ensure we have control over the complexity range. The generated images will be stored in `data/stimuli/`.
+*   **Variables**:
+    *   `image_entropy`: Calculated via `numpy.histogram` (FR-001).
+    *   `color_variance`: Calculated via `cv2.meanStdDev` (FR-001).
+    *   `object_count`: Detected via YOLOv8n (FR-001).
+*   **Validation**: A pilot study (US-0) with n=20 humans will rate these images on a 1-10 scale. The automated metrics will be validated against these human scores (FR-006, SC-001).
 
-| Dataset Name | Verified URL | Status | Usage Plan |
-| :--- | :--- | :--- | :--- |
-| **Real Meeting Backgrounds** | NO verified source found | **MISSING** | **Critical Gap**: No verified public dataset of real meeting backgrounds exists. **Scientific Analysis is BLOCKED** until real data is collected. The plan relies on **synthetic generation** *only* for pipeline validation (code logic, performance). |
-| **Synthetic Stimuli** | N/A (Procedural) | **VALIDATED FOR PIPELINE** | Generated via `Pillow`/`numpy` for testing code logic, metric extraction speed (NFR-001), and power analysis. **NOT VALID FOR SCIENTIFIC CLAIMS**. |
-| **NASA-TLX Norms** | NO verified source found | **MISSING** | The NASA-TLX scale is a standard instrument. We will use the standard scoring algorithm (Hart & Staveland, 1988) as described in the literature, but raw data must be collected via the pilot/main study. |
+### 2.2 Participant Data (Outcome Variables)
+*   **Source**: Data collected via the custom Streamlit application (`code/study/app.py`).
+*   **Participants**: Target N=100 participants (See Power Analysis below).
+*   **Variables**:
+    *   `nasa_tlx`: Subjective cognitive load (0-100 scale).
+    *   `reaction_time`: Mean ms from post-task RT task.
+    *   `task_difficulty`: Self-reported difficulty of the meeting content (1-7 scale).
+    *   `baseline_rt`: Reaction time on neutral stimulus.
+*   **Dataset Limitation Note**: No external dataset provides NASA-TLX or Reaction Time data for this specific study. The "Verified datasets" block confirms **NO verified source** for NASA-TLX or FWER datasets. Therefore, the system must generate this data via the experimental protocol, not by downloading a pre-existing CSV.
 
-**Dataset Strategy Rationale**:
-Since the "Verified datasets" block explicitly states "NO verified source found" for the visual stimuli, the implementation cannot cite a URL. To satisfy FR-001 and US-1, the `code/experiments/stimuli_loader.py` will include a **synthetic generation module**. This module will procedurally generate 50 background images with controlled complexity levels (low, medium, high) using `Pillow` and `numpy`. This ensures the pipeline is runnable on CI without external dependencies, satisfying the "Compute Feasibility" constraint. The generated images will be stored in `data/stimuli/` and checksummed (Constitution Principle III).
-
-**Construct Validity Warning**: Synthetic backgrounds (procedurally generated noise/patterns) lack the semantic complexity of real meeting environments. Therefore, any correlation derived from synthetic data is a **pipeline validation metric**, not a scientific finding. The scientific hypothesis (H1-H3) can only be tested with real meeting backgrounds and real human ratings.
-
-**Critical Distinction**:
-- **Pipeline Validation (Synthetic)**: We will generate synthetic NASA-TLX scores *only* to verify that the LMM code runs and calculates diagnostics (VIF, FWER) correctly. These scores are **randomly generated** based on known parameters for the purpose of **code logic verification**. They are **NOT** used to test H1-H3.
-- **Scientific Validation (Real)**: To test H1-H3, we **MUST** collect real human ratings (Pilot n=20) and real cognitive load data (Main Study). Synthetic cognitive load data is **prohibited** for hypothesis testing.
+### 2.3 Statistical Validation Data
+*   **Null Simulation**: Synthetic data will be generated in `code/utils/synthetic_data.py` where the true effect size is 0. This is used *only* to validate the pipeline's ability to control FWER (FR-007, SC-004). This is **not** a research result; it is a code correctness check. Primary hypothesis testing uses **only** real human data.
 
 ## 3. Methodology
 
-### 3.1 Pilot Study (Metric Validation)
-1.  **Stimulus Generation**: Generate 50 synthetic background images with varying complexity (for code testing).
-2.  **Human Rating**: **REQUIREMENT**: Collect ratings from 20 real human participants (US-0) for a set of images (synthetic or real). **Simulated human ratings are NOT accepted for validation.**
-3.  **Correlation**: Compute Pearson's r between real human ratings and automated metrics.
-4.  **Validation Gate**: Proceed to main analysis only if r > 0.5 AND data source is flagged as `real`.
+### 3.1 Metric Extraction (FR-001)
+1.  **Entropy**: Computed as $H = -\sum p(x) \log p(x)$ on the grayscale histogram.
+2.  **Color Variance**: Standard deviation of RGB channels averaged.
+3.  **Object Count**: YOLOv8n (CPU mode) inference on 1080p frames.
+    *   *Constraint*: Must run in <30s for 10 images (NFR-001). YOLOv8n is selected as the smallest viable model.
 
-### 3.2 Automated Metric Extraction
-- **Algorithm**:
-  - **Entropy**: Shannon entropy of the grayscale image histogram.
-  - **Color Variance**: Standard deviation of RGB channel values.
-  - **Object Count**: Inference using `ultralytics` YOLOv8n (CPU mode) on 1080p frames.
-- **Constraints**: Must process 10 images in <30s on 2 CPU cores (NFR-001). YOLOv8n is selected for its balance of speed and accuracy on CPU.
+### 3.2 Experimental Design (US-2, FR-002, FR-002b, FR-002c)
+1.  **Stimuli Presentation**: **Balanced Block Randomization**.
+    *   *Rationale*: A Latin Square design is infeasible for 50 stimuli (requires 50 distinct sequences). Instead, stimuli are divided into multiple blocks of 10. Each participant views multiple blocks (a set number of stimuli) in a randomized order. This ensures coverage of the complexity range while maintaining feasibility.
+2.  **Baseline**: Participants complete a low-complexity RT task first.
+3.  **Trials**: Participants view clips, then complete NASA-TLX and a RT task.
+4.  **Data Integrity**: Missing data is flagged for exclusion, not imputed (US-2, SC-003).
 
-### 3.3 Statistical Analysis
-- **Model**: Linear Mixed-Effects Model (LMM).
-  - **Fixed Effects**: Visual Complexity, Task Difficulty.
-  - **Random Effects**: (1 | Participant ID).
-  - **Outcome**: NASA-TLX Score, Reaction Time.
-- **Diagnostics**:
-  - **Multicollinearity**: Calculate Variance Inflation Factors (VIF). If VIF > 5, flag instability or apply PCA (FR-003).
-  - **Multiple Comparisons**: Apply Benjamini-Hochberg correction for >1 test (FR-004).
-  - **Sensitivity Analysis**: Sweep alpha thresholds {0.01, 0.05, 0.1} and report SD of effect sizes (FR-005).
-  - **Null Simulation**: Generate synthetic data with effect size = 0 to verify FWER control (FR-007). **This is a logic check to ensure the code correctly reports non-significance when the true effect is zero. It is NOT a hypothesis test.**
+### 3.3 Statistical Analysis (US-3, FR-003, FR-004, FR-005)
+1.  **Primary Model**: Linear Mixed-Effects Model (LMM).
+    *   Fixed Effects: Visual Complexity (Entropy, Variance, Object Count), Task Difficulty, Interaction.
+    *   Random Effects: Random intercept for `participant_id`.
+    *   Formula: `TLX ~ Complexity + Difficulty + (1|participant_id)`
+2.  **Multivariate Strategy & Collinearity**:
+    *   **Univariate Approach**: To avoid multicollinearity (high correlation between entropy and variance), the primary analysis runs **separate models** for each metric (Entropy, Variance, Object Count).
+    *   **PCA Fallback**: If VIF > 5 is detected in any model, the system automatically falls back to a PCA-based "Global Complexity" index for that predictor, reporting the result as "Global Complexity" rather than individual metrics. This pre-registers the consequence of collinearity to ensure interpretability.
+3.  **Multiple Comparison Correction**: Benjamini-Hochberg procedure applied to p-values of multiple predictors (FR-004).
+4.  **Sensitivity Analysis**: Sweep $\alpha$ over a range of small values. Calculate SD of effect sizes (FR-005b).
+5.  **Null Simulation**: Generate synthetic data (effect=0), run model, calculate observed FWER. Compare to nominal $\alpha=0.05$ (FR-007).
 
-## 4. Statistical Rigor & Limitations
+## 4. Power Analysis
 
-- **Power Analysis**: The spec assumes n=50-100 participants for power ≥ 0.80 (Assumption). The pilot (n=20) is for validation only. The main study power is dependent on real recruitment, which is outside the scope of the *computational* pipeline but the analysis code will include a power calculation function.
-- **Causal Claims**: As an observational study (even with controlled stimuli), claims are associational. The plan explicitly avoids causal language.
-- **Collinearity**: Entropy and Object Count may be correlated. VIF checks are mandatory.
-- **Measurement Validity**: NASA-TLX is a validated instrument. Synthetic stimuli are a limitation; real meeting backgrounds would be ideal but are not available in verified sources.
-- **Data Validity**: **Findings derived solely from synthetic stimuli are invalid for scientific claims.** The plan explicitly separates "Pipeline Validation Results" from "Scientific Results". **No fabricated cognitive load data will be used to test H1-H3.**
-- **Methodological Separation**: The plan strictly separates **Code Logic Verification** (testing if the LMM runs on synthetic data) from **Hypothesis Testing** (testing if complexity causes load with real data). Synthetic data cannot validate the method's ability to detect real-world effects; it only validates the code's execution.
+*   **Design**: Repeated measures (10 trials per participant).
+*   **Target Power**: 0.80.
+*   **Effect Size**: Cohen's d = 0.5 (medium).
+*   **Intra-class Correlation (ICC)**: Assumed 0.3.
+*   **Calculation**: Using `statsmodels.stats.power` with ICC adjustment, N=100 participants with 10 trials each yields >0.80 power. The previous assumption of N=50-100 is refined to **N=100** to ensure adequate power for the repeated measures design.
 
-## 5. Computational Feasibility
+## 5. Compute Feasibility & Constraints
 
-- **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
-- **Libraries**: `ultralytics` (CPU wheel), `statsmodels`, `scikit-learn`.
-- **Optimization**:
-  - Images resized to 640x640 for YOLO inference (standard input size) to reduce RAM/CPU load, while maintaining complexity metrics.
-  - Batch processing of images.
-  - No GPU acceleration; all models run in default floating-point precision.
-- **Runtime**: Estimated < 2 hours for full pipeline (generation + extraction + analysis) on 100 synthetic trials.
+*   **Hardware**: GitHub Actions Free Tier (limited CPU, constrained RAM).
+*   **GPU**: **None**. YOLOv8n will run in CPU mode (`device='cpu'`).
+*   **Memory**: Data subset to <7GB. Images processed in batches.
+*   **Runtime**:
+ * Metric extraction: [deferred]/image (CPU) -> 10 images in [deferred].
+    *   LMM: <1s for N=100.
+    *   Total pipeline: <1 hour.
+*   **Libraries**: `ultralytics` (CPU wheel), `statsmodels`, `scikit-learn`. No `torch` CUDA, no `bitsandbytes`.
 
-## 6. Decision Log
+## 6. Dataset Variable Fit & Mismatch Resolution
+
+*   **Mismatch Identified**: The study requires "meeting background images" and "human-rated complexity". No external dataset contains *both* the specific images and the human ratings for this context.
+*   **Resolution**:
+    1.  **Stimuli**: Generate/curate a set of public domain images (Unsplash/Pixabay) and store in `data/stimuli/`.
+    2.  **Human Ratings**: Conduct a *local* pilot study (US-0) using the system's own interface to generate the ground truth. This is not a "download" but a "data generation" step required by the spec.
+    3.  **Main Data**: Collect NASA-TLX/RT via the system's own experiment.
+*   **Conclusion**: No external dataset is needed for the *outcome* variables. The "Verified datasets" block correctly lists no source for these. The plan relies on **system-generated** data for both stimuli and responses, validated by the pilot protocol.
+
+## 7. Statistical Rigor & Limitations
+
+*   **Multiple Comparisons**: Addressed via Benjamini-Hochberg (FR-004).
+*   **Power**: Refined to N=100 with 10 trials/participant to account for ICC.
+*   **Causal Claims**: The study is observational (participants self-select complexity via their background). Claims will be framed as **associational** (Assumption).
+*   **Measurement Validity**: NASA-TLX is a standard, validated instrument. Pilot correlation (r > 0.5) validates the automated metrics against human perception (SC-001).
+    *   *Validation Logic*: The pilot validates that automated metrics correlate with *human perception*. The main study tests if *perceived complexity* (validated by metrics) predicts *cognitive load*. If pilot correlation fails, metrics are discarded, preventing circular validation.
+*   **Collinearity**: VIF check (FR-003) triggers fallback to univariate or PCA models to ensure interpretable coefficients.
+*   **Stimulus Validity & Ecological Fallacy**:
+    *   *Limitation*: The plan uses static images from public repositories. Real meeting backgrounds are dynamic, often contain people, and have specific lighting conditions. Static images may not elicit the same cognitive load as a dynamic, real-world meeting background.
+    *   *Mitigation*: Stimuli will be selected specifically from "Zoom/Teams background" public sets to improve ecological validity.
+    *   *Scope*: Results are explicitly limited to "static visual complexity". Future work must address motion.
+
+## 8. Decision Log
 
 | Decision | Rationale |
 | :--- | :--- |
-| **Synthetic Stimuli** | No verified dataset URL exists. Synthetic generation ensures reproducibility and CI feasibility for *pipeline testing*. |
-| **Real Human Ratings** | Synthetic ratings create circular validation. Real human ratings (n=20) are mandatory for metric validation (US-0). |
-| **YOLOv8n** | Smallest YOLO model, optimized for CPU inference. Meets NFR-001 (speed/RAM). |
-| **LMM over OLS** | Required to handle repeated measures (Participant ID) and avoid inflated Type I errors. |
-| **Benjamini-Hochberg** | Standard for controlling FDR in multiple hypothesis testing (FR-004). |
-| **Data Validity Gate** | Prevents publication of scientific claims based on synthetic data. |
-| **Null Simulation** | Used strictly to verify FWER control logic, not to generate scientific findings. |
-| **No Synthetic Hypothesis Testing** | Synthetic cognitive load data cannot test H1-H3. Only real human data is used for hypothesis testing. |
+| **YOLOv8n over ResNet** | NFR-001 requires <30s for 10 images on CPU. YOLOv8n is the only model fast enough for object counting without GPU. |
+| **Synthetic Null Data** | Required by FR-007 to validate the statistical pipeline's FWER control. Not a research result. |
+| **No External NASA-TLX Dataset** | No verified source exists. Data must be collected via the experiment (US-2). |
+| **Balanced Block Randomization** | Required by US-2 to control for order effects (fatigue/practice) while being feasible for 50 stimuli. |
+| **Pilot Study (n=20)** | Required by US-0 to validate automated metrics before the main study. |
+| **Univariate Models** | Required to avoid multicollinearity between entropy, variance, and object count. |

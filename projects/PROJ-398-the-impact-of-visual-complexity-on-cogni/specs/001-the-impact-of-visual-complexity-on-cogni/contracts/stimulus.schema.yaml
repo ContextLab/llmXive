@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BackgroundFrame"
+description: "Schema for a single background frame with computed visual complexity metrics."
+type: "object"
+properties:
+  frame_id:
+    type: "string"
+    description: "Unique identifier for the image file."
+  entropy:
+    type: "number"
+    description: "Image entropy calculated from grayscale histogram."
+  color_variance:
+    type: "number"
+    description: "Average variance across RGB channels."
+  object_count:
+    type: "integer"
+    description: "Number of objects detected by YOLOv8n."
+required:
+  - "frame_id"
+  - "entropy"
+  - "color_variance"
+  - "object_count"
+additionalProperties: false
