@@ -1051,6 +1051,10 @@
     "classified_at": "2026-07-12T17:02:52Z",
     "verdict": false
   },
+  "PROJ-845-llmxive-follow-up-extending-qwen-image-f::1.6.0": {
+    "classified_at": "2026-07-12T17:28:58Z",
+    "verdict": false
+  },
   "PROJ-846-llmxive-follow-up-extending-guava-an-eff::1.6.0": {
     "classified_at": "2026-07-11T18:31:38Z",
     "verdict": false
