@@ -1,0 +1,11 @@
+- artifact_hash: 2e997c09608a4223e8ff70ca37f7fcd579687e6913ba032a1fb564ee584bcdcf
+  artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-12T21:47:31.052093Z'

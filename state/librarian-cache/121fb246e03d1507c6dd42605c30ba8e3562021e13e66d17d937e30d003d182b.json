@@ -1,0 +1,663 @@
+{
+  "fetched_at": "2026-07-12T21:32:58Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Manipulation Skills fro\"",
+      "target_n": 5
+    },
+    "duration_seconds": 51.162,
+    "ended_at": "2026-07-12T21:32:58Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "sim-to-real transfer for robotic manipulation"
+        ],
+        [
+          2,
+          "language-guided robot skill transfer"
+        ],
+        [
+          3,
+          "cross-domain robotic manipulation learning"
+        ],
+        [
+          4,
+          "bridging actions in robotic imitation learning"
+        ],
+        [
+          5,
+          "translation-based skill generalization"
+        ],
+        [
+          6,
+          "natural language as a bridge for robot control"
+        ],
+        [
+          7,
+          "transferring manipulation policies across domains"
+        ],
+        [
+          8,
+          "robotic skill adaptation via language embeddings"
+        ],
+        [
+          9,
+          "language-conditioned sim-to-real transfer"
+        ],
+        [
+          10,
+          "semantic bridging for robotic task transfer"
+        ],
+        [
+          11,
+          "zero-shot manipulation skill transfer"
+        ],
+        [
+          12,
+          "language-mediated robot learning"
+        ],
+        [
+          13,
+          "cross-embodiment manipulation transfer"
+        ],
+        [
+          14,
+          "language-based policy transfer in robotics"
+        ],
+        [
+          15,
+          "generalizing manipulation skills via natural language"
+        ],
+        [
+          16,
+          "robotic manipulation through linguistic abstraction"
+        ],
+        [
+          17,
+          "language-driven sim-to-real alignment"
+        ],
+        [
+          18,
+          "transferring robotic behaviors using language models"
+        ],
+        [
+          19,
+          "semantic transfer for robotic manipulation"
+        ],
+        [
+          20,
+          "language as an intermediate representation for robot skills"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Manipulation Skills fro\" computer science": 0,
+        "sim-to-real transfer for robotic manipulation": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "sim-to-real transfer manipulation skill generalization",
+      "cross-robot skill transfer heterogeneous embodiment",
+      "domain randomization sim-to-real robotics",
+      "zero-shot manipulation task success rate",
+      "policy distillation cross-embodiment transfer learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2508.11117"
+      ]
+    },
+    "per_query_hit_count": {
+      "cross-robot skill transfer heterogeneous embodiment": 3,
+      "domain randomization sim-to-real robotics": 3,
+      "llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Manipulation Skills fro\" computer science": 3,
+      "policy distillation cross-embodiment transfer learning": 3,
+      "sim-to-real transfer manipulation skill generalization": 3,
+      "zero-shot manipulation task success rate": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T21:32:06Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"translation as a bridging action: transferring manipulation skills fro\" computer science",
+      "raw": "llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Manipulation Skills fro\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study sim-to-real skill transfer and discovery in the context of robotics control using representation learning. We draw inspiration from spectral decomposition of Markov decision processes. The spectral decomposition brings about representation that can linearly represent the state-action value function induced by any policies, thus can be regarded as skills. The skill representations are transferable across arbitrary tasks with the same transition dynamics. Moreover, to handle the sim-to-real gap in the dynamics, we propose a skill discovery algorithm that learns new skills caused by the sim-to-real gap from real-world data. We promote the discovery of new skills by enforcing orthogonal constraints between the skills to learn and the skills from simulators, and then synthesize the policy using the enlarged skill sets. We demonstrate our methodology by transferring quadrotor controllers from simulators to Crazyflie 2.1 quadrotors. We show that we can learn the skill representations from a single simulator task and transfer these to multiple different real-world tasks including hovering, taking off, landing and trajectory tracking. Our skill discovery approach helps narrow the sim-to-real gap and improve the real-world controller performance by up to 30.2%.",
+          "claimed_authors": [
+            "Haitong Ma",
+            "Zhaolin Ren",
+            "Bo Dai",
+            "Na Li"
+          ],
+          "claimed_title": "Skill Transfer and Discovery for Sim-to-Real Learning: A Representation-Based Viewpoint",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.05051"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Skill Transfer and Discovery for Sim-to-Real Learning: A Representation-Based Viewpoint')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bridging the sim-to-real gap is a core challenge in deploying learned manipulation policies. Sim-to-real learning is attractive because it can replace expensive real robot demonstrations with scalable synthetic data, yet world-action models have not previously been shown to transfer from simulation to real robotic manipulation. We study whether a world-action model can be trained from synthetic priors and deployed zero-shot in the real world. To this end, we build upon Cosmos Policy, a video diffusion model adapted for visuomotor control. We construct simulation environments with extensive domain randomization and generate demonstrations using the AnyTask motion planning pipeline. We evaluate our approach across object lifting, drawer opening, and pick-and-place tasks using ${\\sim}800$ synthetic demonstrations per task and no real demonstrations. When deployed zero-shot on a Franka Robot, our policy attains a 35\\% average success rate. To our knowledge, this represents the first successful sim-to-real transfer of a world-action model for robotic manipulation.",
+          "claimed_authors": [
+            "Zixing Wang",
+            "Kausik Sivakumar",
+            "Jinghuan Shang",
+            "Yafei Hu",
+            "Zhaoming Xie",
+            "Ran Gong",
+            "Xiaohan Zhang",
+            "Karl Schmeckpeper"
+          ],
+          "claimed_title": "Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.31101"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter addresses the critical challenge of simulation-to-reality (sim-to-real) transfer for deep reinforcement learning (DRL) in bipedal locomotion. After contextualizing the problem within various control architectures, we dissect the ``curse of simulation'' by analyzing the primary sources of sim-to-real gap: robot dynamics, contact modeling, state estimation, and numerical solvers. Building on this diagnosis, we structure the solutions around two complementary philosophies. The first is to shrink the gap through model-centric strategies that systematically improve the simulator's physical fidelity. The second is to harden the policy, a complementary approach that uses in-simulation robustness training and post-deployment adaptation to make the policy inherently resilient to model inaccuracies. The chapter concludes by synthesizing these philosophies into a strategic framework, providing a clear roadmap for developing and evaluating robust sim-to-real solutions.",
+          "claimed_authors": [
+            "Lingfan Bao",
+            "Tianhu Peng",
+            "Chengxu Zhou"
+          ],
+          "claimed_title": "Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06465"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cross-embodiment generalization underpins the vision of building generalist embodied agents for any robot, yet its enabling factors remain poorly understood. We investigate embodiment scaling laws, the hypothesis that increasing the number of training embodiments improves generalization to unseen ones, using robot locomotion as a test bed. We procedurally generate ~1,000 embodiments with topological, geometric, and joint-level kinematic variations, and train policies on random subsets. We observe positive scaling trends supporting the hypothesis, and find that embodiment scaling enables substantially broader generalization than data scaling on fixed embodiments. Our best policy, trained on the full dataset, transfers zero-shot to novel embodiments in simulation and the real world, including the Unitree Go2 and H1. These results represent a step toward general embodied intelligence, with relevance to adaptive control for configurable robots, morphology co-design, and beyond.",
+          "claimed_authors": [
+            "Bo Ai",
+            "Liu Dai",
+            "Nico Bohlinger",
+            "Dichen Li",
+            "Tongzhou Mu",
+            "Zhanxin Wu",
+            "K. Fay",
+            "Henrik I. Christensen",
+            "Jan Peters",
+            "Hao Su"
+          ],
+          "claimed_title": "Towards Embodiment Scaling Laws in Robot Locomotion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.05753"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Towards Embodiment Scaling Laws in Robot Locomotion')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning manipulation skills from human demonstration videos presents a promising yet challenging problem, primarily due to the significant embodiment gap between human body and robot manipulators. Existing methods rely on paired datasets or hand-crafted rewards, which limit scalability and generalization. We propose TrajSkill, a framework for Trajectory Conditioned Cross-embodiment Skill Transfer, enabling robots to acquire manipulation skills directly from human demonstration videos. Our key insight is to represent human motions as sparse optical flow trajectories, which serve as embodiment-agnostic motion cues by removing morphological variations while preserving essential dynamics. Conditioned on these trajectories together with visual and textual inputs, TrajSkill jointly synthesizes temporally consistent robot manipulation videos and translates them into executable actions, thereby achieving cross-embodiment skill transfer. Extensive experiments are conducted, and the results on simulation data (MetaWorld) show that TrajSkill reduces FVD by 39.6\\% and KVD by 36.6\\% compared with the state-of-the-art, and improves cross-embodiment success rate by up to 16.7\\%. Real-robot experiments in kitchen manipulation tasks further validate the effectiveness of our approach, demonstrating practical human-to-robot skill transfer across embodiments.",
+          "claimed_authors": [
+            "YuHang Tang",
+            "Yixuan Lou",
+            "Pengfei Han",
+            "Haoming Song",
+            "Xinyi Ye",
+            "Dong Wang",
+            "Bin Zhao"
+          ],
+          "claimed_title": "Trajectory Conditioned Cross-embodiment Skill Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.07773"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Trajectory Conditioned Cross-embodiment Skill Transfer')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human demonstration videos are a widely available data source for robot learning and an intuitive user interface for expressing desired behavior. However, directly extracting reusable robot manipulation skills from unstructured human videos is challenging due to the big embodiment difference and unobserved action parameters. To bridge this embodiment gap, this paper introduces XSkill, an imitation learning framework that 1) discovers a cross-embodiment representation called skill prototypes purely from unlabeled human and robot manipulation videos, 2) transfers the skill representation to robot actions using conditional diffusion policy, and finally, 3) composes the learned skill to accomplish unseen tasks specified by a human prompt video. Our experiments in simulation and real-world environments show that the discovered skill prototypes facilitate both skill transfer and composition for unseen tasks, resulting in a more general and scalable imitation learning framework. The benchmark, code, and qualitative results are on https://xskill.cs.columbia.edu/",
+          "claimed_authors": [
+            "Mengda Xu",
+            "Zhenjia Xu",
+            "Cheng Chi",
+            "Manuela Veloso",
+            "Shuran Song"
+          ],
+          "claimed_title": "XSkill: Cross Embodiment Skill Discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.09955"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='XSkill: Cross Embodiment Skill Discovery')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Keypoint detection is an essential building block for many robotic applications like motion capture and pose estimation. Historically, keypoints are detected using uniquely engineered markers such as checkerboards or fiducials. More recently, deep learning methods have been explored as they have the ability to detect user-defined keypoints in a marker-less manner. However, different manually selected keypoints can have uneven performance when it comes to detection and localization. An example of this can be found on symmetric robotic tools where DNN detectors cannot solve the correspondence problem correctly. In this work, we propose a new and autonomous way to define the keypoint locations that overcomes these challenges. The approach involves finding the optimal set of keypoints on robotic manipulators for robust visual detection and localization. Using a robotic simulator as a medium, our algorithm utilizes synthetic data for DNN training, and the proposed algorithm is used to optimize the selection of keypoints through an iterative approach. The results show that when using the optimized keypoints, the detection performance of the DNNs improved significantly. We further use the optimized keypoints for real robotic applications by using domain randomization to bridge the reality gap between the simulator and the physical world. The physical world experiments show how the proposed method can be applied to the wide-breadth of robotic applications that require visual feedback, such as camera-to-robot calibration, robotic tool tracking, and end-effector pose estimation.",
+          "claimed_authors": [
+            "Jingpei Lu",
+            "Florian Richter",
+            "Michael Yip"
+          ],
+          "claimed_title": "Pose Estimation for Robot Manipulators via Keypoint Optimization and Sim-to-Real Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.08054"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Pose Estimation for Robot Manipulators via Keypoint Optimization and Sim-to-Real Transfer')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is crucial to address the following issues for ubiquitous robotics manipulation applications: (a) vision-based manipulation tasks require the robot to visually learn and understand the object with rich information like dense object descriptors; and (b) sim-to-real transfer in robotics aims to close the gap between simulated and real data. In this paper, we present Sim-to-Real Dense Object Nets (SRDONs), a dense object descriptor that not only understands the object via appropriate representation but also maps simulated and real data to a unified feature space with pixel consistency. We proposed an object-to-object matching method for image pairs from different scenes and different domains. This method helps reduce the effort of training data from real-world by taking advantage of public datasets, such as GraspNet. With sim-to-real object representation consistency, our SRDONs can serve as a building block for a variety of sim-to-real manipulation tasks. We demonstrate in experiments that pre-trained SRDONs significantly improve performances on unseen objects and unseen visual environments for various robotic tasks with zero real-world training.",
+          "claimed_authors": [
+            "Hoang-Giang Cao",
+            "Weihao Zeng",
+            "I-Chen Wu"
+          ],
+          "claimed_title": "Learning Sim-to-Real Dense Object Descriptors for Robotic Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.08703"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Learning Sim-to-Real Dense Object Descriptors for Robotic Manipulation')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current vision-based robotics simulation benchmarks have significantly advanced robotic manipulation research. However, robotics is fundamentally a real-world problem, and evaluation for real-world applications has lagged behind in evaluating generalist policies. In this paper, we discuss challenges and desiderata in designing benchmarks for generalist robotic manipulation policies for the goal of sim-to-real policy transfer. We propose 1) utilizing high visual-fidelity simulation for improved sim-to-real transfer, 2) evaluating policies by systematically increasing task complexity and scenario perturbation to assess robustness, and 3) quantifying performance alignment between real-world performance and its simulation counterparts.",
+          "claimed_authors": [
+            "Xuning Yang",
+            "Clemens Eppner",
+            "Jonathan Tremblay",
+            "Dieter Fox",
+            "Stan Birchfield",
+            "Fabio Ramos"
+          ],
+          "claimed_title": "Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.11117"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
+          "claimed_authors": [
+            "Chunting Zhou",
+            "Junxian He",
+            "Xuezhe Ma",
+            "Taylor Berg-Kirkpatrick",
+            "Graham Neubig"
+          ],
+          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00049"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work builds upon the Euphemism Detection Shared Task proposed in the EMNLP 2022 FigLang Workshop, and extends it to few-shot and zero-shot settings. We demonstrate a few-shot and zero-shot formulation using the dataset from the shared task, and we conduct experiments in these settings using RoBERTa and GPT-3. Our results show that language models are able to classify euphemistic terms relatively well even on new terms unseen during training, indicating that it is able to capture higher-level concepts related to euphemisms.",
+          "claimed_authors": [
+            "Sedrick Scott Keh"
+          ],
+          "claimed_title": "Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12926"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The transfer learning toolkit wraps the codes of 17 transfer learning models and provides integrated interfaces, allowing users to use those models by calling a simple function. It is easy for primary researchers to use this toolkit and to choose proper models for real-world applications. The toolkit is written in Python and distributed under MIT open source license. In this paper, the current state of this toolkit is described and the necessary environment setting and usage are introduced.",
+          "claimed_authors": [
+            "Fuzhen Zhuang",
+            "Keyu Duan",
+            "Tongjia Guo",
+            "Yongchun Zhu",
+            "Dongbo Xi",
+            "Zhiyuan Qi",
+            "Qing He"
+          ],
+          "claimed_title": "Transfer Learning Toolkit: Primers and Benchmarks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.08967"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Transfer Learning Toolkit: Primers and Benchmarks')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Translation as a Bridging Action: Transferring Man', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-07-12T21:32:37Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xuning Yang",
+            "Clemens Eppner",
+            "Jonathan Tremblay",
+            "Dieter Fox",
+            "Stan Birchfield",
+            "Fabio Ramos"
+          ],
+          "title": "Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.11117",
+        "summary": "Current vision-based robotics simulation benchmarks have significantly advanced robotic manipulation research. However, robotics is fundamentally a real-world problem, and evaluation for real-world applications has lagged behind in evaluating generalist policies. In this paper, we discuss challenges and desiderata in designing benchmarks for generalist robotic manipulation policies for the goal of sim-to-real policy transfer. We propose 1) utilizing high visual-fidelity simulation for improved sim-to-real transfer, 2) evaluating policies by systematically increasing task complexity and scenario perturbation to assess robustness, and 3) quantifying performance alignment between real-world performance and its simulation counterparts.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.11117",
+          "http_status": 200,
+          "pdf_sample_score": 0.1445,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:32:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zixing Wang",
+            "Kausik Sivakumar",
+            "Jinghuan Shang",
+            "Yafei Hu",
+            "Zhaoming Xie",
+            "Ran Gong",
+            "Xiaohan Zhang",
+            "Karl Schmeckpeper"
+          ],
+          "title": "Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.31101",
+        "summary": "Bridging the sim-to-real gap is a core challenge in deploying learned manipulation policies. Sim-to-real learning is attractive because it can replace expensive real robot demonstrations with scalable synthetic data, yet world-action models have not previously been shown to transfer from simulation to real robotic manipulation. We study whether a world-action model can be trained from synthetic priors and deployed zero-shot in the real world. To this end, we build upon Cosmos Policy, a video diffusion model adapted for visuomotor control. We construct simulation environments with extensive domain randomization and generate demonstrations using the AnyTask motion planning pipeline. We evaluate our approach across object lifting, drawer opening, and pick-and-place tasks using ${\\sim}800$ synthetic demonstrations per task and no real demonstrations. When deployed zero-shot on a Franka Robot, our policy attains a 35\\% average success rate. To our knowledge, this represents the first successful sim-to-real transfer of a world-action model for robotic manipulation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.31101",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:32:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zihan Ding",
+            "Ya-Yen Tsai",
+            "Wang Wei Lee",
+            "Bidan Huang"
+          ],
+          "title": "Sim-to-Real Transfer for Robotic Manipulation with Tactile Sensory",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2103.00410",
+        "summary": "Reinforcement Learning (RL) methods have been widely applied for robotic manipulations via sim-to-real transfer, typically with proprioceptive and visual information. However, the incorporation of tactile sensing into RL for contact-rich tasks lacks investigation. In this paper, we model a tactile sensor in simulation and study the effects of its feedback in RL-based robotic control via a zero-shot sim-to-real approach with domain randomization. We demonstrate that learning and controlling with feedback from tactile sensor arrays at the gripper, both in simulation and reality, can enhance grasping stability, which leads to a significant improvement in robotic manipulation performance for a door opening task. In real-world experiments, the door open angle was increased by 45% on average for transferred policies with tactile sensing over those without it.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2103.00410",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:32:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lingfan Bao",
+            "Tianhu Peng",
+            "Chengxu Zhou"
+          ],
+          "title": "Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.06465",
+        "summary": "This chapter addresses the critical challenge of simulation-to-reality (sim-to-real) transfer for deep reinforcement learning (DRL) in bipedal locomotion. After contextualizing the problem within various control architectures, we dissect the ``curse of simulation'' by analyzing the primary sources of sim-to-real gap: robot dynamics, contact modeling, state estimation, and numerical solvers. Building on this diagnosis, we structure the solutions around two complementary philosophies. The first is to shrink the gap through model-centric strategies that systematically improve the simulator's physical fidelity. The second is to harden the policy, a complementary approach that uses in-simulation robustness training and post-deployment adaptation to make the policy inherently resilient to model inaccuracies. The chapter concludes by synthesizing these philosophies into a strategic framework, providing a clear roadmap for developing and evaluating robust sim-to-real solutions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.06465",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:32:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Elie Aljalbout",
+            "Felix Frank",
+            "Maximilian Karl",
+            "Patrick van der Smagt"
+          ],
+          "title": "On the Role of the Action Space in Robot Manipulation Learning and Sim-to-Real Transfer",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2312.03673",
+        "summary": "We study the choice of action space in robot manipulation learning and sim-to-real transfer. We define metrics that assess the performance, and examine the emerging properties in the different action spaces. We train over 250 reinforcement learning~(RL) agents in simulated reaching and pushing tasks, using 13 different control spaces. The choice of spaces spans combinations of common action space design characteristics. We evaluate the training performance in simulation and the transfer to a real-world environment. We identify good and bad characteristics of robotic action spaces and make recommendations for future designs. Our findings have important implications for the design of RL algorithms for robot manipulation tasks, and highlight the need for careful consideration of action spaces when training and transferring RL agents for real-world robotics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2312.03673",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T21:32:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"translation as a bridging action: transferring manipulation skills fro\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

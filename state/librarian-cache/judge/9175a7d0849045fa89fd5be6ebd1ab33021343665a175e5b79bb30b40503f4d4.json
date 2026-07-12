@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.31101",
+  "judged_at": "2026-07-12T21:32:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"translation as a bridging action: transferring manipulation skills fro\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides direct evidence on the mechanism of transferring manipulation skills from simulation to reality using world-action models, which is the core subject of the user's query regarding \"Translation as a Bridging Action\" and skill transfer. Although the user's title fragment mentions \"Translation,\" the context of \"manipulation skills\" and the candidate paper's focus on \"Sim-to-Real Transfer\" confirms they address the same domain of robotic skill ",
+  "relevant": true
+}

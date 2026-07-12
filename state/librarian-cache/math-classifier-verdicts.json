@@ -1083,6 +1083,10 @@
     "classified_at": "2026-07-12T20:37:56Z",
     "verdict": false
   },
+  "PROJ-855-llmxive-follow-up-extending-translation::1.6.0": {
+    "classified_at": "2026-07-12T21:32:37Z",
+    "verdict": false
+  },
   "PROJ-856-llmxive-follow-up-extending-crafter-a-mu::1.6.0": {
     "classified_at": "2026-07-08T12:47:55Z",
     "verdict": false
