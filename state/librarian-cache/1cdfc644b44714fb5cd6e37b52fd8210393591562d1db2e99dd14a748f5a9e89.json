@@ -1,0 +1,621 @@
+{
+  "fetched_at": "2026-07-12T17:44:04Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-distillation for dLLMs\"",
+      "target_n": 5
+    },
+    "duration_seconds": 52.79,
+    "ended_at": "2026-07-12T17:44:04Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "on-policy self-distillation for diffusion language models"
+        ],
+        [
+          2,
+          "self-future learning in autoregressive language models"
+        ],
+        [
+          3,
+          "iterative self-improvement for discrete diffusion models"
+        ],
+        [
+          4,
+          "policy gradient self-distillation for text generation"
+        ],
+        [
+          5,
+          "distillation strategies for non-autoregressive language models"
+        ],
+        [
+          6,
+          "future-aware training objectives for diffusion LLMs"
+        ],
+        [
+          7,
+          "self-training methods for discrete latent variable models"
+        ],
+        [
+          8,
+          "temporal consistency in language model distillation"
+        ],
+        [
+          9,
+          "on-policy reinforcement learning for text diffusion"
+        ],
+        [
+          10,
+          "improving diffusion language models via self-supervision"
+        ],
+        [
+          11,
+          "recursive self-distillation in generative language models"
+        ],
+        [
+          12,
+          "alignment of diffusion and autoregressive language models"
+        ],
+        [
+          13,
+          "curriculum learning for self-distilled diffusion models"
+        ],
+        [
+          14,
+          "reducing exposure bias in diffusion language models"
+        ],
+        [
+          15,
+          "self-refinement techniques for discrete diffusion processes"
+        ],
+        [
+          16,
+          "multi-stage distillation for text-to-text diffusion"
+        ],
+        [
+          17,
+          "contrastive self-distillation for language generation"
+        ],
+        [
+          18,
+          "future-token prediction in diffusion-based language models"
+        ],
+        [
+          19,
+          "adaptive policy optimization for text diffusion"
+        ],
+        [
+          20,
+          "self-supervised pre-training for diffusion language models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-distillation for dLLMs\" linguistics": 0,
+        "on-policy self-distillation for diffusion language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "self-distillation autoregressive generation dLLM",
+      "on-policy learning language model self-training",
+      "iterative refinement next-token prediction linguistics",
+      "training dynamics language model convergence rate",
+      "temporal consistency language model self-correction"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2607.04428"
+      ]
+    },
+    "per_query_hit_count": {
+      "iterative refinement next-token prediction linguistics": 2,
+      "llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-distillation for dLLMs\" linguistics": 3,
+      "on-policy learning language model self-training": 3,
+      "self-distillation autoregressive generation dLLM": 3,
+      "temporal consistency language model self-correction": 3,
+      "training dynamics language model convergence rate": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2504.19565",
+          "rationale": "The paper focuses on a \"knowledge-driven agentic\" framework for biomedical corpus distillation using multi-agent systems and MeSH hierarchies, which is a distinct methodology and domain from the user's question about \"on-policy self-distillation\" for \"dLLMs\" (likely denoising or diffusion LLMs) in a linguistics context. It fails to satisfy criteria (a) or (b) as it does not measure the same self-future learning mechanism or apply the specific on-policy self-distillation technique to the linguist",
+          "title": "Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T17:43:11Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"learning from the self-future: on-policy self-distillation for dllms\" linguistics",
+      "raw": "llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-distillation for dLLMs\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-12T17:43:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-12T17:43:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-12T17:43:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although diffusion language models (DLMs) are evolving quickly, many recent models converge on a set of shared components. These components, however, are distributed across ad-hoc research codebases or lack transparent implementations, making them difficult to reproduce or extend. As the field accelerates, there is a clear need for a unified framework that standardizes these common components while remaining flexible enough to support new methods and architectures.\n  To address this gap, we introduce dLLM, an open-source framework that unifies the core components of diffusion language modeling -- training, inference, and evaluation -- and makes them easy to customize for new designs. With dLLM, users can reproduce, finetune, deploy, and evaluate open-source large DLMs such as LLaDA and Dream through a standardized pipeline. The framework also provides minimal, reproducible recipes for building small DLMs from scratch with accessible compute, including converting any BERT-style encoder or autoregressive LM into a DLM. We also release the checkpoints of these small DLMs to make DLMs more accessible and accelerate future research.",
+          "claimed_authors": [
+            "Zhanhui Zhou",
+            "Lingjie Chen",
+            "Hanghang Tong",
+            "Dawn Song"
+          ],
+          "claimed_title": "dLLM: Simple Diffusion Language Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.22661"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='dLLM: Simple Diffusion Language Modeling')",
+        "failed_at": "2026-07-12T17:43:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-distillation has emerged as an effective post-training paradigm for LLMs, often improving performance while shortening reasoning traces. However, in mathematical reasoning, we find that it can reduce response length while degrading performance. We trace this degradation to the suppression of epistemic verbalization - the model's expression of uncertainty during reasoning. Through controlled experiments varying conditioning context richness and task coverage, we show that conditioning the teacher on rich information suppresses uncertainty expression, enabling rapid in-domain optimization with limited task coverage but harming OOD performance, where unseen problems benefit from expressing uncertainty and adjusting accordingly. Across Qwen3-1.7B/8B, DeepSeek-Distill-Qwen-7B, and Olmo3-7B-Instruct, we observe performance drops of up to 40%. Our findings highlight that exposing appropriate levels of uncertainty is crucial for robust reasoning and underscore the importance of optimizing reasoning behavior beyond merely reinforcing correct answer traces.",
+          "claimed_authors": [
+            "Jeonghye Kim",
+            "Xufang Luo",
+            "Minbeom Kim",
+            "Sangmook Lee",
+            "Dohyung Kim",
+            "Jiwon Jeon",
+            "Dongsheng Li",
+            "Yuqing Yang"
+          ],
+          "claimed_title": "Why Does Self-Distillation (Sometimes) Degrade the Reasoning Capability of LLMs?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.24472"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Why Does Self-Distillation (Sometimes) Degrade the Reasoning Capability of LLMs?')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+          "claimed_authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "claimed_title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21676"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='How do language models learn facts? Dynamics, curricula and hallucinations')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Predicting the biophysical and functional properties of proteins is essential for in silico protein design. Machine learning has emerged as a promising technique for such prediction tasks. However, the relative scarcity of in vitro annotations means that these models often have little, or no, specific data on the desired fitness prediction task. As a result of limited data, protein language models (PLMs) are typically trained on general protein sequence modeling tasks, and then fine-tuned, or applied zero-shot, to protein fitness prediction. When no task data is available, the models make strong assumptions about the correlation between the protein sequence likelihood and fitness scores. In contrast, we propose meta-learning over a distribution of standard fitness prediction tasks, and demonstrate positive transfer to unseen fitness prediction tasks. Our method, called Metalic (Meta-Learning In-Context), uses in-context learning and fine-tuning, when data is available, to adapt to new tasks. Crucially, fine-tuning enables considerable generalization, even though it is not accounted for during meta-training. Our fine-tuned models achieve strong results with 18 times fewer parameters than state-of-the-art models. Moreover, our method sets a new state-of-the-art in low-data settings on ProteinGym, an established fitness-prediction benchmark. Due to data scarcity, we believe meta-learning will play a pivotal role in advancing protein engineering.",
+          "claimed_authors": [
+            "Jacob Beck",
+            "Shikha Surana",
+            "Manus McAuliffe",
+            "Oliver Bent",
+            "Thomas D. Barrett",
+            "Juan Jose Garau Luis",
+            "Paul Duckworth"
+          ],
+          "claimed_title": "Metalic: Meta-Learning In-Context with Protein Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.08355"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Metalic: Meta-Learning In-Context with Protein Language Models')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Within the natural language processing (NLP) community, active learning has been widely investigated and applied in order to alleviate the annotation bottleneck faced by developers of new NLP systems and technologies. This paper presents the first theoretical analysis of stopping active learning based on stabilizing predictions (SP). The analysis has revealed three elements that are central to the success of the SP method: (1) bounds on Cohen's Kappa agreement between successively trained models impose bounds on differences in F-measure performance of the models; (2) since the stop set does not have to be labeled, it can be made large in practice, helping to guarantee that the results transfer to previously unseen streams of examples at test/application time; and (3) good (low variance) sample estimates of Kappa between successive models can be obtained. Proofs of relationships between the level of Kappa agreement and the difference in performance between consecutive models are presented. Specifically, if the Kappa agreement between two models exceeds a threshold T (where $T>0$), then the difference in F-measure performance between those models is bounded above by $\\frac{4(1-T)}{T}$ in all cases. If precision of the positive conjunction of the models is assumed to be $p$, then the bound can be tightened to $\\frac{4(1-T)}{(p+1)T}$.",
+          "claimed_authors": [
+            "Michael Bloodgood",
+            "John Grothendieck"
+          ],
+          "claimed_title": "Analysis of Stopping Active Learning based on Stabilizing Predictions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1504.06329"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Analysis of Stopping Active Learning based on Stabilizing Predictions')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Building on the foundations of language modeling in natural language processing, Next Token Prediction (NTP) has evolved into a versatile training objective for machine learning tasks across various modalities, achieving considerable success. As Large Language Models (LLMs) have advanced to unify understanding and generation tasks within the textual modality, recent research has shown that tasks from different modalities can also be effectively encapsulated within the NTP framework, transforming the multimodal information into tokens and predict the next one given the context. This survey introduces a comprehensive taxonomy that unifies both understanding and generation within multimodal learning through the lens of NTP. The proposed taxonomy covers five key aspects: Multimodal tokenization, MMNTP model architectures, unified task representation, datasets \\& evaluation, and open challenges. This new taxonomy aims to aid researchers in their exploration of multimodal intelligence. An associated GitHub repository collecting the latest papers and repos is available at https://github.com/LMM101/Awesome-Multimodal-Next-Token-Prediction",
+          "claimed_authors": [
+            "Liang Chen",
+            "Zekun Wang",
+            "Shuhuai Ren",
+            "Lei Li",
+            "Haozhe Zhao",
+            "Yunshui Li",
+            "Zefan Cai",
+            "Hongcheng Guo",
+            "Lei Zhang",
+            "Yizhe Xiong",
+            "Yichi Zhang",
+            "Ruoyu Wu",
+            "Qingxiu Dong",
+            "Ge Zhang",
+            "Jian Yang",
+            "Lingwei Meng",
+            "Shujie Hu",
+            "Yulong Chen",
+            "Junyang Lin",
+            "Shuai Bai",
+            "Andreas Vlachos",
+            "Xu Tan",
+            "Minjia Zhang",
+            "Wen Xiao",
+            "Aaron Yee",
+            "Tianyu Liu",
+            "Baobao Chang"
+          ],
+          "claimed_title": "Next Token Prediction Towards Multimodal Intelligence: A Comprehensive Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.18619"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Next Token Prediction Towards Multimodal Intelligence: A Comprehensive Survey')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Molecular systems involve interactions across multiple spatial scales, from local coordination and short-range perturbations to long-range electrostatic and solvent-mediated effects. However, most molecular representation learning methods rely on manually predefined scales, and the task-optimal modeling scale may not coincide with these fixed levels. This study introduces a loss-guided adaptive scale refinement framework for molecular force prediction, treating predefined scales as initial anchors and discovering task-effective resolutions through interpolation, routing, differentiable scale updates, and scale pool refinement.\n  Using a NaCl aqueous ionic system as a minimal testbed, this study constructs short-scale and long-range force prediction branches and analyzes their complementarity. Oracle hard routing reduces the overall force MAE from 399.65 to 382.67, while continuous oracle interpolation further reduces it to 380.96. In close-contact regimes with nearest-ion distance below 0.6 nm, the close-contact MAE decreases from 327.22 to 260.51. A minimal scale pool update experiment shows that starting from endpoint anchors {0,1}, loss-guided updates automatically generate intermediate scales and recover most of the continuous oracle performance. The final updated scale pool {0,0.125,0.25,0.375,0.5,0.75,1} achieves an overall MAE of 381.23.\n  These results support adaptive scale refinement as a promising direction for molecular representation learning, especially when fixed-scale modeling is insufficient.",
+          "claimed_authors": [
+            "Limin Yu"
+          ],
+          "claimed_title": "Loss-Guided Adaptive Scale Refinement for Molecular Force Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.09480"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Loss-Guided Adaptive Scale Refinement for Molecular Force Prediction')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
+          "claimed_authors": [
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
+          ],
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a self-supervised representation learning method based on the task of temporal alignment between videos. The method trains a network using temporal cycle consistency (TCC), a differentiable cycle-consistency loss that can be used to find correspondences across time in multiple videos. The resulting per-frame embeddings can be used to align videos by simply matching frames using the nearest-neighbors in the learned embedding space.\n  To evaluate the power of the embeddings, we densely label the Pouring and Penn Action video datasets for action phases. We show that (i) the learned embeddings enable few-shot classification of these action phases, significantly reducing the supervised training requirements; and (ii) TCC is complementary to other methods of self-supervised learning in videos, such as Shuffle and Learn and Time-Contrastive Networks. The embeddings are also used for a number of applications based on alignment (dense temporal correspondence) between video pairs, including transfer of metadata of synchronized modalities between videos (sounds, temporal semantic labels), synchronized playback of multiple videos, and anomaly detection. Project webpage: https://sites.google.com/view/temporal-cycle-consistency .",
+          "claimed_authors": [
+            "Debidatta Dwibedi",
+            "Yusuf Aytar",
+            "Jonathan Tompson",
+            "Pierre Sermanet",
+            "Andrew Zisserman"
+          ],
+          "claimed_title": "Temporal Cycle-Consistency Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.07846"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Temporal Cycle-Consistency Learning')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A spherical target irradiated by laser beams located at 49o and 131o with respect to the polar axis has been considered. The illumination model has been used to evaluate the irradiation non-uniformity assuming circular and elliptical super-gaussian laser intensity profiles and the irradiation scheme has been optimized by means of the Polar Direct Drive technique. A parametric study has been performed providing the irradiation non-uniformity as a function of the Polar Direct Drive displacement and of the laser intensity profile parameters. Moreover, two-dimensional axis-symmetric hydrodynamic simulations have been performed for a plastic sphere irradiated by laser beams characterized by a constant flat temporal power pulse. In these simulations the front of the inward shock wave has been tracked providing the time-evolution of any non-uniformity. The results provided by the two methods - illumination model and hydrodynamic data - have been compared and it is found that the illumination model reproduces the main behaviour exhibited by the hydrodynamic data. The two models provide compatible values for the optimum Polar Direct Drive parameter and similar optimal super-gaussian profiles.",
+          "claimed_authors": [
+            "M. Temporal",
+            "B. Canaud",
+            "W. J. Garbett",
+            "R. Ramis"
+          ],
+          "claimed_title": "Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.7762"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) are widely believed to possess self-correction capabilities, yet recent studies suggest that intrinsic self-correction--where models correct their own outputs without external feedback--remains largely ineffective. In this work, we systematically decompose self-correction into three distinct sub-capabilities: error detection, error localization, and error correction. Through cross-model experiments on GSM8K-Complex (n=500 per model, 346 total errors) with three major LLMs, we uncover a striking Accuracy-Correction Paradox: weaker models (GPT-3.5, 66% accuracy) achieve 1.6x higher intrinsic correction rates than stronger models (DeepSeek, 94% accuracy)--26.8% vs 16.7%. We propose the Error Depth Hypothesis: stronger models make fewer but deeper errors that resist self-correction. Error detection rates vary dramatically across architectures (10% to 82%), yet detection capability does not predict correction success--Claude detects only 10% of errors but corrects 29% intrinsically. Surprisingly, providing error location hints hurts all models. Our findings challenge linear assumptions about model capability and self-improvement, with important implications for the design of self-refinement pipelines.",
+          "claimed_authors": [
+            "Yin Li"
+          ],
+          "claimed_title": "Decomposing LLM Self-Correction: The Accuracy-Correction Paradox and Error Depth Hypothesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2601.00828"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Learning from the Self-future: On-policy Self-dist', candidate_title='Decomposing LLM Self-Correction: The Accuracy-Correction Paradox and Error Depth Hypothesis')",
+        "failed_at": "2026-07-12T17:43:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yifu Luo",
+            "Zeyu Chen",
+            "Haoyu Wang",
+            "Xinhao Hu",
+            "Yuxuan Zhang",
+            "Zhizhou Sha",
+            "Shiwei Liu"
+          ],
+          "title": "Learning from the Self-future: On-policy Self-distillation for dLLMs",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.18195",
+        "summary": "On-policy self-distillation (OPSD) has proven effective for post-training large language models (LLMs), yet its application to diffusion LLMs (dLLMs) remains unexplored. Existing OPSD methods are inherently autoregressive-centric. They inject privileged information via left-to-right prefix conditioning with token-level divergence supervision, a design that fundamentally conflicts with the arbitraryorder generation of dLLMs. We introduce d-OPSD, the first OPSD framework tailored for dLLMs. Our approach makes two core contributions. First, we reframe self-teacher construction by using self-generated answers as suffix conditioning, enabling the student model to learn from \"self future-experience\" rather than privileged prefixes. Second, we shift supervision from token-level to step-level, aligning training with the iterative denoising process of dLLMs. Experiments across four reasoning benchmarks show that d-OPSD consistently outperforms RLVR and SFT baselines with superior sample efficiency, requiring only around 10% of the optimization steps by RLVR and opening a promising pathway for dLLM posttraining. The code is available at https://github.com/xingzhejun/d-OPSD.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.18195",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T17:43:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zicong Cheng",
+            "Ruixuan Jia",
+            "Jia Li",
+            "Guo-Wei Yang",
+            "Meng-Hao Guo",
+            "Shi-Min Hu"
+          ],
+          "title": "Improving Variable-Length Generation in Diffusion Language Models via Length Regularization",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.07546",
+        "summary": "Diffusion Large Language Models (DLLMs) are inherently ill-suited for variable-length generation, as their inference is defined on a fixed-length canvas and implicitly assumes a known target length. When the length is unknown, as in realistic completion and infilling, naively comparing confidence across mask lengths becomes systematically biased, leading to under-generation or redundant continuations. In this paper, we show that this failure arises from an intrinsic lengthinduced bias in generation confidence estimates, leaving existing DLLMs without a robust way to determine generation length and making variablelength inference unreliable. To address this issue, we propose LR-DLLM, a length-regularized inference framework for DLLMs that treats generation length as an explicit variable and achieves reliable length determination at inference time. It decouples semantic compatibility from lengthinduced uncertainty through an explicit length regularization that corrects biased confidence estimates. Based on this, LR-DLLM enables dynamic expansion or contraction of the generation span without modifying the underlying DLLM or its training procedure. Experiments show that LRDLLM achieves 51.3% Pass@1 on HumanEvalInfilling under fully unknown lengths (+13.4% vs. DreamOn) and 51.5% average Pass@1 on four-language McEval (+14.3% vs. DreamOn).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.07546",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T17:43:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Phuong Tuan Dat",
+            "Qi Li",
+            "Xinchao Wang"
+          ],
+          "title": "dOPSD: On-Policy Self-Distillation for Diffusion Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.04428",
+        "summary": "Diffusion large language models (dLLMs) generate text by iteratively denoising a masked sequence, offering a parallel alternative to autoregressive models, but eliciting strong reasoning through post-training remains difficult: supervised fine-tuning is off-policy and suffers from exposure bias, while reinforcement learning gives only sparse, sequence-level rewards and is hard to apply without tractable sequence likelihoods. On-policy self-distillation (OPSD) offers a promising alternative, using one model as both student and teacher to provide dense, token-level, on-policy supervision, but its effectiveness hinges on giving the teacher privileged information (PI) - typically an instance-specific ground-truth reference unavailable at inference - so the student ends up distilling a weak PI-free consensus policy that yields little improvement on dLLM reasoning. We introduce dOPSD, which instead derives the teacher's privilege directly from the student's own denoising trajectory, evaluating masked positions using later, more-decoded steps of that same trajectory rather than an external label, so the teacher's advantage emerges from the model's own decoding process; on Dream and LLaDA, dOPSD improves both in-domain math reasoning and out-of-domain code generation, outperforming supervised and on-policy baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.04428",
+          "http_status": 200,
+          "pdf_sample_score": 0.2409,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T17:43:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Siyan Zhao",
+            "Zhihui Xie",
+            "Mengchen Liu",
+            "Jing Huang",
+            "Guan Pang",
+            "Feiyu Chen",
+            "Aditya Grover"
+          ],
+          "title": "Self-Distilled Reasoner: On-Policy Self-Distillation for Large Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.18734",
+        "summary": "Knowledge distillation improves large language model (LLM) reasoning by compressing the knowledge of a teacher LLM to train smaller LLMs. On-policy distillation advances this approach by having the student sample its own trajectories while a teacher LLM provides dense token-level supervision, addressing the distribution mismatch between training and inference in off-policy distillation methods. However, on-policy distillation typically requires a separate, often larger, teacher LLM and does not explicitly leverage ground-truth solutions available in reasoning datasets. Inspired by the intuition that a sufficiently capable LLM can rationalize external privileged reasoning traces and teach its weaker self, we introduce On-Policy Self-Distillation (OPSD), a learning algorithm where a single LLM acts as both teacher and student with different contexts. The teacher policy conditions on privileged information (e.g., verified reasoning traces) while the student policy sees only the question; training minimizes the per-token divergence between these distributions over the student's own rollouts. We demonstrate the efficacy of our method on multiple mathematical reasoning benchmarks, achieving superior token efficiency compared to reinforcement learning methods and better performance over off-policy distillation methods. Code repo: https://github.com/siyan-zhao/OPSD.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.18734",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T17:43:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ziqi Zhao",
+            "Xinyu Ma",
+            "Liu Yang",
+            "Yujie Feng",
+            "Daiting Shi",
+            "Jingzhou He",
+            "Xin Xin",
+            "Zhaochun Ren",
+            "Xiao-Ming Wu"
+          ],
+          "title": "ROSD: Reflective On-Policy Self-Distillation for Language Model Reasoning across Domains",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.28014",
+        "summary": "On-policy self-distillation (OPSD) improves the reasoning performance of large language models (LLMs) by providing dense token-level supervision for on-policy rollouts. However, existing OPSD methods often yield limited gains on in-domain reasoning and generalize poorly to out-of-domain problems. We identify two key causes: conditioning the self-teacher on a verified solution encourages imitation of training-domain reference trajectories rather than error-specific correction, and applying distillation to the full response can overwrite valid reasoning prefixes and reinforce overfitting.\n  We propose Reflective On-policy Self-Distillation (ROSD), a framework that turns reference-solution imitation into targeted reasoning correction through reflection-guided, error-localized distillation. For each rollout, ROSD uses a self-reflector to extract a corrective idea and locate the first erroneous span. The corrective idea guides the self-teacher toward targeted supervision, while the localized error span restricts distillation to where correction is needed. This design corrects flawed reasoning while preserving valid prefixes. Experiments on multiple in-domain and out-of-domain reasoning benchmarks show that ROSD yields stronger in-domain reasoning performance overall and substantially better out-of-domain generalization than standard OPSD. Code is available at https://github.com/ZiqiZhao1/ROSD.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.28014",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T17:43:49Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"learning from the self-future: on-policy self-distillation for dllms\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.07546",
+  "judged_at": "2026-07-12T17:43:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"learning from the self-future: on-policy self-distillation for dllms\" linguistics",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for Diffusion Large Language Models (DLLMs), which is the core technical domain of the user's question regarding \"dLLMs\" and self-distillation. Additionally, it addresses criterion (b) by providing empirical evidence on the behavior of DLLMs (the dependent variable) in generation tasks, which is essential context for any follow-up work on extending their capabilities.",
+  "relevant": true
+}

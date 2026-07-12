@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.19565",
+  "judged_at": "2026-07-12T17:44:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"learning from the self-future: on-policy self-distillation for dllms\" linguistics",
+  "rationale": "The paper focuses on a \"knowledge-driven agentic\" framework for biomedical corpus distillation using multi-agent systems and MeSH hierarchies, which is a distinct methodology and domain from the user's question about \"on-policy self-distillation\" for \"dLLMs\" (likely denoising or diffusion LLMs) in a linguistics context. It fails to satisfy criteria (a) or (b) as it does not measure the same self-future learning mechanism or apply the specific on-policy self-distillation technique to the linguist",
+  "relevant": false
+}

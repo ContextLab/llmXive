@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.04428",
+  "judged_at": "2026-07-12T17:43:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"learning from the self-future: on-policy self-distillation for dllms\" linguistics",
+  "rationale": "This paper directly addresses the user's question by proposing \"dOPSD,\" an extension of the \"Learning from the Self-future\" (OPSD) framework specifically for Diffusion Language Models (dLLMs), which satisfies the \"same-mechanism evidence\" (a) and \"foundational methodology\" (d) criteria for the user's follow-up research.",
+  "relevant": true
+}

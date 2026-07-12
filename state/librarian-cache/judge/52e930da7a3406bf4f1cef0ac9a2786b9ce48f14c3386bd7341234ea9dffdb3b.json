@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.18734",
+  "judged_at": "2026-07-12T17:43:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"learning from the self-future: on-policy self-distillation for dllms\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it proposes and evaluates the exact same mechanism (On-Policy Self-Distillation) and methodology that the user's question references, serving as the foundational work for the \"self-future\" concept in LLMs even though the user's specific focus on \"linguistics\" is a downstream application of this core algorithm.",
+  "relevant": true
+}

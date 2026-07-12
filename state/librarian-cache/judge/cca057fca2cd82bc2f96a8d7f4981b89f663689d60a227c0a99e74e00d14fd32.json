@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.18195",
+  "judged_at": "2026-07-12T17:43:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"learning from the self-future: on-policy self-distillation for dllms\" linguistics",
+  "rationale": "The candidate paper is the foundational source for the \"llmXive follow-up\" question, as it introduces the specific method (d-OPSD) and framework (\"Learning from the Self-future\") that the user's research aims to extend. This satisfies acceptance criteria (d) as the canonical reference for the technique and (a) as it measures the exact mechanism (on-policy self-distillation for dLLMs) the user is investigating.",
+  "relevant": true
+}
