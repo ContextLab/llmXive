@@ -176,6 +176,10 @@
   \ c_6ea75dbe \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
+? 'T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,
+  {{claim:c_fe5ce674}}, timeout a predefined duration, and runs audit pipeline (verify
+  workflow runs and respects limits) [DEPENDS ON: T010].'
+: 2
 ? "T013 Create Dockerfile for optional local execution (uses only CPU\u2011compatible\
   \ base image [UNRESOLVED-CLAIM: c_0e949e9d \u2014 status=not_enough_info]) (build\
   \ Docker image successfully). **(No dependency on T012)**"
@@ -218,6 +222,10 @@
   \ malformed HTML, conflicting sample sizes (tests/unit/test_extractor.py) (verify\
   \ all tests pass [UNRESOLVED-CLAIM: c_aa96c053 \u2014 status=not_enough_info]) [DEPENDS\
   \ ON: T020]."
+: 1
+? "T022 Implement outcome\u2011type detection heuristics in `src/audit/test_type_detector.py`\
+  \ (detect binary vs continuous only [UNRESOLVED-CLAIM: c_3169acd4 \u2014 status=not_enough_info],\
+  \ no extra test\u2011type handling) (verify detector returns correct type)."
 : 1
 ? "T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two\u2011\
   proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline\
@@ -341,10 +349,6 @@
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
   \ ON:** T023."
 : 1
-? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
-  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
-  \ required by FR\u2011012. **DEPENDS ON:** T025."
-: 2
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\
   \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_3c394da2 \u2014 status=not_enough_info]\

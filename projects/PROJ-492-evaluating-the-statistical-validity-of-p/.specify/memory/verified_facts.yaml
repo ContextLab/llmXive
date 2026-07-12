@@ -1,6 +1,5 @@
-'|each replicate run statistical test':
-  quote: nsim = 10 000 simulation runs. Throughout the simulations, the newly developed
-    tests T(u), T(w),a n d TW proposed in
-  source_id: https://doi.org/10.1002/sim.8343
-  url: https://refubium.fu-berlin.de/bitstream/fub188/34847/1/2019_Roy_etal.pdf
-  value: 10 000
+10000|contain created file record verify:
+  quote: 'P1051: 12500'
+  source_id: Q47604
+  url: https://www.wikidata.org/wiki/Q47604
+  value: '12500'
