@@ -1,18 +1,26 @@
-# llmXive Follow-up: Extending AgenticSTS
+# PROJ-990: llmXive Follow-up: Extending "AgenticSTS"
 
-**Project ID**: PROJ-990-llmxive-follow-up-extending-agenticsts-a
-**Status**: Active
-**Description**: Implementation of a bounded-memory testbed for long-horizon LLM agents, focusing on dynamic layer retrieval and ablation-based utility estimation.
+This project implements a bounded-memory testbed for long-horizon LLM agents,
+focusing on dynamic layer retrieval strategies to optimize token usage while
+maintaining performance.
 
 ## Structure
 
-- `code/`: Core Python implementation (parsers, classifiers, simulators).
-- `data/`: Input raw data and processed artifacts.
-- `tests/`: Unit and integration tests.
-- `specs/`: Feature specifications and design documents.
-- `models/`: Trained machine learning models.
+- `code/`: Python source modules (entropy, parser, classifier, simulator, etc.)
+- `data/`:
+ - `raw/`: Input trajectory logs
+ - `processed/`: Derived metrics, ablation labels, splits
+- `models/`: Trained classifier artifacts
+- `tests/`: Unit and integration tests
+- `specs/`: Feature specifications and design docs
 
-## Getting Started
+## Prerequisites
+
+- Python 3.11+
+- Dependencies listed in `requirements.txt`
+
+## Quick Start
 
 1. Install dependencies: `pip install -r requirements.txt`
-2. Run the quickstart pipeline: `python code/quickstart.py`
+2. Ensure `data/raw/trajectories.csv` exists.
+3. Run the pipeline: `python code/parser.py && python code/entropy.py...`

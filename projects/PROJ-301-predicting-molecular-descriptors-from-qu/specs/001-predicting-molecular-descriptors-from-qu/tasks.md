@@ -26,9 +26,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `data/results`, `tests/`, `utils/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pins `rdkit`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `tqdm`, `huggingface_hub`, `matplotlib`, `seaborn`, `scipy`)
-- [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
+- [X] T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `data/results`, `tests/`, `utils/`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pins `rdkit`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `tqdm`, `huggingface_hub`, `matplotlib`, `seaborn`, `scipy`)
+- [X] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
 
 ---
 
@@ -36,9 +36,9 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Implement `utils/memory_monitor.py` to track RAM usage and trigger downsampling if ≥ 6.5 GB
-- [ ] T005 [P] Implement `utils/parsers.py` for SMILES conversion and XYZ parsing (with error handling for malformed molecules)
-- [ ] T006 Create base data model classes for `Molecule`, `FeatureSet`, and `ModelResult` in `code/utils/models.py`
+- [X] T004 Implement `utils/memory_monitor.py` to track RAM usage and trigger downsampling if ≥ 6.5 GB
+- [X] T005 [P] Implement `utils/parsers.py` for SMILES conversion and XYZ parsing (with error handling for malformed molecules)
+- [X] T006 Create base data model classes for `Molecule`, `FeatureSet`, and `ModelResult` in `code/utils/models.py`
 - [~] T007 Setup reproducible environment: Pin `np.random.seed` and `random.seed` in `code/config.py`
 - [~] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
 - [~] T009.1 [US1] **Spec Amendment Record**: Document the Plan's T009.1 Amendment which updates FR-001 to use the HuggingFace source (`lisn/QM9`). **Action**: Explicitly record this amendment in `plan.md` under "Spec Amendments & Overrides" to satisfy the "Single Source of Truth" principle. **Verification**: Ensure `plan.md` contains the amendment record. **Prerequisite**: None (Foundational task).
@@ -114,25 +114,25 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [P] [US3] Implement `code/04_analysis.py` (Baselines): **Compute Mean Predictor Error**.
+- [~] T021 [P] [US3] Implement `code/04_analysis.py` (Baselines): **Compute Mean Predictor Error**.
  1. **Logic**: Calculate the error of predicting the mean of the training labels (Zero-Order Baseline) for each descriptor (dipole, HOMO, LUMO) on the test set. **Note**: This implements the Plan's interpretation of FR-007 ("theoretical lower bound") as the Mean Predictor Error.
  2. **Input**: Load `data/processed/labels.csv` (produced by T011).
  3. **Output**: Save results to `artifacts/metrics/baseline_error.json`.
  4. **Dependency**: Must wait for T011.
 
-- [ ] T022 [US3] Implement `code/04_analysis.py` (Predictions): **Generate Predictions**.
+- [~] T022 [US3] Implement `code/04_analysis.py` (Predictions): **Generate Predictions**.
  1. **Logic**: Load model artifacts from `artifacts/models/model_2d.pkl` and `model_3d.pkl` (T015/T016). Generate predictions for the test set (out-of-fold) for both models.
  2. **Input**: Load test labels from `data/processed/labels.csv` (T011).
  3. **Output**: Store per-molecule errors in `artifacts/metrics/test_predictions.json` (includes `error_2d`, `error_3d` arrays per molecule).
  4. **Dependency**: Must wait for T015, T016, and T011.
 
-- [ ] T023 [US3] Implement `code/04_analysis.py` (Statistics): **Statistical Analysis**.
+- [~] T023 [US3] Implement `code/04_analysis.py` (Statistics): **Statistical Analysis**.
  1. **Logic**: Perform **non-parametric Wilcoxon signed-rank test** on **per-molecule absolute errors (N~2000)** of 2D vs 3D models for each descriptor. **Input**: Load `error_2d` and `error_3d` arrays from `artifacts/metrics/test_predictions.json`.
  2. **Correction**: Apply **Bonferroni correction** for multiple comparisons (α = 0.05 / 3 ≈ 0.0167). **Note**: This threshold is applied as amended by `plan.md` T023 to ensure statistical power, overriding the default spec threshold.
  3. **Output**: Report p-values to `artifacts/metrics/statistics.json`.
  4. **Dependency**: Must wait for T022.
 
-- [ ] T024 [US3] Implement `code/04_analysis.py` (Boundary): **Define Failure Boundary**.
+- [~] T024 [US3] Implement `code/04_analysis.py` (Boundary): **Define Failure Boundary**.
  1. **Logic**: Define "Failure Boundary" where **Relative Error Increase (REI) ≥ 10% OR p-value < 0.0167** (Bonferroni corrected).
  2. **Input**: Load p-values from `artifacts/metrics/statistics.json` (output of T023) and MAE values.
  3. **Output**: Save the list of molecules meeting these criteria to `artifacts/metrics/failure_boundary.json`. Schema: `[{"molecule_id": "string", "descriptor": "string", "reason": "string"},...]`.

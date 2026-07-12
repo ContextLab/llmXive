@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-07-12T09:55:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular fluorescence quantum yields with graph neural networks chemistry",
+  "rationale": "The paper focuses on machine learning for official statistics and data source integrity in a policy/government context, which is an off-domain topic entirely unrelated to the user's question about predicting molecular fluorescence quantum yields using graph neural networks in chemistry. It shares no connection to the specific biological/physical mechanism, chemical domain, or empirical population required by the user's query.",
+  "relevant": false
+}

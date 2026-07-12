@@ -1,0 +1,352 @@
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: QM9 dataset source is lisn/QM9 on HuggingFace
+  claim_id: c_f77e9696
+  context: Download QM9 dataset strictly from the verified HuggingFace source (lisn/QM9)
+    as mandated by plan.md.
+  evidence:
+    entailment_evidence: QM9 dataset source is lisn/QM9 on HuggingFace
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/QM9_dataset_source_is_lisn/QM9_on_HuggingFace
+  kind: entity_fact
+  raw_text: The QM9 dataset is downloaded from the HuggingFace source lisn/QM9.
+  resolved_value: QM9 dataset source is lisn/QM9 on HuggingFace
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-12T09:43:50Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Memory threshold for downsampling is 6.5 GB
+  claim_id: c_5c7a761b
+  context: Monitor memory usage. If usage exceeds 6.5 GB, apply Stratified Random
+    Sampling to reduce the sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage is monitored and downsampling is triggered if usage exceeds
+    6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:44:00Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprints radius 2, 2048 bits
+  claim_id: c_6c8d9924
+  context: Generate 2D Morgan fingerprints (radius=2, nBits=2048) and 3D graph features.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan fingerprints are generated with a radius of 2 and 2048 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:44:14Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Model training runtime limit is 6 hours
+  claim_id: c_347cddd7
+  context: Train Random Forest Regressors on 2D and 3D features using 5-fold CV within
+    6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model training pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:44:35Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: n_estimators grid values are 100, 500, 1000
+  claim_id: c_952ef1fe
+  context: "Implement GridSearchCV using a hyperparameter grid: n_estimators \u2208\
+    \ {100, 500, 1000}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter grid for n_estimators includes 100, 500, and 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:45:14Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: max_depth grid values are 10, 20, None
+  claim_id: c_79d6f287
+  context: "Implement GridSearchCV using a hyperparameter grid: max_depth \u2208 {10,\
+    \ 20, None}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter grid for max_depth includes 10, 20, and None.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:45:45Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Stability ratio threshold is 5%
+  claim_id: c_c8e0ba05
+  context: 'Explicitly calculate the stability ratio (std_mae / mean_mae) for each
+    descriptor. If stability ratio > 5%, set passed: false.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stability verification fails if the ratio of standard deviation to mean
+    MAE exceeds 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:45:45Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test sample size is ~2000
+  claim_id: c_3a1b4d28
+  context: Perform non-parametric Wilcoxon signed-rank test on per-molecule absolute
+    errors (N~2000) of 2D vs 3D models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A non-parametric Wilcoxon signed-rank test is performed on approximately
+    2000 per-molecule absolute errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:45:50Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha is 0.0167 for 3 tests
+  claim_id: c_9ba10305
+  context: "Apply Bonferroni correction for multiple comparisons (\u03B1 = 0.05 /\
+    \ 3 \u2248 0.0167)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied for 3 comparisons with a significance
+    level of approximately 0.0167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:45:54Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Failure boundary defined by REI >= 10% or p < 0.0167
+  claim_id: c_3d1a717a
+  context: "Define 'Failure Boundary' where Relative Error Increase (REI) \u2265 10%\
+    \ OR p-value < 0.0167 (Bonferroni corrected)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Failure_boundary_defined_by_REI_%3E=_10%25_or_p_%3C_0.0167
+  kind: magnitude
+  raw_text: A failure boundary is defined where Relative Error Increase is greater
+    than or equal to 10% or p-value is less than 0.0167.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:45:59Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: QM9 dataset source is lisn/QM9 on HuggingFace
+  claim_id: c_bc920f32
+  context: 'Source: Download QM9 dataset strictly from the verified HuggingFace source
+    (lisn/QM9) as mandated by plan.md (T009.1 Amendment).'
+  evidence:
+    entailment_evidence: QM9 dataset source is lisn/QM9 on HuggingFace
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/QM9_dataset_source_is_lisn/QM9_on_HuggingFace
+  kind: entity_fact
+  raw_text: The QM9 dataset is downloaded strictly from the verified HuggingFace source
+    (lisn/QM9).
+  resolved_value: QM9 dataset source is lisn/QM9 on HuggingFace
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-12T09:49:54Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: 2D Morgan fingerprints radius 2 nBits 2048
+  claim_id: c_ec116f9d
+  context: 'Feature Generation: Generate 2D Morgan fingerprints (radius=2, nBits=2048)
+    and 3D graph features.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2D Morgan fingerprints are generated with radius=2 and nBits=2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:50:15Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Memory limit 6.5 GB triggers downsampling
+  claim_id: c_a22c68d0
+  context: 'Downsampling Logic: Monitor memory usage. If usage exceeds 6.5 GB, apply
+    Stratified Random Sampling to reduce the sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage triggers downsampling if it exceeds 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:50:23Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation for Random Forest training
+  claim_id: c_5fe7362a
+  context: 'Goal: Train Random Forest Regressors on 2D and 3D features using 5-fold
+    CV within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Regressors are trained using 5-fold Cross-Validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:51:01Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Model training runtime limit 6 hours
+  claim_id: c_a51833b6
+  context: 'Goal: Train Random Forest Regressors on 2D and 3D features using 5-fold
+    CV within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total runtime for model training must be within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:51:15Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: n_estimators hyperparameter grid 100 500 1000
+  claim_id: c_8e53a0a5
+  context: "Implement K-fold Cross-Validation with GridSearchCV using a hyperparameter\
+    \ grid: n_estimators \u2208 {100, 500, 1000}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter grid for n_estimators includes 100, 500, and 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:51:16Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: max_depth hyperparameter grid 10 20 None
+  claim_id: c_d4b2e829
+  context: "Implement K-fold Cross-Validation with GridSearchCV using a hyperparameter\
+    \ grid: max_depth \u2208 {10, 20, None}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter grid for max_depth includes 10, 20, and None.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:51:16Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test on N approx 2000 molecules
+  claim_id: c_faa38ca8
+  context: Perform non-parametric Wilcoxon signed-rank test on per-molecule absolute
+    errors (N~2000) of 2D vs 3D models for each descriptor.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A non-parametric Wilcoxon signed-rank test is performed on per-molecule
+    absolute errors of approximately 2000 molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:51:16Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected threshold 0.0167
+  claim_id: c_5fe1fa21
+  context: "Apply Bonferroni correction for multiple comparisons (\u03B1 = 0.05 /\
+    \ 3 \u2248 0.0167)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied for multiple comparisons with a threshold
+    of approximately 0.0167 (0.05 / 3).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:51:38Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Failure boundary REI >= 10% or p-value < 0.0167
+  claim_id: c_bf13aaf3
+  context: "Define Failure Boundary where Relative Error Increase (REI) \u2265 10%\
+    \ OR p-value < 0.0167 (Bonferroni corrected)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Failure_boundary_REI_%3E=_10%25_or_p-value_%3C_0.0167
+  kind: magnitude
+  raw_text: The failure boundary is defined where Relative Error Increase is greater
+    than or equal to 10% or p-value is less than 0.0167.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:51:38Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Stability ratio threshold 5%
+  claim_id: c_1239a93c
+  context: 'If stability ratio > 5%, set passed: false in artifacts/metrics/stability_report.json
+    and log a warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability ratio threshold for model stability verification is 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T09:51:38Z'

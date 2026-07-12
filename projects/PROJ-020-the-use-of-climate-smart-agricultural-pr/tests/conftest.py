@@ -1,67 +1,78 @@
 """
-Pytest configuration and fixtures for CPU-only execution.
-Ensures tests run within the memory and compute constraints of the CI environment.
+Pytest configuration and fixtures for the llmXive CSA Food Security project.
+Configures CPU-only execution and sets up paths relative to the project root.
 """
 import os
 import sys
-import pytest
+import logging
 from pathlib import Path
+import pytest
 
-# Add the project root to the path for imports
-# Assumes tests/ is at the root of the project
+# Add the project root (parent of 'tests') to sys.path to allow imports
+# from code/ modules (e.g., code/data/download)
 PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-# CPU-only configuration enforcement
-# Force matplotlib to use non-interactive backend to prevent GUI errors in CI
+# Configure logging for tests to avoid cluttering output unless requested
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# CPU-Only Execution Configuration
+# Force environment variables that prevent GPU usage for libraries that might try to use them
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow warnings if imported
+
+# Ensure matplotlib uses a non-interactive backend for headless CI environments
 import matplotlib
 matplotlib.use('Agg')
 
-# Set environment variables to restrict CPU usage if needed by downstream libraries
-@pytest.fixture(autouse=True)
-def set_cpu_environment():
-    """
-    Fixture to enforce CPU-only execution constraints.
-    Sets environment variables to prevent GPU usage and limit threads.
-    """
-    # Ensure no GPU usage for libraries like TensorFlow/PyTorch if they were introduced
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
-    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-    
-    # Limit OpenMP threads to prevent memory oversubscription in CI
-    # Default to 2 threads for safety on limited CI runners
-    os.environ["OMP_NUM_THREADS"] = "2"
-    os.environ["MKL_NUM_THREADS"] = "2"
-    os.environ["NUMEXPR_NUM_THREADS"] = "2"
-    os.environ["OPENBLAS_NUM_THREADS"] = "2"
-
-    yield
-
-    # Cleanup not strictly necessary for env vars in this scope, but good practice
-    # If specific test cleanup is needed, it can be added here
 
 @pytest.fixture(scope="session")
-def project_root():
-    """Return the project root path."""
+def project_root() -> Path:
+    """Returns the root directory of the project."""
     return PROJECT_ROOT
 
+
 @pytest.fixture(scope="session")
-def data_dir(project_root):
-    """Return the data directory path."""
+def data_dir(project_root: Path) -> Path:
+    """Returns the path to the data directory."""
     return project_root / "data"
 
+
 @pytest.fixture(scope="session")
-def raw_data_dir(data_dir):
-    """Return the raw data directory path."""
+def raw_data_dir(data_dir: Path) -> Path:
+    """Returns the path to the raw data directory."""
     return data_dir / "raw"
 
-@pytest.fixture(scope="session")
-def processed_data_dir(data_dir):
-    """Return the processed data directory path."""
-    return data_dir / "processed"
 
 @pytest.fixture(scope="session")
-def state_dir(project_root):
-    """Return the state directory path."""
-    return project_root / "state"
+def processed_data_dir(data_dir: Path) -> Path:
+    """Returns the path to the processed data directory."""
+    return data_dir / "processed"
+
+
+@pytest.fixture(scope="session")
+def code_dir(project_root: Path) -> Path:
+    """Returns the path to the code directory."""
+    return project_root / "code"
+
+
+@pytest.fixture(scope="session")
+def cpu_only() -> bool:
+    """
+    Fixture to explicitly mark a test as CPU-only.
+    This is primarily for documentation/filtering purposes.
+    """
+    return True
+
+
+@pytest.fixture(scope="function")
+def caplog_handler(caplog):
+    """
+    Helper to ensure caplog captures logs correctly in different environments.
+    """
+    caplog.set_level(logging.DEBUG)
+    return caplog

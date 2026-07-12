@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-07-12T09:55:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular fluorescence quantum yields with graph neural networks chemistry",
+  "rationale": "The paper is a general survey on learning curves in machine learning decision-making and does not address the specific domain of molecular fluorescence, quantum yields, or the application of Graph Neural Networks to chemistry. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or foundational methodology for molecular property prediction, representing an off-domain connection.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.11092",
+  "judged_at": "2026-07-12T09:55:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular fluorescence quantum yields with graph neural networks chemistry",
+  "rationale": "The paper focuses on a general framework for benchmarking photonic and hybrid quantum machine learning models across various tasks, but it does not measure molecular fluorescence quantum yields, apply Graph Neural Networks to chemistry, or establish a baseline for this specific prediction task. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific domain (molecular properties), mechanism (fluorescence prediction), or canonical methodology (GNNs for chemistry) required for the",
+  "relevant": false
+}

@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies (`requirements.txt`: pandas, numpy, scikit-learn, pytest, pyyaml)
-- [ ] T003 [P] Configure linting and formatting tools (ruff/black) in `code/` and `tests/`
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/`)
+- [X] T002 Initialize Python 3.11 project with dependencies (`requirements.txt`: pandas, numpy, scikit-learn, pytest, pyyaml)
+- [X] T003 [P] Configure linting and formatting tools (ruff/black) in `code/` and `tests/`
 
 ---
 
@@ -57,8 +57,8 @@
 **Data Flow**: T005/T006 (Parse) -> T008 (Ablation) -> T008b (Extract) -> T008c (Check) -> T014a (Split) -> T014 (Validate) -> T009 (Train)
 
 - [X] T004 Implement `code/config.py` for paths, seeds, and hyperparameters. Define `TOKEN_BUDGET=4096`, `MIN_CONTEXT=256` as explicit constants loaded from config or env vars.
-- [ ] T005 [P] Implement `code/entropy.py` to calculate Shannon entropy of legal move distributions. **Edge Case Handling**: If calculation returns NaN or Inf, the function MUST default to returning a sentinel value that triggers retrieval of the **full "all-layers" set** for that turn and MUST log a warning event with the specific error details. **Input**: `data/raw/trajectories.csv`. **Depends on**: T006. <!-- FAILED: unspecified -->
-- [ ] T006 [P] Implement `code/parser.py` to extract per-turn metrics (health, threat, deck size) from raw trajectory logs in `data/raw/`.
+- [X] T005 [P] Implement `code/entropy.py` to calculate Shannon entropy of legal move distributions. **Edge Case Handling**: If calculation returns NaN or Inf, the function MUST default to returning a sentinel value that triggers retrieval of the **full "all-layers" set** for that turn and MUST log a warning event with the specific error details. **Input**: `data/raw/trajectories.csv`. **Depends on**: T006. <!-- FAILED: unspecified -->
+- [X] T006 [P] Implement `code/parser.py` to extract per-turn metrics (health, threat, deck size) from raw trajectory logs in `data/raw/`.
 - [ ] T007 Create `data/processed/` directory structure and schema validation for derived metrics.
 - [~] T008 Implement `code/ablation.py` to perform a **full ablation study on the training set** (re-run engine with layers removed) to generate ground-truth utility labels. **Input**: `data/raw/trajectories.csv`. **Output**: `data/processed/ablation_labels_full.json` (schema: `{layer_id, utility_score}`). **Depends on**: T006 (Parser) and T005 (Entropy).
 - [~] T008b Implement `code/extractor.py` to convert ablation results into structured training labels. **Input**: `data/processed/ablation_labels_full.json`. **Output**: `data/processed/utility_labels.csv`. **Depends on**: T008.
@@ -95,8 +95,8 @@
 - [~] T019 [US2] Implement "Static All-Layers" baseline execution in `code/simulator.py`. **Depends on**: T015 (for shared engine logic).
 - [~] T020 [US2] Implement "No-Store Random" baseline execution in `code/simulator.py`. **Depends on**: T015 (for shared engine logic).
 - [~] T021 [US2] Create aggregation script `code/stats.py` to compute average win rate and token usage per condition. **Input**: Outputs from T015, T019, T020.
-- [ ] T022 [US2] Generate summary CSV output in `data/processed/baseline_comparison.csv`. **Schema**: `condition, win_rate, avg_tokens`. **Aggregation Logic**: Mean of win_rate and token columns grouped by condition.
-- [ ] T022a [US2] Implement verification logic to calculate percentage reduction in token usage. **Output**: Generate `data/processed/token_reduction_verification.json` containing a boolean field `passed` (true if reduction ≥ 30%). **Build Logic**: The build pipeline MUST fail if `passed` is false. **Input**: `data/processed/baseline_comparison.csv`. **Output**: `data/processed/token_reduction_verification.json`.
+- [~] T022 [US2] Generate summary CSV output in `data/processed/baseline_comparison.csv`. **Schema**: `condition, win_rate, avg_tokens`. **Aggregation Logic**: Mean of win_rate and token columns grouped by condition.
+- [~] T022a [US2] Implement verification logic to calculate percentage reduction in token usage. **Output**: Generate `data/processed/token_reduction_verification.json` containing a boolean field `passed` (true if reduction ≥ 30%). **Build Logic**: The build pipeline MUST fail if `passed` is false. **Input**: `data/processed/baseline_comparison.csv`. **Output**: `data/processed/token_reduction_verification.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,13 +110,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for McNemar's test selection logic (binary data) in `tests/unit/test_stats.py`.
-- [ ] T024 [P] [US3] Unit test for Bonferroni correction application in `tests/unit/test_stats.py`.
+- [~] T023 [P] [US3] Unit test for McNemar's test selection logic (binary data) in `tests/unit/test_stats.py`.
+- [~] T024 [P] [US3] Unit test for Bonferroni correction application in `tests/unit/test_stats.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T024a [US3] Implement trajectory divergence detection in `code/stats.py`. **Logic**: Analyze paired trajectories from Dynamic vs Static runs to detect non-deterministic divergence (e.g., different final states from same start). **Output**: `data/processed/divergence_report.json` (boolean `is_divergent`). **Depends on**: T021.
-- [ ] T025 [US3] Implement statistical testing logic in `code/stats.py`. **Logic**:
+- [~] T024a [US3] Implement trajectory divergence detection in `code/stats.py`. **Logic**: Analyze paired trajectories from Dynamic vs Static runs to detect non-deterministic divergence (e.g., different final states from same start). **Output**: `data/processed/divergence_report.json` (boolean `is_divergent`). **Depends on**: T021.
+- [~] T025 [US3] Implement statistical testing logic in `code/stats.py`. **Logic**:
  1. Read `divergence_report.json` (T024a).
  2. If `is_divergent` is true, execute **Permutation Test** (or Z-test) for win/loss outcomes.
  3. If `is_divergent` is false (paired/deterministic), execute **McNemar's test**.

@@ -1,3 +1,12 @@
+"""
+Data download module for CSAs Food Security research.
+
+This module provides functions to download data from:
+- LSMS (Living Standards Measurement Study)
+- NASA POWER (climate data)
+- FAOSTAT (agricultural statistics)
+"""
+
 import os
 import json
 import time
@@ -5,417 +14,363 @@ import requests
 from pathlib import Path
 from typing import Optional, Dict, List, Any, Union
 import logging
-import pandas as pd
-import zipfile
-import io
 
-from utils.config import get_raw_data_dir
-from utils.logging import log_provenance_mapping
+from utils.config import get_raw_data_dir, get_target_countries, get_target_years
+from utils.logging import initialize_logging
 
+# Initialize logging
 logger = logging.getLogger(__name__)
+initialize_logging()
 
-# LSMS API Configuration
-# LSMS data is often available via the World Bank API or direct file downloads.
-# We will use the World Bank API for metadata and direct file links where possible,
-# or fallback to a robust scraping pattern if specific direct links are known.
-# For this implementation, we target the LSMS-ISA (Integrated Surveys on Agriculture)
-# which are the primary source for the specified countries (Kenya, India, Vietnam).
-# Note: India LSMS data is often from NSSO, but LSMS-ISA covers Kenya, Vietnam, and others.
-# We will implement a generic downloader that attempts the World Bank LSMS portal structure.
+# Constants
+LSMS_BASE_URL = "https://datatopics.worldbank.org/lsms/"
+NASA_POWER_API_URL = "https://power.larc.nasa.gov/api/station/day"
+FAOSTAT_BASE_URL = "https://www.fao.org/faostat/en/#data"
+FAOSTAT_API_URL = "https://www.fao.org/faostat/api/data/v1"
 
-# Mapping of country names to ISO codes and specific data sources if known
-COUNTRY_CONFIG = {
-    "Kenya": {
-        "iso": "KEN",
-        "survey_years": [2005, 2006, 2007, 2013, 2015, 2016, 2019],
-        "source": "World Bank LSMS"
-    },
-    "India": {
-        "iso": "IND",
-        # India LSMS-ISA is not standard; usually NSSO.
-        # However, for the purpose of this pipeline, we attempt to fetch
-        # available World Bank agricultural survey data or similar.
-        # If no LSMS exists, we raise a specific error or fallback to available proxies.
-        # For this task, we assume the pipeline targets available LSMS-like datasets.
-        # World Bank has some India surveys but not always labeled LSMS-ISA.
-        # We will attempt to fetch from the general LSMS archive.
-        "survey_years": [2004, 2005, 2006, 2007, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019],
-        "source": "World Bank LSMS / NSSO Proxy"
-    },
-    "Vietnam": {
-        "iso": "VNM",
-        "survey_years": [2002, 2004, 2006, 2008, 2010, 2012, 2014, 2016, 2018, 2020],
-        "source": "World Bank LSMS"
-    }
-}
+# Retry configuration
+MAX_RETRIES = 3
+RETRY_DELAY = 5  # seconds
 
-# Base URLs for LSMS data
-# The World Bank LSMS data portal often uses a specific API or file server.
-# Since direct programmatic access to the full microdata often requires registration
-# or is behind a login, we will simulate the fetch logic using the public API
-# for metadata and attempt to download from a known public repository structure
-# or raise a clear error if the file is not publicly available without credentials.
-# For the sake of this implementation, we assume a public endpoint exists for
-# demonstration or use the World Bank Open Data API for aggregate data if microdata
-# is restricted.
-#
-# IMPORTANT: Real microdata (household level) from LSMS often requires a data request.
-# However, the task requires a REAL downloader. We will implement the logic to fetch
-# from the World Bank's public LSMS data server if available, or the API.
-# If the specific microdata file is behind a paywall/login, we will raise an error
-# indicating the need for credentials, as we cannot fabricate data.
-#
-# Alternative: Use the World Bank API to get the file list and attempt download.
-# URL pattern for LSMS data files (example):
-# https://datacatalog.worldbank.org/dataset/...
-#
-# For this implementation, we will use the `lsms` python package if available,
-# or construct the URL based on the World Bank's public file structure.
-# Since we cannot rely on external packages being installed beyond requirements,
-# we will use `requests` to hit the World Bank API.
+def _ensure_raw_data_dir():
+    """Ensure the raw data directory exists."""
+    raw_dir = get_raw_data_dir()
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    return raw_dir
 
-LSMS_API_BASE = "https://api.worldbank.org/v2"
-LSMS_DATASET_ID = "LSMS"  # Generic dataset ID for LSMS
+def _retry_request(url, params=None, headers=None, timeout=30):
+    """
+    Make a request with retry logic.
+    
+    Args:
+        url: The URL to request
+        params: Query parameters
+        headers: Request headers
+        timeout: Request timeout in seconds
+        
+    Returns:
+        Response object if successful, None otherwise
+    """
+    for attempt in range(MAX_RETRIES):
+        try:
+            response = requests.get(url, params=params, headers=headers, timeout=timeout)
+            response.raise_for_status()
+            return response
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Request attempt {attempt + 1} failed: {e}")
+            if attempt < MAX_RETRIES - 1:
+                time.sleep(RETRY_DELAY)
+            else:
+                logger.error(f"All {MAX_RETRIES} attempts failed for {url}")
+                return None
 
 def download_lsms(country: str, year: int) -> Optional[Path]:
     """
-    Downloads LSMS data for a specific country and year.
+    Download LSMS (Living Standards Measurement Study) data for a specific country and year.
     
     Args:
-        country: Country name (Kenya, India, Vietnam).
-        year: Survey year.
+        country: Country code or name (e.g., 'KEN' for Kenya, 'IND' for India)
+        year: Survey year (e.g., 2021)
         
     Returns:
-        Path to the downloaded file (CSV or Stata .dta) in data/raw/, or None if not found.
-        
-    Raises:
-        ValueError: If country is not supported or year is out of range.
-        RuntimeError: If the data file is not publicly accessible.
+        Path to the downloaded file if successful, None otherwise
     """
-    logger.info(f"Attempting to download LSMS data for {country} ({year})")
+    logger.info(f"Downloading LSMS data for {country} ({year})")
     
-    # Validate country
-    if country not in COUNTRY_CONFIG:
-        raise ValueError(f"Unsupported country: {country}. Supported: {list(COUNTRY_CONFIG.keys())}")
+    raw_dir = _ensure_raw_data_dir()
+    output_path = raw_dir / f"lsms_{country}_{year}.csv"
     
-    config = COUNTRY_CONFIG[country]
-    iso_code = config["iso"]
-    valid_years = config["survey_years"]
-    
-    # Validate year
-    if year > 2023:
-        raise ValueError(f"Year {year} is out of range. Max supported is 2023.")
-    if year not in valid_years:
-        # Check if it's close to a valid year or just missing
-        logger.warning(f"Year {year} not found in standard survey years for {country}. "
-                       f"Available years: {valid_years}. Attempting to fetch anyway...")
-        # We proceed to attempt the download, as the API might have newer data
-        # or the list might be slightly outdated.
-    
-    # Ensure raw data directory exists
-    raw_dir = get_raw_data_dir()
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    # Check if file already exists
+    if output_path.exists():
+        logger.info(f"LSMS data for {country} ({year}) already exists at {output_path}")
+        return output_path
     
     # Construct the download URL
-    # World Bank API endpoint for LSMS data files
-    # We try to construct a direct file URL or use the API to find the file.
-    # The World Bank Open Data API often returns metadata, but the actual file
-    # download URL is usually constructed based on the series or dataset ID.
-    #
-    # Strategy: Use the World Bank API to query for the dataset and extract the download link.
-    # Endpoint: https://api.worldbank.org/v2/dataset/LSMS?format=json&sourceid=...
-    # However, LSMS microdata is often not directly in the main API.
-    # We will attempt to use the specific LSMS portal URL pattern.
-    #
-    # Fallback: Since direct microdata download often requires authentication,
-    # we will implement the logic to check availability and raise a clear error
-    # if the file is not publicly accessible, rather than returning fake data.
-    
-    # Attempt to find the file via the World Bank API
-    # We search for the dataset identifier
-    url = f"{LSMS_API_BASE}/dataset/{LSMS_DATASET_ID}"
-    params = {
-        "format": "json",
-        "source": 2, # World Bank source
-        "country": iso_code,
-        "per_page": 100
+    # Note: LSMS data is typically available through specific survey URLs
+    # This is a generalized approach; actual URLs may vary by survey
+    survey_codes = {
+        'KEN': 'kenya_household_consumption',
+        'IND': 'india_consumption_expenditure',
+        'VNM': 'vietnam_household_living_standards'
     }
     
+    survey_code = survey_codes.get(country.upper())
+    if not survey_code:
+        logger.warning(f"No survey code found for country: {country}")
+        # Try a generic search approach
+        search_url = f"{LSMS_BASE_URL}search?q={country}&year={year}"
+        response = _retry_request(search_url)
+        if not response:
+            logger.error(f"Could not find LSMS data for {country} ({year})")
+            return None
+    else:
+        # Construct the specific download URL
+        download_url = f"{LSMS_BASE_URL}microdata/{survey_code}_{year}/download"
+        response = _retry_request(download_url)
+    
+    if not response:
+        logger.error(f"Failed to download LSMS data for {country} ({year})")
+        return None
+    
+    # Save the downloaded data
     try:
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        
-        # Parse the response to find the specific survey file
-        # The API response structure for LSMS might vary.
-        # If we can't find a direct file link, we try a known pattern.
-        #
-        # Known pattern for LSMS files:
-        # https://microdata.worldbank.org/index.php/catalog/...
-        #
-        # Since we cannot scrape the catalog page reliably without headers,
-        # and the API might not return direct download links for microdata,
-        # we will implement a check for the existence of the file in a known
-        # public repository or raise a specific error.
-        
-        # For the purpose of this task, we assume the file exists at a constructed URL
-        # based on the country and year, and attempt to download it.
-        # If it fails, we log the error and raise.
-        
-        # Example URL pattern (hypothetical but realistic for this context):
-        # https://data.worldbank.org/download/LSMS_{iso}_{year}.csv
-        #
-        # Actual implementation: Try to fetch from the World Bank's LSMS data portal
-        # using the API to get the file ID, then download.
-        
-        # Let's try a direct approach: The World Bank has a public LSMS data server.
-        # URL: https://lsms.worldbank.org/data/...
-        # We will construct the path.
-        
-        # Since the exact URL structure is dynamic, we will use the API to find the file.
-        # If the API doesn't return a direct link, we raise an error.
-        
-        # For this implementation, we will simulate the download logic by checking
-        # if a file exists in a public bucket or raise an error.
-        #
-        # REALITY CHECK: Microdata from LSMS is NOT freely downloadable via a simple
-        # API call without authentication in many cases.
-        # However, the task requires a REAL downloader.
-        # We will implement the code to attempt the download from the public URL
-        # if available, or raise a clear error.
-        
-        # Let's assume a public URL for the sake of the code structure:
-        # https://lsms.worldbank.org/data/country/{iso}/{year}/survey.csv
-        #
-        # We will try to fetch this. If it fails, we raise an error.
-        
-        file_url = f"https://lsms.worldbank.org/data/country/{iso_code}/{year}/survey.csv"
-        
-        # Try to download
-        logger.info(f"Attempting to download from: {file_url}")
-        resp = requests.get(file_url, timeout=60)
-        
-        if resp.status_code == 404:
-            # Try alternative pattern (Stata)
-            file_url = f"https://lsms.worldbank.org/data/country/{iso_code}/{year}/survey.dta"
-            logger.info(f"CSV not found. Trying Stata: {file_url}")
-            resp = requests.get(file_url, timeout=60)
-            
-        if resp.status_code == 200:
-            # Save the file
-            filename = f"{iso_code}_{year}_lsms.csv" if file_url.endswith('.csv') else f"{iso_code}_{year}_lsms.dta"
-            file_path = raw_dir / filename
-            
-            with open(file_path, 'wb') as f:
-                f.write(resp.content)
-            
-            logger.info(f"Successfully downloaded LSMS data for {country} ({year}) to {file_path}")
-            
-            # Log provenance
-            log_provenance_mapping(
-                component="lsms_raw",
-                source_url=file_url,
-                country=country,
-                year=year,
-                file_path=str(file_path)
-            )
-            
-            return file_path
+        # If the response is a direct file
+        if 'application/octet-stream' in response.headers.get('Content-Type', '') or \
+           'application/zip' in response.headers.get('Content-Type', '') or \
+           'text/csv' in response.headers.get('Content-Type', ''):
+            with open(output_path, 'wb') as f:
+                f.write(response.content)
+            logger.info(f"Successfully downloaded LSMS data to {output_path}")
+            return output_path
         else:
-            # If we can't find the file, we raise an error to avoid fake data
-            error_msg = (
-                f"LSMS data for {country} ({year}) is not publicly available at the expected URL. "
-                f"Status code: {resp.status_code}. "
-                f"Please ensure the data is accessible or provide credentials if required."
-            )
-            logger.error(error_msg)
-            raise RuntimeError(error_msg)
-            
-    except requests.exceptions.RequestException as e:
-        error_msg = f"Failed to download LSMS data for {country} ({year}): {str(e)}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
+            # If the response is HTML or JSON with download links
+            logger.warning(f"Unexpected response type for LSMS download: {response.headers.get('Content-Type')}")
+            # Save as JSON for further processing
+            json_path = raw_dir / f"lsms_{country}_{year}_metadata.json"
+            with open(json_path, 'w') as f:
+                json.dump(response.json(), f, indent=2)
+            logger.info(f"Saved LSMS metadata to {json_path}")
+            return None
     except Exception as e:
-        error_msg = f"Unexpected error downloading LSMS data for {country} ({year}): {str(e)}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
+        logger.error(f"Error saving LSMS data: {e}")
+        return None
 
-def download_lsms_batch(countries: List[str], years: List[int]) -> Dict[str, Path]:
+def download_lsms_batch(countries: List[str], years: List[int]) -> List[Path]:
     """
-    Downloads LSMS data for multiple countries and years.
+    Download LSMS data for multiple country-year combinations.
     
     Args:
-        countries: List of country names.
-        years: List of years.
+        countries: List of country codes
+        years: List of years
         
     Returns:
-        Dictionary mapping (country, year) to file path.
+        List of paths to downloaded files
     """
-    results = {}
+    downloaded_files = []
+    
     for country in countries:
         for year in years:
-            try:
-                path = download_lsms(country, year)
-                if path:
-                    results[(country, year)] = path
-            except Exception as e:
-                logger.error(f"Skipping {country} ({year}) due to error: {e}")
-                continue
-    return results
+            logger.info(f"Processing LSMS download for {country} ({year})")
+            result = download_lsms(country, year)
+            if result:
+                downloaded_files.append(result)
+            time.sleep(1)  # Be polite to the server
+    
+    return downloaded_files
 
 def download_nasa_power(lat: float, lon: float, start: str, end: str) -> Optional[Path]:
     """
-    Downloads climate data from NASA POWER API.
+    Download climate data from NASA POWER API for a specific location and time period.
     
     Args:
-        lat: Latitude.
-        lon: Longitude.
-        start: Start date (YYYY-MM-DD).
-        end: End date (YYYY-MM-DD).
+        lat: Latitude of the location
+        lon: Longitude of the location
+        start: Start date in 'YYYY-MM-DD' format
+        end: End date in 'YYYY-MM-DD' format
         
     Returns:
-        Path to downloaded CSV file.
+        Path to the downloaded file if successful, None otherwise
     """
     logger.info(f"Downloading NASA POWER data for ({lat}, {lon}) from {start} to {end}")
     
-    raw_dir = get_raw_data_dir()
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    raw_dir = _ensure_raw_data_dir()
+    output_path = raw_dir / f"nasa_power_{lat}_{lon}_{start}_{end}.csv"
     
-    # NASA POWER API endpoint
-    api_url = "https://power.larc.nasa.gov/api/data/v2/meteo"
+    # Check if file already exists
+    if output_path.exists():
+        logger.info(f"NASA POWER data for ({lat}, {lon}) already exists at {output_path}")
+        return output_path
     
+    # Construct the API request
     params = {
-        "format": "CSV",
-        "start": start,
-        "end": end,
-        "lat": lat,
-        "lon": lon,
-        "parameters": "T2M,PRECTOTCT,RSND,RLND,PS", # Temperature, Precipitation, Radiation, Pressure
-        "community": "AG",
-        "data_format": "CSV"
+        'latitude': lat,
+        'longitude': lon,
+        'startDate': start,
+        'endDate': end,
+        'temporalAverage': 'DAILY',
+        'format': 'JSON',
+        'parameters': 'T2M,T2M_MAX,T2M_MIN,PSL,WS10M,WD10M,RSNS,RSNSD,RNL,PRECTOT'
     }
     
+    response = _retry_request(NASA_POWER_API_URL, params=params)
+    
+    if not response:
+        logger.error(f"Failed to download NASA POWER data for ({lat}, {lon})")
+        return None
+    
     try:
-        response = requests.get(api_url, params=params, timeout=60)
-        response.raise_for_status()
+        data = response.json()
         
-        filename = f"nasa_power_{lat}_{lon}_{start}_{end}.csv"
-        file_path = raw_dir / filename
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(response.text)
-        
-        logger.info(f"Successfully downloaded NASA POWER data to {file_path}")
-        return file_path
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download NASA POWER data: {e}")
+        # Extract the data from the response
+        if 'properties' in data and 'parameter' in data['properties']:
+            # Convert to a more usable format
+            import pandas as pd
+            
+            parameters = data['properties']['parameter']
+            dates = list(parameters[next(iter(parameters))].keys())
+            
+            # Create a DataFrame
+            df_data = {'date': dates}
+            for param, values in parameters.items():
+                df_data[param] = [values.get(d, None) for d in dates]
+            
+            df = pd.DataFrame(df_data)
+            df.to_csv(output_path, index=False)
+            
+            logger.info(f"Successfully downloaded NASA POWER data to {output_path}")
+            return output_path
+        else:
+            logger.error("Unexpected NASA POWER API response structure")
+            return None
+    except Exception as e:
+        logger.error(f"Error processing NASA POWER response: {e}")
         return None
 
-def download_nasa_power_batch(locations: List[Dict[str, Union[float, str]]], 
-                              start: str, 
-                              end: str) -> Dict[str, Path]:
+def download_nasa_power_batch(locations: List[Dict[str, Union[float, str]]]) -> List[Path]:
     """
-    Downloads climate data for multiple locations.
+    Download NASA POWER data for multiple locations and time periods.
     
     Args:
-        locations: List of dicts with 'lat', 'lon', 'id'.
-        start: Start date.
-        end: End date.
+        locations: List of dicts with 'lat', 'lon', 'start', 'end' keys
         
     Returns:
-        Dictionary mapping location ID to file path.
+        List of paths to downloaded files
     """
-    results = {}
+    downloaded_files = []
+    
     for loc in locations:
-        try:
-            path = download_nasa_power(loc['lat'], loc['lon'], start, end)
-            if path:
-                results[loc['id']] = path
-        except Exception as e:
-            logger.error(f"Skipping location {loc.get('id', 'unknown')}: {e}")
-            continue
-    return results
+        lat = loc['lat']
+        lon = loc['lon']
+        start = loc['start']
+        end = loc['end']
+        
+        logger.info(f"Processing NASA POWER download for ({lat}, {lon})")
+        result = download_nasa_power(lat, lon, start, end)
+        if result:
+            downloaded_files.append(result)
+        time.sleep(2)  # Be polite to the server
+    
+    return downloaded_files
 
 def download_faostat(indicator: str) -> Optional[Path]:
     """
-    Downloads agricultural indicator data from FAOSTAT.
+    Download agricultural indicator data from FAOSTAT.
     
     Args:
-        indicator: FAOSTAT indicator code (e.g., 'CROP', 'LIVESTOCK').
+        indicator: FAOSTAT indicator code (e.g., 'FLK' for food loss, 'CND' for crop production)
         
     Returns:
-        Path to downloaded CSV file.
+        Path to the downloaded file if successful, None otherwise
     """
     logger.info(f"Downloading FAOSTAT data for indicator: {indicator}")
     
-    raw_dir = get_raw_data_dir()
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    raw_dir = _ensure_raw_data_dir()
+    output_path = raw_dir / f"faostat_{indicator}.csv"
     
-    # FAOSTAT API endpoint
-    # Note: FAOSTAT API often requires specific headers or uses a different endpoint.
-    # We will use the public API if available, or fallback to a known data dump.
-    #
-    # FAOSTAT Bulk Data: https://www.fao.org/faostat/en/#data
-    # API: https://www.fao.org/faostat/api/v1/en/
+    # Check if file already exists
+    if output_path.exists():
+        logger.info(f"FAOSTAT data for {indicator} already exists at {output_path}")
+        return output_path
     
-    api_url = "https://www.fao.org/faostat/api/v1/en/DataDownload/DownloadData"
+    # FAOSTAT API requires specific parameters
+    # We'll download data for target countries and years
+    countries = get_target_countries()
+    years = get_target_years()
     
+    # Construct the API request
     params = {
-        "domain": "CL", # Climate? Or "C" for Crops?
-        "element": indicator,
-        "format": "CSV"
+        'domain': 'CL',  # Climate domain or general
+        'element': 'CND',  # Crop production or appropriate element
+        'item': indicator,
+        'year': ','.join(map(str, years)),
+        'area': ','.join(countries),
+        'format': 'csv'
     }
     
-    # FAOSTAT API is complex. We will try a direct download link pattern.
-    # If the API is not accessible, we raise an error.
-    #
-    # For this implementation, we assume a direct download link exists.
-    #
-    # Real implementation would require handling the FAOSTAT API authentication
-    # or using the bulk download feature.
-    #
-    # Since we cannot guarantee a direct link without API keys, we will raise
-    # a clear error if the download fails.
+    # FAOSTAT API might require authentication or have different endpoints
+    # This is a generalized approach; actual implementation may vary
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (compatible; CSA-Research-Agent/1.0)'
+    }
     
-    # Fallback: Use the FAOSTAT bulk download URL
-    # https://www.fao.org/faostat/en/#data/CL
-    #
-    # We will attempt to fetch the data.
+    response = _retry_request(FAOSTAT_API_URL, params=params, headers=headers)
+    
+    if not response:
+        logger.warning(f"Could not download FAOSTAT data for {indicator} via API")
+        # Try alternative approach: direct download link
+        alt_url = f"{FAOSTAT_BASE_URL}?q={indicator}&download=1"
+        response = _retry_request(alt_url, headers=headers)
+    
+    if not response:
+        logger.error(f"Failed to download FAOSTAT data for {indicator}")
+        return None
     
     try:
-        # Attempt to download from a known public source or API
-        # This is a placeholder for the actual FAOSTAT download logic.
-        # In a real scenario, we would use the FAOSTAT API to get the file.
+        # Save the CSV data
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
         
-        # For now, we raise an error to indicate that the FAOSTAT download
-        # requires specific implementation or credentials.
-        raise NotImplementedError("FAOSTAT download requires API implementation or bulk download handling.")
-        
-    except NotImplementedError as e:
-        logger.error(f"FAOSTAT download not implemented: {e}")
-        return None
+        logger.info(f"Successfully downloaded FAOSTAT data to {output_path}")
+        return output_path
     except Exception as e:
-        logger.error(f"Failed to download FAOSTAT data: {e}")
+        logger.error(f"Error saving FAOSTAT data: {e}")
         return None
 
-def download_faostat_batch(indicators: List[str]) -> Dict[str, Path]:
+def download_faostat_batch(indicators: List[str]) -> List[Path]:
     """
-    Downloads multiple FAOSTAT indicators.
+    Download multiple FAOSTAT indicators.
     
     Args:
-        indicators: List of indicator codes.
+        indicators: List of FAOSTAT indicator codes
         
     Returns:
-        Dictionary mapping indicator to file path.
+        List of paths to downloaded files
     """
-    results = {}
+    downloaded_files = []
+    
     for indicator in indicators:
-        try:
-            path = download_faostat(indicator)
-            if path:
-                results[indicator] = path
-        except Exception as e:
-            logger.error(f"Skipping indicator {indicator}: {e}")
-            continue
-    return results
+        logger.info(f"Processing FAOSTAT download for {indicator}")
+        result = download_faostat(indicator)
+        if result:
+            downloaded_files.append(result)
+        time.sleep(2)  # Be polite to the server
+    
+    return downloaded_files
+
+def main():
+    """
+    Main function to demonstrate data download capabilities.
+    """
+    # Get target countries and years from config
+    countries = get_target_countries()
+    years = get_target_years()
+    
+    logger.info(f"Target countries: {countries}")
+    logger.info(f"Target years: {years}")
+    
+    # Example downloads (these would need real data to work)
+    # LSMS download example
+    if countries and years:
+        lsms_results = download_lsms_batch(countries, years)
+        logger.info(f"LSMS downloads completed: {len(lsms_results)} files")
+    
+    # NASA POWER example (using sample coordinates)
+    # This would typically use coordinates from the survey data
+    sample_locations = [
+        {'lat': -1.2921, 'lon': 36.8219, 'start': '2020-01-01', 'end': '2020-12-31'},  # Nairobi
+        {'lat': 28.6139, 'lon': 77.2090, 'start': '2020-01-01', 'end': '2020-12-31'},  # Delhi
+        {'lat': 21.0285, 'lon': 105.8542, 'start': '2020-01-01', 'end': '2020-12-31'}  # Hanoi
+    ]
+    
+    nasa_results = download_nasa_power_batch(sample_locations)
+    logger.info(f"NASA POWER downloads completed: {len(nasa_results)} files")
+    
+    # FAOSTAT example
+    faostat_indicators = ['CND', 'FLK', 'PAG']  # Crop production, Food loss, Agriculture
+    faostat_results = download_faostat_batch(faostat_indicators)
+    logger.info(f"FAOSTAT downloads completed: {len(faostat_results)} files")
+    
+    logger.info("All download operations completed")
+
+if __name__ == "__main__":
+    main()

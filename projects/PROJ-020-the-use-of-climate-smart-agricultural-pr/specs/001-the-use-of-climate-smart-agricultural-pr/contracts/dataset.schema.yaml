@@ -1,240 +1,192 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CSA Food Security Analysis Dataset Schema"
+title: "Climate-Smart Agriculture and Food Security Dataset Schema"
 description: |
-  Base schema for the merged, cleaned, and sampled dataset used in the
-  analysis of Climate-Smart Agricultural (CSA) practices and food security.
-  Derived from LSMS (household/survey), FAOSTAT (national indicators), and
-  NASA POWER (climate) sources.
+  Base schema for the merged, cleaned, and sampled dataset used in the 
+  analysis of Climate-Smart Agricultural (CSA) practices and their impact 
+  on food security and livelihoods.
+  
+  This schema defines the structure of the final analysis-ready dataset 
+  (Parquet format) produced by the data pipeline.
 type: object
 required:
-  - metadata
-  - columns
-  - primary_keys
-  - constraints
+  - household_id
+  - country
+  - survey_year
+  - csa_index
+  - food_security_score
+  - latitude
+  - longitude
 properties:
-  metadata:
-    type: object
-    properties:
-      version:
-        type: string
-        description: Schema version (e.g., "1.0.0")
-      source_datasets:
-        type: array
-        items:
-          type: string
-        description: List of source dataset identifiers (e.g., "LSMS-KEN-2021", "FAOSTAT", "NASA-POWER")
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of schema generation
-      target_countries:
-        type: array
-        items:
-          type: string
-        description: ISO 3166-1 alpha-3 country codes included (e.g., ["KEN", "IND", "VNM"])
-      target_years:
-        type: array
-        items:
-          type: integer
-        description: Range of survey years included
-    required:
-      - version
-      - source_datasets
-      - generated_at
-      - target_countries
-      - target_years
-
-  columns:
-    type: array
-    description: List of column definitions in the final dataset
-    items:
-      type: object
-      required:
-        - name
-        - dtype
-        - description
-        - source
-      properties:
-        name:
-          type: string
-          description: Column name in the final dataset
-        dtype:
-          type: string
-          enum:
-            - int64
-            - float64
-            - object
-            - bool
-            - datetime64[ns]
-          description: Pandas-compatible data type
-        nullable:
-          type: boolean
-          default: false
-          description: Whether the column allows missing values
-        description:
-          type: string
-          description: Human-readable description of the variable
-        source:
-          type: object
-          properties:
-            dataset:
-              type: string
-              description: Source dataset name (e.g., "LSMS", "FAOSTAT", "NASA-POWER")
-            original_field:
-              type: string
-              description: Original field name in the source dataset
-            transformation:
-              type: string
-              description: Description of any transformation applied (e.g., "mean of growing season", "log10")
-          required:
-            - dataset
-            - original_field
-        categories:
-          type: array
-          items:
-            type: string
-          description: List of valid categories for categorical columns (optional)
-
-  primary_keys:
+  # Primary Keys & Identifiers
+  household_id:
+    type: string
+    description: "Unique identifier for the household (country_survey_id_household)"
+    pattern: "^[A-Z]{2}_\\d{4}_\\d+$"
+    examples: ["KE_2021_10045", "IN_2022_50211"]
+  
+  country:
+    type: string
+    description: "ISO 3166-1 alpha-2 country code"
+    enum: ["KE", "IN", "VN"]
+  
+  survey_year:
+    type: integer
+    description: "Year of the LSMS survey"
+    minimum: 2010
+    maximum: 2024
+  
+  # --- Outcome Variables (Food Security & Livelihoods) ---
+  food_security_score:
+    type: number
+    description: "Composite Food Security Index (0-100), derived from FIES or HDDS"
+    minimum: 0
+    maximum: 100
+    source: "LSMS (Food Insecurity Experience Scale or Household Dietary Diversity Score)"
+  
+  household_consumption_expenditure:
+    type: number
+    description: "Total annual household consumption expenditure (local currency, deflated)"
+    minimum: 0
+    source: "LSMS Household Consumption Module"
+  
+  dietary_diversity_score:
+    type: integer
+    description: "Household Dietary Diversity Score (HDDS), count of food groups consumed"
+    minimum: 0
+    maximum: 12
+    source: "LSMS / FAO HDDS methodology"
+  
+  # --- Primary Predictor: CSA Adoption ---
+  csa_index:
+    type: number
+    description: "Weighted composite CSA adoption index (0.0 to 1.0)"
+    minimum: 0.0
+    maximum: 1.0
+    source: "Aggregated from conservation_tillage, crop_diversity, irrigation_efficiency"
+    components:
+      - conservation_tillage_score
+      - crop_diversity_index
+      - irrigation_efficiency_score
+  
+  conservation_tillage_score:
+    type: number
+    description: "Adoption score for conservation tillage (0.0-1.0)"
+    minimum: 0.0
+    maximum: 1.0
+  
+  crop_diversity_index:
+    type: number
+    description: "Shannon diversity index or count of crop types grown"
+    minimum: 0.0
+  
+  irrigation_efficiency_score:
+    type: number
+    description: "Score for irrigation efficiency (0.0-1.0), 1.0 = drip/sprinkler"
+    minimum: 0.0
+    maximum: 1.0
+  
+  # --- Moderators (Digital & Finance Access) ---
+  digital_access_index:
+    type: number
+    description: "Composite index of digital technology access (0.0-1.0)"
+    minimum: 0.0
+    maximum: 1.0
+    source: "LSMS ICT Module (Mobile, Internet, Digital Finance)"
+  
+  finance_access_index:
+    type: number
+    description: "Composite index of financial inclusion (0.0-1.0)"
+    minimum: 0.0
+    maximum: 1.0
+    source: "LSMS Financial Inclusion Module (Credit, Savings, Insurance)"
+  
+  # --- Climate Covariates (NASA POWER) ---
+  growing_season_temp_avg:
+    type: number
+    description: "Average temperature (°C) during the local growing season"
+    unit: celsius
+    source: "NASA POWER (nearest gridpoint to household coordinates)"
+  
+  growing_season_precip_total:
+    type: number
+    description: "Total precipitation (mm) during the local growing season"
+    unit: millimeters
+    source: "NASA POWER"
+  
+  climate_anomaly_score:
+    type: number
+    description: "Standardized anomaly of temperature/precip vs 30-year baseline"
+    source: "Calculated from NASA POWER climatology"
+  
+  # --- Control Variables (Demographics & Assets) ---
+  household_size:
+    type: integer
+    description: "Number of household members"
+    minimum: 1
+  
+  head_of_household_age:
+    type: integer
+    description: "Age of the head of household"
+    minimum: 18
+  
+  head_of_household_gender:
+    type: string
+    description: "Gender of head of household"
+    enum: ["Male", "Female"]
+  
+  education_years_avg:
+    type: number
+    description: "Average years of education for adult household members"
+    minimum: 0
+  
+  land_size_hectares:
+    type: number
+    description: "Total cultivated land area (hectares)"
+    minimum: 0.0
+  
+  asset_index:
+    type: number
+    description: "PCA-derived asset ownership index"
+    source: "LSMS Asset Module"
+  
+  # --- Geospatial & Survey Weights ---
+  latitude:
+    type: number
+    description: "Latitude of household centroid"
+    minimum: -90
+    maximum: 90
+  
+  longitude:
+    type: number
+    description: "Longitude of household centroid"
+    minimum: -180
+    maximum: 180
+  
+  region_code:
+    type: string
+    description: "Administrative region/zone code for random effects"
+  
+  survey_weight:
+    type: number
+    description: "Calibrated sampling weight for stratified analysis"
+    minimum: 0.0
+  
+  # --- Metadata & Provenance ---
+  data_version:
+    type: string
+    description: "Version of the dataset schema and processing pipeline"
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+    default: "1.0.0"
+  
+  processing_date:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of when the dataset was generated"
+  
+  source_datasets:
     type: array
     items:
       type: string
-    description: List of column names that form the composite primary key
-    default:
-      - country_code
-      - year
-      - household_id
-
-  constraints:
-    type: object
-    properties:
-      unique_combinations:
-        type: array
-        items:
-          type: array
-          items:
-            type: string
-        description: List of column sets that must be unique (e.g., ["country_code", "year", "household_id"])
-      value_ranges:
-        type: array
-        items:
-          type: object
-          properties:
-            column:
-              type: string
-            min:
-              type: number
-            max:
-              type: number
-            unit:
-              type: string
-        description: Valid value ranges for numeric columns
-      required_fields:
-        type: array
-        items:
-          type: string
-        description: Columns that must not be null after imputation
-      derived_variables:
-        type: array
-        items:
-          type: object
-          properties:
-            name:
-              type: string
-            formula:
-              type: string
-            description:
-              type: string
-        description: List of variables derived from other columns (e.g., CSA Index)
-
-# Example Column Definitions (to be populated by clean.py)
-# These represent the expected structure after T015-T017 processing:
-example_columns:
-  - name: country_code
-    dtype: object
-    description: ISO 3166-1 alpha-3 country code
-    source:
-      dataset: LSMS
-      original_field: country_code
-    nullable: false
-  - name: year
-    dtype: int64
-    description: Survey year
-    source:
-      dataset: LSMS
-      original_field: survey_year
-    nullable: false
-  - name: household_id
-    dtype: object
-    description: Unique household identifier within country-year
-    source:
-      dataset: LSMS
-      original_field: sample_id
-    nullable: false
-  - name: latitude
-    dtype: float64
-    description: Household latitude (WGS84)
-    source:
-      dataset: LSMS
-      original_field: geo_latitude
-    nullable: true
-  - name: longitude
-    dtype: float64
-    description: Household longitude (WGS84)
-    source:
-      dataset: LSMS
-      original_field: geo_longitude
-    nullable: true
-  - name: csa_index
-    dtype: float64
-    description: Weighted composite CSA adoption score (0.0 to 1.0)
-    source:
-      dataset: Derived
-      original_field: N/A
-      transformation: "Weighted sum of conservation_tillage, crop_diversity, irrigation_efficiency"
-    nullable: true
-  - name: food_security_score
-    dtype: float64
-    description: Standardized food security outcome metric
-    source:
-      dataset: LSMS
-      original_field: hhs_foodscore
-    nullable: true
-  - name: climate_precipitation
-    dtype: float64
-    description: Average precipitation (mm) during growing season (3 months prior to harvest)
-    source:
-      dataset: NASA-POWER
-      original_field: PRECTOT
-      transformation: "Mean over growing season window"
-    nullable: true
-  - name: climate_temperature
-    dtype: float64
-    description: Average temperature (°C) during growing season
-    source:
-      dataset: NASA-POWER
-      original_field: TEMP
-      transformation: "Mean over growing season window"
-    nullable: true
-  - name: digital_access
-    dtype: float64
-    description: Digital technology access index (moderator)
-    source:
-      dataset: LSMS
-      original_field: digital_idx
-    nullable: true
-  - name: finance_access
-    dtype: float64
-    description: Financial access index (moderator)
-    source:
-      dataset: LSMS
-      original_field: finance_idx
-    nullable: true
-  - name: faostat_yield
-    dtype: float64
-    description: National crop yield (tonnes/ha) from FAOSTAT
-    source:
-      dataset: FAOSTAT
-      original_field: Yield
-      transformation: "Mapped to country-year"
-    nullable: true
+    description: "List of source datasets included (e.g., 'LSMS-ISA', 'NASA POWER', 'FAOSTAT')"
+    examples: ["LSMS-ISA 2021", "NASA POWER v1.0", "FAOSTAT 2023"]
+additionalProperties: false

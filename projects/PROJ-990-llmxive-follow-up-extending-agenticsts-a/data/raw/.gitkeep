@@ -1,2 +1,2 @@
-# Directory for raw input data
-# Trajectory logs should be placed here
+# Placeholder for raw trajectory data
+# Ensure data/raw/trajectories.csv is placed here before running the pipeline.

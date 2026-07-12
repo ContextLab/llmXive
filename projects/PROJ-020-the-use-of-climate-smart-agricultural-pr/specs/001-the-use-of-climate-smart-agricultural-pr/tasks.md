@@ -45,7 +45,7 @@
 
 - [X] T001a [P] Create project directories: `code/`, `data/`, `tests/`, `specs/`
 - [X] T001b [P] Create `__init__.py` files in all `code/` sub-packages (`data/`, `analysis/`, `viz/`, `utils/`)
-- [X] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_2ced1680 — status=not_enough_info] with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, statsmodels, geopandas, matplotlib, seaborn, requests, pyyaml)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, statsmodels, geopandas, matplotlib, seaborn, requests, pyyaml)
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 
 ---
@@ -59,9 +59,9 @@
 - [X] T004 Setup directory structure for `data/raw/`, `data/processed/`, and `state/` for checksums
 - [X] T005 [P] Implement `code/utils/logging.py` for provenance logging (mapping derived variables to raw IDs)
 - [X] T006 [P] Create `code/utils/config.py` to manage environment variables (target countries, years, RAM limits)
-- [ ] T007 Create base data schema definitions in `specs/001-csa-food-security/contracts/dataset.schema.yaml`
-- [ ] T008 [P] Implement `code/data/download.py` with function stubs: `download_lsms(country, year)`, `download_nasa_power(lat, lon, start, end)`, `download_faostat(indicator)`
-- [ ] T009 Setup pytest environment in `tests/` with configuration for CPU-only execution
+- [X] T007 Create base data schema definitions in `specs/001-csa-food-security/contracts/dataset.schema.yaml`
+- [X] T008 [P] Implement `code/data/download.py` with function stubs: `download_lsms(country, year)`, `download_nasa_power(lat, lon, start, end)`, `download_faostat(indicator)`
+- [X] T009 Setup pytest environment in `tests/` with configuration for CPU-only execution
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,8 +77,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`
-- [ ] T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py` <!-- FAILED: unspecified -->
+- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`
+- [ ] T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -117,7 +117,7 @@
  - Normalize to a unit scale.
 - [~] T024 [US2] Implement collinearity diagnostics in `code/analysis/diagnostics.py`:
  - Calculate VIF for all predictors
- - Flag predictors exceeding VIF > 5.0 [UNRESOLVED-CLAIM: c_b194fdd7 — status=not_enough_info] (log warning, do not auto-exclude mediators)
+ - Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude mediators)
 - [~] T023 [US2] Implement Mixed-Effects Regression model in `code/analysis/model.py`: <!-- FAILED: unspecified -->
  - Include interaction terms for digital and finance access (moderation)
  - Include mediation analysis for digital/finance access (indirect effects) per Constitution Principle VII
@@ -154,8 +154,8 @@
 - [~] T033 [US3] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes
 - [~] T034 [US3] Implement distribution plot generation in `code/viz/plots.py`
 - [~] T035 [US3] Implement leave-one-region-out cross-validation in `code/analysis/robustness.py` **(Must run after T023)**
-- [ ] T036 [US3] Implement bootstrap resampling with a sufficient number of iterations. in `code/analysis/robustness.py` to validate model stability and report variance estimates
-- [ ] T037 [US3] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots)
+- [~] T036 [US3] Implement bootstrap resampling with a sufficient number of iterations. in `code/analysis/robustness.py` to validate model stability and report variance estimates
+- [~] T037 [US3] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -165,10 +165,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `specs/001-csa-food-security/quickstart.md`
-- [ ] T039 Code cleanup and refactoring in `code/`
-- [ ] T040 Performance optimization for model fitting (batching, efficient memory usage)
-- [ ] T041 [P] Additional unit tests for edge cases (missing years, climate gaps, VIF > 5.0) in `tests/unit/`
+- [~] T038 [P] Documentation updates in `specs/001-csa-food-security/quickstart.md`
+- [~] T039 Code cleanup and refactoring in `code/`
+- [~] T040 Performance optimization for model fitting (batching, efficient memory usage)
+- [~] T041 [P] Additional unit tests for edge cases (missing years, climate gaps, VIF > 5.0) in `tests/unit/`
 - [ ] T042 Run quickstart.md validation to ensure end-to-end reproducibility
 
 ---

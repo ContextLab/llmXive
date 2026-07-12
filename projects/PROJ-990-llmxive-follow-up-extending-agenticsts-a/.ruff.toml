@@ -1,0 +1,22 @@
+# Ruff configuration file (alternative to pyproject.toml)
+# This file is used if pyproject.toml is not present or if explicitly invoked.
+# Configuration mirrors pyproject.toml for consistency.
+
+target-version = "py311"
+line-length = 88
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+
+ignore = [
+    "E501",
+    "B008",
+]
+
+per-file-ignores = { "tests/*" = ["S101"] }

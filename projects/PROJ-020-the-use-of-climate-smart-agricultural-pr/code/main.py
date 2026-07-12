@@ -5,25 +5,31 @@ from data.download import download_lsms, download_nasa_power, download_faostat
 from data.clean import run_sampling_pipeline, clean_and_merge, apply_imputation_weights, validate_imputation_quality, get_imputation_report
 from utils.config import get_target_countries, get_target_years, get_data_dir
 from utils.logging import initialize_logging, flush_provenance_cache
+from analysis.model import run_mixed_effects_model, run_mediation_analysis, calculate_fdr_adjusted_pvalues
+from analysis.robustness import run_robustness_pipeline
+from viz.plots import main as viz_main
 
 def main():
     """
-    Orchestrate the full data pipeline:
+    Orchestrate the full analysis and visualization pipeline:
     1. Download raw data (LSMS, FAOSTAT, NASA POWER)
-    2. Clean, merge, and impute
-    3. Apply sampling weights and stratification
-    4. Save the final processed dataset
+    2. Clean, merge, impute, and sample
+    3. Run Mixed-Effects Modeling and Diagnostics
+    4. Run Robustness Checks (Bootstrap, Leave-One-Region-Out)
+    5. Generate Visualizations (Scatter, Coefficient, Distribution, Maps)
+    6. Save all outputs to data/processed/ and figures/
     """
     logger = initialize_logging()
-    logger.info("Starting llmXive data pipeline for T019.")
+    logger.info("Starting llmXive full analysis pipeline for T037.")
     
     # Initialize directories
     data_dir = get_data_dir()
     raw_dir = data_dir / "raw"
     processed_dir = data_dir / "processed"
     state_dir = data_dir / "state"
+    figures_dir = data_dir.parent / "figures"
     
-    for d in [raw_dir, processed_dir, state_dir]:
+    for d in [raw_dir, processed_dir, state_dir, figures_dir]:
         d.mkdir(parents=True, exist_ok=True)
     
     # Step 1: Download Data
@@ -56,41 +62,48 @@ def main():
         except Exception as e:
             logger.warning(f"Failed to download FAOSTAT {country}: {e}")
     
-    # Download NASA POWER data (requires coordinates, handled in clean.py or specific logic)
-    # For the entry point, we assume coordinates are available in LSMS or a config file
-    # The clean.py logic will handle the actual NASA POWER fetching if needed based on LSMS coordinates.
-    logger.info("NASA POWER data will be fetched during the cleaning phase based on survey coordinates.")
-    
     # Step 2: Clean, Merge, Impute, and Sample
     logger.info("Step 2: Running cleaning, merging, and sampling pipeline...")
-    
-    # The run_sampling_pipeline function orchestrates:
-    # - Loading raw data
-    # - Merging on country/year
-    # - Imputing missing values
-    # - Calculating design weights
-    # - Stratified sampling
-    # - Saving the final parquet
-    
     output_path = run_sampling_pipeline(raw_dir, processed_dir)
     
-    if output_path and output_path.exists():
-        logger.info(f"Pipeline completed successfully. Output: {output_path}")
-        
-        # Validate quality
-        report = get_imputation_report()
-        if report:
-            logger.info(f"Imputation Report: {report}")
-    else:
-        logger.error("Pipeline completed but no output file was generated.")
+    if not output_path or not output_path.exists():
+        logger.error("Data pipeline failed to produce output.")
         raise RuntimeError("Data pipeline failed to produce output.")
     
-    # Step 3: Flush Provenance
-    logger.info("Step 3: Flushing provenance cache...")
+    logger.info(f"Data pipeline completed. Output: {output_path}")
+    
+    # Validate quality
+    report = get_imputation_report()
+    if report:
+        logger.info(f"Imputation Report: {report}")
+    
+    # Step 3: Run Statistical Modeling
+    logger.info("Step 3: Running Mixed-Effects Model and Mediation Analysis...")
+    model_results_path = run_mixed_effects_model(processed_dir, figures_dir)
+    if model_results_path:
+        logger.info(f"Model results saved to {model_results_path}")
+    
+    logger.info("Step 3b: Running Mediation Analysis...")
+    mediation_results_path = run_mediation_analysis(processed_dir, figures_dir)
+    if mediation_results_path:
+        logger.info(f"Mediation results saved to {mediation_results_path}")
+    
+    # Step 4: Run Robustness Checks
+    logger.info("Step 4: Running Robustness Checks (Bootstrap & Leave-One-Region-Out)...")
+    robustness_results_path = run_robustness_pipeline(processed_dir, figures_dir)
+    if robustness_results_path:
+        logger.info(f"Robustness results saved to {robustness_results_path}")
+    
+    # Step 5: Generate Visualizations
+    logger.info("Step 5: Generating Visualizations...")
+    viz_main()
+    
+    # Step 6: Flush Provenance
+    logger.info("Step 6: Flushing provenance cache...")
     flush_provenance_cache(state_dir / "provenance_log.json")
     logger.info("Provenance log flushed to state/provenance_log.json.")
     
-    logger.info("All tasks completed.")
+    logger.info("Full analysis pipeline completed successfully.")
     return 0
 
 if __name__ == "__main__":

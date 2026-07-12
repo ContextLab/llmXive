@@ -4,326 +4,265 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import pandas as pd
-from dataclasses import dataclass, field
-import csv
 
-from config import ensure_directories, load_config_from_file
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@dataclass
 class SchemaField:
-    name: str
-    dtype: str
-    nullable: bool = False
-    description: str = ""
+    """Represents a single field in a schema definition."""
+    def __init__(self, name: str, dtype: str, required: bool = True, description: str = ""):
+        self.name = name
+        self.dtype = dtype
+        self.required = required
+        self.description = description
 
-@dataclass
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "dtype": self.dtype,
+            "required": self.required,
+            "description": self.description
+        }
+
 class Schema:
-    name: str
-    fields: List[SchemaField]
-    description: str = ""
+    """Represents a schema for a processed dataset."""
+    def __init__(self, name: str, fields: List[SchemaField], description: str = ""):
+        self.name = name
+        self.fields = fields
+        self.description = description
 
-# Define schemas for processed data files
-SCHEMAS = {
-    "utility_labels": Schema(
-        name="utility_labels",
-        fields=[
-            SchemaField(name="layer_id", dtype="int64", nullable=False, description="Unique identifier for the layer"),
-            SchemaField(name="utility_score", dtype="float64", nullable=False, description="Calculated utility score from ablation"),
-            SchemaField(name="turn_id", dtype="int64", nullable=False, description="Turn identifier from original trajectory"),
-            SchemaField(name="entropy", dtype="float64", nullable=True, description="Shannon entropy at this turn"),
-        ],
-        description="Structured training labels derived from ablation study"
-    ),
-    "train_set": Schema(
-        name="train_set",
-        fields=[
-            SchemaField(name="trajectory_id", dtype="object", nullable=False, description="Unique trajectory identifier"),
-            SchemaField(name="turn_id", dtype="int64", nullable=False, description="Turn number within trajectory"),
-            SchemaField(name="health", dtype="float64", nullable=True, description="Agent health at this turn"),
-            SchemaField(name="threat", dtype="float64", nullable=True, description="Threat level at this turn"),
-            SchemaField(name="deck_size", dtype="int64", nullable=True, description="Deck size at this turn"),
-            SchemaField(name="entropy", dtype="float64", nullable=True, description="Shannon entropy of move distribution"),
-            SchemaField(name="utility_score", dtype="float64", nullable=False, description="Ground truth utility score"),
-        ],
-        description="Training split of processed trajectories with utility labels"
-    ),
-    "holdout_set": Schema(
-        name="holdout_set",
-        fields=[
-            SchemaField(name="trajectory_id", dtype="object", nullable=False, description="Unique trajectory identifier"),
-            SchemaField(name="turn_id", dtype="int64", nullable=False, description="Turn number within trajectory"),
-            SchemaField(name="health", dtype="float64", nullable=True, description="Agent health at this turn"),
-            SchemaField(name="threat", dtype="float64", nullable=True, description="Threat level at this turn"),
-            SchemaField(name="deck_size", dtype="int64", nullable=True, description="Deck size at this turn"),
-            SchemaField(name="entropy", dtype="float64", nullable=True, description="Shannon entropy of move distribution"),
-            SchemaField(name="utility_score", dtype="float64", nullable=False, description="Ground truth utility score"),
-        ],
-        description="Hold-out split of processed trajectories for validation"
-    ),
-    "ablation_labels_full": Schema(
-        name="ablation_labels_full",
-        fields=[
-            SchemaField(name="layer_id", dtype="int64", nullable=False, description="Layer identifier"),
-            SchemaField(name="utility_score", dtype="float64", nullable=False, description="Utility score from ablation"),
-            SchemaField(name="trajectory_id", dtype="object", nullable=False, description="Source trajectory"),
-            SchemaField(name="turn_id", dtype="int64", nullable=False, description="Turn identifier"),
-        ],
-        description="Full ablation study results (ground truth labels)"
-    ),
-    "proxy_validation_report": Schema(
-        name="proxy_validation_report",
-        fields=[
-            SchemaField(name="correlation_coefficient", dtype="float64", nullable=False, description="Pearson correlation between proxy and ground truth"),
-            SchemaField(name="sample_size", dtype="int64", nullable=False, description="Number of samples evaluated"),
-            SchemaField(name="validation_passed", dtype="bool", nullable=False, description="Whether correlation >= 0.7"),
-        ],
-        description="Validation report for static log proxy against ablation ground truth"
-    ),
-    "baseline_comparison": Schema(
-        name="baseline_comparison",
-        fields=[
-            SchemaField(name="condition", dtype="object", nullable=False, description="Experimental condition (Dynamic, Static, Random)"),
-            SchemaField(name="win_rate", dtype="float64", nullable=False, description="Mean win rate for condition"),
-            SchemaField(name="avg_tokens", dtype="float64", nullable=False, description="Mean token usage for condition"),
-        ],
-        description="Aggregated baseline comparison results"
-    ),
-    "token_reduction_verification": Schema(
-        name="token_reduction_verification",
-        fields=[
-            SchemaField(name="passed", dtype="bool", nullable=False, description="Whether token reduction >= 30%"),
-            SchemaField(name="dynamic_avg_tokens", dtype="float64", nullable=False, description="Average tokens for dynamic policy"),
-            SchemaField(name="static_avg_tokens", dtype="float64", nullable=False, description="Average tokens for static baseline"),
-            SchemaField(name="reduction_percentage", dtype="float64", nullable=False, description="Calculated reduction percentage"),
-        ],
-        description="Verification of token budget compliance and reduction"
-    ),
-    "divergence_report": Schema(
-        name="divergence_report",
-        fields=[
-            SchemaField(name="is_divergent", dtype="bool", nullable=False, description="Whether trajectories diverged"),
-            SchemaField(name="divergence_count", dtype="int64", nullable=False, description="Number of divergent pairs"),
-            SchemaField(name="total_pairs", dtype="int64", nullable=False, description="Total trajectory pairs analyzed"),
-        ],
-        description="Report on trajectory divergence between dynamic and static runs"
-    ),
-    "statistical_results": Schema(
-        name="statistical_results",
-        fields=[
-            SchemaField(name="p_value", dtype="float64", nullable=False, description="Raw p-value from statistical test"),
-            SchemaField(name="effect_size", dtype="float64", nullable=True, description="Calculated effect size"),
-            SchemaField(name="test_type", dtype="object", nullable=False, description="Type of statistical test used"),
-            SchemaField(name="bonferroni_adjusted", dtype="float64", nullable=False, description="Bonferroni corrected p-value"),
-            SchemaField(name="divergence_status", dtype="bool", nullable=False, description="Divergence status from report"),
-        ],
-        description="Final statistical testing results with corrections"
-    )
-}
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "description": self.description,
+            "fields": [f.to_dict() for f in self.fields]
+        }
 
-def validate_dataframe_schema(df: pd.DataFrame, schema: Schema, file_path: str) -> bool:
+def validate_dataframe_schema(df: pd.DataFrame, schema: Schema) -> Dict[str, Any]:
     """
-    Validate that a DataFrame matches the expected schema.
-    
-    Args:
-        df: DataFrame to validate
-        schema: Expected schema definition
-        file_path: Path of the file being validated (for logging)
-        
-    Returns:
-        True if validation passes, False otherwise
+    Validates a DataFrame against a Schema definition.
+    Returns a report dict with 'valid' (bool) and 'errors' (list).
     """
     errors = []
+    existing_cols = set(df.columns)
     
-    # Check required columns
-    expected_columns = {field.name for field in schema.fields}
-    actual_columns = set(df.columns)
-    missing_columns = expected_columns - actual_columns
-    
-    if missing_columns:
-        errors.append(f"Missing columns: {missing_columns}")
-    
-    # Check data types
     for field in schema.fields:
-        if field.name in df.columns:
-            series = df[field.name]
-            
-            # Type mapping from schema to pandas dtype
-            type_map = {
-                "int64": ["int64", "int32", "int16", "int8"],
-                "float64": ["float64", "float32"],
-                "object": ["object", "string"],
-                "bool": ["bool"],
-            }
-            
-            expected_types = type_map.get(field.dtype, [field.dtype])
-            actual_dtype = str(series.dtype)
-            
-            if not any(expected in actual_dtype for expected in expected_types):
-                errors.append(f"Column '{field.name}': expected {field.dtype}, got {actual_dtype}")
-            
-            # Check nullability
-            if not field.nullable and series.isna().any():
-                errors.append(f"Column '{field.name}': contains null values but nullable=False")
-    
-    if errors:
-        logger.error(f"Schema validation failed for {file_path}:")
-        for error in errors:
-            logger.error(f"  - {error}")
-        return False
-    
-    logger.info(f"Schema validation passed for {file_path}")
-    return True
-
-def create_processed_directories() -> Path:
-    """Create the data/processed/ directory structure."""
-    processed_dir = Path("data/processed")
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Created directory: {processed_dir}")
-    return processed_dir
-
-def validate_schema_file(file_path: Path, schema_name: str) -> bool:
-    """
-    Validate a specific data file against its schema.
-    
-    Args:
-        file_path: Path to the file to validate
-        schema_name: Name of the schema to validate against (key in SCHEMAS)
+        if field.name not in existing_cols:
+            if field.required:
+                errors.append(f"Missing required column: {field.name}")
+            continue
         
-    Returns:
-        True if validation passes, False otherwise
-    """
-    if not schema_name in SCHEMAS:
-        logger.error(f"Unknown schema: {schema_name}")
-        return False
-    
-    schema = SCHEMAS[schema_name]
-    
-    if not file_path.exists():
-        logger.error(f"File does not exist: {file_path}")
-        return False
-    
-    try:
-        # Determine file type and load
-        suffix = file_path.suffix.lower()
+        # Check dtype compatibility
+        actual_dtype = str(df[field.name].dtype)
+        # Map pandas dtypes to generic types for comparison
+        expected_type = field.dtype.lower()
         
-        if suffix == '.csv':
-            df = pd.read_csv(file_path)
-        elif suffix == '.json':
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-                # Handle both list of records and single object
-                if isinstance(data, list):
-                    df = pd.DataFrame(data)
-                elif isinstance(data, dict):
-                    # If it's a single object, wrap it in a list
-                    df = pd.DataFrame([data])
-                else:
-                    logger.error(f"Unexpected JSON structure in {file_path}")
-                    return False
-        else:
-            logger.error(f"Unsupported file format: {suffix}")
-            return False
+        type_mapping = {
+            'int': ['int64', 'int32', 'int'],
+            'float': ['float64', 'float32', 'float'],
+            'string': ['object', 'string', 'str'],
+            'bool': ['bool', 'boolean']
+        }
         
-        return validate_dataframe_schema(df, schema, str(file_path))
-        
-    except Exception as e:
-        logger.error(f"Error validating {file_path}: {e}")
-        return False
-
-def validate_all_processed_files() -> bool:
-    """
-    Validate all expected files in data/processed/ against their schemas.
+        valid_types = type_mapping.get(expected_type, [expected_type])
+        if actual_dtype not in valid_types:
+            errors.append(f"Column '{field.name}' has dtype {actual_dtype}, expected {expected_type}")
     
-    Returns:
-        True if all validations pass, False otherwise
-    """
-    processed_dir = Path("data/processed")
-    if not processed_dir.exists():
-        logger.error("data/processed/ directory does not exist")
-        return False
-    
-    # Mapping of expected files to their schema names
-    file_schema_map = {
-        "utility_labels.csv": "utility_labels",
-        "train_set.csv": "train_set",
-        "holdout_set.csv": "holdout_set",
-        "ablation_labels_full.json": "ablation_labels_full",
-        "proxy_validation_report.json": "proxy_validation_report",
-        "baseline_comparison.csv": "baseline_comparison",
-        "token_reduction_verification.json": "token_reduction_verification",
-        "divergence_report.json": "divergence_report",
-        "statistical_results.json": "statistical_results",
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "schema_name": schema.name,
+        "row_count": len(df)
     }
-    
-    all_passed = True
-    
-    for filename, schema_name in file_schema_map.items():
-        file_path = processed_dir / filename
-        if file_path.exists():
-            if not validate_schema_file(file_path, schema_name):
-                all_passed = False
-        else:
-            logger.info(f"File not yet created (expected later in pipeline): {filename}")
-    
-    return all_passed
 
-def write_schema_registry() -> Path:
+def create_processed_directories(base_dir: Path) -> None:
     """
-    Write a schema registry file documenting all expected schemas.
+    Creates the data/processed directory structure and schema registry file.
+    """
+    processed_dir = base_dir / "data" / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
     
-    Returns:
-        Path to the written registry file
+    # Create a placeholder registry if it doesn't exist
+    registry_path = processed_dir / "schema_registry.json"
+    if not registry_path.exists():
+        registry = {
+            "version": "1.0",
+            "schemas": {}
+        }
+        with open(registry_path, 'w') as f:
+            json.dump(registry, f, indent=2)
+        logger.info(f"Created schema registry at {registry_path}")
+    
+    logger.info(f"Ensured processed directory exists at {processed_dir}")
+
+def validate_schema_file(schema_path: Path) -> Optional[Schema]:
     """
+    Loads and validates a schema definition file (JSON).
+    Returns the Schema object if valid, None otherwise.
+    """
+    try:
+        with open(schema_path, 'r') as f:
+            data = json.load(f)
+        
+        fields = []
+        for field_data in data.get("fields", []):
+            fields.append(SchemaField(
+                name=field_data["name"],
+                dtype=field_data["dtype"],
+                required=field_data.get("required", True),
+                description=field_data.get("description", "")
+            ))
+        
+        return Schema(
+            name=data.get("name", "unknown"),
+            fields=fields,
+            description=data.get("description", "")
+        )
+    except Exception as e:
+        logger.error(f"Failed to load schema from {schema_path}: {e}")
+        return None
+
+def validate_all_processed_files(base_dir: Path) -> Dict[str, Any]:
+    """
+    Scans data/processed/ for CSV files and validates them against registered schemas.
+    """
+    processed_dir = base_dir / "data" / "processed"
+    registry_path = processed_dir / "schema_registry.json"
+    
+    if not processed_dir.exists():
+        return {"valid": False, "error": "Processed directory does not exist"}
+    
+    if not registry_path.exists():
+        return {"valid": False, "error": "Schema registry not found"}
+    
+    with open(registry_path, 'r') as f:
+        registry = json.load(f)
+    
+    results = {}
+    all_valid = True
+    
+    for csv_file in processed_dir.glob("*.csv"):
+        file_name = csv_file.stem
+        if file_name in registry.get("schemas", {}):
+            schema_data = registry["schemas"][file_name]
+            # Reconstruct schema object for validation
+            fields = [SchemaField(**f) for f in schema_data.get("fields", [])]
+            schema = Schema(name=file_name, fields=fields)
+            
+            try:
+                df = pd.read_csv(csv_file)
+                validation_result = validate_dataframe_schema(df, schema)
+                results[file_name] = validation_result
+                if not validation_result["valid"]:
+                    all_valid = False
+                    logger.warning(f"Validation failed for {csv_file}: {validation_result['errors']}")
+                else:
+                    logger.info(f"Validation passed for {csv_file}: {validation_result['row_count']} rows")
+            except Exception as e:
+                results[file_name] = {"valid": False, "errors": [str(e)]}
+                all_valid = False
+        else:
+            logger.info(f"No schema registered for {csv_file}, skipping validation")
+    
+    return {
+        "valid": all_valid,
+        "results": results,
+        "total_files_checked": len(results)
+    }
+
+def write_schema_registry(base_dir: Path, schemas: Dict[str, Schema]) -> None:
+    """
+    Writes the schema registry to data/processed/schema_registry.json.
+    """
+    processed_dir = base_dir / "data" / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    registry_path = processed_dir / "schema_registry.json"
+    
     registry = {
         "version": "1.0",
         "schemas": {}
     }
     
-    for name, schema in SCHEMAS.items():
-        registry["schemas"][name] = {
-            "description": schema.description,
-            "fields": [
-                {
-                    "name": f.name,
-                    "dtype": f.dtype,
-                    "nullable": f.nullable,
-                    "description": f.description
-                }
-                for f in schema.fields
-            ]
-        }
+    for name, schema in schemas.items():
+        registry["schemas"][name] = schema.to_dict()
     
-    registry_path = Path("data/processed/schema_registry.json")
     with open(registry_path, 'w') as f:
         json.dump(registry, f, indent=2)
     
-    logger.info(f"Schema registry written to {registry_path}")
-    return registry_path
+    logger.info(f"Wrote schema registry to {registry_path}")
 
 def main():
-    """Main entry point for schema validation and directory creation."""
-    logger.info("Starting T007: Create data/processed/ directory structure and schema validation")
+    """
+    Main entry point to initialize the processed directory structure 
+    and validate existing files against the registry.
+    """
+    base_dir = Path.cwd()
+    create_processed_directories(base_dir)
     
-    # Load config
-    config = load_config_from_file()
+    # Define standard schemas for this project
+    utility_labels_schema = Schema(
+        name="utility_labels",
+        fields=[
+            SchemaField("trajectory_id", "string", True, "Unique ID for the trajectory"),
+            SchemaField("turn_id", "int", True, "Turn number within trajectory"),
+            SchemaField("layer_id", "int", True, "Layer index being evaluated"),
+            SchemaField("utility_score", "float", True, "Utility score from ablation"),
+            SchemaField("entropy", "float", False, "Shannon entropy at this turn")
+        ],
+        description="Derived utility labels from ablation study"
+    )
     
-    # Create directories
-    processed_dir = create_processed_directories()
+    train_set_schema = Schema(
+        name="train_set",
+        fields=[
+            SchemaField("trajectory_id", "string", True, "Unique ID for the trajectory"),
+            SchemaField("features", "string", True, "JSON string of feature vector"),
+            SchemaField("utility_score", "float", True, "Target utility score")
+        ],
+        description="Training split of processed data"
+    )
     
-    # Write schema registry
-    write_schema_registry()
+    holdout_set_schema = Schema(
+        name="holdout_set",
+        fields=[
+            SchemaField("trajectory_id", "string", True, "Unique ID for the trajectory"),
+            SchemaField("features", "string", True, "JSON string of feature vector"),
+            SchemaField("utility_score", "float", True, "Target utility score")
+        ],
+        description="Hold-out validation split of processed data"
+    )
+    
+    baseline_comparison_schema = Schema(
+        name="baseline_comparison",
+        fields=[
+            SchemaField("condition", "string", True, "Agent condition (Dynamic, Static, Random)"),
+            SchemaField("win_rate", "float", True, "Average win rate"),
+            SchemaField("avg_tokens", "float", True, "Average token usage")
+        ],
+        description="Aggregated baseline comparison metrics"
+    )
+    
+    schemas = {
+        "utility_labels": utility_labels_schema,
+        "train_set": train_set_schema,
+        "holdout_set": holdout_set_schema,
+        "baseline_comparison": baseline_comparison_schema
+    }
+    
+    write_schema_registry(base_dir, schemas)
     
     # Validate any existing files
-    if validate_all_processed_files():
-        logger.info("All existing processed files validated successfully")
-    else:
-        logger.warning("Some existing files failed validation (may be expected if pipeline not complete)")
+    validation_report = validate_all_processed_files(base_dir)
     
-    logger.info("T007 completed successfully")
-    return True
+    if validation_report["valid"]:
+        print("All processed files validated successfully.")
+    else:
+        print("Validation issues found:")
+        for name, res in validation_report.get("results", {}).items():
+            if not res.get("valid", True):
+                print(f"  - {name}: {res.get('errors', [])}")
+    
+    return validation_report
 
 if __name__ == "__main__":
     main()

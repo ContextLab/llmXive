@@ -1,1 +1,2 @@
-# Directory for processed data artifacts
+# This directory is for processed data artifacts.
+# Schemas are defined in code/schema_validator.py and registered in schema_registry.json.

@@ -1,12 +1,9 @@
-T007 Create base data schema definitions in `specs/001-csa-food-security/contracts/dataset.schema.yaml`: 2
-? 'T008 [P] Implement `code/data/download.py` with function stubs: `download_lsms(country,
-  year)`, `download_nasa_power(lat, lon, start, end)`, `download_faostat(indicator)`'
-: 2
-T009 Setup pytest environment in `tests/` with configuration for CPU-only execution: 2
-T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`: 2
 ? 'T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py`
   <!-- FAILED: unspecified -->'
 : 2
+? 'T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py`
+  <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
+: 1
 ? T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya,
   India, Vietnam (-2023) with error handling for missing years
 : 1

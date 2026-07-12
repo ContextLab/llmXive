@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-07-12T09:55:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular fluorescence quantum yields with graph neural networks chemistry",
+  "rationale": "The paper provides general methodological recommendations for validating machine learning in biology but does not measure molecular fluorescence, quantum yields, or graph neural network performance on chemical data, failing to satisfy any of the inclusion criteria (a-f) for a literature review on this specific predictive task. It is a meta-methodology paper rather than a study of the specific mechanism, domain variables, or empirical population required.",
+  "relevant": false
+}

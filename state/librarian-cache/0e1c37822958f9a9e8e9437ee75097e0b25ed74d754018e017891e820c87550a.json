@@ -1,0 +1,741 @@
+{
+  "fetched_at": "2026-07-12T09:55:12Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 46.547,
+    "ended_at": "2026-07-12T09:55:12Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning prediction of fluorescence quantum yields"
+        ],
+        [
+          2,
+          "graph neural networks for photophysical property prediction"
+        ],
+        [
+          3,
+          "deep learning models for molecular quantum yield estimation"
+        ],
+        [
+          4,
+          "computational prediction of fluorescence efficiency"
+        ],
+        [
+          5,
+          "neural network approaches to excited state property prediction"
+        ],
+        [
+          6,
+          "structure-property relationships for fluorescence quantum yields"
+        ],
+        [
+          7,
+          "graph convolutional networks for molecular spectroscopy"
+        ],
+        [
+          8,
+          "data-driven modeling of radiative decay rates"
+        ],
+        [
+          9,
+          "quantum yield prediction using graph-based representations"
+        ],
+        [
+          10,
+          "machine learning for excited state dynamics and emission"
+        ],
+        [
+          11,
+          "graph attention networks for photophysical property modeling"
+        ],
+        [
+          12,
+          "predicting emission efficiency with deep learning"
+        ],
+        [
+          13,
+          "molecular graph representations for fluorescence prediction"
+        ],
+        [
+          14,
+          "supervised learning for quantum yield regression"
+        ],
+        [
+          15,
+          "computational methods for estimating fluorescence quantum efficiency"
+        ],
+        [
+          16,
+          "graph neural networks for optical property prediction"
+        ],
+        [
+          17,
+          "automated prediction of molecular radiative quantum yields"
+        ],
+        [
+          18,
+          "deep learning in computational photochemistry"
+        ],
+        [
+          19,
+          "graph-based models for excited state energy and emission"
+        ],
+        [
+          20,
+          "predicting non-radiative and radiative decay with GNNs"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chemistry": 0,
+        "machine learning prediction of fluorescence quantum yields": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "radiative decay rate non-radiative transition",
+      "QM9 dataset GNN fluorescence quantum yield",
+      "excited state dynamics S1 T1 intersystem crossing",
+      "photophysical property prediction benchmark evaluation",
+      "Jablonski diagram machine learning fluorescence modeling"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.04338"
+      ]
+    },
+    "per_query_hit_count": {
+      "Jablonski diagram machine learning fluorescence modeling": 3,
+      "Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chemistry": 3,
+      "QM9 dataset GNN fluorescence quantum yield": 3,
+      "excited state dynamics S1 T1 intersystem crossing": 3,
+      "photophysical property prediction benchmark evaluation": 3,
+      "radiative decay rate non-radiative transition": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2110.03861",
+          "rationale": "The paper focuses on a quantum computing framework (QTN-VQC) for general machine learning tasks like MNIST digit classification, which is an off-domain application of \"quantum\" and \"neural networks\" compared to the user's specific need for Graph Neural Networks applied to molecular fluorescence prediction. It does not measure molecular properties, utilize graph structures for chemistry, or establish a baseline for quantum yield prediction, failing all inclusion criteria (a-f) while triggering th",
+          "title": "QTN-VQC: An End-to-End Learning framework for Quantum Neural Networks"
+        },
+        {
+          "primary_pointer": "2602.11092",
+          "rationale": "The paper focuses on a general framework for benchmarking photonic and hybrid quantum machine learning models across various tasks, but it does not measure molecular fluorescence quantum yields, apply Graph Neural Networks to chemistry, or establish a baseline for this specific prediction task. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific domain (molecular properties), mechanism (fluorescence prediction), or canonical methodology (GNNs for chemistry) required for the",
+          "title": "MerLin: A Discovery Engine for Photonic and Hybrid Quantum Machine Learning"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on machine learning for official statistics and data source integrity in a policy/government context, which is an off-domain topic entirely unrelated to the user's question about predicting molecular fluorescence quantum yields using graph neural networks in chemistry. It shares no connection to the specific biological/physical mechanism, chemical domain, or empirical population required by the user's query.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper provides general methodological recommendations for validating machine learning in biology but does not measure molecular fluorescence, quantum yields, or graph neural network performance on chemical data, failing to satisfy any of the inclusion criteria (a-f) for a literature review on this specific predictive task. It is a meta-methodology paper rather than a study of the specific mechanism, domain variables, or empirical population required.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on learning curves in machine learning decision-making and does not address the specific domain of molecular fluorescence, quantum yields, or the application of Graph Neural Networks to chemistry. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or foundational methodology for molecular property prediction, representing an off-domain connection.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of molecular fluorescence, quantum yields, or the application of Graph Neural Networks to chemistry. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or foundational methodology for molecular property prediction, representing an off-domain topic that shares only the broad keyword \"learning.\"",
+          "title": "Active learning for data streams: a survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T09:54:26Z",
+    "term_input": {
+      "normalized": "predicting molecular fluorescence quantum yields with graph neural networks chemistry",
+      "raw": "Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have developed an online radiative-transfer suite (https://psg.gsfc.nasa.gov) applicable to a broad range of planetary objects (e.g., planets, moons, comets, asteroids, TNOs, KBOs, exoplanets). The Planetary Spectrum Generator (PSG) can synthesize planetary spectra (atmospheres and surfaces) for a broad range of wavelengths (UV/Vis/near-IR/IR/far-IR/THz/sub-mm/Radio) from any observatory (e.g., JWST, ALMA, Keck, SOFIA), any orbiter (e.g., ExoMars, Juno), or any lander (e.g., MSL). This is achieved by combining several state-of-the-art radiative transfer models, spectroscopic databases and planetary databases (i.e., climatological and orbital). PSG has a 3D (three-dimensional) orbital calculator for most bodies in the solar system, and all confirmed exoplanets, while the radiative-transfer models can ingest billions of spectral signatures for hundreds of species from several spectroscopic repositories. It integrates the latest radiative-transfer and scattering methods in order to compute high resolution spectra via line-by-line calculations, and utilizes the efficient correlated-k method at moderate resolutions, while for computing cometary spectra, PSG handles non-LTE and LTE excitation processes. PSG includes a realistic noise calculator that integrates several telescope / instrument configurations (e.g., interferometry, coronagraphs) and detector technologies (e.g., CCD, heterodyne detectors, bolometers). Such an integration of advanced spectroscopic methods into an online tool can greatly serve the planetary community, ultimately enabling the retrieval of planetary parameters from remote sensing data, efficient mission planning strategies, interpretation of current and future planetary data, calibration of spectroscopic data, and development of new instrument/spacecraft concepts.",
+          "claimed_authors": [
+            "Geronimo L. Villanueva",
+            "Michael D. Smith",
+            "Silvia Protopapa",
+            "Sara Faggi",
+            "Avi M. Mandell"
+          ],
+          "claimed_title": "Planetary Spectrum Generator: an accurate online radiative transfer suite for atmospheres, comets, small bodies and exoplanets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.02008"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='Planetary Spectrum Generator: an accurate online radiative transfer suite for atmospheres, comets, small bodies and exoplanets')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a simple method to measure the radiative and non-radiative recombination rates of individual fluorescent emitters at room temperature. By placing a single molecule successively close and far from a dielectric interface and simultaneously measuring its photoluminescence decay and its orientation, both the radiative and non-radiative recombination rates can be determined. For CdSe nanocrystals, our results demonstrate that the fluorescence quantum efficiency, determined at the single molecule level, is 98% in average, far above the value expected from conventional ensemble experiments. The bi-dimensionnal nature of the transition dipole is also directly evidenced from a single particle measurement.",
+          "claimed_authors": [
+            "X. Brokmann",
+            "L. Coolen",
+            "Maxime Dahan",
+            "J. P. Hermier"
+          ],
+          "claimed_title": "Measurement of the radiative and non-radiative decay rates of single CdSe nanocrystals through controlled modification of their spontaneous emission",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cond-mat/0408087"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='Measurement of the radiative and non-radiative decay rates of single CdSe nanocrystals through controlled modification of their spontaneous emission')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a contribution of higher order to neutrino-electron scattering that is a charged-current counterpart of both the anomalous axial-vector triangle and possible non-standard interaction contributions. It arises in the standard model with massive neutrinos, and renormalizes the nondiagonal axial-vector form-factor at low energies. We show that, due to the small size of radiative corrections, the neutrino-electron scattering still provides a discovery potential for some of the non-standard neutrino interactions proposed in the literature.",
+          "claimed_authors": [
+            "K. Kumericki",
+            "I. Picek"
+          ],
+          "claimed_title": "On Distinguishing Non-Standard Interactions from Radiative Corrections in Neutrino-Electron Scattering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "hep-ph/0204072"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='On Distinguishing Non-Standard Interactions from Radiative Corrections in Neutrino-Electron Scattering')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fluorescence microscopy has enabled a dramatic development in modern biology. Due to its inherently weak signal, fluorescence microscopy is not only much noisier than photography, but also presented with Poisson-Gaussian noise where Poisson noise, or shot noise, is the dominating noise source. To get clean fluorescence microscopy images, it is highly desirable to have effective denoising algorithms and datasets that are specifically designed to denoise fluorescence microscopy images. While such algorithms exist, no such datasets are available. In this paper, we fill this gap by constructing a dataset - the Fluorescence Microscopy Denoising (FMD) dataset - that is dedicated to Poisson-Gaussian denoising. The dataset consists of 12,000 real fluorescence microscopy images obtained with commercial confocal, two-photon, and wide-field microscopes and representative biological samples such as cells, zebrafish, and mouse brain tissues. We use image averaging to effectively obtain ground truth images and 60,000 noisy images with different noise levels. We use this dataset to benchmark 10 representative denoising algorithms and find that deep learning methods have the best performance. To our knowledge, this is the first real microscopy image dataset for Poisson-Gaussian denoising purposes and it could be an important tool for high-quality, real-time denoising applications in biomedical research.",
+          "claimed_authors": [
+            "Yide Zhang",
+            "Yinhao Zhu",
+            "Evan Nichols",
+            "Qingfei Wang",
+            "Siyuan Zhang",
+            "Cody Smith",
+            "Scott Howard"
+          ],
+          "claimed_title": "A Poisson-Gaussian Denoising Dataset with Real Fluorescence Microscopy Images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.10366"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='A Poisson-Gaussian Denoising Dataset with Real Fluorescence Microscopy Images')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the goals of the AIRFLY (AIR FLuorescence Yield) experiment is to measure the absolute fluorescence yield induced by electrons in air to better than 10% precision. We introduce a new technique for measurement of the absolute fluorescence yield of the 337 nm line that has the advantage of reducing the systematic uncertainty due to the detector calibration. The principle is to compare the measured fluorescence yield to a well known process - the Cerenkov emission. Preliminary measurements taken in the BFT (Beam Test Facility) in Frascati, Italy with 350 MeV electrons are presented. Beam tests in the Argonne Wakefield Accelerator at the Argonne National Laboratory, USA with 14 MeV electrons have also shown that this technique can be applied at lower energies.",
+          "claimed_authors": [
+            " AIRFLY Collaboration",
+            "M. Ave"
+          ],
+          "claimed_title": "A novel method for the absolute fluorescence yield measurement by AIRFLY",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0812.3649"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='A novel method for the absolute fluorescence yield measurement by AIRFLY')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Herein we studied the excited state dynamics of two bis-amino substituted anthraquinone (AQ) derivatives. Femtosecond transient absorption spectra show that intersystem crossing (ISC) takes place in 190-320 ps, and nanosecond transient absorption spectra demonstrated unusually short triplet state lifetime (2.1-5.4 us) for the two AQ derivatives at room temperature. Pulsed laser excited time-resolved electron paramagnetic resonance (TREPR) spectra shows an inversion of the electron spin polarization (ESP) phase pattern of the triplet state at longer delay time. Spectral simulations show that the faster decay of the Ty sublevel (x = 15.0 us, y = 1.50 us, z = 15.0 us) rationalizes the short T1 state lifetime and the ESP inversion. Computations taking into account the electron-vibrational coupling, i.e., the Herzberg-Teller effect, successfully rationalize the TREPR experimental observations.",
+          "claimed_authors": [
+            "Ruilei Wang",
+            "Andrey A. Sukhanov",
+            "Yue He",
+            "Aidar Mambetov",
+            "Jianzhang Zhao",
+            "Daniel Escudero",
+            "Violeta K. Voronkova",
+            "Mariangela Di Donatod"
+          ],
+          "claimed_title": "Electron Spin Dynamics of the Intersystem Crossing in Aminoanthraquinone Derivatives: The Spectral Telltale of Short Triplet Excited States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.10012"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='Electron Spin Dynamics of the Intersystem Crossing in Aminoanthraquinone Derivatives: The Spectral Telltale of Short Triplet Excited States')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an interactive version of an evidence-driven state-merging (EDSM) algorithm for learning variants of finite state automata. Learning these automata often amounts to recovering or reverse engineering the model generating the data despite noisy, incomplete, or imperfectly sampled data sources rather than optimizing a purely numeric target function. Domain expertise and human knowledge about the target domain can guide this process, and typically is captured in parameter settings. Often, domain expertise is subconscious and not expressed explicitly. Directly interacting with the learning algorithm makes it easier to utilize this knowledge effectively.",
+          "claimed_authors": [
+            "Christian A. Hammerschmidt",
+            "Radu State",
+            "Sicco Verwer"
+          ],
+          "claimed_title": "Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.09430"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
+          "claimed_authors": [
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
+          ],
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce SECQUE, a comprehensive benchmark for evaluating large language models (LLMs) in financial analysis tasks. SECQUE comprises 565 expert-written questions covering SEC filings analysis across four key categories: comparison analysis, ratio calculation, risk assessment, and financial insight generation. To assess model performance, we develop SECQUE-Judge, an evaluation mechanism leveraging multiple LLM-based judges, which demonstrates strong alignment with human evaluations. Additionally, we provide an extensive analysis of various models' performance on our benchmark. By making SECQUE publicly available, we aim to facilitate further research and advancements in financial AI.",
+          "claimed_authors": [
+            "Noga Ben Yoash",
+            "Meni Brief",
+            "Oded Ovadia",
+            "Gil Shenderovitz",
+            "Moshik Mishaeli",
+            "Rachel Lemberg",
+            "Eitam Sheetrit"
+          ],
+          "claimed_title": "SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.04596"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks chem', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-07-12T09:54:54Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jun Qi",
+            "Chao-Han Huck Yang",
+            "Pin-Yu Chen"
+          ],
+          "title": "QTN-VQC: An End-to-End Learning framework for Quantum Neural Networks",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.03861",
+        "summary": "The advent of noisy intermediate-scale quantum (NISQ) computers raises a crucial challenge to design quantum neural networks for fully quantum learning tasks. To bridge the gap, this work proposes an end-to-end learning framework named QTN-VQC, by introducing a trainable quantum tensor network (QTN) for quantum embedding on a variational quantum circuit (VQC). The architecture of QTN is composed of a parametric tensor-train network for feature extraction and a tensor product encoding for quantum embedding. We highlight the QTN for quantum embedding in terms of two perspectives: (1) we theoretically characterize QTN by analyzing its representation power of input features; (2) QTN enables an end-to-end parametric model pipeline, namely QTN-VQC, from the generation of quantum embedding to the output measurement. Our experiments on the MNIST dataset demonstrate the advantages of QTN for quantum embedding over other quantum embedding approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.03861",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T09:54:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cassandre Notton",
+            "Benjamin Stott",
+            "Philippe Schoeb",
+            "Anthony Walsh",
+            "Grégoire Leboucher",
+            "Vincent Espitalier",
+            "Vassilis Apostolou",
+            "Louis-Félix Vigneux",
+            "Alexia Salavrakos",
+            "Jean Senellart"
+          ],
+          "title": "MerLin: A Discovery Engine for Photonic and Hybrid Quantum Machine Learning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.11092",
+        "summary": "Identifying where quantum models may offer practical benefits in near term quantum machine learning (QML) requires moving beyond isolated algorithmic proposals toward systematic and empirical exploration across models, datasets, and hardware constraints. We introduce MerLin, an open-source framework designed as a discovery engine for photonic and hybrid quantum machine learning. MerLin integrates optimized strong simulation of linear optical circuits into standard PyTorch and scikit learn workflows, enabling end-to-end differentiable training of quantum layers.\n  MerLin is designed around systematic benchmarking and reproducibility. As an initial contribution, we reproduce eighteen state-of-the-art photonic and hybrid QML works spanning kernel methods, reservoir computing, convolutional and recurrent architectures, generative models, and modern training paradigms. These reproductions are released as reusable, modular experiments that can be directly extended and adapted, establishing a shared experimental baseline consistent with empirical benchmarking methodologies widely adopted in modern artificial intelligence.\n  By embedding photonic quantum models within established machine learning ecosystems, MerLin allows practitioners to leverage existing tooling for ablation studies, cross-modality comparisons, and hybrid classical-quantum workflows. The framework already implements hardware-aware features, allowing tests on available quantum hardware while enabling exploration beyond its current capabilities, positioning MerLin as a forward-looking co-design tool linking algorithms, benchmarks, and hardware.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.11092",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T09:54:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": 0.3017,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T09:54:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16189",
+        "summary": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16189",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T09:54:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T09:54:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "title": "Active learning for data streams: a survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.08893",
+        "summary": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.08893",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T09:54:59Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular fluorescence quantum yields with graph neural networks chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

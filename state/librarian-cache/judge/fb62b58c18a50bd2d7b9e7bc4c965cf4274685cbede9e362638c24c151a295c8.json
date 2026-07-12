@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2209.13233",
+  "judged_at": "2026-07-12T10:09:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"evopolicygym: evaluating autonomous policy evolution in interactive en\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it investigates the core mechanism of \"autonomous policy evolution\" (via genetic programming and evolutionary deep learning) in interactive computational environments, serving as a foundational methodological reference for the user's topic of policy evolution in LLMs. Although the specific domain is image classification rather than LLMs, it provides the canonical prior work on the evolutionary algorithms and automated model construction that the user'",
+  "relevant": true
+}

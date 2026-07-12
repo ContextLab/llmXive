@@ -1,0 +1,631 @@
+{
+  "fetched_at": "2026-07-12T10:09:11Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En\"",
+      "target_n": 5
+    },
+    "duration_seconds": 51.046,
+    "ended_at": "2026-07-12T10:09:11Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "autonomous policy evolution in interactive environments"
+        ],
+        [
+          2,
+          "evolutionary reinforcement learning for autonomous agents"
+        ],
+        [
+          3,
+          "automated policy search in dynamic environments"
+        ],
+        [
+          4,
+          "self-evolving reinforcement learning policies"
+        ],
+        [
+          5,
+          "meta-learning for policy adaptation in simulations"
+        ],
+        [
+          6,
+          "interactive environment policy optimization"
+        ],
+        [
+          7,
+          "autonomous agent evolution frameworks"
+        ],
+        [
+          8,
+          "genetic algorithms for reinforcement learning policies"
+        ],
+        [
+          9,
+          "evolving RL agents in simulated worlds"
+        ],
+        [
+          10,
+          "automated strategy generation in interactive systems"
+        ],
+        [
+          11,
+          "policy improvement via evolutionary strategies"
+        ],
+        [
+          12,
+          "autonomous learning in complex interactive settings"
+        ],
+        [
+          13,
+          "co-evolution of policies and environments"
+        ],
+        [
+          14,
+          "adaptive policy discovery in multi-agent systems"
+        ],
+        [
+          15,
+          "reinforcement learning with evolutionary search"
+        ],
+        [
+          16,
+          "automated benchmarking of policy evolution"
+        ],
+        [
+          17,
+          "self-improving agents in interactive simulations"
+        ],
+        [
+          18,
+          "evolutionary computation for control policies"
+        ],
+        [
+          19,
+          "dynamic policy adaptation in virtual environments"
+        ],
+        [
+          20,
+          "autonomous algorithmic evolution for decision making"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "autonomous policy evolution in interactive environments": 1,
+        "evolutionary reinforcement learning for autonomous agents": 5,
+        "llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En\" computer science": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "autonomous policy optimization evolutionary search",
+      "EvoPolicyGym benchmark interactive environment",
+      "multi-agent reinforcement learning self-play evolution",
+      "policy improvement trajectory evaluation metrics",
+      "emergent behavior co-evolutionary algorithms"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.12375"
+      ]
+    },
+    "per_query_hit_count": {
+      "EvoPolicyGym benchmark interactive environment": 3,
+      "autonomous policy optimization evolutionary search": 3,
+      "emergent behavior co-evolutionary algorithms": 3,
+      "llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En\" computer science": 3,
+      "multi-agent reinforcement learning self-play evolution": 3,
+      "policy improvement trajectory evaluation metrics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1903.05431",
+          "rationale": "The candidate paper focuses on \"Resource Abstraction\" and \"reward shaping\" for Multiagent Reinforcement Learning (MARL) in congestion problems, which does not address the user's specific question about \"EvoPolicyGym\" (an autonomous policy evolution framework) or the extension of that specific evaluation environment. While both involve autonomous agents, the paper lacks the specific mechanism (policy evolution/autonomous policy generation), the specific benchmark (EvoPolicyGym), or the foundation",
+          "title": "Resource Abstraction for Reinforcement Learning in Multiagent Congestion Problems"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T10:08:20Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"evopolicygym: evaluating autonomous policy evolution in interactive en\" computer science",
+      "raw": "llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evolutionary Computation (EC) has emerged as a powerful field of Artificial Intelligence, inspired by nature's mechanisms of gradual development. However, EC approaches often face challenges such as stagnation, diversity loss, computational complexity, population initialization, and premature convergence. To overcome these limitations, researchers have integrated learning algorithms with evolutionary techniques. This integration harnesses the valuable data generated by EC algorithms during iterative searches, providing insights into the search space and population dynamics. Similarly, the relationship between evolutionary algorithms and Machine Learning (ML) is reciprocal, as EC methods offer exceptional opportunities for optimizing complex ML tasks characterized by noisy, inaccurate, and dynamic objective functions. These hybrid techniques, known as Evolutionary Machine Learning (EML), have been applied at various stages of the ML process. EC techniques play a vital role in tasks such as data balancing, feature selection, and model training optimization. Moreover, ML tasks often require dynamic optimization, for which Evolutionary Dynamic Optimization (EDO) is valuable. This paper presents the first comprehensive exploration of reciprocal integration between EDO and ML. The study aims to stimulate interest in the evolutionary learning community and inspire innovative contributions in this domain.",
+          "claimed_authors": [
+            "Abdennour Boulesnane"
+          ],
+          "claimed_title": "Evolutionary Dynamic Optimization and Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.08748"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Evolutionary Dynamic Optimization and Machine Learning')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Exposing an Evolutionary Algorithm that is used to evolve robot controllers to variable conditions is necessary to obtain solutions which are robust and can cross the reality gap. However, we do not yet have methods for analyzing and understanding the impact of the varying morphological conditions which impact the evolutionary process, and therefore for choosing suitable variation ranges. By morphological conditions, we refer to the starting state of the robot, and to variations in its sensor readings during operation due to noise. In this article, we introduce a method that permits us to measure the impact of these morphological variations and we analyze the relation between the amplitude of variations, the modality with which they are introduced, and the performance and robustness of evolving agents. Our results demonstrate that (i) the evolutionary algorithm can tolerate morphological variations which have a very high impact, (ii) variations affecting the actions of the agent are tolerated much better than variations affecting the initial state of the agent or of the environment, and (iii) improving the accuracy of the fitness measure through multiple evaluations is not always useful. Moreover, our results show that morphological variations permit generating solutions which perform better both in varying and non-varying conditions.",
+          "claimed_authors": [
+            "Jonata Tyska Carvalho",
+            "Stefano Nolfi"
+          ],
+          "claimed_title": "The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.02809"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data-efficient image classification is a challenging task that aims to solve image classification using small training data. Neural network-based deep learning methods are effective for image classification, but they typically require large-scale training data and have major limitations such as requiring expertise to design network architectures and having poor interpretability. Evolutionary deep learning is a recent hot topic that combines evolutionary computation with deep learning. However, most evolutionary deep learning methods focus on evolving architectures of neural networks, which still suffer from limitations such as poor interpretability. To address this, this paper proposes a new genetic programming-based evolutionary deep learning approach to data-efficient image classification. The new approach can automatically evolve variable-length models using many important operators from both image and classification domains. It can learn different types of image features from colour or gray-scale images, and construct effective and diverse ensembles for image classification. A flexible multi-layer representation enables the new approach to automatically construct shallow or deep models/trees for different tasks and perform effective transformations on the input data via multiple internal nodes. The new approach is applied to solve five image classification tasks with different training set sizes. The results show that it achieves better performance in most cases than deep learning methods for data-efficient image classification. A deep analysis shows that the new approach has good convergence and evolves models with high interpretability, different lengths/sizes/shapes, and good transferability.",
+          "claimed_authors": [
+            "Ying Bi",
+            "Bing Xue",
+            "Mengjie Zhang"
+          ],
+          "claimed_title": "Genetic Programming-Based Evolutionary Deep Learning for Data-Efficient Image Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.13233"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Genetic Programming-Based Evolutionary Deep Learning for Data-Efficient Image Classification')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As the number of installed meters in buildings increases, there is a growing number of data time-series that could be used to develop data-driven models to support and optimize building operation. However, building data sets are often characterized by errors and missing values, which are considered, by the recent research, among the main limiting factors on the performance of the proposed models. Motivated by the need to address the problem of missing data in building operation, this work presents a data-driven approach to fill these gaps. In this study, three different autoencoder neural networks are trained to reconstruct missing short-term indoor environment data time-series in a data set collected in an office building in Aachen, Germany. This consisted of a four year-long monitoring campaign in and between the years 2014 and 2017, of 84 different rooms. The models are applicable for different time-series obtained from room automation, such as indoor air temperature, relative humidity and $CO_{2}$ data streams. The results prove that the proposed methods outperform classic numerical approaches and they result in reconstructing the corresponding variables with average RMSEs of 0.42 °C, 1.30 % and 78.41 ppm, respectively.",
+          "claimed_authors": [
+            "Antonio Liguori",
+            "Romana Markovic",
+            "Thi Thu Ha Dam",
+            "Jérôme Frisch",
+            "Christoph van Treeck",
+            "Francesco Causone"
+          ],
+          "claimed_title": "Indoor environment data time-series reconstruction using autoencoder neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.08155"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Indoor environment data time-series reconstruction using autoencoder neural networks')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent evidence suggests that SARS-CoV-2, which is the virus causing a global pandemic in 2020, is predominantly transmitted via airborne aerosols in indoor environments. This calls for novel strategies when assessing and controlling a building's indoor air quality (IAQ). IAQ can generally be controlled by ventilation and/or policies to regulate human-building-interaction. However, in a building, occupants use rooms in different ways, and it may not be obvious which measure or combination of measures leads to a cost- and energy-effective solution ensuring good IAQ across the entire building. Therefore, in this article, we introduce a novel agent-based simulator, ArchABM, designed to assist in creating new or adapt existing buildings by estimating adequate room sizes, ventilation parameters and testing the effect of policies while taking into account IAQ as a result of complex human-building interaction patterns. A recently published aerosol model was adapted to calculate time-dependent carbon dioxide ($CO_2$) and virus quanta concentrations in each room and inhaled $CO_2$ and virus quanta for each occupant over a day as a measure of physiological response. ArchABM is flexible regarding the aerosol model and the building layout due to its modular architecture, which allows implementing further models, any number and size of rooms, agents, and actions reflecting human-building interaction patterns. We present a use case based on a real floor plan and working schedules adopted in our research center. This study demonstrates how advanced simulation tools can contribute to improving IAQ across a building, thereby ensuring a healthy indoor environment.",
+          "claimed_authors": [
+            "Iñigo Martinez",
+            "Jan L. Bruse",
+            "Ane M. Florez-Tapia",
+            "Elisabeth Viles",
+            "Igor G. Olaizola"
+          ],
+          "claimed_title": "ArchABM: an agent-based simulator of human interaction with the built environment. $CO_2$ and viral load analysis for indoor air quality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.01484"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='ArchABM: an agent-based simulator of human interaction with the built environment. $CO_2$ and viral load analysis for indoor air quality')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a \\emph{collaborative} multi-agent reinforcement learning algorithm named variational policy propagation (VPP) to learn a \\emph{joint} policy through the interactions over agents. We prove that the joint policy is a Markov Random Field under some mild conditions, which in turn reduces the policy space effectively. We integrate the variational inference as special differentiable layers in policy such that the actions can be efficiently sampled from the Markov Random Field and the overall policy is differentiable. We evaluate our algorithm on several large scale challenging tasks and demonstrate that it outperforms previous state-of-the-arts.",
+          "claimed_authors": [
+            "Chao Qu",
+            "Hui Li",
+            "Chang Liu",
+            "Junwu Xiong",
+            "James Zhang",
+            "Wei Chu",
+            "Weiqiang Wang",
+            "Yuan Qi",
+            "Le Song"
+          ],
+          "claimed_title": "Variational Policy Propagation for Multi-agent Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08883"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Variational Policy Propagation for Multi-agent Reinforcement Learning')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Effective communication is pivotal for addressing complex collaborative tasks in multi-agent reinforcement learning (MARL). Yet, limited communication bandwidth and dynamic, intricate environmental topologies present significant challenges in identifying high-value communication partners. Agents must consequently select collaborators under uncertainty, lacking a priori knowledge of which partners can deliver task-critical information. To this end, we propose Interference-Aware K-Step Reachable Communication (IA-KRC), a novel framework that enhances cooperation via two core components: (1) a K-Step reachability protocol that confines message passing to physically accessible neighbors, and (2) an interference-prediction module that optimizes partner choice by minimizing interference while maximizing utility. Compared to existing methods, IA-KRC enables substantially more persistent and efficient cooperation despite environmental interference. Comprehensive evaluations confirm that IA-KRC achieves superior performance compared to state-of-the-art baselines, while demonstrating enhanced robustness and scalability in complex topological and highly dynamic multi-agent scenarios.",
+          "claimed_authors": [
+            "Ziyu Cheng",
+            "Jinsheng Ren",
+            "Zhouxian Jiang",
+            "Chenzhihang Li",
+            "Rongye Shi",
+            "Bin Liang",
+            "Jun Yang"
+          ],
+          "claimed_title": "Interference-Aware K-Step Reachable Communication in Multi-Agent Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.15054"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Interference-Aware K-Step Reachable Communication in Multi-Agent Reinforcement Learning')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating the value of a hypothetical target policy with only a logged dataset is important but challenging. On the one hand, it brings opportunities for safe policy improvement under high-stakes scenarios like clinical guidelines. On the other hand, such opportunities raise a need for precise off-policy evaluation (OPE). While previous work on OPE focused on improving the algorithm in value estimation, in this work, we emphasize the importance of the offline dataset, hence putting forward a data-centric framework for evaluating OPE problems. We propose DataCOPE, a data-centric framework for evaluating OPE, that answers the questions of whether and to what extent we can evaluate a target policy given a dataset. DataCOPE (1) forecasts the overall performance of OPE algorithms without access to the environment, which is especially useful before real-world deployment where evaluating OPE is impossible; (2) identifies the sub-group in the dataset where OPE can be inaccurate; (3) permits evaluations of datasets or data-collection strategies for OPE problems. Our empirical analysis of DataCOPE in the logged contextual bandit settings using healthcare datasets confirms its ability to evaluate both machine-learning and human expert policies like clinical guidelines. Finally, we apply DataCOPE to the task of reward modeling in Large Language Model alignment to demonstrate its scalability in real-world applications.",
+          "claimed_authors": [
+            "Hao Sun",
+            "Alex J. Chan",
+            "Nabeel Seedat",
+            "Alihan Hüyük",
+            "Mihaela van der Schaar"
+          ],
+          "claimed_title": "When is Off-Policy Evaluation (Reward Modeling) Useful in Contextual Bandits? A Data-Centric Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.14110"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='When is Off-Policy Evaluation (Reward Modeling) Useful in Contextual Bandits? A Data-Centric Perspective')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Emergent behavior arising in a joint human-robot system cannot be fully predicted based on an understanding of the individual agents. Typically, robot behavior is governed by algorithms that optimize a reward function that should quantitatively capture the joint system's goal. Although reward functions can be updated to better match human needs, this is no guarantee that no misalignment with the complex and variable human needs will occur. Algorithms may learn undesirable behavior when interacting with the human and the intrinsically unpredictable human-inhabited world, thereby producing further misalignment with human users or bystanders. As a result, humans might behave differently than anticipated, causing robots to learn differently and undesirable behavior to emerge. With this short paper, we state that to design for Human-Robot Interaction that mitigates such undesirable emergent behavior, we need to complement advancements in human-robot interaction algorithms with human factors knowledge and expertise. More specifically, we advocate a three-pronged approach that we illustrate using a particularly challenging example of safety-critical human-robot interaction: a driver interacting with a semi-automated vehicle. Undesirable emergent behavior should be mitigated by a combination of 1) including driver behavioral mechanisms in the vehicle's algorithms and reward functions, 2) model-based approaches that account for interaction-induced driver behavioral adaptations and 3) driver-centered interaction design that promotes driver engagement with the semi-automated vehicle, and the transparent communication of each agent's actions that allows mutual support and adaptation. We provide examples from recent empirical work in our group, in the hope this proves to be fruitful for discussing emergent human-robot interaction.",
+          "claimed_authors": [
+            "Timo Melman",
+            "Niek Beckers",
+            "David Abbink"
+          ],
+          "claimed_title": "Mitigating undesirable emergent behavior arising between driver and semi-automated vehicle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16572"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Mitigating undesirable emergent behavior arising between driver and semi-automated vehicle')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work proposes an extension to Structured Grammatical Evolution (SGE) called Co-evolutionary Probabilistic Structured Grammatical Evolution (Co-PSGE). In Co-PSGE each individual in the population is composed by a grammar and a genotype, which is a list of dynamic lists, each corresponding to a non-terminal of the grammar containing real numbers that correspond to the probability of choosing a derivation rule. Each individual uses its own grammar to map the genotype into a program. During the evolutionary process, both the grammar and the genotype are subject to variation operators. The performance of the proposed approach is compared to 3 different methods, namely, Grammatical Evolution (GE), Probabilistic Grammatical Evolution (PGE), and SGE on four different benchmark problems. The results show the effectiveness of the approach since Co-PSGE is able to outperform all the methods with statistically significant differences in the majority of the problems.",
+          "claimed_authors": [
+            "Jessica Mégane",
+            "Nuno Lourenço",
+            "Penousal Machado"
+          ],
+          "claimed_title": "Co-evolutionary Probabilistic Structured Grammatical Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.08985"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Co-evolutionary Probabilistic Structured Grammatical Evolution')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative adversarial networks (GANs) are powerful generative models but remain challenging to train due to pathologies suchas mode collapse and instability. Recent research has explored co-evolutionary approaches, in which populations of generators and discriminators are evolved, as a promising solution. This paper presents an empirical analysis of different coevolutionary GAN training strategies, focusing on the impact of selection and replacement mechanisms. We compare (mu,lambda), (mu+lambda) with elitism, and (mu+lambda) with tournament selection coevolutionary schemes, along with a non-evolutionary population based multi-generator multi-discriminator GAN baseline, across both synthetic low-dimensional datasets (blob and gaussian mixtures) and an image-based benchmark (MNIST). Results show that full generational replacement, i.e., (mu,lambda), consistently outperforms in terms of both sample quality and diversity, particularly when combined with larger offspring sizes. In contrast, elitist approaches tend to converge prematurely and suffer from reduced diversity. These findings highlight the importance of balancing exploration and exploitation dynamics in coevolutionary GAN training and provide guidance for designing more effective population-based generative models.",
+          "claimed_authors": [
+            "Walter P. Casas",
+            "Jamal Toutouh"
+          ],
+          "claimed_title": "Multi-population GAN Training: Analyzing Co-Evolutionary Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.13157"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvoPolicyGym: Evaluating Autonomous Policy Evoluti', candidate_title='Multi-population GAN Training: Analyzing Co-Evolutionary Algorithms')",
+        "failed_at": "2026-07-12T10:08:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhilin Wang",
+            "Han Song",
+            "Runzhe Zhan",
+            "Jusen Du",
+            "Jiacheng Chen",
+            "Tianle Li",
+            "Qingyu Yin",
+            "Yulun Wu",
+            "Zhennan Shen",
+            "Tong Zhu",
+            "Yanshu Li",
+            "Guanjie Chen",
+            "Derek F. Wong",
+            "Yafu Li",
+            "Yu Cheng",
+            "Yang Yang"
+          ],
+          "title": "EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive Environments",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.02440",
+        "summary": "Autonomous agents are increasingly expected to improve executable policies through feedback, yet existing evaluations often collapse this process into a final score or confound it with open-ended software-engineering progress. We introduce Autonomous Policy Evolution, a controlled evaluation setting in which a harness-model agent repeatedly edits an executable policy system under a fixed interaction budget. We instantiate this setting in EvoPolicyGym, a benchmark built from compact interactive RL environments that evaluates how agents iteratively improve explored policies. On the EvoPolicyGym suite, GPT-5.5 achieves the strongest aggregate rank score and top-two performance on all 16 environments. Beyond leaderboard results, EvoPolicyGym also provides trajectory-level diagnostics that distinguish how agents allocate budget, convert feedback into parametric tuning. These analyses show that strong autonomous policy evolution depends not only on isolated task wins, but on discovering task-appropriate mechanisms and refining policies under bounded feedback.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.02440",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:08:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrés Holgado-Sánchez",
+            "Holger Billhardt",
+            "Alberto Fernández",
+            "Sascha Ossowski"
+          ],
+          "title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.04518",
+        "summary": "Agreement Technologies refer to open computer systems in which autonomous software agents interact with one another, typically on behalf of humans, in order to come to mutually acceptable agreements. With the advance of AI systems in recent years, it has become apparent that such agreements, in order to be acceptable to the involved parties, must remain aligned with ethical principles and moral values. However, this is notoriously difficult to ensure, especially as different human users (and their software agents) may hold different value systems, i.e. they may differently weigh the importance of individual moral values. Furthermore, it is often hard to specify the precise meaning of a value in a particular context in a computational manner. Methods to estimate value systems based on human-engineered specifications, e.g. based on value surveys, are limited in scale due to the need for intense human moderation. In this article, we propose a novel method to automatically \\emph{learn} value systems from observations and human demonstrations. In particular, we propose a formal model of the \\emph{value system learning} problem, its instantiation to sequential decision-making domains based on multi-objective Markov decision processes, as well as tailored preference-based and inverse reinforcement learning algorithms to infer value grounding functions and value systems. The approach is illustrated and evaluated by two simulated use cases.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.04518",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:08:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12375",
+        "summary": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12375",
+          "http_status": 200,
+          "pdf_sample_score": 0.2725,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:08:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Praveen Palanisamy"
+          ],
+          "title": "Multi-Agent Connected Autonomous Driving using Deep Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1911.04175",
+        "summary": "The capability to learn and adapt to changes in the driving environment is crucial for developing autonomous driving systems that are scalable beyond geo-fenced operational design domains. Deep Reinforcement Learning (RL) provides a promising and scalable framework for developing adaptive learning based solutions. Deep RL methods usually model the problem as a (Partially Observable) Markov Decision Process in which an agent acts in a stationary environment to learn an optimal behavior policy. However, driving involves complex interaction between multiple, intelligent (artificial or human) agents in a highly non-stationary environment. In this paper, we propose the use of Partially Observable Markov Games(POSG) for formulating the connected autonomous driving problems with realistic assumptions. We provide a taxonomy of multi-agent learning environments based on the nature of tasks, nature of agents and the nature of the environment to help in categorizing various autonomous driving problems that can be addressed under the proposed formulation. As our main contributions, we provide MACAD-Gym, a Multi-Agent Connected, Autonomous Driving agent learning platform for furthering research in this direction. Our MACAD-Gym platform provides an extensible set of Connected Autonomous Driving (CAD) simulation environments that enable the research and development of Deep RL- based integrated sensing, perception, planning and control algorithms for CAD systems with unlimited operational design domain under realistic, multi-agent settings. We also share the MACAD-Agents that were trained successfully using the MACAD-Gym platform to learn control policies for multiple vehicle agents in a partially observable, stop-sign controlled, 3-way urban intersection environment with raw (camera) sensor observations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1911.04175",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:08:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ying Bi",
+            "Bing Xue",
+            "Mengjie Zhang"
+          ],
+          "title": "Genetic Programming-Based Evolutionary Deep Learning for Data-Efficient Image Classification",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2209.13233",
+        "summary": "Data-efficient image classification is a challenging task that aims to solve image classification using small training data. Neural network-based deep learning methods are effective for image classification, but they typically require large-scale training data and have major limitations such as requiring expertise to design network architectures and having poor interpretability. Evolutionary deep learning is a recent hot topic that combines evolutionary computation with deep learning. However, most evolutionary deep learning methods focus on evolving architectures of neural networks, which still suffer from limitations such as poor interpretability. To address this, this paper proposes a new genetic programming-based evolutionary deep learning approach to data-efficient image classification. The new approach can automatically evolve variable-length models using many important operators from both image and classification domains. It can learn different types of image features from colour or gray-scale images, and construct effective and diverse ensembles for image classification. A flexible multi-layer representation enables the new approach to automatically construct shallow or deep models/trees for different tasks and perform effective transformations on the input data via multiple internal nodes. The new approach is applied to solve five image classification tasks with different training set sizes. The results show that it achieves better performance in most cases than deep learning methods for data-efficient image classification. A deep analysis shows that the new approach has good convergence and evolves models with high interpretability, different lengths/sizes/shapes, and good transferability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2209.13233",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T10:08:59Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"evopolicygym: evaluating autonomous policy evolution in interactive en\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
