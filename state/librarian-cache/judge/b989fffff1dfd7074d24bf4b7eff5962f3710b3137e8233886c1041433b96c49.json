@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2112.14706",
+  "judged_at": "2026-07-12T11:53:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"agents' last exam\" computer science",
+  "rationale": "The paper focuses on verification and validation frameworks for autonomous vehicles in the CARLA simulator, which is an off-domain application compared to the user's question about \"Agents' Last Exam\" in computer science (likely referring to LLM agent evaluation or specific CS curriculum research). There is no measurable connection to the user's mechanism, variables, or empirical setting, and the shared term \"Agents\" refers to autonomous driving agents rather than the specific CS/LLM agent conte",
+  "relevant": false
+}

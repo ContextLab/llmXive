@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ALE Dataset Schema"
+description: "Schema for raw ALE execution traces (JSONL)."
+type: "object"
+properties:
+  step_id:
+    type: "string"
+    description: "Unique identifier for the step."
+  action:
+    type: "string"
+    description: "The agent's action string."
+  environment_state:
+    type: "object"
+    description: "JSON object representing the file system/variables at that step."
+    additionalProperties: true
+  task_description:
+    type: "string"
+    description: "Static task goal."
+  outcome:
+    type: "string"
+    enum:
+      - "success"
+      - "failure"
+      - "timeout"
+    description: "Outcome of the step."
+required:
+  - step_id
+  - action
+  - environment_state
+  - task_description
+  - outcome
+additionalProperties: false

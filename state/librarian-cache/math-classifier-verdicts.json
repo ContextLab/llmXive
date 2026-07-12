@@ -1031,6 +1031,10 @@
     "classified_at": "2026-07-11T09:45:01Z",
     "verdict": false
   },
+  "PROJ-840-llmxive-follow-up-extending-agents-last::1.6.0": {
+    "classified_at": "2026-07-12T11:53:26Z",
+    "verdict": false
+  },
   "PROJ-841-llmxive-follow-up-extending-shuttermuse::1.6.0": {
     "classified_at": "2026-07-07T16:02:47Z",
     "verdict": false

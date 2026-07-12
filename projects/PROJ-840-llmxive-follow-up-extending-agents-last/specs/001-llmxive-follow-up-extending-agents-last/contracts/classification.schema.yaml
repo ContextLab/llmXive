@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Classification Output Schema"
+description: "Schema for classified failure labels."
+type: "object"
+properties:
+  trace_id:
+    type: "string"
+    description: "Unique identifier for the trace."
+  total_steps:
+    type: "integer"
+    description: "Number of steps in the trace."
+  failures:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        step_id:
+          type: "string"
+        label_type:
+          type: "string"
+          enum:
+            - "State Persistence Error"
+            - "Reasoning Deficit"
+          description: "Classification of the failure."
+        confidence:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Confidence score of the classification."
+        reason:
+          type: "string"
+          description: "Explanation for the classification."
+      required:
+        - step_id
+        - label_type
+        - confidence
+        - reason
+  reconstruction_accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Accuracy of environment state reconstruction (if validated)."
+required:
+  - trace_id
+  - total_steps
+  - failures
+additionalProperties: false

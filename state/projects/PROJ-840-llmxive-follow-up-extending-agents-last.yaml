@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T03:14:04.102140Z'
-current_stage: brainstormed
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-840-llmxive-follow-up-extending-agents-last
-last_run_id: null
+last_run_id: 33fd0a49-c72e-4242-b4d4-c124c4a578bf
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last
 title: 'llmXive follow-up: extending "Agents'' Last Exam"'
-updated_at: '2026-07-02T03:14:04.102140Z'
+updated_at: '2026-07-12T12:20:59.748605Z'

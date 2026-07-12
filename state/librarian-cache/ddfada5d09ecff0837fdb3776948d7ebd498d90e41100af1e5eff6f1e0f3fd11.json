@@ -1,0 +1,777 @@
+{
+  "fetched_at": "2026-07-12T11:53:48Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Agents' Last Exam\"",
+      "target_n": 5
+    },
+    "duration_seconds": 52.251,
+    "ended_at": "2026-07-12T11:53:48Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "autonomous agent evaluation frameworks"
+        ],
+        [
+          2,
+          "large language model agent benchmarking"
+        ],
+        [
+          3,
+          "LLM agent performance assessment"
+        ],
+        [
+          4,
+          "autonomous software agent testing"
+        ],
+        [
+          5,
+          "AI agent capability evaluation"
+        ],
+        [
+          6,
+          "LLM agent failure analysis"
+        ],
+        [
+          7,
+          "generative AI agent safety evaluation"
+        ],
+        [
+          8,
+          "autonomous agent stress testing"
+        ],
+        [
+          9,
+          "LLM agent reliability metrics"
+        ],
+        [
+          10,
+          "machine learning agent verification"
+        ],
+        [
+          11,
+          "autonomous system robustness testing"
+        ],
+        [
+          12,
+          "LLM agent behavior analysis"
+        ],
+        [
+          13,
+          "AI agent exam simulations"
+        ],
+        [
+          14,
+          "large language model agent challenges"
+        ],
+        [
+          15,
+          "autonomous agent edge case testing"
+        ],
+        [
+          16,
+          "LLM agent adversarial evaluation"
+        ],
+        [
+          17,
+          "generative model agent assessment protocols"
+        ],
+        [
+          18,
+          "autonomous agent longitudinal studies"
+        ],
+        [
+          19,
+          "LLM agent cognitive testing"
+        ],
+        [
+          20,
+          "AI agent system validation methods"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "autonomous agent evaluation frameworks": 5,
+        "llmXive follow-up: extending \"Agents' Last Exam\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "model collapse catastrophic forgetting recursive training",
+      "LLM self-generated synthetic data benchmarks",
+      "data contamination model memorization leakage",
+      "synthetic data performance degradation evaluation",
+      "training distribution shift distributional collapse"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.04455"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM self-generated synthetic data benchmarks": 3,
+      "data contamination model memorization leakage": 1,
+      "llmXive follow-up: extending \"Agents' Last Exam\" computer science": 3,
+      "model collapse catastrophic forgetting recursive training": 3,
+      "synthetic data performance degradation evaluation": 0,
+      "training distribution shift distributional collapse": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2412.09645",
+          "rationale": "The paper focuses on evaluation frameworks for visual generative models (images/video), which is an off-domain application compared to the user's specific question about \"Agents' Last Exam\" in computer science (typically referring to LLM agent benchmarks or reasoning tasks). While both involve \"agents\" and \"evaluation,\" the paper does not measure the same mechanism, variables, or empirical population required for a literature review on the specific \"Agents' Last Exam\" benchmark or its extensions",
+          "title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models"
+        },
+        {
+          "primary_pointer": "2512.09543",
+          "rationale": "The paper focuses on energy efficiency and resource consumption of agentic frameworks using Small Language Models (SLMs), which does not align with the user's specific question about \"Agents' Last Exam,\" a benchmark or evaluation protocol for LLM agents. While both involve LLM agents, the paper does not measure the same mechanism, variables, or empirical population (the \"Last Exam\" benchmark) as the user's question, and it falls outside the scope of the specific \"Agents' Last Exam\" follow-up res",
+          "title": "SWEnergy: An Empirical Study on Energy Efficiency in Agentic Issue Resolution Frameworks with SLMs"
+        },
+        {
+          "primary_pointer": "2112.14706",
+          "rationale": "The paper focuses on verification and validation frameworks for autonomous vehicles in the CARLA simulator, which is an off-domain application compared to the user's question about \"Agents' Last Exam\" in computer science (likely referring to LLM agent evaluation or specific CS curriculum research). There is no measurable connection to the user's mechanism, variables, or empirical setting, and the shared term \"Agents\" refers to autonomous driving agents rather than the specific CS/LLM agent conte",
+          "title": "Intersection focused Situation Coverage-based Verification and Validation Framework for Autonomous Vehicles Implemented in CARLA"
+        },
+        {
+          "primary_pointer": "2111.06318",
+          "rationale": "The paper focuses on multi-agent reinforcement learning for autonomous vehicle lane-changing, which is a distinct application domain from the user's question regarding \"Agents' Last Exam\" in computer science (likely referring to LLM agent evaluation or benchmarking). There is no overlap in the biological pathway, physical observable, algorithmic property, or empirical population, and the paper does not address the specific mechanism or variables of the user's query, failing all inclusion criteri",
+          "title": "Multi-agent Reinforcement Learning for Cooperative Lane Changing of Connected and Autonomous Vehicles in Mixed Traffic"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T11:52:55Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"agents' last exam\" computer science",
+      "raw": "llmXive follow-up: extending \"Agents' Last Exam\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_authors": [
+            "Giang Nguyen"
+          ],
+          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When finetuning large language models for specialized tasks such as mathematical reasoning, models exhibit catastrophic forgetting, losing previously learned capabilities. We investigate this by finetuning Flan-T5-Base (250M parameters) on the DeepMind Mathematics dataset and measuring forgetting on MultiNLI. Math-only training improves mathematical accuracy from 3.1\\% to 12.0\\% but causes NLI accuracy to collapse from 81.0\\% to 16.5\\%--a 64.5 percentage point drop occurring within the first 1,000 training steps. We propose mixed training strategies that interleave mathematical and NLI examples during training. Our results demonstrate that mixed training completely eliminates catastrophic forgetting while maintaining equivalent mathematical performance: the balanced 1:1 ratio achieves 12.0\\% math accuracy (matching math-only) while preserving 86.2\\% NLI accuracy. We systematically explore mixing ratios from 1:1 to 15:1, finding that even minimal NLI exposure (6.2\\%) provides effective regularization. These findings demonstrate that specialization need not require forgetting general capabilities, with implications for scaling to larger models where mixed training may confer additional benefits beyond forgetting prevention.",
+          "claimed_authors": [
+            "John Graham Reynolds"
+          ],
+          "claimed_title": "Mitigating Catastrophic Forgetting in Mathematical Reasoning Finetuning through Mixed Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.13706"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Mitigating Catastrophic Forgetting in Mathematical Reasoning Finetuning through Mixed Training')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Catastrophic forgetting remains a severe hindrance to the broad application of artificial neural networks (ANNs), however, it continues to be a poorly understood phenomenon. Despite the extensive amount of work on catastrophic forgetting, we argue that it is still unclear how exactly the phenomenon should be quantified, and, moreover, to what degree all of the choices we make when designing learning systems affect the amount of catastrophic forgetting. We use various testbeds from the reinforcement learning and supervised learning literature to (1) provide evidence that the choice of which modern gradient-based optimization algorithm is used to train an ANN has a significant impact on the amount of catastrophic forgetting and show that-surprisingly-in many instances classical algorithms such as vanilla SGD experience less catastrophic forgetting than the more modern algorithms such as Adam. We empirically compare four different existing metrics for quantifying catastrophic forgetting and (2) show that the degree to which the learning systems experience catastrophic forgetting is sufficiently sensitive to the metric used that a change from one principled metric to another is enough to change the conclusions of a study dramatically. Our results suggest that a much more rigorous experimental methodology is required when looking at catastrophic forgetting. Based on our results, we recommend inter-task forgetting in supervised learning must be measured with both retention and relearning metrics concurrently, and intra-task forgetting in reinforcement learning must-at the very least-be measured with pairwise interference.",
+          "claimed_authors": [
+            "Dylan R. Ashley",
+            "Sina Ghiassian",
+            "Richard S. Sutton"
+          ],
+          "claimed_title": "Does the Adam Optimizer Exacerbate Catastrophic Forgetting?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.07686"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Does the Adam Optimizer Exacerbate Catastrophic Forgetting?')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
+          "claimed_authors": [
+            "Jonathan McDowell",
+            "Doug Tody",
+            "Tamas Budavari",
+            "Markus Dolensky",
+            "Inga Kamp",
+            "Kelly McCusker",
+            "Pavlos Protopapas",
+            "Arnold Rots",
+            "Randy Thompson",
+            "Frank Valdes",
+            "Petr Skoda",
+            "Bruno Rino",
+            "Sebastien Derriere",
+            "Jesus Salgado",
+            "Omar Laurino",
+            "the IVOA Data Access Layer",
+            "Data Model Working Groups"
+          ],
+          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.3055"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time series prediction is often complicated by distribution shift which demands adaptive models to accommodate time-varying distributions. We frame time series prediction under distribution shift as a weighted empirical risk minimisation problem. The weighting of previous observations in the empirical risk is determined by a forgetting mechanism which controls the trade-off between the relevancy and effective sample size that is used for the estimation of the predictive model. In contrast to previous work, we propose a gradient-based learning method for the parameters of the forgetting mechanism. This speeds up optimisation and therefore allows more expressive forgetting mechanisms.",
+          "claimed_authors": [
+            "Stefanos Bennett",
+            "Jase Clarkson"
+          ],
+          "claimed_title": "Time Series Prediction under Distribution Shift using Differentiable Forgetting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.11486"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Time Series Prediction under Distribution Shift using Differentiable Forgetting')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Estimating the test performance of software AI-based medical devices under distribution shifts is crucial for evaluating the safety, efficiency, and usability prior to clinical deployment. Due to the nature of regulated medical device software and the difficulty in acquiring large amounts of labeled medical datasets, we consider the task of predicting the test accuracy of an arbitrary black-box model on an unlabeled target domain without modification to the original training process or any distributional assumptions of the original source data (i.e. we treat the model as a \"black-box\" and only use the predicted output responses). We propose a \"black-box\" test estimation technique based on conformal prediction and evaluate it against other methods on three medical imaging datasets (mammography, dermatology, and histopathology) under several clinically relevant types of distribution shift (institution, hardware scanner, atlas, hospital). We hope that by promoting practical and effective estimation techniques for black-box models, manufacturers of medical devices will develop more standardized and realistic evaluation procedures to improve the robustness and trustworthiness of clinical AI tools.",
+          "claimed_authors": [
+            "Charles Lu",
+            "Syed Rakin Ahmed",
+            "Praveer Singh",
+            "Jayashree Kalpathy-Cramer"
+          ],
+          "claimed_title": "Estimating Test Performance for AI Medical Devices under Distribution Shift with Conformal Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.05796"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Estimating Test Performance for AI Medical Devices under Distribution Shift with Conformal Prediction')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Testing practices within the machine learning (ML) community have centered around assessing a learned model's predictive performance measured against a test dataset, often drawn from the same distribution as the training dataset. While recent work on robustness and fairness testing within the ML community has pointed to the importance of testing against distributional shifts, these efforts also focus on estimating the likelihood of the model making an error against a reference dataset/distribution. We argue that this view of testing actively discourages researchers and developers from looking into other sources of robustness failures, for instance corner cases which may have severe undesirable impacts. We draw parallels with decades of work within software engineering testing focused on assessing a software system against various stress conditions, including corner cases, as opposed to solely focusing on average-case behaviour. Finally, we put forth a set of recommendations to broaden the view of machine learning testing to a rigorous practice.",
+          "claimed_authors": [
+            "Negar Rostamzadeh",
+            "Ben Hutchinson",
+            "Christina Greer",
+            "Vinodkumar Prabhakaran"
+          ],
+          "claimed_title": "Thinking Beyond Distributions in Testing Machine Learned Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.03057"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agents\\' Last Exam\" computer science', candidate_title='Thinking Beyond Distributions in Testing Machine Learned Models')",
+        "failed_at": "2026-07-12T11:53:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiyou Sun",
+            "Xinyang Han",
+            "Weichen Zhang",
+            "Yuanbo Pang",
+            "Tianyu Wang",
+            "Yuhan Cao",
+            "Yixiao Huang",
+            "Chris Duroiu",
+            "Haoyun Zhang",
+            "Jeffrey Lin",
+            "Weishu Zhang",
+            "Tyler Zeng",
+            "Ying Yan",
+            "Bo Liu",
+            "Hanson Wen",
+            "Mingyang Xu",
+            "Xiaoyuan Liu",
+            "Zimeng Chen",
+            "Weiyan Shi",
+            "Amanda Dsouza",
+            "Vincent Sunn Chen",
+            "Patrick Bryant",
+            "Carl Boettiger",
+            "Yamini Rangan",
+            "Bradley Rothenberg",
+            "Kyle Steinfeld",
+            "Arvind Rao",
+            "Tapio Schneider",
+            "Georgios Yannakakis",
+            "Laure Zanna",
+            "Kaan Ozbay",
+            "Ida Sim",
+            "Tarek Zohdi",
+            "George Em Karniadakis",
+            "Jack Gallant",
+            "Teresa Head-Gordon",
+            "Yushan Li",
+            "Wenxi Deng",
+            "Tao Sun",
+            "Huiqi Wang",
+            "Zhun Wang",
+            "Justin Xu",
+            "Chris Yuhao Liu",
+            "Yafei Cheng",
+            "Rongwang Hu",
+            "Aras Bacho",
+            "Shengcao Cao",
+            "Zengyi Qin",
+            "Yixiong Chen",
+            "Hengduan Fan",
+            "Hao Liu",
+            "Lin Zeng",
+            "Shashank Muralidhar Bharadwaj",
+            "Litian Gong",
+            "Yingxuan Yang",
+            "Maojia Song",
+            "Ruheng Wang",
+            "Zongzheng Zhang",
+            "Honglin Bao",
+            "Shuo Lu",
+            "Jianhong Tu",
+            "Zhonghua Wang",
+            "Zheng Zhang",
+            "Zijiao Chen",
+            "Yanqiong Jiang",
+            "Zhendong Li",
+            "Bohan Lyu",
+            "Chang Ma",
+            "Peiran Xu",
+            "Benran Zhang",
+            "Shangding Gu",
+            "Haoyue Hua",
+            "Haoyang Li",
+            "Wanzhe Liao",
+            "Chengzhi Liu",
+            "Junbo Peng",
+            "Haoran Sun",
+            "Zechen Xu",
+            "Bo Chen",
+            "Jiayi Cheng",
+            "Yi Jiang",
+            "Keying Kuang",
+            "Yuan Li",
+            "Youbang Pan",
+            "Ziyan Rao",
+            "Alexander Schubert",
+            "Yifan Shen",
+            "Vincent Siu",
+            "Xiatao Sun",
+            "Kangqi Zhang",
+            "Xiaopan Zhang",
+            "Yuchen Zhu",
+            "Ishaan Singh Chandok",
+            "Lei Ding",
+            "Jingxuan Fan",
+            "Andrew Glover",
+            "Jiaming Hu",
+            "Yiran Hu",
+            "Wenbo Huang",
+            "Zixin Jiang",
+            "Haoran Jin",
+            "Lukas Kim",
+            "Ming Liu",
+            "Yang Liu",
+            "Alireza Rafiei",
+            "Xuhuan Shen",
+            "Kunyang Sun",
+            "Sophia Sun",
+            "Ting Sun",
+            "Eric Wang",
+            "Yixin Wang",
+            "Hanwen Xing",
+            "Sihan Xu",
+            "Yuzheng Xu",
+            "Zhongxing Xu",
+            "Zhiling Yan",
+            "Boqin Yuan",
+            "Ruiqi Zhang",
+            "Yifan Zhang",
+            "Zibo Zhao",
+            " Liana",
+            "Santanu Bosu Antu",
+            "Haoyue Bai",
+            "Carlo Bosio",
+            "Joseph Cavanagh",
+            "Patricia Cavazos-Rehg",
+            "Tianxing Chen",
+            "Xuewen Chen",
+            "Yipu Chen",
+            "Chenyu Zhu",
+            "Chen Dai",
+            "Stefano De Castro",
+            "Yunfu Deng",
+            "Kaustubh Dhole",
+            "Jiayuan Ding",
+            "Chenchen Du",
+            "Zhehang Du",
+            "Hao Fan",
+            "Run-Ze Fan",
+            "Hengyu Fu",
+            "Shi Gu",
+            "Yifan Gu",
+            "Charlie Guo",
+            "Baihe Huang",
+            "Baixiang Huang",
+            "Rimika Jaiswal",
+            "Zhihan Jiang",
+            "Ran Jin",
+            "Erin Kasson",
+            "Xin Lan",
+            "Joseph Lee",
+            "Deren Lei",
+            "Chenyu Li",
+            "Daofeng Li",
+            "Haitao Li",
+            "Hongwei Li",
+            "Jingyan Li",
+            "Xiao Li",
+            "Yi Li",
+            "Yinsheng Li",
+            "Yuangang Li",
+            "Zhixu Li",
+            "Wenyu Liang",
+            "Longtai Liao",
+            "Kevin Qinghong Lin",
+            "Andy Zeyi Liu",
+            "Che Liu",
+            "Jiaming Liu",
+            "Kaiyuan Liu",
+            "Xuan Liu",
+            "Pan Lu",
+            "Wenbo Lv",
+            "Yicheng Lyu",
+            "Qiuyang Mang",
+            "Kyle Montgomery",
+            "Yuzhou Nie",
+            "Ruoxi Ning",
+            "Jorin Overwiening",
+            "Xu Pan",
+            "Layna Paraboschi",
+            "Core Francisco Park",
+            "Justin Purnomo",
+            "Swati Rajwal",
+            "Scott Rankin",
+            "Bixuan Ren",
+            "Yiren Rong",
+            "HaoYang Shang",
+            "Ventus Shaw",
+            "Fiona Shen",
+            "Jiawei Shen",
+            "Minqi Shi",
+            "Shi Qiu",
+            "Huaxiu Yao",
+            "Tianneng Shi",
+            "Jonah So",
+            "Vladislav Susoy",
+            "Hannah Szlyk",
+            "Haocheng Wang",
+            "Jialu Wang",
+            "Wei Wang",
+            "Xinyu Wang",
+            "Zehao Wang",
+            "Dowling Wong",
+            "Angela Wu",
+            "Dehao Wu",
+            "Fangyu Wu",
+            "Mengyuan \"Millie\" Wu",
+            "Yu Wu",
+            "Yuchen Wu",
+            "Yuhao Wu",
+            "Qingpo Wuwu",
+            "Weihang Xiao",
+            "Yongyi Xiong",
+            "Fan Xu",
+            "Ruiling Xu",
+            "Mingxuan Yan",
+            "Benjamin Yang",
+            "Jirong Yang",
+            "Sen Yang",
+            "Xiaoli Yang",
+            "Yushi Yang",
+            "Haoran Ye",
+            "Xiaohu Yu",
+            "Zhengming Yu",
+            "Chenlong Zhang",
+            "Chi Zhang",
+            "Hanning Zhang",
+            "Hanwen Zhang",
+            "Junge Zhang",
+            "Kunpeng Zhang",
+            "Song Zhang",
+            "Wenjin Zhang",
+            "Wenshuo Zhang",
+            "Ying Zhang",
+            "Yizhi Zhang",
+            "Brian Zhao",
+            "Qijian Zhao",
+            "Yimin Zhao",
+            "Yuhaohua Zheng",
+            "Liwei Zhou",
+            "Tianyue Zhou",
+            "Sichen Zhu",
+            "Siqi Zhu",
+            "Yan Zhu",
+            "Yishu Zhu",
+            "Jierui Zuo",
+            "Chonghao Cai",
+            "Helena Casademunt",
+            "Wenjia Chen",
+            "Cheng Cheng",
+            "Nawen Deng",
+            "Rao Fu",
+            "Tianfu Fu",
+            "Yifan Han",
+            "He Ren",
+            "Zhenyu He",
+            "Qiao Jin",
+            "Langlang Li",
+            "Yuetai Li",
+            "Sylvia Liu",
+            "Lu Lu",
+            "Luqing Zhou",
+            "Subhabrata Mukherjee",
+            "Yunqi Ouyang",
+            "Yin Ren",
+            "Dawei Shi",
+            "Haoran Wu",
+            "Zhiyue Wu",
+            "Hannah Yao",
+            "Zhuoran Yi",
+            "Jenny Yu",
+            "Rhea Zhan",
+            "Hang Zhou",
+            "Blake Zhu",
+            "Junfan Zhu",
+            "Alan Yuille",
+            "Yang Liu",
+            "Russell Alan Poldrack",
+            "Jiachen Li",
+            "Zhenglu Li",
+            "Molei Tao",
+            "Jing Huang",
+            "Wenqi Shi",
+            "Costas Spanos",
+            "Lichao Sun",
+            "Chenguang Wang",
+            "Orson Xu",
+            "Zhen Dong",
+            "Hector Gomez",
+            "Aylin Caliskan",
+            "Ali Emami",
+            "Haimin Hu",
+            "Zhi Li",
+            "Lihui Liu",
+            "Murphy Niu",
+            "Yi Shao",
+            "Jianxin Sun",
+            "Mikko Tolonen",
+            "Ting Wang",
+            "Sanjiv Das",
+            "Yanjun Gao",
+            "Wenbo Guo",
+            "Erika J Schneider",
+            "Zhiyong Lu",
+            "Yian Ma",
+            "Mark Mueller",
+            "Radha Poovendran",
+            "Somayeh Sojoudi",
+            "Yinglun Zhu",
+            "Dawn Song"
+          ],
+          "title": "Agents' Last Exam",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.05405",
+        "summary": "Recent AI systems have achieved strong results on a wide range of benchmarks, yet these gains have not translated into economically meaningful deployment across many professional domains. We argue that this gap is largely an evaluation problem: widely used benchmarks lack sustained performance measurement on real and economically valuable workflows. This paper introduces Agents' Last Exam (ALE), a benchmark designed to evaluate AI agents on long horizon, economically valuable, real world tasks with verifiable outcomes. Developed in collaboration with 250+ industry experts, ALE covers non-physical industries defined with reference to O*NET / SOC 2018 (the U.S. federal occupational taxonomy). It is organized around a task taxonomy with 55 sub fields grouped into 13 industry clusters covering 1K+ tasks. Current results show that the hardest tier remains far from saturated: across mainstream harness and backbone configurations, the average full pass rate is below 1%. ALE is designed as a living benchmark: its task pool grows continuously as new workflows and industries are onboarded. More broadly, ALE is intended not merely as another leaderboard, but as an instrument for closing the gap between benchmark success and GDP relevant impact.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.05405",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T11:53:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xinyu Lu",
+            "Tianshu Wang",
+            "Pengbo Wang",
+            "zujie wen",
+            "Zhiqiang Zhang",
+            "Jun Zhou",
+            "Boxi Cao",
+            "Yaojie Lu",
+            "Hongyu Lin",
+            "Xianpei Han",
+            "Le Sun"
+          ],
+          "title": "The Meta-Agent Challenge: Are Current Agents Capable of Autonomous Agent Development?",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.04455",
+        "summary": "Current AI benchmarks evaluate agents on task execution within human-designed workflows. These evaluations fundamentally fail to measure a critical next-level capability: whether models can autonomously develop agent systems. We introduce the Meta-Agent Challenge (MAC), an evaluation framework designed to test the capacity of frontier models for autonomous agent development. Specifically, a code agent (the meta-agent) is given a sandboxed environment, an evaluation API, and a time limitation to iteratively program an agent artifact that maximizes performance on a held-out test set across five domains. To ensure evaluation integrity, this framework is secured by multi-layer defenses against reward hacking. Leveraging this framework, we demonstrate that meta-agents rarely match human-engineered baseline policies, and the few that do are dominated by proprietary frontier models. Moreover, the design process exhibits high variance, and high optimization pressure surfaces emergent adversarial behaviors like ground-truth exfiltration-highlighting critical deficits in both robustness and model alignment. Ultimately, MAC provides a rigorous, open-source benchmark for autonomous AI research and development, offering an empirical proxy for evaluating recursive self-improvement. Benchmark is publicly available at: https://github.com/ant-research/meta-agent-challenge.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.04455",
+          "http_status": 200,
+          "pdf_sample_score": 0.2839,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T11:53:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"agents' last exam\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
