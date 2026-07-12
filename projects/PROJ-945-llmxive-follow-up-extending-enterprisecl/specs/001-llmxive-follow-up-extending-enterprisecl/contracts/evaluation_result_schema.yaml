@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult Schema"
+description: "Schema for the Artifact Delivery Score evaluation results."
+type: "object"
+required:
+  - "task_id"
+  - "baseline_score"
+  - "adapter_score"
+  - "intervention_applied"
+  - "latency_ms"
+  - "resource_log"
+properties:
+  task_id:
+    type: "string"
+    description: "Identifier for the evaluated task."
+  baseline_score:
+    type: "number"
+    description: "Artifact Delivery Score for the baseline configuration."
+    minimum: 0
+    maximum: 1
+  adapter_score:
+    type: "number"
+    description: "Artifact Delivery Score for the adapter-enhanced configuration."
+    minimum: 0
+    maximum: 1
+  intervention_applied:
+    type: "boolean"
+    description: "Whether the Rule-Based Rewriter was triggered for this task."
+  latency_ms:
+    type: "integer"
+    description: "Inference latency in milliseconds."
+    minimum: 0
+  resource_log:
+    type: "object"
+    description: "Resource usage during evaluation."
+    required:
+      - "peak_rss_mb"
+      - "wall_clock_seconds"
+    properties:
+      peak_rss_mb:
+        type: "number"
+        description: "Peak Resident Set Size in MB."
+        minimum: 0
+      wall_clock_seconds:
+        type: "number"
+        description: "Total wall-clock time in seconds."
+        minimum: 0
+additionalProperties: false

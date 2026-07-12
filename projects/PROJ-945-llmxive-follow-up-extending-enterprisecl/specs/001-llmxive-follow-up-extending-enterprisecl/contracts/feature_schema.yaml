@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureVector Schema"
+description: "Schema for the extracted syntactic, pragmatic, and semantic proxy features from EnterpriseClawBench traces."
+type: "object"
+required:
+  - "trace_id"
+  - "syntax_tree_depth"
+  - "token_freq_dist"
+  - "pragmatic_markers"
+  - "semantic_proxies"
+  - "status"
+properties:
+  trace_id:
+    type: "string"
+    description: "Unique identifier for the source execution trace."
+  syntax_tree_depth:
+    type: "integer"
+    description: "Maximum depth of the parsed syntax tree for the tool-call sequence."
+    minimum: 0
+  token_freq_dist:
+    type: "object"
+    description: "Map of token type to frequency count."
+    additionalProperties:
+      type: "integer"
+      minimum: 0
+  pragmatic_markers:
+    type: "array"
+    description: "List of identified pragmatic markers (e.g., error recovery attempts)."
+    items:
+      type: "string"
+  semantic_proxies:
+    type: "object"
+    description: "Map of semantic features (e.g., error codes, failed function names) to support construct validity."
+    additionalProperties:
+      type: "string"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "neutral"
+    description: "Ground truth status or 'neutral' if ambiguous."
+  is_correctable:
+    type: "boolean"
+    description: "Ground truth label for correction feasibility (derived from Semantic Outcome Oracle)."
+    nullable: true
+    description: "Nullable if the trace is 'neutral' or unlabelled."
+additionalProperties: false

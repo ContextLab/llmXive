@@ -1,0 +1,30 @@
+resolved_at: '2026-07-12T18:53:01.114240+00:00'
+datasets:
+- intent: EnterpriseClawBench
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/Impact_assessment_of_corporate_social_responsibility_A_special_context_of_third_party/32071857
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_b_b_30_June_2025_Malwina_G_balska_NCN_Poland_b_/32801889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_30_June_2025_b_b_Monika_Brasser_b_/32801928
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/media/_b_Me_b_b_et_the_Funders_Round_Table_30_June_2025_b_b_Miko_aj_b_b_Pyczak_b_b_Nat_Centre_for_R_D_b_b_Poland_b_/32801934
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_30_June_2025_b_b_b_b_Ma_gorzata_Jacobs_b_b_b_b_NCN_b_b_b_b_Poland_and_b_b_Mette_Catarina_Skaarup_b_b_b_b_Office_of_Independent_Research_Fund_Denmark_DAFSHE_Denmark_b_/32801943
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.23654
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

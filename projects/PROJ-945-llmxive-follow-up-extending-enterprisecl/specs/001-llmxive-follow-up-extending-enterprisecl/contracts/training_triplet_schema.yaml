@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrectionTriplet Schema"
+description: "Schema for the training data triplets used for the T5-small adapter."
+type: "object"
+required:
+  - "system_prompt"
+  - "failed_structure"
+  - "successful_structure"
+  - "label"
+properties:
+  system_prompt:
+    type: "string"
+    description: "The system prompt used in the agent session."
+  failed_structure:
+    type: "string"
+    description: "Serialized representation of the failed trace's feature vector."
+  successful_structure:
+    type: "string"
+    description: "Serialized representation of the corresponding successful trace's feature vector."
+  label:
+    type: "string"
+    enum:
+      - "correctable"
+      - "unfixable"
+    description: "Binary classification label for correction feasibility (derived from Semantic Outcome Oracle)."
+additionalProperties: false
