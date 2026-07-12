@@ -1,42 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Hybrid Metrics Schema"
-description: "Schema for the statistical analysis and performance metrics."
+title: "Simulation Metrics Schema"
+description: "Schema for the results of the hybrid inference simulation. FID is computed over segments (batches), not individual frames."
 type: object
-required:
-  - fid_baseline
-  - fid_hybrid
-  - latency_baseline_ms
-  - latency_hybrid_ms
-  - tost_p_value
-  - correlation_r
 properties:
-  fid_baseline:
+  segment_id:
+    type: integer
+    description: "Segment ID (window of frames) for which FID was computed."
+  latency_ms:
     type: number
-    description: "FID score of the full flow-matching baseline."
-  fid_hybrid:
+    description: "Inference time in milliseconds for the segment."
+  fid_score:
     type: number
-    description: "FID score of the hybrid inference pipeline."
-  fid_degradation_ratio:
+    description: "Fréchet Inception Distance score computed over the segment."
+  proxy_mos:
     type: number
-    description: "Calculated as (FID_hybrid - FID_baseline) / FID_baseline."
-  latency_baseline_ms:
-    type: number
-    description: "Average inference time per frame for the baseline."
-  latency_hybrid_ms:
-    type: number
-    description: "Average inference time per frame for the hybrid pipeline."
-  latency_reduction_pct:
-    type: number
-    description: "Percentage reduction in latency."
-  tost_p_value:
-    type: number
-    description: "P-value from the Two One-Sided Tests (TOST) for equivalence."
-  correlation_r:
-    type: number
-    description: "Pearson correlation between predicted delta and FID stability."
-  proxy_mos_validated:
+    description: "Proxy Mean Opinion Score."
+  skip_action:
     type: boolean
-    description: "True if proxy MOS correlation was validated, or 'Assumption Validated' logged."
-  assumption_validated_log:
-    type: string
-    description: "Log message if no human data was available (e.g., 'Assumption Validated (No Human Data Available)')."
+    description: "Whether the segment was skipped."
+  randomized_intervention:
+    type: boolean
+    description: "Whether the skip was forced by randomized intervention."
+  fid_stability:
+    type: number
+    description: "Relative change in FID between skipped and full-solver segments."
+required:
+  - segment_id
+  - latency_ms
+  - fid_score
+  - proxy_mos
+  - skip_action
+  - randomized_intervention
+  - fid_stability
+additionalProperties: false

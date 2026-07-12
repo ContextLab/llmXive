@@ -1,52 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "TurnEvent Dataset Schema"
-description: "Schema for the extracted turn-taking dataset used in estimator training."
+title: "Extracted Dataset Schema"
+description: "Schema for the time-series dataset containing latent deltas and turn-taking labels."
 type: object
-required:
-  - timestamp
-  - turn_label
-  - semantic_feature
-  - prosodic_feature
-  - latent_delta_magnitude
-  - is_randomized_skip
 properties:
   timestamp:
     type: number
-    description: "Timestamp in seconds from the start of the segment."
+    description: "Timestamp in seconds from the start of the clip."
   turn_label:
     type: string
     enum:
       - "interruption"
       - "pause"
       - "normal"
-    description: "Classified turn-taking event type."
+    description: "Label indicating the type of turn-taking event."
   semantic_feature:
     type: array
     items:
       type: number
-    description: "Embedded vector of semantic content (e.g., BERT)."
+    description: "Vector of semantic features (e.g., text embedding)."
   prosodic_feature:
     type: array
     items:
       type: number
-    description: "Prosodic features (energy, pitch)."
+    description: "Vector of prosodic features (e.g., audio energy, pitch)."
   latent_delta_magnitude:
     type: number
-    description: "Ground truth magnitude of latent vector displacement."
-  is_randomized_skip:
-    type: boolean
-    description: "Flag indicating if this frame was forced to skip for causal inference (FR-008)."
-  uncertainty_score:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Model's uncertainty score (optional, populated during inference)."
-  predicted_delta:
-    type: number
-    description: "Model's predicted delta magnitude (optional, populated during inference)."
-  action:
-    type: string
-    enum:
-      - "skip"
-      - "full_solver"
-    description: "Action taken for this frame (optional, populated during inference)."
+    description: "Euclidean distance of the latent vector between current and previous frame."
+  frame_id:
+    type: integer
+    description: "Unique identifier for the frame."
+required:
+  - timestamp
+  - turn_label
+  - semantic_feature
+  - prosodic_feature
+  - latent_delta_magnitude
+  - frame_id
+additionalProperties: false

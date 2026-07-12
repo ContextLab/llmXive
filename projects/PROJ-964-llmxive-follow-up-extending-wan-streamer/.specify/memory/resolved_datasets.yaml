@@ -1,4 +1,4 @@
-resolved_at: '2026-07-12T13:13:08.953624+00:00'
+resolved_at: '2026-07-12T13:28:49.955109+00:00'
 datasets:
 - intent: VoxCeleb2
   status: verified
@@ -26,23 +26,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Structure_Sensitivity_in_CH_sub_4_sub_Oxidation_Switching_C_sub_1_sub_to_C_sub_2_sub_Selectivity_on_Mn_Single_Atoms_Versus_Nanoparticles/32968642
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Process_and_Mechanism_of_Nanocarrier-Loaded_dsRNA_Penetrating_the_Insect_Cuticle_Theoretical_Foundation_for_Transdermal_Delivery/32968639
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Site_Layer-Ordered_Double_Perovskites_LnBaFe_sub_2_sub_O_sub_6_sub_with_Mixed_and_Unusually_High_Valence_Fe_sup_3_5_sup_Lanthanoid-Dependent_Charge_Transition_Behaviors/32968636
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Knowledge-Based_Feature_Selection_Substantially_Enhances_Data-Driven_Wastewater_Treatment_Modeling/32968633
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Calculation_of_Ancient_Chinese_Chronology_Based_on_Four-Dimensional_Coupling_Model_Evidence_from_66_Astronomical_Records_Covering_All_Chinese_Dynasties/32968331
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,23 +90,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/An_Iridium_III_Complex_Induces_Immunogenic_Methuosis_and_Reprograms_Tumor-Associated_Macrophages_for_Chemoimmunotherapy_against_KRAS-Mutated_Tumors/32968645
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Structure_Sensitivity_in_CH_sub_4_sub_Oxidation_Switching_C_sub_1_sub_to_C_sub_2_sub_Selectivity_on_Mn_Single_Atoms_Versus_Nanoparticles/32968642
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Process_and_Mechanism_of_Nanocarrier-Loaded_dsRNA_Penetrating_the_Insect_Cuticle_Theoretical_Foundation_for_Transdermal_Delivery/32968639
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Site_Layer-Ordered_Double_Perovskites_LnBaFe_sub_2_sub_O_sub_6_sub_with_Mixed_and_Unusually_High_Valence_Fe_sup_3_5_sup_Lanthanoid-Dependent_Charge_Transition_Behaviors/32968636
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Knowledge-Based_Feature_Selection_Substantially_Enhances_Data-Driven_Wastewater_Treatment_Modeling/32968633
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -118,7 +118,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -126,7 +126,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -165,35 +165,35 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/An_Iridium_III_Complex_Induces_Immunogenic_Methuosis_and_Reprograms_Tumor-Associated_Macrophages_for_Chemoimmunotherapy_against_KRAS-Mutated_Tumors/32968645
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Structure_Sensitivity_in_CH_sub_4_sub_Oxidation_Switching_C_sub_1_sub_to_C_sub_2_sub_Selectivity_on_Mn_Single_Atoms_Versus_Nanoparticles/32968642
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Process_and_Mechanism_of_Nanocarrier-Loaded_dsRNA_Penetrating_the_Insect_Cuticle_Theoretical_Foundation_for_Transdermal_Delivery/32968639
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Site_Layer-Ordered_Double_Perovskites_LnBaFe_sub_2_sub_O_sub_6_sub_with_Mixed_and_Unusually_High_Valence_Fe_sup_3_5_sup_Lanthanoid-Dependent_Charge_Transition_Behaviors/32968636
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Knowledge-Based_Feature_Selection_Substantially_Enhances_Data-Driven_Wastewater_Treatment_Modeling/32968633
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.11591/eei.v9i2.1972
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: HTTP 415'
-  - url: https://zenodo.org/records/14352943
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5951740
+  - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -201,7 +201,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -262,23 +262,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Bridging_Liquid_and_Elastic_Solid_Impact_Regimes_Using_Flexible_Hydrogels/32968651
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Topological_Control_of_Paratropicity_via_Alternative_Ring_Fusion_in_Indacenodithiophene_Isomers/32968648
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/An_Iridium_III_Complex_Induces_Immunogenic_Methuosis_and_Reprograms_Tumor-Associated_Macrophages_for_Chemoimmunotherapy_against_KRAS-Mutated_Tumors/32968645
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Structure_Sensitivity_in_CH_sub_4_sub_Oxidation_Switching_C_sub_1_sub_to_C_sub_2_sub_Selectivity_on_Mn_Single_Atoms_Versus_Nanoparticles/32968642
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Process_and_Mechanism_of_Nanocarrier-Loaded_dsRNA_Penetrating_the_Insect_Cuticle_Theoretical_Foundation_for_Transdermal_Delivery/32968639
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -294,11 +294,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14558219
+  - url: https://zenodo.org/records/5871715
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5871715
+  - url: https://zenodo.org/records/14558219
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -341,23 +341,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular-Scale_Dynamic_Interaction_Processes_and_Aggregation_Mechanisms_between_Natural_Organic_Matter_and_Polyacrylamide/32968654
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Bridging_Liquid_and_Elastic_Solid_Impact_Regimes_Using_Flexible_Hydrogels/32968651
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Topological_Control_of_Paratropicity_via_Alternative_Ring_Fusion_in_Indacenodithiophene_Isomers/32968648
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/An_Iridium_III_Complex_Induces_Immunogenic_Methuosis_and_Reprograms_Tumor-Associated_Macrophages_for_Chemoimmunotherapy_against_KRAS-Mutated_Tumors/32968645
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Structure_Sensitivity_in_CH_sub_4_sub_Oxidation_Switching_C_sub_1_sub_to_C_sub_2_sub_Selectivity_on_Mn_Single_Atoms_Versus_Nanoparticles/32968642
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -446,23 +446,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Confined_Solvation_Electrolyte_for_4_3-V-Class_High-Voltage_Sodium-Ion_Pouch_Cells/32968657
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular-Scale_Dynamic_Interaction_Processes_and_Aggregation_Mechanisms_between_Natural_Organic_Matter_and_Polyacrylamide/32968654
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Bridging_Liquid_and_Elastic_Solid_Impact_Regimes_Using_Flexible_Hydrogels/32968651
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Topological_Control_of_Paratropicity_via_Alternative_Ring_Fusion_in_Indacenodithiophene_Isomers/32968648
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/An_Iridium_III_Complex_Induces_Immunogenic_Methuosis_and_Reprograms_Tumor-Associated_Macrophages_for_Chemoimmunotherapy_against_KRAS-Mutated_Tumors/32968645
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -474,11 +474,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5336182
+  - url: https://zenodo.org/records/3367816
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3380311
+  - url: https://zenodo.org/records/5336157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3365578
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -511,11 +515,11 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/62c1b5988b647bdc24f75b8f/da05fd87d2eca50814f01ad7c86530845eb86de3f7667cabafc2e9ed0734f2d1?response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.json%3B+filename%3D%22train.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783865495&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJjMWI1OTg4YjY0N2JkYzI0Zjc1YjhmL2RhMDVmZDg3ZDJlY2E1MDgxNGYwMWFkN2M4NjUzMDg0NWViODZkZTNmNzY2N2NhYmFmYzJlOWVkMDczNGYyZDFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0cmFpbi5qc29uJTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4uanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODY1NDk1fX19XX0_&Signature=MEUCIQCiQO8KCraFPV3n3p8jU5hMYgFLa0fN82Gvih98zTO3sAIgddRJIEo7a4Z3tssKMCZfFPGvsB9fpILxcu2tLDB0yM0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/62c1b5988b647bdc24f75b8f/da05fd87d2eca50814f01ad7c86530845eb86de3f7667cabafc2e9ed0734f2d1?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.json%3B+filename%3D%22train.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1783866431&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJjMWI1OTg4YjY0N2JkYzI0Zjc1YjhmL2RhMDVmZDg3ZDJlY2E1MDgxNGYwMWFkN2M4NjUzMDg0NWViODZkZTNmNzY2N2NhYmFmYzJlOWVkMDczNGYyZDFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4uanNvbiUzQitmaWxlbmFtZSUzRCUyMnRyYWluLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODY2NDMxfX19XX0_&Signature=MEYCIQC7zCPffl8ozl6JkIyHnf8N-51oq7-f~Zrq~7-0RdtCWQIhALFyULL7VeIqZHdzpzRpfnRK~E38Ssa-UNnoj4eoy8ex&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/62c1e590e181094cdae08bf8/467f21629368b995bde7f99a8e82a24b58aeeb1bc6c66cad7b7d1910715f28ed?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&response-content-type=text%2Fcsv&Expires=1783865496&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJjMWU1OTBlMTgxMDk0Y2RhZTA4YmY4LzQ2N2YyMTYyOTM2OGI5OTViZGU3Zjk5YThlODJhMjRiNThhZWViMWJjNmM2NmNhZDdiN2QxOTEwNzE1ZjI4ZWRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODY1NDk2fX19XX0_&Signature=MEUCIQDb4WEJy2hEYXK2t4xfeevQMUUO8M9i1xezYMVl3Q3LAQIgJiMGIF99sEs4Xq1O3N-stcBK-Lu6y6J18ReIljO3xu0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/62c1e590e181094cdae08bf8/467f21629368b995bde7f99a8e82a24b58aeeb1bc6c66cad7b7d1910715f28ed?response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783866431&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJjMWU1OTBlMTgxMDk0Y2RhZTA4YmY4LzQ2N2YyMTYyOTM2OGI5OTViZGU3Zjk5YThlODJhMjRiNThhZWViMWJjNmM2NmNhZDdiN2QxOTEwNzE1ZjI4ZWRcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzODY2NDMxfX19XX0_&Signature=MEUCIQCauC41Yh957PKqny73XzjrxxrWVmanElifNqjyGWMkAwIgRUVv0BZbukO9xe2E1wLUkBIg4m~FquLkf3L3PdMQpbY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -531,23 +535,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Platinum-Acetylide-Based_Small_Molecule_Donors_for_High-Efficiency_T_OPVs_A_Theoretical_Exploration_of_Optimized_ISC_and_Charge_Transfer_Dynamics/32968660
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Confined_Solvation_Electrolyte_for_4_3-V-Class_High-Voltage_Sodium-Ion_Pouch_Cells/32968657
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular-Scale_Dynamic_Interaction_Processes_and_Aggregation_Mechanisms_between_Natural_Organic_Matter_and_Polyacrylamide/32968654
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Bridging_Liquid_and_Elastic_Solid_Impact_Regimes_Using_Flexible_Hydrogels/32968651
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Topological_Control_of_Paratropicity_via_Alternative_Ring_Fusion_in_Indacenodithiophene_Isomers/32968648
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -629,31 +633,31 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://acs.figshare.com/articles/journal_contribution/Large-Area_Deterministic_Stamping_of_2D_Materials_on_Patterned_Surfaces/32968666
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Atomistic_Insights_into_the_Crucial_Role_of_Lithium-Ion_Coordination_on_the_Emergence_of_Different_Chain-Length_and_Salt-Concentration_Regimes_in_PEO_LiTFSI_Electrolytes/32968663
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Platinum-Acetylide-Based_Small_Molecule_Donors_for_High-Efficiency_T_OPVs_A_Theoretical_Exploration_of_Optimized_ISC_and_Charge_Transfer_Dynamics/32968660
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Confined_Solvation_Electrolyte_for_4_3-V-Class_High-Voltage_Sodium-Ion_Pouch_Cells/32968657
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular-Scale_Dynamic_Interaction_Processes_and_Aggregation_Mechanisms_between_Natural_Organic_Matter_and_Polyacrylamide/32968654
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10654287
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10654986
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10654287
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -734,23 +738,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://acs.figshare.com/articles/journal_contribution/Safety_of_Long-Acting_Intravitreal_Hydrogels_A_Comprehensive_Evaluation_of_Intraocular_Pressure_and_Retinal_Integrity_across_Rabbit_and_Non-Human_Primate_Models/32968669
+  - url: https://figshare.com/articles/journal_contribution/Joachim_Irgens_von_Westerwick_Leben_im_17_Jahrhundert_im_Spannungsfeld_zwischen_F_rstendienst_und_internationalen_Handelsunternehmungen/32968676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Large-Area_Deterministic_Stamping_of_2D_Materials_on_Patterned_Surfaces/32968666
+  - url: https://figshare.com/articles/dataset/_b_Predicting_the_impact_of_heterospecific_neighbors_in_pollinator-mediated_plant-plant_interactions_A_meta-analysis_b_/28696688
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Atomistic_Insights_into_the_Crucial_Role_of_Lithium-Ion_Coordination_on_the_Emergence_of_Different_Chain-Length_and_Salt-Concentration_Regimes_in_PEO_LiTFSI_Electrolytes/32968663
+  - url: https://figshare.com/articles/book/Tafsir_Al-Maturidi_Ta_wilat_Ahl_al-Sunna_Tafsir_of_the_Holy_Quran_Volume_30_Juz_30/32968598
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Platinum-Acetylide-Based_Small_Molecule_Donors_for_High-Efficiency_T_OPVs_A_Theoretical_Exploration_of_Optimized_ISC_and_Charge_Transfer_Dynamics/32968660
+  - url: https://figshare.com/articles/dataset/_b_When_AI_Decides_How_Agency_and_Outcome_Valence_Shape_Responsibility_Attribution_to_and_Trust_in_Medical_AI_b_/32968610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Confined_Solvation_Electrolyte_for_4_3-V-Class_High-Voltage_Sodium-Ion_Pouch_Cells/32968657
+  - url: https://acs.figshare.com/articles/journal_contribution/Alkali_Metal_Chloride_Effects_on_Thermodynamic_and_Transport_Properties_in_Aqueous_Glutathione_Solutions_A_Volumetric_Ultrasonic_and_Viscometric_Study/32968675
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -759,6 +763,10 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

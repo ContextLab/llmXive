@@ -1,77 +1,101 @@
 # Research: llmXive follow-up: extending "Wan-Streamer v0.1"
 
-## 1. Problem Statement & Hypothesis
+## 1. Problem Formulation
 
-**Problem**: Real-time interactive foundation models (like Wan-Streamer v0.1) suffer from high latency due to flow-matching steps. The hypothesis is that a "low-information manifold" exists in the latent trajectory, where certain frames (e.g., during agent pauses) can be approximated or skipped without perceptible quality loss.
+The "Wan-Streamer v0.1" architecture generates real-time audio-visual content using flow-matching solvers. This research hypothesizes that a subset of frames ("low-information manifolds") exhibits low latent trajectory displacement (small deltas) that can be predicted from turn-taking semantics (e.g., agent pauses, non-interruption states). By predicting these deltas, the system can skip expensive flow-matching steps, reducing latency. The core challenge is to validate this hypothesis on CPU-only hardware while ensuring that skipping does not degrade perceptual quality (FID) beyond [deferred].
 
-**Hypothesis**: A lightweight CPU-tractable estimator can predict the magnitude of latent vector deltas ($\Delta z$) based on turn-taking semantics. Frames with low predicted $\Delta z$ and high uncertainty can be skipped, reducing latency by ≥20% while maintaining FID degradation ≤5%.
+**Limitations**: If Wan-Streamer logs are unavailable, the project defaults to VoxCeleb2 for *methodological validation* only. The results in this mode are framed as "Proof-of-Concept for the Pipeline" and do not claim direct optimization of Wan-Streamer's latent manifold.
 
 ## 2. Dataset Strategy
 
-### Verified Sources
-Per the project constraints and the `verified datasets` block, we will use the following sources:
+### Verified Datasets
+Per the project constraints and verified dataset list, the following sources are available:
 
-| Dataset Role | Source Name | URL / Loader | Rationale |
-|:--- |:--- |:--- |:--- |
-| **Primary Latent/Turn-Taking Data** | Wan-Streamer v0.1 Logs | **Local/Verified Archive** (FR-019) | The spec requires latent trajectory data. **If this data is not present in the local environment or a verified public archive, the project MUST fail with "Data Unavailable" (FR-022).** No verified public URL for the specific Wan-Streamer training logs or weights exists in the `verified datasets` block. |
-| **Fallback Audio/Video (Proxy)** | VoxCeleb2 | ` | Canonical fallback for audio-visual turn-taking data. **Used ONLY if Wan-Streamer logs are present to extract turn-taking labels, but cannot substitute for missing latent deltas.** |
-| **Quality Assessment Proxy** | MOS / Video Quality | **Generated Data** | The plan will not use external datasets like Mosi-AI for MOS correlation as they lack the specific frame-level pairing. Instead, the system will log "Assumption Validated (No Human Data Available)" (FR-024) if no human ratings are found in the specific Wan-Streamer context. |
-| **Statistical Baseline** | FID / Latency | **Generated via Inception-v3** | FID will be computed using `torchvision.models.inception_v3` on the generated frames vs. ground truth. |
+| Dataset Name | Verified URL(s) | Relevance to Project |
+|:--- |:--- |:--- |
+| **VoxCeleb2** | `<br>` | **Primary Fallback Source**. Contains audio-visual data suitable for extracting turn-taking semantics and proxy latent trajectories if Wan-Streamer logs are unavailable. |
+| **MOS Proxy** | *None verified* | **Metric Validation**. No verified dataset with human video quality ratings for this specific domain exists. Proxy MOS will be validated against FID or optical flow consistency. If human data is unavailable, the system logs "Assumption Validated (No Human Data Available)" (FR-012). |
+| **RNN/Training** | *None verified* | **Baseline/Reference**. Removed. The baseline is now a "Zero-Delta Predictor" and "Previous-Frame Predictor". |
 
-*Note: The "re-generation" of latents via a public model is **removed** as a fallback strategy because no verified URL for the Wan-Streamer v0.1 inference code exists in the `verified datasets` block. Attempting to re-run the model without a verified source violates Constitution Principle I (Reproducibility) and II (Verified Accuracy).*
-
-### Data Extraction & Preprocessing (FR-001, FR-018)
-1. **Source Selection**: Check for local Wan-Streamer v0.1 logs. **If missing, exit with "Data Unavailable" (FR-022).** If present, proceed.
-2. **Feature Engineering**:
- * **Semantic Features**: Extract text embeddings (e.g., BERT-base-cpu) from the transcript.
- * **Prosodic Features**: Extract audio energy, pitch, and silence duration.
- * **Latent Deltas**: Compute $\Delta z_t = ||z_t - z_{t-1}||_2$ from the latent trajectory.
- * **Turn Labels**: Classify frames as "interruption" (high energy + agent speech overlap), "pause" (silence), or "normal". Thresholds for "interruption" (e.g., energy > X dB) will be derived from the data distribution (FR-018).
-3. **Sampling**: Filter for a substantial number of interruption and pause events. If fewer exist, use all available. Sample to ≤1 GB total size.
-4. **Split**: [deferred] Train, [deferred] Val, [deferred] Test. Stratified by turn-label.
+**Dataset Selection Rationale**:
+The spec requires latent vectors from "Wan-Streamer v0.1 training logs." As no verified URL for Wan-Streamer logs is provided in the "# Verified datasets" block, the plan **MUST** fall back to the canonical **VoxCeleb2** dataset (FR-019, Assumption about dataset availability).
+* **Fit**: VoxCeleb2 contains speaker identification and audio-visual data. We will use it to simulate turn-taking events and extract proxy latent trajectories using a pre-trained encoder (e.g., a lightweight audio-visual encoder) if direct Wan-Streamer logs are missing.
+* **Constraint**: If Wan-Streamer logs are not locally available, the system will load VoxCeleb2 via `datasets.load_dataset("acul3/voxceleb2")` and process it to generate the required `timestamp`, `semantic_feature`, `prosodic_feature`, and `latent_delta_magnitude` fields.
+* **Missing Data Handling**: If the verified datasets do not contain specific "Wan-Streamer" latent vectors, the research will explicitly state this gap and proceed with the VoxCeleb2 proxy, noting that results are indicative of the *methodology* rather than the specific Wan-Streamer model.
 
 ## 3. Methodology
 
-### 3.1 Estimator Training (FR-002, FR-006)
-* **Model**: Lightweight RNN (GRU) or shallow Transformer (2 layers, 4 heads) running on CPU.
-* **Input**: Causal history of semantic and prosodic features (window size = [deferred]).
-* **Output**: Predicted $\Delta z$ magnitude and Uncertainty Score ($U \in [0, 1]$).
-* **Loss**: MSE for $\Delta z$ + Calibration loss for $U$.
-* **Constraints**: Batch size tuned to keep RAM ≤ 7 GB. Training stops if 6h limit approached; sample size reduced (FR-014).
-* **Baseline**: Zero-delta predictor ($\hat{\Delta z} = 0$).
+### Phase 0: Preliminary Validation (New)
+Before training the main estimator, we must empirically verify the core hypothesis: "Small latent delta magnitude correlates with low perceptual degradation (FID)."
+1. **Sample**: Extract a small subset (e.g., 500 segments) from the available data.
+2. **Generate**: For each segment, generate a "Full" version and a "Skipped" version (using linear interpolation or a simple estimator).
+3. **Measure**: Compute the correlation (r) between the *average latent delta* of the segment and the *segment-level FID degradation*.
+4. **Decision**: If r < 0.3, the hypothesis is weak; the plan will flag this as a "Hypothesis Failure" and pivot to a different metric or abort the main experiment.
 
-### 3.2 Hybrid Inference Simulation & Counterfactual Generation (FR-003, FR-008, FR-009, FR-017)
-* **Logic**:
- 1. For each frame $t$:
- * Run Estimator.
- * **Randomized Intervention**: If $t \in \text{RandomSubset}$ (≥5% of frames, capped at 200 for CPU feasibility), force skip regardless of prediction (FR-008).
- * **Deterministic Fallback**: Else if $U_t > 0.8$, use full solver (FR-006).
- * **Skip**: Else, skip flow-matching step (use interpolated/estimated latent).
- 2. **Counterfactual Ground Truth Generation**: For the **RandomSubset** only:
- * After generating the "Skipped" frame, the system **must re-run the full flow-matching solver** *only for that specific frame* to generate the "Full" ground truth.
- * **Resource Constraint**: To fit within the 6-hour CPU limit, the randomized subset size is capped (e.g., 200 frames) and the re-run may use a downsampled resolution (e.g., 128x128) or a reduced number of flow-matching steps, with the variance adjustment documented in the power analysis.
- * This ensures a paired comparison (Skipped vs. Full) on the exact same frame, isolating the causal effect of the skip action.
+### Phase 1: Data Extraction & Preprocessing (US-1)
+1. **Source**: Attempt to load local Wan-Streamer logs. If missing, load **VoxCeleb2** (verified URL).
+2. **Event Detection**: Implement `detect_turn_events` (FR-018) to label segments as "interruption" (high priority) or "pause" (low priority) based on audio energy and speech overlap.
+3. **Latent Extraction**:
+ * If Wan-Streamer logs exist: Parse latent vectors directly.
+ * If VoxCeleb2: Use a frozen, CPU-efficient encoder (e.g., a small ResNet+CNN for audio-visual features) to generate proxy latent vectors.
+ * Compute `latent_delta_magnitude` as the Euclidean distance between $t$ and $t-1$.
+4. **Sampling**: Stratified sampling to ensure ≥500 interruption and ≥500 pause events (or all available if fewer). Target size: [deferred] frames (≤1 GB).
+5. **Validation**: Check schema (timestamp, features, delta, label) and distribution preservation (FR-015).
 
-### 3.3 Quality & Latency Metrics (FR-004, FR-010, FR-012, FR-013)
-* **FID**: Computed using `torchvision.models.inception_v3` (CPU-quantized or standard float32) on the generated frames vs. ground truth.
- * *Constraint*: The evaluation model must be distinct from the estimator (Constitution Principle VII).
- * *Note*: If `inception_v3` is too heavy, the feature extraction will be done in batches or on a downsampled set, but the metric remains "FID".
-* **Proxy MOS**: Correlation with human ratings (if available in the specific Wan-Streamer context). If not, log "Assumption Validated (No Human Data Available)" (FR-024).
-* **Latency**: Measured as time per frame (CPU cycles).
-* **Validation Target**: Calculate Pearson $r$ between **predicted $\Delta z$** and **Observed FID Degradation** (calculated as $|FID_{skipped} - FID_{full}| / FID_{full}$ from the counterfactual re-run). This breaks the tautology because $FID_{full}$ is generated by the full solver, not the estimator.
+### Phase 2: Estimator Training (US-2)
+1. **Model**: Lightweight RNN (GRU) or shallow Transformer (2 layers, 128 hidden dim) to predict `latent_delta_magnitude` and `uncertainty_score`.
+2. **Input**: Causal history of semantic/prosodic features.
+3. **Loss**: MSE for delta magnitude; Calibration loss for uncertainty.
+4. **Baselines**:
+ * **Zero-Delta Predictor**: Always predicts 0.
+ * **Previous-Frame Predictor**: Predicts the last observed delta.
+ * Target: [deferred] MSE improvement over Zero-Delta baseline.
+5. **Constraints**:
+ * CPU-only training (no CUDA).
+ * Batch size tuned to keep RAM ≤ 7 GB.
+ * Early stopping if loss does not improve.
+ * **Power Limitation**: If training > 6h, reduce sample size by [deferred] (FR-014).
 
-### 3.4 Statistical Validation (FR-005, FR-016)
-* **Pilot Study & Power Analysis**: Before the main experiment, run a **small pilot (e.g., 50 frames)** of the randomized counterfactual process (Skipped vs. Full) to estimate the variance of the FID metric. This pilot is computationally cheap and provides the necessary variance estimate for the power analysis of the main study (FR-016).
-* **Latency Reduction**: Two One-Sided Tests (TOST) with $\Delta = 0.05$ (relative ratio) to prove equivalence in quality and significant reduction in latency.
-* **Bias Correction**: Stratified bootstrap with propensity-score matching (using covariates like frame duration, speaker identity) to validate latency reduction (FR-005).
-* **Power Analysis**: Calculate expected variance of FID (from pilot) to justify sample size. If power is insufficient, log limitation (FR-016).
-* **Correlation**: Pearson $r$ between predicted $\Delta z$ and actual FID stability (FR-010).
+### Phase 3: Hybrid Inference Simulation (US-3)
+**Conditional Execution**:
+* **If Wan-Streamer logs available**: Run full Hybrid Simulation against Wan-Streamer baseline.
+* **If logs missing**: Run "Proxy Simulation" using linear interpolation baseline. Report results as "Methodological Feasibility" with disclaimers.
 
-## 4. Risks & Mitigations
+1. **Pipeline**:
+ * For each frame/segment: Run Estimator.
+ * **Decision Logic**:
+ * If `uncertainty > 0.8` (FR-006): Use Full Solver (or Linear Interpolation in Proxy mode).
+ * If `randomized_subset` (FR-008): Force Skip (regardless of prediction) for ≥5% of segments to establish causal effect.
+ * Else: Use Estimated Delta (Skip Solver).
+2. **Metrics**:
+ * **Latency**: Measure time per segment (Hybrid vs. Full).
+ * **Quality**: Compute FID (using `torchmetrics` over a batch of frames/segments) and Proxy MOS (using a frozen video-quality model).
+ * **Stability**: Calculate correlation (r) between *average predicted delta* of the segment and *segment-level FID stability* (FR-010).
+3. **Statistical Validation**:
+ * **TOST**: Equivalence test for quality (margin Δ=0.05). TOST is a paired test comparing Hybrid vs. Baseline on the same segments.
+ * **Bootstrap**: Stratified bootstrap with propensity-score matching for latency reduction (FR-005, FR-007).
+ * **Power Analysis**: Calculate sample size needed for TOST (FR-016).
 
-| Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Dataset Mismatch** | High | The plan now explicitly treats missing Wan-Streamer logs as a hard blocker (FR-022). No "re-generation" fallback is attempted. |
-| **CPU Time Limit** | High | Strict monitoring of RAM and time. Automatic sample size reduction (FR-014) or graceful failure. The randomized subset is capped to ensure the counterfactual re-runs fit in 6h. |
-| **FID Model Availability** | Medium | Use `inception_v3` (standard FID). If memory is an issue, use batch processing or downsampled images, but maintain the metric name "FID". |
-| **Causal Inference Failure** | High | The randomized counterfactual (FR-008) with re-run is mandatory. If the random subset is too small to show significance, the result is reported as "Inconclusive". |
+### Phase 4: Validation & Reporting
+1. **Proxy MOS**: If human data exists, correlate r ≥ 0.8. Else, log "Assumption Validated (No Human Data Available)" (FR-012, SC-007).
+2. **Uncertainty Calibration**: Correlate uncertainty score with prediction error (SC-006).
+3. **Artifact Hashing**: Update `state.yaml` with hashes of all artifacts (FR-020).
+
+## 4. Statistical Rigor & Assumptions
+
+* **Multiple Comparisons**: Bonferroni correction applied if multiple TOST tests are run across different metrics.
+* **Power Limitation**: Acknowledged that CPU constraints may limit the sample size for the TOST test. The plan includes a fallback to reduce sample size or fail gracefully (FR-014).
+* **Causal Inference**: The randomized counterfactual (FR-008) is the primary method for causal claims. Propensity matching (FR-005) is used only for observational baseline validation.
+* **Collinearity**: Semantic and prosodic features may be correlated. The model will report feature importance descriptively without claiming independent causal effects for each.
+* **Dataset Fit**: The plan explicitly acknowledges that VoxCeleb2 is a proxy. If Wan-Streamer logs are unavailable, the "latent" vectors are derived, not native, and results are framed as "methodological validation" rather than "Wan-Streamer specific optimization."
+* **FID Validity**: FID is computed over segments (batches) to maintain mathematical validity. The "per-frame" requirement in the spec is interpreted as "per-segment" to satisfy the batch nature of FID.
+
+## 5. Compute Feasibility
+
+* **Hardware**: 2 CPU, 7 GB RAM, 14 GB Disk.
+* **Strategy**:
+ * Data subset to ≤ 1 GB.
+ * Model: Small RNN/Transformer (no large LLMs).
+ * Libraries: `torch` (CPU wheel), `scikit-learn`.
+ * No GPU/CUDA dependencies.
+ * **Runtime**: Estimated < 4 hours for training + simulation on sampled data.

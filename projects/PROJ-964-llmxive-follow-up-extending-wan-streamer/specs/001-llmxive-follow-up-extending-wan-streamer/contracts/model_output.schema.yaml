@@ -1,25 +1,32 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: "Model Output Schema"
-description: "Schema for the output of the GRU estimator during simulation."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Estimator Model Output Schema"
+description: "Schema for the predictions made by the lightweight estimator model."
 type: object
 properties:
   frame_id:
     type: integer
-    description: "Frame ID."
+    description: "Frame ID corresponding to the input."
   predicted_delta:
     type: number
-    description: "Predicted latent delta magnitude."
-  uncertainty_score:
+    description: "Predicted magnitude of the latent delta."
+  predicted_uncertainty:
     type: number
-    description: "Model confidence (0.0 to 1.0)."
     minimum: 0.0
     maximum: 1.0
-  skip_decision:
+    description: "Uncertainty score (0.0 to 1.0). Values > 0.8 trigger fallback."
+  action:
+    type: string
+    enum:
+      - "skip"
+      - "full_solve"
+    description: "Action taken based on the prediction and uncertainty."
+  randomized_intervention:
     type: boolean
-    description: "True if solver step is skipped."
+    description: "True if this frame was part of the randomized counterfactual subset."
 required:
   - frame_id
   - predicted_delta
-  - uncertainty_score
-  - skip_decision
+  - predicted_uncertainty
+  - action
+  - randomized_intervention
 additionalProperties: false
