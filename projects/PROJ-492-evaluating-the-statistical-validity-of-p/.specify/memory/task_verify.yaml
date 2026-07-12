@@ -209,11 +209,6 @@
   repository identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
   **DEPENDS ON:** T020c. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
 : 1
-? 'T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL,
-  repository identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
-  **DEPENDS ON:** T020c. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-  <!-- FAILED: unspecified -->'
-: 1
 ? "T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL,\
   \ repository identifier, and fetch timestamp [UNRESOLVED-CLAIM: c_3afd62b7 \u2014\
   \ status=not_enough_info] (run validation script `tests/unit/test_provenance_schema.py`).\
