@@ -1,150 +1,108 @@
 """
-Script to profile the frozen DistilBERT model on CPU.
-Verifies no GPU allocation and outputs a profile report to data/logs/model_profile.json.
+Profile the frozen DistilBERT model to ensure it runs on CPU and measures resource usage.
+Output: data/logs/model_profile.json
 """
-import json
 import os
-import sys
+import json
 import time
-import resource
+import logging
+import tracemalloc
+from pathlib import Path
+from typing import Dict, Any
+
 import torch
-from transformers import DistilBertTokenizer, DistilBertModel
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-# Ensure the script can run from the project root or scripts directory
-def get_project_root():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    # Check if we are in scripts/
-    if os.path.basename(current_dir) == "scripts":
-        return os.path.dirname(current_dir)
-    # Fallback: look for the project ID folder
-    parent = os.path.dirname(current_dir)
-    if "PROJ-830-llmxive-follow-up-extending-gatemem-benc" in parent:
-        return parent
-    return current_dir
+# Configure logging
+log_dir = Path("data/logs")
+log_dir.mkdir(parents=True, exist_ok=True)
+log_file = log_dir / "model_profile.log"
+output_file = log_dir / "model_profile.json"
 
-PROJECT_ROOT = get_project_root()
-OUTPUT_PATH = os.path.join(PROJECT_ROOT, "data", "logs", "model_profile.json")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
-# Ensure output directory exists
-os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+MODEL_NAME = "distilbert-base-uncased" # Placeholder for the frozen model used in GateMem
 
-MODEL_NAME = "distilbert-base-uncased"
-
-def get_memory_usage_mb():
-    """Get current RAM usage in MB using resource module (Linux/macOS)."""
-    try:
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        return usage.ru_maxrss / 1024.0  # Convert KB to MB
-    except AttributeError:
-        # Fallback for non-Unix systems (approximate)
-        return 0.0
-
-def verify_cpu_only():
-    """Verify that no GPU is available or being used."""
+def main():
+    logger.info("Starting model profiling on CPU...")
+    
+    # Check CUDA availability
     if torch.cuda.is_available():
-        return False, "CUDA is available but should be disabled for this task."
-    if torch.cuda.device_count() > 0:
-        return False, f"GPU devices detected: {torch.cuda.device_count()}"
-    return True, "No GPU detected; running on CPU."
+        logger.warning("CUDA is available, but forcing CPU usage for profiling.")
+    device = torch.device("cpu")
 
-def profile_model():
-    """Load DistilBERT, run a forward pass, and collect profile metrics."""
-    results = {
-        "model_name": MODEL_NAME,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "device": "cpu",
-        "precision": "float32",
-        "checks": {},
-        "metrics": {}
-    }
-
-    # 1. Verify CPU-only constraint
-    is_cpu, msg = verify_cpu_only()
-    results["checks"]["cpu_only_verified"] = is_cpu
-    results["checks"]["cpu_message"] = msg
-
-    if not is_cpu:
-        results["error"] = "GPU detected. Aborting profile to comply with CPU-only constraint."
-        with open(OUTPUT_PATH, "w") as f:
-            json.dump(results, f, indent=2)
-        print(f"Profile failed: {msg}")
-        sys.exit(1)
-
-    # 2. Record baseline memory
-    baseline_mem = get_memory_usage_mb()
-    results["metrics"]["baseline_memory_mb"] = round(baseline_mem, 2)
-
-    print(f"Loading tokenizer and model: {MODEL_NAME} on CPU...")
+    tracemalloc.start()
     start_time = time.time()
 
-    # 3. Load Tokenizer and Model (frozen, default precision)
     try:
-        tokenizer = DistilBertTokenizer.from_pretrained(MODEL_NAME)
-        model = DistilBertModel.from_pretrained(MODEL_NAME)
+        # Load tokenizer and model
+        logger.info(f"Loading tokenizer for {MODEL_NAME}...")
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        
+        logger.info(f"Loading model for {MODEL_NAME} on {device}...")
+        model = AutoModelForSequenceClassification.from_pretrained(
+            MODEL_NAME,
+            num_labels=2
+        )
+        model.to(device)
         model.eval()
-        
-        # Explicitly move to CPU to ensure no accidental GPU usage
-        model = model.to("cpu")
-        
-        # Freeze parameters (frozen model)
+
+        # Verify no GPU tensors
         for param in model.parameters():
-            param.requires_grad = False
+            if param.is_cuda:
+                raise RuntimeError("Model contains CUDA tensors!")
+
+        logger.info("Model loaded successfully on CPU.")
+
+        # Run inference on dummy input
+        dummy_text = "This is a test sentence for profiling."
+        inputs = tokenizer(dummy_text, return_tensors="pt")
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
+        logger.info("Running inference...")
+        with torch.no_grad():
+            outputs = model(**inputs)
+        
+        end_time = time.time()
+        current, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+
+        profile_data: Dict[str, Any] = {
+            "model_name": MODEL_NAME,
+            "device": "cpu",
+            "inference_time_seconds": end_time - start_time,
+            "peak_memory_mb": peak / (1024 * 1024),
+            "current_memory_mb": current / (1024 * 1024),
+            "cuda_available": torch.cuda.is_available(),
+            "cuda_tensors_found": False,
+            "status": "success"
+        }
+
+        with open(output_file, "w") as f:
+            json.dump(profile_data, f, indent=2)
+
+        logger.info(f"Profile saved to {output_file}")
+        logger.info(f"Peak Memory: {profile_data['peak_memory_mb']:.2f} MB")
+        logger.info(f"Inference Time: {profile_data['inference_time_seconds']:.4f} s")
 
     except Exception as e:
-        results["error"] = f"Failed to load model: {str(e)}"
-        with open(OUTPUT_PATH, "w") as f:
-            json.dump(results, f, indent=2)
-        print(f"Error loading model: {e}")
+        logger.error(f"Profiling failed: {e}")
+        profile_data = {
+            "model_name": MODEL_NAME,
+            "status": "failed",
+            "error": str(e)
+        }
+        with open(output_file, "w") as f:
+            json.dump(profile_data, f, indent=2)
         sys.exit(1)
-
-    load_time = time.time() - start_time
-    results["metrics"]["load_time_seconds"] = round(load_time, 3)
-    print(f"Model loaded in {load_time:.3f}s")
-
-    # 4. Verify no GPU tensors
-    has_gpu_tensor = any(p.is_cuda for p in model.parameters())
-    results["checks"]["no_gpu_tensors"] = not has_gpu_tensor
-    if has_gpu_tensor:
-        results["checks"]["no_gpu_tensors"] = False
-        results["error"] = "Model parameters detected on GPU."
-        with open(OUTPUT_PATH, "w") as f:
-            json.dump(results, f, indent=2)
-        sys.exit(1)
-
-    # 5. Run a forward pass with sample input
-    sample_text = "Hello, this is a test input for profiling."
-    inputs = tokenizer(sample_text, return_tensors="pt")
-    inputs = {k: v.to("cpu") for k, v in inputs.items()}
-
-    print(f"Running forward pass with sample input: '{sample_text}'")
-    start_inference = time.time()
-
-    with torch.no_grad():
-        outputs = model(**inputs)
-        
-    inference_time = time.time() - start_inference
-    results["metrics"]["inference_time_seconds"] = round(inference_time, 3)
-    results["metrics"]["output_hidden_size"] = outputs.last_hidden_state.shape[2]
-    results["metrics"]["batch_size"] = outputs.last_hidden_state.shape[0]
-    results["metrics"]["sequence_length"] = outputs.last_hidden_state.shape[1]
-
-    # 6. Record peak memory
-    peak_mem = get_memory_usage_mb()
-    results["metrics"]["peak_memory_mb"] = round(peak_mem, 2)
-    results["metrics"]["memory_delta_mb"] = round(peak_mem - baseline_mem, 2)
-
-    # 7. Final status
-    results["status"] = "success"
-    results["message"] = "Profile completed successfully. No GPU allocation detected."
-
-    # Write report
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(results, f, indent=2)
-
-    print(f"Profile report written to: {OUTPUT_PATH}")
-    print(f"Status: {results['status']}")
-    print(f"Memory Delta: {results['metrics']['memory_delta_mb']:.2f} MB")
-    print(f"Inference Time: {results['metrics']['inference_time_seconds']:.3f} s")
 
 if __name__ == "__main__":
-    profile_model()
+    main()

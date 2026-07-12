@@ -1,23 +1,15 @@
 #!/bin/bash
-# Script to install and verify linting/formatting tools for GateMem project
+# Setup script for linting and formatting tools
+# Ensures ruff and black are installed and configured
 
 set -e
 
-echo "Installing dev dependencies..."
-pip install -r requirements-dev.txt
+echo "Installing linting and formatting tools..."
 
-echo "Verifying ruff installation..."
-ruff --version
+# Install ruff and black if not already present
+pip install ruff black
 
-echo "Verifying black installation..."
-black --version
-
-echo "Running initial format check (dry-run)..."
-black --check --diff code/ || true
-
-echo "Running initial lint check..."
-ruff check code/ || true
-
-echo "Linting and formatting tools configured successfully."
+echo "Tools installed successfully."
+echo "To check code: ruff check code/"
 echo "To format code: black code/"
-echo "To lint code: ruff check code/"
+echo "To fix linting issues: ruff check --fix code/"

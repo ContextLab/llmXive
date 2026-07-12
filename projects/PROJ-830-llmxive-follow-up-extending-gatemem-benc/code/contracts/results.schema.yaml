@@ -1,0 +1,182 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: GateMem Benchmark Results Schema
+description: |
+  Defines the structure for metric outputs from the GateMem benchmark pipeline.
+  Covers Access Control, Utility, Forgetting, and Latency metrics.
+type: object
+required:
+  - metadata
+  - metrics
+properties:
+  metadata:
+    type: object
+    description: Run configuration and environment details.
+    required:
+      - timestamp
+      - dataset_version
+      - pipeline_version
+      - domains
+      - methods
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of the run.
+      dataset_version:
+        type: string
+        description: Version identifier of the GateMem dataset used.
+      pipeline_version:
+        type: string
+        description: Version of the evaluation pipeline.
+      domains:
+        type: array
+        items:
+          type: string
+        description: List of domains evaluated (e.g., medical, office).
+      methods:
+        type: array
+        items:
+          type: string
+        description: List of methods compared (e.g., gatekeeper, baseline_retrieval, baseline_long_context).
+      seed:
+        type: integer
+        description: Random seed used for reproducibility.
+      hardware:
+        type: object
+        properties:
+          device:
+            type: string
+            description: Device used (e.g., cpu, cuda:0).
+          ram_total_gb:
+            type: number
+          ram_peak_gb:
+            type: number
+
+  metrics:
+    type: object
+    description: Aggregated metric results per method.
+    additionalProperties:
+      type: object
+      required:
+        - access_control
+        - utility
+        - forgetting
+        - latency
+      properties:
+        access_control:
+          type: object
+          description: Metrics related to unauthorized information leakage.
+          required:
+            - unauthorized_exposure_rate
+            - false_positive_rate
+            - false_negative_rate
+          properties:
+            unauthorized_exposure_rate:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Ratio of unauthorized accesses that were allowed.
+            false_positive_rate:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Ratio of valid queries that were incorrectly blocked.
+            false_negative_rate:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Ratio of invalid queries that were incorrectly allowed.
+            total_evaluated:
+              type: integer
+              description: Total number of access control decisions made.
+
+        utility:
+          type: object
+          description: Metrics related to task success and performance.
+          required:
+            - overall_success_rate
+            - conditional_utility
+            - average_response_length
+          properties:
+            overall_success_rate:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Percentage of tasks completed successfully against ground truth.
+            conditional_utility:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Success rate conditioned on authorized access being granted.
+            average_response_length:
+              type: number
+              description: Average token/word count of responses.
+            total_evaluated:
+              type: integer
+              description: Total number of tasks evaluated.
+
+        forgetting:
+          type: object
+          description: Metrics related to machine unlearning/deletion compliance.
+          required:
+            - deletion_compliance_rate
+            - residual_information_retention
+          properties:
+            deletion_compliance_rate:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Percentage of deletion requests successfully honored.
+            residual_information_retention:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Measure of how much deleted information persists (0 is ideal).
+            total_deletion_requests:
+              type: integer
+              description: Total number of deletion requests processed.
+
+        latency:
+          type: object
+          description: Computational cost and timing metrics.
+          required:
+            - avg_wall_clock_ms
+            - p95_wall_clock_ms
+            - peak_ram_mb
+            - avg_cpu_utilization_pct
+          properties:
+            avg_wall_clock_ms:
+              type: number
+              description: Average inference time in milliseconds.
+            p95_wall_clock_ms:
+              type: number
+              description: 95th percentile inference time in milliseconds.
+            peak_ram_mb:
+              type: number
+              description: Peak memory usage in Megabytes.
+            avg_cpu_utilization_pct:
+              type: number
+              description: Average CPU utilization percentage during execution.
+            total_episodes:
+              type: integer
+              description: Number of episodes profiled.
+
+        statistical_comparison:
+          type: object
+          description: Optional statistical test results comparing this method to a baseline.
+          properties:
+            test_type:
+              type: string
+              description: Type of test used (e.g., LMM, paired_ttest, wilcoxon).
+            test_statistic:
+              type: number
+            p_value:
+              type: number
+            degrees_of_freedom:
+              type: number
+            significant_at_005:
+              type: boolean
+            baseline_method:
+              type: string
+
+additionalProperties: false

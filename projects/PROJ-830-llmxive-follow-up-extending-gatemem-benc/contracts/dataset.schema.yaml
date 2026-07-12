@@ -1,0 +1,140 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GateMem Episode Schema"
+description: "Defines the structure of a single episode in the GateMem benchmark dataset.
+              Each episode represents a user interaction scenario involving memory access,
+              role definitions, and potential data leakage."
+type: object
+required:
+  - episode_id
+  - domain
+  - role
+  - query
+  - memory_context
+  - leak_target
+  - ground_truth
+  - outcome
+  - predictors
+  - covariates
+properties:
+  episode_id:
+    type: string
+    description: "Unique identifier for the episode (e.g., 'med_001')."
+    pattern: "^[a-z]+_[0-9]+$"
+
+  domain:
+    type: string
+    description: "The domain category of the episode."
+    enum:
+      - medical
+      - office
+      - education
+      - household
+      - legal
+      - finance
+
+  role:
+    type: string
+    description: "The role of the user making the query (e.g., 'doctor', 'admin', 'patient')."
+    minLength: 1
+
+  query:
+    type: string
+    description: "The natural language query or request from the user."
+    minLength: 1
+
+  memory_context:
+    type: array
+    description: "List of memory chunks retrieved or available in the context."
+    items:
+      type: object
+      required:
+        - chunk_id
+        - content
+        - timestamp
+      properties:
+        chunk_id:
+          type: string
+        content:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+          description: "Optional metadata associated with the memory chunk."
+
+  leak_target:
+    type: object
+    description: "The specific sensitive information that should not be leaked."
+    required:
+      - target_id
+      - sensitive_content
+    properties:
+      target_id:
+        type: string
+        description: "Identifier for the sensitive data point."
+      sensitive_content:
+        type: string
+        description: "The actual sensitive content that must be protected."
+      is_deletion_requested:
+        type: boolean
+        default: false
+        description: "Whether a deletion request has been made for this target."
+
+  ground_truth:
+    type: object
+    description: "The expected outcome and access rules for this episode."
+    required:
+      - allowed
+      - reason
+    properties:
+      allowed:
+        type: boolean
+        description: "Whether the query should be allowed to access the leak_target."
+      reason:
+        type: string
+        description: "Explanation for the ground truth decision."
+      required_role:
+        type: string
+        description: "The minimum role required to access the target."
+
+  outcome:
+    type: string
+    description: "The actual result of the interaction (e.g., 'allowed', 'denied', 'partial')."
+    enum:
+      - allowed
+      - denied
+      - partial
+
+  predictors:
+    type: object
+    description: "Features used to predict the outcome or analyze the episode."
+    properties:
+      query_length:
+        type: integer
+      has_sensitive_keywords:
+        type: boolean
+      role_match:
+        type: boolean
+      memory_relevance_score:
+        type: number
+        format: float
+
+  covariates:
+    type: object
+    description: "Additional contextual variables not directly predictive but useful for analysis."
+    properties:
+      session_duration:
+        type: number
+      user_history_count:
+        type: integer
+      time_of_day:
+        type: string
+
+  metadata:
+    type: object
+    description: "Optional metadata about the episode generation or source."
+    additionalProperties: true
+
+additionalProperties: false

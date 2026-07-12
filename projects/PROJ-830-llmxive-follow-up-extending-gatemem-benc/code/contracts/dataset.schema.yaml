@@ -1,0 +1,119 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: GateMem Dataset Schema
+description: |
+  Schema defining the structure of a single GateMem episode.
+  Used for validation of raw and processed data against the
+  GateMem benchmark specification.
+type: object
+required:
+  - episode_id
+  - domain
+  - roles
+  - leak_target
+  - outcome
+  - predictors
+  - covariates
+properties:
+  episode_id:
+    type: string
+    description: Unique identifier for the episode.
+    pattern: "^EP-[0-9]{6}$"
+
+  domain:
+    type: string
+    description: |
+      The domain of the episode (e.g., medical, office, education, household).
+      Must match one of the predefined domains in the benchmark.
+    enum:
+      - medical
+      - office
+      - education
+      - household
+      - legal
+
+  roles:
+    type: array
+    description: |
+      List of roles involved in the episode. Each role defines
+      the actor and their access level.
+    items:
+      type: object
+      required:
+        - role_name
+        - access_level
+      properties:
+        role_name:
+          type: string
+          description: Name of the role (e.g., 'admin', 'guest', 'doctor').
+        access_level:
+          type: string
+          description: Access level associated with the role.
+          enum:
+            - read
+            - write
+            - delete
+            - admin
+
+  leak_target:
+    type: string
+    description: |
+      The specific piece of information (PII or sensitive data)
+      that the episode is designed to test for leakage.
+      This is the ground truth for the 'outcome' variable.
+
+  outcome:
+    type: object
+    description: |
+      The ground truth outcome of the episode.
+      Indicates whether a leak occurred in the baseline scenario.
+    required:
+      - leak_occurred
+      - leak_type
+    properties:
+      leak_occurred:
+        type: boolean
+        description: True if the leak_target was exposed in the baseline.
+      leak_type:
+        type: string
+        description: Type of leak if occurred (e.g., 'direct', 'inference', 'none').
+        enum:
+          - direct
+          - inference
+          - none
+
+  predictors:
+    type: array
+    description: |
+      List of input features (text chunks, query strings) provided
+      to the model for this episode.
+    items:
+      type: string
+
+  covariates:
+    type: object
+    description: |
+      Additional context variables that may influence the outcome
+      but are not part of the direct prediction input.
+    properties:
+      query_complexity:
+        type: number
+        description: Complexity score of the query.
+      context_length:
+        type: integer
+        description: Total length of the context provided.
+      num_deletion_requests:
+        type: integer
+        description: Number of deletion requests associated with this episode.
+
+  metadata:
+    type: object
+    description: Optional metadata for the episode.
+    properties:
+      source:
+        type: string
+        description: Source of the episode data.
+      timestamp:
+        type: string
+        format: date-time
+        description: Timestamp of episode creation.
+additionalProperties: false

@@ -1,0 +1,62 @@
+# Ruff configuration for llmXive GateMem benchmark
+# Based on standard scientific Python practices
+
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG", "SIM"]
+ignore = [
+  "E501", # Line too long (handled by black)
+  "B008", # Do not perform function call in argument values (common in tests)
+  "SIM105", # `contextlib.suppress()` is not always readable
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific files/directories
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+  "data",
+]
+
+# Same as Black
+line-length = 88
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Ignore `E402` (import not at top) in test files where we sometimes need to import
+# after setup code
+"tests/**/*.py" = ["E402"]
+# Ignore `F401` (unused import) in __init__.py files where we might re-export
+"code/**/__init__.py" = ["F401"]
+
+[lint.isort]
+force-single-line = false
+force-sort-within-sections = false
+known-first-party = ["gatekeeper", "data", "models", "logging_config"]
+known-third-party = ["datasets", "transformers", "torch", "pandas", "pytest", "scikit-learn", "statsmodels", "pydantic", "sentence-transformers"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+lines-after-imports = 2

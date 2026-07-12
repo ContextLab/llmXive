@@ -1,0 +1,71 @@
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/docs/quickstart.md
+  attempts: 1
+  canonical: GateMem dataset cached in ~/.cache/huggingface
+  claim_id: c_025c1606
+  context: The pipeline automatically fetches the GateMem dataset from HuggingFace
+    on first run. The dataset will be cached automatically in ~/.cache/huggingface
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GateMem_dataset_cached_in_~/.cache/huggingface
+  kind: entity_fact
+  raw_text: The dataset will be cached automatically in ~/.cache/huggingface
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:48:15Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/docs/quickstart.md
+  attempts: 1
+  canonical: GateMem dataset fetched from HuggingFace on first run
+  claim_id: c_dbb4dd14
+  context: The pipeline automatically fetches the GateMem dataset from HuggingFace
+    on first run. If you prefer to download manually
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GateMem_dataset_fetched_from_HuggingFace_on_first_run
+  kind: entity_fact
+  raw_text: The pipeline automatically fetches the GateMem dataset from HuggingFace
+    on first run
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:48:40Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/docs/quickstart.md
+  attempts: 1
+  canonical: 50 stratified failure cases
+  claim_id: c_20cb2e68
+  context: 'data/samples/failure_cases.json: Stratified sample of failure cases (50
+    cases)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified sample of failure cases (50 cases)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:49:08Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/docs/quickstart.md
+  attempts: 1
+  canonical: 2GB disk space required for model weights
+  claim_id: c_e6bb596d
+  context: 'Prerequisites: Sufficient disk space for model weights (~2GB) and dataset
+    cache'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/2GB_disk_space_required_for_model_weights
+  kind: entity_fact
+  raw_text: Sufficient disk space for model weights (~2GB) and dataset cache
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T04:49:39Z'

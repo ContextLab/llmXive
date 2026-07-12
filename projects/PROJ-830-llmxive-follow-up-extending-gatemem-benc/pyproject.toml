@@ -3,29 +3,100 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gatemem-gatekeeper"
+name = "llmxive-gatemem-followup"
 version = "0.1.0"
-description = "GateMem Gatekeeper Extension for Privacy-Preserving Retrieval"
+description = "Extending GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
 requires-python = ">=3.11"
 dependencies = [
+    "datasets",
     "transformers",
-    "torch",
     "scikit-learn",
+    "statsmodels",
     "pandas",
+    "pyyaml",
     "pytest",
-    "sentence-transformers"
+    "huggingface_hub",
+    "ruff",
+    "black"
 ]
+
+[tool.setuptools.packages.find]
+where = ["code"]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
 [tool.ruff]
-line-length = 88
 target-version = "py311"
+line-length = 88
+src = ["code"]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v"
+pythonpath = ["code"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "contract: marks tests as contract tests"
+]

@@ -25,3 +25,20 @@
   detection is CPU-only and does not require quantization libraries; output must be
   `data/logs/sentence_transformers_validation.json`'
 : 1
+? T006b [US1/US2] [DEPENDS ON T006] Extend `src/utils/data_loader.py` to validate
+  presence of required variables (`outcome`, `predictors`, `covariates`, `leak-target`)
+  against `contracts/dataset.schema.yaml` and raise error if missing
+: 1
+T007 [P] Create `src/utils/profiling.py` for CPU/RAM and wall-clock time instrumentation (using `tracemalloc` or `psutil`): 1
+? T008a [P] Create `src/utils/stats.py` implementing Shapiro-Wilk, LMM (statsmodels)
+  with formula `score ~ method + (1|Domain)`, and paired t-test/Wilcoxon fallback
+  logic
+: 1
+? T008b [US2] [DEPENDS ON T008a] Extend `src/utils/stats.py` to implement 'domain-stratified
+  analysis' (separate tests per domain) and automatic fallback to paired tests if
+  LMM fails (singular matrix) per Constitution Principle VI
+: 1
+? 'T009 [P] Create `src/gatekeeper/pipeline.py` skeleton with entry points: `run_gatekeeper()`,
+  `run_baseline()`, and `main()` for argument parsing'
+: 1
+T010 Create `tests/contract/test_dataset_schema.py` to validate raw data against `dataset.schema.yaml`: 1

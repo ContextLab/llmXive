@@ -1,0 +1,305 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: GateMem Benchmark Results Schema
+description: >
+  Schema defining the structure of metric outputs for the GateMem benchmark.
+  Covers Access Control, Utility, Forgetting, and Latency metrics.
+type: object
+required:
+  - metadata
+  - access_control
+  - utility
+  - forgetting
+  - latency
+  - statistical_analysis
+additionalProperties: false
+
+properties:
+  metadata:
+    type: object
+    description: Run metadata and configuration
+    required:
+      - timestamp
+      - version
+      - domains
+      - methods
+      - seed
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of the run
+      version:
+        type: string
+        description: Schema version
+      domains:
+        type: array
+        items:
+          type: string
+        description: List of domains evaluated (e.g., medical, office)
+      methods:
+        type: array
+        items:
+          type: string
+        description: Methods compared (e.g., gatekeeper, baseline_long_context, baseline_retrieval)
+      seed:
+        type: integer
+        description: Random seed used for reproducibility
+
+  access_control:
+    type: object
+    description: Access Control metrics (unauthorized information leakage)
+    required:
+      - scores
+      - by_domain
+    properties:
+      scores:
+        type: object
+        description: Aggregate scores per method
+        additionalProperties:
+          type: object
+          required:
+            - unauthorized_exposure_rate
+            - total_evaluated
+            - failures
+          properties:
+            unauthorized_exposure_rate:
+              type: number
+              format: float
+              description: Rate of unauthorized data exposure (0.0 to 1.0)
+            total_evaluated:
+              type: integer
+              description: Total number of episodes evaluated
+            failures:
+              type: integer
+              description: Number of episodes with unauthorized exposure
+
+      by_domain:
+        type: object
+        description: Scores broken down by domain
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: object
+            required:
+              - unauthorized_exposure_rate
+              - total_evaluated
+              - failures
+            properties:
+              unauthorized_exposure_rate:
+                type: number
+                format: float
+              total_evaluated:
+                type: integer
+              failures:
+                type: integer
+
+  utility:
+    type: object
+    description: Task Utility metrics (task success rates)
+    required:
+      - scores
+      - by_domain
+    properties:
+      scores:
+        type: object
+        description: Aggregate utility scores per method
+        additionalProperties:
+          type: object
+          required:
+            - overall_success_rate
+            - conditional_utility
+            - total_evaluated
+            - successes
+          properties:
+            overall_success_rate:
+              type: number
+              format: float
+              description: Overall task success rate
+            conditional_utility:
+              type: number
+              format: float
+              description: Utility given authorized access
+            total_evaluated:
+              type: integer
+            successes:
+              type: integer
+
+      by_domain:
+        type: object
+        description: Utility scores broken down by domain
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: object
+            required:
+              - overall_success_rate
+              - conditional_utility
+              - total_evaluated
+              - successes
+            properties:
+              overall_success_rate:
+                type: number
+                format: float
+              conditional_utility:
+                type: number
+                format: float
+              total_evaluated:
+                type: integer
+              successes:
+                type: integer
+
+  forgetting:
+    type: object
+    description: Forgetting compliance metrics (deletion request adherence)
+    required:
+      - scores
+      - by_domain
+    properties:
+      scores:
+        type: object
+        description: Aggregate forgetting scores per method
+        additionalProperties:
+          type: object
+          required:
+            - deletion_compliance_rate
+            - total_deletion_requests
+            - successful_deletions
+          properties:
+            deletion_compliance_rate:
+              type: number
+              format: float
+              description: Rate of successful data deletion upon request
+            total_deletion_requests:
+              type: integer
+            successful_deletions:
+              type: integer
+
+      by_domain:
+        type: object
+        description: Forgetting scores broken down by domain
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: object
+            required:
+              - deletion_compliance_rate
+              - total_deletion_requests
+              - successful_deletions
+            properties:
+              deletion_compliance_rate:
+                type: number
+                format: float
+              total_deletion_requests:
+                type: integer
+              successful_deletions:
+                type: integer
+
+  latency:
+    type: object
+    description: Computational cost and latency metrics
+    required:
+      - scores
+      - by_domain
+    properties:
+      scores:
+        type: object
+        description: Aggregate latency and resource usage per method
+        additionalProperties:
+          type: object
+          required:
+            - mean_latency_ms
+            - std_latency_ms
+            - mean_peak_ram_mb
+            - std_peak_ram_mb
+          properties:
+            mean_latency_ms:
+              type: number
+              format: float
+              description: Mean wall-clock inference time in milliseconds
+            std_latency_ms:
+              type: number
+              format: float
+              description: Standard deviation of latency
+            mean_peak_ram_mb:
+              type: number
+              format: float
+              description: Mean peak RAM usage in MB
+            std_peak_ram_mb:
+              type: number
+              format: float
+              description: Standard deviation of peak RAM usage
+
+      by_domain:
+        type: object
+        description: Latency scores broken down by domain
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: object
+            required:
+              - mean_latency_ms
+              - std_latency_ms
+              - mean_peak_ram_mb
+              - std_peak_ram_mb
+            properties:
+              mean_latency_ms:
+                type: number
+                format: float
+              std_latency_ms:
+                type: number
+                format: float
+              mean_peak_ram_mb:
+                type: number
+                format: float
+              std_peak_ram_mb:
+                type: number
+                format: float
+
+  statistical_analysis:
+    type: object
+    description: Statistical comparison results between methods
+    required:
+      - comparisons
+    properties:
+      comparisons:
+        type: array
+        description: Pairwise comparisons between methods
+        items:
+          type: object
+          required:
+            - metric
+            - method_a
+            - method_b
+            - test_statistic
+            - degrees_of_freedom
+            - p_value
+            - method_used
+            - significant
+          properties:
+            metric:
+              type: string
+              description: Metric name (e.g., access_control, utility)
+            method_a:
+              type: string
+              description: First method in comparison
+            method_b:
+              type: string
+              description: Second method in comparison
+            test_statistic:
+              type: number
+              format: float
+              description: Value of the test statistic (t, z, or F)
+            degrees_of_freedom:
+              type: number
+              format: float
+              description: Degrees of freedom (for t-test/LMM)
+            p_value:
+              type: number
+              format: float
+              description: P-value of the test
+            method_used:
+              type: string
+              description: Statistical method used (e.g., LMM, paired_ttest, wilcoxon)
+            significant:
+              type: boolean
+              description: Whether the result is statistically significant (p < 0.05)

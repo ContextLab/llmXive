@@ -1,0 +1,21 @@
+# Black configuration for llmXive project
+# Primary configuration is in pyproject.toml under [tool.black]
+# This file ensures compatibility with tools that specifically look for .black.toml
+
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+)/
+'''

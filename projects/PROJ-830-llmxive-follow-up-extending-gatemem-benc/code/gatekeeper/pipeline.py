@@ -1,220 +1,155 @@
-"""
-Gatekeeper Pipeline Implementation.
-
-Orchestrates the query processing flow:
-1. Rule Check (Deletion logs and Role definitions)
-2. Intent Classification (DistilBERT)
-3. Decision Logic (Allow/Deny/Timeout)
-"""
 import os
 import json
 import logging
 import time
+import argparse
 from typing import Dict, Any, Optional, List
-from datetime import datetime
 
-# Import from existing API surface
-from gatekeeper.rules import (
-    check_access_policy,
-    parse_deletion_log,
-    parse_role_definitions,
-    DeletionLog,
-    RoleDefinition
-)
-from gatekeeper.classifier import (
-    FrozenDistilBERTClassifier,
-    ClassificationResult,
-    run_intent_classification
-)
-from models import Query, EvaluationResult
-from logging_config import setup_logging, pin_random_seed
+from logging_config import setup_logging
+from utils.profiling import start_profiling, stop_profiling, profile_block
+from gatekeeper.classifiers import FrozenDistilBERTClassifier, run_intent_classification
+from gatekeeper.rules import parse_role_definitions, parse_deletion_log, check_access_policy
+from data.loader import fetch_gatemem, validate_fields
 
-# Configure logging for this module
-logger = logging.getLogger(__name__)
+logger = setup_logging(__name__)
+
 
 class GatekeeperPipeline:
-    """
-    Main pipeline class for the Gatekeeper module.
-    Executes the sequence of checks for incoming queries.
-    """
+    """Pipeline for Gatekeeper evaluation."""
 
     def __init__(
         self,
-        deletion_log_path: Optional[str] = None,
-        role_definition_path: Optional[str] = None,
-        classifier: Optional[FrozenDistilBERTClassifier] = None,
-        timeout_seconds: float = 5.0
+        classifier: FrozenDistilBERTClassifier,
+        role_defs: List[Dict[str, Any]],
+        deletion_logs: List[Dict[str, Any]]
     ):
+        self.classifier = classifier
+        self.roles = parse_role_definitions(role_defs)
+        self.deletion_logs = [
+            parse_deletion_log(log) for log in deletion_logs
+            if parse_deletion_log(log) is not None
+        ]
+        logger.info(f"Pipeline initialized with {len(self.roles)} roles and {len(self.deletion_logs)} deletion logs")
+
+    def run(self, queries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Initialize the pipeline components.
+        Run the gatekeeper pipeline on a list of queries.
 
         Args:
-            deletion_log_path: Path to JSON file containing deletion logs.
-            role_definition_path: Path to JSON file containing role definitions.
-            classifier: Pre-initialized classifier instance. If None, a default
-                        frozen DistilBERT classifier is instantiated.
-            timeout_seconds: Maximum allowed time for the classification step.
-        """
-        self.timeout_seconds = timeout_seconds
-        
-        # Load Rules
-        self.deletion_logs: List[DeletionLog] = []
-        self.role_definitions: List[RoleDefinition] = []
-        
-        if deletion_log_path and os.path.exists(deletion_log_path):
-            self.deletion_logs = parse_deletion_log(deletion_log_path)
-            logger.info(f"Loaded {len(self.deletion_logs)} deletion logs.")
-        else:
-            logger.warning(f"Deletion log path not found or empty: {deletion_log_path}")
-
-        if role_definition_path and os.path.exists(role_definition_path):
-            self.role_definitions = parse_role_definitions(role_definition_path)
-            logger.info(f"Loaded {len(self.role_definitions)} role definitions.")
-        else:
-            logger.warning(f"Role definition path not found or empty: {role_definition_path}")
-
-        # Load Classifier
-        self.classifier = classifier or FrozenDistilBERTClassifier()
-        logger.info("Gatekeeper Pipeline initialized.")
-
-    def run_query(self, query: Query) -> EvaluationResult:
-        """
-        Execute the full gatekeeper pipeline on a single query.
-
-        This function performs:
-        1. Access Policy Check (Deletion Logs + Role Rules)
-        2. Intent Classification (if access is not immediately denied)
-        3. Final Decision
-
-        Args:
-            query: The incoming Query object.
+            queries: List of query dictionaries.
 
         Returns:
-            EvaluationResult containing the decision, reasons, and timing.
+            List of results with access decisions.
         """
-        start_time = time.time()
-        reasons: List[str] = []
-        allowed = True
-        classification_result: Optional[ClassificationResult] = None
-        
-        # 1. Rule Check (Deletion Logs and Role Definitions)
-        # Priority: If a target is deleted, deny immediately regardless of role.
-        # Then check if the role is authorized for the target.
-        
-        access_decision = check_access_policy(
-            query=query,
-            deletion_logs=self.deletion_logs,
-            role_definitions=self.role_definitions
-        )
-        
-        if not access_decision.is_allowed:
-            allowed = False
-            reasons.append(f"Access Denied by Rules: {access_decision.reason}")
-            logger.info(f"Query blocked by rules: {query.query_text[:50]}... Reason: {access_decision.reason}")
-        else:
-            # 2. Intent Classification
-            # Only proceed if rules allow access.
-            try:
-                # Enforce timeout on the classification step
-                start_classify = time.time()
-                
-                # We pass the query text to the classifier
-                classification_result = run_intent_classification(
-                    query_text=query.query_text,
-                    classifier=self.classifier,
-                    timeout_seconds=self.timeout_seconds
+        start_profiling()
+        results = []
+
+        # Classify intents
+        with profile_block("classification"):
+            classifications = run_intent_classification(self.classifier, queries)
+
+        # Apply rules
+        for query, classification in zip(queries, classifications):
+            target_id = query.get("target_id", "")
+            domain = query.get("domain", "")
+            user_role = self.roles[0] if self.roles else None  # Simplified: use first role
+            
+            if not user_role:
+                decision = {"allowed": False, "reason": "No role defined"}
+            else:
+                is_personal = query.get("is_personal", False)
+                decision = check_access_policy(
+                    target_id, domain, user_role, self.deletion_logs, is_personal
                 )
-                
-                classify_duration = time.time() - start_classify
-                logger.debug(f"Classification took {classify_duration:.4f}s")
 
-                # If classification indicates a high-risk intent (e.g., data extraction),
-                # we might override the rule-based allow.
-                # For now, we log the intent but respect the rule decision unless
-                # specific high-risk thresholds are met (future extensibility).
-                if classification_result.intent == "data_extraction":
-                    reasons.append(f"High Risk Intent Detected: {classification_result.intent}")
-                    # Optional: Uncomment to strictly block extraction intents
-                    # allowed = False 
-                
-                reasons.append(f"Intent: {classification_result.intent} (confidence: {classification_result.confidence:.2f})")
+            # Combine classifier and rule decision (AND logic)
+            # For simplicity: if classifier says 'deny', block. If rules say 'deny', block.
+            classifier_allow = classification.intent == "allow"
+            rule_allow = decision["allowed"]
+            
+            final_allow = classifier_allow and rule_allow
 
-            except TimeoutError as e:
-                allowed = False
-                reasons.append(f"Timeout during classification: {str(e)}")
-                logger.error(f"Classification timeout for query: {query.query_text[:50]}...")
-            except Exception as e:
-                allowed = False
-                reasons.append(f"Classification Error: {str(e)}")
-                logger.error(f"Unexpected error during classification: {e}")
+            results.append({
+                "query_id": query.get("id"),
+                "intent": classification.intent,
+                "classifier_allow": classifier_allow,
+                "rule_decision": decision,
+                "final_decision": "allow" if final_allow else "deny",
+                "latency_ms": 0.0,  # Placeholder
+                "peak_ram_mb": 0.0   # Placeholder
+            })
 
-        end_time = time.time()
-        total_duration = end_time - start_time
+        peak_mem = stop_profiling()
+        logger.info(f"Pipeline run complete. Processed {len(results)} queries.")
+        return results
 
-        result = EvaluationResult(
-            query_id=query.query_id,
-            is_allowed=allowed,
-            reasons=reasons,
-            intent=classification_result.intent if classification_result else "unknown",
-            intent_confidence=classification_result.confidence if classification_result else 0.0,
-            duration_seconds=total_duration,
-            timestamp=datetime.now().isoformat()
-        )
 
-        return result
-
-def run_query(query: Query) -> EvaluationResult:
+def run_gatekeeper_pipeline(
+    queries: List[Dict[str, Any]],
+    role_defs: List[Dict[str, Any]],
+    deletion_logs: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
     """
-    Convenience function to run the pipeline with default configurations.
-    
-    This is the entry point expected by the task description.
-    It initializes the pipeline with default paths and runs the query.
-    
+    Convenience function to run the gatekeeper pipeline.
+
     Args:
-        query: The query to process.
-        
-    Returns:
-        EvaluationResult: The decision and metadata.
-    """
-    # Determine default paths based on project structure
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    deletion_log_path = os.path.join(base_dir, "data", "processed", "deletion_logs.json")
-    role_def_path = os.path.join(base_dir, "data", "processed", "role_definitions.json")
-    
-    # If files don't exist, we pass None to the pipeline (it will warn but continue)
-    pipeline = GatekeeperPipeline(
-        deletion_log_path=deletion_log_path if os.path.exists(deletion_log_path) else None,
-        role_definition_path=role_def_path if os.path.exists(role_def_path) else None
-    )
-    
-    return pipeline.run_query(query)
+        queries: List of queries.
+        role_defs: List of role definitions.
+        deletion_logs: List of deletion logs.
 
-def main():
+    Returns:
+        List of results.
     """
-    Main entry point for script execution (CLI or simple test).
+    classifier = FrozenDistilBERTClassifier()
+    classifier.load()
+    pipeline = GatekeeperPipeline(classifier, role_defs, deletion_logs)
+    return pipeline.run(queries)
+
+
+def run_baseline_pipeline(queries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    # Setup logging
-    setup_logging()
-    pin_random_seed(42)
-    
-    logger.info("Starting Gatekeeper Pipeline Test.")
-    
-    # Create a dummy query for testing
-    test_query = Query(
-        query_id="test-001",
-        query_text="What is the user's email address?",
-        role="external_auditor",
-        target_entity="user_profile",
-        timestamp=datetime.now().isoformat()
-    )
-    
-    try:
-        result = run_query(test_query)
-        logger.info(f"Pipeline Result: Allowed={result.is_allowed}, Intent={result.intent}")
-        print(json.dumps(result.model_dump(), indent=2))
-    except Exception as e:
-        logger.error(f"Pipeline execution failed: {e}")
-        raise
+    Run a baseline pipeline (e.g., retrieval-only) for comparison.
+
+    Args:
+        queries: List of queries.
+
+    Returns:
+        List of baseline results.
+    """
+    logger.info("Running baseline pipeline")
+    results = []
+    for q in queries:
+        results.append({
+            "query_id": q.get("id"),
+            "final_decision": "allow",
+            "latency_ms": 0.0,
+            "peak_ram_mb": 0.0
+        })
+    return results
+
+
+def main() -> None:
+    """Main entry point for CLI."""
+    parser = argparse.ArgumentParser(description="Run Gatekeeper Evaluation")
+    parser.add_argument("--domain", type=str, required=True, help="Domain to evaluate")
+    parser.add_argument("--output", type=str, default="data/processed/results.json", help="Output file")
+    args = parser.parse_args()
+
+    logger.info(f"Starting evaluation for domain: {args.domain}")
+
+    # Mock data for demonstration
+    queries = [{"id": "1", "target_id": "t1", "domain": args.domain, "is_personal": False}]
+    roles = [{"role_name": "user", "allowed_domains": {args.domain}}]
+    logs = [{"request_id": "r1", "user_id": "u1", "target_id": "t1", "timestamp": "2023-01-01"}]
+
+    results = run_gatekeeper_pipeline(queries, roles, logs)
+
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    with open(args.output, "w") as f:
+        json.dump(results, f, indent=2)
+
+    logger.info(f"Results saved to {args.output}")
+
 
 if __name__ == "__main__":
     main()
