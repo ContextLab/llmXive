@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.11113",
+  "judged_at": "2026-07-12T11:42:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"where do deep-research agents go wrong? span-level error localization \" computer science",
+  "rationale": "The paper focuses on \"evidential deep learning\" and uncertainty quantification via belief theory, which is a distinct construct from the user's specific question about \"span-level error localization\" in deep-research agents. While both relate to deep learning, the candidate paper does not measure the same mechanism (error localization), variables (agent trajectory/span errors), or domain (deep-research agents) required by the user's query, and it falls under the rejection rule for distinct const",
+  "relevant": false
+}

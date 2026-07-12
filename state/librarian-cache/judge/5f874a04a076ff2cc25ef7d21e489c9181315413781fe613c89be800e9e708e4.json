@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.09957",
+  "judged_at": "2026-07-12T11:42:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"where do deep-research agents go wrong? span-level error localization \" computer science",
+  "rationale": "This paper satisfies criterion (a) and (f) by investigating the mechanism of \"memorization\" in deep neural networks, which is the canonical alternative-vocabulary cluster for the \"where agents go wrong\" and error localization issues in LLMs discussed in the user's follow-up question. Although it focuses on loss functions and standard benchmarks rather than deep-research agents specifically, it provides foundational evidence on the same underlying phenomenon (memorization/overfitting) that the us",
+  "relevant": true
+}

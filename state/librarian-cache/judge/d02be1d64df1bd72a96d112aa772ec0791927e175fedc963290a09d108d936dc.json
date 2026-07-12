@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.06732",
+  "judged_at": "2026-07-12T11:42:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"where do deep-research agents go wrong? span-level error localization \" computer science",
+  "rationale": "The paper focuses on the theoretical approximation capabilities of deep neural networks for rough functions and conservation laws, which is a distinct mathematical construct from the user's question about error localization in LLM-based deep-research agents. It shares only the generic keyword \"deep\" and \"neural networks\" but addresses neither the specific mechanism of agent failure nor the domain of research agents, falling under the rejection rule for distinct constructs sharing only homonym ke",
+  "relevant": false
+}
