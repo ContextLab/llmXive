@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result Schema"
+description: "Schema for the statistical results (reports/stats.json)"
+type: "object"
+properties:
+  metric_x:
+    type: "string"
+    description: "Name of the first metric"
+  metric_y:
+    type: "string"
+    description: "Name of the second metric"
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient"
+  p_value:
+    type: "number"
+    description: "Unadjusted p-value"
+  adjusted_p_value:
+    type: "number"
+    description: "Bonferroni-corrected p-value"
+  ci_lower:
+    type: "number"
+    description: "95% Confidence Interval lower bound"
+  ci_upper:
+    type: "number"
+    description: "95% Confidence Interval upper bound"
+  n:
+    type: "integer"
+    description: "Sample size used for the calculation"
+required:
+  - metric_x
+  - metric_y
+  - pearson_r
+  - p_value
+  - adjusted_p_value
+  - ci_lower
+  - ci_upper
+  - n
+additionalProperties: false

@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecule Metrics Schema"
+description: "Schema for the processed molecule metrics CSV (data/processed/metrics.csv)"
+type: "object"
+properties:
+  cid:
+    type: "integer"
+    description: "PubChem Compound ID"
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string"
+  shannon_entropy:
+    type: "number"
+    description: "Shannon entropy of vertex degree distribution"
+  lz_length:
+    type: "integer"
+    description: "Byte length of compressed SMILES string"
+  sa_score:
+    type: "number"
+    description: "Synthetic Accessibility Score (1-10)"
+  qed_score:
+    type: "number"
+    description: "Quantitative Estimate of Drug-likeness (0-1)"
+    minimum: 0
+    maximum: 1
+  is_valid:
+    type: "boolean"
+    description: "Flag indicating if RDKit parsing succeeded"
+required:
+  - cid
+  - smiles
+  - shannon_entropy
+  - lz_length
+  - sa_score
+  - qed_score
+  - is_valid
+additionalProperties: false
