@@ -1,74 +1,92 @@
 # Research: llmXive Follow-up: Structural Mismatch Cost in Heterogeneous Retrieval
 
-## Research Question
+## Research Objectives
 
-Does the end-to-end latency of heterogeneous retrieval systems exhibit a significant interaction effect (steepening slope) or monotonic increase as query logical depth (complexity) increases, specifically when executed under CPU-constrained environments?
+This research aims to validate the hypothesis that "structural mismatch cost" manifests as a non-linear increase in end-to-end latency for high-complexity queries when a retrieval system incorrectly routes a query to a graph-based source (or other mismatched source) under CPU constraints.
 
-## Background & Motivation
+**Primary Hypothesis**: The "mismatch cost" (Latency_Router_Selected - Latency_Optimal) scales non-linearly with Query Complexity for graph sources, showing a significant "knee point" (spike) at higher depths.
 
-The "OmniRetrieval" concept posits a unified router for heterogeneous sources (Text, Relational, Graph). While theoretically efficient, the "translation" of a unified query plan into native execution plans for graph sources (e.g., recursive joins) may incur disproportionate overhead on CPU-constrained hardware compared to text or relational sources. This research aims to quantify that "structural mismatch cost."
+**Secondary Hypothesis**: Translation error rates (deviation from optimal plan) remain stable or increase slightly, but the *cost* of those errors (latency penalty) is the dominant factor.
 
 ## Dataset Strategy
 
-This study utilizes a **hybrid approach**:
-1. **Reference Data**: We utilize subsets of verified datasets to establish schema validity and parameter ranges for synthetic query generation.
- * **MS MARCO**: Used to derive text corpus sizes and token distribution for text engine simulation.
- * Source: `
- * **DBpedia**: Used to derive graph density and relational join patterns for graph/relational engine simulation.
- * Source: `
+The study utilizes subsets of verified public datasets to construct the heterogeneous environment. No new datasets are invented.
 
-2. **Synthetic Generation**: The actual experimental data is **not** drawn directly from these datasets. Instead, a deterministic, rule-based synthetic query generator constructs queries with **controlled logical depth** (1, 2, 3+ hops). This ensures the independent variable (complexity) is not confounded by other dataset-specific features (e.g., token length, data skew). The generator uses the schema characteristics of the verified datasets to ensure structural realism.
+| Dataset Role | Source Name | Verified URL | Usage Strategy |
+| :--- | :--- | :--- | :--- |
+| **Text Corpus** | MS MARCO | https://huggingface.co/datasets/microsoft/ms_marco/resolve/main/v1.1/test-00000-of-00001.parquet | Used to simulate text retrieval. Subsampled to a representative subset of documents. |
+| **Relational Source** | DBpedia (Structured) | https://huggingface.co/datasets/dbpedia/dbpedia_14 | Used to extract schema (tables/columns) and statistics for SQL simulation. |
+| **Graph Source** | DBpedia (Structured) | https://huggingface.co/datasets/dbpedia/dbpedia_14 | Used to construct a subgraph of entities and relations for traversal simulation. |
+| **Relational Fallback** | Spider Benchmark | https://huggingface.co/datasets/spider | Used ONLY if DBpedia lacks sufficient relational schema depth. |
+| **Graph Fallback** | Erdős-Rényi Generator | N/A (Algorithmic) | Used ONLY if DBpedia lacks sufficient graph connectivity. Generates random graphs seeded with DBpedia node counts. |
 
-**Dataset Fit**: The verified datasets provide the necessary structural metadata (e.g., join keys, edge definitions) to construct valid high-complexity synthetic queries. If a specific dataset lacks required structural depth, the rule-based generator serves as the mandatory fallback to ensure structural depth is always available.
+**Dataset Variable Fit Verification**:
+- **Text**: MS MARCO contains `text` and `query` fields sufficient for simulating retrieval latency.
+- **Relational/Graph**: The `dbpedia/dbpedia_14` dataset contains structured metadata (subjects, predicates, objects) required to construct the schema for SQL simulation and the adjacency list for Graph simulation. The plan explicitly avoids using the text-classification variant (`fancyzhx/dbpedia_14`) which lacks structural data.
+- **Synthetic Query Generation**: The actual query instances are **synthetically generated** based on the schema extracted from the datasets. This ensures exact control over "plan depth" (complexity) which is not present as a field in the raw datasets. The raw datasets provide the *structural constraints* (e.g., join keys, node degrees) necessary for realistic simulation.
+- **Fallback Logic**: If `dbpedia/dbpedia_14` lacks sufficient connectivity for depth-4+ graph queries, the system will synthesize a graph using an **Erdős-Rényi** generator (not Spider, which is relational) to preserve the graph modality. Spider is used only as a fallback for relational schema depth.
 
 ## Methodology
 
-### 1. Synthetic Query Generation
-* **Generator**: A Python script (`synthetic_query_gen.py`) constructs logical plans.
-* **Complexity Levels**:
- * **Low**: Depth 1-2 (Single-hop or simple join).
- * **High**: Depth 3+ (Recursive joins, multi-hop graph traversal).
-* **Control**: Random seeds are fixed. The generator ensures balanced distribution across source types (Text, Relational, Graph).
-* **Constraint**: The generator is strictly limited to a predefined maximum number of queries (enforced by a hard `while` loop check: `if count >= 500: break`).
+### 1. Environment Simulation
+- **CPU Throttling**: Instead of `RLIMIT_CPU` (which kills the process), the system uses `resource.getrusage` to track CPU time. A "throttled speed" is enforced by introducing a **Virtual Delay** proportional to the CPU time consumed (e.g., if 1s CPU time is used, wait 9s to simulate a 10x slower CPU). This ensures latency measures computational cost, not signal handling overhead.
+- **I/O Throttling**: A controlled I/O delay queue is implemented. For every read operation, a fixed delay is added to simulate network/disk latency., satisfying Constitution Principle VI.
 
-### 2. Execution Environment
-* **Hardware Constraint**: Simulated via Python `resource` module or `cgroups` (if available) to enforce strict CPU time limits per query (e.g., a defined budget).
-* **Engines**:
- * **Text**: **Whoosh** (in-memory, pure Python) for text retrieval.
- * **Relational**: **DuckDB** (in-memory) for SQL execution.
- * **Graph**: **NetworkX** (in-memory) for graph traversal.
-* **Throttling**: All engines run under a simulated CPU constraint (CPU-burner loops). **Crucially**, the number of CPU-burner loop iterations is **proportional to the query's logical depth** (e.g., `iterations = base * depth`). This ensures the "structural mismatch cost" is driven by the interaction of complexity and the simulated constraint, not just fixed Python overhead. **All latency is measured via `time.perf_counter()` during real execution of the query on the engine.** The CPU-burner loop injects a complexity-proportional delay *on top of* this real execution time to simulate the constraint.
+### 2. Query Generation (Synthetic)
+- Generate 500 queries partitioned by **Exact Plan Depth**: 1, 2, 3, 4+.
+- **Ground Truth (CBO)**: A deterministic **Cost-Based Optimizer (CBO)** generates the optimal plan. It uses **actual dataset statistics** (node degree, table cardinality) extracted from the downloaded DBpedia/Spider subsets to calculate the true minimum cost. This ensures independence from synthetic generation parameters.
+- **System Under Test (SUT)**: A **Greedy Heuristic with Depth-Limited Lookahead (Depth=2)** and **randomized tie-breaking** generates the plan.
+ - **Rationale**: With a lookahead of 2, the SUT can successfully solve queries of depth 1 and 2 (matching the Ground Truth), establishing a valid baseline error rate of [deferred] for low complexity. Errors occur at depth 3+ where the lookahead is insufficient. This creates a non-trivial distribution of errors (not [deferred] failure) to validate SC-002.
+- **Router Simulation**: A "Router" component selects the source type for execution.
+  - The Router uses a **Noisy Cost Estimate** (CBO Cost + Gaussian Noise) to select a source.
+  - For a subset of queries, the Router will select a **Mismatched Source** (e.g., routing a Text query to the Graph engine) due to the noise.
+  - **Mismatch Cost**: Calculated as `Latency_Router_Selected - Latency_Optimal` for the *same* query execution flow. This isolates the penalty of the routing decision itself, not just engine speed.
 
-### 3. Metrics Collection
-* **Latency**: End-to-end time in milliseconds measured via `time.perf_counter()` during **real execution** (not simulated). The artificial delay (proportional to depth) is added to this real execution time to simulate the constraint.
-* **Translation Error**: Binary flag (0/1) comparing the generated plan against a ground-truth plan from a **separate, deterministic, exhaustive, rule-based solver** (`exact_solver.py`). The solver is independent of the router and computes the optimal plan based on the schema using an exhaustive search, ensuring the comparison is not tautological. The router uses heuristics; the solver uses exhaustive search. The error measures the router's deviation from the optimal plan.
-* **Timeout**: Binary flag for queries exceeding the 60-second safety limit.
-* **Baseline**: `cpu_burner_ms` measures the deterministic CPU-burner loop time to subtract Python interpreter overhead.
+### 3. Execution Loop
+- For each query:
+  1. **Route**: Router selects a source type based on Noisy Cost Estimate.
+  2. **Execute (Selected)**: Measure wall-clock time (latency_ms) under CPU/I/O throttling.
+  3. **Execute (Optimal)**: Measure wall-clock time for the Optimal Source (calculated by CBO) for the same query.
+  4. **Compare**: Compare Router's plan vs. CBO plan (Translation Error).
+  5. **Calculate Cost**: `Delta_Latency = Latency_Selected - Latency_Optimal`.
+  6. **Log**: Record `query_id`, `source_type`, `complexity_level`, `latency_ms`, `mismatch_flag`, `delta_latency`.
 
 ### 4. Statistical Analysis
-* **Model**: **Linear Mixed-Effects Model (LMM)** using `statsmodels`.
- * Formula: `latency ~ complexity * source_type + (1|query_id)`.
- * Goal: Test the significance of the interaction term `complexity:source_type`. A significant positive interaction indicates that the slope of latency vs. complexity is steeper for Graph sources than for Text/Relational sources (the "mismatch cost").
-* **Trend Test**: **Jonckheere-Terpstra test** for ordered alternatives.
- * Goal: Detect if latency monotonically increases with complexity for Graph sources, without assuming a linear relationship.
-* **Hypothesis**: The interaction term for Graph sources will be positive and significant (p < 0.05), indicating a steeper latency increase.
-* **Sensitivity Analysis**: Sweeping the complexity cutoff {2, 3, 4} to ensure the "spike" is robust.
+- **Non-Linearity Test**: Perform **Segmented Regression** (Piecewise Linear Fit) on `Delta_Latency` vs. `Complexity` for Graph sources. Identify the "knee point" (spike) and compare the slope before and after. This directly tests the "non-linear" hypothesis.
+- **Polynomial Regression**: Perform a secondary check using polynomial terms to confirm curvature.
+- **Group Differences**: Perform **Two-Way ANOVA** on `Delta_Latency` with factors `Complexity` and `Source_Type`.
+- **Post-Hoc**: **Tukey HSD** to identify specific pairwise differences between source types and complexity levels.
+- **Sensitivity**: Sweep complexity cutoffs (2, 3, 4) to find "spike points".
 
-## Construct Validity & Limitations
+## Decision Rationale & Risks
 
-* **Simulated Engines**: While the logic is real, the engines are lightweight simulations. To ensure construct validity, the simulation includes artificial delays **scaled by query depth** (CPU-burner loops) to mimic I/O wait and context switching that scales with complexity. This ensures the "mismatch cost" is driven by algorithmic complexity, not just Python overhead. **Crucially, all base latency is measured via real execution.**
-* **Observational Framing**: The study measures system behavior under constraint. It does not claim causal effects on general hardware performance, but rather associational measurements of the specific "structural mismatch" phenomenon.
-* **Discrete Complexity**: The use of LMM with discrete complexity levels is handled by treating complexity as a continuous predictor to estimate the slope, with a non-parametric trend test as a robustness check.
+**Why Synthetic Queries?**
+Real-world datasets do not have a labeled "plan depth" or "execution complexity" field. To rigorously test the non-linear scaling hypothesis, we must control the independent variable (complexity) exactly. Synthetic generation based on real schemas ensures validity while allowing experimental control.
 
-## Decision & Rationale
+**Why CBO vs. Heuristic?**
+If the SUT used the same logic as the Ground Truth, the "Translation Error" would be [deferred] by definition. By defining the SUT as a "Greedy Heuristic with Depth=2" and the CBO as "Full Lookahead", we ensure the error metric is a valid measure of sub-optimality that is not tautologically [deferred] for all non-trivial queries.
 
-| Decision | Rationale |
-|----------|-----------|
-| **Use Synthetic Queries** | Real-world queries have uncontrolled complexity distributions. Synthetic generation allows precise manipulation of the independent variable (depth) to isolate the "structural mismatch" effect. |
-| **LMM + Trend Test over ANOVA/GAM** | The hypothesis posits "non-linear" or "monotonic" scaling. ANOVA assumes linear main effects and cannot capture interaction slopes. GAM is inappropriate for 3-4 discrete points. LMM allows testing the *slope* difference (interaction), and Jonckheere-Terpstra tests for monotonic trends without distributional assumptions. |
-| **CPU Throttling Simulation** | The hypothesis is about "edge deployment" constraints. Running on unconstrained hardware would yield misleadingly low latencies, failing to reveal the mismatch cost. |
-| **Reference Datasets for Schema Only** | Using full MS MARCO/DBpedia would exceed memory limits and introduce noise. Using them only for schema/parameter extraction ensures validity while maintaining feasibility on a resource-constrained runner. |
-| **Exact Solver vs. Heuristic Router** | The router is a heuristic approximation; the solver is an exact, schema-driven algorithm using exhaustive search. This ensures the "translation error" is a valid measure of router performance, not a tautology. The solver is independent of the generator's heuristics. |
-| **Real Latency Measurement** | Latency is measured via `time.perf_counter()` during real execution, not simulated. The "CPU-burner" is only for baseline subtraction and complexity-proportional delay injection. |
-| **Engine Selection** | **Whoosh** (text), **DuckDB** (relational), **NetworkX** (graph) are selected for their CPU-only compatibility and ability to simulate I/O/complexity overheads. |
-| **Complexity Handling** | Complexity is treated as a continuous predictor in LMM to estimate slope, with a non-parametric trend test as a robustness check. |
+**Why Segmented Regression?**
+With only 4 discrete complexity levels, standard ANOVA cannot distinguish between linear and non-linear trends. Segmented Regression explicitly tests for a "knee point" (structural mismatch cost spike), which is the core hypothesis.
+
+**Risk: Dataset Mismatch**
+If the DBpedia subset lacks sufficient connectivity for depth-4+ graph queries, the simulation will fail.
+*Mitigation*: The graph construction algorithm will synthesize a graph using an **Erdős-Rényi** generator (seeded with DBpedia node counts) if the raw data is sparse, ensuring the structural depth required for the experiment exists. (Spider is used only for Relational fallback).
+
+**Risk: CPU Throttling Failure**
+If `resource.getrusage` is unavailable (e.g., non-Linux), latency measurements are invalid.
+*Mitigation*: The `main.py` script will perform a pre-flight check. If throttling cannot be enforced, the run aborts with error code 1.
+
+**Compute Feasibility**
+- **Memory**: All data is subsampled (<500MB). Graphs are kept in memory (NetworkX) but pruned to relevant subgraphs.
+- **Time**: 500 queries x 3 sources x 2 modes (Optimal/Selected) = 3000 runs. Even with low average latency, total time is [deferred]. Well within 6h limit.
+- **CPU**: No heavy ML models. Only lightweight traversal and SQL parsing.
+
+## Success Criteria Mapping
+
+| Success Criteria | Measurement Method |
+| :--- | :--- |
+| **SC-001** (Non-linear scaling) | Segmented Regression p-value < 0.05 for the "knee point" + Slope Ratio calculation. |
+| **SC-002** (Error stability) | Absolute difference in error rates (Low vs High complexity). |
+| **SC-003** (Significance) | ANOVA interaction p-value < 0.05. |
+| **SC-004** (Robustness) | Consistency of "spike point" across sensitivity sweeps. |

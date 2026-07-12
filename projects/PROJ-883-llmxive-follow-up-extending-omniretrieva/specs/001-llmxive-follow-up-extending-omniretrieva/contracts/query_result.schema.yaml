@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Query Execution Result"
+description: "Schema for a single query execution result logged in raw_logs.jsonl"
+type: object
+properties:
+  query_id:
+    type: string
+    description: "Unique UUID for the query instance"
+  source_type:
+    type: string
+    enum:
+      - text
+      - relational
+      - graph
+    description: "Type of heterogeneous source simulated"
+  complexity_level:
+    type: integer
+    minimum: 1
+    description: "Exact plan depth (integer >= 1)"
+  latency_ms:
+    type: number
+    minimum: 0
+    description: "End-to-end wall-clock time in milliseconds"
+  mismatch_flag:
+    type: boolean
+    description: "True if the SUT selected a mismatched source type"
+  delta_latency:
+    type: number
+    description: "Latency penalty (Wrong - Optimal) if mismatch_flag is true"
+  translation_error:
+    type: boolean
+    description: "True if generated plan deviates from ground truth"
+  timeout_flag:
+    type: boolean
+    description: "True if execution exceeded 60-second threshold"
+  success_flag:
+    type: boolean
+    description: "True if query completed without timeout or exception"
+required:
+  - query_id
+  - source_type
+  - complexity_level
+  - latency_ms
+  - mismatch_flag
+  - delta_latency
+  - translation_error
+  - timeout_flag
+  - success_flag
+additionalProperties: false

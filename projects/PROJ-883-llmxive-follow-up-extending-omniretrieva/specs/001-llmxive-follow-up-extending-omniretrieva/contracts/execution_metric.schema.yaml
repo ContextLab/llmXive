@@ -1,44 +1,40 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ExecutionMetric
-description: >-
-  Represents the outcome of a single query execution attempt under CPU constraints.
-  Captures latency, errors, and timeout states.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Metric Schema"
+description: "Schema for the outcome of a single query execution attempt."
+type: "object"
 properties:
   query_id:
-    type: string
-    description: "Foreign key to the Query Instance."
+    type: "string"
+    description: "Foreign key referencing the query instance."
   latency_ms:
-    type: number
-    description: "End-to-end time in milliseconds (real measurement + complexity-proportional delay)."
+    type: "number"
     minimum: 0
+    description: "End-to-end execution time in milliseconds."
+  mismatch_flag:
+    type: "boolean"
+    description: "True if the SUT selected a mismatched source."
+  delta_latency:
+    type: "number"
+    description: "Latency penalty due to mismatch."
   translation_error:
-    type: boolean
-    description: "True if generated plan != ground truth."
+    type: "boolean"
+    description: "True if the generated plan deviates from the ground truth."
   timeout_flag:
-    type: boolean
-    description: "True if execution exceeded 60s."
-  engine_type:
-    type: string
-    description: "The simulated engine used."
-    enum:
-      - text
-      - sql
-      - graph
-  cpu_time_limit:
-    type: number
-    description: "The enforced CPU limit in seconds."
-    minimum: 0.1
-  cpu_burner_ms:
-    type: number
-    description: "Time spent in the deterministic CPU-burner loop (baseline + complexity scaling)."
-    minimum: 0
+    type: "boolean"
+    description: "True if the execution exceeded the enforced timeout limit."
+  engine_version:
+    type: "string"
+    description: "Version string of the simulated engine used."
+  throttle_config:
+    type: "string"
+    description: "Description of the CPU throttling configuration applied."
 required:
   - query_id
   - latency_ms
+  - mismatch_flag
+  - delta_latency
   - translation_error
   - timeout_flag
-  - engine_type
-  - cpu_time_limit
-  - cpu_burner_ms
+  - engine_version
+  - throttle_config
 additionalProperties: false

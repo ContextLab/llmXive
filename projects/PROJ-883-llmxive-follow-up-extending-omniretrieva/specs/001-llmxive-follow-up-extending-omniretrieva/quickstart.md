@@ -2,61 +2,64 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `pip` package manager
-*   GitHub Actions Runner (or local machine with sufficient RAM)
+- Python 3.11+
+- Linux environment (required for `resource` module CPU accounting)
+- Sufficient free disk space is required to accommodate the data and computational artifacts generated during the study.
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Dependencies include: `pandas`, `scipy`, `statsmodels`, `networkx`, `duckdb`, `pyyaml`, `whoosh`.*
+1. **Clone and Setup Environment**
+   ```bash
+   cd projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/code/
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+2. **Download Datasets**
+   Run the data preparation script to fetch verified datasets:
+   ```bash
+   python scripts/download_data.py
+   ```
+   *This downloads MS MARCO and DBpedia subsets to `data/raw/`.*
 
 ## Running the Experiment
 
-The experiment is executed via the main orchestration script:
-
+Execute the full pipeline (Generation -> Execution -> Analysis):
 ```bash
-python code/main.py --output data/processed/
+python main.py
 ```
 
-### What this does:
-1.  **Generates** 500 synthetic queries (balanced across Text, Relational, Graph; depths 1-4). *Note: The generator includes a hard-stop loop (`if count >= 500: break`) to strictly enforce the 500 query limit.*
-2.  **Executes** each query against the respective CPU-throttled engine (Whoosh, DuckDB, NetworkX). *Latency is measured via real execution (`time.perf_counter`) with complexity-proportional artificial delays added by the CPU-burner loop.*
-3.  **Records** latency, translation errors, and timeouts.
-4.  **Runs** the LMM and Jonckheere-Terpstra analysis to test for interaction effects and monotonic trends.
-5.  **Generates** the interaction plot and saves results to `data/processed/`.
+**What this does:**
+1. Generates a set of synthetic queries (Text, Relational, Graph) with varying complexity.
+2. Simulates CPU throttling via `resource` accounting and I/O throttling via delay queues.
+3. Executes queries against simulated engines (Optimal vs. Mismatched routing).
+4. Runs Segmented Regression and ANOVA.
+5. Saves results to `data/results/` and updates `state/state.yaml`.
 
-### Expected Output
-*   `data/processed/metrics.jsonl`: Raw execution logs (including `cpu_burner_ms`).
-*   `data/processed/analysis_results.json`: Statistical analysis results (LMM p-values, trend test p-values, CIs).
-*   `data/processed/plots/interaction_plot.png`: Visualization of latency vs. complexity.
+## Expected Outputs
 
-## Validation
+- `data/results/raw_logs.jsonl`: Individual query metrics.
+- `data/results/analysis_summary.csv`: Aggregated statistics.
+- `data/results/figures/latency_interaction.png`: The key visualization.
+- `data/results/stats_report.txt`: ANOVA F-statistics, p-values, and knee points.
+- `state/state.yaml`: Artifact hashes for reproducibility.
 
-To ensure the results are reproducible and valid:
+## Verification
 
-1.  **Run the test suite**:
-    ```bash
-    pytest tests/ -v
-    ```
-2.  **Validate schemas**:
-    ```bash
-    pytest tests/contract/ -v
-    ```
-    *This ensures all output files match the defined YAML schemas, including the query limit.*
+To verify the run completed successfully:
+```bash
+python scripts/verify_results.py
+```
+*Checks for:*
+- Presence of all query records.
+- Segmented Regression p-value < 0.05 (if hypothesis holds).
+- Plot file existence.
+- `state/state.yaml` update.
 
 ## Troubleshooting
 
-*   **CPU Throttling Failed**: If the script detects that `cgroups` or `resource` limits are not applied, it will exit with a specific error code. Ensure you are running in a container or environment that supports resource limits.
-*   **Memory Error**: If you encounter `MemoryError`, reduce the `--num-queries` argument (e.g., `python code/main.py --num-queries 200`). *Note: The schema enforces a maximum limit.*
-*   **Timeouts**: Queries exceeding a predefined timeout threshold are recorded as timeouts. This is expected behavior for high-complexity graph queries under strict CPU constraints.
-*   **Latency Measurement**: Ensure that `time.perf_counter()` is used in the engine scripts. Simulated latencies are not allowed; all base latency is measured via real execution.
+- **Error: `resource` module not available**: Ensure you are running on Linux. macOS/Windows do not support `getrusage` in the same way.
+- **Error: Dataset download failed**: Check network connection. URLs are verified in `research.md`.
+- **Error: Timeout on all queries**: The CPU limit might be too strict. Check `config.py` for `CPU_TIME_LIMIT_SEC`.
+- **Error: State file missing**: Ensure `state/` directory exists.

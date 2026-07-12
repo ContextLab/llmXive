@@ -5,19 +5,19 @@
 
 ## Summary
 
-This feature implements a rigorous evaluation of the "structural mismatch cost" in heterogeneous retrieval systems. The primary requirement is to quantify the non-linear latency penalty of high-complexity (multi-hop) queries versus low-complexity queries when executed on CPU-constrained environments across Text, Relational, and Graph sources. The technical approach involves generating synthetic queries with controlled logical depth, executing them against lightweight, CPU-throttled simulators (DuckDB, NetworkX, Whoosh), measuring end-to-end latency and translation error rates, and analyzing the results using **Linear Mixed-Effects Models (LMM)** and **Jonckheere-Terpstra trend tests** to detect significant interaction effects and monotonic trends.
+This feature implements a controlled experimental framework to quantify the "structural mismatch cost" in heterogeneous retrieval systems. The system simulates a "Router" that selects execution sources (Text, Relational, Graph) for synthetic queries of varying logical depth. The core innovation is measuring the **latency delta** between the *actual* execution (via a Router that may select a sub-optimal source due to noisy cost estimates) and the *optimal* execution (via a Cost-Based Optimizer), isolating the cost of structural mismatch. The system enforces strict CPU and I/O throttling constraints to mimic edge deployment. The primary output is a statistical validation (Segmented Regression & ANOVA) of the hypothesis that mismatch costs scale non-linearly for graph-based sources as query complexity increases.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scipy`, `statsmodels`, `networkx`, `duckdb`, `pyyaml`, `pytest`, `whoosh`  
-**Storage**: In-memory data structures (pandas DataFrames, NetworkX Graphs) and local parquet files; no persistent database servers required.  
-**Testing**: `pytest` with `pytest-cov` for coverage; contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM).  
-**Project Type**: Research artifact / CLI tool.  
-**Performance Goals**: Complete batch execution of 500 synthetic queries within 6 hours; memory usage < 6GB.  
-**Constraints**: No GPU usage; strict CPU throttling via `resource` module or simulated CPU-burner loops; all latency must be measured via real execution (`time.perf_counter`), not simulated placeholders.  
-**Scale/Scope**: A set of synthetic query instances (enforced by schema); source types; complexity levels.
+**Primary Dependencies**: `pandas`, `scipy`, `statsmodels`, `pwlf` (Piecewise Linear Fit), `pyyaml`, `pytest`, `datasets` (HuggingFace), `sqlite3` (stdlib), `networkx`, `requests`  
+**Storage**: SQLite (for relational simulation), NetworkX graphs (in-memory for graph simulation), JSONL (for logs), CSV/Parquet (for results)  
+**Testing**: `pytest` with CPU-time accounting and I/O delay simulation  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)  
+**Project Type**: Research Simulation / CLI Tool  
+**Performance Goals**: Complete 500 synthetic query runs (including mismatch simulations) + statistical analysis within 4 hours.  
+**Constraints**: No GPU; strict memory cap (7GB); CPU throttling via `resource.getrusage` accounting + virtual delay; I/O throttling via controlled delay queues; no external network calls during core execution.  
+**Scale/Scope**: 500 queries (partitioned by depth 1-4+), source types, Multiple execution modes (Router-Selected vs. Optimal), A statistical model run will be performed to address the research question. The method involves statistical modeling. References: [Citation]..
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,15 +25,15 @@ This feature implements a rigorous evaluation of the "structural mismatch cost" 
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-**CONSTITUTIONAL ALIGNMENT**: The project adopts **Linear Mixed-Effects Models (LMM)** and **Jonckheere-Terpstra trend tests** as the statistical validation method. This approach is selected to satisfy the *intent* of Constitution Principle VII (statistical validation of non-linear scaling) by providing a method capable of detecting interaction effects and monotonic trends on discrete ordinal data, which the original ANOVA mandate was deemed insufficient for. The LMM approach is consistent with the research hypothesis and the discrete nature of the complexity variable.
-
-- **I. Reproducibility**: PASS. Plan mandates pinned `requirements.txt`, fixed random seeds, and execution of synthetic query generators rather than external data ingestion that might drift.
-- **II. Verified Accuracy**: PASS. Plan requires citing only the verified dataset URLs provided in the input block (MS MARCO, DBpedia) for schema reference, while relying on a deterministic synthetic generator for the actual query logic to ensure variable control.
-- **III. Data Hygiene**: PASS. All generated data (latency logs, error rates) will be checksummed; no PII is involved as data is synthetic.
-- **IV. Single Source of Truth**: PASS. All statistical results will be derived from `data/` artifacts generated by `code/` scripts, with no manual entry.
-- **V. Versioning Discipline**: PASS. Plan includes content hashing for generated artifacts.
-- **VI. Heterogeneous Source Execution Fidelity**: PASS. The plan explicitly details the use of lightweight, CPU-throttled engines (**Whoosh** for text, **DuckDB** for relational, **NetworkX** for graph) to mimic the "low-resource" constraint. The plan explicitly defines a mechanism where artificial latency scales with query complexity to ensure fidelity to the "structural mismatch" hypothesis.
-- **VII. Statistical Validation of Non-Linear Scaling**: PASS. The plan proposes LMM + Jonckheere-Terpstra tests as the appropriate method for detecting non-linear/monotonic trends on discrete complexity levels, aligning with the research hypothesis and resolving the conflict with the original ANOVA mandate.
+| Principle | Status | Verification / Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | PASS | All random seeds pinned in `code/`. Datasets fetched from verified HuggingFace URLs. `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | PASS | Citations limited to verified dataset URLs. No external citations in code logic. |
+| **III. Data Hygiene** | PASS | Raw data checksummed. Derived data (latency logs) written to new files. No in-place modification. |
+| **IV. Single Source of Truth** | PASS | All stats in `paper/` trace to `data/` CSVs generated by `code/`. |
+| **V. Versioning Discipline** | PASS | Artifact hashes tracked in `state/state.yaml`. The `state/` directory and `state.yaml` file are explicitly defined in the Project Structure. |
+| **VI. Heterogeneous Source Execution Fidelity** | PASS | Plan enforces CPU-only via `resource` accounting + virtual delay. I/O throttling implemented via controlled delay queues. Sources simulated via SQLite, NetworkX, and string matching. |
+| **VII. Statistical Validation** | PASS | Plan mandates Segmented Regression (for non-linearity), Two-Way ANOVA (for group differences), and **Tukey HSD** (implemented in `analysis/latency_analyzer.py`). |
 
 ## Project Structure
 
@@ -45,7 +45,7 @@ specs/001-structural-mismatch-cost/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── contracts/           # Input Specifications (Phase 0/1 boundary) - Contains 5 schema files defining data contracts
 └── tasks.md             # Phase 2 output
 ```
 
@@ -55,61 +55,59 @@ specs/001-structural-mismatch-cost/
 projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/
 ├── code/
 │   ├── __init__.py
+│   ├── config.py                 # Paths, seeds, thresholds
 │   ├── generators/
 │   │   ├── __init__.py
-│   │   └── synthetic_query_gen.py   # Generates queries with controlled depth
-│   ├── engines/
+│   │   ├── synthetic_queries.py  # Generates query objects with depth labels
+│   │   └── reference_engine.py   # Cost-Based Optimizer (CBO) for Ground Truth
+│   ├── simulators/
 │   │   ├── __init__.py
-│   │   ├── text_engine.py           # Whoosh (CPU throttled via simulation)
-│   │   ├── relational_engine.py     # DuckDB (CPU throttled via simulation)
-│   │   └── graph_engine.py          # NetworkX (CPU throttled via simulation)
-│   ├── solvers/
-│   │   ├── __init__.py
-│   │   └── exact_solver.py          # Deterministic, exhaustive, rule-based solver
+│   │   ├── router.py             # Router Simulation (Noisy Cost Estimation)
+│   │   ├── text_engine.py        # Simulates text retrieval latency
+│   │   ├── relational_engine.py  # Simulates SQLite joins
+│   │   └── graph_engine.py       # Simulates NetworkX traversal
 │   ├── analysis/
 │   │   ├── __init__.py
-│   │   ├── lmm_model.py             # LMM regression logic
-│   │   └── visualizer.py            # Interaction plot generation
-│   └── main.py                      # Orchestration script
+│   │   ├── latency_analyzer.py   # Segmented Regression, ANOVA, Tukey HSD
+│   │   └── visualizer.py         # Plot generation
+│   └── main.py                   # Entry point: orchestrate run
 ├── data/
-│   ├── raw/                         # Downloaded reference subsets (parquet)
-│   ├── processed/                   # Synthetic query logs, latency metrics, analysis_results.json
-│   └── checksums.json               # Artifact hashes
+│   ├── raw/                      # Downloaded datasets (MS MARCO, DBpedia subsets)
+│   ├── processed/                # Pre-compiled graphs, SQL schemas
+│   └── results/                  # JSONL logs, CSV stats
+├── state/                        # Tracks artifact hashes (Constitution Principle V)
+│   └── state.yaml                # File structure: {artifacts: {path: hash}, updated_at: timestamp}
+├── contracts/                    # Runtime validators (optional, mirrors specs/contracts)
 ├── tests/
-│   ├── contract/                    # Schema validation tests
-│   ├── unit/                        # Engine and generator tests
-│   └── integration/                 # End-to-end execution flow
-├── requirements.txt
-└── README.md
+│   ├── unit/
+│   └── integration/
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure with modular `code/` subdirectories for generators, engines, solvers, and analysis. This keeps the research artifact self-contained and reproducible. The `data/` directory separates reference datasets from generated experimental logs.
+**Structure Decision**: Single project structure focused on `code/` for simulation and analysis. Separation of `generators`, `simulators` (including `router.py`), and `analysis` ensures modularity. The `state/` directory is explicitly added to track artifact hashes as required by Constitution Principle V. The `contracts/` directory in `specs/` contains the Phase 1 schema definitions (Input Specifications).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| LMM + Trend Test | The hypothesis claims "non-linear" or "monotonic" scaling on discrete levels. | ANOVA assumes linear main effects and cannot model the specific interaction slope or monotonic trend required. GAM is inappropriate for 3-4 discrete points. |
-| Synthetic Query Generator | Requires precise control over "plan depth" (1, 2, 3+) which real-world logs do not provide. | Using real-world queries would introduce confounding variables (query length, token count) that obscure the specific "structural depth" variable being tested. |
-| CPU Throttling Simulation | Must enforce strict resource constraints to measure the "mismatch" cost under edge conditions. | Running on unconstrained hardware would mask the latency penalties, failing to validate the hypothesis about resource-constrained deployment. |
-| Exact Solver vs. Heuristic Router | The router is a heuristic; the solver is an exact algorithm. | Using a heuristic for both would create a tautology. The solver must be independent and exact to measure "translation error" validly. |
+| **Router Simulation** | Required to measure "structural mismatch cost" (delta between Router's choice and Optimal choice). | Measuring raw engine speed alone does not capture the penalty of *incorrect* routing decisions. |
+| **CBO vs. Heuristic** | Required for FR-004 (Translation Error). | A single logic model would yield [deferred] error. Distinct CBO (full lookahead) and SUT (limited lookahead) ensure valid error rates. |
+| **Segmented Regression** | Required to detect "non-linearity" (knee point) with only 4 complexity levels. | Standard ANOVA tests for mean differences, not specific non-linear functional forms. |
+| **CPU-Time Accounting + Virtual Delay** | Required for FR-001 (CPU constraints) without signal termination. | `RLIMIT_CPU` kills the process; accounting + delay allows measurement of throttled execution. |
 
-## Task Definitions (Revised for Clarity)
+## FR/SC Mapping
 
-- **T005**: Implement **simulated** CPU throttling. *Clarification*: This task implements the "CPU-burner" loop as a **simulation** of throttling (via `time.sleep` or loop iterations) to mimic resource contention, not actual hardware throttling. **Crucially**, the number of loop iterations must be **proportional to the query's logical depth** (e.g., `iterations = base * depth`) to ensure the measured "mismatch cost" is driven by algorithmic complexity interacting with the constraint, not just fixed overhead. The delay is injected *on top of* real execution time.
-- **T014**: Implement engine execution. *Clarification*: Latency must be measured using `time.perf_counter()` during **real execution** of the query on the engine. No simulated latencies (placeholders) are allowed. The "CPU-burner" is only used to add a complexity-proportional delay on top of real execution time, not to generate the total latency.
-- **T018**: Implement Statistical Analysis (LMM + Trend Test). *Deliverable*: Generate `data/processed/analysis_results.json` containing:
-  - `linear_slope_interaction_p`: P-value for the interaction term (complexity * source_type) in the LMM.
-  - `jonckheere_p`: P-value for the monotonic trend test across complexity levels.
-  - `confidence_interval`: Confidence interval for the interaction slope.
-  - `is_significant`: Boolean indicating if p < 0.05.
-  This deliverable verifies FR-005 (statistical validation) and SC-001 (significance of interaction).
-
-## Research Methodology Clarification
-
-**Ground Truth Generation**: The "translation error" is measured by comparing the router's generated plan against a ground-truth plan produced by an **Independent Exact Solver**.
-- The **Synthetic Generator** creates the query structure (e.g., "find X, then Y, then Z").
-- The **Independent Exact Solver** takes this structure and the schema, then uses an **exhaustive search** algorithm to find the *optimal* execution plan. This solver is **not** constrained by the generator's heuristics; it explores the full solution space defined by the schema.
-- The **Router** (heuristic) attempts to find a plan quickly.
-- The **Error** is the difference between the Router's plan and the Exact Solver's optimal plan.
-- This design ensures that the error measures the router's inability to find the optimal path, not a limitation of the query generator. The "deterministic" nature of the solver ensures reproducibility, while its "exhaustive" nature ensures it is not constrained by the generator's constraints.
+| ID | Description | Plan Phase/Step |
+| :--- | :--- | :--- |
+| **FR-001** | Execute queries with CPU/I/O constraints. | `simulators/` + `main.py` (CPU accounting + virtual delay + I/O queue). |
+| **FR-002** | Classify queries by plan depth. | `generators/synthetic_queries.py`. |
+| **FR-003** | Record latency metrics. | `main.py` logging to `data/results/raw_logs.jsonl`. |
+| **FR-004** | Compare generated plan vs. ground truth. | `generators/reference_engine.py` (CBO) vs. SUT logic. |
+| **FR-005** | Two-Way ANOVA + Tukey HSD. | `analysis/latency_analyzer.py` (ANOVA + Tukey). |
+| **FR-006** | Generate interaction plots. | `analysis/visualizer.py`. |
+| **FR-007** | Sensitivity analysis (cutoffs). | `analysis/latency_analyzer.py` (Segmented Regression sweep). |
+| **FR-008** | Deterministic reference engine (CBO). | `generators/reference_engine.py` (Full lookahead). |
+| **SC-001** | Non-linear scaling (p < 0.05). | `analysis/latency_analyzer.py` (Segmented Regression p-value). |
+| **SC-002** | Error rate stability. | `analysis/latency_analyzer.py` (Error rate comparison). |
+| **SC-003** | Interaction significance. | `analysis/latency_analyzer.py` (ANOVA interaction p-value). |
+| **SC-004** | Robustness of threshold. | `analysis/latency_analyzer.py` (Sensitivity sweep). |

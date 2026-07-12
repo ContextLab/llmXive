@@ -1,0 +1,70 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Result Schema
+description: Schema for the aggregated statistical results, ANOVA outputs, and Segmented Regression findings.
+type: object
+properties:
+  source_type:
+    type: string
+    enum:
+      - text
+      - relational
+      - graph
+    description: "The source type for this aggregated result."
+  complexity_category:
+    type: string
+    enum:
+      - low
+      - high
+    description: "The complexity category for this aggregated result."
+  mean_delta_latency:
+    type: number
+    description: "Mean mismatch cost (Latency_Wrong - Latency_Optimal) in milliseconds."
+  std_delta_latency:
+    type: number
+    description: "Standard deviation of mismatch cost."
+  n_samples:
+    type: integer
+    minimum: 1
+    description: "Number of samples in this group."
+  anova_f_statistic:
+    type: number
+    description: "F-statistic from the two-way ANOVA interaction term."
+  anova_p_value:
+    type: number
+    description: "P-value from the two-way ANOVA interaction term."
+  interaction_significant:
+    type: boolean
+    description: "True if p-value < 0.05, indicating a significant interaction effect."
+  segmented_regression_knee_point:
+    type: number
+    description: "Identified complexity level where the slope changes (knee point)."
+  segmented_regression_p_value:
+    type: number
+    description: "P-value for the improvement of the segmented model over linear."
+  sensitivity_sweep:
+    type: array
+    description: "Results of the sensitivity analysis for different cutoffs."
+    items:
+      type: object
+      properties:
+        cutoff:
+          type: integer
+          description: "The complexity depth cutoff used."
+        spike_point:
+          type: number
+          description: "The identified latency spike point."
+        slope_change:
+          type: number
+          description: "The calculated change in slope."
+required:
+  - source_type
+  - complexity_category
+  - mean_delta_latency
+  - std_delta_latency
+  - n_samples
+  - anova_f_statistic
+  - anova_p_value
+  - interaction_significant
+  - segmented_regression_knee_point
+  - segmented_regression_p_value
+additionalProperties: false
