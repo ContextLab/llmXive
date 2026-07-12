@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-901-llmxive-follow-up-extending-physbrain-1
-last_run_id: ddab60dd-23f1-44fa-a3a2-3fbaab74cab8
+last_run_id: f4bdd157-277d-43a7-87db-acbba4c44c5b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "PhysBrain 1.0 Technical Report"'
-updated_at: '2026-07-07T07:25:13.944909Z'
+updated_at: '2026-07-12T17:29:44.387643Z'
