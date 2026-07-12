@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Proxy Validation and Classifier Metrics Schema"
+description: "Schema for proxy validation results and classifier performance metrics."
+type: "object"
+required:
+  - proxy_correlation
+  - proxy_status
+  - classifier_accuracy
+properties:
+  proxy_correlation:
+    type: "number"
+    description: "Pearson correlation coefficient between static-log utility and ablation utility."
+    minimum: -1.0
+    maximum: 1.0
+  proxy_status:
+    type: "string"
+    enum:
+      - "VALID"
+      - "INVALID"
+    description: "Status based on threshold (≥ 0.7)."
+  classifier_accuracy:
+    type: "number"
+    description: "Cross-validation accuracy of the trained classifier."
+    minimum: 0.0
+    maximum: 1.0
+  sample_size:
+    type: "integer"
+    description: "Number of trajectories used for validation."
+  warning:
+    type: "string"
+    description: "Optional warning message (e.g., sample size < 300)."

@@ -1,11 +1,1 @@
-- artifact_hash: d5da8f26f3e941e2620b764044690271f334ca59c20f2ac82e92d0fec039c7a5
-  artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/agentic-sts/trajectories-v1`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/agentic-sts/trajectories-v1
-  verified_at: '2026-07-12T00:14:29.578722Z'
+[]

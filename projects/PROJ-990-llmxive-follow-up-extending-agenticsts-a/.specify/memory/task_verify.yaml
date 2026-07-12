@@ -1,0 +1,20 @@
+T001 Create project structure per implementation plan (`projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/`): 2
+'T002 Initialize Python 3.11 project with dependencies (`requirements.txt`: pandas, numpy, scikit-learn, pytest, pyyaml)': 2
+T003 [P] Configure linting and formatting tools (ruff/black) in `code/` and `tests/`: 2
+? 'T005 [P] Implement `code/entropy.py` to calculate Shannon entropy of legal move
+  distributions. **Edge Case Handling**: If calculation returns NaN or Inf, the function
+  MUST default to returning a sentinel value that triggers retrieval of the **full
+  "all-layers" set** for that turn and MUST log a warning event with the specific
+  error details. **Input**: `data/raw/trajectories.csv`. **Depends on**: T006.'
+: 1
+? 'T005 [P] Implement `code/entropy.py` to calculate Shannon entropy of legal move
+  distributions. **Edge Case Handling**: If calculation returns NaN or Inf, the function
+  MUST default to returning a sentinel value that triggers retrieval of the **full
+  "all-layers" set** for that turn and MUST log a warning event with the specific
+  error details. **Input**: `data/raw/trajectories.csv`. **Depends on**: T006. <!--
+  FAILED: unspecified -->'
+: 1
+? T006 [P] Implement `code/parser.py` to extract per-turn metrics (health, threat,
+  deck size) from raw trajectory logs in `data/raw/`.
+: 2
+T007 Create `data/processed/` directory structure and schema validation for derived metrics.: 1

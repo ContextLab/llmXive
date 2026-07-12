@@ -37,25 +37,24 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a.yaml` `updated_at` timestamp.
 
-### VI. Entropy-Driven Adaptive Retrieval
+### VI. Adaptive Memory Utility Validation
 
-The project MUST implement a dynamic retrieval policy that adjusts memory
-density based on the calculated Shannon entropy of the decision environment,
-as specified in the Methodology sketch. This principle mandates that the
-lightweight classifier (e.g., decision tree or logistic regression) predicts
-memory layer utility using per-turn game metrics (health ratio, enemy threat
-level, deck size) to ensure token economy does not degrade win rates in
-high-stochasticity states.
+The dynamic memory compression policy MUST be validated against the specific
+game-state entropy metrics (health ratio, enemy threat level, deck size)
+extracted from the 298 existing AgenticSTS trajectories. The classifier
+model (e.g., decision tree or logistic regression) used to predict memory
+layer utility MUST be trained exclusively on this parsed trajectory data,
+ensuring the "information utility" predictions are grounded in the actual
+observed static retrieval logs rather than synthetic proxies.
 
-### VII. Non-Inferiority Statistical Validation
+### VII. Token Budget Independence Verification
 
-Evaluation MUST rigorously demonstrate that the dynamic policy's win rate is
-statistically non-inferior to the static full-retrieval baseline while
-achieving a 30–50% reduction in average prompt token usage. This requires
-a paired t-test or Wilcoxon signed-rank test on the held-out test set of
-AgenticSTS trajectories, ensuring the reduction in tokens does not correlate
-with a drop in performance, and that the win rate metric is measured
-independently of the input features used by the predictor.
+Statistical analysis MUST explicitly demonstrate that the reduction in
+prompt token usage (targeting 30–50% savings) does not correlate with a
+drop in win rate. The evaluation target (win rate) MUST be measured
+independently of the predictor features using the game engine's ground-truth
+outcome logic, preventing mathematical coupling between the input state
+features and the reported success metric.
 
 ## Reproducibility Requirements
 

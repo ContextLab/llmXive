@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation and Statistical Results Schema"
+description: "Schema for simulation outcomes and statistical test results."
+type: "object"
+required:
+  - simulation_results
+  - statistical_tests
+properties:
+  simulation_results:
+    type: "array"
+    description: "Per-trajectory results for each condition."
+    items:
+      type: "object"
+      required:
+        - trajectory_id
+        - condition
+        - total_tokens
+        - outcome
+      properties:
+        trajectory_id:
+          type: "string"
+        condition:
+          type: "string"
+          enum:
+            - "dynamic"
+            - "static"
+            - "random"
+        total_tokens:
+          type: "integer"
+          minimum: 0
+        outcome:
+          type: "integer"
+          enum:
+            - 0
+            - 1
+  statistical_tests:
+    type: "array"
+    description: "Results of McNemar's test and t-tests."
+    items:
+      type: "object"
+      required:
+        - test_name
+        - condition_a
+        - condition_b
+        - statistic
+        - p_value
+        - p_value_corrected
+      properties:
+        test_name:
+          type: "string"
+          enum:
+            - "McNemar"
+            - "Paired T-Test"
+            - "Wilcoxon Signed-Rank"
+        condition_a:
+          type: "string"
+        condition_b:
+          type: "string"
+        statistic:
+          type: "number"
+        p_value:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        p_value_corrected:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "Bonferroni-corrected p-value."
+        effect_size:
+          type: "number"
+          description: "Cohen's d or odds ratio."
