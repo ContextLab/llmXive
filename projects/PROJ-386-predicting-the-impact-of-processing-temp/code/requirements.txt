@@ -1,0 +1,11 @@
+pandas
+scikit-learn
+numpy
+requests
+pyyaml
+memory-profiler
+seaborn
+pytest
+ruff
+black
+pre-commit

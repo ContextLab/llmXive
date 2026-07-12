@@ -1,4 +1,4 @@
-- artifact_hash: 970b42d3de220ca30730f0fb7c5efab8320a8540a26fb8191aa70a0e0cb365a4
+- artifact_hash: 77bbaa42ce5c78b0a81084011ec5a1a617674cd6cce652a9307d077e1cbeb95b
   artifact_path: projects/PROJ-386-predicting-the-impact-of-processing-temp/specs/001-predicting-the-impact-of-processing-temp/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,5 +7,38 @@
   kind: url
   value: https://huggingface.co/datasets/n0w0f/nomad-structure-csv/resolve/main/nomad_structure_hf.csv`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/655113ea380ee26b49e50de9/a1f339ff813547634f88a9cf5befa57f7841c9fd6488e6ecfac292152666ca78?X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27nomad_structure_hf.csv%3B+filename%3D%22nomad_structure_hf.csv%22%3B&Expires=1783815435&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU1MTEzZWEzODBlZTI2YjQ5ZTUwZGU5L2ExZjMzOWZmODEzNTQ3NjM0Zjg4YTljZjViZWZhNTdmNzg0MWM5ZmQ2NDg4ZTZlY2ZhYzI5MjE1MjY2NmNhNzhcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bm9tYWRfc3RydWN0dXJlX2hmLmNzdiUzQitmaWxlbmFtZSUzRCUyMm5vbWFkX3N0cnVjdHVyZV9oZi5jc3YlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzgxNTQzNX19fV19&Signature=MEQCIHS07NUXkMaKlGrU2kiYgKb5UzjHfO4kptp3vmJz4oJwAiAoz3z1p5ZGrRyKid8-dEADvUQCkj6FAZbsS6hhQfJgKg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-11T23:17:15.506165Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/655113ea380ee26b49e50de9/a1f339ff813547634f88a9cf5befa57f7841c9fd6488e6ecfac292152666ca78?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27nomad_structure_hf.csv%3B+filename%3D%22nomad_structure_hf.csv%22%3B&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&Expires=1783817572&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU1MTEzZWEzODBlZTI2YjQ5ZTUwZGU5L2ExZjMzOWZmODEzNTQ3NjM0Zjg4YTljZjViZWZhNTdmNzg0MWM5ZmQ2NDg4ZTZlY2ZhYzI5MjE1MjY2NmNhNzhcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bm9tYWRfc3RydWN0dXJlX2hmLmNzdiUzQitmaWxlbmFtZSUzRCUyMm5vbWFkX3N0cnVjdHVyZV9oZi5jc3YlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzgxNzU3Mn19fV19&Signature=MEUCIB6WQPyF465RWnvUj2Nz3LNfmojbgFqKF61c7pT7JeN8AiEAwBmW3Q%7EO3qz20bjrbaNQecUGD-XQle3TMkXP9mpLwc8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-11T23:52:52.755860Z'
+- artifact_hash: 77bbaa42ce5c78b0a81084011ec5a1a617674cd6cce652a9307d077e1cbeb95b
+  artifact_path: projects/PROJ-386-predicting-the-impact-of-processing-temp/specs/001-predicting-the-impact-of-processing-temp/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "allenai/c4 \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/allenai/c4/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/allenai/c4
+  verified_at: '2026-07-11T23:52:52.755860Z'
+- artifact_hash: 77bbaa42ce5c78b0a81084011ec5a1a617674cd6cce652a9307d077e1cbeb95b
+  artifact_path: projects/PROJ-386-predicting-the-impact-of-processing-temp/specs/001-predicting-the-impact-of-processing-temp/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: nothingisenough (Dmitrii)
+  kind: url
+  value: https://huggingface.co/datasets/nothingisenough/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/nothingisenough/datasets
+  verified_at: '2026-07-11T23:52:52.755860Z'
+- artifact_hash: 77bbaa42ce5c78b0a81084011ec5a1a617674cd6cce652a9307d077e1cbeb95b
+  artifact_path: projects/PROJ-386-predicting-the-impact-of-processing-temp/specs/001-predicting-the-impact-of-processing-temp/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: Type-1-Civilisation (Type 1 Civilisation)
+  kind: url
+  value: https://huggingface.co/datasets/Type-1-Civilisation/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/Type-1-Civilisation/datasets
+  verified_at: '2026-07-11T23:52:52.755860Z'

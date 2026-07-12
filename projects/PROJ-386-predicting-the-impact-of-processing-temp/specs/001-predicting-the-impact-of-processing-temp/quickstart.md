@@ -1,9 +1,10 @@
 # Quickstart: Predicting the Impact of Processing Temperature on the Grain Size of Rolled Aluminum Alloys
 
 ## Prerequisites
-*   Python 3.10+
+
+*   Python 3.11+
 *   Git
-*   Access to the GitHub Actions runner (or local environment with 2+ CPU cores).
+*   Access to GitHub Actions (for CI) or a local environment with 7GB+ RAM.
 
 ## Installation
 
@@ -13,7 +14,7 @@
     cd projects/PROJ-386-predicting-the-impact-of-processing-temp
     ```
 
-2.  **Create and activate virtual environment**:
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -23,52 +24,62 @@
     ```bash
     pip install -r code/requirements.txt
     ```
+    *Dependencies include: `pandas`, `scikit-learn`, `numpy`, `requests`, `pyyaml`, `seaborn`.*
 
 ## Running the Pipeline
 
-The entire pipeline is orchestrated by `code/main.py`.
+### Option 1: Local Execution (Small Sample)
 
-### 1. Data Ingestion & Validation
-This step attempts to download and validate data. If data is missing, it exits with code 1.
-```bash
-python code/main.py --step download
-```
-*   **Output**: `data/processed/cleaned_data.csv` (if successful) or `artifacts/error.json` (if failed).
-*   **Expected Behavior**: If the NOMAD dataset lacks `rolling_temperature` or `process_type`, the script will halt and print: `{"code": "E_DATA_MISSING", ...}`.
+To test the pipeline locally without downloading the full dataset (or if the dataset is small):
 
-### 2. Feature Engineering & Baseline Modeling
-Generates interaction features, filters by process type, and trains the linear baseline.
 ```bash
-python code/main.py --step baseline
-```
-*   **Output**: `artifacts/baseline_model.pkl`, `artifacts/baseline_metrics.json`.
-*   **Note**: If N < 100, this step will skip the non-linear modeling phase.
+# Set random seed for reproducibility
+export PYTHONHASHSEED=42
 
-### 3. Non-Linear Modeling (with Timeout Fallback)
-Trains the Random Forest with grid search. Includes a 4-hour timeout.
-```bash
-python code/main.py --step non_linear
+# Run the main pipeline
+python code/main.py --sample-size 100 --timeout 3600
 ```
-*   **Output**: `artifacts/non_linear_model.pkl`, `artifacts/non_linear_metrics.json`.
-*   **Note**: Only runs if N >= 100. If the process exceeds 4 hours, it automatically switches to default parameters.
+*Note: `--sample-size` is useful for debugging. The full run will use the entire available dataset.*
 
-### 4. Sensitivity & Diagnostics
-Runs sensitivity analysis, collinearity checks, and confounder analysis (including E-value calculation).
-```bash
-python code/main.py --step diagnostics
-```
-*   **Output**: `artifacts/sensitivity_report.json`, `artifacts/collinearity_report.json`, `artifacts/confounder_report.json`.
+### Option 2: Full Run (CI/Local)
 
-### 5. Versioning & Hashing
-Computes SHA-256 hashes for all artifacts and updates the state file.
 ```bash
-python code/main.py --step hash
+python code/main.py
 ```
-*   **Output**: Updates `state/projects/PROJ-386-...yaml` with `artifact_hashes`.
 
-## Verifying Results
-To ensure reproducibility, run the full pipeline:
+This will:
+1.  **Check Environment**: Verify CPU availability and set timeout.
+2.  **Ingest Data**: Attempt to download and validate `nomad_structure_hf.csv`.
+3.  **Preprocess**: Generate interaction features, normalize, and compute residuals.
+4.  **Train**: Run Linear Regression (on residuals) and Random Forest (with grid search).
+5.  **Analyze**: Generate collinearity and sensitivity reports.
+6.  **Output**: Save artifacts to `data/artifacts/`.
+
+### Expected Output
+
+*   `data/processed/engineered_data.csv`: The clean dataset (with residuals).
+*   `artifacts/baseline_model.pkl`: Linear regression model (on residuals).
+*   `artifacts/rf_model.pkl`: Random Forest model (on residuals).
+*   `artifacts/final_metrics.json`: R², MAE, and improvement metrics.
+*   `artifacts/collinearity_report.json`: Flags for correlated predictors.
+*   `stdout`: Progress logs and final summary.
+
+## Troubleshooting
+
+*   **"Critical variables missing from all sources"**: The verified datasets (NOMAD, etc.) do not contain the required `rolling_temperature` or `grain_size` columns. The pipeline correctly halted. This is a valid scientific outcome.
+*   **"Timeout Enforced"**: The grid search took too long. The system fell back to default parameters. Check `artifacts/fallback_triggered.txt`.
+*   **Memory Error**: The dataset is too large for 7GB RAM. The code includes chunking logic, but if it fails, reduce the dataset size or increase local RAM.
+
+## Verification
+
+Run the test suite to ensure contract compliance:
+
 ```bash
-python code/main.py --step full
+pytest tests/ -v
 ```
-Check `artifacts/reports/summary.md` for the final R² delta, stability metrics, and E-value.
+
+This verifies:
+*   Schema validation logic.
+*   Feature engineering correctness.
+*   Timeout enforcement.
+*   Model output schema compliance.

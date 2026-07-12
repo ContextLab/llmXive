@@ -1,0 +1,152 @@
+project_id: PROJ-386-predicting-the-impact-of-processing-temp
+project_name: Predicting the Impact of Processing Temperature on the Grain Size of Rolled Aluminum Alloys
+version: "1.0"
+created_at: "2023-10-27T10:00:00Z"
+last_updated: "2023-10-27T10:00:00Z"
+status: active
+
+# Schema for artifact tracking and integrity
+artifacts:
+  data:
+    raw:
+      - path: data/raw/rolling_aluminum_data.csv
+        description: Raw aggregated dataset from NOMAD, OpenML, Citrination
+        checksum_algorithm: sha256
+        checksum: null
+        size_bytes: null
+        last_verified: null
+    processed:
+      - path: data/processed/feature_engineered_data.csv
+        description: Data with interaction terms, normalized, and residualized
+        checksum_algorithm: sha256
+        checksum: null
+        size_bytes: null
+        last_verified: null
+      - path: data/processed/residuals.csv
+        description: Residuals from main effects regression (Alloy Series + Composition)
+        checksum_algorithm: sha256
+        checksum: null
+        size_bytes: null
+        last_verified: null
+  models:
+    baseline:
+      - path: data/artifacts/baseline_model.pkl
+        description: Linear Regression model trained on residuals
+        checksum_algorithm: sha256
+        checksum: null
+        size_bytes: null
+        last_verified: null
+    random_forest:
+      - path: data/artifacts/random_forest_model.pkl
+        description: Random Forest model with hyperparameter tuning
+        checksum_algorithm: sha256
+        checksum: null
+        size_bytes: null
+        last_verified: null
+  reports:
+    collinearity:
+      - path: data/artifacts/collinearity_report.json
+        description: JSON report of correlated feature pairs (threshold > 0.8)
+        checksum_algorithm: sha256
+        checksum: null
+        size_bytes: null
+        last_verified: null
+    sensitivity:
+      - path: data/artifacts/sensitivity_report.json
+        description: Stability analysis of interaction terms across thresholds
+        checksum_algorithm: sha256
+        checksum: null
+        size_bytes: null
+        last_verified: null
+    permutation:
+      - path: data/artifacts/permutation_test_results.json
+        description: Permutation test results for R² improvement significance
+        checksum_algorithm: sha256
+        checksum: null
+        size_bytes: null
+        last_verified: null
+    final:
+      - path: data/artifacts/final_report.json
+        description: Aggregated metrics, flags, and interpretability notes
+        checksum_algorithm: sha256
+        checksum: null
+        size_bytes: null
+        last_verified: null
+  figures:
+    - path: figures/partial_dependence_temp_vs_grainsize.png
+      description: Partial dependence plot for Temperature vs Grain Size
+      checksum_algorithm: sha256
+      checksum: null
+      size_bytes: null
+      last_verified: null
+
+# Execution state tracking
+execution_state:
+  pipeline_run_id: null
+  start_time: null
+  end_time: null
+  status: pending
+  timeout_limit_seconds: 18000  # 5 hours
+  runner_environment: null
+  python_version: null
+
+# Dependency graph (task_id -> artifact_paths)
+dependencies:
+  T012:
+    - data/raw/rolling_aluminum_data.csv
+  T013:
+    - data/raw/rolling_aluminum_data.csv
+  T014:
+    - data/raw/rolling_aluminum_data.csv
+    - data/processed/feature_engineered_data.csv
+  T015:
+    - data/raw/rolling_aluminum_data.csv
+  T016:
+    - data/raw/rolling_aluminum_data.csv
+  T020:
+    - data/processed/feature_engineered_data.csv
+  T021:
+    - data/processed/feature_engineered_data.csv
+  T022:
+    - data/processed/residuals.csv
+  T023:
+    - data/artifacts/collinearity_report.json
+  T024:
+    - data/artifacts/baseline_model.pkl
+  T025:
+    - data/artifacts/baseline_model.pkl
+    - data/artifacts/collinearity_report.json
+  T026:
+    - data/artifacts/baseline_model.pkl
+  T030:
+    - data/artifacts/random_forest_model.pkl
+    - data/processed/residuals.csv
+    - data/artifacts/collinearity_report.json
+  T032:
+    - data/artifacts/sensitivity_report.json
+    - data/artifacts/random_forest_model.pkl
+  T033:
+    - figures/partial_dependence_temp_vs_grainsize.png
+  T034:
+    - data/artifacts/permutation_test_results.json
+  T035:
+    - data/artifacts/final_report.json
+    - data/artifacts/collinearity_report.json
+    - data/artifacts/sensitivity_report.json
+    - data/artifacts/permutation_test_results.json
+  T037:
+    - data/artifacts/final_report.json
+  T038:
+    - state/projects/PROJ-386-predicting-the-impact-of-processing-temp.yaml
+
+# Configuration snapshot
+config_snapshot:
+  github_actions_timeout: "5h"
+  hyperparameter_grids:
+    random_forest:
+      n_estimators: [100, 200]
+      max_depth: [10, 20]
+  collinearity_threshold: 0.8
+  permutation_test_runs: 1000
+  permutation_test_alpha: 0.05
+  sensitivity_thresholds: [0.01, 0.05, 0.1]

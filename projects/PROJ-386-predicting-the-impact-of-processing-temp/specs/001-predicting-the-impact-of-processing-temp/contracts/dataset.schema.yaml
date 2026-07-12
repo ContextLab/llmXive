@@ -1,104 +1,69 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AlloySampleDataset"
-description: "Schema for the processed aluminum alloy dataset containing temperature, composition, grain size, and process type."
-type: "object"
+title: "AlloySample Dataset Schema"
+description: "Schema for the processed dataset containing rolling temperature, composition, and grain size."
+type: object
 properties:
-  metadata:
-    type: "object"
-    properties:
-      source:
-        type: "string"
-        description: "Name of the original dataset source."
-      processed_at:
-        type: "string"
-        format: "date-time"
-        description: "ISO timestamp of processing."
-      row_count:
-        type: "integer"
-        description: "Total number of valid rows."
-  columns:
-    type: "array"
-    items:
-      type: "string"
-      enum:
-        - "id"
-        - "source"
-        - "source_study"
-        - "temperature"
-        - "grain_size"
-        - "alloy_series"
-        - "process_type"
-        - "Mg"
-        - "Si"
-        - "Cu"
-        - "Zn"
-        - "Mn"
-        - "temp_Mg_interaction"
-        - "temp_Si_interaction"
-  data:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-        source:
-          type: "string"
-        source_study:
-          type: "string"
-          nullable: true
-        temperature:
-          type: "number"
-          minimum: 0
-          description: "Rolling temperature in Celsius."
-        grain_size:
-          type: "number"
-          minimum: 0
-          description: "Grain size in micrometers."
-        alloy_series:
-          type: "string"
-          nullable: true
-        process_type:
-          type: "string"
-          description: "Type of process (e.g., 'Rolling', 'Casting')."
-        composition:
-          type: "object"
-          properties:
-            Mg:
-              type: "number"
-              minimum: 0
-              maximum: 100
-            Si:
-              type: "number"
-              minimum: 0
-              maximum: 100
-            Cu:
-              type: "number"
-              minimum: 0
-              maximum: 100
-            Zn:
-              type: "number"
-              minimum: 0
-              maximum: 100
-            Mn:
-              type: "number"
-              minimum: 0
-              maximum: 100
-        interactions:
-          type: "object"
-          properties:
-            temp_Mg_interaction:
-              type: "number"
-            temp_Si_interaction:
-              type: "number"
-      required:
-        - "id"
-        - "temperature"
-        - "grain_size"
-        - "process_type"
-      additionalProperties: false
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample."
+  alloy_series:
+    type: string
+    description: "Alloy series classification (e.g., '1xxx', '6xxx')."
+    pattern: "^[0-9]xxx$"
+  temperature:
+    type: number
+    description: "Rolling temperature in degrees Celsius."
+    minimum: 0
+  grain_size:
+    type: number
+    description: "Measured grain size in micrometers."
+    minimum: 0
+  mg_wt:
+    type: number
+    description: "Magnesium weight percentage."
+    minimum: 0
+    maximum: 100
+  si_wt:
+    type: number
+    description: "Silicon weight percentage."
+    minimum: 0
+    maximum: 100
+  cu_wt:
+    type: number
+    description: "Copper weight percentage."
+    minimum: 0
+    maximum: 100
+  zn_wt:
+    type: number
+    description: "Zinc weight percentage."
+    minimum: 0
+    maximum: 100
+  other_wt:
+    type: number
+    description: "Sum of other alloying elements."
+    minimum: 0
+    maximum: 100
+  source:
+    type: string
+    description: "Original dataset source."
+  temp_mg_int:
+    type: number
+    description: "Interaction term: Temperature * Mg."
+  temp_si_int:
+    type: number
+    description: "Interaction term: Temperature * Si."
+  temp_cu_int:
+    type: number
+    description: "Interaction term: Temperature * Cu."
+  temp_zn_int:
+    type: number
+    description: "Interaction term: Temperature * Zn."
+  residual_grain_size:
+    type: number
+    description: "Residual of grain size after regressing against alloy series and composition."
 required:
-  - "metadata"
-  - "columns"
-  - "data"
+  - sample_id
+  - temperature
+  - grain_size
+  - alloy_series
 additionalProperties: false

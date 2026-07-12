@@ -1,57 +1,97 @@
 # Research: Predicting the Impact of Processing Temperature on the Grain Size of Rolled Aluminum Alloys
 
-## Summary of Research
+## Executive Summary
 
-This research phase validates the feasibility of the data sources and defines the statistical methodology. The primary challenge is the scarcity of public datasets containing *both* rolling temperature and grain size for aluminum alloys. The plan prioritizes NOMAD, with a strict fallback to "Data Missing" if no source contains all required variables.
+This research phase validates the feasibility of predicting grain size in rolled aluminum alloys using public data. The primary challenge is data availability: the specific combination of *rolling temperature*, *alloy composition (wt%)*, and *measured grain size* is rare in general materials databases. The strategy involves rigorous schema pre-checks against verified sources. If data is found, the analysis will proceed with a baseline linear model (to establish main effects) followed by a Random Forest model (to capture non-linear interactions). All findings are framed as **associational** due to the observational nature of the data.
 
-**Critical Finding**: The provided "Verified datasets" block contains no specific materials science datasets with the required variables. The NOMAD structure CSV is the only candidate, but it is primarily DFT/crystallographic data. The methodology is designed to handle the high probability of a "Data Missing" outcome as a valid scientific conclusion regarding the state of public data, rather than a pipeline failure.
+**Critical Finding**: The provided "Verified datasets" block (specifically the NOMAD structure CSV) likely lacks the required *processing* variables (rolling temperature, grain size). The pipeline is designed to detect this via schema pre-check and halt with a "Data Missing" report. This outcome is treated as a valid scientific finding: "Current public structural databases do not contain the necessary process data for this prediction task."
 
 ## Dataset Strategy
 
-The project targets three specific variables: `rolling_temperature` (°C), `alloy_composition` (wt% of Mg, Si, Cu, etc.), `grain_size` (µm), and `process_type` (to filter for Rolling).
+### Verified Sources Analysis
 
-| Dataset Source | Status | Variables Available | Verified URL | Usage Strategy |
-|----------------|--------|---------------------|--------------|----------------|
-| **NOMAD** | **Verified** (Structure CSV) | Likely contains crystallographic data; *Rolling Temp*, *Grain Size*, and *Process Type* are uncertain and must be pre-checked. | ` | Attempt download. Run schema pre-check for `rolling_temperature`, `grain_size`, and `process_type`. <br> **If missing**: Halt immediately with `E_DATA_MISSING`. <br> **Note**: This dataset is primarily DFT/crystallographic. The probability of finding experimental rolling process parameters is low. This outcome is treated as a valid finding (Data Unavailability). |
-| **OpenML** | **Verified** (Generic) | Contains various materials datasets; specific "Aluminum Rolling" dataset must be identified by ID. | *No verified URL in the provided block matches this requirement.* The provided block contains text/code corpora (C4, Solidity). | **CRITICAL**: No verified URL in the provided block is suitable for this specific materials science task. The plan relies solely on the NOMAD pre-check. If NOMAD fails, the project halts. |
-| **Materials Project** | **Assumed Missing** | Crystallographic data only; lacks processing history. | (Not in verified block) | Skip immediately via schema pre-check logic. |
-| **Citrination** | **Assumed Missing** | Requires API key/registration; likely not in verified block. | (Not in verified block) | Skip. |
+The project relies on the following verified datasets. **Note**: The "Verified datasets" block provided in the spec contains generic or unrelated datasets (e.g., NOMAD structure CSV, C4 text corpus, Solidity code). **Crucially, none of the listed URLs explicitly contain the specific variables required: `rolling_temperature`, `alloy_composition_wt`, and `grain_size` for rolled aluminum.**
 
-> **Note on Data Availability**: The "Verified datasets" block provided for this project contains primarily text/code corpora (C4, Solidity, etc.) and a generic NOMAD structure CSV. **No verified URL in the block explicitly guarantees the presence of `rolling_temperature` and `grain_size` for aluminum alloys.** The implementation MUST perform a schema pre-check on the NOMAD CSV. If the columns are absent, the project MUST halt with `E_DATA_MISSING` and not proceed to modeling. This halt is a valid scientific outcome.
+| Source Name | Verified URL | Variable Fit Assessment | Action Plan |
+|:--- |:--- |:--- |:--- |
+| **NOMAD (Structure CSV)** | ` | **Likely Missing**. NOMAD primarily contains crystallographic structure data (lattice parameters, space groups) from DFT or experiments. It rarely contains *processing* parameters like "rolling temperature" or *post-process* grain size for specific rolling operations. | **Pre-check**: Script will scan headers for `temperature`, `grain_size`, `rolling`. If missing, skip immediately. If ALL sources fail, halt with Exit Code 1 and log: "Critical variables missing from all sources: [list of missing variables]". |
+| **C4 / OLMOCR / PeS2o** | ` etc. | **Irrelevant**. These are text corpora (Common Crawl, arXiv math, scientific papers). They contain no structured tabular data for this specific regression task. | **Skip**: These are not tabular material science datasets. |
+| **Solidity Code / Notebooks** | `https://huggingface.co/datasets/nothingisenough/...` | **Irrelevant**. Code repositories. | **Skip**. |
+| **Liber Primus** | `https://huggingface.co/datasets/Type-1-Civilisation/...` | **Irrelevant**. Decoding challenge. | **Skip**. |
+
+**Contingency Strategy**:
+1. **Strict Pre-check**: The `ingestion.py` script will attempt to load the NOMAD CSV and inspect headers.
+2. **Halt Condition**: If the NOMAD CSV (or any other source we might discover via a broader search *if allowed by the constitution*) lacks `rolling_temperature` or `grain_size`, the system will **HALT** with Exit Code 1 and log: `"Critical variables missing from all sources: [rolling_temperature, grain_size]"`.
+3. **No Fabrication**: We will **not** invent a URL or assume a dataset exists. If the verified sources fail, the project outcome is a valid "Data Missing" report.
+4. **Scope Limitation**: No generic "OpenML" search will be performed. The project strictly adheres to the "Verified datasets" block. If no suitable source exists in this block, the project halts.
+
+*Note: In a real-world scenario, one might search for specific repositories like "Aluminum Rolling Dataset" or "Materials Data Facility", but per the "Verified datasets" constraint, we are limited to the provided list. If the list is insufficient, the plan correctly identifies this as a blocking gap.*
 
 ## Methodological Rigor
 
 ### Statistical Approach
-1. **Baseline**: Ordinary Least Squares (OLS) Linear Regression with interaction terms ($Temp \times Element$).
- * *Rationale*: Provides interpretable coefficients for main effects and linear interactions.
- * *Sample Size Constraint*: If $N < 100$, the pipeline will **skip** Random Forest training to prevent overfitting and proceed only with Linear Regression.
-2. **Non-Linear**: Random Forest Regressor.
- * *Rationale*: Captures non-linear saturation effects and complex interactions without assuming a specific functional form.
- * *Condition*: Only executed if $N \ge 100$.
- * *Hyperparameters*: `n_estimators` [50, 100], `max_depth` [5, 10].
- * *Grid Search*: 5-fold Cross-Validation on the training set.
-3. **Data Splitting**:
- * **Strategy**: Split by `source_study` (or `process_batch`) to prevent leakage of processing conditions.
- * **Correction**: Do NOT stratify by alloy series (a predictor variable), as this does not prevent leakage of outcome data if processing conditions are shared. If `source_study` metadata is missing, use random split with a warning.
-4. **Confounder Analysis**:
- * **With Proxies**: Compare $R^2$ of model with vs. without proxy variables (e.g., strain rate).
- * **Without Proxies**: Perform **E-value calculation** to estimate the minimum strength of an unmeasured confounder required to explain away the observed effect. This replaces the "N/A" default with a quantitative sensitivity bound.
 
-### Addressing Rigor Requirements
-* **Multiple Comparisons**: Not applicable for regression coefficients directly, but the sensitivity analysis (FR-005) sweeps thresholds to ensure robustness of feature importance rankings.
-* **Sample Size/Power**: **Hard Stop**: If $N < 50$, halt with `E_INSUFFICIENT_DATA`. If $50 \le N < 100$, disable non-linear modeling. This ensures statistical validity.
-* **Causal Inference**: The study is **observational**. All claims will be framed as "associational" or "predictive." No causal claims of "impact" will be made without randomization.
-* **Collinearity**:
- * Compute correlation matrix for all predictors.
- * If $|r| > 0.8$ between $Mg$ and $Si$ (common in 6xxx series), report as a "Joint Effect" rather than independent coefficients (FR-006).
-* **Measurement Validity**: Grain size and composition are treated as ground truth from source literature. No internal validation is performed.
-* **Process Context**: Filter data to include only `process_type == "Rolling"`. Exclude Casting, SPD, etc., to ensure the "Industrial Rolling Context" (Constitution Principle VII).
+1. **Baseline (Linear Regression with Residualization)**:
+ * **Step 1**: Regress `Grain Size` against `Alloy Series` (one-hot encoded) and `Composition` (Mg, Si, Cu, Zn). Store residuals.
+ * **Step 2**: Regress `Residuals` against `Temperature` and `Temperature × Composition` interactions.
+ * **Purpose**: Isolate the temperature effect from the confounding alloy series.
+ * **Rigor**: Coefficients will be tested for significance (p-values). Collinearity (VIF > 5 or correlation > 0.8) will be flagged, and independent interpretation suppressed for correlated pairs (e.g., Mg and Si in 6xxx series).
+
+2. **Non-Linear (Random Forest)**:
+ * **Model**: `RandomForestRegressor` (Scikit-learn).
+ * **Grid Search**: `n_estimators`: [50, 100, 200]; `max_depth`: [5, 10, 15, 20].
+ * **Constraint**: If grid search exceeds 4 hours, fallback to `n_estimators=100, max_depth=10`.
+ * **Rigor**:
+ * **Multiple Comparisons**: Not applicable for regression feature importance in the same way as hypothesis testing, but we will use **Permutation Importance** to validate feature contributions.
+ * **Power/Sample Size**: Acknowledged limitation. If $N < 50$, results are exploratory. If $N$ is small, we will use Leave-One-Out Cross-Validation (LOOCV) or K-Fold (K=5) with **Stratified Group K-Fold** (groups=Alloy Series).
+ * **Causal Inference**: Explicitly stated as **Associational**. No randomization exists. Claims are limited to "predictive association" and "modulation of the temperature-grain size relationship".
+
+### Interaction-Specific Validation
+
+To ensure the R² improvement is driven by the *interaction* and not just better composition modeling:
+* **Permutation Importance**: We will specifically measure the drop in R² when `Temp × Mg` and `Temp × Si` are permuted, compared to permuting `Mg` or `Temp` alone.
+* **Partial Dependence Plots (PDP)**: We will generate PDPs for `Temperature` at different levels of `Mg` to visualize the non-linear modulation.
+* **Success Metric**: The improvement in R² must be statistically significant (p < 0.05 via permutation test) AND (absolute improvement > 0.05 OR relative improvement > 10%).
+
+### Sensitivity Analysis (FR-005)
+
+* **Threshold Sweep**: Feature importance cutoffs will be swept: $\{0.01, 0.05, 0.1\}$.
+* **Metric**: Stability of the top-5 interaction terms (e.g., `Temp×Mg`).
+* **Success**: >80% of top-5 terms remain consistent across sweeps.
+
+### Confounder Sensitivity (FR-008)
+
+* **Proxy Variables**: Check for `strain_rate`, `cooling_rate`, `rolling_reduction`.
+* **Action**: If present, re-run model with proxies. Report $\Delta R^2$.
+* **Caveat**: If absent, explicitly state in the final report: "Unmeasured confounders (e.g., strain rate) may bias results; analysis is correlational. The model attributes variance to temperature/composition interactions conditional on the observed data."
+
+### Industrial Rolling Context
+
+* **Validation**: The plan attempts to validate the "Industrial Rolling Context" (Principle VII).
+* **Limitation**: If the dataset lacks metadata fields like `strain_rate` or `reduction_ratio`, the model cannot explicitly filter for "industrial" vs "lab-scale" data.
+* **Reporting**: In such cases, the final report will explicitly state: "The 'Industrial Rolling' constraint could not be verified due to missing metadata in the source dataset. Results are presented for the available data distribution."
 
 ## Compute Feasibility
-* **Hardware**: 2 CPU cores, 7GB RAM, No GPU.
-* **Strategy**:
- * Use `scikit-learn` (CPU optimized).
- * Limit grid search to small ranges.
- * Implement a 4-hour timeout for the training step. If exceeded, fallback to default parameters.
- * Sample data if $N > 10,000$ to ensure fit within 7GB RAM.
- * **Critical**: If NOMAD lacks required columns, the script exits immediately, saving compute time.
+
+* **Hardware**: GitHub Actions `ubuntu-latest` (2 vCPU, ~7GB RAM).
+* **Software**: `scikit-learn` (CPU optimized), `pandas` (streaming if needed).
+* **Memory**:
+ * Data subset: If raw data > 500MB, sample to 100k rows or use chunked processing.
+ * Model: Random Forest with `n_estimators=200` and `max_depth=20` on ~50k rows fits within 7GB RAM.
+* **Time**:
+ * Ingestion: < 15 mins.
+ * Preprocessing: < 10 mins.
+ * Linear Model: < 1 min.
+ * RF Grid Search: Estimated -4 hours on 2 cores. Fallback mechanism ensures < 5 hours total.
+* **No GPU**: All models are CPU-native. No CUDA dependencies.
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|:--- |:--- |:--- |
+| **No suitable dataset found** | Project Halts (Exit Code 1). | **Valid Outcome**: The "Data Missing" report is a successful execution of the spec's requirement to verify data availability. This is the primary scientific result if no data exists. |
+| **High Collinearity** | Uninterpretable coefficients. | **Descriptive Framing**: Report joint effects (e.g., "Mg and Si jointly influence...") rather than independent coefficients. |
+| **Timeout during Grid Search** | Job killed. | **Fallback**: Hard timeout logic triggers single-pass training with default params. |
+| **Small Sample Size** | Low statistical power. | **Exploratory Framing**: Report results as "preliminary associations" with confidence intervals. |
+| **Unmeasured Confounders** | Bias in "Impact" estimation. | **Residualization**: Use residualization to isolate temperature effects. Explicitly state limitations in the report. |
+| **Missing Metadata** | Cannot validate "Industrial Rolling" context. | **Transparent Reporting**: Explicitly state in the final report that the context could not be verified due to missing data. |

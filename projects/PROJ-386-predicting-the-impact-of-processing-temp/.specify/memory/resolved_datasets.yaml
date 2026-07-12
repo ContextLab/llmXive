@@ -1,4 +1,4 @@
-resolved_at: '2026-07-11T23:10:39.587826+00:00'
+resolved_at: '2026-07-11T23:46:28.640431+00:00'
 datasets:
 - intent: NOMAD
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/journal_contribution/Generative_AI_in_the_Software_Startups_Customer_Discovery_Activities_-_Appendix/32959769
+  - url: https://figshare.com/articles/dataset/Which_Podcasts_Actually_Book_Outside_Guests_Guest-Openness_Scores_for_314_Shows/32964893
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Validate_It_Then_Run_It/32964884
+  - url: https://figshare.com/articles/thesis/_Ver_ChatGPT5_6Sol_Paper_177_The_Structure_of_Infinite_Why_Generation_in_Structural_Psychology/32964782
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/when_the_graph_is_a_sheaf_and_routing_was_always_a_cocycle_2026/32964881
+  - url: https://figshare.com/articles/journal_contribution/The_Spectrum_Has_a_Modulus/32964887
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/when_the_architecture_is_the_theorem_categorical_deep_learning_constructively_2026/32964878
+  - url: https://figshare.com/articles/dataset/Supplementary_table_Processed_data_for_RNA-seq_using_SVCs/32964803
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/The_Defect_Is_the_Identity/32964875
+  - url: https://figshare.com/articles/poster/Pose_Tracking_for_Automated_Video-Oculography_Using_Handheld_Mobile_Devices/32964851
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,7 +81,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3370385
+  - url: https://zenodo.org/records/10263060
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -151,32 +151,24 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://figshare.com/articles/thesis/_Ver_Claude_Fable5_Paper_177_The_Structure_of_Infinite_Why_Emergence_in_Structural_Psychology/32952533
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Which_Podcasts_Actually_Book_Outside_Guests_Guest-Openness_Scores_for_314_Shows/32964893
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_Ver_ChatGPT5_6Sol_Paper_177_The_Structure_of_Infinite_Why_Generation_in_Structural_Psychology/32964782
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Spectrum_Has_a_Modulus/32964887
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/dataset/Supplementary_table_Processed_data_for_RNA-seq_using_SVCs/32964803
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Pose_Tracking_for_Automated_Video-Oculography_Using_Handheld_Mobile_Devices/32964851
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Generative_AI_in_the_Software_Startups_Customer_Discovery_Activities_-_Appendix/32959769
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Validate_It_Then_Run_It/32964884
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/when_the_graph_is_a_sheaf_and_routing_was_always_a_cocycle_2026/32964881
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/12525194
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/12524979
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7246539
@@ -187,30 +179,38 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12525194
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12524979
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7246579
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/56urh/
+  - url: https://zenodo.org/records/21236303
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21315062
+  - url: https://zenodo.org/records/21314657
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21315062
+  - url: https://zenodo.org/records/21314657
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21315609
+  - url: https://zenodo.org/records/21315875
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21315609
+  - url: https://data.mendeley.com/datasets/dwd4m4vygb/1
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: HTTP 403
 - intent: NOT
   status: verified
   candidates:
@@ -256,23 +256,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://figshare.com/articles/thesis/_Ver_Claude_Fable5_Paper_177_The_Structure_of_Infinite_Why_Emergence_in_Structural_Psychology/32952533
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Which_Podcasts_Actually_Book_Outside_Guests_Guest-Openness_Scores_for_314_Shows/32964893
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_Ver_ChatGPT5_6Sol_Paper_177_The_Structure_of_Infinite_Why_Generation_in_Structural_Psychology/32964782
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/journal_contribution/The_Spectrum_Has_a_Modulus/32964887
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/dataset/Supplementary_table_Processed_data_for_RNA-seq_using_SVCs/32964803
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Pose_Tracking_for_Automated_Video-Oculography_Using_Handheld_Mobile_Devices/32964851
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Generative_AI_in_the_Software_Startups_Customer_Discovery_Activities_-_Appendix/32959769
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Validate_It_Then_Run_It/32964884
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,113 +1,88 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelArtifactOutput"
-description: "Schema for the output of the modeling pipeline (Linear and Random Forest)."
-type: "object"
+title: "Model Artifact Schema"
+description: "Schema for the output of the modeling pipeline, including metrics and diagnostics."
+type: object
 properties:
   model_type:
-    type: "string"
+    type: string
     enum:
       - "LinearRegression"
       - "RandomForest"
-  hyperparameters:
-    type: "object"
-    properties:
-      n_estimators:
-        type: "integer"
-        minimum: 10
-      max_depth:
-        type: "integer"
-        minimum: 1
-      random_state:
-        type: "integer"
+    description: "Type of model trained."
+  hyperparams:
+    type: object
+    description: "Hyperparameters used for training."
+    additionalProperties: true
   metrics:
-    type: "object"
+    type: object
     properties:
       r2:
-        type: "number"
-        description: "Coefficient of determination."
+        type: number
+        description: "R-squared score on the test set."
       mae:
-        type: "number"
+        type: number
         description: "Mean Absolute Error."
       rmse:
-        type: "number"
+        type: number
         description: "Root Mean Squared Error."
-  feature_importances:
-    type: "object"
-    description: "Dictionary of feature names to importance scores (or coefficients)."
+    required:
+      - r2
+      - mae
+      - rmse
+  feature_importance:
+    type: object
+    description: "Map of feature names to importance scores or coefficients."
     additionalProperties:
-      type: "number"
-  collinearity_diagnostic:
-    type: "object"
-    properties:
-      high_correlation_pairs:
-        type: "array"
-        items:
-          type: "object"
-          properties:
-            variables:
-              type: "array"
-              items:
-                type: "string"
-              minItems: 2
-              maxItems: 2
-            correlation_coefficient:
-              type: "number"
-              minimum: -1
-              maximum: 1
-            classification:
-              type: "string"
-              enum:
-                - "ChemicalCoupling"
-                - "Spurious"
-                - "None"
-            interpretation:
-              type: "string"
-              description: "Descriptive framing of the joint effect."
-      max_correlation:
-        type: "number"
-        description: "Maximum absolute correlation found in the dataset."
+      type: number
+  collinearity_flags:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_pair:
+          type: array
+          items:
+            type: string
+          description: "Pair of features with high correlation."
+        correlation:
+          type: number
+          description: "Correlation coefficient (> 0.8)."
+      required:
+        - feature_pair
+        - correlation
+    description: "List of flagged collinear pairs."
   sensitivity_analysis:
-    type: "object"
-    description: "Results of the threshold sweep (0.01, 0.05, 0.1)."
+    type: object
     properties:
-      threshold_sweep:
-        type: "array"
+      thresholds_swept:
+        type: array
         items:
-          type: "object"
-          properties:
-            threshold:
-              type: "number"
-            significant_features:
-              type: "array"
-              items:
-                type: "string"
-      stability_score:
-        type: "number"
-        description: "Percentage of top-5 features stable across thresholds."
-  confounder_analysis:
-    type: "object"
-    properties:
-      status:
-        type: "string"
-        enum:
-          - "Computed"
-          - "N/A"
-      e_value:
-        type: "number"
-        nullable: true
-        description: "E-value for the observed effect (if proxies missing)."
-      r2_without_proxies:
-        type: "number"
-        nullable: true
-      r2_with_proxies:
-        type: "number"
-        nullable: true
-      conclusion:
-        type: "string"
+          type: number
+        description: "List of thresholds tested (e.g., [0.01, 0.05, 0.1])."
+      top_5_stability:
+        type: number
+        description: "Percentage of top-5 terms stable across sweeps."
+      significant_terms:
+        type: array
+        items:
+          type: string
+        description: "List of significant interaction terms."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of the training run."
+  seed:
+    type: integer
+    description: "Random seed used."
+  fallback_triggered:
+    type: boolean
+    description: "True if the grid search timed out and fallback params were used."
+  confounder_notes:
+    type: string
+    description: "Notes on unmeasured confounders and the residualization approach used."
 required:
-  - "model_type"
-  - "metrics"
-  - "feature_importances"
-  - "collinearity_diagnostic"
-  - "confounder_analysis"
+  - model_type
+  - metrics
+  - timestamp
+  - seed
 additionalProperties: false

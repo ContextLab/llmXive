@@ -1,6 +1,9 @@
-T001a [P] Create `code/` directory: 2
-T001b [P] Create `data/raw/` directory: 2
-T001c [P] Create `data/processed/` directory: 2
-T001d [P] Create `artifacts/models/` directory: 2
-T001e [P] Create `artifacts/reports/` directory: 2
-T001f [P] Create `tests/unit/` directory: 2
+? 'T001 Create project structure per `plan.md` (directories: `code/`, `data/raw/`,
+  `data/processed/`, `data/artifacts/`, `tests/`, `state/`)'
+: 1
+T004 Implement `code/config.py` with paths, `GITHUB_ACTIONS_TIMEOUT=5h`, and hyperparameter grids: 1
+? T005 [P] Implement `code/main.py` orchestration entry point with hard timeout enforcement
+  (signal/alarm or `signal` module) and runner verification (check `ubuntu-latest`,
+  no GPU, CPU count)
+: 1
+T006 [P] Create `code/__init__.py` and `tests/__init__.py`: 1

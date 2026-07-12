@@ -1,1 +1,1 @@
-# Data module package
+"""Data module initialization."""
