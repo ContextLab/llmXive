@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-863-llmxive-follow-up-extending-joyai-vl-int
-last_run_id: 0cc4d9d9-fd2b-4631-a836-5b1ed11ff92c
+last_run_id: 13cc7f52-674c-4b49-ad52-3f2ab98d3086
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "JoyAI-VL-Interaction: Real-Time Vision-Language
   Interaction Intelligen"'
-updated_at: '2026-07-06T08:03:41.860965Z'
+updated_at: '2026-07-12T01:54:14.070959Z'
