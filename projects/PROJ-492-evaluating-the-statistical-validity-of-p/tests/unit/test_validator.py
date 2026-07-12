@@ -1,381 +1,467 @@
 """
-Unit tests for the validator module (src/audit/validator.py).
-
-This module tests the following requirements from T025/T027:
-1. Absolute p-difference > 0.05 triggers inconsistency flag.
-2. Relative effect-size difference > 5% triggers inconsistency flag.
-3. Inequality handling (p-value reported as < or >) is processed correctly.
-4. Sample-size mismatch triggers a data_quality_warning but excludes from aggregate prevalence (T025c).
+Unit tests for the validator module (T025).
+Covers:
+- Absolute p-difference > 0.05 flagging
+- Relative effect-size > 5% flagging
+- Inequality p-value handling (flagging when reported p is 'p < 0.05' etc.)
+- Sample-size mismatch detection with data_quality_warning generation
 """
 
-import pytest
+import json
 import math
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, field
+import os
+import sys
+import tempfile
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-# Import the validator logic. Based on the API surface, we import from src/audit/validator.
-# We assume the validator module exposes a function `validate_consistency` or similar.
-# Since the exact function signature isn't fully detailed in the prompt's API surface for validator.py
-# (it lists `main` and `AuditRecord` usage), we will implement the test against the
-# expected logic described in the task: checking thresholds on reconstructed vs reported values.
-#
-# To ensure this test runs without a full pipeline, we will mock the `AuditRecord` creation
-# or import it if available. The prompt shows `AuditRecord` is defined in `src/models/data_models.py`.
-# The `reconstructor.py` creates `AuditRecord` objects.
-# The `validator.py` likely takes a list of `AuditRecord` or `ABSummary` and returns validated records.
+import pytest
 
-try:
-    from code.src.audit.validator import validate_consistency, check_thresholds
-except ImportError:
-    # Fallback if specific functions aren't exposed, we will define the logic inline for testing
-    # to ensure the test file is self-contained regarding the *logic* being tested,
-    # while still importing the module if possible.
-    validate_consistency = None
-    check_thresholds = None
+# Ensure project root is on path
+_project_root = Path(__file__).resolve().parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
+from code.src.audit.validator import (
+    check_p_value_consistency,
+    check_effect_size_consistency,
+    handle_inequality_p_value,
+    check_sample_size_consistency,
+    validate_single_record,
+    run_validation,
+    main,
+)
 from code.src.models.data_models import ABTestSummary, AuditRecord
-from code.src.config import SEED
+from code.src.utils.logger import get_default_logger, AuditLogger
 
 
-# --- Fixtures and Helper Functions ---
+# --------------------------------------------------------------------------
+# Fixtures
+# --------------------------------------------------------------------------
 
 @pytest.fixture
-def valid_binary_summary() -> ABTestSummary:
-    """A summary with consistent binary outcome data."""
+def logger_fixture():
+    """Provide a logger instance for tests."""
+    return get_default_logger()
+
+
+@pytest.fixture
+def binary_summary_consistent() -> ABTestSummary:
+    """
+    A binary outcome summary that is internally consistent:
+    - Baseline: 1000, 100 events -> p_b = 0.10
+    - Variant: 1000, 150 events -> p_v = 0.15
+    - Reported p-value: 0.001 (z-test approximation)
+    - Effect size (absolute difference): 0.05 (5%)
+    """
     return ABTestSummary(
         url="https://example.com/test1",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=1000,
-        control_successes=100,
-        treatment_successes=120,
-        reported_p_value=0.03,
-        reported_effect_size=0.02, # 2% lift
-        reported_confidence_interval_lower=0.005,
-        reported_confidence_interval_upper=0.035,
-        domain="tech",
-        year=2023
+        test_type="binary",
+        baseline_n=1000,
+        baseline_events=100,
+        variant_n=1000,
+        variant_events=150,
+        reported_p_value=0.001,
+        reported_effect_size=0.05,
+        reported_effect_size_type="absolute",
+        baseline_rate=0.10,
+        variant_rate=0.15,
     )
 
+
 @pytest.fixture
-def valid_continuous_summary() -> ABTestSummary:
-    """A summary with consistent continuous outcome data."""
+def binary_summary_p_mismatch() -> ABTestSummary:
+    """
+    Same as binary_summary_consistent but with a reported p-value that
+    differs significantly from the reconstructed one (> 0.05 absolute diff).
+    """
     return ABTestSummary(
         url="https://example.com/test2",
-        outcome_type="continuous",
-        control_n=500,
-        treatment_n=500,
-        control_mean=10.0,
-        treatment_mean=10.5,
-        control_std=2.0,
-        treatment_std=2.0,
-        reported_p_value=0.01,
-        reported_effect_size=0.25, # Cohen's d or similar
-        reported_confidence_interval_lower=0.05,
-        reported_confidence_interval_upper=0.45,
-        domain="finance",
-        year=2022
+        test_type="binary",
+        baseline_n=1000,
+        baseline_events=100,
+        variant_n=1000,
+        variant_events=150,
+        reported_p_value=0.200,  # Large mismatch vs reconstructed ~0.001
+        reported_effect_size=0.05,
+        reported_effect_size_type="absolute",
+        baseline_rate=0.10,
+        variant_rate=0.15,
     )
 
+
 @pytest.fixture
-def inconsistent_p_summary() -> ABTestSummary:
-    """A summary where reconstructed p-value differs significantly (>0.05) from reported."""
-    # If reported is 0.01 but reconstruction yields 0.10, diff is 0.09 > 0.05
+def binary_summary_effect_size_mismatch() -> ABTestSummary:
+    """
+    Same as binary_summary_consistent but with a reported effect size
+    that differs significantly from the reconstructed one (> 5% relative diff).
+    """
     return ABTestSummary(
         url="https://example.com/test3",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=1000,
-        control_successes=100,
-        treatment_successes=105, # Very small difference
-        reported_p_value=0.01,   # Reported as significant
-        reported_effect_size=0.005,
-        reported_confidence_interval_lower=-0.01,
-        reported_confidence_interval_upper=0.02,
-        domain="health",
-        year=2021
+        test_type="binary",
+        baseline_n=1000,
+        baseline_events=100,
+        variant_n=1000,
+        variant_events=150,
+        reported_p_value=0.001,
+        reported_effect_size=0.08,  # 60% relative diff from 0.05
+        reported_effect_size_type="absolute",
+        baseline_rate=0.10,
+        variant_rate=0.15,
     )
 
+
 @pytest.fixture
-def inconsistent_effect_size_summary() -> ABTestSummary:
-    """A summary where reconstructed effect size differs significantly (>5%) from reported."""
-    # Reported 5% lift, actual calculated lift is 15% (diff 10% > 5%)
+def binary_summary_inequality_p() -> ABTestSummary:
+    """
+    A binary summary where the reported p-value is an inequality (e.g. 'p < 0.05').
+    """
     return ABTestSummary(
         url="https://example.com/test4",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=1000,
-        control_successes=100,
-        treatment_successes=200, # 10% absolute lift (10% vs 20%)
-        reported_p_value=0.001,
-        reported_effect_size=0.05, # Reported 5%
-        reported_confidence_interval_lower=0.03,
-        reported_confidence_interval_upper=0.07,
-        domain="retail",
-        year=2020
+        test_type="binary",
+        baseline_n=1000,
+        baseline_events=100,
+        variant_n=1000,
+        variant_events=150,
+        reported_p_value="p < 0.05",
+        reported_effect_size=0.05,
+        reported_effect_size_type="absolute",
+        baseline_rate=0.10,
+        variant_rate=0.15,
     )
 
+
 @pytest.fixture
-def inequality_p_summary() -> ABTestSummary:
-    """A summary with an inequality p-value (e.g., p < 0.001)."""
+def binary_summary_sample_size_mismatch() -> ABTestSummary:
+    """
+    A binary summary where the reported sample sizes in the summary fields
+    do not match the computed totals from events/rates (simulating a data
+    quality issue).
+    """
     return ABTestSummary(
         url="https://example.com/test5",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=1000,
-        control_successes=100,
-        treatment_successes=250,
-        reported_p_value=0.0001, # Treated as float 0.0001
-        reported_effect_size=0.15,
-        reported_confidence_interval_lower=0.10,
-        reported_confidence_interval_upper=0.20,
-        domain="tech",
-        year=2023
+        test_type="binary",
+        baseline_n=1000,
+        baseline_events=100,
+        variant_n=1000,
+        variant_events=150,
+        reported_p_value=0.001,
+        reported_effect_size=0.05,
+        reported_effect_size_type="absolute",
+        baseline_rate=0.10,
+        variant_rate=0.15,
+        # Intentionally set a mismatched field if the model allows,
+        # or we simulate by passing inconsistent data to the validator
+        # that expects consistency.
+        # Note: The ABTestSummary model may enforce consistency via Pydantic.
+        # If so, we simulate mismatch by passing a summary where the
+        # validator logic detects a discrepancy (e.g. rate vs n/events).
     )
+
 
 @pytest.fixture
-def sample_size_mismatch_summary() -> ABTestSummary:
-    """A summary where control and treatment N are mismatched or inconsistent with other fields."""
-    # Simulating a case where Ns are reported as equal but raw data suggests otherwise,
-    # or simply a flag for mismatched Ns in the context of the validator.
-    # The task specifically mentions "sample-size mismatch with data_quality_warning".
+def continuous_summary_consistent() -> ABTestSummary:
+    """
+    A continuous outcome summary that is internally consistent:
+    - Baseline: n=100, mean=10, std=2
+    - Variant: n=100, mean=11, std=2.1
+    - Reconstructed Welch t-test p-value ~ 0.003
+    - Effect size (Cohen's d) ~ 0.49
+    - Reported p-value: 0.003
+    - Reported effect size: 0.49
+    """
     return ABTestSummary(
         url="https://example.com/test6",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=1000,
-        control_successes=100,
-        treatment_successes=120,
-        reported_p_value=0.04,
-        reported_effect_size=0.02,
-        reported_confidence_interval_lower=0.005,
-        reported_confidence_interval_upper=0.035,
-        domain="tech",
-        year=2023,
-        # We assume the validator has access to a flag or internal check for N mismatch.
-        # For this test, we will simulate the condition via a specific attribute if available,
-        # or test the logic that flags it.
+        test_type="continuous",
+        baseline_n=100,
+        baseline_mean=10.0,
+        baseline_std=2.0,
+        variant_n=100,
+        variant_mean=11.0,
+        variant_std=2.1,
+        reported_p_value=0.003,
+        reported_effect_size=0.49,
+        reported_effect_size_type="cohens_d",
+        baseline_rate=None,
+        variant_rate=None,
     )
 
-# --- Test Cases ---
 
-def test_validate_consistency_absolute_p_difference():
+@pytest.fixture
+def continuous_summary_p_mismatch() -> ABTestSummary:
     """
-    Test T027-1: Absolute p-difference > 0.05 triggers inconsistency.
+    Same as continuous_summary_consistent but with a reported p-value
+    that differs significantly from the reconstructed one.
     """
-    summary = ABTestSummary(
-        url="https://test.com/p-diff",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=1000,
-        control_successes=100,
-        treatment_successes=105, # Small difference -> high p-value
-        reported_p_value=0.01,   # Low reported p-value
-        reported_effect_size=0.005,
-        reported_confidence_interval_lower=-0.01,
-        reported_confidence_interval_upper=0.02,
-        domain="test",
-        year=2023
+    return ABTestSummary(
+        url="https://example.com/test7",
+        test_type="continuous",
+        baseline_n=100,
+        baseline_mean=10.0,
+        baseline_std=2.0,
+        variant_n=100,
+        variant_mean=11.0,
+        variant_std=2.1,
+        reported_p_value=0.200,  # Large mismatch
+        reported_effect_size=0.49,
+        reported_effect_size_type="cohens_d",
+        baseline_rate=None,
+        variant_rate=None,
     )
 
-    # We need to reconstruct the p-value to compare.
-    # Since we can't easily import the reconstructor here without circular deps or setup,
-    # we will mock the reconstruction result or assume the validator function handles it.
-    # Given the task is to test the *validator*, we assume the validator receives
-    # the reconstructed values or computes them.
-    # Let's assume the validator function `validate_consistency` takes a summary and
-    # returns an AuditRecord with flags.
 
-    # Mocking the reconstruction logic for the test:
-    # Actual p-value for 100/1000 vs 105/1000 is approx 0.66 (two-proportion z-test)
-    # Reported is 0.01. Diff = 0.65 > 0.05.
-    reconstructed_p = 0.66
-    reported_p = summary.reported_p_value
-    p_diff = abs(reconstructed_p - reported_p)
+# --------------------------------------------------------------------------
+# Tests: p-value consistency
+# --------------------------------------------------------------------------
 
-    assert p_diff > 0.05, "Test setup: p-difference must be > 0.05"
-
-    # If the validator module is importable and has the logic:
-    if validate_consistency:
-        record = validate_consistency(summary, reconstructed_p=reconstructed_p)
-        assert record.is_inconsistent is True
-        assert "p-value" in record.inconsistency_reasons
-    else:
-        # Inline validation logic for the test to pass without full module import
-        # This ensures the test logic is verified even if the module isn't fully linked yet.
-        is_inconsistent = p_diff > 0.05
-        reasons = []
-        if is_inconsistent:
-            reasons.append(f"Absolute p-difference ({p_diff:.4f}) > 0.05")
-        
-        assert is_inconsistent
-        assert len(reasons) > 0
-
-def test_validate_consistency_effect_size_difference():
+def test_p_value_consistency_pass(logger_fixture):
     """
-    Test T027-2: Relative effect-size difference > 5% triggers inconsistency.
+    When the absolute difference between reported and reconstructed p-value
+    is <= 0.05, the check should pass (no flag).
     """
+    summary = binary_summary_consistent()
+    # Reconstructed p-value for this data is ~0.001 (z-test approx)
+    # reported_p_value = 0.001
+    # diff = 0
+    result = check_p_value_consistency(summary, logger_fixture)
+    assert result["flagged"] is False
+    assert "p-value" not in result.get("reason", "")
+
+
+def test_p_value_consistency_fail(logger_fixture):
+    """
+    When the absolute difference between reported and reconstructed p-value
+    is > 0.05, the check should flag and include 'p-value' in the reason.
+    """
+    summary = binary_summary_p_mismatch()
+    # Reconstructed ~0.001, reported 0.200 -> diff ~0.199 > 0.05
+    result = check_p_value_consistency(summary, logger_fixture)
+    assert result["flagged"] is True
+    assert "p-value" in result.get("reason", "").lower()
+
+
+# --------------------------------------------------------------------------
+# Tests: effect-size consistency
+# --------------------------------------------------------------------------
+
+def test_effect_size_consistency_pass(logger_fixture):
+    """
+    When the relative difference between reported and reconstructed effect size
+    is <= 5%, the check should pass.
+    """
+    summary = binary_summary_consistent()
+    # Reconstructed effect size (absolute diff in rates) = 0.05
+    # reported_effect_size = 0.05
+    # relative diff = 0
+    result = check_effect_size_consistency(summary, logger_fixture)
+    assert result["flagged"] is False
+    assert "effect size" not in result.get("reason", "")
+
+
+def test_effect_size_consistency_fail(logger_fixture):
+    """
+    When the relative difference between reported and reconstructed effect size
+    is > 5%, the check should flag and include 'effect size' in the reason.
+    """
+    summary = binary_summary_effect_size_mismatch()
+    # Reconstructed = 0.05, reported = 0.08
+    # relative diff = |0.08 - 0.05| / 0.05 = 0.6 = 60% > 5%
+    result = check_effect_size_consistency(summary, logger_fixture)
+    assert result["flagged"] is True
+    assert "effect size" in result.get("reason", "").lower()
+
+
+# --------------------------------------------------------------------------
+# Tests: inequality p-value handling
+# --------------------------------------------------------------------------
+
+def test_inequality_p_value_handling_flagged(logger_fixture):
+    """
+    When the reported p-value is an inequality (e.g. 'p < 0.05'),
+    the validator should flag it and include 'inequality' in the reason.
+    """
+    summary = binary_summary_inequality_p()
+    result = handle_inequality_p_value(summary, logger_fixture)
+    assert result["flagged"] is True
+    assert "inequality" in result.get("reason", "").lower()
+
+
+def test_inequality_p_value_handling_not_flagged(logger_fixture):
+    """
+    When the reported p-value is a numeric value, the check should not flag.
+    """
+    summary = binary_summary_consistent()
+    result = handle_inequality_p_value(summary, logger_fixture)
+    assert result["flagged"] is False
+
+
+# --------------------------------------------------------------------------
+# Tests: sample-size mismatch detection
+# --------------------------------------------------------------------------
+
+def test_sample_size_consistency_pass(logger_fixture):
+    """
+    When baseline_n, baseline_events, and baseline_rate are consistent
+    (n * rate ≈ events), the check should pass.
+    """
+    summary = binary_summary_consistent()
+    # 1000 * 0.10 = 100 events -> consistent
+    result = check_sample_size_consistency(summary, logger_fixture)
+    assert result["flagged"] is False
+    assert "sample size" not in result.get("reason", "").lower()
+
+
+def test_sample_size_consistency_fail(logger_fixture):
+    """
+    When baseline_n, baseline_events, and baseline_rate are inconsistent,
+    the check should flag and include 'sample size' in the reason.
+    """
+    # Construct a summary with inconsistent data
     summary = ABTestSummary(
-        url="https://test.com/es-diff",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=1000,
-        control_successes=100,
-        treatment_successes=200, # 10% absolute lift
+        url="https://example.com/test_inconsistent",
+        test_type="binary",
+        baseline_n=1000,
+        baseline_events=100,
+        variant_n=1000,
+        variant_events=150,
         reported_p_value=0.001,
-        reported_effect_size=0.05, # Reported 5%
-        reported_confidence_interval_lower=0.03,
-        reported_confidence_interval_upper=0.07,
-        domain="test",
-        year=2023
+        reported_effect_size=0.05,
+        reported_effect_size_type="absolute",
+        baseline_rate=0.20,  # 1000 * 0.20 = 200, but events=100 -> inconsistent
+        variant_rate=0.15,
     )
+    result = check_sample_size_consistency(summary, logger_fixture)
+    assert result["flagged"] is True
+    assert "sample size" in result.get("reason", "").lower()
 
-    # Calculate actual effect size (absolute lift)
-    control_rate = summary.control_successes / summary.control_n
-    treatment_rate = summary.treatment_successes / summary.treatment_n
-    actual_effect_size = treatment_rate - control_rate # 0.20 - 0.10 = 0.10
-    
-    reported_effect_size = summary.reported_effect_size # 0.05
-    
-    # Relative difference check: |actual - reported| / reported > 0.05?
-    # Or absolute difference > 0.05? The task says "relative effect-size > 5%".
-    # Usually this means the magnitude of the difference is > 5% of the reported value,
-    # or the absolute difference in percentage points is > 5%.
-    # Given "absolute p-difference" is separate, "relative effect-size" likely means:
-    # |actual - reported| > 0.05 (5 percentage points) OR |actual - reported|/reported > 0.05.
-    # Let's assume absolute difference in percentage points > 0.05 based on context of "5%".
-    
-    abs_diff = abs(actual_effect_size - reported_effect_size) # |0.10 - 0.05| = 0.05
-    
-    # To ensure > 5%, let's make it 0.06
-    summary.reported_effect_size = 0.04 # |0.10 - 0.04| = 0.06 > 0.05
-    abs_diff = abs(actual_effect_size - summary.reported_effect_size)
-    
-    assert abs_diff > 0.05, "Test setup: effect size difference must be > 0.05"
 
-    if validate_consistency:
-        record = validate_consistency(summary, reconstructed_effect_size=actual_effect_size)
-        assert record.is_inconsistent is True
-        assert "effect-size" in record.inconsistency_reasons
-    else:
-        is_inconsistent = abs_diff > 0.05
-        assert is_inconsistent
+# --------------------------------------------------------------------------
+# Tests: full record validation
+# --------------------------------------------------------------------------
 
-def test_validate_consistency_inequality_handling():
+def test_validate_single_record_all_pass(logger_fixture):
     """
-    Test T027-3: Inequality handling (p < 0.001) is processed correctly.
+    A fully consistent record should produce an AuditRecord with no flags.
     """
-    # The validator should handle cases where reported_p_value is very small or represented as inequality.
-    # If the input is a string "p < 0.001", it should be parsed.
-    # If it's a float, it should be treated as that value.
-    
-    summary = ABTestSummary(
-        url="https://test.com/inequality",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=1000,
-        control_successes=100,
-        treatment_successes=250,
-        reported_p_value=0.0001, # Parsed from "p < 0.001"
-        reported_effect_size=0.15,
-        reported_confidence_interval_lower=0.10,
-        reported_confidence_interval_upper=0.20,
-        domain="test",
-        year=2023
-    )
+    summary = binary_summary_consistent()
+    audit_record = validate_single_record(summary, logger_fixture)
+    assert isinstance(audit_record, AuditRecord)
+    assert audit_record.url == summary.url
+    assert audit_record.is_consistent is True
+    assert audit_record.data_quality_warning is False
+    assert audit_record.flags == []
 
-    # Reconstruct p-value for 100/1000 vs 250/1000 -> very small p-value (approx 0)
-    # Reconstructed ~ 1e-10
-    reconstructed_p = 1e-10
-    
-    # Check if the validator handles the small value without error
-    # and correctly flags consistency if the reconstructed is also small.
-    # If reconstructed is 0.0001 and reported is 0.0001, diff is 0.
-    
-    if validate_consistency:
-        record = validate_consistency(summary, reconstructed_p=reconstructed_p)
-        # Should be consistent if both are very small
-        assert record.is_inconsistent is False 
-    else:
-        # Inline check
-        diff = abs(reconstructed_p - summary.reported_p_value)
-        assert diff < 0.05 # Should be consistent
 
-def test_validate_consistency_sample_size_mismatch_warning():
+def test_validate_single_record_p_value_flag(logger_fixture):
     """
-    Test T027-4: Sample-size mismatch triggers data_quality_warning and is excluded from prevalence.
+    A record with p-value mismatch should be flagged and is_consistent=False.
+    """
+    summary = binary_summary_p_mismatch()
+    audit_record = validate_single_record(summary, logger_fixture)
+    assert audit_record.is_consistent is False
+    assert "p-value" in str(audit_record.flags).lower()
+
+
+def test_validate_single_record_effect_size_flag(logger_fixture):
+    """
+    A record with effect-size mismatch should be flagged and is_consistent=False.
+    """
+    summary = binary_summary_effect_size_mismatch()
+    audit_record = validate_single_record(summary, logger_fixture)
+    assert audit_record.is_consistent is False
+    assert "effect size" in str(audit_record.flags).lower()
+
+
+def test_validate_single_record_inequality_flag(logger_fixture):
+    """
+    A record with inequality p-value should be flagged.
+    """
+    summary = binary_summary_inequality_p()
+    audit_record = validate_single_record(summary, logger_fixture)
+    assert audit_record.is_consistent is False
+    assert "inequality" in str(audit_record.flags).lower()
+
+
+def test_validate_single_record_sample_size_warning(logger_fixture):
+    """
+    A record with sample-size inconsistency should have data_quality_warning=True.
     """
     summary = ABTestSummary(
-        url="https://test.com/mismatch",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=500, # Mismatch: treatment N is half of control, but maybe reported as equal elsewhere?
-        control_successes=100,
-        treatment_successes=50,
-        reported_p_value=0.5,
-        reported_effect_size=0.0,
-        reported_confidence_interval_lower=-0.05,
-        reported_confidence_interval_upper=0.05,
-        domain="test",
-        year=2023
+        url="https://example.com/test_inconsistent",
+        test_type="binary",
+        baseline_n=1000,
+        baseline_events=100,
+        variant_n=1000,
+        variant_events=150,
+        reported_p_value=0.001,
+        reported_effect_size=0.05,
+        reported_effect_size_type="absolute",
+        baseline_rate=0.20,  # inconsistent
+        variant_rate=0.15,
     )
-    
-    # Simulate a condition where the validator detects a mismatch
-    # For example, if the raw data suggests Ns should be equal but aren't, or if
-    # the summary has a flag `sample_size_mismatch = True`.
-    # Since ABTestSummary doesn't have that field in the prompt, we assume the validator
-    # checks internal consistency (e.g., if control_n != treatment_n and it's a specific test type).
-    # Or we assume the validator receives a flag.
-    
-    # Let's test the logic: if a mismatch is detected, a warning is generated.
-    # We will simulate the detection.
-    detected_mismatch = (summary.control_n != summary.treatment_n) and (summary.outcome_type == "binary")
-    
-    assert detected_mismatch, "Test setup: mismatch detected"
+    audit_record = validate_single_record(summary, logger_fixture)
+    assert audit_record.data_quality_warning is True
+    assert "sample size" in str(audit_record.flags).lower()
 
-    if validate_consistency:
-        record = validate_consistency(summary, check_sample_size=True)
-        # The record should have a warning
-        assert record.data_quality_warning is True
-        # And it should be flagged for exclusion (maybe via a specific flag or reason)
-        assert "sample-size" in record.inconsistency_reasons or record.is_excluded_from_prevalence
-    else:
-        # Inline logic
-        assert detected_mismatch
-        # Logic: if mismatch, set warning flag
-        data_quality_warning = True
-        assert data_quality_warning
 
-def test_validate_consistency_no_false_positive():
+# --------------------------------------------------------------------------
+# Tests: run_validation (batch)
+# --------------------------------------------------------------------------
+
+def test_run_validation_batch(logger_fixture):
     """
-    Test T027-5: A consistent summary should NOT be flagged.
+    Run validation on a list of summaries and verify the output list
+    contains the expected number of AuditRecord objects with correct flags.
     """
-    summary = ABTestSummary(
-        url="https://test.com/consistent",
-        outcome_type="binary",
-        control_n=1000,
-        treatment_n=1000,
-        control_successes=100,
-        treatment_successes=120,
-        reported_p_value=0.10,
-        reported_effect_size=0.02,
-        reported_confidence_interval_lower=0.005,
-        reported_confidence_interval_upper=0.035,
-        domain="test",
-        year=2023
-    )
-    
-    # Reconstructed p-value for 100/1000 vs 120/1000 is approx 0.10
-    reconstructed_p = 0.10
-    reconstructed_es = 0.02
-    
-    if validate_consistency:
-        record = validate_consistency(summary, reconstructed_p=reconstructed_p, reconstructed_effect_size=reconstructed_es)
-        assert record.is_inconsistent is False
-        assert record.data_quality_warning is False
-    else:
-        p_diff = abs(reconstructed_p - summary.reported_p_value)
-        es_diff = abs(reconstructed_es - summary.reported_effect_size)
-        
-        assert p_diff <= 0.05
-        assert es_diff <= 0.05
+    summaries = [
+        binary_summary_consistent(),
+        binary_summary_p_mismatch(),
+        binary_summary_effect_size_mismatch(),
+        binary_summary_inequality_p(),
+    ]
+    audit_records = run_validation(summaries, logger_fixture)
+    assert len(audit_records) == len(summaries)
+    # Expected: 1 consistent, 3 inconsistent
+    consistent_count = sum(1 for r in audit_records if r.is_consistent)
+    assert consistent_count == 1
+
+
+# --------------------------------------------------------------------------
+# Tests: main (CLI entry point)
+# --------------------------------------------------------------------------
+
+def test_main_writes_output(tmp_path: Path, logger_fixture):
+    """
+    The main() entry point should read an input JSON of summaries,
+    run validation, and write an audit_report.json to the specified output path.
+    """
+    # Prepare input data
+    summaries = [
+        binary_summary_consistent().model_dump(),
+        binary_summary_p_mismatch().model_dump(),
+    ]
+    input_path = tmp_path / "input_summaries.json"
+    with open(input_path, "w", encoding="utf-8") as f:
+        json.dump(summaries, f)
+
+    output_path = tmp_path / "audit_report.json"
+
+    # Run main
+    sys.argv = [
+        "test_main",
+        "--input", str(input_path),
+        "--output", str(output_path),
+    ]
+    main()
+
+    # Verify output file exists and contains valid JSON
+    assert output_path.exists()
+    with open(output_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Check structure
+    assert isinstance(data, list)
+    assert len(data) == 2
+    # First record should be consistent, second inconsistent
+    assert data[0]["is_consistent"] is True
+    assert data[1]["is_consistent"] is False

@@ -209,6 +209,11 @@
   repository identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
   **DEPENDS ON:** T020c. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
 : 1
+? 'T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL,
+  repository identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
+  **DEPENDS ON:** T020c. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+  <!-- FAILED: unspecified -->'
+: 1
 ? "T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL,\
   \ repository identifier, and fetch timestamp [UNRESOLVED-CLAIM: c_3afd62b7 \u2014\
   \ status=not_enough_info] (run validation script `tests/unit/test_provenance_schema.py`).\
@@ -343,12 +348,21 @@
 : 1
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\
+  \ required by FR\u2011012. **DEPENDS ON:** T025."
+: 1
+? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
+  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
   \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_3c394da2 \u2014 status=not_enough_info]\
   \ **DEPENDS ON:** T025."
 : 1
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\
   \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_43b4c2ec \u2014 status=not_enough_info]\
+  \ **DEPENDS ON:** T025."
+: 1
+? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
+  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
+  \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_4a1b573f \u2014 status=not_enough_info]\
   \ **DEPENDS ON:** T025."
 : 1
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to verify that any\
@@ -549,6 +563,11 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   \ generation (tests/unit/test_validator.py) (verify all tests pass [UNRESOLVED-CLAIM:\
   \ c_aa96c053 \u2014 status=not_enough_info]) [DEPENDS ON: T025]. <!-- FAILED: unspecified\
   \ -->"
+: 1
+? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05, effect\u2011\
+  size > 5\u202F%, inequality handling, sample\u2011size mismatch with data_quality_warning\
+  \ generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON:\
+  \ T025]. <!-- FAILED: unspecified -->"
 : 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
