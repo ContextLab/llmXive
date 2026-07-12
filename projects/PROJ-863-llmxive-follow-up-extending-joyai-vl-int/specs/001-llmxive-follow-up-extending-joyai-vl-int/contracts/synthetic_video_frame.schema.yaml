@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticVideoFrame"
+description: "Schema for a single frame of the generated video stream with ground-truth labels."
+type: "object"
+properties:
+  frame_id:
+    type: "string"
+    description: "Unique identifier for the frame."
+  timestamp:
+    type: "number"
+    description: "Timestamp in seconds from the start of the video."
+  visual_data_path:
+    type: "string"
+    description: "Relative path to the image file in data/raw/."
+  ground_truth_label:
+    type: "string"
+    enum:
+      - "critical"
+      - "silence"
+    description: "Ground truth label derived exclusively from visual events."
+  event_type:
+    type: "string"
+    description: "Type of visual event (e.g., 'fall', 'alarm', 'conversation')."
+  confidence_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence score of the visual detector."
+  source:
+    type: "string"
+    const: "synthetic_generator"
+    description: "Source of the data."
+  noise_applied:
+    type: "boolean"
+    description: "True if temporal jitter or label noise was applied to this frame."
+required:
+  - frame_id
+  - timestamp
+  - visual_data_path
+  - ground_truth_label
+  - event_type
+  - confidence_score
+  - source
+  - noise_applied
+additionalProperties: false

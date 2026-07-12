@@ -1,0 +1,19 @@
+# Development and testing dependencies for llmXive pipeline
+# These are additional to the base requirements.txt
+
+# Testing framework
+pytest>=7.4.0
+pytest-timeout>=2.2.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.1
+
+# Code quality
+ruff>=0.1.0
+black>=23.0.0
+
+# Optional: for better output formatting
+pytest-sugar>=0.9.6
+
+# Optional: for memory profiling in tests
+memory-profiler>=0.61.0
+psutil>=5.9.0

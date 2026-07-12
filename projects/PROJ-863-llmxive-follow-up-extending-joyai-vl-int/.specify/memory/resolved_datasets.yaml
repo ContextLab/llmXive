@@ -1,0 +1,175 @@
+resolved_at: '2026-07-12T02:06:51.577427+00:00'
+datasets:
+- intent: VLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MMVP/MMVP_VLM/resolve/main/Questions.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9932
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Llama-Nemotron-VLM-Dataset-v1/resolve/main/captioning_1.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-VLM-Dataset-v2/resolve/main/activity_net_1/activity_net_1.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/MMVP/MMVP_VLM/resolve/main/Questions.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nvidia/Llama-Nemotron-VLM-Dataset-v1/resolve/main/captioning_1.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-VLM-Dataset-v2/resolve/main/activity_net_1/activity_net_1.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Madonna_University_2026_2027_Application_07047903330_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32966237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_RNorthWest_University_Sokoto_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purchas/32966228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Madonna_University_Okija_2026_2027_Application_07047903330_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32966225
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Covenant_University_2026_2027_Application_07047903330_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32966222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Rayhaan_University_Kebbihas_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purchase_registrat/32966213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11262689
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14332541
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14510331
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19830370
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6951581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/5dgxvr68sz/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/5dgxvr68sz
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21315532
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21315532
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VL-Interaction
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6a35605763a799204f741823/6e4f7bff9878d149bde5acbc0fa3bba0bc5b1c802eb9cfb370305574488139a6?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27background.json%3B+filename%3D%22background.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1783825578&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEzNTYwNTc2M2E3OTkyMDRmNzQxODIzLzZlNGY3YmZmOTg3OGQxNDliZGU1YWNiYzBmYTNiYmEwYmM1YjFjODAyZWI5Y2ZiMzcwMzA1NTc0NDg4MTM5YTZcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YmFja2dyb3VuZC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyYmFja2dyb3VuZC5qc29uJTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzgyNTU3OH19fV19&Signature=MEYCIQDa8S59xp-46BJMzoLMKLZSb-7zTxGtpb~hcRFzTkZp3QIhAPG9W8jQXKl1O-VPuaoqxoIeTs1aT4-7sd-Z1v-TWDD1&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6a4b0fa1cc30720834162e56/6e4f7bff9878d149bde5acbc0fa3bba0bc5b1c802eb9cfb370305574488139a6?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27background.json%3B+filename%3D%22background.json%22%3B&X-Xet-Cas-Uid=public&user_id=public&response-content-type=application%2Fjson&Expires=1783825580&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE0YjBmYTFjYzMwNzIwODM0MTYyZTU2LzZlNGY3YmZmOTg3OGQxNDliZGU1YWNiYzBmYTNiYmEwYmM1YjFjODAyZWI5Y2ZiMzcwMzA1NTc0NDg4MTM5YTZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YmFja2dyb3VuZC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyYmFja2dyb3VuZC5qc29uJTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzgyNTU4MH19fV19&Signature=MEUCIQDQmWTPoTMEbmQz0SZbTgpolPYnXC2HLjSxVnkOcsWAlQIgLTrIGfjRt0kC07Mh6BCP~QqdrlIVnGYs7SQmStiWJUY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Igbinedion_University_Okada_2026_2027_Application_07047903330_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32966240
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Madonna_University_2026_2027_Application_07047903330_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32966237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_RNorthWest_University_Sokoto_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purchas/32966228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Madonna_University_Okija_2026_2027_Application_07047903330_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32966225
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Covenant_University_2026_2027_Application_07047903330_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32966222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10338816
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10366482
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10264157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10377405
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10345482
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313794
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313794
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20599103
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19363040
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19363040
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

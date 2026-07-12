@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T10:42:48.927779Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-863-llmxive-follow-up-extending-joyai-vl-int
-last_run_id: 13cc7f52-674c-4b49-ad52-3f2ab98d3086
+last_run_id: 0acfa659-e3ec-45a5-8f9d-e65c2e78539a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/specs/001-llmxive-follow-up-extending-joyai-vl-int
 title: 'llmXive follow-up: extending "JoyAI-VL-Interaction: Real-Time Vision-Language
   Interaction Intelligen"'
-updated_at: '2026-07-12T01:54:14.070959Z'
+updated_at: '2026-07-12T02:39:46.837151Z'

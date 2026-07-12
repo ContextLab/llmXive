@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InternalStateVector"
+description: "Schema for extracted hidden state and attention map data."
+type: "object"
+properties:
+  frame_id:
+    type: "string"
+    description: "Links to the SyntheticVideoFrame."
+  hidden_state_embedding:
+    type: "array"
+    items:
+      type: "number"
+    description: "Flattened hidden state embedding vector."
+  attention_map:
+    type: "array"
+    items:
+      type: "number"
+    description: "Flattened attention weights."
+  layer_index:
+    type: "integer"
+    description: "Layer index from the VLM."
+  extraction_timestamp:
+    type: "number"
+    description: "Timestamp of extraction."
+  dimensions:
+    type: "object"
+    properties:
+      hidden:
+        type: "integer"
+      heads:
+        type: "integer"
+      seq_len:
+        type: "integer"
+    required:
+      - hidden
+      - heads
+      - seq_len
+    description: "Dimensions of the extracted vectors."
+required:
+  - frame_id
+  - hidden_state_embedding
+  - attention_map
+  - layer_index
+  - extraction_timestamp
+  - dimensions
+additionalProperties: false

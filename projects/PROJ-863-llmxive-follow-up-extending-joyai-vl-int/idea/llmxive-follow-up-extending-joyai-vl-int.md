@@ -9,11 +9,11 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-How does the representational geometry of intermediate layers in proactive vision-language models evolve in response to increasing environmental complexity, and does this evolution structurally mirror the trajectory of human cognitive resource allocation under stress?
+Do internal attention patterns and hidden state embeddings of a proactive vision-language model contain sufficient signal to independently predict human cognitive load and optimal intervention timing, distinct from the model's own explicit response decisions?
 
 ## Motivation
 
-Real-world deployment of proactive AI in edge environments (e.g., elder care, remote security) is constrained by the inability to run full inference continuously on low-power hardware. Understanding whether internal model states naturally encode "complexity stress" similar to human cognitive load could enable lightweight schedulers that gate heavy inference, reducing computational load without missing critical safety events. This addresses the "alarm fatigue" problem by decoupling the decision to interrupt from the resource-intensive generation of the full response.
+Real-world adoption of proactive AI assistants in sensitive environments like elder care or remote security is hindered by "alarm fatigue" caused by over-communication. This work investigates whether the "latent intuition" of a model (its internal states) can serve as a cheap, independent predictor of user state, enabling a lightweight CPU scheduler to filter interruptions without re-running the full, expensive inference pass required for explicit responses.
 
 ## Literature gap analysis
 
@@ -35,17 +35,16 @@ This project addresses the gap by extracting and analyzing hidden states from a 
 
 ## Expected results
 
-We expect to identify a specific subset of intermediate layers (likely 6–10 in a 12-layer model) that provide higher fidelity signals for environmental complexity than the final output logits, particularly under high-stress conditions where explicit outputs may be noisy. We anticipate that a lightweight scheduler trained on these specific layers can achieve >95% recall on high-load events while reducing total inference calls by 25%, demonstrating that internal state monitoring is a viable, efficient alternative to full-response generation for interruption management.
+We expect to find that internal state embeddings contain a distinct, predictive signal for cognitive load that is not redundant with the model's final output logits. Specifically, a lightweight classifier trained on these embeddings should achieve a significant reduction in unnecessary interruptions (target >20%) while maintaining near-perfect recall on safety-critical events, demonstrating that "latent intuition" is a viable, independent proxy for user state.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the "EmbodiedCity" video dataset and "MMLongBench" multimodal logs from HuggingFace/Zenodo. Augment these with synthetic eye-tracking (pupil dilation) and physiological signals (HRV) generated via the `py-sim-cognitive` simulator to create independent ground-truth labels for "high cognitive load" vs. "baseline," ensuring the target variable is not derived from the model's own inputs.
-- **Feature Extraction**: Run the pre-trained "JoyAI-VL" model (via HuggingFace `transformers` CPU backend) on the video streams. Extract internal hidden states (all layers) and explicit decision logits for each time step. Align these features temporally with the synthetic cognitive load labels.
-- **Layer-wise Fidelity Analysis**: Compute the Area Under the Curve (AUC) and F1-score for a simple logistic regression classifier trained *independently* on the hidden states of each layer to predict the synthetic cognitive load labels. Identify which layers maximize signal fidelity.
-- **Stress Simulation**: Simulate "high-stress" conditions by injecting noise into the visual input (blur, occlusion) and increasing the complexity of the conversational context. Re-run the fidelity analysis to measure signal degradation in stressed vs. baseline conditions.
-- **Scheduler Training**: Train a 15M-parameter Transformer-based classifier ("Silence Scheduler") on CPU hardware using the *optimal layer features* identified in the previous step. Optimize for a weighted loss that heavily penalizes missed high-load states (safety-critical).
-- **Evaluation & Validation**: Deploy the frozen JoyAI-VL model alongside the trained scheduler in a simulated 12-hour monitoring environment. Measure the reduction in interruptions and the recall rate for safety-critical events. **Validation uses the independent synthetic physiological signals as the ground truth for "high cognitive load," ensuring the evaluation target is mathematically independent of the model's hidden states.** Use bootstrap resampling to confirm statistical significance (p < 0.05).
-- **Resource Profiling**: Record CPU utilization, RAM usage, and latency overhead to verify the solution fits within the 7GB RAM and 2-core CPU constraints of GitHub Actions free-tier runners.
+- **Data Synthesis**: Generate a synthetic dataset of 50 hours of video streams (simulating security/elder care) and run the JoyAI-VL-Interaction model to record both its final explicit decisions (response/no-response) and its internal hidden states/attention maps at each time step.
+- **Label Construction**: Derive ground-truth "optimal intervention" labels based on a simulated human-ground-truth (e.g., if the video shows a fall, label as "critical"; if the video shows a calm conversation, label as "silence"). Crucially, these labels are derived from the video content itself, not the model's output, to ensure independence.
+- **Feature Engineering**: Construct input features for the scheduler using only the internal hidden states and attention vectors from the VLM, excluding the final token logits or explicit response generation.
+- **Model Training**: Train a 15M-parameter Transformer classifier on CPU (using `transformers` with CPU backend) to predict the "optimal intervention" label from the internal state features, optimizing for a weighted loss that prioritizes safety recall over interruption suppression.
+- **Validation & Independence Check**: Evaluate the trained scheduler on a held-out test set by comparing its predictions against the video-derived ground truth. Perform a statistical test (e.g., McNemar's test or bootstrap confidence intervals) to verify that the scheduler's predictions are significantly better than random and distinct from the VLM's own default behavior.
+- **Resource Profiling**: Measure CPU utilization, RAM footprint, and inference latency of the scheduler to confirm it operates within the 7GB RAM / 2-core CPU constraints of the target edge environment.
 
 ## Duplicate-check
 
@@ -56,7 +55,7 @@ We expect to identify a specific subset of intermediate layers (likely 6–10 in
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T01:53:46Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T02:00:20Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "JoyAI-VL-Interaction: Real-Time Vision-Language Interaction Intelligen" computer science
 **Verified citation count**: 2
