@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.18739",
+  "judged_at": "2026-07-12T22:25:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"longlive-2.0: an nvfp4 parallel infrastructure for long video generati\" computer science",
+  "rationale": "The candidate paper is the foundational work explicitly referenced in the user's query (\"LongLive-2.0\"), establishing the empirical baseline and technical framework for the \"llmXive follow-up\" research. It satisfies criteria (c) as the empirical baseline for the specific NVFP4 infrastructure and (d) as the canonical reference for the system being extended.",
+  "relevant": true
+}

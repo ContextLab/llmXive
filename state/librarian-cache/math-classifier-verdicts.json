@@ -1091,6 +1091,10 @@
     "classified_at": "2026-07-08T12:47:55Z",
     "verdict": false
   },
+  "PROJ-857-llmxive-follow-up-extending-longlive-2-0::1.6.0": {
+    "classified_at": "2026-07-12T22:25:21Z",
+    "verdict": false
+  },
   "PROJ-861-llmxive-follow-up-extending-appo-agentic::1.6.0": {
     "classified_at": "2026-07-04T01:38:07Z",
     "verdict": false

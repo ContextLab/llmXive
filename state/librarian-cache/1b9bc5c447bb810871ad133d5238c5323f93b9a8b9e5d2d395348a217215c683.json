@@ -1,0 +1,543 @@
+{
+  "fetched_at": "2026-07-12T22:25:37Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generati\"",
+      "target_n": 5
+    },
+    "duration_seconds": 45.944,
+    "ended_at": "2026-07-12T22:25:37Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "NVFP4 quantization for long video generation"
+        ],
+        [
+          2,
+          "low-precision parallel infrastructure for video synthesis"
+        ],
+        [
+          3,
+          "long-form video generation with 4-bit floating point"
+        ],
+        [
+          4,
+          "scalable video diffusion models on NVIDIA GPUs"
+        ],
+        [
+          5,
+          "memory-efficient long video generation pipelines"
+        ],
+        [
+          6,
+          "NVFP4 arithmetic for generative video models"
+        ],
+        [
+          7,
+          "parallel computing strategies for extended video synthesis"
+        ],
+        [
+          8,
+          "long-context video generation optimization"
+        ],
+        [
+          9,
+          "4-bit floating point acceleration for diffusion transformers"
+        ],
+        [
+          10,
+          "distributed video generation infrastructure"
+        ],
+        [
+          11,
+          "long-duration video synthesis hardware acceleration"
+        ],
+        [
+          12,
+          "low-bit precision inference for video diffusion"
+        ],
+        [
+          13,
+          "efficient parallelism in long video generation systems"
+        ],
+        [
+          14,
+          "NVFP4 supported generative video frameworks"
+        ],
+        [
+          15,
+          "memory bandwidth optimization for long video models"
+        ],
+        [
+          16,
+          "high-throughput video generation with reduced precision"
+        ],
+        [
+          17,
+          "extended temporal video synthesis architectures"
+        ],
+        [
+          18,
+          "GPU-optimized long video generation algorithms"
+        ],
+        [
+          19,
+          "quantization-aware training for long video diffusion"
+        ],
+        [
+          20,
+          "parallel execution patterns for generative video workloads"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "NVFP4 quantization for long video generation": 4,
+        "llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generati\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "NVFP4 quantization long video generation",
+      "4-bit weight activation parallel inference",
+      "video diffusion model inference acceleration",
+      "long-context video synthesis throughput latency",
+      "memory bandwidth bottleneck generative video"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.18739"
+      ]
+    },
+    "per_query_hit_count": {
+      "4-bit weight activation parallel inference": 3,
+      "NVFP4 quantization long video generation": 3,
+      "llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generati\" computer science": 3,
+      "long-context video synthesis throughput latency": 1,
+      "memory bandwidth bottleneck generative video": 2,
+      "video diffusion model inference acceleration": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2407.00367",
+          "rationale": "The candidate paper focuses on 3D stereoscopic video generation using a pose-free, training-free approach, which is a distinct research problem from the user's query about extending \"LongLive-2.0,\" an NVFP4 parallel infrastructure for long video generation. The paper does not address the specific mechanism (NVFP4 parallelism), the domain (long video generation infrastructure), or the variables (performance/scalability of long-form generation) central to the user's question, failing to meet any o",
+          "title": "SVG: 3D Stereoscopic Video Generation via Denoising Frame Matrix"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T22:24:51Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"longlive-2.0: an nvfp4 parallel infrastructure for long video generati\" computer science",
+      "raw": "llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generati\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthesizing consistent and coherent long video remains a fundamental challenge. Existing methods suffer from semantic drift and narrative collapse over long horizons. We present A$^2$RD, an Agentic Auto-Regressive Diffusion architecture that decouples creative synthesis from consistency enforcement. A$^2$RD formulates long video synthesis as a closed-loop process that synthesizes and self-improves video segment-by-segment through a Retrieve--Synthesize--Refine--Update cycle. It comprises three core components: (i) Multimodal Video Memory that tracks video progression across modalities; (ii) Adaptive Segment Generation that switches among generation modes for natural progression and visual consistency; and (iii) Hierarchical Test-Time Self-Improvement that self-improves each segment at frame and video levels to prevent error propagation. We further introduce LVBench-C, a challenging benchmark with non-linear entity and environment transitions to stress-test long-horizon consistency. Across public and LVBench-C benchmarks spanning one- to ten-minute videos, A$^2$RD outperforms state-of-the-art baselines by up to 30% in consistency and 20% in narrative coherence. Human evaluations corroborate these gains while also highlighting notable improvements in motion and transition smoothness.",
+          "claimed_authors": [
+            "Do Xuan Long",
+            "Yale Song",
+            "Min-Yen Kan",
+            "Tomas Pfister",
+            "Long T. Le"
+          ],
+          "claimed_title": "A$^2$RD: Agentic Autoregressive Diffusion for Long Video Consistency",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.06924"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='A$^2$RD: Agentic Autoregressive Diffusion for Long Video Consistency')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in video generation can produce realistic, minute-long single-shot videos with scalable diffusion transformers. However, real-world narrative videos require multi-shot scenes with visual and dynamic consistency across shots. In this work, we introduce Long Context Tuning (LCT), a training paradigm that expands the context window of pre-trained single-shot video diffusion models to learn scene-level consistency directly from data. Our method expands full attention mechanisms from individual shots to encompass all shots within a scene, incorporating interleaved 3D position embedding and an asynchronous noise strategy, enabling both joint and auto-regressive shot generation without additional parameters. Models with bidirectional attention after LCT can further be fine-tuned with context-causal attention, facilitating auto-regressive generation with efficient KV-cache. Experiments demonstrate single-shot models after LCT can produce coherent multi-shot scenes and exhibit emerging capabilities, including compositional generation and interactive shot extension, paving the way for more practical visual content creation. See https://guoyww.github.io/projects/long-context-video/ for more details.",
+          "claimed_authors": [
+            "Yuwei Guo",
+            "Ceyuan Yang",
+            "Ziyan Yang",
+            "Zhibei Ma",
+            "Zhijie Lin",
+            "Zhenheng Yang",
+            "Dahua Lin",
+            "Lu Jiang"
+          ],
+          "claimed_title": "Long Context Tuning for Video Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.10589"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='Long Context Tuning for Video Generation')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the paper, a parallel Tabu Search algorithm for the Resource Constrained Project Scheduling Problem is proposed. To deal with this NP-hard combinatorial problem many optimizations have been performed. For example, a resource evaluation algorithm is selected by a heuristic and an effective Tabu List was designed. In addition to that, a capacity-indexed resource evaluation algorithm was proposed and the GPU (Graphics Processing Unit) version uses a homogeneous model to reduce the required communication bandwidth. According to the experiments, the GPU version outperforms the optimized parallel CPU version with respect to the computational time and the quality of solutions. In comparison with other existing heuristics, the proposed solution often gives better quality solutions.",
+          "claimed_authors": [
+            "Libor Bukata",
+            "Premysl Sucha",
+            "Zdenek Hanzalek"
+          ],
+          "claimed_title": "Solving the Resource Constrained Project Scheduling Problem Using the Parallel Tabu Search Designed for the CUDA Platform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.04556"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='Solving the Resource Constrained Project Scheduling Problem Using the Parallel Tabu Search Designed for the CUDA Platform')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Chunks and Tasks, a parallel programming model built on abstractions for both data and work. The application programmer specifies how data and work can be split into smaller pieces, chunks and tasks, respectively. The Chunks and Tasks library maps the chunks and tasks to physical resources. In this way we seek to combine user friendliness with high performance. An application programmer can express a parallel algorithm using a few simple building blocks, defining data and work objects and their relationships. No explicit communication calls are needed; the distribution of both work and data is handled by the Chunks and Tasks library. This makes efficient implementation of complex applications that require dynamic distribution of work and data easier. At the same time, Chunks and Tasks imposes restrictions on data access and task dependencies that facilitates the development of high performance parallel back ends. We discuss the fundamental abstractions underlying the programming model, as well as performance and fault resilience considerations. We also present a pilot C++ library implementation for clusters of multicore machines and demonstrate its performance for sparse blocked matrix-matrix multiplication.",
+          "claimed_authors": [
+            "Emanuel H. Rubensson",
+            "Elias Rudberg"
+          ],
+          "claimed_title": "Chunks and Tasks: a programming model for parallelization of dynamic algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.7427"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='Chunks and Tasks: a programming model for parallelization of dynamic algorithms')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The main goal in many fields in the empirical sciences is to discover causal relationships among a set of variables from observational data. PC algorithm is one of the promising solutions to learn underlying causal structure by performing a number of conditional independence tests. In this paper, we propose a novel GPU-based parallel algorithm, called cuPC, to execute an order-independent version of PC. The proposed solution has two variants, cuPC-E and cuPC-S, which parallelize PC in two different ways for multivariate normal distribution. Experimental results show the scalability of the proposed algorithms with respect to the number of variables, the number of samples, and different graph densities. For instance, in one of the most challenging datasets, the runtime is reduced from more than 11 hours to about 4 seconds. On average, cuPC-E and cuPC-S achieve 500 X and 1300 X speedup, respectively, compared to serial implementation on CPU. The source code of cuPC is available online [1].",
+          "claimed_authors": [
+            "Behrooz Zarebavani",
+            "Foad Jafarinejad",
+            "Matin Hashemi",
+            "Saber Salehkaleybar"
+          ],
+          "claimed_title": "cuPC: CUDA-based Parallel PC Algorithm for Causal Structure Learning on GPU",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.08491"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='cuPC: CUDA-based Parallel PC Algorithm for Causal Structure Learning on GPU')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion generative models have recently become a powerful technique for creating and modifying high-quality, coherent video content. This survey provides a comprehensive overview of the critical components of diffusion models for video generation, including their applications, architectural design, and temporal dynamics modeling. The paper begins by discussing the core principles and mathematical formulations, then explores various architectural choices and methods for maintaining temporal consistency. A taxonomy of applications is presented, categorizing models based on input modalities such as text prompts, images, videos, and audio signals. Advancements in text-to-video generation are discussed to illustrate the state-of-the-art capabilities and limitations of current approaches. Additionally, the survey summarizes recent developments in training and evaluation practices, including the use of diverse video and image datasets and the adoption of various evaluation metrics to assess model performance. The survey concludes with an examination of ongoing challenges, such as generating longer videos and managing computational costs, and offers insights into potential future directions for the field. By consolidating the latest research and developments, this survey aims to serve as a valuable resource for researchers and practitioners working with video diffusion models. Website: https://github.com/ndrwmlnk/Awesome-Video-Diffusion-Models",
+          "claimed_authors": [
+            "Andrew Melnik",
+            "Michal Ljubljanac",
+            "Cong Lu",
+            "Qi Yan",
+            "Weiming Ren",
+            "Helge Ritter"
+          ],
+          "claimed_title": "Video Diffusion Models: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.03150"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='Video Diffusion Models: A Survey')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion Transformers (DiT) have revolutionized high-fidelity image and video synthesis, yet their computational demands remain prohibitive for real-time applications. To solve this problem, feature caching has been proposed to accelerate diffusion models by caching the features in the previous timesteps and then reusing them in the following timesteps. However, at timesteps with significant intervals, the feature similarity in diffusion models decreases substantially, leading to a pronounced increase in errors introduced by feature caching, significantly harming the generation quality. To solve this problem, we propose TaylorSeer, which firstly shows that features of diffusion models at future timesteps can be predicted based on their values at previous timesteps. Based on the fact that features change slowly and continuously across timesteps, TaylorSeer employs a differential method to approximate the higher-order derivatives of features and predict features in future timesteps with Taylor series expansion. Extensive experiments demonstrate its significant effectiveness in both image and video synthesis, especially in high acceleration ratios. For instance, it achieves an almost lossless acceleration of 4.99$\\times$ on FLUX and 5.00$\\times$ on HunyuanVideo without additional training. On DiT, it achieves $3.41$ lower FID compared with previous SOTA at $4.53$$\\times$ acceleration. %Our code is provided in the supplementary materials and will be made publicly available on GitHub. Our codes have been released in Github:https://github.com/Shenyi-Z/TaylorSeer",
+          "claimed_authors": [
+            "Jiacheng Liu",
+            "Chang Zou",
+            "Yuanhuiyi Lyu",
+            "Junjie Chen",
+            "Linfeng Zhang"
+          ],
+          "claimed_title": "From Reusing to Forecasting: Accelerating Diffusion Models with TaylorSeers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.06923"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='From Reusing to Forecasting: Accelerating Diffusion Models with TaylorSeers')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In contrast with traditional video, omnidirectional video enables spherical viewing direction with support for head-mounted displays, providing an interactive and immersive experience. Unfortunately, to the best of our knowledge, there are few visual quality assessment (VQA) methods, either subjective or objective, for omnidirectional video coding. This paper proposes both subjective and objective methods for assessing quality loss in encoding omnidirectional video. Specifically, we first present a new database, which includes the viewing direction data from several subjects watching omnidirectional video sequences. Then, from our database, we find a high consistency in viewing directions across different subjects. The viewing directions are normally distributed in the center of the front regions, but they sometimes fall into other regions, related to video content. Given this finding, we present a subjective VQA method for measuring difference mean opinion score (DMOS) of the whole and regional omnidirectional video, in terms of overall DMOS (O-DMOS) and vectorized DMOS (V-DMOS), respectively. Moreover, we propose two objective VQA methods for encoded omnidirectional video, in light of human perception characteristics of omnidirectional video. One method weighs the distortion of pixels with regard to their distances to the center of front regions, which considers human preference in a panorama. The other method predicts viewing directions according to video content, and then the predicted viewing directions are leveraged to allocate weights to the distortion of each pixel in our objective VQA method. Finally, our experimental results verify that both the subjective and objective methods proposed in this paper advance state-of-the-art VQA for omnidirectional video.",
+          "claimed_authors": [
+            "Mai Xu",
+            "Chen Li",
+            "Zulin Wang",
+            "Zhenzhong Chen",
+            "Zhenyu Guan"
+          ],
+          "claimed_title": "Assessing Visual Quality of Omnidirectional Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.06342"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='Assessing Visual Quality of Omnidirectional Videos')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many video workflows benefit from a mixture of user controls with varying granularity, from exact 4D object trajectories and camera paths to coarse text prompts, while existing video generative models are typically trained for fixed input formats. We develop Ctrl-VI, a video synthesis method that addresses this need and generates samples with high controllability for specified elements while maintaining diversity for under-specified ones. We cast the task as variational inference to approximate a composed distribution, leveraging multiple video generation backbones to account for all task constraints collectively. To address the optimization challenge, we break down the problem into step-wise KL divergence minimization over an annealed sequence of distributions, and further propose a context-conditioned factorization technique that reduces modes in the solution space to circumvent local optima. Experiments suggest that our method produces samples with improved controllability, diversity, and 3D consistency compared to prior works.",
+          "claimed_authors": [
+            "Haoyi Duan",
+            "Yunzhi Zhang",
+            "Yilun Du",
+            "Jiajun Wu"
+          ],
+          "claimed_title": "Ctrl-VI: Controllable Video Synthesis via Variational Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.07670"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='Ctrl-VI: Controllable Video Synthesis via Variational Inference')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While multimodal large language models have demonstrated impressive short-term reasoning, they struggle with long-horizon video understanding due to limited context windows and static memory mechanisms that fail to mirror human cognitive efficiency. Existing paradigms typically fall into two extremes: vision-centric methods that incur high latency and redundancy through dense visual accumulation, or text-centric approaches that suffer from detail loss and hallucination via aggressive captioning. To bridge this gap, we propose MM-Mem, a pyramidal multimodal memory architecture grounded in Fuzzy-Trace Theory. MM-Mem structures memory hierarchically into a Sensory Buffer, Episodic Stream, and Symbolic Schema, enabling the progressive distillation of fine-grained perceptual traces (verbatim) into high-level semantic schemas (gist). Furthermore, to govern the dynamic construction of memory, we derive a Semantic Information Bottleneck objective and introduce SIB-GRPO to optimize the trade-off between memory compression and task-relevant information retention. In inference, we design an entropy-driven top-down memory retrieval strategy. Extensive experiments across 4 benchmarks confirm that MM-Mem achieves state-of-the-art performance on both offline and streaming tasks, demonstrating robust generalization and validating the effectiveness of cognition-inspired memory organization. Code and associated configurations are publicly available at https://github.com/EliSpectre/MM-Mem.",
+          "claimed_authors": [
+            "Niu Lian",
+            "Yuting Wang",
+            "Hanshu Yao",
+            "Jinpeng Wang",
+            "Bin Chen",
+            "Yaowei Wang",
+            "Min Zhang",
+            "Shu-Tao Xia"
+          ],
+          "claimed_title": "From Verbatim to Gist: Distilling Pyramidal Multimodal Memory via Semantic Information Bottleneck for Long-Horizon Video Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.01455"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='From Verbatim to Gist: Distilling Pyramidal Multimodal Memory via Semantic Information Bottleneck for Long-Horizon Video Agents')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, breakthroughs in video modeling have allowed for controllable camera trajectories in generated videos. However, these methods cannot be directly applied to user-provided videos that are not generated by a video model. In this paper, we present ReCapture, a method for generating new videos with novel camera trajectories from a single user-provided video. Our method allows us to re-generate the reference video, with all its existing scene motion, from vastly different angles and with cinematic camera motion. Notably, using our method we can also plausibly hallucinate parts of the scene that were not observable in the reference video. Our method works by (1) generating a noisy anchor video with a new camera trajectory using multiview diffusion models or depth-based point cloud rendering and then (2) regenerating the anchor video into a clean and temporally consistent reangled video using our proposed masked video fine-tuning technique.",
+          "claimed_authors": [
+            "David Junhao Zhang",
+            "Roni Paiss",
+            "Shiran Zada",
+            "Nikhil Karnad",
+            "David E. Jacobs",
+            "Yael Pritch",
+            "Inbar Mosseri",
+            "Mike Zheng Shou",
+            "Neal Wadhwa",
+            "Nataniel Ruiz"
+          ],
+          "claimed_title": "ReCapture: Generative Video Camera Controls for User-Provided Videos using Masked Video Fine-Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.05003"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LongLive-2.0: An NVFP4 Parallel Infrastructure for', candidate_title='ReCapture: Generative Video Camera Controls for User-Provided Videos using Masked Video Fine-Tuning')",
+        "failed_at": "2026-07-12T22:25:21Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yukang Chen",
+            "Luozhou Wang",
+            "Wei Huang",
+            "Shuai Yang",
+            "Bohan Zhang",
+            "Yicheng Xiao",
+            "Ruihang Chu",
+            "Weian Mao",
+            "Qixin Hu",
+            "Shaoteng Liu",
+            "Yuyang Zhao",
+            "Huizi Mao",
+            "Ying-Cong Chen",
+            "Enze Xie",
+            "Xiaojuan Qi",
+            "Song Han"
+          ],
+          "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.18739",
+        "summary": "We present LongLive-2.0, an NVFP4-based parallel infrastructure throughout the full training and inference workflow of long video generation, addressing speed and memory bottlenecks. For training, we introduce sequence-parallel autoregressive (AR) training, instantiated as Balanced SP, which co-designs the efficient teacher-forcing layout with SP execution by pairing clean-history and noisy-target temporal chunks on each rank, enabling a natural teacher-forcing mask with SP-aware chunked VAE encoding. Combined with NVFP4 precision, it reduces GPU memory cost and accelerates GEMM computation during training, the proportion of which increases as video length grows. Moreover, we show that a high-quality infrastructure and dataset enable a remarkably clean training pipeline. Unlike existing Self-Forcing series methods that rely on ODE initialization and subsequent distribution matching distillation (DMD), LongLive-2.0 directly tunes a diffusion model into a long, multi-shot, interactive auto-regressive (AR) diffusion model. It can be further converted to real-time generation (4 to 2 denoising steps) with standalone LoRA weights. For inference on Blackwell GPUs, we enable W4A4 NVFP4 inference, quantize KV cache into NVFP4 for memory savings, and boost end-to-end throughput with asynchronous streaming VAE decoding. On non-Blackwell GPU architectures, we deploy SP inference to match the speed on Blackwell GPUs, while the quantized KV cache can lower inter-GPU communication of SP. Experiments show up to 2.15x speedup in training, and 1.84x in inference. LongLive-2.0-5B achieves 45.7 FPS inference while attaining strong performance on benchmarks. To our knowledge, LongLive-2.0 is the first NVFP4 training and inference system for long video generation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.18739",
+          "http_status": 200,
+          "pdf_sample_score": 0.3468,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T22:25:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Do Xuan Long",
+            "Yale Song",
+            "Min-Yen Kan",
+            "Tomas Pfister",
+            "Long T. Le"
+          ],
+          "title": "A$^2$RD: Agentic Autoregressive Diffusion for Long Video Consistency",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.06924",
+        "summary": "Synthesizing consistent and coherent long video remains a fundamental challenge. Existing methods suffer from semantic drift and narrative collapse over long horizons. We present A$^2$RD, an Agentic Auto-Regressive Diffusion architecture that decouples creative synthesis from consistency enforcement. A$^2$RD formulates long video synthesis as a closed-loop process that synthesizes and self-improves video segment-by-segment through a Retrieve--Synthesize--Refine--Update cycle. It comprises three core components: (i) Multimodal Video Memory that tracks video progression across modalities; (ii) Adaptive Segment Generation that switches among generation modes for natural progression and visual consistency; and (iii) Hierarchical Test-Time Self-Improvement that self-improves each segment at frame and video levels to prevent error propagation. We further introduce LVBench-C, a challenging benchmark with non-linear entity and environment transitions to stress-test long-horizon consistency. Across public and LVBench-C benchmarks spanning one- to ten-minute videos, A$^2$RD outperforms state-of-the-art baselines by up to 30% in consistency and 20% in narrative coherence. Human evaluations corroborate these gains while also highlighting notable improvements in motion and transition smoothness.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.06924",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T22:25:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuwei Guo",
+            "Ceyuan Yang",
+            "Ziyan Yang",
+            "Zhibei Ma",
+            "Zhijie Lin",
+            "Zhenheng Yang",
+            "Dahua Lin",
+            "Lu Jiang"
+          ],
+          "title": "Long Context Tuning for Video Generation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.10589",
+        "summary": "Recent advances in video generation can produce realistic, minute-long single-shot videos with scalable diffusion transformers. However, real-world narrative videos require multi-shot scenes with visual and dynamic consistency across shots. In this work, we introduce Long Context Tuning (LCT), a training paradigm that expands the context window of pre-trained single-shot video diffusion models to learn scene-level consistency directly from data. Our method expands full attention mechanisms from individual shots to encompass all shots within a scene, incorporating interleaved 3D position embedding and an asynchronous noise strategy, enabling both joint and auto-regressive shot generation without additional parameters. Models with bidirectional attention after LCT can further be fine-tuned with context-causal attention, facilitating auto-regressive generation with efficient KV-cache. Experiments demonstrate single-shot models after LCT can produce coherent multi-shot scenes and exhibit emerging capabilities, including compositional generation and interactive shot extension, paving the way for more practical visual content creation. See https://guoyww.github.io/projects/long-context-video/ for more details.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.10589",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T22:25:26Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"longlive-2.0: an nvfp4 parallel infrastructure for long video generati\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

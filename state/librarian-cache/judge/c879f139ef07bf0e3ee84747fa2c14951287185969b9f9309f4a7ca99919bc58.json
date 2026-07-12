@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.10589",
+  "judged_at": "2026-07-12T22:25:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"longlive-2.0: an nvfp4 parallel infrastructure for long video generati\" computer science",
+  "rationale": "The paper addresses the core domain of the user's question (long-context video generation) and proposes a specific methodological approach (Long Context Tuning) that serves as a foundational or baseline reference for extending video generation models to handle long sequences, satisfying criteria (d) for foundational methodology and (b) for measuring the same dependent variable (long video generation capability) on the same domain.",
+  "relevant": true
+}

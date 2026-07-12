@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.00367",
+  "judged_at": "2026-07-12T22:25:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"longlive-2.0: an nvfp4 parallel infrastructure for long video generati\" computer science",
+  "rationale": "The candidate paper focuses on 3D stereoscopic video generation using a pose-free, training-free approach, which is a distinct research problem from the user's query about extending \"LongLive-2.0,\" an NVFP4 parallel infrastructure for long video generation. The paper does not address the specific mechanism (NVFP4 parallelism), the domain (long video generation infrastructure), or the variables (performance/scalability of long-form generation) central to the user's question, failing to meet any o",
+  "relevant": false
+}
