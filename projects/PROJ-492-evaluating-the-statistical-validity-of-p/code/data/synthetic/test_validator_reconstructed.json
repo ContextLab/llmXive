@@ -1,0 +1,26 @@
+[
+  {
+    "reconstructed_p_value": 0.042,
+    "reconstructed_effect_size": 0.15,
+    "reconstructed_n_control": 1000,
+    "reconstructed_n_treatment": 1000
+  },
+  {
+    "reconstructed_p_value": 0.12,
+    "reconstructed_effect_size": 0.15,
+    "reconstructed_n_control": 1000,
+    "reconstructed_n_treatment": 1000
+  },
+  {
+    "reconstructed_p_value": 0.03,
+    "reconstructed_effect_size": 0.25,
+    "reconstructed_n_control": 500,
+    "reconstructed_n_treatment": 500
+  },
+  {
+    "reconstructed_p_value": 0.04,
+    "reconstructed_effect_size": 0.15,
+    "reconstructed_n_control": 1200,
+    "reconstructed_n_treatment": 1200
+  }
+]

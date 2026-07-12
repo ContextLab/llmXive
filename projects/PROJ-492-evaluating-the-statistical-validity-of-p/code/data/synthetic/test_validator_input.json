@@ -1,0 +1,42 @@
+[
+  {
+    "url": "https://example.com/test1",
+    "domain": "example.com",
+    "test_type": "binary",
+    "reported_p_value": 0.04,
+    "effect_size": 0.15,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "baseline_conversion_rate": 0.10
+  },
+  {
+    "url": "https://example.com/test2",
+    "domain": "example.com",
+    "test_type": "binary",
+    "reported_p_value": 0.05,
+    "effect_size": 0.15,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "baseline_conversion_rate": 0.10
+  },
+  {
+    "url": "https://example.com/test3",
+    "domain": "example.com",
+    "test_type": "continuous",
+    "reported_p_value": 0.03,
+    "effect_size": 0.20,
+    "n_control": 500,
+    "n_treatment": 500,
+    "baseline_conversion_rate": null
+  },
+  {
+    "url": "https://example.com/test4",
+    "domain": "example.com",
+    "test_type": "binary",
+    "reported_p_value": 0.04,
+    "effect_size": 0.15,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "baseline_conversion_rate": 0.10
+  }
+]

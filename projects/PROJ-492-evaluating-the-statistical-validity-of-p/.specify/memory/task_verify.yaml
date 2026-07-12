@@ -303,6 +303,13 @@
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
   %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
+  \ prevalence estimates ** per FR\u2011004b (generate `AuditRecord` objects with\
+  \ data_quality_warning messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ **DEPENDS ON:** T023. <!-- SKIPPED: non-mapping output -->"
+: 2
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
+  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
   \ prevalence estimates [UNRESOLVED-CLAIM: c_a26a857b \u2014 status=not_enough_info]\
   \ ** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
   \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
@@ -645,6 +652,11 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
 : 1
 ? "T029 Evaluate inconsistency\u2011detection component on syntheticvalidation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
+  \ 90\u202F%, recall \u2265 80\u202F% (depends on T026) (verify test passes, otherwise\
+  \ raise `ERR-800`) [DEPENDS ON: T026]."
+: 1
+? "T029 Evaluate inconsistency\u2011detection component on syntheticvalidation dataset\
+  \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
   \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_4f935f2d \u2014 status=not_enough_info]\
   \ (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON:\
   \ T026]."
@@ -797,6 +809,13 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
 ? "T050b **[P]** Verify that the publication year is extracted for each summary during\
   \ extraction (T020c) [UNRESOLVED-CLAIM: c_c1bc8ba5 \u2014 status=not_enough_info]\
   \ and present in the input to `subgroup_analysis.py`. (depends on T020c)"
+: 1
+? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
+  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
+  \ c_95a2f727 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
+  e62a0df4) (verify module exits with status 0)."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
