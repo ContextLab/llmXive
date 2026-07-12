@@ -1,11 +1,11 @@
-? T004b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/record_commit_hashes.py`
-  to record specific commit hashes for ALFWorld/TextWorld into `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/data/commit_hashes.txt`
-  (Constitution Principle I).
-: 2
-? T004c [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py`
-  to verify memory footprint < 7GB during index construction.
-: 2
 ? 'T006 [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/reference_validator.py`
   and pre-commit hook for citation verification (Constitution Principle II). Note:
   Updated scope to validate `plan.md` as it is the `implementation-plan` artifact.'
+: 2
+? 'T007b [P] Create `FutureScenario` Pydantic model in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/future_scenario.py`
+  with fields: `scenario_id`, `generated_plan`, `episodic_references`, `counterfactual_details`,
+  `confidence_scores`.'
+: 1
+? T008a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/logging.py`
+  with JSON formatter, file output, and `fallback_event` logger.
 : 1

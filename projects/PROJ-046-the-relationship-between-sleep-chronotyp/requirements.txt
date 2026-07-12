@@ -1,5 +1,6 @@
-# Python dependencies for the analysis pipeline
-pandas>=2.0.0
-numpy>=1.24.0
-scipy>=1.10.0
+# Python dependencies for project PROJ-046
+# Note: This project primarily uses R (renv), but Python scripts are used for setup/validation
+pandas>=1.5.0
+numpy>=1.23.0
 pytest>=7.0.0
+pyyaml>=6.0

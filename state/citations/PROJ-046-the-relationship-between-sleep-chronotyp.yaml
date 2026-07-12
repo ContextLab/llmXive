@@ -20,26 +20,3 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/645c8b624e2cf46891755ed7/56982eb0409a44792c38f8f10a7695b02a0988945788ac3f2c14f61349ed942e?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783008874&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ1YzhiNjI0ZTJjZjQ2ODkxNzU1ZWQ3LzU2OTgyZWIwNDA5YTQ0NzkyYzM4ZjhmMTBhNzY5NWIwMmEwOTg4OTQ1Nzg4YWMzZjJjMTRmNjEzNDllZDk0MmVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwMDg4NzR9fX1dfQ__&Signature=MEQCIF62eYsWppUQVHjkXuccpjQrb%7Es-PgJcKeODCgKNCsxyAiACepg6avm2DH0mo1VT%7EILVIpo5Q8EdtfCfcryjghD0rg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-02T15:14:33.331333Z'
-- artifact_hash: 6b9935ec5844212488b38320af98330408a16a08e1dcca12946048916d5cde24
-  artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Adolescent sleep - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Adolescent_sleep
-  verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/Adolescent_sleep
-  verified_at: '2026-07-03T12:59:49.108969Z'
-- artifact_hash: 6b9935ec5844212488b38320af98330408a16a08e1dcca12946048916d5cde24
-  artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2405.11100] Are Large Language Models Moral Hypocrites? A Study
-    Based on Moral Foundations'
-  kind: url
-  value: https://arxiv.org/abs/2405.11100
-  verification_status: verified
-  verified_against_url: https://arxiv.org/abs/2405.11100
-  verified_at: '2026-07-03T12:59:49.108969Z'

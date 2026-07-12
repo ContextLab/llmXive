@@ -4,190 +4,167 @@ from metrics import compute_correlation_dimension, compute_lyapunov_exponent_ros
 from utils.data_models import MetricResult
 from config import get_literature_bounds
 import logging
-import os
-import json
-from utils.io import write_json_artifact
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def calculate_metric_error(
-    computed_value: float,
-    ground_truth_value: float,
-    metric_name: str
-) -> float:
+def calculate_metric_error(computed_value: float, ground_truth_value: float) -> float:
     """
-    Calculate the absolute percentage error between a computed metric value
-    and its ground truth reference.
-
+    Calculate the absolute percentage error of a computed metric relative to ground truth.
+    
     Formula: |computed_value - ground_truth_value| / |ground_truth_value| * 100
-
+    
     Args:
-        computed_value: The metric value calculated from noisy data.
-        ground_truth_value: The reference metric value from clean data (T017).
-        metric_name: Name of the metric for logging purposes.
-
+        computed_value: The metric value computed from noisy data.
+        ground_truth_value: The metric value computed from clean data (T017 output).
+        
     Returns:
         float: The percentage error.
-
+        
     Raises:
         ZeroDivisionError: If ground_truth_value is zero.
     """
     if ground_truth_value == 0.0:
-        # Handle the edge case where ground truth is zero (e.g., FNN might be 0)
-        # In this case, if computed is also 0, error is 0. If computed > 0, error is effectively infinite.
-        # We return a large number or handle specifically. For now, standard float division rules apply.
-        if computed_value == 0.0:
-            return 0.0
-        else:
-            # Avoid division by zero; return a sentinel or handle as per project needs.
-            # Given the formula, if GT is 0, relative error is undefined.
-            # We will raise to be explicit, or return float('inf') if preferred.
-            # For this implementation, we raise to ensure the caller handles it.
-            raise ZeroDivisionError(f"Cannot calculate relative error for {metric_name}: ground truth is 0.")
-
-    error = abs(computed_value - ground_truth_value) / abs(ground_truth_value) * 100.0
-    logger.debug(f"Error for {metric_name}: computed={computed_value:.4f}, gt={ground_truth_value:.4f}, error={error:.2f}%")
-    return error
+        raise ZeroDivisionError("Ground truth value cannot be zero for relative error calculation.")
+    
+    return abs(computed_value - ground_truth_value) / abs(ground_truth_value) * 100.0
 
 def analyze_metric_degradation(
-    ground_truth_metrics: Dict[str, Dict[str, float]],
-    noisy_metrics_list: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+    noise_levels: List[float],
+    metric_values: List[float],
+    metric_name: str
+) -> Dict[str, Any]:
     """
-    Analyze the degradation of metrics across noisy trajectories compared to ground truth.
-
+    Analyze the degradation of a specific metric across increasing noise levels.
+    
+    This function computes the error relative to a baseline (assumed to be the first
+    value or provided separately in a full pipeline context) and identifies trends.
+    
     Args:
-        ground_truth_metrics: A dictionary mapping metric names (e.g., 'correlation_dimension')
-            to their ground truth values. Expected format:
-            {
-                "correlation_dimension": float,
-                "lyapunov_exponent": float,
-                "fnn_rate": float
-            }
-            Note: T017 produces a JSON file. This function expects the loaded dictionary.
-            If the structure is nested (e.g., {"Lorenz": {...}}), the caller should flatten it.
-            Assuming flat structure based on T017 description "Store results in ... ground_truth_metrics_{seed}.json".
-            If T017 stores per-seed, this function should be called per-seed or aggregated.
-            We assume the input `ground_truth_metrics` is the specific reference for the current analysis context.
-
-        noisy_metrics_list: A list of dictionaries, each containing metric results for a noisy trajectory.
-            Expected format for each item:
-            {
-                "snr_db": float,
-                "noise_type": str,
-                "correlation_dimension": float,
-                "lyapunov_exponent": float,
-                "fnn_rate": float,
-                ... other metadata
-            }
-
+        noise_levels: List of SNR levels (dB) corresponding to the measurements.
+        metric_values: List of computed metric values for each noise level.
+        metric_name: Name of the metric being analyzed (e.g., 'Lyapunov', 'Correlation_Dimension').
+        
     Returns:
-        List[Dict[str, Any]]: A list of dictionaries containing the error analysis for each noisy trajectory.
-            Each item includes:
-            {
-                "snr_db": float,
-                "noise_type": str,
-                "metric_name": str,
-                "computed_value": float,
-                "ground_truth_value": float,
-                "error_percent": float
-            }
+        Dict containing:
+            - 'metric_name': str
+            - 'noise_levels': list
+            - 'values': list
+            - 'errors': list (percentage error relative to the clean baseline)
+            - 'trend': str ('increasing', 'decreasing', 'stable')
     """
-    results = []
+    if len(noise_levels) != len(metric_values):
+        raise ValueError("noise_levels and metric_values must have the same length.")
+    
+    if len(metric_values) == 0:
+        return {
+            'metric_name': metric_name,
+            'noise_levels': [],
+            'values': [],
+            'errors': [],
+            'trend': 'stable'
+        }
 
-    # Define the metrics to compare
-    metric_keys = ["correlation_dimension", "lyapunov_exponent", "fnn_rate"]
+    # Assume the first value (lowest noise/cleanest) is the ground truth baseline
+    # In a full pipeline, this would be explicitly passed from T017 results
+    baseline = metric_values[0]
+    
+    errors = []
+    for val in metric_values:
+        try:
+            err = calculate_metric_error(val, baseline)
+            errors.append(err)
+        except ZeroDivisionError:
+            logger.warning(f"Zero ground truth for {metric_name} at index {metric_values.index(val)}, setting error to 0.")
+            errors.append(0.0)
 
-    for noisy_item in noisy_metrics_list:
-        snr_db = noisy_item.get("snr_db", 0.0)
-        noise_type = noisy_item.get("noise_type", "unknown")
+    # Determine trend (simple linear regression slope sign)
+    if len(noise_levels) < 2:
+        trend = 'stable'
+    else:
+        # Calculate slope
+        x = np.array(noise_levels)
+        y = np.array(metric_values)
+        if np.std(x) == 0:
+            trend = 'stable'
+        else:
+            slope = np.polyfit(x, y, 1)[0]
+            if slope > 1e-6:
+                trend = 'increasing'
+            elif slope < -1e-6:
+                trend = 'decreasing'
+            else:
+                trend = 'stable'
 
-        for metric_key in metric_keys:
-            if metric_key not in ground_truth_metrics:
-                logger.warning(f"Ground truth for {metric_key} not found. Skipping.")
-                continue
-
-            computed_val = noisy_item.get(metric_key)
-            if computed_val is None:
-                logger.warning(f"Computed value for {metric_key} missing in noisy item. Skipping.")
-                continue
-
-            gt_val = ground_truth_metrics[metric_key]
-
-            try:
-                error_pct = calculate_metric_error(computed_val, gt_val, metric_key)
-            except ZeroDivisionError as e:
-                logger.error(f"Skipping {metric_key} due to error: {e}")
-                error_pct = float('inf') # Or handle as needed
-
-            results.append({
-                "snr_db": snr_db,
-                "noise_type": noise_type,
-                "metric_name": metric_key,
-                "computed_value": computed_val,
-                "ground_truth_value": gt_val,
-                "error_percent": error_pct
-            })
-
-    return results
+    return {
+        'metric_name': metric_name,
+        'noise_levels': noise_levels,
+        'values': metric_values,
+        'errors': errors,
+        'trend': trend
+    }
 
 def identify_fnn_threshold(
-    analysis_results: List[Dict[str, Any]],
-    threshold_percent: float = 50.0
+    snr_levels: List[float],
+    fnn_rates: List[float],
+    threshold_percentile: float = 50.0
 ) -> Optional[float]:
     """
-    Identify the critical SNR threshold where the False Nearest Neighbors (FNN) error rate
-    exceeds a specified majority level (default 50%).
-
+    Identify the critical SNR threshold where the False Nearest Neighbors (FNN) rate
+    exceeds a specified percentile of the maximum observed rate.
+    
+    This implements FR-008 (SC-003): identifying the point where reconstruction quality
+    degrades significantly.
+    
     Args:
-        analysis_results: The list of error analysis results from `analyze_metric_degradation`.
-        threshold_percent: The error percentage threshold to trigger the critical point detection.
-
+        snr_levels: List of SNR levels (dB), sorted ascending or descending.
+        fnn_rates: List of FNN rates corresponding to the SNR levels.
+        threshold_percentile: The percentile of the max FNN rate to use as the critical threshold (default 50%).
+        
     Returns:
-        Optional[float]: The SNR value (in dB) where the threshold is first crossed.
-            Returns None if the threshold is never crossed.
+        Optional[float]: The SNR level where the FNN rate first exceeds the threshold.
+                         Returns None if the threshold is never reached.
     """
-    # Filter for FNN error results
-    fnn_results = [
-        r for r in analysis_results
-        if r["metric_name"] == "fnn_rate"
-    ]
-
-    if not fnn_results:
-        logger.warning("No FNN results found to identify threshold.")
+    if len(snr_levels) != len(fnn_rates):
+        raise ValueError("snr_levels and fnn_rates must have the same length.")
+    
+    if len(fnn_rates) == 0:
         return None
 
-    # Sort by SNR descending (usually noise increases as SNR decreases, so we look for the point where error spikes)
-    # Or ascending SNR? The task says "identify critical SNR threshold".
-    # Typically, as SNR decreases (noise increases), error increases.
-    # We want the SNR value where error > 50%.
-    # Let's sort by SNR descending (high SNR -> low SNR) to find the transition point.
-    fnn_results.sort(key=lambda x: x["snr_db"], reverse=True)
-
+    max_fnn = max(fnn_rates)
+    critical_value = max_fnn * (threshold_percentile / 100.0)
+    
+    # Sort by SNR to find the transition point (assuming SNR decreases -> FNN increases)
+    # We want the highest SNR where degradation starts.
+    # Pair them up
+    pairs = list(zip(snr_levels, fnn_rates))
+    # Sort by SNR descending (high SNR -> low SNR)
+    pairs.sort(key=lambda x: x[0], reverse=True)
+    
     critical_snr = None
-    for res in fnn_results:
-        if res["error_percent"] >= threshold_percent:
-            critical_snr = res["snr_db"]
-            # We found the first point (from high SNR) where it exceeds.
-            # Depending on definition, this might be the "threshold".
-            # If we want the *lowest* SNR where it stays above, we'd continue.
-            # But "identify critical SNR threshold" usually implies the point of degradation.
-            # Let's return the first one encountered in the high-to-low scan.
+    
+    for snr, fnn in pairs:
+        if fnn >= critical_value:
+            # We found a point with high degradation.
+            # If we are iterating from high SNR to low SNR, the first one we hit
+            # is the "critical" point where quality starts to fail.
+            critical_snr = snr
             break
-
-    if critical_snr is not None:
-        logger.info(f"Critical FNN threshold identified at SNR: {critical_snr} dB")
-    else:
-        logger.info("No critical FNN threshold found (error never exceeded 50%).")
-
+    
+    # If no point exceeded the threshold, return None or the lowest SNR?
+    # Per spec: "identify critical SNR threshold where FNN rate exceeds a majority level"
+    # If it never exceeds, we can't identify a threshold.
     return critical_snr
 
-def get_analysis_functions() -> Dict[str, Any]:
+def get_analysis_functions() -> List[str]:
     """
-    Returns a dictionary of available analysis functions for external access.
+    Return a list of public function names in this module.
+    
+    Returns:
+        List[str]: ['calculate_metric_error', 'analyze_metric_degradation', 'identify_fnn_threshold']
     """
-    return {
-        "calculate_metric_error": calculate_metric_error,
-        "analyze_metric_degradation": analyze_metric_degradation,
-        "identify_fnn_threshold": identify_fnn_threshold
-    }
+    return [
+        'calculate_metric_error',
+        'analyze_metric_degradation',
+        'identify_fnn_threshold'
+    ]

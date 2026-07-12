@@ -74,9 +74,9 @@
 ### Phase 2b: Core Logic Implementation
 
 - [X] T039 [P] Implement `code/config.py` constants and enums (SNR levels, system params, seeds, noise types).
-- [ ] T040 [P] Implement `code/generators.py` logic for Lorenz/Rössler integration (FR-001).
-- [ ] T041 [P] Implement `code/noise.py` logic for Gaussian/Quantization injection (FR-002, FR-003).
-- [ ] T042 [P] Implement `code/metrics.py` logic for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
+- [X] T040 [P] Implement `code/generators.py` logic for Lorenz/Rössler integration (FR-001).
+- [X] T041 [P] Implement `code/noise.py` logic for Gaussian/Quantization injection (FR-002, FR-003).
+- [X] T042 [P] Implement `code/metrics.py` logic for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
 - [ ] T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).
 - [ ] T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).
 
@@ -94,7 +94,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory.py`
+- [ ] T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory.py`
 - [~] T011 [P] [US1] Integration test for reproducibility (seed stability) in `tests/integration/test_reproducibility.py`
 
 ### Implementation for User Story 1

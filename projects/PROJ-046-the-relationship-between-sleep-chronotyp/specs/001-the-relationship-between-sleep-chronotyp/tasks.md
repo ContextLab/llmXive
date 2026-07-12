@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-046-the-relationship-between-sleep-chronotyp/`). **Note**: Spec Assumption "Data Source Strategy" (Prolific integration) contradicts Plan.md (user-provided data). Flag for plan update.
-- [ ] T002 Initialize R 4.3+ project with `renv` and dependencies (`tidyverse`, `lme4`, `car`, `effectsize`, `pwr`, `rmarkdown`, `knitr`, `data.table`, `testthat`, `lintr`)
-- [ ] T003 [P] Configure `lintr` for code style and `renv.lock` generation <!-- FAILED: unspecified -->
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-046-the-relationship-between-sleep-chronotyp/`). **Note**: Spec Assumption "Data Source Strategy" (Prolific integration) contradicts Plan.md (user-provided data). Flag for plan update.
+- [X] T002 Initialize R 4.3+ project with `renv` and dependencies (`tidyverse`, `lme4`, `car`, `effectsize`, `pwr`, `rmarkdown`, `knitr`, `data.table`, `testthat`, `lintr`)
+- [X] T003 [P] Configure `lintr` for code style and `renv.lock` generation <!-- FAILED: unspecified -->
 
 ---
 
@@ -57,11 +57,11 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup `data/raw/`, `data/processed/`, `data/derived/`, and `logs/` directories and `.gitignore` rules
-- [ ] T005 [P] Create `code/measurements.md` with explicit sections for MEQ and MFQ: **exact version**, **item ordering**, and **scoring formula** (Constitution Principle VI)
+- [X] T004 Setup `data/raw/`, `data/processed/`, `data/derived/`, and `logs/` directories and `.gitignore` rules
+- [X] T005 [P] Create `code/measurements.md` with explicit sections for MEQ and MFQ: **exact version**, **item ordering**, and **scoring formula** (Constitution Principle VI)
 - [X] T006 [P] Create `code/00_config.R` to manage environment variables and file paths
 - [X] T007 Create base data validation utilities in `code/utils_validation.R`
-- [~] T008 Setup logging infrastructure in `code/utils_logging.R` (warnings, aborts)
+- [ ] T008 Setup logging infrastructure in `code/utils_logging.R` (warnings, aborts)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -138,7 +138,7 @@ Examples of foundational tasks (adjust based on your project):
  - Calculate Variance Inflation Factors (VIF).
  - **If any VIF > 2**: Log warning to `logs/vif_warnings.log`, write error flag to `logs/vif_error.flag`, and **ABORT** pipeline (Spec Assumptions: VIFs must be < 2).
  - If VIF OK, save `data/derived/ancova_results.csv` and `data/derived/effect_sizes.csv`.
-- [ ] T024 [US2] [P] Implement `code/07_regression_test.R`:
+- [~] T024 [US2] [P] Implement `code/07_regression_test.R`: <!-- FAILED: unspecified -->
  - **Depends on**: T019.
  - **Generate** `reference_p_values.csv` using a hardcoded R script logic (simulating a reference run) to ensure the artifact exists.
  - Compare pipeline p-values (from T019) with reference p-values.
@@ -156,19 +156,19 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Validation test for report structure in `tests/test-report.R`
+- [~] T025 [P] [US3] Validation test for report structure in `tests/test-report.R`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/04_report.Rmd`: Include descriptive tables, ANCOVA results, Cohen's d, G*Power summary (FR-005). **Depends on**: T019, T018, T012.5.
-- [ ] T027 [US3] Implement sensitivity analysis sweep in `code/04_report.Rmd`:
+- [~] T026 [US3] Implement `code/04_report.Rmd`: Include descriptive tables, ANCOVA results, Cohen's d, G*Power summary (FR-005). **Depends on**: T019, T018, T012.5. <!-- ATOMIZE: requested -->
+- [~] T027 [US3] Implement sensitivity analysis sweep in `code/04_report.Rmd`:
  - **Depends on**: T019, T018, T012.5.
  - **Method**: Re-run ANCOVA models for each alpha threshold (0.01, 0.0125, 0.015) to ensure accuracy within 6h runtime.
  - Generate a summary table listing significance status for every MFQ subscale contrast at each threshold.
  - **Output**: Save sensitivity table to `data/derived/sensitivity_sweep.csv` with columns: `subscale`, `alpha_threshold`, `p_value`, `significant` (boolean).
  - **Include**: Cronbach's alpha values (read from `data/derived/reliability_metrics.csv` calculated in T018) in the report.
  - **Include**: Data Exclusion Summary section (read from `data/derived/exclusions.log` generated in T012.5).
-- [ ] T028 [US3] Generate `reports/chronotype_moral_analysis.html` (or PDF).
+- [~] T028 [US3] Generate `reports/chronotype_moral_analysis.html` (or PDF).
 - [ ] T029 [US3] Implement `code/05_validate_report.R`: Parse report, verify presence of all required sections (SC-003).
 
 **Checkpoint**: All user stories should now be independently functional

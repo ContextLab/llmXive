@@ -326,3 +326,104 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T12:59:49Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: Horne and Ostberg 1976 MEQ source publication in International Journal
+    of Chronobiology volume 4 issue 2 pages 97-110
+  claim_id: c_a2246588
+  context: Section 1.1 Instrument Specification for the Morningness-Eveningness Questionnaire
+    lists the source.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Horne, J. A., & Ostberg, O. (1976). A self-assessment questionnaire to\
+    \ determine morningness\u2013eveningness in human circadian rhythms. International\
+    \ Journal of Chronobiology, 4(2), 97\u2013110."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:36:10Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MEQ scoring range is 16 to 86
+  claim_id: c_17d53786
+  context: Section 1.1 Instrument Specification states the scoring range for the MEQ.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Scoring Range: 16 (Extreme Evening) to 86 (Extreme Morning)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:36:38Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MEQ contains 19 items
+  claim_id: c_6aca2e59
+  context: Section 1.1 Instrument Specification states the item count for the MEQ.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Item Count: 19 items'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:36:55Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: Graham et al 2011 MFQ source publication in Journal of Personality and
+    Social Psychology volume 101 issue 2 pages 366-385
+  claim_id: c_d20af831
+  context: Section 2.1 Instrument Specification for the Moral Foundations Questionnaire
+    lists the source.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Graham, J., Nosek, B. A., Haidt, J., Iyer, R., Koleva, S., & Ditto, P.\
+    \ H. (2011). Mapping the moral domain. Journal of Personality and Social Psychology,\
+    \ 101(2), 366\u2013385."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:37:11Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ 2.0 contains 30 items split into 15 Relevance and 15 Judgment
+  claim_id: c_355bf0d0
+  context: Section 2.1 Instrument Specification states the item count and breakdown
+    for the MFQ.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Item Count: 30 items (15 Relevance + 15 Judgment)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:37:11Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: 'MFQ has 5 subscales: Care/Harm, Fairness/Cheating, Loyalty/Betrayal,
+    Authority/Subversion, Sanctity/Degradation'
+  claim_id: c_b0482b3a
+  context: Section 2.1 Instrument Specification lists the 5 subscales of the MFQ.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Subscales: 5 (Care/Harm, Fairness/Cheating, Loyalty/Betrayal, Authority/Subversion,
+    Sanctity/Degradation)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:37:31Z'

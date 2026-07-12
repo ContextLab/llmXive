@@ -1,13 +1,1 @@
-? 'T001 Create project structure per implementation plan (`projects/PROJ-046-the-relationship-between-sleep-chronotyp/`).
-  **Note**: Spec Assumption "Data Source Strategy" (Prolific integration) contradicts
-  Plan.md (user-provided data). Flag for plan update.'
-: 2
-? T002 Initialize R 4.3+ project with `renv` and dependencies (`tidyverse`, `lme4`,
-  `car`, `effectsize`, `pwr`, `rmarkdown`, `knitr`, `data.table`, `testthat`, `lintr`)
-: 2
-'T003 [P] Configure `lintr` for code style and `renv.lock` generation <!-- FAILED: unspecified -->': 2
-T004 Setup `data/raw/`, `data/processed/`, `data/derived/`, and `logs/` directories and `.gitignore` rules: 2
-? 'T005 [P] Create `code/measurements.md` with explicit sections for MEQ and MFQ:
-  **exact version**, **item ordering**, and **scoring formula** (Constitution Principle
-  VI)'
-: 2
+T008 Setup logging infrastructure in `code/utils_logging.R` (warnings, aborts): 1

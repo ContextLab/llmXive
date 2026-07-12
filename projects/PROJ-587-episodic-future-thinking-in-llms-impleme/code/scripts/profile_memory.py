@@ -4,7 +4,7 @@ Script to verify memory footprint < 7GB during index construction.
 This script performs a realistic memory profiling run by:
 1. Generating synthetic trajectory data that mimics the structure of ALFWorld/TextWorld data
 2. Constructing a FAISS HNSW index (the primary memory consumer)
-3. Measuring peak RSS (Resident Set Size) during the operation
+3. Measuring peak RSS (Resident Set Space) during the operation
 4. Writing a verification report to data/processed/memory_profile_report.json
 
 The synthetic data generation uses realistic string lengths and dimensions

@@ -65,23 +65,23 @@
 
 - [X] T004a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/download_data.sh` to fetch ALFWorld/TextWorld datasets from official repositories.
 
-- [ ] T004b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/record_commit_hashes.py` to record specific commit hashes for ALFWorld/TextWorld into `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/data/commit_hashes.txt` (Constitution Principle I).
+- [X] T004b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/record_commit_hashes.py` to record specific commit hashes for ALFWorld/TextWorld into `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/data/commit_hashes.txt` (Constitution Principle I).
 
-- [ ] T004c [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py` to verify memory footprint < 7GB during index construction.
+- [X] T004c [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py` to verify memory footprint < 7GB during index construction.
 
 - [X] T005 [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/update_state.py` to manage artifact hashes and timestamps (Constitution Principle V).
 
 - [ ] T006 [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/reference_validator.py` and pre-commit hook for citation verification (Constitution Principle II). Note: Updated scope to validate `plan.md` as it is the `implementation-plan` artifact.
 
-- [ ] T007a [P] Create `PlanningTask` Pydantic model in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/planning_task.py` with fields: `task_id`, `initial_state`, `goal_state`, `required_steps`, `episodic_dependencies`.
+- [X] T007a [P] Create `PlanningTask` Pydantic model in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/planning_task.py` with fields: `task_id`, `initial_state`, `goal_state`, `required_steps`, `episodic_dependencies`.
 
 - [ ] T007b [P] Create `FutureScenario` Pydantic model in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/future_scenario.py` with fields: `scenario_id`, `generated_plan`, `episodic_references`, `counterfactual_details`, `confidence_scores`.
 
 - [ ] T008a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/logging.py` with JSON formatter, file output, and `fallback_event` logger.
 
-- [ ] T008b [P] Configure log levels (INFO, WARNING, ERROR) and output destinations in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config.yaml`.
+- [~] T008b [P] Configure log levels (INFO, WARNING, ERROR) and output destinations in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config.yaml`.
 
-- [ ] T009 Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.env.example` and `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config.yaml` with keys for `random_seed`, `cpu_limit`, and `dataset_paths`.
+- [~] T009 Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.env.example` and `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config.yaml` with keys for `random_seed`, `cpu_limit`, and `dataset_paths`.
 
 - [ ] T019b [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` function `run_power_analysis()` to generate a pre-registered power analysis report (n=10 variants, power=0.80, d=0.8) and save to `data/reports/power_analysis_report.json`. This must be executed before data collection to satisfy Constitution Principle VII.
 
@@ -93,7 +93,7 @@
 
 **Goal**: Implement a CPU-optimized neural episodic control module that stores (state, action, outcome) tuples with semantic embeddings and supports high-precision retrieval.
 
-**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU. [UNRESOLVED-CLAIM: c_1112ddea — status=not_enough_info]
+**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -135,7 +135,7 @@
 
 **Goal**: Generate future planning scenarios by combining retrieved episodic memories with current state, ensuring coherence and statistical validity.
 
-**Independent Test**: Generate plans for 50 held-out tasks; measure accuracy against baseline; report effect size d≥0.8. [UNRESOLVED-CLAIM: c_dd2b2a55 — status=not_enough_info]
+**Independent Test**: Generate plans for 50 held-out tasks; measure accuracy against baseline; report effect size d≥0.8.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -303,6 +303,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM and run on 2 CPU cores. [UNRESOLVED-CLAIM: c_20d94457 — status=not_enough_info] No CUDA, no 8-bit quantization, no large LLMs.
+- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM and run on 2 CPU cores. No CUDA, no 8-bit quantization, no large LLMs.
 - **Data Integrity**: Use real ALFWorld/TextWorld datasets via official repositories. No synthetic/fake data generation for inputs.
 - **Reproducibility**: All evaluation metrics (including human evaluation) must be reproducible via deterministic recording of raw ratings and calculation of inter-rater reliability in CI.

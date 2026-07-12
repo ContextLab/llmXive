@@ -776,60 +776,6 @@
   updated_at: '2026-07-07T01:11:02Z'
 - artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
   attempts: 1
-  canonical: top-5 retrieval precision >= 0.80 with cosine similarity >= 0.75 within
-    500ms on CPU for 100 trajectories
-  claim_id: c_1112ddea
-  context: "Independent Test: Record 100 planning trajectories, store them, and verify\
-    \ top-5 retrieval precision \u2265 0.80 with cosine similarity \u2265 0.75 within\
-    \ 500ms on CPU."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Record 100 planning trajectories, store them, and verify top-5 retrieval\
-    \ precision \u2265 0.80 with cosine similarity \u2265 0.75 within 500ms on CPU."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T01:12:31Z'
-- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
-  attempts: 1
-  canonical: effect size d >= 0.8 for 50 held-out tasks
-  claim_id: c_dd2b2a55
-  context: "Independent Test: Generate plans for 50 held-out tasks; measure accuracy\
-    \ against baseline; report effect size d\u22650.8."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Generate plans for 50 held-out tasks; measure accuracy against baseline;\
-    \ report effect size d\u22650.8."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T01:12:31Z'
-- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
-  attempts: 3
-  canonical: power analysis report with n=10 variants, power=0.80, d=0.8
-  claim_id: c_2b57f32c
-  context: Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py`
-    function `run_power_analysis()` to generate a pre-registered power analysis report
-    (n=10 variants, power=0.80, d=0.8) and save to `data/reports/power_analysis_report.json`.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement `run_power_analysis()` function to generate a pre-registered
-    power analysis report (n=10 variants, power=0.80, d=0.8).
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T01:13:48Z'
-- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
-  attempts: 1
   canonical: retrieval latency < 0.5s for 1k entries
   claim_id: c_87cbf6d6
   context: Write test `test_retrieval_latency_1k` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_retrieval_latency.py`
@@ -866,25 +812,6 @@
   updated_at: '2026-07-07T01:15:20Z'
 - artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
   attempts: 1
-  canonical: memory footprint < 7GB during index construction
-  claim_id: c_97a73816
-  context: Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py`
-    to verify memory footprint < 7GB during index construction.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/memory_footprint_%3C_7GB_during_index_construction
-  kind: entity_fact
-  raw_text: Implement `scripts/profile_memory.py` to verify memory footprint < 7GB
-    during index construction.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T01:16:08Z'
-- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
-  attempts: 1
   canonical: conflict flag if similarity difference < 0.15
   claim_id: c_ed9012ae
   context: 'Logic: Flag conflict if similarity difference < 0.15; default to most
@@ -918,6 +845,112 @@
   updated_at: '2026-07-07T01:16:09Z'
 - artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
   attempts: 1
+  canonical: top-5 retrieval precision >= 0.80 with cosine similarity >= 0.75 within
+    500ms on CPU for 100 planning trajectories
+  claim_id: c_234ac7de
+  context: "Independent Test: Record 100 planning trajectories, store them, and verify\
+    \ top-5 retrieval precision \u2265 0.80 with cosine similarity \u2265 0.75 within\
+    \ 500ms on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Record 100 planning trajectories, store them, and verify top-5 retrieval\
+    \ precision \u2265 0.80 with cosine similarity \u2265 0.75 within 500ms on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:44:09Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: effect size d >= 0.8 for plans generated for 50 held-out tasks
+  claim_id: c_746f0de8
+  context: "Independent Test: Generate plans for 50 held-out tasks; measure accuracy\
+    \ against baseline; report effect size d\u22650.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate plans for 50 held-out tasks; measure accuracy against baseline;\
+    \ report effect size d\u22650.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:44:43Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 4
+  canonical: power analysis report with n=10 variants, power=0.80, d=0.8
+  claim_id: c_2b57f32c
+  context: Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py`
+    function `run_power_analysis()` to generate a pre-registered power analysis report
+    (n=10 variants, power=0.80, d=0.8) and save to `data/reports/power_analysis_report.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_power_analysis()` function to generate a pre-registered
+    power analysis report (n=10 variants, power=0.80, d=0.8).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:45:28Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 2
+  canonical: memory footprint < 7GB during index construction
+  claim_id: c_97a73816
+  context: Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py`
+    to verify memory footprint < 7GB during index construction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/memory_footprint_%3C_7GB_during_index_construction
+  kind: entity_fact
+  raw_text: Implement `scripts/profile_memory.py` to verify memory footprint < 7GB
+    during index construction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:45:51Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: index build time < 10s for 10k entries using FAISS HNSW parameters
+  claim_id: c_03fec583
+  context: 'Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py`
+    to achieve index build time < 10s for 10k entries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tune FAISS HNSW parameters to achieve index build time < 10s for 10k entries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:46:07Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: models and data processing fit within 7GB RAM and run on 2 CPU cores
+  claim_id: c_3f029fb2
+  context: 'CPU Constraint: All models and data processing MUST fit within 7GB RAM
+    and run on 2 CPU cores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All models and data processing MUST fit within 7GB RAM and run on 2 CPU
+    cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:46:21Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 2
   canonical: recruiting >= 3 human raters
   claim_id: c_86737a76
   context: "Implement protocol for recruiting \u2265 3 human raters and managing the\
@@ -932,9 +965,94 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-07T01:16:09Z'
+  updated_at: '2026-07-12T15:46:21Z'
 - artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
-  attempts: 3
+  attempts: 2
+  canonical: effect size d >= 0.8 for 50 held-out tasks
+  claim_id: c_dd2b2a55
+  context: "Independent Test: Generate plans for 50 held-out tasks; measure accuracy\
+    \ against baseline; report effect size d\u22650.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate plans for 50 held-out tasks; measure accuracy against baseline;\
+    \ report effect size d\u22650.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:47:57Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: power analysis report with n=10 variants, power=0.80, and d=0.8
+  claim_id: c_4f2d0798
+  context: T019b [P] Implement projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py
+    function run_power_analysis() to generate a pre-registered power analysis report
+    (n=10 variants, power=0.80, d=0.8) and save to data/reports/power_analysis_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement run_power_analysis() function to generate a pre-registered power
+    analysis report with n=10 variants, power=0.80, and d=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:48:27Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: memory footprint < 7GB during index construction
+  claim_id: c_40470533
+  context: T004c [P] Create projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py
+    to verify memory footprint < 7GB during index construction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/memory_footprint_%3C_7GB_during_index_construction
+  kind: entity_fact
+  raw_text: Verify memory footprint < 7GB during index construction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:48:51Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: index build time < 10s for 10k entries
+  claim_id: c_6e936112
+  context: 'T034 [P] Performance optimization: Tune FAISS HNSW parameters in projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py
+    to achieve index build time < 10s for 10k entries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Achieve index build time < 10s for 10k entries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:49:10Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: recruit >= 3 human raters
+  claim_id: c_3cb06f2a
+  context: "T027a [US3] Implement protocol for recruiting \u2265 3 human raters and\
+    \ managing the evaluation interface in projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit \u2265 3 human raters for the evaluation interface."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:49:10Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 4
   canonical: models and data processing fit within 7GB RAM and run on 2 CPU cores
   claim_id: c_20d94457
   context: 'CPU Constraint: All models and data processing MUST fit within 7GB RAM
@@ -949,4 +1067,126 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-07T01:16:09Z'
+  updated_at: '2026-07-12T15:49:11Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 3
+  canonical: top-5 retrieval precision >= 0.80 with cosine similarity >= 0.75 within
+    500ms on CPU for 100 trajectories
+  claim_id: c_1112ddea
+  context: "Independent Test: Record 100 planning trajectories, store them, and verify\
+    \ top-5 retrieval precision \u2265 0.80 with cosine similarity \u2265 0.75 within\
+    \ 500ms on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Record 100 planning trajectories, store them, and verify top-5 retrieval\
+    \ precision \u2265 0.80 with cosine similarity \u2265 0.75 within 500ms on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:50:11Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: report effect size d >= 0.8 for 50 held-out tasks
+  claim_id: c_f39ab6c8
+  context: "Independent Test: Generate plans for 50 held-out tasks; measure accuracy\
+    \ against baseline; report effect size d\u22650.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate plans for 50 held-out tasks; measure accuracy against baseline;\
+    \ report effect size d\u22650.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:50:11Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: power analysis report with n=10 variants, power=0.80, d=0.8
+  claim_id: c_e2f463b7
+  context: T019b [P] Implement ... function `run_power_analysis()` to generate a pre-registered
+    power analysis report (n=10 variants, power=0.80, d=0.8) and save to `data/reports/power_analysis_report.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_power_analysis()` to generate a pre-registered power analysis
+    report (n=10 variants, power=0.80, d=0.8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:52:05Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: fit within 7GB RAM and run on 2 CPU cores
+  claim_id: c_90db3e76
+  context: 'CPU Constraint: All models and data processing MUST fit within 7GB RAM
+    and run on 2 CPU cores. No CUDA, no 8-bit quantization, no large LLMs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All models and data processing MUST fit within 7GB RAM and run on 2 CPU
+    cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:52:05Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: index build time < 10s for 10k entries
+  claim_id: c_81df8d8a
+  context: 'T034 [P] Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py`
+    to achieve index build time < 10s for 10k entries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tune FAISS HNSW parameters ... to achieve index build time < 10s for 10k
+    entries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:52:05Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: recruiting >= 3 human raters
+  claim_id: c_37cb9f8d
+  context: "T027a [US3] Implement protocol for recruiting \u2265 3 human raters and\
+    \ managing the evaluation interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement protocol for recruiting \u2265 3 human raters and managing\
+    \ the evaluation interface"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:52:05Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: memory footprint < 7GB during index construction
+  claim_id: c_1136156c
+  context: T004c [P] Create ... `profile_memory.py` to verify memory footprint < 7GB
+    during index construction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/memory_footprint_%3C_7GB_during_index_construction
+  kind: entity_fact
+  raw_text: Verify memory footprint < 7GB during index construction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T15:52:07Z'

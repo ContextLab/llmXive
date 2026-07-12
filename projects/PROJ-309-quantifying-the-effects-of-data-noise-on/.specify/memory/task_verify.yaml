@@ -4,8 +4,6 @@ T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 T006 [P] Implement `code/utils/plotting.py` with base plot styles and error-bar visualization helpers: 1
 T008 [P] Create `code/analysis.py` with function signatures and docstrings for error calc, threshold ID (FR-007, FR-008).: 1
 T009 [P] Create `code/visualize.py` with function signatures and docstrings for plotting, CSV export (FR-009, FR-010).: 1
-"T040 [P] Implement `code/generators.py` logic for Lorenz/R\xF6ssler integration (FR-001).": 2
-T041 [P] Implement `code/noise.py` logic for Gaussian/Quantization injection (FR-002, FR-003).: 2
-T042 [P] Implement `code/metrics.py` logic for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).: 2
-T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).: 1
-T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).: 1
+T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory.py`: 1
+T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).: 2
+T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).: 2

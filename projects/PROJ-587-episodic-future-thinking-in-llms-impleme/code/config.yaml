@@ -1,0 +1,137 @@
+# Configuration for Episodic Future Thinking in LLMs Project
+# This file defines log levels, output destinations, and global parameters.
+# Referenced by utils/logging.py and the main execution pipeline.
+
+logging:
+  # Log levels: NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
+  # Default level for the root logger
+  root_level: INFO
+  
+  # Formatters
+  format:
+    json:
+      enabled: true
+      # Fields included in JSON output
+      fields: ["timestamp", "level", "logger", "message", "module", "function", "line"]
+    
+    console:
+      enabled: true
+      format_string: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Output destinations
+  handlers:
+    console:
+      type: "StreamHandler"
+      level: INFO
+      formatter: "console"
+      stream: "ext://sys.stdout"
+    
+    file:
+      type: "FileHandler"
+      level: DEBUG
+      formatter: "json"
+      # Relative to project root (code/)
+      filename: "../data/logs/app.log"
+      mode: "a"
+      encoding: "utf-8"
+      maxBytes: 10485760  # 10MB
+      backupCount: 5
+    
+    fallback:
+      type: "FileHandler"
+      level: WARNING
+      formatter: "console"
+      # Specific file for fallback events (e.g., retrieval failures)
+      filename: "../data/logs/fallback_events.log"
+      mode: "a"
+      encoding: "utf-8"
+    
+    retrieval_stats:
+      type: "FileHandler"
+      level: INFO
+      formatter: "json"
+      # Specific file for retrieval metrics
+      filename: "../data/logs/retrieval_stats.log"
+      mode: "a"
+      encoding: "utf-8"
+  
+  # Specific logger configurations
+  loggers:
+    episodic_memory:
+      level: INFO
+      handlers: ["console", "file"]
+      propagate: false
+    
+    retrieval_service:
+      level: DEBUG
+      handlers: ["console", "retrieval_stats", "fallback"]
+      propagate: false
+    
+    planning_service:
+      level: INFO
+      handlers: ["console", "file"]
+      propagate: false
+    
+    validation:
+      level: WARNING
+      handlers: ["console", "fallback"]
+      propagate: false
+
+# Global project settings
+project:
+  name: "episodic-future-thinking-llms"
+  version: "0.1.0"
+  random_seed: 42
+  cpu_limit: 2
+  
+# Data paths (relative to code/)
+data_paths:
+  raw: "../data/raw"
+  processed: "../data/processed"
+  models: "../models"
+  reports: "../data/reports"
+  logs: "../data/logs"
+  
+# Dataset configuration
+datasets:
+  alfworld:
+    path: "../data/raw/alfworld"
+    version: "1.0"
+  textworld:
+    path: "../data/raw/textworld"
+    version: "1.0"
+    
+# Model configuration
+models:
+  embedding:
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    max_length: 512
+    device: "cpu"
+  baseline_transformer:
+    model_name: "google/bert-base-uncased"
+    max_length: 512
+    device: "cpu"
+    
+# Retrieval configuration
+retrieval:
+  index_type: "HNSW"
+  metric: "cosine"
+  top_k: 5
+  similarity_threshold: 0.75
+  fallback_threshold: 2  # Number of results below which fallback triggers
+  conflict_similarity_diff: 0.15
+  
+# Statistical analysis
+stats:
+  power_analysis:
+    alpha: 0.05
+    power: 0.80
+    effect_size: 0.8
+    n_variants: 10
+  multiple_comparison_correction: "bonferroni"
+  
+# Validation
+validation:
+  human_raters_min: 3
+  confidence_threshold_low: 0.3
+  confidence_threshold_high: 0.7

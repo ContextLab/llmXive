@@ -1,84 +1,159 @@
 """
-Utility functions for R project initialization and management.
+Utility functions for managing R environment and renv.
 """
 import subprocess
 import sys
 import os
 import json
 from typing import List, Optional
+from pathlib import Path
 
-def check_r_version(min_version: float = 4.3) -> bool:
+def check_r_version(min_version: str = "4.3.0") -> bool:
     """
-    Check if installed R version meets the minimum requirement.
+    Check if R is installed and meets minimum version requirements.
     
     Args:
-        min_version: Minimum required R version (default 4.3)
-        
+        min_version: Minimum required R version (default: 4.3.0)
+    
     Returns:
-        True if version is sufficient, False otherwise
-        
-    Raises:
-        RuntimeError: If R is not found
+        True if R meets version requirements, False otherwise
     """
     try:
         result = subprocess.run(
             ["R", "--version"],
-            capture_output=True,
-            text=True,
-            check=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            text=True
         )
-        # Parse version from output (e.g., "R version 4.3.1 (2023-06-16)")
-        lines = result.stdout.split('\n')
-        if lines:
-            version_line = lines[0]
-            parts = version_line.split()
-            if len(parts) >= 3:
-                version_str = parts[2]
-                major, minor = map(float, version_str.split('.')[:2])
-                current_version = major + minor / 10
-                return current_version >= min_version
-    except subprocess.CalledProcessError:
-        raise RuntimeError("R is not installed or not in PATH.")
-    except Exception as e:
-        raise RuntimeError(f"Error checking R version: {e}")
-    
-    return False
+        
+        # Parse version from output
+        for line in result.stdout.split('\n'):
+            if 'R version' in line:
+                version = line.split()[2]
+                major, minor, patch = map(int, version.split('.')[:3])
+                min_major, min_minor, min_patch = map(int, min_version.split('.'))
+                
+                if major > min_major:
+                    return True
+                if major == min_major and minor > min_minor:
+                    return True
+                if major == min_major and minor == min_minor and patch >= min_patch:
+                    return True
+                return False
+        
+        return False
+    except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
+        return False
 
-def verify_packages(required_packages: List[str]) -> List[str]:
+def verify_packages(packages: List[str]) -> bool:
     """
-    Check which required packages are missing in the R environment.
+    Verify that specified R packages are installed.
     
     Args:
-        required_packages: List of package names to check
-        
+        packages: List of package names to verify
+    
     Returns:
-        List of missing package names
+        True if all packages are installed, False otherwise
     """
-    missing = []
-    # This would typically run an R command to check installed packages
-    # For now, we return an empty list as a placeholder
-    # In a real implementation, we'd run:
-    # result = subprocess.run(
-    #     ["Rscript", "-e", f'installed.packages()[,1]'],
-    #     capture_output=True, text=True
-    # )
-    # Then parse the output and compare with required_packages
-    return missing
+    r_script = f"""
+    packages <- c({', '.join([f"'{p}'" for p in packages])})
+    missing <- packages[!sapply(packages, requireNamespace, quietly = TRUE)]
+    if (length(missing) > 0) {{
+        quit(status = 1)
+    }}
+    """
+    
+    try:
+        result = subprocess.run(
+            ["Rscript", "-e", r_script],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            text=True
+        )
+        return True
+    except subprocess.CalledProcessError:
+        return False
 
-def initialize_renv():
+def initialize_renv(project_root: Path, packages: List[str]) -> bool:
     """
-    Initialize renv and install required packages.
+    Initialize renv in the project directory and install specified packages.
     
-    This is a wrapper that calls the R initialization script.
+    Args:
+        project_root: Path to the project root directory
+        packages: List of packages to install
+    
+    Returns:
+        True if initialization was successful, False otherwise
     """
-    r_script_path = os.path.join(os.path.dirname(__file__), "00_init_renv.R")
-    if not os.path.exists(r_script_path):
-        raise FileNotFoundError(f"R initialization script not found: {r_script_path}")
+    r_script = f"""
+    if (!requireNamespace("renv", quietly = TRUE)) {{
+        install.packages("renv", repos = "https://cloud.r-project.org")
+    }}
+    renv::init()
+    packages <- c({', '.join([f"'{p}'" for p in packages])})
+    renv::install(packages)
+    renv::snapshot()
+    """
     
-    result = subprocess.run(
-        ["Rscript", r_script_path],
-        check=True,
-        capture_output=False
-    )
+    try:
+        result = subprocess.run(
+            ["Rscript", "-e", r_script],
+            cwd=project_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            text=True,
+            timeout=300
+        )
+        return True
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+        print(f"Error initializing renv: {e}")
+        return False
+
+def main():
+    """Main entry point for command line usage."""
+    packages = [
+        "tidyverse",
+        "lme4",
+        "car",
+        "effectsize",
+        "pwr",
+        "rmarkdown",
+        "knitr",
+        "data.table",
+        "testthat",
+        "lintr"
+    ]
     
-    return result.returncode == 0
+    if not check_r_version():
+        print("ERROR: R 4.3+ is required but not found.")
+        sys.exit(1)
+    
+    if not verify_packages(packages):
+        print("Some packages are missing. Attempting to initialize renv...")
+        
+        # Find project root
+        current = Path(__file__).resolve()
+        while current.parent != current:
+            if (current / "code").exists() and (current / "data").exists():
+                project_root = current
+                break
+            current = current.parent
+        else:
+            print("ERROR: Could not find project root")
+            sys.exit(1)
+        
+        if not initialize_renv(project_root, packages):
+            print("ERROR: Failed to initialize renv.")
+            sys.exit(1)
+        
+        if not verify_packages(packages):
+            print("ERROR: Failed to install required packages.")
+            sys.exit(1)
+    
+    print("SUCCESS: R environment verified and ready.")
+
+if __name__ == "__main__":
+    main()
