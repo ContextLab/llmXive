@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.03768",
+  "judged_at": "2026-07-12T07:05:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+  "rationale": "This paper satisfies criteria (a) and (b) by measuring the core dependent variable (crop yield) and the underlying mechanism (interaction between weather/soil variables) within the specific domain of smallholder farmers, which is the primary target population for \"Climate-Smart Agricultural Practices\" aimed at improving food security. Although the paper focuses on a predictive model rather than a broad policy review, it provides the empirical baseline and technical evidence regarding how climate",
+  "relevant": true
+}

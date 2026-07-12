@@ -64,7 +64,7 @@
 - [X] T010 [P] Setup `tests/__init__.py` and `pytest.ini` configuration
 - [X] T011 [P] Create `code/__init__.py` to expose public API
 - [X] T012 [P] Create `data/raw/.gitkeep` and `data/processed/.gitkeep` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T013 [P] Create `code/data/simulation.py` skeleton with `inject_sme_coefficient()` function signature (Plan Task 1.2) <!-- ATOMIZE: requested -->
+- [X] T013 [P] Create `code/data/simulation.py` skeleton with `inject_sme_coefficient()` function signature (Plan Task 1.2) <!-- ATOMIZE: requested -->
 - [X] T014 [P] Create `code/analysis/anisotropy.py` skeleton with `calculate_biposh()` function signature
 - [X] T015 [P] Create `code/analysis/inference.py` skeleton with `run_mcmc()` function signature
 - [X] T016 [P] Create `code/main.py` skeleton: Entry point that loads config, enforces seeds, and logs start
@@ -88,8 +88,8 @@
 
 - [~] T020 [P] [US1] Unit test `tests/test_data.py::test_download_retry_logic`: Verify exponential backoff and retry count <!-- ATOMIZE: requested -->
 - [~] T021 [P] [US1] Unit test `tests/test_data.py::test_checksum_verification`: Verify `assert file_hash == expected_hash`
-- [ ] T022 [P] [US1] Unit test `tests/test_data.py::test_mask_application`: Verify masked pixels are zeroed
-- [ ] T023 [P] [US1] Integration test `tests/test_data.py::test_end_to_end_pipeline`: Verify `data/processed/` contains valid FITS files
+- [X] T022 [P] [US1] Unit test `tests/test_data.py::test_mask_application`: Verify masked pixels are zeroed
+- [X] T023 [P] [US1] Integration test `tests/test_data.py::test_end_to_end_pipeline`: Verify `data/processed/` contains valid FITS files <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -147,7 +147,7 @@
 
 - [ ] T045 [US3] Implement `code/analysis/inference.py`: Construct likelihood function comparing observed vs. simulated BipoSH coefficients
 - [ ] T046 [US3] Implement `code/analysis/inference.py`: Run MCMC sampling (100 walkers, 2000 burn-in, **8000 samples total**) using `emcee` to derive posterior for \(k_{(V)00}^{(5)}\)
-- [ ] T047 [US3] Implement convergence monitoring in `code/analysis/inference.py`: Check ESS; if < 200, issue warning and save trace plot [UNRESOLVED-CLAIM: c_591cf1d5 — status=not_enough_info]
+- [ ] T047 [US3] Implement convergence monitoring in `code/analysis/inference.py`: Check ESS; if < 200, issue warning and save trace plot
 - [ ] T048 [US3] Implement `code/analysis/inference.py`: Apply Benjamini-Hochberg FDR correction to p-values from BipoSH modes (L=2,3)
 - [ ] T049 [US3] Implement result classification logic: "consistent with isotropy" vs "anomalous" based on corrected p-value < 0.05
 - [ ] T050 [US3] Implement output generation in `code/analysis/inference.py`: Save posterior distributions, likelihood-ratio statistics, and SME constraints to `data/results/`

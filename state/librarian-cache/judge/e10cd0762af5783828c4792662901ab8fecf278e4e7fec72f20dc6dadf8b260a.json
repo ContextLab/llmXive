@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.16872",
+  "judged_at": "2026-07-12T07:05:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates regenerative agricultural practices (a subset of climate-smart practices) and their impact on soil health and resilience (mechanisms for climate adaptation) in a rural agricultural domain, directly addressing the core variables of the user's question regarding practices to improve food security and climate resilience.",
+  "relevant": true
+}

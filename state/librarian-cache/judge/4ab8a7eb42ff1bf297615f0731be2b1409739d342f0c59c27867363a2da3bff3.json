@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.10012",
+  "judged_at": "2026-07-12T07:05:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates \"digital agriculture\" and \"smart village\" applications as specific mechanisms to increase agricultural production and improve rural livelihoods, which are core components of the user's inquiry into climate-smart practices and food security in rural areas. Although the terminology differs slightly (focusing on \"digital\" and \"smart villages\" rather than explicitly \"climate-smart\"), it addresses the same domain and variables regarding the",
+  "relevant": true
+}

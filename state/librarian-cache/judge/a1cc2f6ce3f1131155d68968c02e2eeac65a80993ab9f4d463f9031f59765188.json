@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.18576",
+  "judged_at": "2026-07-12T07:05:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+  "rationale": "This paper satisfies criterion (b) by measuring the dependent variable (food security) within the user's specified domain (rural smallholder farmers in developing nations), even though it focuses on the independent variable of \"access to finance\" rather than specific \"climate-smart agricultural practices.\" It provides essential empirical evidence on the mechanisms and outcomes relevant to improving food security in the target population, which is a necessary component for a literature review on ",
+  "relevant": true
+}

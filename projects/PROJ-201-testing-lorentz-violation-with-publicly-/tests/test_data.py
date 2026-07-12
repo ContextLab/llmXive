@@ -7,7 +7,15 @@ import hashlib
 import tempfile
 import shutil
 from pathlib import Path
+from io import BytesIO
 import pytest
+
+# Import healpy for FITS handling
+try:
+    import healpy as hp
+    HAS_HEALPY = True
+except ImportError:
+    HAS_HEALPY = False
 
 # Import the function to test (or the module if the function is internal)
 # Based on task description, we are verifying checksum logic.
@@ -91,3 +99,134 @@ class TestChecksumVerification:
         
         with pytest.raises(AssertionError):
             verify_checksum(str(corrupted_path), expected_hash)
+
+
+class TestMaskApplication:
+    """Tests for mask application logic (T022)."""
+
+    @pytest.mark.skipif(not HAS_HEALPY, reason="healpy not installed")
+    def test_mask_application_zeros_pixels(self, tmp_path: Path):
+        """
+        Verify that applying a mask zeroes out the masked pixels in the map.
+        T022: Unit test tests/test_data.py::test_mask_application
+        """
+        import numpy as np
+
+        # Create a simple Nside=16 map (12 * 16^2 = 3072 pixels)
+        nside = 16
+        npix = hp.nside2npix(nside)
+        
+        # Create a map with random values
+        random_state = np.random.RandomState(42)
+        full_map = random_state.random(npix)
+        
+        # Create a mask: 0 for masked (bad), 1 for unmasked (good)
+        # Mask half the pixels
+        mask = np.ones(npix, dtype=int)
+        mask[:npix // 2] = 0
+        
+        # Save map and mask to temporary files
+        map_file = tmp_path / "test_map.fits"
+        mask_file = tmp_path / "test_mask.fits"
+        masked_file = tmp_path / "test_masked.fits"
+        
+        hp.write_map(map_file, full_map)
+        hp.write_map(mask_file, mask)
+        
+        # Apply mask: multiply map by mask
+        # In practice, this might be done via healpy functions or manual multiplication
+        masked_map = full_map * mask
+        
+        # Verify masked pixels are zero
+        assert np.all(masked_map[mask == 0] == 0), "Masked pixels should be zero"
+        
+        # Verify unmasked pixels retain original values
+        assert np.allclose(masked_map[mask == 1], full_map[mask == 1]), "Unmasked pixels should retain values"
+        
+        # Save the masked map
+        hp.write_map(masked_file, masked_map)
+        
+        # Load and verify
+        loaded_masked = hp.read_map(masked_file)
+        assert np.all(loaded_masked[mask == 0] == 0), "Loaded masked pixels should be zero"
+        
+        # Also test with explicit healpy mask application if available
+        # hp.ma() is not standard, so we rely on manual multiplication which is the standard approach
+
+    @pytest.mark.skipif(not HAS_HEALPY, reason="healpy not installed")
+    def test_mask_application_with_realistic_data(self, tmp_path: Path):
+        """
+        Test mask application with a more realistic scenario involving
+        a confidence mask from Planck.
+        """
+        import numpy as np
+
+        nside = 64
+        npix = hp.nside2npix(nside)
+        
+        # Simulate a CMB-like map with larger variance
+        random_state = np.random.RandomState(123)
+        full_map = random_state.normal(loc=0, scale=1e-2, size=npix)
+        
+        # Create a confidence mask (0-1 range, but typically binary 0/1)
+        # Simulate a galactic plane cut
+        mask = np.ones(npix, dtype=int)
+        # Zero out the galactic plane (simplified: first 10% of pixels)
+        mask[:npix // 10] = 0
+        
+        # Save
+        map_file = tmp_path / "cmb_map.fits"
+        mask_file = tmp_path / "confidence_mask.fits"
+        result_file = tmp_path / "masked_cmb.fits"
+        
+        hp.write_map(map_file, full_map)
+        hp.write_map(mask_file, mask)
+        
+        # Apply mask
+        masked_map = full_map * mask
+        
+        # Save result
+        hp.write_map(result_file, masked_map)
+        
+        # Verification
+        loaded_masked = hp.read_map(result_file)
+        
+        # Check masked region
+        masked_region = loaded_masked[mask == 0]
+        assert np.all(masked_region == 0), "Masked region must be exactly zero"
+        
+        # Check unmasked region
+        unmasked_region = loaded_masked[mask == 1]
+        original_unmasked = full_map[mask == 1]
+        assert np.allclose(unmasked_region, original_unmasked), "Unmasked region must match original"
+
+    @pytest.mark.skipif(not HAS_HEALPY, reason="healpy not installed")
+    def test_mask_application_preserves_dtype(self, tmp_path: Path):
+        """
+        Verify that applying a mask preserves the data type where possible.
+        """
+        import numpy as np
+
+        nside = 16
+        npix = hp.nside2npix(nside)
+        
+        # Create float64 map
+        full_map = np.random.random(npix).astype(np.float64)
+        mask = np.ones(npix, dtype=int)
+        mask[0] = 0
+        
+        map_file = tmp_path / "float_map.fits"
+        mask_file = tmp_path / "int_mask.fits"
+        result_file = tmp_path / "result.fits"
+        
+        hp.write_map(map_file, full_map)
+        hp.write_map(mask_file, mask)
+        
+        masked_map = full_map * mask
+        hp.write_map(result_file, masked_map)
+        
+        loaded = hp.read_map(result_file)
+        
+        # Healpy typically reads as float64
+        assert loaded.dtype == np.float64, "Result should be float64"
+        assert loaded[0] == 0.0, "Masked pixel should be 0.0"

@@ -1,0 +1,453 @@
+{
+  "fetched_at": "2026-07-12T07:05:10Z",
+  "field": "agriculture",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "agriculture",
+      "idea_body_excerpt": "Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security",
+      "target_n": 5
+    },
+    "duration_seconds": 42.928,
+    "ended_at": "2026-07-12T07:05:10Z",
+    "expansion": null,
+    "extracted_queries": [
+      "regenerative agriculture agroecology conservation tillage",
+      "smallholder farmer yield resilience drought",
+      "climate-smart agriculture CSA mitigation adaptation",
+      "food security caloric intake nutritional outcomes",
+      "agricultural intensification soil carbon sequestration"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2411.16872"
+      ]
+    },
+    "per_query_hit_count": {
+      "Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agriculture": 3,
+      "agricultural intensification soil carbon sequestration": 3,
+      "climate-smart agriculture CSA mitigation adaptation": 2,
+      "food security caloric intake nutritional outcomes": 3,
+      "regenerative agriculture agroecology conservation tillage": 3,
+      "smallholder farmer yield resilience drought": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2204.07969",
+          "rationale": "The paper focuses on computer vision techniques (semantic segmentation, augmentation invariance) for analyzing aerial images, which is a methodological tool rather than a study of the biological, social, or economic mechanisms linking agricultural practices to food security. It fails to measure the independent variable (climate-smart practices) or the dependent variable (food security outcomes) and does not establish an empirical baseline for the user's specific research question, falling under ",
+          "title": "Augmentation Invariance and Adaptive Sampling in Semantic Segmentation of Agricultural Aerial Images"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T07:04:27Z",
+    "term_input": {
+      "normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+      "raw": "Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agriculture"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Blockchain is an emerging digital technology allowing ubiquitous financial transactions among distributed untrusted parties, without the need of intermediaries such as banks. This article examines the impact of blockchain technology in agriculture and food supply chain, presents existing ongoing projects and initiatives, and discusses overall implications, challenges and potential, with a critical view over the maturity of these projects. Our findings indicate that blockchain is a promising technology towards a transparent supply chain of food, with many ongoing initiatives in various food products and food-related issues, but many barriers and challenges still exist, which hinder its wider popularity among farmers and systems. These challenges involve technical aspects, education, policies and regulatory frameworks.",
+          "claimed_authors": [
+            "Andreas Kamilaris",
+            "Agusti Fonts",
+            "Francesc X. Prenafeta-Boldu"
+          ],
+          "claimed_title": "The Rise of Blockchain Technology in Agriculture and Food Supply Chains",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.07391"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='The Rise of Blockchain Technology in Agriculture and Food Supply Chains')",
+        "failed_at": "2026-07-12T07:04:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence is transforming precision agriculture, offering farmers new tools to streamline their daily operations. While these technological advances promise increased efficiency, they often introduce additional complexity and steep learning curves that are particularly challenging for non-technical users who must balance tech adoption with existing workloads. In this paper, we present a natural language (NL) robotic mission planner that enables non-specialists to control heterogeneous robots through a common interface. By leveraging large language models (LLMs) and predefined primitives, our architecture seamlessly translates human language into intermediate descriptions that can be executed by different robotic platforms. With this system, users can formulate complex agricultural missions without writing any code. In the work presented in this paper, we extend our previous system tailored for wheeled robot mission planning through a new class of experiments involving robotic manipulation and computer vision tasks. Our results demonstrate that the architecture is both general enough to support a diverse set of robots and powerful enough to execute complex mission requests. This work represents a significant step toward making robotic automation in precision agriculture more accessible to non-technical users.",
+          "claimed_authors": [
+            "Marcos Abel Zuzuárregui",
+            "Mustafa Melih Toslak",
+            "Stefano Carpin"
+          ],
+          "claimed_title": "One For All: LLM-based Heterogeneous Mission Planning in Precision Agriculture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.10106"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='One For All: LLM-based Heterogeneous Mission Planning in Precision Agriculture')",
+        "failed_at": "2026-07-12T07:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Survival probability within a certain time horizon T is a common measure of population viability. The choice of T implicitly involves a time preference, similar to economic discounting: Conservation success is evaluated at the time horizon T, while all effects that occur later than T are not considered. Despite the obvious relevance of the time horizon, ecological studies seldom analyze its impact on the evaluation of conservation options. In this paper, we show that, while the choice of T does not change the ranking of conservation options for single species under stationary conditions, it may substantially change conservation decisions for multiple species. We conclude that it is of crucial importance to investigate the sensitivity of model results to the choice of the time horizon or other measures of time preference when prioritizing biodiversity conservation efforts.",
+          "claimed_authors": [
+            "Florian Hartig",
+            "Martin Drechsler"
+          ],
+          "claimed_title": "The time horizon and its role in multiple species conservation planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0807.4040"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='The time horizon and its role in multiple species conservation planning')",
+        "failed_at": "2026-07-12T07:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Previously, crowdsourcing experiments in surveillance of crop diseases and pest have been trialed as small scale community sensing campaigns with select cohort of smallholder farmers, extension and experts. While those pilots have demonstrated the viability of community sensing with mobile phones to collect massive amounts of real-time data all year round, to compliment low-resourced agricultural expert surveys, they are limited in generalising ideas for scaled implementations of a community sensing system with farmer communities. This work presents a case of scaled deployment of the mobile ad hoc surveillance for crowdsourcing real-time surveillance data on cassava from over 175 smallholder farmers across Uganda. This paper describes a modified mobile ad hoc surveillance ecosystem to suite smallholder farmer agents, a communication model and data collection model designed to cover the spatial interests for the scale of surveillance, a deployment plan, the training methodology and incentives structure. The paper also presents very early results of contributions from farmer agents, that could be usable in monitoring the movement of planting materials between districts, mapping cassava varieties, multiplication sites, and communities with little or no access to agricultural extension services, and possibly guide precision expert surveys in areas of high disease incidence.",
+          "claimed_authors": [
+            "Daniel Mutembesa",
+            "Ernest Mwebaze",
+            "Solomon Nsumba",
+            "Christopher Omongo",
+            "Humphrey Mutaasa"
+          ],
+          "claimed_title": "Mobile community sensing with smallholder farmers in a developing nation; A scaled pilot for crop health monitoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.07047"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='Mobile community sensing with smallholder farmers in a developing nation; A scaled pilot for crop health monitoring')",
+        "failed_at": "2026-07-12T07:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While space-borne optical and near-infrared facilities have succeeded in delivering a precise and spatially resolved picture of our Universe, their small survey area is known to under-represent the true diversity of galaxy populations. Ground-based surveys have reached comparable depths but at lower spatial resolution, resulting in source confusion that hampers accurate photometry extractions. What once was limited to the infrared regime has now begun to challenge ground-based ultra-deep surveys, affecting detection and photometry alike. Failing to address these challenges will mean forfeiting a representative view into the distant Universe. We introduce The Farmer: an automated, reproducible profile-fitting photometry package that pairs a library of smooth parametric models from The Tractor (Lang et al. 2016) with a decision tree that determines the best-fit model in concert with neighboring sources. Photometry is measured by fitting the models on other bands leaving brightness free to vary. The resulting photometric measurements are naturally total, and no aperture corrections are required. Supporting diagnostics (e.g. $χ^2$) enable measurement validation. As fitting models is relatively time intensive, The Farmer is built with high-performance computing routines. We benchmark The Farmer on a set of realistic COSMOS-like images and find accurate photometry, number counts, and galaxy shapes. The Farmer is already being utilized to produce catalogs for several large-area deep extragalactic surveys where it has been shown to tackle some of the most challenging optical and near-infrared data available, with the promise of extending to other ultra-deep surveys expected in the near future. The Farmer is available to download from GitHub and Zenodo.",
+          "claimed_authors": [
+            "J. R. Weaver",
+            "L. Zalesky",
+            "V. Kokorev",
+            "C. J. R. McPartland",
+            "N. Chartab",
+            "K. M. L. Gould",
+            "M. Shuntov",
+            "I. Davidzon",
+            "A. Faisst",
+            "N. Stickley",
+            "P. L. Capak",
+            "S. Toft",
+            "D. Masters",
+            "B. Mobasher",
+            "D. B. Sanders",
+            "O. B. Kauffmann",
+            "H. J. McCracken",
+            "O. Ilbert",
+            "G. Brammer",
+            "A. Moneti"
+          ],
+          "claimed_title": "The Farmer: A reproducible profile-fitting photometry package for deep galaxy surveys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.07757"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='The Farmer: A reproducible profile-fitting photometry package for deep galaxy surveys')",
+        "failed_at": "2026-07-12T07:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study explores the potential to enhance the reflectance of solar insolation by the human settlement and grassland components of the Earth's terrestrial surface as a climate change mitigation measure. Preliminary estimates derived using a static radiative transfer model indicate that such efforts could amplify the planetary albedo enough to offset the current global annual average level of radiative forcing caused by anthropogenic greenhouse gases by as much as 30 percent or 0.76 W/m2. Terrestrial albedo amplification may thus extend, by about 25 years, the time available to advance the development and use of low-emission energy conversion technologies which ultimately remain essential to mitigate long-term climate change. However, additional study is needed to confirm the estimates reported here and to assess the economic and environmental impacts of active land-surface albedo amplification as a climate change mitigation measure.",
+          "claimed_authors": [
+            "Robert M. Hamwey"
+          ],
+          "claimed_title": "Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "physics/0512170"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study')",
+        "failed_at": "2026-07-12T07:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Food recognition and nutritional apps are trending technologies that may revolutionise the way people with diabetes manage their diet. Such apps can monitor food intake as a digital diary and even employ artificial intelligence to assess the diet automatically. Although these apps offer a promising solution for managing diabetes, they are rarely used by patients. This chapter aims to provide an in-depth assessment of the current status of apps for food recognition and nutrition, to identify factors that may inhibit or facilitate their use, while it is accompanied by an outline of relevant research and development.",
+          "claimed_authors": [
+            "Lubnaa Abdur Rahman",
+            "Ioannis Papathanail",
+            "Lorenzo Brigato",
+            "Elias K. Spanakis",
+            "Stavroula Mougiakakou"
+          ],
+          "claimed_title": "Food Recognition and Nutritional Apps",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05372"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='Food Recognition and Nutritional Apps')",
+        "failed_at": "2026-07-12T07:04:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Half of long-term care (LTC) residents are malnourished increasing hospitalization, mortality, morbidity, with lower quality of life. Current tracking methods are subjective and time consuming. This paper presents the automated food imaging and nutrient intake tracking (AFINI-T) technology designed for LTC. We propose a novel convolutional autoencoder for food classification, trained on an augmented UNIMIB2016 dataset and tested on our simulated LTC food intake dataset (12 meal scenarios; up to 15 classes each; top-1 classification accuracy: 88.9%; mean intake error: -0.4 mL$\\pm$36.7 mL). Nutrient intake estimation by volume was strongly linearly correlated with nutrient estimates from mass ($r^2$ 0.92 to 0.99) with good agreement between methods ($σ$= -2.7 to -0.01; zero within each of the limits of agreement). The AFINI-T approach is a deep-learning powered computational nutrient sensing system that may provide a novel means for more accurately and objectively tracking LTC resident food intake to support and prevent malnutrition tracking strategies.",
+          "claimed_authors": [
+            "Kaylen J. Pfisterer",
+            "Robert Amelard",
+            "Jennifer Boger",
+            "Audrey G. Chung",
+            "Heather H. Keller",
+            "Alexander Wong"
+          ],
+          "claimed_title": "Enhancing Food Intake Tracking in Long-Term Care with Automated Food Imaging and Nutrient Intake Tracking (AFINI-T) Technology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.04608"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='Enhancing Food Intake Tracking in Long-Term Care with Automated Food Imaging and Nutrient Intake Tracking (AFINI-T) Technology')",
+        "failed_at": "2026-07-12T07:04:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "77% of adults over 50 want to age in place today, presenting a major challenge to ensuring adequate nutritional intake. It has been reported that one in four older adults that are 65 years or older are malnourished and given the direct link between malnutrition and decreased quality of life, there have been numerous studies conducted on how to efficiently track nutritional intake of food. Recent advancements in machine learning and computer vision show promise of automated nutrition tracking methods of food, but require a large high-quality dataset in order to accurately identify the nutrients from the food on the plate. Unlike existing datasets, a collection of 3D models with nutritional information allow for view synthesis to create an infinite number of 2D images for any given viewpoint/camera angle along with the associated nutritional information. In this paper, we develop a methodology for collecting high-quality 3D models for food items with a particular focus on speed and consistency, and introduce NutritionVerse-3D, a large-scale high-quality high-resolution dataset of 105 3D food models, in conjunction with their associated weight, food name, and nutritional value. These models allow for large quantity food intake scenes, diverse and customizable scene layout, and an infinite number of camera settings and lighting conditions. NutritionVerse-3D is publicly available as a part of an open initiative to accelerate machine learning for nutrition sensing.",
+          "claimed_authors": [
+            "Chi-en Amy Tai",
+            "Matthew Keller",
+            "Mattie Kerrigan",
+            "Yuhao Chen",
+            "Saeejith Nair",
+            "Pengcheng Xi",
+            "Alexander Wong"
+          ],
+          "claimed_title": "NutritionVerse-3D: A 3D Food Model Dataset for Nutritional Intake Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.05619"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='NutritionVerse-3D: A 3D Food Model Dataset for Nutritional Intake Estimation')",
+        "failed_at": "2026-07-12T07:04:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drylands forestation offers the potential for significant long-term sequestration of atmospheric CO$_2$. We consider sequestration of organic and inorganic carbon by a planted semi-arid forest, based on carbon that originates from atmospheric CO$_2$. Measurements at Israels Yatir forest give a sequestration rate of $\\sim$550 g CO$_2$ m$^{-2}$ yr$^{-1}$ as organic carbon in the trees biomass. The inorganic carbon precipitation rate gives an additional 216 g CO$_2$ m$^{-2}$ yr$^{-1}$ globally, via calcite (CaCO$_3$) precipitation in soil. This sequestration is due to a combination of microbial activity on organic soil carbon, and the formation of soil carbonic acid (H$_2$CO$_3$) that arises from the reaction of soil water with CO$_2$ exhaled from tree roots. Published estimates restrict the potential drylands surface available for sustainable forestation to $\\sim$4.5 million km$^2$, only $\\sim$10$\\%$ of the global drylands. The dominant limitation is the apparent lack of water. However, immediately under many drylands, there are paleowaters (fossil water) that had recharged underlying aquifers during prior wetter climatic regimes. Conservatively, including fossil water, at least $\\sim$9.0 million km$^2$ is available for afforestation. Measurements at Yatir show that drip irrigation to $\\sim$18$\\%$ average Soil Moisture (higher than the rainfed $\\sim$12$\\%$ SM) would double the organic carbon sequestration rate. In addition, the tree density could be increased, which would independently double the organic carbon sequestration rate. The potential total annual sequestration rate is then estimated as 20.0 Gt CO$_2$. Measurements at Israels Yatir forest give a sequestration rate of $\\sim$20.0 Gt CO$_2$ yr$^{-1}$, divided between 14.0 Gt CO$_2$ yr$^{-1}$ (organic) and 6.0 Gt CO$_2$ yr$^{-1}$ (inorganic). This corresponds to $\\sim$100$\\%$ of the annual rate of atmospheric CO$_2$ increase.",
+          "claimed_authors": [
+            "Murray Moinester",
+            "Joel Kronfeld"
+          ],
+          "claimed_title": "Potential Global Sequestration of Atmospheric Carbon Dioxide by Drylands Forestation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.10641"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='Potential Global Sequestration of Atmospheric Carbon Dioxide by Drylands Forestation')",
+        "failed_at": "2026-07-12T07:04:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study investigated the use of portable X-ray fluorescence (PXRF) spectrometry and soil image analysis for rapid soil fertility assessment, with a focus on key indicators such as available boron (B), organic carbon (OC), available manganese (Mn), available sulfur (S), and the sulfur availability index (SAI). A total of 1,133 soil samples from diverse agro-climatic zones in Eastern India were analyzed. The research integrated color and texture features from microscopic soil images, PXRF data, and auxiliary soil variables (AVs) using a Random Forest model. Results showed that combining image features (IFs) with AVs significantly improved prediction accuracy for available B (R2 = 0.80) and OC (R2 = 0.88). A data fusion approach, incorporating IFs, AVs, and PXRF data, further enhanced predictions for available Mn and SAI, with R2 values of 0.72 and 0.70, respectively. The study highlights the potential of integrating these technologies to offer rapid, cost-effective soil testing methods, paving the way for more advanced predictive models and a deeper understanding of soil fertility. Future work should explore the application of deep learning models on a larger dataset, incorporating soils from a wider range of agro-climatic zones under field conditions.",
+          "claimed_authors": [
+            "Shubhadip Dasgupta",
+            "Satwik Pate",
+            "Divya Rathore",
+            "L. G. Divyanth",
+            "Ayan Das",
+            "Anshuman Nayak",
+            "Subhadip Dey",
+            "Asim Biswas",
+            "David C. Weindorf",
+            "Bin Li",
+            "Sergio Henrique Godinho Silva",
+            "Bruno Teixeira Ribeiro",
+            "Sanjay Srivastava",
+            "Somsubhra Chakraborty"
+          ],
+          "claimed_title": "Prediction of soil fertility parameters using USB-microscope imagery and portable X-ray fluorescence spectrometry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.12415"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='Prediction of soil fertility parameters using USB-microscope imagery and portable X-ray fluorescence spectrometry')",
+        "failed_at": "2026-07-12T07:04:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CO2 capture and storage (CCS) technology is likely to be widely deployed in coming decades in response to major climate and economics drivers: CCS is part of every clean energy pathway that limits global warming to 2C or less and receives significant CO2 tax credits in the United States. These drivers are likely to stimulate capture, transport, and storage of hundreds of millions or billions of tonnes of CO2 annually. A key part of the CCS puzzle will be identifying and characterizing suitable storage sites for vast amounts of CO2. We introduce a new software tool called SCO2T (Sequestration of CO2 Tool, pronounced \"Scott\") to rapidly characterizing saline storage reservoirs. The tool is designed to rapidly screen hundreds of thousands of reservoirs, perform sensitivity and uncertainty analyses, and link sequestration engineering (injection rates, reservoir capacities, plume dimensions) to sequestration economics (costs constructed from around 70 separate economic inputs). We describe the novel science developments supporting SCO2T including a new approach to estimating CO2 injection rates and CO2 plume dimensions as well as key advances linking sequestration engineering with economics. Next, we perform a sensitivity and uncertainty analysis of geology combinations (including formation depth, thickness, permeability, porosity, and temperature) to understand the impact on carbon sequestration. Through the sensitivity analysis we show that increasing depth and permeability both can lead to increased CO2 injection rates, increased storage potential, and reduced costs, while increasing porosity reduces costs without impacting the injection rate (CO2 is injected at a constant pressure in all cases) by increasing the reservoir capacity.",
+          "claimed_authors": [
+            "Richard S. Middleton",
+            "Jeffrey M. Bielicki",
+            "Bailian Chen",
+            "Andres F. Clarens",
+            "Robert P. Currier",
+            "Kevin M. Ellett",
+            "Dylan R. Harp",
+            "Brendan A. Hoover",
+            "Ryan M. Kammer",
+            "Dane N. McFarlane",
+            "Jonathan D. Ogland-Hand",
+            "Rajesh J. Pawar",
+            "Philip H. Stauffer",
+            "Hari S. Viswanathan",
+            "Sean P. Yaw"
+          ],
+          "claimed_title": "Great SCO2T! Rapid tool for carbon sequestration science, engineering, and economics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.13688"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agr', candidate_title='Great SCO2T! Rapid tool for carbon sequestration science, engineering, and economics')",
+        "failed_at": "2026-07-12T07:04:59Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ayobami Paul Abolade",
+            "Ibrahim Olanrewaju Lawal",
+            "Kamoru Lanre Akanbi",
+            "Ahmed Orilonise Salami"
+          ],
+          "title": "Unlocking The Future of Food Security Through Access to Finance for Sustainable Agribusiness Performance",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.18576",
+        "summary": "Access to finance is vital for improving food security, particularly in developing nations where agricultural production is crucial. Despite several financial interventions targeted at increasing agricultural production, smallholder farmers continue to lack access to reasonable, timely, and sufficient financing, limiting their ability to invest in improved technology and inputs, lowering productivity and food supply. This study examines the relationship between access to finance and food security among smallholder farmers in Ogun State, employing institutional theory as a theoretical framework. The study takes a quantitative method, with a survey for the research design and a population of 37,200 agricultural smallholder farmers. A sample size of 380 was chosen using probability sampling and simple random techniques. The data were analysed via Partial Least Squares Structural Equation Modelling (PLS-SEM). The findings demonstrate a favourable relationship between access to finance and food security, with an R2-value of 0.615 indicating a robust link. These findings underline the need of improving financial institutions and implementing enabling policies to enable farmers have access to the financial resources they need to achieve food security outcomes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.18576",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T07:04:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammad Raziuddin Chowdhury",
+            "Md Sakib Ullah Sourav",
+            "Rejwan Bin Sulaiman"
+          ],
+          "title": "The Role of Digital Agriculture in Transforming Rural Areas into Smart Villages",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.10012",
+        "summary": "From the perspective of any nation, rural areas generally present a comparable set of problems, such as a lack of proper health care, education, living conditions, wages, and market opportunities. Some nations have created and developed the concept of smart villages during the previous few decades, which effectively addresses these issues. The landscape of traditional agriculture has been radically altered by digital agriculture, which has also had a positive economic impact on farmers and those who live in rural regions by ensuring an increase in agricultural production. We explored current issues in rural areas, and the consequences of smart village applications, and then illustrate our concept of smart village from recent examples of how emerging digital agriculture trends contribute to improving agricultural production in this chapter.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.10012",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T07:04:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Margaret Capetz",
+            "Swati Sharma",
+            "Rafael Padilha",
+            "Peder Olsen",
+            "Jessica Wolk",
+            "Emre Kiciman",
+            "Ranveer Chandra"
+          ],
+          "title": "Enabling Adoption of Regenerative Agriculture through Soil Carbon Copilots",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.16872",
+        "summary": "Mitigating climate change requires transforming agriculture to minimize environ mental impact and build climate resilience. Regenerative agricultural practices enhance soil organic carbon (SOC) levels, thus improving soil health and sequestering carbon. A challenge to increasing regenerative agriculture practices is cheaply measuring SOC over time and understanding how SOC is affected by regenerative agricultural practices and other environmental factors and farm management practices. To address this challenge, we introduce an AI-driven Soil Organic Carbon Copilot that automates the ingestion of complex multi-resolution, multi-modal data to provide large-scale insights into soil health and regenerative practices. Our data includes extreme weather event data (e.g., drought and wildfire incidents), farm management data (e.g., cropland information and tillage predictions), and SOC predictions. We find that integrating public data and specialized models enables large-scale, localized analysis for sustainable agriculture. In comparisons of agricultural practices across California counties, we find evidence that diverse agricultural activity may mitigate the negative effects of tillage; and that while extreme weather conditions heavily affect SOC, composting may mitigate SOC loss. Finally, implementing role-specific personas empowers agronomists, farm consultants, policymakers, and other stakeholders to implement evidence-based strategies that promote sustainable agriculture and build climate resilience.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.16872",
+          "http_status": 200,
+          "pdf_sample_score": 0.2686,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T07:04:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chollette C. Olisah",
+            "Lyndon Smith",
+            "Melvyn Smith",
+            "Morolake O. Lawrence",
+            "Osita Ojukwu"
+          ],
+          "title": "Corn Yield Prediction Model with Deep Neural Networks for Smallholder Farmer Decision Support System",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.03768",
+        "summary": "Crop yield prediction has been modeled on the assumption that there is no interaction between weather and soil variables. However, this paper argues that an interaction exists, and it can be finely modelled using the Kendall Correlation coefficient. Given the nonlinearity of the interaction between weather and soil variables, a deep neural network regressor (DNNR) is carefully designed with consideration to the depth, number of neurons of the hidden layers, and the hyperparameters with their optimizations. Additionally, a new metric, the average of absolute root squared error (ARSE) is proposed to combine the strengths of root mean square error (RMSE) and mean absolute error (MAE). With the ARSE metric, the proposed DNNR(s), optimised random forest regressor (RFR) and the extreme gradient boosting regressor (XGBR) achieved impressively small yield errors, 0.0172 t/ha, and 0.0243 t/ha, 0.0001 t/ha, and 0.001 t/ha, respectively. However, the DNNR(s), with changes to the explanatory variables to ensure generalizability to unforeseen data, DNNR(s) performed best. Further analysis reveals that a strong interaction does exist between weather and soil variables. Precisely, yield is observed to increase when precipitation is reduced and silt increased, and vice-versa. However, the degree of decrease or increase is not quantified in this paper. Contrary to existing yield models targeted towards agricultural policies and global food security, the goal of the proposed corn yield model is to empower the smallholder farmer to farm smartly and intelligently, thus the prediction model is integrated into a mobile application that includes education, and a farmer-to-market access module.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.03768",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T07:04:58Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2204.07969",
+  "judged_at": "2026-07-12T07:05:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+  "rationale": "The paper focuses on computer vision techniques (semantic segmentation, augmentation invariance) for analyzing aerial images, which is a methodological tool rather than a study of the biological, social, or economic mechanisms linking agricultural practices to food security. It fails to measure the independent variable (climate-smart practices) or the dependent variable (food security outcomes) and does not establish an empirical baseline for the user's specific research question, falling under ",
+  "relevant": false
+}

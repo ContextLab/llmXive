@@ -736,3 +736,104 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T22:54:58Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: produce 200 FITS files with Nside=256 for simulation injection
+  claim_id: c_756558dd
+  context: Implement inject_sme_coefficient() in code/data/simulation.py to produce
+    200 FITS files in data/simulations/ with Nside=256 (sub-sampled for RAM), injecting
+    specific k values
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: produce 200 FITS files in data/simulations/ with Nside=256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T07:07:38Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: produce 200 FITS files with Nside=256 and realistic noise for isotropic
+    null
+  claim_id: c_425d08b3
+  context: Implement generate_isotropic_null() in code/data/simulation.py to produce
+    200 FITS files in data/simulations/ with Nside=256 and realistic noise
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: produce 200 FITS files in data/simulations/ with Nside=256 and realistic
+    noise
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T07:07:47Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: verify processed output files have Nside=2048
+  claim_id: c_b0fba8ef
+  context: Execute code/data/downloader.py and code/data/processor.py; verify output
+    files exist in data/processed/, have Nside=2048, contain no NaNs in unmasked regions,
+    and match expected file sizes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify output files exist in data/processed/, have Nside=2048
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T07:07:59Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: compute angular power spectra for l less than 200
+  claim_id: c_50a764bc
+  context: "Compute angular power spectra (TT, EE, TE) for \u2113 < 200, perform dipole\
+    \ modulation analysis, calculate BipoSH coefficients (L=2,3)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compute_angular_power_spectra_for_l_less_than_200
+  kind: magnitude
+  raw_text: Compute angular power spectra (TT, EE, TE) for l < 200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T07:09:19Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: calculate BipoSH coefficients for L=2 and L=3 modes
+  claim_id: c_28a1d9ee
+  context: perform dipole modulation analysis, calculate BipoSH coefficients (L=2,3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate BipoSH coefficients for L=2 and L=3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T07:09:48Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: run MCMC sampling with 100 walkers, 2000 burn-in, and 8000 total samples
+  claim_id: c_c14c9b17
+  context: Run MCMC sampling (100 walkers, 2000 burn-in, 8000 samples total) using
+    emcee to derive posterior for k(V)00(5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MCMC sampling with 100 walkers, 2000 burn-in, 8000 samples total
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T07:09:51Z'
