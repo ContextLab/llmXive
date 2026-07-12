@@ -1,95 +1,113 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Results Schema
-description: Defines the structure of the statistical analysis output.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for statistical analysis outputs (LMM)"
+type: "object"
 properties:
-  anova_table:
-    type: object
+  model_type:
+    type: "string"
+    enum:
+      - "Linear_Mixed_Effects_Model"
+    description: "Type of model used."
+  fixed_effects:
+    type: "object"
+    description: "Fixed effect coefficients."
+    additionalProperties:
+      type: "number"
+  random_effects_variance:
+    type: "object"
+    description: "Random effect variances."
+    additionalProperties:
+      type: "number"
+  p_value:
+    type: "number"
+    description: "Raw p-value for salience effect."
+  p_value_corrected:
+    type: "number"
+    description: "Bonferroni-corrected p-value."
+  effect_size:
+    type: "object"
     properties:
-      source:
-        type: string
-        description: "Source of variation (e.g., 'salience', 'Error')."
-      df:
-        type: number
-        description: "Degrees of freedom."
-      F:
-        type: number
-        description: "F-statistic."
-      p_value:
-        type: number
-        description: "P-value (corrected if necessary)."
-      partial_eta_squared:
-        type: number
-        description: "Effect size (partial eta-squared)."
-      ci_lower:
-        type: number
-        description: "Lower bound of 95% CI for effect size."
-      ci_upper:
-        type: number
-        description: "Upper bound of 95% CI for effect size."
+      marginal_r_squared:
+        type: "number"
+      conditional_r_squared:
+        type: "number"
+      ci_95_lower:
+        type: "number"
+      ci_95_upper:
+        type: "number"
     required:
-      - source
-      - df
-      - F
-      - p_value
-      - partial_eta_squared
-  sphericity_test:
-    type: object
-    properties:
-      mauchly_w:
-        type: number
-        description: "Mauchly's W statistic."
-      p_value:
-        type: number
-        description: "P-value for sphericity test."
-      correction_applied:
-        type: string
-        enum:
-          - none
-          - greenhouse-geisser
-          - huynh-feldt
-        description: "Type of correction applied if sphericity violated."
-    required:
-      - mauchly_w
-      - p_value
-      - correction_applied
+      - "marginal_r_squared"
+      - "conditional_r_squared"
+      - "ci_95_lower"
+      - "ci_95_upper"
   post_hoc_tests:
-    type: array
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
         comparison:
-          type: string
-          description: "e.g., 'low vs medium'."
+          type: "string"
         t_statistic:
-          type: number
-        p_value:
-          type: number
-          description: "Bonferroni-corrected p-value."
-        significant:
-          type: boolean
+          type: "number"
+        p_value_uncorrected:
+          type: "number"
+        p_value_bonferroni:
+          type: "number"
       required:
-        - comparison
-        - t_statistic
-        - p_value
-        - significant
-  metadata:
-    type: object
-    properties:
-      n_participants:
-        type: integer
-      n_responses:
-        type: integer
-      analysis_date:
-        type: string
-        format: date-time
-    required:
-      - n_participants
-      - n_responses
-      - analysis_date
+        - "comparison"
+        - "t_statistic"
+        - "p_value_uncorrected"
+        - "p_value_bonferroni"
+  exclusion_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+  sample_size:
+    type: "integer"
+    minimum: 1
+  convergence_status:
+    type: "string"
+    enum:
+      - "converged"
+      - "warning"
+      - "failed"
 required:
-  - anova_table
-  - sphericity_test
-  - post_hoc_tests
-  - metadata
+  - "model_type"
+  - "fixed_effects"
+  - "random_effects_variance"
+  - "p_value"
+  - "p_value_corrected"
+  - "effect_size"
+  - "post_hoc_tests"
+  - "exclusion_rate"
+  - "sample_size"
+  - "convergence_status"
 additionalProperties: false
+examples:
+  - model_type: "Linear_Mixed_Effects_Model"
+    fixed_effects:
+      intercept: 3.5
+      salience_medium: 0.8
+      salience_high: 1.2
+    random_effects_variance:
+      participant: 0.5
+      scenario: 0.2
+    p_value: 0.001
+    p_value_corrected: 0.003
+    effect_size:
+      marginal_r_squared: 0.15
+      conditional_r_squared: 0.45
+      ci_95_lower: 0.08
+      ci_95_upper: 0.22
+    post_hoc_tests:
+      - comparison: "low vs medium"
+        t_statistic: 2.5
+        p_value_uncorrected: 0.015
+        p_value_bonferroni: 0.045
+      - comparison: "medium vs high"
+        t_statistic: 3.2
+        p_value_uncorrected: 0.002
+        p_value_bonferroni: 0.006
+    exclusion_rate: 0.05
+    sample_size: 190
+    convergence_status: "converged"

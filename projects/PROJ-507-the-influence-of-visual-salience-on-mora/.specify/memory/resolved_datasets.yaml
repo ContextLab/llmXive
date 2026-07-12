@@ -1,4 +1,4 @@
-resolved_at: '2026-07-12T10:43:52.964632+00:00'
+resolved_at: '2026-07-12T11:02:47.939892+00:00'
 datasets:
 - intent: ANOVA
   status: verified
@@ -15,6 +15,18 @@ datasets:
     source: huggingface
     status: verified
     format: json
+  - url: https://figshare.com/articles/dataset/Research_Data_deposit_citation_and_linking_Option_C_/32968259
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Vacuum_Unified_Solitonic_Condensate_Theory/32968268
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Integrating_Technology_in_Training_Translation_Students_at_a_University_Level_Assessment_of_Students_Performances_with_and_without_the_Use_of_Artificial_Intelligence_in_the_Translation_of_Poetry/32968256
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/dataset/U_S_Water_Quality_Home_Safety_Data_by_ZIP_Code/31939155
     source: figshare
     status: wrong_format
@@ -23,19 +35,11 @@ datasets:
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/M_s_all_de_la_cooperaci_n_al_desarrollo_los_derechos_sexuales_y_reproductivos_en_Bolivia_Ecuador_y_Per_/32968214
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_Appendix_for_Original_Research_Paper_Distinct_influence_of_emotional_stimuli_and_betting_outcomes_on_risk-taking_in_a_game_of_chance_/28874675
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Comparative_Analysis_of_Machine_Learning_Models_for_Sentiment_Classification_of_MSME_Product_Reviews/32968142
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -75,6 +79,107 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+- intent: CLIP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CodedotAI/code-clippy-tfrecords/resolve/main/tfrecords/test/checkpoint.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11
+      parsed: true
+  - url: https://huggingface.co/datasets/CodedotAI/code_clippy_github/resolve/main/github-dedup-000000000000.json.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clips/mfaq/resolve/main/data/cs/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/CodedotAI/code-clippy-tfrecords/resolve/main/tfrecords/test/checkpoint.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/CodedotAI/code_clippy_github/resolve/main/github-dedup-000000000000.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/clips/mfaq/resolve/main/data/cs/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/clips/mqa/resolve/main/data/data.af.cqa.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/dataset/Research_Data_deposit_citation_and_linking_Option_C_/32968259
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Vacuum_Unified_Solitonic_Condensate_Theory/32968268
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Integrating_Technology_in_Training_Translation_Students_at_a_University_Level_Assessment_of_Students_Performances_with_and_without_the_Use_of_Artificial_Intelligence_in_the_Translation_of_Poetry/32968256
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/U_S_Water_Quality_Home_Safety_Data_by_ZIP_Code/31939155
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/IMPLEMENTASI_INTRUSION_DETECTION_SYSTEM_MENGGUNAKAN_ALGORITMA_RANDOM_FOREST_UNTUK_DETEKSI_ANOMALI_TRAFIK_JARINGAN_PADA_SISTEM_INFORMASI_AKADEMIK_BERDASARKAN_ISO_IEC_27005/32968223
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20625770
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1435755
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://audiovisual-art.knukim.edu.ua/article/view/185691
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7347780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11411734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21318247
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21318247
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21318216
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21318216
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21317282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: CPU-only
   status: verified
   candidates:
@@ -90,6 +195,18 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://figshare.com/articles/dataset/Research_Data_deposit_citation_and_linking_Option_C_/32968259
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Vacuum_Unified_Solitonic_Condensate_Theory/32968268
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Integrating_Technology_in_Training_Translation_Students_at_a_University_Level_Assessment_of_Students_Performances_with_and_without_the_Use_of_Artificial_Intelligence_in_the_Translation_of_Poetry/32968256
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/dataset/U_S_Water_Quality_Home_Safety_Data_by_ZIP_Code/31939155
     source: figshare
     status: wrong_format
@@ -98,26 +215,13 @@ datasets:
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/M_s_all_de_la_cooperaci_n_al_desarrollo_los_derechos_sexuales_y_reproductivos_en_Bolivia_Ecuador_y_Per_/32968214
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_Appendix_for_Original_Research_Paper_Distinct_influence_of_emotional_stimuli_and_betting_outcomes_on_risk-taking_in_a_game_of_chance_/28874675
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Comparative_Analysis_of_Machine_Learning_Models_for_Sentiment_Classification_of_MSME_Product_Reviews/32968142
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1972 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7ff794cb3550>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
   - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
@@ -126,7 +230,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

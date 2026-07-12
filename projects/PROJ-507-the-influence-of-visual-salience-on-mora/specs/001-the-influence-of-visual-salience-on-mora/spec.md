@@ -13,12 +13,12 @@ The system must ingest open visual datasets (e.g., Visual Genome), identify mora
 
 **Why this priority**: This is the foundational data layer. Without valid, controlled stimulus generation and verified ambiguity, no experimental data can be collected, and the research question cannot be addressed. It is the MVP for the research pipeline.
 
-**Independent Test**: Can be fully tested by running the data processing pipeline on a subset of 5 raw images. The test must verify: (1) the initial metadata filter correctly identifies candidates, (2) the human coding step correctly labels ambiguity with ≥80% inter-rater reliability (See FR-008), and (3) the output images show measurable pixel-level contrast/brightness changes in target regions without altering object identity or scene semantics, as verified by a secondary validation script.
+**Independent Test**: Can be fully tested by running the data processing pipeline on a subset of raw images. The test must verify: (1) the initial metadata filter correctly identifies candidates, (2) the human coding step correctly labels ambiguity with Cohen's κ ≥ 0.6 (See FR-008), and (3) the output images show measurable pixel-level contrast/brightness changes in target regions without altering object identity or scene semantics, as verified by a semantic similarity model (e.g., CLIP) with cosine similarity ≥ 0.95.
 
 **Acceptance Scenarios**:
 
-1. **Given** a raw image from an open visual dataset (e.g., Visual Genome) with moral annotations, **When** the salience manipulation script is executed with "high" intensity parameters, **Then** the output image exhibits a statistically significant increase in local contrast/brightness in the target region compared to the original, while the semantic content (object labels, scene layout) remains unchanged.
-2. **Given** a set of 20 identified ambiguous scenarios, **When** the batch processing pipeline runs, **Then** Multiple manipulated variants (medium and high salience) are generated for each scenario, resulting in a total of 60 stimulus images ready for survey deployment.
+1. **Given** a raw image from an open visual dataset (e.g., Visual Genome) with moral annotations, **When** the salience manipulation script is executed with "high" intensity parameters, **Then** the output image exhibits a statistically significant increase in local contrast/brightness in the target region compared to the original, while the semantic content (object labels, scene layout) remains unchanged (verified by a semantic similarity model with cosine similarity ≥ 0.95).
+2. **Given** a set of 20 identified ambiguous scenarios, **When** the batch processing pipeline runs, **Then** Multiple manipulated variants (medium and high salience) are generated for each scenario, resulting in a set of stimulus images ready for survey deployment.
 
 ---
 
@@ -43,7 +43,7 @@ The system must perform a repeated-measures ANOVA on the collected data to test 
 
 **Why this priority**: This transforms raw data into scientific findings. It is the final step that answers the research question and validates the methodology.
 
-**Independent Test**: Can be fully tested by running the analysis script on a synthetic dataset with known effect sizes and verifying that the output report correctly identifies the significant effect, applies the correction, and calculates the effect size (e.g., partial eta-squared) within a 5% margin of error of the theoretical value.
+**Independent Test**: Can be fully tested by running the analysis script on a synthetic dataset with known effect sizes and verifying that the output report correctly identifies the significant effect, applies the correction, and calculates the effect size (e.g., partial eta-squared) within an acceptable margin of error of the theoretical value.
 
 **Acceptance Scenarios**:
 
@@ -62,14 +62,14 @@ The system must perform a repeated-measures ANOVA on the collected data to test 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest images from open visual datasets (e.g., Visual Genome) and programmatically enhance luminance contrast/brightness of target regions to create low, medium, and high salience variants while preserving semantic content (verified during development by object detection model with >95% IoU overlap) (See US-001).
+- **FR-001**: System MUST ingest images from open visual datasets (e.g., Visual Genome) and programmatically enhance luminance contrast/brightness of target regions to create low, medium, and high salience variants while preserving semantic content (verified during development by a semantic similarity model (e.g., CLIP) with cosine similarity ≥ 0.95 between original and manipulated image embeddings) (See US-001).
 - **FR-002**: System MUST deploy a survey interface that randomizes the presentation order of salience levels for each scenario within a within-subject design (See US-002).
 - **FR-003**: System MUST collect blame ratings on a 1-7 Likert scale for each manipulated image, capturing participant ID, image ID, salience level, and timestamp (See US-002).
 - **FR-004**: System MUST perform a repeated-measures ANOVA to test the main effect of visual salience on blame ratings, ensuring the analysis accounts for the within-subject design. The system MUST check for sphericity (Mauchly's test) and apply Greenhouse-Geisser or Huynh-Feldt corrections if the assumption is violated (See US-003).
 - **FR-005**: System MUST apply Bonferroni correction to all post-hoc pairwise comparisons to control for family-wise error rate when testing multiple salience contrasts (See US-003).
-- **FR-006**: System MUST calculate and report effect sizes (partial eta-squared) and 95% confidence intervals for all significant findings (See US-003).
-- **FR-007**: System MUST implement a data cleaning routine to exclude participants who provide [deferred] identical ratings across all items (straight-lining) to ensure data validity (See US-003).
-- **FR-008**: System MUST identify morally ambiguous scenarios using a two-stage process: (1) initial filtering via open dataset metadata (e.g., Visual Genome 'social' or 'conflict' tags) to narrow the candidate pool, followed by (2) a mandatory human coding step where ≥2 independent annotators label scenarios as 'morally ambiguous' with ≥80% inter-rater reliability (Cohen's κ ≥ 0.8). Scenarios failing this consensus check are excluded (See US-001).
+- **FR-006**: System MUST calculate and report effect sizes (partial eta-squared) and confidence intervals for all significant findings (See US-003).
+- **FR-007**: System MUST implement a data cleaning routine to exclude participants who provide identical ratings across all items (straight-lining) to ensure data validity (See US-003).
+- **FR-008**: System MUST identify morally ambiguous scenarios using a two-stage process: (1) initial filtering via open dataset metadata (e.g., Visual Genome 'social' or 'conflict' tags) to narrow the candidate pool, followed by (2) a mandatory human coding step where ≥2 independent annotators label scenarios as 'morally ambiguous' with Cohen's κ ≥ 0.6 (substantial agreement). Scenarios failing this consensus check are excluded (See US-001).
 
 ### Key Entities
 
@@ -89,13 +89,13 @@ The system must perform a repeated-measures ANOVA on the collected data to test 
 - **SC-002**: The effect size (partial eta-squared) of visual salience on blame ratings is measured against the null hypothesis of no effect to determine statistical significance (See US-003).
 - **SC-003**: The family-wise error rate is measured against the nominal alpha level (0.05) to verify that Bonferroni correction was correctly applied (See US-003).
 - **SC-004**: The proportion of valid participants (excluding straight-liners) is measured against the total recruited sample to ensure data quality (See US-002).
-- **SC-005**: The 95% confidence interval width for the estimated effect size is measured against a [deferred] precision threshold to assess the reliability of the estimate (See US-003).
+- **SC-005**: The 95% confidence interval width for the estimated effect size is measured against a pre-registered precision threshold defined in the analysis plan to assess the reliability of the estimate (See US-003).
 
 ## Assumptions
 
 - The open visual datasets (e.g., Visual Genome) contain sufficient morally ambiguous scenarios with clear target objects for salience manipulation.
 - The 1-7 Likert scale for blame ratings is a valid and reliable measure of moral judgment in this context, consistent with established psychological literature.
-- Participants recruited via the chosen platform (e.g., Prolific, university pool) will provide honest and attentive responses, and the sample size is sufficient to detect a medium effect size with [deferred] power.
+- Participants recruited via the chosen platform (e.g., Prolific, university pool) will provide honest and attentive responses, and the sample size is sufficient to detect a medium effect size with adequate power.
 - The analysis will be conducted on CPU-only infrastructure; therefore, the dataset size and statistical methods are constrained to those tractable within 7 GB RAM and 6 hours of compute time.
 - The visual salience manipulation (luminance contrast/brightness enhancement) is the primary mechanism of attentional capture, and other visual features (color, motion) are held constant.
 - The relationship between visual salience and blame ratings is causal, as the design is a controlled experiment with within-subject manipulation of the independent variable, provided confounds are controlled.

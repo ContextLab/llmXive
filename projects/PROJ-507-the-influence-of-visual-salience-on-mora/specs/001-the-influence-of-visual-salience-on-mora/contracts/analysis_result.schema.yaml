@@ -48,6 +48,5 @@ required:
   - "effect_size"
   - "ci_lower"
   - "ci_upper"
-  - "sphericity_violated"
-  - "correction_applied"
+  - "convergence_status"
 additionalProperties: false

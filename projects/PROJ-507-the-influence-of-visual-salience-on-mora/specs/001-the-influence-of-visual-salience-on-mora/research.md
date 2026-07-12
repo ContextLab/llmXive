@@ -1,75 +1,152 @@
 # Research: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
-## Research Question
-Does increasing the visual salience (via luminance contrast/brightness) of a target object in a morally ambiguous scenario significantly increase the blame attributed to that object by observers?
+## Overview
 
-## Theoretical Background
-Visual salience drives attentional capture. In moral psychology, the "focalist" hypothesis suggests that attention to an agent increases the perceived responsibility for an outcome. This study tests whether manipulating low-level visual features (salience) causally alters high-level moral judgments (blame).
+This research investigates whether enhancing visual salience (via luminance contrast/brightness) in morally ambiguous scenarios systematically influences blame judgments. The study employs a within-subject experimental design where participants rate blame for the same scenario under low, medium, and high salience conditions. The hypothesis is that higher visual salience increases perceived blame, independent of semantic content. The analysis utilizes **Linear Mixed-Effects Models (LMM)** to account for the nested structure of the data (responses within participants and scenarios), avoiding pseudoreplication.
 
 ## Dataset Strategy
 
-### Primary Verified Datasets
-The project relies on the following verified dataset for the primary visual stimuli. This dataset contains the necessary semantic content (social scenarios) required to test the hypothesis.
+### Primary Dataset: Visual Genome
 
-- **Visual Genome**: `https://homes.cs.washington.edu/~ranjay/visualgenome/data/dataset.json` (or verified HuggingFace mirror `visual_genome`).
-  - **Usage**: Serves as the source for base scenarios. The dataset contains images of scenes with associated object and relationship annotations.
-  - **Selection Criteria**: We will programmatically filter for scenarios containing "social conflict" or "accident" keywords in the metadata to narrow the candidate pool. **Note**: Visual Genome does not inherently contain "morally ambiguous" labels. Therefore, the project will not rely on dataset metadata alone for this property.
-  - **Validation**: To ensure construct validity, a **mandatory human coding step** (FR-008) will be performed on this subset. Two independent annotators will label selected images as 'morally ambiguous'. Only scenarios achieving ≥80% inter-rater reliability (Cohen's κ ≥ 0.8) will be included in the final stimulus set. Ambiguity is NOT assumed from dataset creators; it is empirically validated by the study's protocol. **The pilot phase IS this human coding run.**
+**Source**: Visual Genome is an open dataset containing images with region-level annotations, including object, attribute, and relationship labels. It includes social and conflict scenarios suitable for moral ambiguity identification.
 
-### Secondary References
-The following datasets are cited for methodological reference or code validation only and are NOT used for primary stimuli or core statistical analysis of the research question.
+**Verified URL**: Visual Genome is accessed via its official website: **https://visualgenome.org/**. The dataset does not have a standard HuggingFace `datasets` loader for the full image+annotation set. The project will download a canonical subset (images and JSON annotations) manually via HTTP fetch from the official site, verify checksums, and store in `data/raw/`. This approach ensures reproducibility and adheres to the 'Verified Accuracy' principle.
 
-- **ANOVA Reference Data**: `https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json`
-  - **Usage**: Used strictly for unit-testing the statistical pipeline (e.g., verifying that the `statsmodels` ANOVA implementation produces expected output formats on synthetic data). It is not used for the actual hypothesis testing.
-- **CPU-only Text Data**: `https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet`
-  - **Usage**: Referenced only for potential metadata extraction logic or text-based filtering scripts if needed. It is not used for visual stimuli or behavioral analysis.
+**Relevance**: 
+- Contains images with social/conflict metadata (FR-008) for initial candidate filtering.
+- Provides region-level annotations to identify target objects for salience manipulation.
+- Open access aligns with reproducibility principles.
+
+**Limitations**:
+- Does **not** contain pre-labeled 'moral ambiguity' or 'blame' ground truth.
+- Requires a two-stage filtering process: (1) metadata filtering for 'social' or 'conflict' tags, followed by (2) a dedicated **Human Coding** step to generate the 'ambiguous' label.
+- Image quality and target object clarity may vary; some images may fail manipulation (Edge Case 1).
+
+### Secondary Dataset: CLIP Model for Semantic Validation
+
+**Source**: CLIP (Contrastive Language-Image Pre-training) model from OpenAI, available via HuggingFace `transformers` library.
+
+**Verified URL**: The model weights are hosted on HuggingFace (https://huggingface.co/openai/clip-vit-base-patch32). The model is loaded via `transformers` without external URL citation (as it is a pre-trained model, not a dataset).
+
+**Relevance**:
+- Validates that salience manipulation preserves global semantic content (FR-001).
+- Computes cosine similarity between original and manipulated image embeddings (target ≥0.95).
+
+**Limitations**:
+- CLIP is a general-purpose model, not a psychometric tool for detecting subtle semantic shifts in moral ambiguity.
+- A high CLIP score does not guarantee that the *moral* narrative remains constant.
+- **Mitigation**: Complement CLIP with Structural Similarity Index (SSIM) calculated on **non-target regions** to ensure only the target region's salience is altered. Additionally, pixel-level metrics (`contrast_change`) are used to verify the manipulation itself.
+
+### Alternative Datasets (Not Used)
+
+- **ANOVA (json)**: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json — Not relevant (functional analysis results, not visual stimuli).
+- **CLIP (csv)**: https://huggingface.co/datasets/CodedotAI/code-clippy-tfrecords/resolve/main/tfrecords/test/checkpoint.txt — Not relevant (code dataset).
+- **CPU-only (parquet)**: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet — Not relevant (text-only dataset).
+
+**Decision**: Only Visual Genome is suitable for visual stimuli; CLIP and SSIM are used for validation (not as datasets). No other verified datasets are applicable.
 
 ## Methodology
 
-### Experimental Design
-- **Design**: Within-subject, repeated-measures design.
-- **Independent Variable**: Visual Salience (3 levels: Low, Medium, High).
-- **Dependent Variable**: Blame Rating (1-7 Likert scale).
-- **Participants**: Real recruited pilot cohort (N=20-30).
-- **Procedure**:
-  1. Ingest images from the verified Visual Genome dataset.
-  2. **Human Coding**: Recruit annotators to label a subset of images for moral ambiguity (FR-008). Exclude non-ambiguous scenarios.
-  3. Generate multiple variants per valid image (Low, Med, High salience) using PIL.
-  4. Present variants in randomized order to the pilot cohort.
-  5. Collect blame ratings.
+### Phase 1: Stimulus Generation & Human Coding
 
-### Statistical Analysis Plan
-1. **Data Cleaning**: Exclude straight-liners (FR-007).
-2. **Assumption Checking**:
-   - Normality of residuals (Shapiro-Wilk).
-   - Sphericity (Mauchly's test). If violated, apply Greenhouse-Geisser or Huynh-Feldt correction (FR-004).
-3. **Primary Test**: Repeated-measures ANOVA (FR-004) on real pilot data.
-   - Null Hypothesis ($H_0$): No difference in mean blame ratings across salience levels.
-   - Alternative Hypothesis ($H_1$): At least one salience level differs.
-4. **Post-hoc Tests**: Bonferroni-corrected pairwise t-tests (FR-005).
-   - Comparisons: Low vs. Medium, Medium vs. High, Low vs. High.
-   - Correction: Adjust $\alpha$ to $0.05 / 3 \approx 0.0167$.
-5. **Effect Size**: Calculate partial eta-squared ($\eta_p^2$) and 95% Confidence Intervals (FR-006).
+1. **Metadata Filtering**: Download Visual Genome subset; filter images with "social" or "conflict" tags (FR-008).
+2. **Human Coding (New Step)**: 
+   - Present filtered images to ≥2 independent annotators.
+   - **Rating Scale**: Coders rate 'moral ambiguity' on a **1-7 Likert scale** (1=Not ambiguous at all, 7=Highly ambiguous) with specific instructions to focus on the presence of **conflicting moral cues**.
+   - Calculate Cohen's κ. Scenarios with κ ≥0.6 and mean ambiguity score in the mid-range (3-5) are labeled 'morally ambiguous' (FR-008).
+   - Scenarios failing consensus are excluded.
+3. **Manipulation Check (Pilot)**: 
+   - Run `03_manipulation_check.py` to verify that the intended salience levels (low/medium/high) result in **perceptually distinct** luminance/contrast values.
+   - This pilot task ensures that the manipulation is effective before the main survey. If the pilot fails, adjust contrast parameters.
+4. **Salience Manipulation**: For each ambiguous scenario:
+   - Identify target object (via region annotations or manual selection).
+   - Generate three variants: low (baseline), medium (enhanced contrast), high (enhanced contrast).
+   - Verify semantic preservation via CLIP (cosine similarity ≥0.95) AND SSIM on non-target regions (FR-001).
+   - Exclude variants failing validation (Edge Case 1).
 
-### Power & Sample Size
-- **Assumption**: Medium effect size ($f = 0.25$).
-- **Limitation**: Pilot study may be underpowered. The analysis will explicitly report power limitations and wider CIs if $N$ is small (Edge Case).
+**Rationale**: Two-stage filtering ensures ambiguity; Human Coding operationalizes the construct; Manipulation Check ensures perceptual validity; CLIP+SSIM isolates salience from semantic changes.
 
-## Decision Rationale
+### Phase 2: Survey Deployment
 
-### Why CPU-only?
-The project is constrained to GitHub Actions free-tier runners with limited CPU and RAM resources. Deep learning models for image generation or analysis are infeasible. `Pillow` provides sufficient control for luminance manipulation without GPU requirements.
+1. **Within-Subject Design**: Each participant rates all scenarios at all salience levels (randomized order) (FR-002).
+2. **Blame Rating**: 1-7 Likert scale (1=not at all blameworthy, 7=extremely blameworthy) (FR-003).
+3. **Data Collection**: Record participant ID, image ID, salience level, timestamp (FR-003).
 
-### Why Human Coding for Pilot?
-Construct validity requires that the "morally ambiguous" label is empirically validated, not assumed. The pilot *is* the human coding run (FR-008) to ensure the dependent variable (blame in an ambiguous context) is real and not synthetic. This resolves the risk of circular validation and ensures the dataset matches the research question's semantic requirements.
+**Rationale**: Within-subject design controls for individual differences; randomization prevents order effects.
 
-### Why Bonferroni?
-With only 3 pairwise comparisons, Bonferroni is appropriate and conservative (Assumption). It controls the family-wise error rate (SC-003).
+### Phase 3: Data Cleaning
 
-### Why Real Data (Not Simulation)?
-Using simulated or placeholder images fails construct validity because moral ambiguity is a semantic property of complex scenes. The analysis must be performed on real behavioral data from real participants responding to real stimuli to answer the research question. The pilot is an empirical test, not a code validation simulation.
+1. **Straight-Lining Detection**: Flag participants with identical ratings across all items (FR-007).
+2. **Exclusion**: Remove flagged responses; report exclusion rate (SC-004).
+
+**Rationale**: Ensures data validity; prevents noise from inattentive participants.
+
+### Phase 4: Statistical Analysis
+
+1. **Linear Mixed-Effects Model (LMM)**: 
+   - Model: `Blame ~ Salience + (1 | Participant) + (1 | Scenario)` (FR-004).
+   - **Note**: LMM is used instead of standard Repeated-Measures ANOVA to account for the nested data structure (responses within scenarios) and avoid pseudoreplication.
+   - Checks: Convergence status; residual normality.
+   - **Robustness**: If normality assumptions are violated (Likert scale), switch to **Friedman test** (non-parametric alternative) or ordinal LMM.
+2. **Post-Hoc Comparisons**: Bonferroni-corrected t-tests for pairwise contrasts (low vs. medium, medium vs. high, low vs. high) (FR-005).
+3. **Effect Sizes**: Calculate marginal/conditional R-squared and 95% CIs (FR-006, SC-002, SC-005).
+
+**Rationale**: LMM accounts for nested data (participants, scenarios), preventing pseudoreplication. Corrections control family-wise error rate.
+
+## Statistical Rigor
+
+### Multiple Comparison Correction
+- **Method**: Bonferroni correction (α_corrected = 0.05 / 3 comparisons = 0.0167).
+- **Justification**: Small number of planned comparisons (3); Bonferroni is conservative but appropriate (Assumption 7).
+
+### Power Analysis
+- **Target**: Detect medium effect size (η² = 0.06) with power = 0.80, α = 0.05.
+- **Sample Size**: ~100-200 participants (within-subject design increases power).
+- **Limitation**: With only ~20-60 scenarios, the **effective sample size** for the fixed effect of 'Salience' is constrained by the number of **scenarios**, not participants. If the effect varies by scenario (which is likely in moral psychology), the study may be underpowered to detect a generalizable effect. The LMM treats 'Scenario' as a random effect to account for this, but this limitation is explicitly reported if sample falls below threshold.
+
+### Causal Inference
+- **Design**: Within-subject experiment with controlled manipulation.
+- **Assumptions**: Randomization of salience levels; no confounding visual features (Assumption 6).
+- **Claims**: Causal effect of salience on blame (if significant); otherwise, associational.
+
+### Measurement Validity
+- **Blame Scale**: 1-7 Likert validated in moral psychology literature (Assumption 2).
+- **Semantic Validation**: CLIP cosine similarity ≥0.95 AND SSIM on non-target regions ensure manipulation does not alter meaning or introduce artifacts (FR-001).
+- **Manipulation Validity**: `03_manipulation_check.py` ensures perceptual distinctness of salience levels.
+
+### Predictor Collinearity
+- **Salience Levels**: Orthogonal manipulation (low, medium, high); no definitional collinearity.
+- **Reporting**: Descriptive statistics for each level; no independent effects claimed.
+
+### Robustness Checks
+- **Normality**: If residuals are non-normal (Likert scale), switch to **Friedman test** or ordinal LMM.
+- **Convergence**: If LMM fails to converge, use robust standard errors or simplify random effects structure.
+
+## Compute Feasibility
+
+- **CLIP Inference**: ~60 images × 3 variants = 180 images; CPU inference in the range of seconds per image → A short duration total (well within 6h limit).
+- **LMM**: <200 participants × 60 stimuli = <12,000 data points; analysis <30 minutes on CPU.
+- **Memory**: <7GB RAM; images processed in batches; no large models loaded.
+
+**Decision**: All methods are CPU-tractable; no GPU required.
+
+## Ethical Considerations
+
+- **Participant Privacy**: Anonymize participant IDs; no PII stored.
+- **Data Security**: Encrypt survey responses; store in `data/` with checksums.
+- **Informed Consent**: Simulated survey includes consent form (for real deployment).
 
 ## Limitations
-- **Dataset**: The pilot relies on a small, manually curated subset of the Visual Genome dataset.
-- **Power**: Small sample size may limit detection of small effects.
-- **Generalizability**: Pilot results are preliminary; full study requires larger N and broader image diversity.
+
+1. **Dataset Availability**: Visual Genome may lack sufficient ambiguous scenarios; scope may need adjustment.
+2. **CLIP Validation**: May not capture all semantic changes; SSIM and human pilot check used as safeguards.
+3. **Sample Size**: Power may be limited if recruitment falls below target; report limitations explicitly.
+4. **Generalizability**: Results apply to simulated scenarios; real-world moral judgments may differ.
+5. **Scenario Constraint**: The number of scenarios limits the generalizability of the effect across different types of moral dilemmas.
+6. **Ordinal Data**: Likert scale data may violate normality assumptions; non-parametric fallback planned.
+
+## References
+
+- Visual Genome: https://visualgenome.org/ (open dataset; accessed via official site).
+- CLIP Model: https://huggingface.co/openai/clip-vit-base-patch32 (pre-trained model; loaded via `transformers`).
+- Statistical Methods: `statsmodels` and `pingouin` documentation for LMM, Mauchly's test, Bonferroni correction.

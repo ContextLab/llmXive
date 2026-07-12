@@ -21,14 +21,19 @@ properties:
   image_path:
     type: "string"
     description: "Relative path to the processed image file."
+  semantic_similarity:
+    type: "number"
+    description: "CLIP cosine similarity between original and manipulated image."
+    minimum: 0.0
+    maximum: 1.0
   ssim_score:
     type: "number"
     description: "Structural Similarity Index Score for non-target regions."
     minimum: 0.0
     maximum: 1.0
-  brightness_delta:
+  contrast_change:
     type: "number"
-    description: "Difference in mean brightness between target region and original."
+    description: "Pixel-level contrast change percentage in target region."
   artifact_flag:
     type: "boolean"
     description: "True if the image failed the realism/artifact check."
@@ -37,7 +42,8 @@ required:
   - stimulus_id
   - salience_level
   - image_path
+  - semantic_similarity
   - ssim_score
-  - brightness_delta
+  - contrast_change
   - artifact_flag
 additionalProperties: false
