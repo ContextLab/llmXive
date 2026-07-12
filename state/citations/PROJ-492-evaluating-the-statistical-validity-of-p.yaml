@@ -54,7 +54,7 @@
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-summary-2
   verified_at: '2026-07-05T16:33:16.906324Z'
-- artifact_hash: e27b7c54aa85fc2bd789b870259d95bdfcd68750cdb717f0505b715ddfbbee45
+- artifact_hash: d03c7a165652bb12e8a109b2b8be220cd465f1921302389ce26043821b070966
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,8 +64,8 @@
   value: https://www.wikidata.org/wiki/Q19873191
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q19873191
-  verified_at: '2026-07-12T22:24:38.515173Z'
-- artifact_hash: e27b7c54aa85fc2bd789b870259d95bdfcd68750cdb717f0505b715ddfbbee45
+  verified_at: '2026-07-12T23:38:56.950421Z'
+- artifact_hash: d03c7a165652bb12e8a109b2b8be220cd465f1921302389ce26043821b070966
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -76,8 +76,8 @@
   value: https://arxiv.org/abs/2510.17487
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2510.17487
-  verified_at: '2026-07-12T22:24:38.515173Z'
-- artifact_hash: e27b7c54aa85fc2bd789b870259d95bdfcd68750cdb717f0505b715ddfbbee45
+  verified_at: '2026-07-12T23:38:56.950421Z'
+- artifact_hash: d03c7a165652bb12e8a109b2b8be220cd465f1921302389ce26043821b070966
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -88,8 +88,8 @@
   value: https://arxiv.org/abs/1905.08726
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1905.08726
-  verified_at: '2026-07-12T22:24:38.515173Z'
-- artifact_hash: e27b7c54aa85fc2bd789b870259d95bdfcd68750cdb717f0505b715ddfbbee45
+  verified_at: '2026-07-12T23:38:56.950421Z'
+- artifact_hash: d03c7a165652bb12e8a109b2b8be220cd465f1921302389ce26043821b070966
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -100,16 +100,15 @@
   value: https://arxiv.org/abs/1807.00365
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1807.00365
-  verified_at: '2026-07-12T22:24:38.515173Z'
-- artifact_hash: e27b7c54aa85fc2bd789b870259d95bdfcd68750cdb717f0505b715ddfbbee45
+  verified_at: '2026-07-12T23:38:56.950421Z'
+- artifact_hash: d03c7a165652bb12e8a109b2b8be220cd465f1921302389ce26043821b070966
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-005
   cited_authors: []
   cited_title: null
-  fetched_title: '[1407.6748] Enhancing the Accuracy of Biometric Feature Extraction
-    Fusion Using Gabor Filter and Mahalanobis Distance Algorithm'
+  fetched_title: stratification - Wikidata
   kind: url
-  value: https://arxiv.org/abs/1407.6748
+  value: https://www.wikidata.org/wiki/Q1893382
   verification_status: verified
-  verified_against_url: https://arxiv.org/abs/1407.6748
-  verified_at: '2026-07-12T22:24:38.515173Z'
+  verified_against_url: https://www.wikidata.org/wiki/Q1893382
+  verified_at: '2026-07-12T23:38:56.950421Z'
