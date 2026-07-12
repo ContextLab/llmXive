@@ -1,300 +1,343 @@
 """
-Synthetic dataset generator for A/B test validity evaluation (FR-030).
+Synthetic Dataset Generator for A/B Test Validity Audit (FR-030)
 
 Generates a synthetic corpus of A/B test summaries with known ground truth
-to evaluate the inconsistency detection pipeline.
-
-Produces:
-  - data/synthetic/summary_synthetic.csv: The synthetic summaries (>= 10,000 records)
-  - data/synthetic/ground_truth_synthetic.csv: The ground truth labels for validation
+to validate the statistical reconstruction and inconsistency detection pipeline.
+Supports both binary and continuous outcomes with configurable effect sizes
+and sample sizes to ensure constraint preservation.
 """
+
 import csv
 import json
 import logging
-import math
+import random
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Any, Optional, Tuple
 
 import numpy as np
 from scipy import stats
 
+# Import project-specific utilities and models
 from code.src.config import SEED, set_rng_seed
 from code.src.utils.logger import get_default_logger, AuditLogger
+from code.src.models.data_models import ABTestSummary
 
 # Constants
 MIN_RECORDS = 10000
-TARGET_RECORDS = 10500
-DOMAINS = ["tech", "finance", "health", "e-commerce", "education"]
-OUTCOME_TYPES = ["binary", "continuous"]
+DOMAINS = [
+    "tech_crunch",
+    "nytimes",
+    "medium",
+    "linkedin",
+    "twitter",
+    "reddit",
+    "hacker_news",
+    "shopify_blog",
+    "optimizely",
+    "google_analytics"
+]
 
-logger = get_default_logger(__name__)
+# Outcome types
+OUTCOME_BINARY = "binary"
+OUTCOME_CONTINUOUS = "continuous"
 
-def set_all_seeds(seed: int = SEED) -> None:
+logger: AuditLogger = get_default_logger(__name__)
+
+def set_seeds(seed: int = SEED) -> None:
     """Set random seeds for reproducibility."""
     set_rng_seed(seed)
+    random.seed(seed)
     np.random.seed(seed)
-    logger.info(f"Random seeds set to {seed}")
 
-def generate_sample_sizes(n_total: int = TARGET_RECORDS) -> List[Tuple[int, int]]:
-    """
-    Generate realistic sample sizes for control and treatment groups.
-    Sizes vary between 100 and 50,000 to simulate real-world variance.
-    """
-    sizes = []
-    for _ in range(n_total):
-        # Log-normal distribution for realistic size variance
-        base_size = np.random.lognormal(mean=6.0, sigma=1.0)
-        n_control = int(np.clip(base_size, 100, 50000))
-        # Treatment size is usually similar but can vary slightly
-        ratio = np.random.uniform(0.8, 1.2)
-        n_treatment = int(np.clip(n_control * ratio, 100, 50000))
-        sizes.append((n_control, n_treatment))
-    return sizes
-
-def _generate_binary_outcome_data(
-    n_control: int,
-    n_treatment: int,
-    baseline_rate: float,
-    effect_size: float,
-    is_inconsistent: bool,
-    rng: np.random.Generator
-) -> Dict[str, Any]:
-    """
-    Generate binary outcome data (conversion rates).
-    Returns observed rates and the "true" p-value vs reported p-value.
-    """
-    # True effect
-    true_effect = effect_size if not is_inconsistent else effect_size * 1.5
-    control_rate = baseline_rate
-    treatment_rate = baseline_rate + true_effect
-    treatment_rate = np.clip(treatment_rate, 0.01, 0.99)
-
-    # Generate observed counts
-    x_control = rng.binomial(n_control, control_rate)
-    x_treatment = rng.binomial(n_treatment, treatment_rate)
-
-    observed_control_rate = x_control / n_control
-    observed_treatment_rate = x_treatment / n_treatment
-    observed_effect = observed_treatment_rate - observed_control_rate
-
-    # Calculate true p-value (two-proportion z-test)
-    p_pool = (x_control + x_treatment) / (n_control + n_treatment)
-    se = math.sqrt(p_pool * (1 - p_pool) * (1/n_control + 1/n_treatment))
-    if se == 0:
-        z_stat = 0.0
-    else:
-        z_stat = (observed_treatment_rate - observed_control_rate) / se
-    true_p_value = 2 * (1 - stats.norm.cdf(abs(z_stat)))
-
-    # Generate reported p-value (potentially inconsistent)
-    if is_inconsistent:
-        # Inconsistency: report a p-value that doesn't match the data
-        # e.g., report p < 0.05 when true p > 0.05, or vice versa
-        if true_p_value < 0.05:
-            reported_p = rng.uniform(0.06, 0.20)
-        else:
-            reported_p = rng.uniform(0.01, 0.04)
-    else:
-        # Add small noise to true p-value
-        reported_p = true_p_value * rng.uniform(0.95, 1.05)
-        reported_p = np.clip(reported_p, 0.001, 0.999)
-
+def generate_base_metadata(domain: str, year: Optional[int] = None) -> Dict[str, Any]:
+    """Generate metadata for a synthetic record."""
+    if year is None:
+        year = random.randint(2018, 2024)
+    
     return {
-        "n_control": n_control,
-        "n_treatment": n_treatment,
-        "x_control": x_control,
-        "x_treatment": x_treatment,
-        "observed_control_rate": observed_control_rate,
-        "observed_treatment_rate": observed_treatment_rate,
-        "observed_effect": observed_effect,
-        "true_p_value": true_p_value,
-        "reported_p_value": reported_p,
-        "is_inconsistent": is_inconsistent,
-        "outcome_type": "binary"
+        "url": f"https://{domain}.example.com/experiment-{random.randint(1000, 9999)}",
+        "domain": domain,
+        "year": year,
+        "timestamp": datetime.now().isoformat(),
+        "repository_id": f"repo-{domain}-{year}"
     }
 
-def _generate_continuous_outcome_data(
+def generate_binary_summary(
+    metadata: Dict[str, Any],
+    true_baseline_rate: float,
+    true_effect_size: float,
     n_control: int,
     n_treatment: int,
-    baseline_mean: float,
-    effect_size: float,
-    is_inconsistent: bool,
-    rng: np.random.Generator
-) -> Dict[str, Any]:
+    noise_level: float = 0.0
+) -> ABTestSummary:
     """
-    Generate continuous outcome data (e.g., time on site, revenue).
+    Generate a binary outcome summary with known ground truth.
+    
+    Args:
+        metadata: Base metadata dict
+        true_baseline_rate: True conversion rate for control group
+        true_effect_size: True lift (e.g., 0.05 for 5% lift)
+        n_control: Sample size for control
+        n_treatment: Sample size for treatment
+        noise_level: Optional noise to add to reported values (0.0 = exact)
+    
+    Returns:
+        ABTestSummary object
     """
-    # True effect
-    true_effect = effect_size if not is_inconsistent else effect_size * 1.5
-    control_mean = baseline_mean
-    treatment_mean = baseline_mean + true_effect
-
-    # Assume standard deviation is roughly 20% of the mean
-    std_dev = baseline_mean * 0.2
-    if std_dev < 1.0: std_dev = 1.0
-
-    # Generate samples
-    samples_control = rng.normal(control_mean, std_dev, n_control)
-    samples_treatment = rng.normal(treatment_mean, std_dev, n_treatment)
-
-    obs_mean_control = np.mean(samples_control)
-    obs_mean_treatment = np.mean(samples_treatment)
-    obs_effect = obs_mean_treatment - obs_mean_control
-
-    # Welch's t-test
-    t_stat, true_p_value = stats.ttest_ind(
-        samples_control, samples_treatment, equal_var=False
+    # Calculate true values
+    baseline_rate = true_baseline_rate
+    treatment_rate = baseline_rate * (1 + true_effect_size)
+    
+    # Simulate observed counts (with binomial noise)
+    observed_control_successes = np.random.binomial(n_control, baseline_rate)
+    observed_treatment_successes = np.random.binomial(n_treatment, treatment_rate)
+    
+    observed_baseline_rate = observed_control_successes / n_control
+    observed_treatment_rate = observed_treatment_successes / n_treatment
+    
+    # Calculate true p-value using two-proportion z-test
+    pooled_rate = (observed_control_successes + observed_treatment_successes) / (n_control + n_treatment)
+    se = np.sqrt(pooled_rate * (1 - pooled_rate) * (1/n_control + 1/n_treatment))
+    z_stat = (observed_treatment_rate - observed_baseline_rate) / se if se > 0 else 0
+    true_p_value = 2 * (1 - stats.norm.cdf(abs(z_stat)))
+    
+    # Add noise to reported values if requested
+    reported_baseline = observed_baseline_rate * (1 + noise_level * (random.random() - 0.5))
+    reported_treatment = observed_treatment_rate * (1 + noise_level * (random.random() - 0.5))
+    reported_p_value = true_p_value * (1 + noise_level * (random.random() - 0.5))
+    
+    return ABTestSummary(
+        url=metadata["url"],
+        domain=metadata["domain"],
+        year=metadata["year"],
+        test_type="binary",
+        baseline_rate=round(reported_baseline, 4),
+        treatment_rate=round(reported_treatment, 4),
+        sample_size_control=n_control,
+        sample_size_treatment=n_treatment,
+        reported_p_value=round(reported_p_value, 4),
+        effect_size=round(reported_treatment_rate - reported_baseline_rate, 4),
+        ground_truth_p_value=round(true_p_value, 4),
+        ground_truth_effect_size=round(true_effect_size, 4),
+        ground_truth_baseline_rate=round(true_baseline_rate, 4),
+        is_inconsistent=abs(reported_p_value - true_p_value) > 0.05 or abs(reported_treatment_rate - true_treatment_rate) > 0.05 * true_treatment_rate
     )
 
-    # Generate reported p-value
-    if is_inconsistent:
-        if true_p_value < 0.05:
-            reported_p = rng.uniform(0.06, 0.20)
-        else:
-            reported_p = rng.uniform(0.01, 0.04)
-    else:
-        reported_p = true_p_value * rng.uniform(0.95, 1.05)
-        reported_p = np.clip(reported_p, 0.001, 0.999)
-
-    return {
-        "n_control": n_control,
-        "n_treatment": n_treatment,
-        "observed_mean_control": obs_mean_control,
-        "observed_mean_treatment": obs_mean_treatment,
-        "observed_effect": obs_effect,
-        "observed_std_control": np.std(samples_control, ddof=1),
-        "observed_std_treatment": np.std(samples_treatment, ddof=1),
-        "true_p_value": true_p_value,
-        "reported_p_value": reported_p,
-        "is_inconsistent": is_inconsistent,
-        "outcome_type": "continuous"
-    }
-
-def generate_synthetic_dataset(
-    n_records: int = TARGET_RECORDS,
-    inconsistency_rate: float = 0.15
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def generate_continuous_summary(
+    metadata: Dict[str, Any],
+    true_baseline_mean: float,
+    true_effect_size: float,
+    baseline_std: float,
+    n_control: int,
+    n_treatment: int,
+    noise_level: float = 0.0
+) -> ABTestSummary:
     """
-    Generate the full synthetic dataset.
-    Returns (summaries, ground_truth).
+    Generate a continuous outcome summary with known ground truth.
+    
+    Args:
+        metadata: Base metadata dict
+        true_baseline_mean: True mean for control group
+        true_effect_size: True lift (absolute difference)
+        baseline_std: Standard deviation of the metric
+        n_control: Sample size for control
+        n_treatment: Sample size for treatment
+        noise_level: Optional noise to add to reported values
+    
+    Returns:
+        ABTestSummary object
     """
-    set_all_seeds()
-    rng = np.random.default_rng(SEED)
+    # Calculate true values
+    baseline_mean = true_baseline_mean
+    treatment_mean = baseline_mean + true_effect_size
+    
+    # Simulate observed means (with sampling noise)
+    observed_control = np.random.normal(baseline_mean, baseline_std, n_control)
+    observed_treatment = np.random.normal(treatment_mean, baseline_std, n_treatment)
+    
+    observed_baseline_mean = np.mean(observed_control)
+    observed_treatment_mean = np.mean(observed_treatment)
+    observed_baseline_std = np.std(observed_control, ddof=1)
+    observed_treatment_std = np.std(observed_treatment, ddof=1)
+    
+    # Calculate true p-value using Welch's t-test
+    _, true_p_value = stats.ttest_ind(
+        observed_control, observed_treatment, equal_var=False
+    )
+    
+    # Add noise to reported values if requested
+    reported_baseline = observed_baseline_mean * (1 + noise_level * (random.random() - 0.5))
+    reported_treatment = observed_treatment_mean * (1 + noise_level * (random.random() - 0.5))
+    reported_p_value = true_p_value * (1 + noise_level * (random.random() - 0.5))
+    
+    return ABTestSummary(
+        url=metadata["url"],
+        domain=metadata["domain"],
+        year=metadata["year"],
+        test_type="continuous",
+        baseline_rate=round(reported_baseline, 4),
+        treatment_rate=round(reported_treatment, 4),
+        sample_size_control=n_control,
+        sample_size_treatment=n_treatment,
+        reported_p_value=round(reported_p_value, 4),
+        effect_size=round(reported_treatment_mean - reported_baseline_mean, 4),
+        ground_truth_p_value=round(true_p_value, 4),
+        ground_truth_effect_size=round(true_effect_size, 4),
+        ground_truth_baseline_rate=round(true_baseline_mean, 4),
+        is_inconsistent=abs(reported_p_value - true_p_value) > 0.05 or abs(reported_treatment_mean - true_effect_size - true_baseline_mean) > 0.05 * true_baseline_mean
+    )
 
-    summaries = []
-    ground_truth = []
-
-    sample_sizes = generate_sample_sizes(n_records)
-
-    logger.info(f"Generating {n_records} synthetic records...")
-
-    for i in range(n_records):
-        n_control, n_treatment = sample_sizes[i]
-        is_binary = rng.choice([True, False])
-        is_inconsistent = rng.random() < inconsistency_rate
-        domain = rng.choice(DOMAINS)
-
-        if is_binary:
-            baseline = rng.uniform(0.05, 0.30)
-            effect = rng.choice([-0.02, 0.02]) * rng.uniform(0.5, 2.0)
-            data = _generate_binary_outcome_data(
-                n_control, n_treatment, baseline, effect, is_inconsistent, rng
-            )
-            summary_row = {
-                "id": f"syn_{i:05d}",
-                "domain": domain,
-                "outcome_type": "binary",
-                "n_control": data["n_control"],
-                "n_treatment": data["n_treatment"],
-                "control_rate": round(data["observed_control_rate"], 4),
-                "treatment_rate": round(data["observed_treatment_rate"], 4),
-                "effect_size": round(data["observed_effect"], 4),
-                "reported_p_value": round(data["reported_p_value"], 4),
-                "test_type": "z-test" if (n_control + n_treatment) > 30 else "fisher",
-                "year": rng.choice([2022, 2023, 2024, 2025])
-            }
-        else:
-            baseline = rng.uniform(10.0, 100.0)
-            effect = rng.choice([-5.0, 5.0]) * rng.uniform(0.5, 2.0)
-            data = _generate_continuous_outcome_data(
-                n_control, n_treatment, baseline, effect, is_inconsistent, rng
-            )
-            summary_row = {
-                "id": f"syn_{i:05d}",
-                "domain": domain,
-                "outcome_type": "continuous",
-                "n_control": data["n_control"],
-                "n_treatment": data["n_treatment"],
-                "control_mean": round(data["observed_mean_control"], 2),
-                "treatment_mean": round(data["observed_mean_treatment"], 2),
-                "effect_size": round(data["observed_effect"], 2),
-                "reported_p_value": round(data["reported_p_value"], 4),
-                "test_type": "welch-t",
-                "year": rng.choice([2022, 2023, 2024, 2025])
-            }
-
-        summaries.append(summary_row)
-
-        ground_truth_row = {
-            "id": summary_row["id"],
-            "domain": domain,
-            "outcome_type": summary_row["outcome_type"],
-            "true_p_value": round(data["true_p_value"], 6),
-            "reported_p_value": round(data["reported_p_value"], 4),
-            "is_inconsistent": is_inconsistent,
-            "p_difference": round(abs(data["true_p_value"] - data["reported_p_value"]), 6),
-            "sample_size_mismatch": False # We generate consistent sample sizes here
-        }
-        ground_truth.append(ground_truth_row)
-
-        if (i + 1) % 1000 == 0:
-            logger.info(f"Generated {i + 1} records...")
-
-    return summaries, ground_truth
-
-def write_summaries_to_csv(data: List[Dict[str, Any]], path: Path) -> None:
-    """Write synthetic summaries to CSV."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = list(data[0].keys())
-    with open(path, 'w', newline='', encoding='utf-8') as f:
+def generate_synthetic_corpus(
+    output_dir: Path,
+    total_records: int = MIN_RECORDS,
+    binary_ratio: float = 0.6,
+    noise_level: float = 0.0
+) -> Tuple[Path, Path]:
+    """
+    Generate a synthetic corpus of A/B test summaries.
+    
+    Args:
+        output_dir: Directory to write output files
+        total_records: Total number of records to generate
+        binary_ratio: Proportion of binary outcomes (0.0-1.0)
+        noise_level: Noise level for reported values (0.0 = exact)
+    
+    Returns:
+        Tuple of (summary_csv_path, ground_truth_json_path)
+    """
+    set_seeds(SEED)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    summaries: List[ABTestSummary] = []
+    ground_truth: List[Dict[str, Any]] = []
+    
+    binary_count = int(total_records * binary_ratio)
+    continuous_count = total_records - binary_count
+    
+    logger.info(f"Generating {binary_count} binary and {continuous_count} continuous records...")
+    
+    # Generate binary records
+    for i in range(binary_count):
+        domain = random.choice(DOMAINS)
+        year = random.randint(2018, 2024)
+        metadata = generate_base_metadata(domain, year)
+        
+        # Vary parameters to create realistic diversity
+        true_baseline = random.uniform(0.05, 0.30)
+        true_effect = random.uniform(-0.10, 0.20)  # Can be negative or positive
+        n_control = random.randint(500, 5000)
+        n_treatment = random.randint(500, 5000)
+        
+        summary = generate_binary_summary(
+            metadata, true_baseline, true_effect, n_control, n_treatment, noise_level
+        )
+        summaries.append(summary)
+        
+        # Store ground truth separately
+        ground_truth.append({
+            "url": summary.url,
+            "domain": summary.domain,
+            "year": summary.year,
+            "test_type": "binary",
+            "ground_truth_baseline_rate": summary.ground_truth_baseline_rate,
+            "ground_truth_effect_size": summary.ground_truth_effect_size,
+            "ground_truth_p_value": summary.ground_truth_p_value,
+            "sample_size_control": summary.sample_size_control,
+            "sample_size_treatment": summary.sample_size_treatment,
+            "is_inconsistent": summary.is_inconsistent
+        })
+    
+    # Generate continuous records
+    for i in range(continuous_count):
+        domain = random.choice(DOMAINS)
+        year = random.randint(2018, 2024)
+        metadata = generate_base_metadata(domain, year)
+        
+        true_baseline = random.uniform(10.0, 100.0)
+        true_effect = random.uniform(-5.0, 15.0)
+        baseline_std = random.uniform(5.0, 20.0)
+        n_control = random.randint(500, 5000)
+        n_treatment = random.randint(500, 5000)
+        
+        summary = generate_continuous_summary(
+            metadata, true_baseline, true_effect, baseline_std, n_control, n_treatment, noise_level
+        )
+        summaries.append(summary)
+        
+        ground_truth.append({
+            "url": summary.url,
+            "domain": summary.domain,
+            "year": summary.year,
+            "test_type": "continuous",
+            "ground_truth_baseline_rate": summary.ground_truth_baseline_rate,
+            "ground_truth_effect_size": summary.ground_truth_effect_size,
+            "ground_truth_p_value": summary.ground_truth_p_value,
+            "sample_size_control": summary.sample_size_control,
+            "sample_size_treatment": summary.sample_size_treatment,
+            "is_inconsistent": summary.is_inconsistent
+        })
+    
+    # Write summaries to CSV
+    csv_path = output_dir / "synthetic_summaries.csv"
+    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = [
+            "url", "domain", "year", "test_type", "baseline_rate", "treatment_rate",
+            "sample_size_control", "sample_size_treatment", "reported_p_value",
+            "effect_size", "is_inconsistent"
+        ]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(data)
-    logger.info(f"Wrote {len(data)} records to {path}")
+        for s in summaries:
+            writer.writerow({
+                "url": s.url,
+                "domain": s.domain,
+                "year": s.year,
+                "test_type": s.test_type,
+                "baseline_rate": s.baseline_rate,
+                "treatment_rate": s.treatment_rate,
+                "sample_size_control": s.sample_size_control,
+                "sample_size_treatment": s.sample_size_treatment,
+                "reported_p_value": s.reported_p_value,
+                "effect_size": s.effect_size,
+                "is_inconsistent": s.is_inconsistent
+            })
+    
+    # Write ground truth to JSON
+    gt_path = output_dir / "synthetic_ground_truth.json"
+    with open(gt_path, 'w', encoding='utf-8') as f:
+        json.dump(ground_truth, f, indent=2)
+    
+    logger.info(f"Generated {len(summaries)} records to {csv_path}")
+    logger.info(f"Ground truth written to {gt_path}")
+    
+    return csv_path, gt_path
 
-def verify_outcome_types(data: List[Dict[str, Any]]) -> bool:
-    """Verify that both binary and continuous outcomes exist."""
-    types = set(row["outcome_type"] for row in data)
-    if "binary" in types and "continuous" in types:
-        logger.info("Verification passed: Both binary and continuous outcomes present.")
-        return True
-    else:
-        logger.error(f"Verification failed: Missing outcome types. Found: {types}")
-        return False
-
-def main() -> None:
-    """Main entry point for synthetic data generation."""
-    output_dir = Path("code/data/synthetic")
-    summary_path = output_dir / "summary_synthetic.csv"
-    ground_truth_path = output_dir / "ground_truth_synthetic.csv"
-
+def main():
+    """Entry point for synthetic data generation."""
+    output_dir = Path("data/synthetic")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     logger.info("Starting synthetic dataset generation...")
-
-    summaries, ground_truth = generate_synthetic_dataset()
-
-    # Verify constraints
-    if len(summaries) < MIN_RECORDS:
-        raise ValueError(f"Generated {len(summaries)} records, less than required {MIN_RECORDS}")
-
-    if not verify_outcome_types(summaries):
-        raise ValueError("Outcome type verification failed")
-
-    write_summaries_to_csv(summaries, summary_path)
-    write_summaries_to_csv(ground_truth, ground_truth_path)
-
-    logger.info("Synthetic dataset generation completed successfully.")
+    
+    csv_path, gt_path = generate_synthetic_corpus(
+        output_dir=output_dir,
+        total_records=MIN_RECORDS,
+        binary_ratio=0.6,
+        noise_level=0.0  # Exact values for validation
+    )
+    
+    # Verify record count
+    with open(csv_path, 'r') as f:
+        record_count = sum(1 for _ in f) - 1  # Exclude header
+    
+    if record_count < MIN_RECORDS:
+        logger.error(f"Generated only {record_count} records, expected >= {MIN_RECORDS}")
+        sys.exit(1)
+    
+    logger.info(f"Success: Generated {record_count} records (>= {MIN_RECORDS})")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

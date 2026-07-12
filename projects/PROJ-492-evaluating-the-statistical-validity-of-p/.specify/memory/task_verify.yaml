@@ -522,6 +522,12 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
+  \ ** (constraint\u2011preservation\u20112958f04c) (files are created and contain\
+  \ \u2265 10 000 records). **DEPENDS ON:** T006\u2011T012. <!-- SKIPPED: YAML+regex\
+  \ parse failed (while parsing a block mapping"
+: 2
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
   \ ** (constraint\u2011preservation\u20112958f04c) (verify files are created and\
   \ contain \u2265\u202F10\u202F000 records [UNRESOLVED-CLAIM: c_46f35829 \u2014 status=not_enough_info]).\
   \ **DEPENDS ON:** T006\u2011T012."
@@ -668,7 +674,7 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
   preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
   \ condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->"
-: 1
+: 2
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\

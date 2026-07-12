@@ -8,5 +8,8 @@ tqdm
 pyyaml
 jsonschema
 psutil
+ruff
+black
+pre-commit
 pytest
 pydantic
