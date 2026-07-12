@@ -1,0 +1,540 @@
+{
+  "fetched_at": "2026-07-12T05:32:56Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document In\"",
+      "target_n": 5
+    },
+    "duration_seconds": 64.419,
+    "ended_at": "2026-07-12T05:32:56Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "evidence attribution in large language models"
+        ],
+        [
+          2,
+          "benchmarking RAG for document question answering"
+        ],
+        [
+          3,
+          "faithfulness evaluation of LLM citations"
+        ],
+        [
+          4,
+          "hallucination detection in retrieval-augmented generation"
+        ],
+        [
+          5,
+          "provenance tracking for generative AI"
+        ],
+        [
+          6,
+          "verifiable reasoning in language models"
+        ],
+        [
+          7,
+          "citation accuracy metrics for LLMs"
+        ],
+        [
+          8,
+          "grounding natural language generation in source text"
+        ],
+        [
+          9,
+          "trustworthy AI for document understanding"
+        ],
+        [
+          10,
+          "evaluating reference quality in generative QA"
+        ],
+        [
+          11,
+          "attribution mechanisms in transformer-based QA"
+        ],
+        [
+          12,
+          "measuring explainability in LLM document analysis"
+        ],
+        [
+          13,
+          "robustness of evidence extraction in generative models"
+        ],
+        [
+          14,
+          "automated fact-checking for LLM responses"
+        ],
+        [
+          15,
+          "source grounding in large language model outputs"
+        ],
+        [
+          16,
+          "interpretability of attention weights for evidence selection"
+        ],
+        [
+          17,
+          "benchmark datasets for LLM citation verification"
+        ],
+        [
+          18,
+          "semantic alignment between generated answers and retrieved documents"
+        ],
+        [
+          19,
+          "trustworthiness frameworks for generative document QA"
+        ],
+        [
+          20,
+          "error analysis in LLM-based evidence attribution"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "evidence attribution in large language models": 5,
+        "llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document In\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "evidence attribution provenance verification trustworthiness",
+      "CiteVQA dataset retrieval augmented generation linguistics",
+      "citation grounding hallucination detection document QA",
+      "attribution accuracy faithfulness evaluation benchmarks",
+      "source grounding training data contamination LLM evaluation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.14170"
+      ]
+    },
+    "per_query_hit_count": {
+      "CiteVQA dataset retrieval augmented generation linguistics": 3,
+      "attribution accuracy faithfulness evaluation benchmarks": 3,
+      "citation grounding hallucination detection document QA": 3,
+      "evidence attribution provenance verification trustworthiness": 3,
+      "llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document In\" linguistics": 3,
+      "source grounding training data contamination LLM evaluation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2603.22624",
+          "rationale": "The paper focuses on semantic segmentation in computer vision and proposes a benchmark for visual attribution faithfulness, which is a distinct construct and domain from the user's question regarding evidence attribution in document-based Question Answering (VQA) and linguistics. It fails the \"off-domain entirely\" rejection rule as it addresses a different modality (pixels vs. text) and task (segmentation vs. VQA) with no measurable connection to the specific mechanism or population of the user'",
+          "title": "Toward Faithful Segmentation Attribution via Benchmarking and Dual-Evidence Fusion"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general human-like attributes (emotional intelligence, conversational coherence) and does not measure the specific mechanism of \"evidence attribution\" or \"document grounding\" central to the user's question about CiteVQA. It fails to satisfy any inclusion criteria (a-f) as it addresses a distinct construct (anthropomorphism vs. citation accuracy) within the same broad domain of LLMs.",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2309.09902",
+          "rationale": "The paper focuses on \"speaker attribution\" (identifying who spoke) in political discourse, which is a distinct construct from the user's question regarding \"evidence attribution\" (linking claims to source documents) in the context of VQA and linguistics. While both involve LLMs and text analysis, the core mechanism and task (speaker diarization vs. document-grounded evidence retrieval) do not satisfy the criteria for same-mechanism evidence, shared variables, or foundational methodology for the ",
+          "title": "Speaker attribution in German parliamentary debates with QLoRA-adapted large language models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's specific focus on \"evidence attribution\" and \"document grounding\" in a Question Answering (VQA) context. While both involve LLM evaluation, the mechanisms (personality traits vs. citation accuracy) and domains (psychological simulation vs. information retrieval/linguistics) do not satisfy the criteria for same-mechanism evidence, shared variables, or foundational methodology for t",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a fundamental linguistic limitation of LLMs (character-level understanding) which is distinct from the user's specific focus on \"evidence attribution\" and \"document-level\" benchmarking for trustworthy QA. While both involve linguistics and LLMs, the paper does not measure the same mechanism (attribution vs. character composition), share the same variables, or provide a baseline for the specific task of evidence citation, failing to meet criteria (a) through (f).",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T05:31:52Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"citevqa: benchmarking evidence attribution for trustworthy document in\" linguistics",
+      "raw": "llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document In\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Provenance templates are now a recognised methodology for the construction of data provenance records. Each template defines the provenance of a domain-specific action in abstract form, which may then be instantiated as required by a single call to the provenance template service. As data reliability and trustworthiness becomes a critical issue in an increasing number of domains, there is a corresponding need to ensure that the provenance of that data is non-repudiable. In this paper we contribute two new, complementary modules to our template model and implementation to produce non-repudiable data provenance. The first, a module that traces the operation of the provenance template service itself, and records a provenance trace of the construction of an object-level document, at the level of individual service calls. The second, a non-repudiation module that generates evidence for the data recorded about each call, annotates the service trace accordingly, and submits a representation of that evidence to a provider-agnostic notary service. We evaluate the applicability of our approach in the context of a clinical decision support system. We first define a policy to ensure the non-repudiation of evidence with respect to a security threat analysis in order to demonstrate the suitability of our solution. We then select three use cases from within a particular system, Consult, with contrasting data provenance recording requirements and analyse the subsequent performance of our prototype implementation against three different notary providers.",
+          "claimed_authors": [
+            "Elliot Fairweather",
+            "Rudolf Wittner",
+            "Martin Chapman",
+            "Petr Holub",
+            "Vasa Curcin"
+          ],
+          "claimed_title": "Non-repudiable provenance for clinical decision support systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.11233"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Non-repudiable provenance for clinical decision support systems')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Provenance data from astronomical pipelines are instrumental in establishing trust and reproducibility in the data processing and products. In addition, astronomers can query their provenance to answer questions routed in areas such as anomaly detection, recommendation, and prediction. The next generation of astronomical survey telescopes such as the Vera Rubin Observatory or Square Kilometre Array, are capable of producing peta to exabyte scale data, thereby amplifying the importance of even small improvements to the efficiency of provenance storage or querying. In order to determine how astronomers should store and query their provenance data, this paper reports on a comparison between the turtle and JSON provenance serialisations. The triple store Apache Jena Fuseki and the graph database system Neo4j were selected as representative database management systems (DBMS) for turtle and JSON, respectively. Simulated provenance data was uploaded to and queried over each DBMS and the metrics measured for comparison were the accuracy and timing of the queries as well as the data upload times. It was found that both serialisations are competent for this purpose, and both have similar query accuracy. The turtle provenance was found to be more efficient at storing and uploading the data. Regarding queries, for small datasets ($<$5MB) and simple information retrieval queries, the turtle serialisation was also found to be more efficient. However, queries for JSON serialised provenance were found to be more efficient for more complex queries which involved matching patterns across the DBMS, this effect scaled with the size of the queried provenance.",
+          "claimed_authors": [
+            "Michael A. C. Johnson",
+            "Marcus Paradies",
+            "Hans-Rainer Klöckner",
+            "Albina Muzafarova",
+            "Kristen Lackeos",
+            "David J. Champion",
+            "Marta Dembska",
+            "Sirko Schindler"
+          ],
+          "claimed_title": "Evaluation of Provenance Serialisations for Astronomical Provenance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.14290"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Evaluation of Provenance Serialisations for Astronomical Provenance')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents results from the development and evaluation of a deductive verification benchmark consisting of 26 unmodified Linux kernel library functions implementing conventional memory and string operations. The formal contract of the functions was extracted from their source code and was represented in the form of preconditions and postconditions. The correctness of 23 functions was completely proved using AstraVer toolset, although success for 11 functions was achieved using 2 new specification language constructs. Another 2 functions were proved after a minor modification of their source code, while the final one cannot be completely proved using the existing memory model. The benchmark can be used for the testing and evaluation of deductive verification tools and as a starting point for verifying other parts of the Linux kernel.",
+          "claimed_authors": [
+            "Denis Efremov",
+            "Mikhail Mandrykin",
+            "Alexey Khoroshilov"
+          ],
+          "claimed_title": "Deductive Verification of Unmodified Linux Kernel Library Functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.00626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Deductive Verification of Unmodified Linux Kernel Library Functions')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Autoregressive Retrieval Augmentation (AR-RAG), a novel paradigm that enhances image generation by autoregressively incorporating knearest neighbor retrievals at the patch level. Unlike prior methods that perform a single, static retrieval before generation and condition the entire generation on fixed reference images, AR-RAG performs context-aware retrievals at each generation step, using prior-generated patches as queries to retrieve and incorporate the most relevant patch-level visual references, enabling the model to respond to evolving generation needs while avoiding limitations (e.g., over-copying, stylistic bias, etc.) prevalent in existing methods. To realize AR-RAG, we propose two parallel frameworks: (1) Distribution-Augmentation in Decoding (DAiD), a training-free plug-and-use decoding strategy that directly merges the distribution of model-predicted patches with the distribution of retrieved patches, and (2) Feature-Augmentation in Decoding (FAiD), a parameter-efficient fine-tuning method that progressively smooths the features of retrieved patches via multi-scale convolution operations and leverages them to augment the image generation process. We validate the effectiveness of AR-RAG on widely adopted benchmarks, including Midjourney-30K, GenEval and DPG-Bench, demonstrating significant performance gains over state-of-the-art image generation models.",
+          "claimed_authors": [
+            "Jingyuan Qi",
+            "Zhiyang Xu",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "AR-RAG: Autoregressive Retrieval Augmentation for Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.06962"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='AR-RAG: Autoregressive Retrieval Augmentation for Image Generation')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human cognition is constrained by processing limitations, leading to cognitive overload and inefficiencies in knowledge synthesis and decision-making. Large Language Models (LLMs) present an opportunity for cognitive augmentation, but their current reactive nature limits their real-world applicability. This position paper explores the potential of context-aware cognitive augmentation, where LLMs dynamically adapt to users' cognitive states and task environments to provide appropriate support. Through a think-aloud study in an exhibition setting, we examine how individuals interact with multi-modal information and identify key cognitive challenges in structuring, retrieving, and applying knowledge. Our findings highlight the need for AI-driven cognitive support systems that integrate real-time contextual awareness, personalized reasoning assistance, and socially adaptive interactions. We propose a framework for AI augmentation that seamlessly transitions between real-time cognitive support and post-experience knowledge organization, contributing to the design of more effective human-centered AI systems.",
+          "claimed_authors": [
+            " Xiangrong",
+            " Zhu",
+            "Yuan Xu",
+            "Tianjian Liu",
+            "Jingwei Sun",
+            "Yu Zhang",
+            "Xin Tong"
+          ],
+          "claimed_title": "Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13684"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wearable devices are transforming human capabilities by seamlessly augmenting cognitive functions. In this position paper, we propose a voice-based, interactive learning companion designed to amplify and extend cognitive abilities through informal learning. Our vision is threefold: (1) to enable users to discover new knowledge on-the-go through contextual interactive quizzes, fostering critical thinking and mindfulness, (2) to proactively detect misinformation, empowering users to critically assess information in real time, and (3) to provide spoken language correction and prompting hints for second language learning and effective communication. As an initial step toward this vision, we present Factually - a proactive, wearable fact-checking system integrated into devices like smartwatches or rings. Factually discreetly alerts users to potential falsehoods via vibrotactile feedback, helping them assess information critically. We demonstrate its utility through three illustrative scenarios, highlighting its potential to extend cognitive abilities for real-time misinformation detection. Early qualitative feedback suggests that Factually can enhance users' fact-checking capabilities, offering both practical and experiential benefits.",
+          "claimed_authors": [
+            "Chitralekha Gupta",
+            "Hanjun Wu",
+            "Praveen Sasikumar",
+            "Shreyas Sridhar",
+            "Priambudi Bagaskara",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Factually: Exploring Wearable Fact-Checking for Augmented Truth Discernment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.17204"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Factually: Exploring Wearable Fact-Checking for Augmented Truth Discernment')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models systematically hallucinate legal citations -- fabricating statute references, citing repealed provisions, and confusing jurisdictions -- yet no automated method exists to measure or reduce this behavior at scale. We propose citation grounding (CG), a metric that verifies LLM-generated legal citations against a ground-truth citation graph extracted from 100.8 million Ukrainian court decisions (502 million edges, 21,736 unique statute nodes). CG decomposes into three components -- citation precision (does the cited provision exist?), citation relevance (is it contextually appropriate?), and citation temporality (was it valid at the relevant date?) -- enabling differential diagnosis of hallucination types. Empirical evaluation on 100 Ukrainian legal queries across five systems -- four commercial LLMs via AWS Bedrock (Claude Haiku 4.5, Mistral Pixtral Large, Amazon Nova Pro/Lite) and one RAG-augmented production system -- reveals CG ranging from 0.791 to 0.873, with 13-21% of citations hallucinated. To reduce hallucinations without human annotation, we introduce Citation Grounding DPO (CG-DPO): a method that constructs preference pairs algorithmically by corrupting verified citations from real court decisions via four targeted strategies. On a dataset of 2,244 court decisions, a Qwen2.5-7B-Instruct model fine-tuned with LoRA achieves 98.5% mean validation accuracy in distinguishing correct from corrupted citations (rewards margin +14.9, std < 0.3 pp across 3 seeds). The citation graph, evaluation framework, and CG-DPO dataset are released as open resources.",
+          "claimed_authors": [
+            "Volodymyr Ovcharov"
+          ],
+          "claimed_title": "Citation Grounding: Detecting and Reducing LLM Citation Hallucinations via Legal Citation Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.00898"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Citation Grounding: Detecting and Reducing LLM Citation Hallucinations via Legal Citation Graphs')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Predicting the number of citations of scholarly documents is an upcoming task in scholarly document processing. Besides the intrinsic merit of this information, it also has a wider use as an imperfect proxy for quality which has the advantage of being cheaply available for large volumes of scholarly documents. Previous work has dealt with number of citations prediction with relatively small training data sets, or larger datasets but with short, incomplete input text. In this work we leverage the open access ACL Anthology collection in combination with the Semantic Scholar bibliometric database to create a large corpus of scholarly documents with associated citation information and we propose a new citation prediction model called SChuBERT. In our experiments we compare SChuBERT with several state-of-the-art citation prediction models and show that it outperforms previous methods by a large margin. We also show the merit of using more training data and longer input for number of citations prediction.",
+          "claimed_authors": [
+            "Thomas van Dongen",
+            "Gideon Maillette de Buy Wenniger",
+            "Lambert Schomaker"
+          ],
+          "claimed_title": "SChuBERT: Scholarly Document Chunks with BERT-encoding boost Citation Count Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.11740"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='SChuBERT: Scholarly Document Chunks with BERT-encoding boost Citation Count Prediction')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data attribution methods quantify the influence of training data on model outputs and are becoming increasingly relevant for a wide range of LLM research and applications, including dataset curation, model interpretability, data valuation. However, there remain critical gaps in systematic LLM-centric evaluation of data attribution methods. To this end, we introduce DATE-LM (Data Attribution Evaluation in Language Models), a unified benchmark for evaluating data attribution methods through real-world LLM applications. DATE-LM measures attribution quality through three key tasks -- training data selection, toxicity/bias filtering, and factual attribution. Our benchmark is designed for ease of use, enabling researchers to configure and run large-scale evaluations across diverse tasks and LLM architectures. Furthermore, we use DATE-LM to conduct a large-scale evaluation of existing data attribution methods. Our findings show that no single method dominates across all tasks, data attribution methods have trade-offs with simpler baselines, and method performance is sensitive to task-specific evaluation design. Finally, we release a public leaderboard for quick comparison of methods and to facilitate community engagement, with the motivation that DATE-LM can serve as a foundation for future data attribution research in LLMs.",
+          "claimed_authors": [
+            "Cathy Jiao",
+            "Yijun Pan",
+            "Emily Xiao",
+            "Daisy Sheng",
+            "Niket Jain",
+            "Hanzhang Zhao",
+            "Ishita Dasgupta",
+            "Jiaqi W. Ma",
+            "Chenyan Xiong"
+          ],
+          "claimed_title": "DATE-LM: Benchmarking Data Attribution Evaluation for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.09424"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='DATE-LM: Benchmarking Data Attribution Evaluation for Large Language Models')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the widespread adoption of autoregressive language models, explainability evaluation research has predominantly focused on span infilling and masked language models. Evaluating the faithfulness of an explanation method -- how accurately it explains the inner workings and decision-making of the model -- is challenging because it is difficult to separate the model from its explanation. Most faithfulness evaluation techniques corrupt or remove input tokens deemed important by a particular attribution (feature importance) method and observe the resulting change in the model's output. However, for autoregressive language models, this approach creates out-of-distribution inputs due to their next-token prediction training objective. In this study, we propose a technique that leverages counterfactual generation to evaluate the faithfulness of attribution methods for autoregressive language models. Our technique generates fluent, in-distribution counterfactuals, making the evaluation protocol more reliable.",
+          "claimed_authors": [
+            "Sepehr Kamahi",
+            "Yadollah Yaghoobzadeh"
+          ],
+          "claimed_title": "Counterfactuals As a Means for Evaluating Faithfulness of Attribution Methods in Autoregressive Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.11252"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Counterfactuals As a Means for Evaluating Faithfulness of Attribution Methods in Autoregressive Language Models')",
+        "failed_at": "2026-07-12T05:32:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The composition of training data, governed by the diversity of sources and their mixing strategy, is a cornerstone of Large Language Model (LLM) pre-training. Online Data Mixing (ODM), the technique of adaptively adjusting data mixtures during training, has emerged as a promising direction to improve efficiency. However, existing methods are constrained by their reliance on a singular optimization perspective, which fundamentally overlooks the need for complex LLM pre-training to consider the dynamic data composition from multiple dimensions. To overcome this limitation, we introduce the Holistic Data Scheduler (HDS), a novel online data mixing framework. HDS formulates the data scheduling challenge as a reinforcement learning problem in a continuous control space and leverages the Soft Actor-Critic (SAC) algorithm for its stability and sample efficiency in exploring the high-dimensional policy space. At the core of HDS lies a novel multi-objective, holistic reward function that integrates three critical perspectives: a data-driven reward for quality, a loss-driven reward capturing inter-domain influence, and a model-driven reward based on weight norms. To validate our design and determine its optimal configuration, we conducted systematic experiments on LLMs of various sizes. On The Pile benchmark, HDS reaches the final validation perplexity of the next best method with 44% fewer training iterations. Furthermore, it achieves a 7.2% improvement on the MMLU 0-shot task along with consistent gains on other benchmarks, showcasing its ability to enhance both training efficiency and final model capability.",
+          "claimed_authors": [
+            "Chenhao Dang",
+            "Jing Ma",
+            "Mingjie Liao"
+          ],
+          "claimed_title": "Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.24133"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning')",
+        "failed_at": "2026-07-12T05:32:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge graphs can guide large language models (LLMs) reasoning, but the graph seen by a system is usually a retrieved, linked, temporally scoped, and incomplete evidence state rather than a complete account of truth. We develop a theoretical perspective on grounding observable LLM trajectories under such incomplete graph evidence.The evidence state induces entity anchors, typed relation residuals, path energies, and support regions, while the language model supplies a prior over candidate trajectories. We show that, under open-world incompleteness, no hard rule based only on the observed state can both reject every false unsupported trajectory and retain every true-but-unobserved one.We then characterize soft grounding as a KL-regularized deformation of the LLM prior: finite slack preserves support for unsupported but non-contradicted trajectories, whereas hard conditioning appears as an infinite-penalty limit.The framework also yields stability bounds under evidence perturbations and clarifies the constraint regimes appropriate for GraphRAG, KGQA, graph agents, constrained decoding, and faithful generation. The claims are evidence-relative: KG compatibility is treated as declared support, not factual truth.",
+          "claimed_authors": [
+            "Jiaqi Li",
+            "Fanghui Song"
+          ],
+          "claimed_title": "Grounding LLM Reasoning under Incomplete Graph Evidence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.30247"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Grounding LLM Reasoning under Incomplete Graph Evidence')",
+        "failed_at": "2026-07-12T05:32:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data contamination poses a significant threat to the reliable evaluation of Large Language Models (LLMs). This issue arises when benchmark samples may inadvertently appear in training sets, compromising the validity of reported performance. While detection methods have been developed for the pre-training and Supervised Fine-Tuning stages, a critical research gap exists for the increasingly significant phase of Reinforcement Learning (RL) post-training. As RL post-training becomes pivotal for advancing LLM reasoning, the absence of specialized contamination detection methods in this paradigm presents a critical vulnerability. To address this, we conduct the first systematic study of data detection within RL post-training scenario and propose Self-Critique. Our method is motivated by a key observation: after RL phase, the output entropy distribution of LLMs tends to collapse into highly specific and sparse modes. Self-Critique probes for the underlying policy collapse, i.e., the model's convergence to a narrow reasoning path, which causes this entropy reduction. To facilitate this research, we also introduce RL-MIA, a benchmark constructed to simulate this specific contamination scenario. Extensive experiments show that Self-Critique significantly outperforms baseline methods across multiple models and contamination tasks, achieving an AUC improvement of up to 30%. Whereas existing methods are close to a random guess for RL-phase contamination, our method makes detection possible.",
+          "claimed_authors": [
+            "Yongding Tao",
+            "Tian Wang",
+            "Yihong Dong",
+            "Huanyu Liu",
+            "Kechi Zhang",
+            "Xiaolong Hu",
+            "Ge Li"
+          ],
+          "claimed_title": "Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.09259"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CiteVQA: Benchmarking Evidence Attribution for Tru', candidate_title='Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models')",
+        "failed_at": "2026-07-12T05:32:25Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Akhil Chandra Shanivendra"
+          ],
+          "title": "Citation-Enforced RAG for Fiscal Document Intelligence: Cited, Explainable Knowledge Retrieval in Tax Compliance",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.14170",
+        "summary": "Tax authorities and public-sector financial agencies rely on large volumes of unstructured and semi-structured fiscal documents - including tax forms, instructions, publications, and jurisdiction-specific guidance - to support compliance analysis and audit workflows. While recent advances in generative AI and retrieval-augmented generation (RAG) have shown promise for document-centric question answering, existing approaches often lack the transparency, citation fidelity, and conservative behaviour required in high-stakes regulatory domains. This paper presents a multimodal, citation-enforced RAG framework for fiscal document intelligence that prioritises explainability and auditability. The framework adopts a source-first ingestion strategy, preserves page-level provenance, enforces citations during generation, and supports abstention when evidence is insufficient. Evaluation on real IRS and state tax documents demonstrates improved citation fidelity, reduced hallucination, and analyst-usable explanations, illustrating a pathway toward trustworthy AI for tax compliance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.14170",
+          "http_status": 200,
+          "pdf_sample_score": 0.2034,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T05:32:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zeping Yu",
+            "Sophia Ananiadou"
+          ],
+          "title": "Neuron-Level Knowledge Attribution in Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2312.12141",
+        "summary": "Identifying important neurons for final predictions is essential for understanding the mechanisms of large language models. Due to computational constraints, current attribution techniques struggle to operate at neuron level. In this paper, we propose a static method for pinpointing significant neurons. Compared to seven other methods, our approach demonstrates superior performance across three metrics. Additionally, since most static methods typically only identify \"value neurons\" directly contributing to the final prediction, we propose a method for identifying \"query neurons\" which activate these \"value neurons\". Finally, we apply our methods to analyze six types of knowledge across both attention and feed-forward network (FFN) layers. Our method and analysis are helpful for understanding the mechanisms of knowledge storage and set the stage for future research in knowledge editing. The code is available on https://github.com/zepingyu0512/neuron-attribution.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2312.12141",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T05:32:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"citevqa: benchmarking evidence attribution for trustworthy document in\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

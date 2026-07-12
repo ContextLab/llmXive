@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.12141",
+  "judged_at": "2026-07-12T05:32:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"citevqa: benchmarking evidence attribution for trustworthy document in\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by investigating the same underlying mechanism (knowledge attribution and the specific neurons responsible for factual recall) that the user's question targets, even though it focuses on the internal model mechanics rather than the external benchmarking framework of CiteVQA. It also aligns with criterion (f) as it belongs to the canonical alternative-vocabulary cluster for \"evidence attribution\" in LLMs, specifically using terms like \"neuron-level knowledge att",
+  "relevant": true
+}

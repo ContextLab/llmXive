@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.14170",
+  "judged_at": "2026-07-12T05:32:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"citevqa: benchmarking evidence attribution for trustworthy document in\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (evidence attribution and citation fidelity in RAG systems) and measures the same dependent variable (trustworthiness/hallucination reduction via citations) within the broader domain of document-centric question answering, serving as a canonical methodological reference for extending the \"CiteVQA\" benchmark to specific high-stakes domains.",
+  "relevant": true
+}

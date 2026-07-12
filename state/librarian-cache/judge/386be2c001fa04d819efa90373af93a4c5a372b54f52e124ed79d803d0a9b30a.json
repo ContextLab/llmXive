@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.11357",
+  "judged_at": "2026-07-12T05:32:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"citevqa: benchmarking evidence attribution for trustworthy document in\" linguistics",
+  "rationale": "The paper investigates a fundamental linguistic limitation of LLMs (character-level understanding) which is distinct from the user's specific focus on \"evidence attribution\" and \"document-level\" benchmarking for trustworthy QA. While both involve linguistics and LLMs, the paper does not measure the same mechanism (attribution vs. character composition), share the same variables, or provide a baseline for the specific task of evidence citation, failing to meet criteria (a) through (f).",
+  "relevant": false
+}

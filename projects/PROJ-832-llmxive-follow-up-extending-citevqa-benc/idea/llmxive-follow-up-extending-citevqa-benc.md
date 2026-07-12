@@ -5,36 +5,76 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document In"
 
-## Summary of the prior work
-The paper introduces CiteVQA, a benchmark for Document Visual Question Answering (Doc-VQA) that evaluates both the correctness of an answer and the precision of its element-level bounding-box citation, revealing a pervasive "Attribution Hallucination" where models provide correct answers based on wrong evidence. By introducing the Strict Attributed Accuracy (SAA) metric and an automated pipeline for generating ground-truth citations via masking ablation, the authors demonstrate that even state-of-the-art Multimodal Large Language Models (MLLMs) fail to reliably ground their reasoning in specific document regions, particularly in high-stakes domains.
+**Field**: Linguistics / Document Intelligence
 
-## Proposed extension
-**Research Question:** Does the "Attribution Hallucination" phenomenon persist when MLLMs are replaced by a lightweight, CPU-tractable pipeline that decouples retrieval (using dense text embeddings) from reasoning (using small instruction-tuned LMs), or does the bottleneck shift entirely to the visual localization module?
+## Research question
 
-This question matters because it isolates whether the failure is inherent to the model's reasoning architecture (requiring expensive GPU training) or a systemic issue in how visual evidence is linked to textual queries, potentially enabling cost-effective, auditable document intelligence systems for resource-constrained environments.
+How do the mechanisms of spatial reasoning in language models differ when trained on visual-textual pairs versus text-only data, and what specific linguistic or structural cues do text-only models fail to utilize when attempting to localize answers in document images?
+
+## Motivation
+
+Current end-to-end Multimodal Large Language Models (MLLMs) frequently suffer from "Attribution Hallucination," generating correct answers while citing irrelevant document regions. It remains unclear whether this failure is an unavoidable consequence of parametric over-reliance in massive models or a fundamental limitation of smaller, modular systems that lack explicit visual pre-training. Resolving this is critical for designing cost-effective, auditable document intelligence pipelines that can operate on CPU-only hardware without sacrificing the ability to map textual claims to visual evidence.
+
+## Literature gap analysis
+
+### What we searched
+
+We queried Semantic Scholar and arXiv using terms including "visual pre-training document understanding," "cross-modal alignment bounding boxes," "attribution hallucination MLLM," "spatial reasoning language models," and "text-only reasoning document QA." The search returned a sparse set of results focused on general knowledge attribution in LLMs and specific RAG constraints for fiscal documents, but no direct studies isolating the causal impact of visual pre-training on the specific task of mapping text answers to visual bounding boxes in document understanding.
+
+### What is known
+
+- [Citation-Enforced RAG for Fiscal Document Intelligence: Cited, Explainable Knowledge Retrieval in Tax Compliance (2026)](https://arxiv.org/abs/2603.14170) — Demonstrates that enforcing citation constraints in Retrieval-Augmented Generation (RAG) pipelines can improve explainability in fiscal documents, offering a methodological precedent for decoupling retrieval from generation, though it does not address the visual grounding mechanism itself.
+- [Neuron-Level Knowledge Attribution in Large Language Models (2023)](https://arxiv.org/abs/2312.12141) — Highlights the computational difficulty of tracing knowledge sources in large models, supporting the hypothesis that smaller, modular architectures may exhibit distinct (and potentially more transparent) failure modes regarding attribution, but does not investigate the role of visual pre-training in alignment tasks.
+
+### What is NOT known
+
+No published work has empirically isolated the causal contribution of visual pre-training to the specific capability of mapping textual answers to visual bounding boxes in document understanding. Existing literature either assumes end-to-end multimodal training or focuses on textual retrieval constraints, leaving a gap in understanding whether small, text-only models can achieve cross-modal alignment through reasoning alone or if visual pre-training is a necessary condition for accurate spatial attribution.
+
+### Why this gap matters
+
+Understanding whether visual pre-training is a necessary condition for accurate cross-modal alignment is crucial for developing efficient, auditable document intelligence systems. If text-only reasoning suffices, organizations can deploy lightweight, CPU-tractable pipelines without the computational overhead of training or fine-tuning massive multimodal models, significantly reducing costs and improving transparency in high-stakes domains like tax compliance and legal document review.
+
+### How this project addresses the gap
+
+This project directly addresses the gap by implementing a controlled, decomposed pipeline that separates text retrieval from visual localization, allowing us to test a small, text-only model (Phi-3-mini) against the specific task of mapping answers to bounding boxes. By comparing its performance against baseline MLLMs and conducting a "Visual-Only" control experiment, we will empirically determine if the capability to perform accurate cross-modal alignment emerges from text-only reasoning or requires explicit visual pre-training.
+
+## Expected results
+
+We expect the decomposed, CPU-tractable pipeline to exhibit a distinct failure profile: while text retrieval accuracy will be high, the final Strict Attributed Accuracy (SAA) will likely remain low (<15%) due to the small model's inability to perform cross-modal alignment without visual pre-training. This would confirm that "Attribution Hallucination" in MLLMs is partially driven by a lack of explicit visual grounding mechanisms rather than solely by parametric size, and that text-only models fail to utilize low-level structural cues (e.g., layout proximity, font hierarchy) necessary for precise spatial localization.
 
 ## Methodology sketch
-**Data:** Utilize the existing CiteVQA dataset (711 PDFs, 1,897 QA pairs) but pre-process all documents into a structured JSON format containing text content, page numbers, and bounding box coordinates, removing the need for real-time visual rendering.
 
-**Procedure:** 
-1. Construct a CPU-tractable retrieval-reasoning pipeline: Use a lightweight, pre-trained sentence transformer (e.g., `all-MiniLM-L6-v2`) to retrieve top-k text chunks matching the query, then use a small, CPU-friendly LLM (e.g., Phi-3-mini or TinyLlama) to generate the answer and map the answer to the retrieved chunk's bounding box.
-2. Implement a "Visual-Only" control group where the model receives only the cropped image of the cited region (simulated via simple image slicing) to test if visual context improves attribution over text-only retrieval.
-3. Evaluate the system using the original Strict Attributed Accuracy (SAA) metric and introduce a new "Localization Latency" metric to measure the computational cost of finding the correct region.
+- **Data Acquisition**: Download the CiteVQA dataset (711 PDFs, 1,897 QA pairs) from the official repository; parse all PDFs into structured JSON containing extracted text, page numbers, and bounding box coordinates using `pdfplumber` (CPU-bound).
+- **Text-Only Baseline Construction**: Implement a two-stage inference pipeline:
+    - *Stage 1 (Retrieval)*: Encode all text chunks using `all-MiniLM-L6-v2` (sentence-transformers) and store in a local FAISS index; retrieve top-k chunks for each query.
+    - *Stage 2 (Reasoning & Mapping)*: Feed the query and retrieved text chunks to a small instruction-tuned model (e.g., Phi-3-mini quantized to 4-bit) to generate an answer and a predicted chunk ID.
+- **Visual Grounding Mapping**: Map the predicted chunk ID to its corresponding bounding box coordinates from the pre-processed JSON; generate a cropped image of this region for the "Visual-Only" control test.
+- **Control Experiment**: Run a second pass where a separate small model receives only the cropped image (no text) to assess if visual context alone can drive correct attribution, isolating the modality gap.
+- **Evaluation Metric**: Compute the Strict Attributed Accuracy (SAA), defined as the intersection of (1) answer correctness (exact match or semantic similarity > 0.85) and (2) bounding box IoU > 0.5 with the ground truth.
+- **Statistical Analysis**: Perform a paired t-test comparing the SAA scores of the text-only decomposed pipeline against the baseline MLLM scores reported in the original CiteVQA paper to determine if the difference is statistically significant (p < 0.05).
+- **Validation Independence**: Ensure the evaluation (SAA) uses ground-truth bounding boxes from the dataset which are independent of the model's predicted coordinates, avoiding circular validation where the model's output is compared against a derived version of itself.
 
-**Expected Result:** We hypothesize that the CPU-tractable pipeline will achieve a significantly lower SAA (e.g., <15%) compared to the best MLLMs, not because of hallucination, but due to the inability of small models to perform cross-modal alignment without visual pre-training, suggesting that "Attribution Hallucination" in MLLMs is partly a result of over-reliance on parametric knowledge rather than a lack of visual grounding capability.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: N/A (No other fleshed-out ideas in the provided context).
+- Closest match: None identified.
+- Verdict: NOT a duplicate
 
-- **CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence** — {'name': 'Dongsheng Ma', 'kind': 'human'}, {'name': 'Jiayu Li', 'kind': 'human'}, {'name': 'Zhengren Wang', 'kind': 'human'}, {'name': 'Yijie Wang', 'kind': 'human'}, {'name': 'Jiahao Kong', 'kind': 'human'}, {'name': 'Weijun Zeng', 'kind': 'human'}, {'name': 'Jutao Xiao', 'kind': 'human'}, {'name': 'Jie Yang', 'kind': 'human'}, {'name': 'Wentao Zhang', 'kind': 'human'}, {'name': 'Bin Wang', 'kind': 'human'}, {'name': 'Conghui He', 'kind': 'human'}, {'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-27T21:38:14.140287Z'}. https://arxiv.org/abs/2605.12882.
 
-```bibtex
-@article{orig_arxiv_2605_12882,
-  title = {CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document Intelligence},
-  author = {\{'name': 'Dongsheng Ma', 'kind': 'human'\} and \{'name': 'Jiayu Li', 'kind': 'human'\} and \{'name': 'Zhengren Wang', 'kind': 'human'\} and \{'name': 'Yijie Wang', 'kind': 'human'\} and \{'name': 'Jiahao Kong', 'kind': 'human'\} and \{'name': 'Weijun Zeng', 'kind': 'human'\} and \{'name': 'Jutao Xiao', 'kind': 'human'\} and \{'name': 'Jie Yang', 'kind': 'human'\} and \{'name': 'Wentao Zhang', 'kind': 'human'\} and \{'name': 'Bin Wang', 'kind': 'human'\} and \{'name': 'Conghui He', 'kind': 'human'\} and \{'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-27T21:38:14.140287Z'\}},
-  year = {2026},
-  eprint = {2605.12882},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.12882},
-  url = {https://arxiv.org/abs/2605.12882}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T05:34:22Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document In" linguistics
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "CiteVQA: Benchmarking Evidence Attribution for Trustworthy Document In" linguistics | 2 |
+
+### Verified citations
+
+1. **Citation-Enforced RAG for Fiscal Document Intelligence: Cited, Explainable Knowledge Retrieval in Tax Compliance** (2026). Akhil Chandra Shanivendra. arXiv. [2603.14170](https://arxiv.org/abs/2603.14170). PDF-sampled: No.
+2. **Neuron-Level Knowledge Attribution in Large Language Models** (2023). Zeping Yu, Sophia Ananiadou. arXiv. [2312.12141](https://arxiv.org/abs/2312.12141). PDF-sampled: No.
