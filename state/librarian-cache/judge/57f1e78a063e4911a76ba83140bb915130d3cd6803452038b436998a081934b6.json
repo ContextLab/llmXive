@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.08130",
+  "judged_at": "2026-07-12T20:38:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"sciatlas: a large-scale knowledge graph for automated scientific resea\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for the \"Knowledge Graph\" component of the user's question, providing the canonical framework for curation, quality metrics, and duplicate detection that would be cited in a literature review regarding the construction or extension of a large-scale scientific knowledge graph like SciAtlas. Additionally, it addresses the \"duplicate detection\" and \"quality\" mechanisms (criterion a) which are critical for extending any large",
+  "relevant": true
+}

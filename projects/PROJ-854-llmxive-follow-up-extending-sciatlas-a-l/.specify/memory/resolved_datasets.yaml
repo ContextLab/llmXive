@@ -1,0 +1,147 @@
+resolved_at: '2026-07-12T20:43:18.417060+00:00'
+datasets:
+- intent: PubGraph
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/Empowering_Adults_to_Support_Youth_Mental_Health_A_Non-Randomized_Controlled_Trial_of_Youth_Mental_Health_First_Aid_Training_on_Helping_Behavior_and_Mental_Health_Literacy_Outcomes/32841881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Monetary-Fiscal_Nexus_and_Price_Level_Dynamics_in_Ghana_A_Nonlinear_ARDL_Analysis_of_Public_Debt_Servicing_Short-Term_Debt_and_Inflation_1980_2020_b_/32661102
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Understanding_healthcare_workers_and_community_leaders_knowledge_and_attitudes_towards_analytical_treatment_interruption_ATI_research_in_Malawi_/32969333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_p_dir_rtl_2-________Urdu_p_/32969336
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/High-Strength_and_Low-Swelling_Poly_amic_acid_Salt_Hydrogels_for_Marine_Antifouling/32969331
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8039443
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8039443
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8039443
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2302.02231
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FDR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 766
+      parsed: true
+  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 27026
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_pc/eaa55dcc52ce3a34a2476e5ee83e770b90f0597b/fdr_ft_data.json?%2Fdatasets%2FAnt-j-a%2Ffdr_pc%2Fresolve%2Fmain%2Ffdr_ft_data.json=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_data/d17d474aa35707f6f6963bc81dc9b780c12c4a84/fdr_ft_data.jsonl?%2Fdatasets%2FAnt-j-a%2Ffdr_data%2Fresolve%2Fmain%2Ffdr_ft_data.jsonl=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Empowering_Adults_to_Support_Youth_Mental_Health_A_Non-Randomized_Controlled_Trial_of_Youth_Mental_Health_First_Aid_Training_on_Helping_Behavior_and_Mental_Health_Literacy_Outcomes/32841881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Monetary-Fiscal_Nexus_and_Price_Level_Dynamics_in_Ghana_A_Nonlinear_ARDL_Analysis_of_Public_Debt_Servicing_Short-Term_Debt_and_Inflation_1980_2020_b_/32661102
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Understanding_healthcare_workers_and_community_leaders_knowledge_and_attitudes_towards_analytical_treatment_interruption_ATI_research_in_Malawi_/32969333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_p_dir_rtl_2-________Urdu_p_/32969336
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/High-Strength_and_Low-Swelling_Poly_amic_acid_Salt_Hydrogels_for_Marine_Antifouling/32969331
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19485037
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15629319
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16743754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7756151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tandfonline.com/doi/full/10.1080/2150704X.2025.2478664
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21326083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21326083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21321053
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21321053
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://massive.ucsd.edu/ProteoSAFe/private-dataset.jsp?task=aa756a02b48a4adb8bf6a806be37ee3e
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

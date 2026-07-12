@@ -1,0 +1,607 @@
+{
+  "fetched_at": "2026-07-12T20:38:16Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Resea\"",
+      "target_n": 5
+    },
+    "duration_seconds": 50.248,
+    "ended_at": "2026-07-12T20:38:16Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "large-scale scientific knowledge graphs"
+        ],
+        [
+          2,
+          "automated scientific research workflows using knowledge graphs"
+        ],
+        [
+          3,
+          "LLM integration with scientific knowledge bases"
+        ],
+        [
+          4,
+          "semantic search for scientific literature"
+        ],
+        [
+          5,
+          "AI-driven literature review automation"
+        ],
+        [
+          6,
+          "scientific literature graph construction"
+        ],
+        [
+          7,
+          "knowledge graph completion for research domains"
+        ],
+        [
+          8,
+          "automated hypothesis generation from scientific data"
+        ],
+        [
+          9,
+          "large language models for scientific discovery"
+        ],
+        [
+          10,
+          "entity extraction from scientific papers"
+        ],
+        [
+          11,
+          "relation extraction for scientific knowledge graphs"
+        ],
+        [
+          12,
+          "graph neural networks for scientific literature"
+        ],
+        [
+          13,
+          "automated systematic literature reviews"
+        ],
+        [
+          14,
+          "scientific concept linking and disambiguation"
+        ],
+        [
+          15,
+          "machine reading comprehension for scientific texts"
+        ],
+        [
+          16,
+          "ontology learning from scientific corpora"
+        ],
+        [
+          17,
+          "automated citation network analysis"
+        ],
+        [
+          18,
+          "generative AI for scientific paper summarization"
+        ],
+        [
+          19,
+          "cross-document coreference resolution in science"
+        ],
+        [
+          20,
+          "retrieval-augmented generation for scientific QA"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "large-scale scientific knowledge graphs": 4,
+        "llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Resea\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "scientific knowledge graph automated discovery",
+      "SciAtlas literature mining entity linking",
+      "graph neural network literature recommendation",
+      "citation network analysis scientific mapping",
+      "automated literature review knowledge extraction"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2406.01391"
+      ]
+    },
+    "per_query_hit_count": {
+      "SciAtlas literature mining entity linking": 3,
+      "automated literature review knowledge extraction": 3,
+      "citation network analysis scientific mapping": 3,
+      "graph neural network literature recommendation": 3,
+      "llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Resea\" computer science": 3,
+      "scientific knowledge graph automated discovery": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-12T20:37:26Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"sciatlas: a large-scale knowledge graph for automated scientific resea\" computer science",
+      "raw": "llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Resea\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Enterprises often maintain multiple databases for storing critical business data in siloed systems, resulting in inefficiencies and challenges with data interoperability. A key to overcoming these challenges lies in integrating disparate data sources, enabling businesses to unlock the full potential of their data. Our work presents a novel approach for integrating multiple databases using knowledge graphs, focusing on the application of large language models as semantic agents for mapping and connecting structured data across systems by leveraging existing vocabularies. The proposed methodology introduces a semantic layer above tables in relational databases, utilizing a system comprising multiple LLM agents that map tables and columns to Schema.org terms. Our approach achieves a mapping accuracy of over 90% in multiple domains.",
+          "claimed_authors": [
+            "Milena Trajanoska",
+            "Riste Stojanov",
+            "Dimitar Trajanov"
+          ],
+          "claimed_title": "A Multi-Agent System for Semantic Mapping of Relational Data to Knowledge Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06455"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='A Multi-Agent System for Semantic Mapping of Relational Data to Knowledge Graphs')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Opinions are central to almost all human activities and are key influencers of our behaviors. In current times due to growth of social networking website and increase in number of e-commerce site huge amount of opinions are now available on web. Given a set of evaluative statements that contain opinions (or sentiments) about an Entity, opinion mining aims to extract attributes and components of the object that have been commented on in each statement and to determine whether the comments are positive, negative or neutral. While lot of research recently has been done in field of opinion mining and some of it dealing with ranking of entities based on review or opinion set, classifying opinions into finer granularity level and then ranking entities has never been done before. In this paper method for opinion mining from statements at a deeper level of granularity is proposed. This is done by using fuzzy logic reasoning, after which entities are ranked as per this information.",
+          "claimed_authors": [
+            "Pratik N. Kalamkar",
+            "A. G. Phakatkar"
+          ],
+          "claimed_title": "Opinion Mining Based Entity Ranking using Fuzzy Logic Algorithmic Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.23384"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Opinion Mining Based Entity Ranking using Fuzzy Logic Algorithmic Approach')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "\"Open access\" has become a central theme of journal reform in academic publishing. In this article, I examine the relationship between open access publishing and an important infrastructural element of a modern research enterprise, scientific literature text mining, or the use of data analytic techniques to conduct meta-analyses and investigations into the scientific corpus. I give a brief history of the open access movement, discuss novel journalistic practices, and an overview of data-driven investigation of the scientific corpus. I argue that particularly in an era where the veracity of many research studies has been called into question, scientific literature text mining should be one of the key motivations for open access publishing, not only in the basic sciences, but in the engineering and applied sciences as well. The enormous benefits of unrestricted access to the research literature should prompt scholars from all disciplines to lend their vocal support to enabling legal, wholesale access to the scientific literature as part of a data science pipeline.",
+          "claimed_authors": [
+            "Gopal P. Sarma"
+          ],
+          "claimed_title": "Scientific Literature Text Mining and the Case for Open Access",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.00097"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Scientific Literature Text Mining and the Case for Open Access')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Entity linking is an important step towards constructing knowledge graphs that facilitate advanced question answering over scientific documents, including the retrieval of relevant information included in tables within these documents. This paper introduces a general-purpose system for linking entities to items in the Wikidata knowledge base. It describes how we adapt this system for linking domain-specific entities, especially for those entities embedded within tables drawn from COVID-19-related scientific literature. We describe the setup of an efficient offline instance of the system that enables our entity-linking approach to be more feasible in practice. As part of a broader approach to infer the semantic meaning of scientific tables, we leverage the structural and semantic characteristics of the tables to improve overall entity linking performance.",
+          "claimed_authors": [
+            "Varish Mulwad",
+            "Tim Finin",
+            "Vijay S. Kumar",
+            "Jenny Weisenberg Williams",
+            "Sharad Dixit",
+            "Anupam Joshi"
+          ],
+          "claimed_title": "A Practical Entity Linking System for Tables in Scientific Literature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.10044"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='A Practical Entity Linking System for Tables in Scientific Literature')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Heterogeneous information networks (HINs) are widely applied to recommendation systems due to their capability of modeling various auxiliary information with meta-paths. However, existing HIN-based recommendation models usually fuse the information from various meta-paths by simple weighted sum or concatenation, which limits performance improvement because it lacks the capability of interest compositions among meta-paths. In this article, we propose an HIN-based Interest Composition model for Recommendation (HicRec). Specifically, user and item representations are learned with a graph neural network on both the graph structure and features in each meta-path, and a parameter sharing mechanism is utilized here to ensure that the user and item representations are in the same latent space. Then, users' interests in each item from each pair of related meta-paths are calculated by a combination of the user and item representations. The composed user interests are obtained by their single interest from both intra- and inter-meta-paths for recommendation. Extensive experiments are conducted on three real-world datasets and the results demonstrate that our proposed HicRec model outperforms the baselines.",
+          "claimed_authors": [
+            "Dengcheng Yan",
+            "Wenxin Xie",
+            "Yiwen Zhang"
+          ],
+          "claimed_title": "Heterogeneous Information Network-based Interest Composition with Graph Neural Network for Recommendation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.06560"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Heterogeneous Information Network-based Interest Composition with Graph Neural Network for Recommendation')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The two Journal Citation Reports of the Science Citation Index 2004 and the Social Science Citation Index 2004 were combined in order to analyze and map journals and specialties at the edges and in the overlap between the two databases. For journals which belong to the overlap (e.g., Scientometrics), the merger mainly enriches our insight into the structure which can be obtained from the two databases separately; but in the case of scientific journals which are more marginal in either database, the combination can provide a new perspective on the position and function of these journals (e.g., Environment and Planning B-Planning and Design). The combined database additionally enables us to map citation environments in terms of the various specialties comprehensively. Using the vector-space model, visualizations are provided for specialties that are parts of the overlap (information science, science & technology studies). On the basis of the resulting visualizations, \"betweenness\"--a measure from social network analysis--is suggested as an indicator for measuring the interdisciplinarity of journals.",
+          "claimed_authors": [
+            "Loet Leydesdorff"
+          ],
+          "claimed_title": "Mapping Interdisciplinarity at the Interfaces between the Science Citation Index and the Social Science Citation Index",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.2723"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Mapping Interdisciplinarity at the Interfaces between the Science Citation Index and the Social Science Citation Index')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aggregated journal-journal citation networks based on the Journal Citation Reports 2004 of the Science Citation Index (5968 journals) and the Social Science Citation Index (1712 journals) are made accessible from the perspective of any of these journals. The user is thus able to analyze the citation environment in terms of links and graphs. Furthermore, the local impact of a journal is defined as its share of the total citations in the specific journal's citation environments; the vertical size of the nodes is varied proportionally to this citation impact. The horizontal size of each node can be used to provide the same information after correction for within-journal (self)-citations. In the \"citing\" environment, the equivalents of this measure can be considered as a citation activity index which maps how the relevant journal environment is perceived by the collective of authors of a given journal. As a policy application, the mechanism of interdisciplinary developments among the sciences is elaborated for the case of nanotechnology journals.",
+          "claimed_authors": [
+            "Loet Leydesdorff"
+          ],
+          "claimed_title": "Visualization of the Citation Impact Environments of Scientific Journals: An online mapping exercise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.2731"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Visualization of the Citation Impact Environments of Scientific Journals: An online mapping exercise')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The International Particle Physics Outreach Group (IPPOG) has been making concerted and systematic efforts to present and popularise particle physics across all audiences and age groups since 1997. Today the scientific community has in IPPOG a strategic pillar in fostering long-term, sustainable support for fundamental research around the world. One of the main tools IPPOG has been offering to the scientific community, teachers and educators for almost 10 years is the Resource Database (RDB), an online platform containing a collection of high quality engaging education and outreach materials in particle physics and related sciences.",
+          "claimed_authors": [
+            "Barbora Bruant Gulejova"
+          ],
+          "claimed_title": "IPPOG : Bridging the gap between science education at school and modern scientific research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.14743"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='IPPOG : Bridging the gap between science education at school and modern scientific research')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated planning is a prominent area of Artificial Intelligence, and an important component for intelligent autonomous agents. A cornerstone of domain-independent planning is the separation between planning logic, i.e. the automated reasoning side, and the knowledge model, that encodes a formal representation of domain knowledge needed to reason upon a given problem to synthesise a solution plan. Such a separation enables the use of reformulation techniques, which transform how a model is represented in order to improve the efficiency of plan generation. Over the past decades, significant research effort has been devoted to the design of reformulation techniques. In this paper, we present a systematic review of the large body of work on reformulation techniques for classical planning, aiming to provide a holistic view of the field and to foster future research in the area. As a tangible outcome, we provide a qualitative comparison of the existing classes of techniques, that can help researchers gain an overview of their strengths and weaknesses.",
+          "claimed_authors": [
+            "Diaeddin Alarnaouti",
+            "George Baryannis",
+            "Mauro Vallati"
+          ],
+          "claimed_title": "Reformulation Techniques for Automated Planning: A Systematic Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.10079"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Reformulation Techniques for Automated Planning: A Systematic Review')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Context is an important factor in computer vision as it offers valuable information to clarify and analyze visual data. Utilizing the contextual information inherent in an image or a video can improve the precision and effectiveness of object detectors. For example, where recognizing an isolated object might be challenging, context information can improve comprehension of the scene. This study explores the impact of various context-based approaches to object detection. Initially, we investigate the role of context in object detection and survey it from several perspectives. We then review and discuss the most recent context-based object detection approaches and compare them. Finally, we conclude by addressing research questions and identifying gaps for further studies. More than 265 publications are included in this survey, covering different aspects of context in different categories of object detection, including general object detection, video object detection, small object detection, camouflaged object detection, zero-shot, one-shot, and few-shot object detection. This literature review presents a comprehensive overview of the latest advancements in context-based object detection, providing valuable contributions such as a thorough understanding of contextual information and effective methods for integrating various context types into object detection, thus benefiting researchers.",
+          "claimed_authors": [
+            "Mahtab Jamali",
+            "Paul Davidsson",
+            "Reza Khoshkangini",
+            "Martin Georg Ljungqvist",
+            "Radu-Casian Mihailescu"
+          ],
+          "claimed_title": "Context in object detection: a systematic literature review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.23249"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='Context in object detection: a systematic literature review')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The process of conducting literature reviews is often time-consuming and labor-intensive. To streamline this process, I present an AI Literature Review Suite that integrates several functionalities to provide a comprehensive literature review. This tool leverages the power of open access science, large language models (LLMs) and natural language processing to enable the searching, downloading, and organizing of PDF files, as well as extracting content from articles. Semantic search queries are used for data retrieval, while text embeddings and summarization using LLMs present succinct literature reviews. Interaction with PDFs is enhanced through a user-friendly graphical user interface (GUI). The suite also features integrated programs for bibliographic organization, interaction and query, and literature review summaries. This tool presents a robust solution to automate and optimize the process of literature review in academic and industrial research.",
+          "claimed_authors": [
+            "David A. Tovar"
+          ],
+          "claimed_title": "AI Literature Review Suite",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.02443"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"SciAtlas: A Large-Scale Knowledge Graph for Automa', candidate_title='AI Literature Review Suite')",
+        "failed_at": "2026-07-12T20:37:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dimitar Peshevski",
+            "Riste Stojanov",
+            "Dimitar Trajanov"
+          ],
+          "title": "AI Agent-Driven Framework for Automated Product Knowledge Graph Construction in E-Commerce",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.11017",
+        "summary": "The rapid expansion of e-commerce platforms generates vast amounts of unstructured product data, creating significant challenges for information retrieval, recommendation systems, and data analytics. Knowledge Graphs (KGs) offer a structured, interpretable format to organize such data, yet constructing product-specific KGs remains a complex and manual process. This paper introduces a fully automated, AI agent-driven framework for constructing product knowledge graphs directly from unstructured product descriptions. Leveraging Large Language Models (LLMs), our method operates in three stages using dedicated agents: ontology creation and expansion, ontology refinement, and knowledge graph population. This agent-based approach ensures semantic coherence, scalability, and high-quality output without relying on predefined schemas or handcrafted extraction rules. We evaluate the system on a real-world dataset of air conditioner product descriptions, demonstrating strong performance in both ontology generation and KG population. The framework achieves over 97\\% property coverage and minimal redundancy, validating its effectiveness and practical applicability. Our work highlights the potential of LLMs to automate structured knowledge extraction in retail, providing a scalable path toward intelligent product data integration and utilization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.11017",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T20:37:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zechang Sun",
+            "Yuan-Sen Ting",
+            "Yaobo Liang",
+            "Nan Duan",
+            "Song Huang",
+            "Zheng Cai"
+          ],
+          "title": "Knowledge Graph in Astronomical Research with Large Language Models: Quantifying Driving Forces in Interdisciplinary Scientific Discovery",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.01391",
+        "summary": "Identifying and predicting the factors that contribute to the success of interdisciplinary research is crucial for advancing scientific discovery. However, there is a lack of methods to quantify the integration of new ideas and technological advancements in astronomical research and how these new technologies drive further scientific breakthroughs. Large language models, with their ability to extract key concepts from vast literature beyond keyword searches, provide a new tool to quantify such processes. In this study, we extracted concepts in astronomical research from 297,807 publications between 1993 and 2024 using large language models, resulting in a set of 24,939 concepts. These concepts were then used to form a knowledge graph, where the link strength between any two concepts was determined by their relevance through the citation-reference relationships. By calculating this relevance across different time periods, we quantified the impact of numerical simulations and machine learning on astronomical research. The knowledge graph demonstrates two phases of development: a phase where the technology was integrated and another where the technology was explored in scientific discovery. The knowledge graph reveals that despite machine learning has made much inroad in astronomy, there is currently a lack of new concept development at the intersection of AI and Astronomy, which may be the current bottleneck preventing machine learning from further transforming the field of astronomy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.01391",
+          "http_status": 200,
+          "pdf_sample_score": 0.2245,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T20:37:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rosario Napoli",
+            "Gabriele Morabito",
+            "Antonio Celesti",
+            "Massimo Villari",
+            "Maria Fazio"
+          ],
+          "title": "Improving Graph Embeddings in Machine Learning Using Knowledge Completion with Validation in a Case Study on COVID-19 Spread",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.12071",
+        "summary": "The rise of graph-structured data has driven major advances in Graph Machine Learning (GML), where graph embeddings (GEs) map features from Knowledge Graphs (KGs) into vector spaces, enabling tasks like node classification and link prediction. However, since GEs are derived from explicit topology and features, they may miss crucial implicit knowledge hidden in seemingly sparse datasets, affecting graph structure and their representation. We propose a GML pipeline that integrates a Knowledge Completion (KC) phase to uncover latent dataset semantics before embedding generation. Focusing on transitive relations, we model hidden connections with decay-based inference functions, reshaping graph topology, with consequences on embedding dynamics and aggregation processes in GraphSAGE and Node2Vec. Experiments show that our GML pipeline significantly alters the embedding space geometry, demonstrating that its introduction is not just a simple enrichment but a transformative step that redefines graph representation quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.12071",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T20:38:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Elwin Huaman",
+            "Dieter Fensel"
+          ],
+          "title": "Knowledge Graph Curation: A Practical Framework",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2208.08130",
+        "summary": "Knowledge Graphs (KGs) have shown to be very important for applications such as personal assistants, question-answering systems, and search engines. Therefore, it is crucial to ensure their high quality. However, KGs inevitably contain errors, duplicates, and missing values, which may hinder their adoption and utility in business applications, as they are not curated, e.g., low-quality KGs produce low-quality applications that are built on top of them. In this vision paper, we propose a practical knowledge graph curation framework for improving the quality of KGs. First, we define a set of quality metrics for assessing the status of KGs, Second, we describe the verification and validation of KGs as cleaning tasks, Third, we present duplicate detection and knowledge fusion strategies for enriching KGs. Furthermore, we give insights and directions toward a better architecture for curating KGs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2208.08130",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T20:38:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rosario Napoli",
+            "Giovanni Lonia",
+            "Antonio Celesti",
+            "Massimo Villari",
+            "Maria Fazio"
+          ],
+          "title": "Bi-View Embedding Fusion: A Hybrid Learning Approach for Knowledge Graph's Nodes Classification Addressing Problems with Limited Data",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.13044",
+        "summary": "Traditional Machine Learning (ML) methods require large amounts of data to perform well, limiting their applicability in sparse or incomplete scenarios and forcing the usage of additional synthetic data to improve the model training. To overcome this challenge, the research community is looking more and more at Graph Machine Learning (GML) as it offers a powerful alternative by using relationships within data. However, this method also faces limitations, particularly when dealing with Knowledge Graphs (KGs), which can hide huge information due to their semantic nature. This study introduces Bi-View, a novel hybrid approach that increases the informative content of node features in KGs to generate enhanced Graph Embeddings (GEs) that are used to improve GML models without relying on additional synthetic data. The proposed work combines two complementary GE techniques: Node2Vec, which captures structural patterns through unsupervised random walks, and GraphSAGE, which aggregates neighbourhood information in a supervised way. Node2Vec embeddings are first computed to represent the graph topology, and node features are then enriched with centrality-based metrics, which are used as input for the GraphSAGE model. Moreover, a fusion layer combines the original Node2Vec embeddings with the GraphSAGE-influenced representations, resulting in a dual-perspective embedding space. Such a fusion captures both topological and semantic properties of the graph, enabling the model to exploit informative features that may exist in the dataset but that are not explicitly represented. Our approach improves downstream task performance, especially in scenarios with poor initial features, giving the basis for more accurate and precise KG-enanched GML models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.13044",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T20:38:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kian Ahrabian",
+            "Xinwei Du",
+            "Richard Delwin Myloth",
+            "Arun Baalaaji Sankar Ananthan",
+            "Jay Pujara"
+          ],
+          "title": "PubGraph: A Large-Scale Scientific Knowledge Graph",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.02231",
+        "summary": "Research publications are the primary vehicle for sharing scientific progress in the form of new discoveries, methods, techniques, and insights. Unfortunately, the lack of a large-scale, comprehensive, and easy-to-use resource capturing the myriad relationships between publications, their authors, and venues presents a barrier to applications for gaining a deeper understanding of science. In this paper, we present PubGraph, a new resource for studying scientific progress that takes the form of a large-scale knowledge graph (KG) with more than 385M entities, 13B main edges, and 1.5B qualifier edges. PubGraph is comprehensive and unifies data from various sources, including Wikidata, OpenAlex, and Semantic Scholar, using the Wikidata ontology. Beyond the metadata available from these sources, PubGraph includes outputs from auxiliary community detection algorithms and large language models. To further support studies on reasoning over scientific networks, we create several large-scale benchmarks extracted from PubGraph for the core task of knowledge graph completion (KGC). These benchmarks present many challenges for knowledge graph embedding models, including an adversarial community-based KGC evaluation setting, zero-shot inductive learning, and large-scale learning. All of the aforementioned resources are accessible at https://pubgraph.isi.edu/ and released under the CC-BY-SA license. We plan to update PubGraph quarterly to accommodate the release of new publications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.02231",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-12T20:38:02Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"sciatlas: a large-scale knowledge graph for automated scientific resea\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

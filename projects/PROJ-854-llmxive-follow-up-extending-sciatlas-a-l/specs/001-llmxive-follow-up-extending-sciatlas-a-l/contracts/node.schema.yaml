@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Node Analysis Record"
+description: "Schema for a single node record after all processing steps (topology, text, metrics)."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the publication node."
+  title:
+    type:
+      - string
+      - "null"
+    description: "Title of the publication. May be null if missing."
+  abstract:
+    type:
+      - string
+      - "null"
+    description: "Abstract of the publication. May be null if missing."
+  citation_count:
+    type: integer
+    minimum: 0
+    description: "Total citation count from metadata."
+  publication_year:
+    type: integer
+    description: "Year of publication."
+  primary_cluster:
+    type:
+      - integer
+      - "null"
+    description: "Cluster ID assigned by Louvain (topology). Null if excluded."
+  topic_cluster:
+    type:
+      - integer
+      - "null"
+    description: "Cluster ID assigned by K-Means on text embeddings. Null if excluded."
+  bridging_coefficient:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of inter-cluster edges to total degree. 0.0 for isolated nodes."
+  novelty_score:
+    type:
+      - number
+      - "null"
+    description: "k-NN average cosine distance. Null if abstract missing."
+  embedding_vector:
+    type: array
+    items:
+      type: number
+    description: "Normalized embedding vector (if computed)."
+  average_abstract_similarity:
+    type:
+      - number
+      - "null"
+    description: "Control variable: average similarity to other abstracts."
+required:
+  - id
+  - citation_count
+  - publication_year
+  - bridging_coefficient
+additionalProperties: false

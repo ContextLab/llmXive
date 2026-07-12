@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.12071",
+  "judged_at": "2026-07-12T20:38:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"sciatlas: a large-scale knowledge graph for automated scientific resea\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it provides foundational methodology and canonical techniques (Graph Machine Learning, Knowledge Graph completion, and embedding generation) that are directly relevant to extending a large-scale scientific knowledge graph like SciAtlas. While it uses a COVID-19 case study, the core mechanism of improving graph embeddings via knowledge completion is the essential prior work required for any research extending scientific knowledge graphs.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.02231",
+  "judged_at": "2026-07-12T20:38:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"sciatlas: a large-scale knowledge graph for automated scientific resea\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (e) as it is a foundational, large-scale resource for scientific knowledge graphs (the same domain as the user's \"SciAtlas\" follow-up) and provides the canonical empirical population (publications, authors, venues) and benchmarks necessary for research in automated scientific discovery.",
+  "relevant": true
+}

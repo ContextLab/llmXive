@@ -1,0 +1,89 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Output"
+description: "Schema for the final statistical results summary."
+type: object
+properties:
+  summary:
+    type: object
+    properties:
+      total_nodes_processed:
+        type: integer
+        description: "Total number of nodes included in the final analysis."
+      nodes_excluded_title:
+        type: integer
+        description: "Count of nodes excluded due to missing titles."
+      nodes_excluded_abstract:
+        type: integer
+        description: "Count of nodes excluded due to missing abstracts."
+    required:
+      - total_nodes_processed
+      - nodes_excluded_title
+  tests:
+    type: array
+    items:
+      type: object
+      properties:
+        test_name:
+          type: string
+          description: "Name of the hypothesis test."
+        predictor:
+          type: string
+          description: "Name of the predictor variable."
+        outcome:
+          type: string
+          description: "Name of the outcome variable."
+        method:
+          type: string
+          description: "Statistical method used (e.g., Spearman, Quadratic Regression)."
+        correlation_coefficient:
+          type: number
+          description: "Spearman's rho or regression coefficient."
+        p_value_raw:
+          type: number
+          description: "Raw p-value."
+        p_value_adjusted:
+          type: number
+          description: "P-value after multiple-comparison correction."
+        is_significant:
+          type: boolean
+          description: "True if adjusted p-value < alpha."
+        bin_trend:
+          type:
+            - string
+            - "null"
+          description: "Trend observed in binned analysis (e.g., 'inverted_u', 'linear')."
+        note:
+          type: string
+          description: "Must state 'associational' if observational."
+      required:
+        - test_name
+        - predictor
+        - outcome
+        - method
+        - correlation_coefficient
+        - p_value_raw
+        - p_value_adjusted
+        - is_significant
+        - note
+    minItems: 2
+  metadata:
+    type: object
+    properties:
+      seed:
+        type: integer
+        description: "Random seed used for reproducibility."
+      timestamp:
+        type: string
+        format: date-time
+        description: "Time of analysis execution."
+      sampling_method:
+        type: string
+        description: "Sampling method used (e.g., 'degree-stratified')."
+      dataset_source:
+        type: string
+        description: "Source of the dataset (e.g., 'OpenAlex')."
+required:
+  - summary
+  - tests
+  - metadata
+additionalProperties: false
