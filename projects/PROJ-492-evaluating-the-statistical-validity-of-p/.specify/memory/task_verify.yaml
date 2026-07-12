@@ -344,7 +344,7 @@
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\
   \ required by FR\u2011012. **DEPENDS ON:** T025."
-: 1
+: 2
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\
   \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_3c394da2 \u2014 status=not_enough_info]\
