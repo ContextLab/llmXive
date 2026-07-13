@@ -42,7 +42,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/config.py` for seed management, API key loading (`LLM_API_KEY`), and model fallback logic (gpt-4 -> code-llama-7b -> bigcode/starcoderbase-3b)
+- [ ] T004 Implement `code/config.py` for seed management, API key loading (`LLM_API_KEY`), and model fallback logic (gpt-4 -> code-llama-7b -> bigcode/starcoderbase-3b)
 - [X] T005 Implement `code/utils.py` with exponential backoff retry logic for API rate limits (a small number of retries, a moderate wait duration)
 - [X] T006a [P] Implement `code/dataset_loader.py` to ingest MBPP via `datasets.load_dataset("mbpp")` and save raw canonical files unchanged to `data/benchmarks/raw/mbpp/`
 - [X] T006b [P] Extend `code/dataset_loader.py` to ingest HumanEval via `datasets.load_dataset("google-research-datasets/human_eval")` and save raw canonical files unchanged to `data/benchmarks/raw/humaneval/`

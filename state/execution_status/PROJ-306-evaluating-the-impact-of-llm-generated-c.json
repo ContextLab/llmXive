@@ -4,9 +4,9 @@
   "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/sensitivity_analyzer.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026resent, we skip to avoid fake data.             if human_co\u2026\u201d; 1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=2)",
   "artifacts": [],
   "failures": [
-    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2\n    Warning: LLM_API_KEY not found in environment. Local models will be used if available.\n\nusage: main.py [-h] [--dataset DATASET] [--model MODEL]\n               [--batch-size BATCH_SIZE]\nmain.py: error: unrecognized arguments: --num-tasks 100 --output-dir data/processed"
+    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2\n    usage: main.py [-h] [--dataset DATASET] [--model MODEL]\n               [--batch-size BATCH_SIZE] [--output-dir OUTPUT_DIR]\nmain.py: error: unrecognized arguments: --num-tasks 100"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 6,
   "model_tier": 1,
-  "updated_at": "2026-07-13T19:52:07Z"
+  "updated_at": "2026-07-13T20:59:17Z"
 }

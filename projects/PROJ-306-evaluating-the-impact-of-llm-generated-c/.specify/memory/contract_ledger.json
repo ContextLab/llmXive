@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "get_model_config",
+    "owner": null
+  }
+]

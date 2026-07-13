@@ -17,11 +17,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2
-    Warning: LLM_API_KEY not found in environment. Local models will be used if available.
-
-usage: main.py [-h] [--dataset DATASET] [--model MODEL]
-               [--batch-size BATCH_SIZE]
-main.py: error: unrecognized arguments: --num-tasks 100 --output-dir data/processed
+    usage: main.py [-h] [--dataset DATASET] [--model MODEL]
+               [--batch-size BATCH_SIZE] [--output-dir OUTPUT_DIR]
+main.py: error: unrecognized arguments: --num-tasks 100
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
@@ -43,3 +41,20 @@ print("FIELDS=" + ",".join(first_split.column_names))
 ```
 
 Write the loader to use this package/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a website endpoint.
+
+## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+
+One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
+
+**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
+
+**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `get_model_config` — defined in `code/config.py`; called 4 way(s):
+
+- code/config.py: codebase (e.g. ``get_model_config()`` without arguments in ``main.py``).
+- code/llm_generator.py: config = get_model_config(candidate_model)
+- code/main.py: default=get_model_config().fallback_model,
+- code/main.py: model_cfg = get_model_config(args.model)
+
+Make `get_model_config` in `code/config.py` accept ALL of the above.

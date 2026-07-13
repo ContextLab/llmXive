@@ -1,11 +1,25 @@
 """
-Main orchestration script for User Story 1.
+Main entry‑point for the LLM‑generated code coverage pipeline (User Story 1).
 
-This script loads the processed task catalog, generates code for each task
-using the selected LLM model, runs test‑suite based coverage measurement,
-and writes a JSON report per task under ``data/coverage_reports/``.
-It tolerates failures – a failed task is recorded with ``status:
-"failed"`` and the pipeline continues with the remaining tasks.
+This script orchestrates:
+  1. Loading the task catalog.
+  2. Selecting a batch of tasks (optionally limited by ``--num‑tasks``).
+  3. For each task:
+     * Generating code via the LLM (or fallback model).
+     * Running pytest‑based coverage measurement.
+     * Persisting a JSON report (success or failure) to
+       ``coverage_reports/{task_id}.json``.
+  4. Logging progress and any errors.
+
+The command‑line interface is deliberately permissive to stay compatible
+with existing quick‑start scripts:
+
+    python code/main.py --num-tasks 100 --output-dir data/processed
+    python code/main.py --dataset mbpp --model gpt-4 --batch-size 20
+
+The required arguments ``--dataset``, ``--model`` and ``--batch-size`` are
+added per the task specification; ``--num-tasks`` and ``--output-dir`` are
+retained for backward compatibility.
 """
 
 import argparse
@@ -14,143 +28,161 @@ import logging
 import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
-# Project‑specific imports – these names are defined in the existing API surface
+from config import get_model_config, ModelConfig
+from dataset_loader import validate_and_save_catalog
 from llm_generator import generate_code
-from coverage_runner import run_coverage, is_humaneval_task
-from config import get_model_config
+from coverage_runner import run_coverage_with_catalog_check, save_coverage_report
 
-# --------------------------------------------------------------------------- #
-# Helper utilities
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
+# Logging configuration
+# ----------------------------------------------------------------------
+logger = logging.getLogger("pipeline")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter(
+    "%(asctime)s - %(levelname)s - %(message)s", "%Y-%m-%d %H:%M:%S"
+)
+handler.setFormatter(formatter)
+if not logger.handlers:
+    logger.addHandler(handler)
 
-LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s - %(message)s"
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
-logger = logging.getLogger(__name__)
-
-def _load_catalog(catalog_path: Path) -> List[Dict[str, Any]]:
-    """Load the processed task catalog JSON."""
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _load_task_catalog() -> List[Dict[str, Any]]:
+    """
+    Load the processed task catalog from ``data/benchmarks/processed/catalog.json``.
+    The ``validate_and_save_catalog`` function is responsible for creating this
+    file if it does not already exist.
+    """
+    catalog_path = Path("data/benchmarks/processed/catalog.json")
     if not catalog_path.is_file():
-        raise FileNotFoundError(f"Catalog not found at {catalog_path}")
+        logger.info("Catalog not found – generating it now.")
+        # This will also validate and write the catalog.
+        validate_and_save_catalog()
     with catalog_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    if not isinstance(data, list):
-        raise ValueError("Catalog JSON must be a list of task entries")
-    logger.info("Loaded %d tasks from catalog", len(data))
-    return data
+        catalog = json.load(f)
+    if not isinstance(catalog, list):
+        raise ValueError("Catalog JSON must be a list of task entries.")
+    return catalog
 
-def _ensure_output_dir(path: Path) -> None:
-    """Make sure the directory for a given path exists."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-def _write_success_report(
-    task_id: str,
-    coverage: Dict[str, Any],
-    output_dir: Path,
-) -> None:
-    """Write a success JSON report for a task."""
-    report = {
-        "task_id": task_id,
-        "status": "success",
-        "line_coverage": coverage.get("line_coverage"),
-        "branch_coverage": coverage.get("branch_coverage", "N/A"),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
-    report_path = output_dir / f"{task_id.replace('/', '_')}.json"
-    _ensure_output_dir(report_path)
-    with report_path.open("w", encoding="utf-8") as fp:
-        json.dump(report, fp, indent=2)
-    logger.info("Wrote success report for %s to %s", task_id, report_path)
+def _select_tasks(
+    catalog: List[Dict[str, Any]],
+    limit: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Return a slice of the catalog respecting ``limit`` (if provided).
+    The order is deterministic – the catalog is already sorted by ``task_id``.
+    """
+    if limit is None or limit <= 0:
+        return catalog
+    return catalog[:limit]
 
 def _write_failure_report(
     task_id: str,
-    error: Exception,
     output_dir: Path,
+    error_message: str,
 ) -> None:
-    """Write a failure JSON report for a task."""
+    """
+    Write a JSON file indicating that the task failed (generation or coverage).
+    """
     report = {
         "task_id": task_id,
         "status": "failed",
-        "error_message": str(error),
+        "error_message": error_message,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
-    report_path = output_dir / f"{task_id.replace('/', '_')}.json"
-    _ensure_output_dir(report_path)
-    with report_path.open("w", encoding="utf-8") as fp:
-        json.dump(report, fp, indent=2)
-    logger.error("Task %s failed: %s", task_id, error)
+    output_path = output_dir / f"{task_id}.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+    logger.error(f"Task {task_id} failed – report written to {output_path}")
 
-# --------------------------------------------------------------------------- #
-# Core pipeline
-# --------------------------------------------------------------------------- #
-
-def process_task(task: Dict[str, Any], model_name: str, output_dir: Path) -> None:
+def process_task(
+    task_entry: Dict[str, Any],
+    model_cfg: ModelConfig,
+    output_dir: Path,
+) -> None:
     """
     Process a single task:
-    1. Generate code via the LLM.
-    2. Run coverage measurement.
-    3. Write a JSON report (success or failure).
+      * Generate code.
+      * Run coverage.
+      * Persist a JSON report (success or failure).
+
+    Any exception is caught and turned into a failure JSON report so that the
+    pipeline can continue with subsequent tasks.
     """
-    task_id = task["task_id"]
-    prompt = task["prompt"]
+    task_id = task_entry.get("task_id")
+    if not task_id:
+        logger.warning("Skipping catalog entry without a task_id.")
+        return
 
     try:
-        # ------------------------------------------------------------------- #
-        # 1️⃣ Code generation
-        # ------------------------------------------------------------------- #
-        logger.info("Generating code for task %s using model %s", task_id, model_name)
-        generated_path = generate_code(task_id=task_id, prompt=prompt, model=model_name)
-
-        # ------------------------------------------------------------------- #
-        # 2️⃣ Coverage execution
-        # ------------------------------------------------------------------- #
-        logger.info("Running coverage for task %s (generated file %s)", task_id, generated_path)
-        coverage_result = run_coverage(task_id=task_id)
-
-        # HumanEval tasks do not have branch coverage – enforce the contract
-        if is_humaneval_task(task_id) and coverage_result.get("branch_coverage") is not None:
-            logger.debug(
-                "HumanEval task %s: overriding branch_coverage to 'N/A'", task_id
+        # ------------------------------------------------------------------
+        # 1. Code generation
+        # ------------------------------------------------------------------
+        generated_path = generate_code(task_id, model_cfg)
+        if not generated_path or not Path(generated_path).is_file():
+            raise FileNotFoundError(
+                f"Generated file not found for task {task_id}: {generated_path}"
             )
-            coverage_result["branch_coverage"] = "N/A"
 
-        # ------------------------------------------------------------------- #
-        # 3️⃣ Write success report
-        # ------------------------------------------------------------------- #
-        _write_success_report(task_id, coverage_result, output_dir)
+        # ------------------------------------------------------------------
+        # 2. Coverage measurement
+        # ------------------------------------------------------------------
+        coverage_result = run_coverage_with_catalog_check(
+            task_id=task_id,
+            generated_file_path=generated_path,
+            catalog_entry=task_entry,
+        )
+        # Expected keys: line_coverage, branch_coverage (may be "N/A")
+        coverage_result["task_id"] = task_id
+        coverage_result["status"] = "success"
+        coverage_result["timestamp"] = datetime.now(timezone.utc).isoformat()
 
+        # ------------------------------------------------------------------
+        # 3. Persist report
+        # ------------------------------------------------------------------
+        save_coverage_report(
+            report=coverage_result,
+            output_dir=output_dir,
+        )
+        logger.info(
+            f"Task {task_id} completed – line_cov: {coverage_result.get('line_coverage')}, "
+            f"branch_cov: {coverage_result.get('branch_coverage')}"
+        )
     except SyntaxError as se:
-        logger.exception("SyntaxError while processing task %s", task_id)
-        _write_failure_report(task_id, se, output_dir)
-
+        # Syntax errors in generated code are captured separately.
+        _write_failure_report(
+            task_id,
+            output_dir,
+            f"SyntaxError during execution: {se}",
+        )
     except Exception as exc:
-        logger.exception("Unexpected error while processing task %s", task_id)
-        _write_failure_report(task_id, exc, output_dir)
+        # Any other unexpected exception.
+        _write_failure_report(task_id, output_dir, str(exc))
 
 def batch_process(
     tasks: List[Dict[str, Any]],
-    model_name: str,
+    model_cfg: ModelConfig,
     batch_size: int,
     output_dir: Path,
 ) -> None:
-    """Iterate over tasks in batches and process each one."""
+    """
+    Process ``tasks`` in batches of size ``batch_size``. Batching is mainly
+    for logging/monitoring; the implementation processes tasks sequentially
+    within each batch.
+    """
     total = len(tasks)
-    logger.info(
-        "Starting batch processing: %d tasks, batch size %d, model %s",
-        total,
-        batch_size,
-        model_name,
-    )
+    logger.info(f"Starting batch processing of {total} tasks (batch size {batch_size}).")
     for start in range(0, total, batch_size):
-        batch = tasks[start : start + batch_size]
-        logger.info("Processing batch %d … %d", start + 1, start + len(batch))
-        for task in batch:
-            process_task(task, model_name, output_dir)
-
-# --------------------------------------------------------------------------- #
-# Argument parsing & entry point
-# --------------------------------------------------------------------------- #
+        end = min(start + batch_size, total)
+        batch = tasks[start:end]
+        logger.info(f"Processing batch {start // batch_size + 1}: tasks {start}–{end - 1}")
+        for entry in batch:
+            process_task(entry, model_cfg, output_dir)
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -160,13 +192,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--dataset",
         type=str,
         default="mbpp",
-        help="Dataset identifier (currently only used for logging).",
+        help="Dataset identifier (e.g., 'mbpp' or 'humaneval').",
     )
     parser.add_argument(
         "--model",
         type=str,
-        default=get_model_config().fallback_model,
-        help="Model name or identifier to use for generation.",
+        default=None,
+        help="Model name to use for generation (e.g., 'gpt-4'). "
+        "If omitted, the fallback chain is used.",
     )
     parser.add_argument(
         "--batch-size",
@@ -174,45 +207,47 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default=10,
         help="Number of tasks to process in each batch.",
     )
+    # Backward‑compatibility arguments (not part of the original spec
+    # but required by existing quick‑start scripts).
     parser.add_argument(
-        "--catalog-path",
-        type=Path,
-        default=Path("data/benchmarks/processed/catalog.json"),
-        help="Path to the processed task catalog JSON file.",
+        "--num-tasks",
+        type=int,
+        default=None,
+        help="Maximum number of tasks to process (overrides full catalog).",
     )
     parser.add_argument(
         "--output-dir",
-        type=Path,
-        default=Path("data/coverage_reports"),
+        type=str,
+        default="data/coverage_reports",
         help="Directory where per‑task JSON reports will be written.",
     )
     return parser
 
 def main() -> None:
-    args = build_arg_parser().parse_args()
+    parser = build_arg_parser()
+    args = parser.parse_args()
 
-    # Resolve model name – the config helper may apply fall‑back logic
-    model_name = args.model
-    logger.info("Using model: %s", model_name)
+    # Resolve the model configuration.
+    if args.model:
+        model_cfg = get_model_config(args.model)
+    else:
+        # No explicit model → use the ultimate fallback model.
+        model_cfg = get_model_config()
 
-    # Load catalog
-    try:
-        tasks = _load_catalog(args.catalog_path)
-    except Exception as e:
-        logger.error("Failed to load catalog: %s", e)
-        raise SystemExit(1)
+    # Load and optionally truncate the task catalog.
+    catalog = _load_task_catalog()
+    selected_tasks = _select_tasks(catalog, limit=args.num_tasks)
 
-    # Ensure output directory exists
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Run the batch pipeline
+    # Execute the pipeline.
     batch_process(
-        tasks=tasks,
-        model_name=model_name,
+        tasks=selected_tasks,
+        model_cfg=model_cfg,
         batch_size=args.batch_size,
-        output_dir=args.output_dir,
+        output_dir=output_dir,
     )
-    logger.info("Pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

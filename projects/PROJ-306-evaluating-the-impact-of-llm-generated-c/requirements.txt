@@ -1,4 +1,4 @@
-pytest>=7.0
+pytest>=4.0.0
 pytest-cov>=4.0.0
 pandas
 scipy
@@ -10,5 +10,6 @@ huggingface_hub
 matplotlib
 seaborn
 bitsandbytes
-# The above list reflects the pinned versions from earlier tasks.  No additional
-# changes are required for T013.
+# Added for deterministic behavior and logging
+python-dotenv
+# End of requirements
