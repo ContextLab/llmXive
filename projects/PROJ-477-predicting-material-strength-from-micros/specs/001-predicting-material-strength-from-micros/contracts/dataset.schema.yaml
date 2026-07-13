@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EBSD Dataset Manifest Schema"
+description: "Schema for the manifest.json file generated during data preprocessing."
+type: "object"
+properties:
+  dataset_source:
+    type: "string"
+    description: "URL of the verified dataset source."
+    const: "https://huggingface.co/datasets/Rxzh/ebsd-synthetic/resolve/main/data_synth_ebsd.zip"
+  checksum:
+    type: "string"
+    description: "SHA256 checksum of the raw zip file."
+    pattern: "^[a-f0-9]{64}$"
+  split_config:
+    type: "object"
+    properties:
+      train_ratio:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      val_ratio:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      test_ratio:
+        type: "number"
+        minimum: 0
+        maximum: 1
+    required:
+      - train_ratio
+      - val_ratio
+      - test_ratio
+  samples:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        image_id:
+          type: "string"
+          description: "Unique identifier for the image."
+        filename:
+          type: "string"
+          description: "Filename of the processed image."
+        split:
+          type: "string"
+          enum:
+            - train
+            - val
+            - test
+        yield_strength_mpa:
+          type: "number"
+          description: "Yield strength value in MPa."
+          minimum: 0
+        grain_size_mean:
+          type: ["number", "null"]
+          description: "Average grain size in micrometers (if available)."
+      required:
+        - image_id
+        - filename
+        - split
+        - yield_strength_mpa
+    description: "List of all samples in the dataset."
+required:
+  - dataset_source
+  - checksum
+  - split_config
+  - samples
+additionalProperties: false
