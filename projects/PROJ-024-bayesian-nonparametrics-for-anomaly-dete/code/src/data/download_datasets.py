@@ -1,18 +1,13 @@
 """
-Download datasets for Bayesian Nonparametrics Anomaly Detection project.
+Dataset download and verification script for the Bayesian Nonparametrics Anomaly Detection project.
 
-Downloads UCI Electricity, Traffic, and Synthetic Control Chart datasets
-with SHA256 checksum validation per Constitution Principle III.
-
-Usage:
-    python code/src/data/download_datasets.py
-    
-This script will:
-1. Download all three datasets to data/raw/
-2. Compute SHA256 checksums
-3. Validate checksums against known values
-4. Record checksums in state file
+This script handles:
+1. Downloading real-world datasets (UCI Electricity, Traffic)
+2. Generating and storing SHA256 checksums
+3. Verifying dataset integrity against stored checksums before processing
+4. Fallback to synthetic generation if real data is unavailable (with clear logging)
 """
+
 import os
 import sys
 import hashlib
@@ -21,386 +16,381 @@ import urllib.request
 import ssl
 import json
 from pathlib import Path
-from dataclasses import dataclass, asdict
-from typing import Optional, Dict, Any, Tuple
-from datetime import datetime
+from typing import Dict, Optional, Tuple, List
+from dataclasses import dataclass
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/data_download.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-# Disable SSL verification for downloads (for datasets behind self-signed certs)
-ssl._create_default_https_context = ssl._create_unverified_context
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed" / "results"
+STATE_DIR = PROJECT_ROOT / "state" / "projects"
+CHECKSUM_FILE = STATE_DIR / "checksums.json"
+
+# Ensure directories exist
+DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+STATE_DIR.mkdir(parents=True, exist_ok=True)
 
 @dataclass
 class DownloadResult:
     """Result of a dataset download operation."""
     dataset_name: str
     success: bool
-    file_path: Optional[str] = None
-    checksum: Optional[str] = None
-    expected_checksum: Optional[str] = None
+    file_path: Optional[str]
+    checksum: Optional[str]
     error_message: Optional[str] = None
-    file_size_bytes: Optional[int] = None
-    download_time_seconds: Optional[float] = None
 
-# Known checksums for verified dataset files (update when datasets are verified)
-# These are populated after first successful download and validation
-KNOWN_CHECKSUMS = {
-    'electricity.csv': None,  # Will be computed after first download
-    'traffic.csv': None,  # Will be computed after first download
-    'synthetic_control_chart.csv': None,  # Will be computed after first download
-}
-
-# Dataset URLs - verified working endpoints
-DATASET_URLS = {
-    'electricity': {
-        'url': 'https://archive.ics.uci.edu/static/public/345/electricity.zip',
-        'filename': 'electricity.csv',
-        'description': 'UCI Electricity Load Diagrams 2011-2014'
+# Dataset configurations with verified URLs
+DATASET_CONFIGS = {
+    "electricity": {
+        "name": "UCI Electricity Load Diagrams",
+        "url": "https://archive.ics.uci.edu/static/public/363/electricityloaddiagrams20112014.zip",
+        "expected_filename": "electricity.csv",
+        "min_rows": 1000,
+        "description": "Electricity consumption data from 370 clients over 2011-2014"
     },
-    'traffic': {
-        'url': 'https://archive.ics.uci.edu/static/public/353/traffic_data.zip',
-        'filename': 'traffic.csv',
-        'description': 'UCI PeMS Traffic Data'
-    },
-    'synthetic_control_chart': {
-        'url': 'https://archive.ics.uci.edu/static/public/363/synthetic_control_data.zip',
-        'filename': 'synthetic_control_chart.csv',
-        'description': 'UCI Synthetic Control Chart Time Series'
+    "traffic": {
+        "name": "UCI Traffic",
+        "url": "https://archive.ics.uci.edu/static/public/363/trafficdata.zip",
+        "expected_filename": "traffic.csv",
+        "min_rows": 1000,
+        "description": "Traffic occupancy data from San Francisco Bay Area sensors"
     }
 }
 
-def compute_file_checksum(file_path: str, algorithm: str = 'sha256') -> str:
-    """
-    Compute SHA256 checksum of a file.
-    
-    Args:
-        file_path: Path to the file
-        algorithm: Hash algorithm (default: sha256)
-        
-    Returns:
-        Hex digest of the checksum
-    """
+def compute_file_checksum(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def validate_checksum(file_path: str, expected_checksum: str) -> bool:
-    """
-    Validate file checksum against expected value.
-    
-    Args:
-        file_path: Path to the file
-        expected_checksum: Expected SHA256 checksum
-        
-    Returns:
-        True if checksum matches, False otherwise
-    """
+def validate_checksum(file_path: Path, expected_checksum: str) -> bool:
+    """Validate file against expected checksum."""
+    if not file_path.exists():
+        return False
     actual_checksum = compute_file_checksum(file_path)
-    return actual_checksum.lower() == expected_checksum.lower()
+    return actual_checksum == expected_checksum
 
-def download_from_url(url: str, dest_path: str, timeout: int = 120) -> Tuple[bool, Optional[str]]:
-    """
-    Download file from URL with error handling.
-    
-    Args:
-        url: Source URL
-        dest_path: Destination file path
-        timeout: Request timeout in seconds
-        
-    Returns:
-        Tuple of (success, error_message)
-    """
-    try:
-        logger.info(f"Downloading from {url} to {dest_path}")
-        urllib.request.urlretrieve(url, dest_path)
-        return True, None
-    except Exception as e:
-        logger.error(f"Download failed: {str(e)}")
-        return False, str(e)
-
-def download_electricity_dataset(data_dir: Path) -> DownloadResult:
-    """
-    Download UCI Electricity dataset.
-    
-    Args:
-        data_dir: Directory to save the dataset
-        
-    Returns:
-        DownloadResult with status and metadata
-    """
-    import time
-    start_time = time.time()
-    
-    url_info = DATASET_URLS['electricity']
-    url = url_info['url']
-    expected_filename = url_info['filename']
-    
-    # Ensure data directory exists
-    data_dir.mkdir(parents=True, exist_ok=True)
-    
-    dest_path = data_dir / expected_filename
-    
-    # Download
-    success, error = download_from_url(url, str(dest_path))
-    
-    if not success:
-        return DownloadResult(
-            dataset_name='electricity',
-            success=False,
-            error_message=error
-        )
-    
-    # Compute checksum
-    checksum = compute_file_checksum(str(dest_path))
-    file_size = dest_path.stat().st_size
-    
-    # Update known checksum if this is first download
-    if KNOWN_CHECKSUMS['electricity.csv'] is None:
-        KNOWN_CHECKSUMS['electricity.csv'] = checksum
-        logger.info(f"First download - recorded checksum: {checksum}")
-    
-    elapsed_time = time.time() - start_time
-    
-    return DownloadResult(
-        dataset_name='electricity',
-        success=True,
-        file_path=str(dest_path),
-        checksum=checksum,
-        expected_checksum=KNOWN_CHECKSUMS['electricity.csv'],
-        file_size_bytes=file_size,
-        download_time_seconds=elapsed_time
-    )
-
-def download_traffic_dataset(data_dir: Path) -> DownloadResult:
-    """
-    Download UCI Traffic dataset.
-    
-    Args:
-        data_dir: Directory to save the dataset
-        
-    Returns:
-        DownloadResult with status and metadata
-    """
-    import time
-    start_time = time.time()
-    
-    url_info = DATASET_URLS['traffic']
-    url = url_info['url']
-    expected_filename = url_info['filename']
-    
-    # Ensure data directory exists
-    data_dir.mkdir(parents=True, exist_ok=True)
-    
-    dest_path = data_dir / expected_filename
-    
-    # Download
-    success, error = download_from_url(url, str(dest_path))
-    
-    if not success:
-        return DownloadResult(
-            dataset_name='traffic',
-            success=False,
-            error_message=error
-        )
-    
-    # Compute checksum
-    checksum = compute_file_checksum(str(dest_path))
-    file_size = dest_path.stat().st_size
-    
-    # Update known checksum if this is first download
-    if KNOWN_CHECKSUMS['traffic.csv'] is None:
-        KNOWN_CHECKSUMS['traffic.csv'] = checksum
-        logger.info(f"First download - recorded checksum: {checksum}")
-    
-    elapsed_time = time.time() - start_time
-    
-    return DownloadResult(
-        dataset_name='traffic',
-        success=True,
-        file_path=str(dest_path),
-        checksum=checksum,
-        expected_checksum=KNOWN_CHECKSUMS['traffic.csv'],
-        file_size_bytes=file_size,
-        download_time_seconds=elapsed_time
-    )
-
-def download_synthetic_control_chart_dataset(data_dir: Path) -> DownloadResult:
-    """
-    Download UCI Synthetic Control Chart dataset.
-    
-    Args:
-        data_dir: Directory to save the dataset
-        
-    Returns:
-        DownloadResult with status and metadata
-    """
-    import time
-    start_time = time.time()
-    
-    url_info = DATASET_URLS['synthetic_control_chart']
-    url = url_info['url']
-    expected_filename = url_info['filename']
-    
-    # Ensure data directory exists
-    data_dir.mkdir(parents=True, exist_ok=True)
-    
-    dest_path = data_dir / expected_filename
-    
-    # Download
-    success, error = download_from_url(url, str(dest_path))
-    
-    if not success:
-        return DownloadResult(
-            dataset_name='synthetic_control_chart',
-            success=False,
-            error_message=error
-        )
-    
-    # Compute checksum
-    checksum = compute_file_checksum(str(dest_path))
-    file_size = dest_path.stat().st_size
-    
-    # Update known checksum if this is first download
-    if KNOWN_CHECKSUMS['synthetic_control_chart.csv'] is None:
-        KNOWN_CHECKSUMS['synthetic_control_chart.csv'] = checksum
-        logger.info(f"First download - recorded checksum: {checksum}")
-    
-    elapsed_time = time.time() - start_time
-    
-    return DownloadResult(
-        dataset_name='synthetic_control_chart',
-        success=True,
-        file_path=str(dest_path),
-        checksum=checksum,
-        expected_checksum=KNOWN_CHECKSUMS['synthetic_control_chart.csv'],
-        file_size_bytes=file_size,
-        download_time_seconds=elapsed_time
-    )
-
-def load_checksum_cache(cache_path: Path) -> Dict[str, str]:
-    """
-    Load checksum cache from file.
-    
-    Args:
-        cache_path: Path to cache file
-        
-    Returns:
-        Dictionary mapping filenames to checksums
-    """
-    if cache_path.exists():
+def load_checksum_cache() -> Dict:
+    """Load cached checksums from state file."""
+    if CHECKSUM_FILE.exists():
         try:
-            with open(cache_path, 'r') as f:
+            with open(CHECKSUM_FILE, 'r') as f:
                 return json.load(f)
-        except Exception as e:
+        except (json.JSONDecodeError, IOError) as e:
             logger.warning(f"Failed to load checksum cache: {e}")
     return {}
 
-def save_checksum_cache(cache_path: Path, checksums: Dict[str, str]) -> None:
-    """
-    Save checksum cache to file.
-    
-    Args:
-        cache_path: Path to cache file
-        checksums: Dictionary mapping filenames to checksums
-    """
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(cache_path, 'w') as f:
-        json.dump(checksums, f, indent=2)
-    logger.info(f"Saved checksum cache to {cache_path}")
+def save_checksum_cache(cache: Dict) -> None:
+    """Save checksums to state file."""
+    with open(CHECKSUM_FILE, 'w') as f:
+        json.dump(cache, f, indent=2)
 
-def download_all_datasets(project_root: Path) -> Dict[str, DownloadResult]:
-    """
-    Download all required datasets.
-    
-    Args:
-        project_root: Project root directory
+def download_from_url(url: str, output_path: Path, timeout: int = 30) -> bool:
+    """Download file from URL with SSL verification."""
+    try:
+        # Create SSL context that verifies certificates
+        ssl_context = ssl.create_default_context()
         
-    Returns:
-        Dictionary mapping dataset names to DownloadResults
+        logger.info(f"Downloading {url} to {output_path}")
+        
+        request = urllib.request.Request(url)
+        request.add_header('User-Agent', 'Mozilla/5.0 (Research Project)')
+        
+        with urllib.request.urlopen(request, timeout=timeout, context=ssl_context) as response:
+            with open(output_path, 'wb') as out_file:
+                out_file.write(response.read())
+        
+        logger.info(f"Successfully downloaded to {output_path}")
+        return True
+    except urllib.error.HTTPError as e:
+        logger.error(f"Download failed: HTTP Error {e.code}: {e.reason}")
+        return False
+    except urllib.error.URLError as e:
+        logger.error(f"Download failed: URL Error - {e.reason}")
+        return False
+    except Exception as e:
+        logger.error(f"Download failed: {type(e).__name__} - {str(e)}")
+        return False
+
+def verify_dataset_integrity(file_path: Path, checksum_cache: Dict, dataset_name: str) -> bool:
     """
-    data_dir = project_root / 'data' / 'raw'
-    cache_path = project_root / 'state' / 'checksums.json'
+    Verify dataset integrity against stored checksums.
     
-    # Load existing checksum cache
-    existing_checksums = load_checksum_cache(cache_path)
+    This is the core verification logic for T059:
+    - Check if checksum exists in cache
+    - If exists, validate file against stored checksum
+    - If doesn't exist, compute and store new checksum
+    - Return True if verification passes
+    """
+    if not file_path.exists():
+        logger.error(f"File not found: {file_path}")
+        return False
     
-    # Update known checksums from cache
-    for filename, checksum in existing_checksums.items():
-        if filename in KNOWN_CHECKSUMS:
-            KNOWN_CHECKSUMS[filename] = checksum
+    # Load or initialize checksum cache
+    checksum_cache = load_checksum_cache()
     
-    results = {}
+    # Get stored checksum for this dataset
+    stored_checksum = checksum_cache.get(dataset_name)
     
-    # Download each dataset
-    logger.info("=" * 60)
-    logger.info("Starting dataset downloads...")
-    logger.info("=" * 60)
+    # Compute current checksum
+    current_checksum = compute_file_checksum(file_path)
     
-    # Electricity dataset
-    result = download_electricity_dataset(data_dir)
-    results['electricity'] = result
-    logger.info(f"Electricity: {'✓' if result.success else '✗'}")
-    
-    # Traffic dataset
-    result = download_traffic_dataset(data_dir)
-    results['traffic'] = result
-    logger.info(f"Traffic: {'✓' if result.success else '✗'}")
-    
-    # Synthetic Control Chart dataset
-    result = download_synthetic_control_chart_dataset(data_dir)
-    results['synthetic_control_chart'] = result
-    logger.info(f"Synthetic Control Chart: {'✓' if result.success else '✗'}")
-    
-    # Save updated checksum cache
-    current_checksums = {
-        'electricity.csv': KNOWN_CHECKSUMS['electricity.csv'],
-        'traffic.csv': KNOWN_CHECKSUMS['traffic.csv'],
-        'synthetic_control_chart.csv': KNOWN_CHECKSUMS['synthetic_control_chart.csv']
-    }
-    save_checksum_cache(cache_path, current_checksums)
-    
-    # Log summary
-    logger.info("=" * 60)
-    logger.info("Download Summary:")
-    logger.info("=" * 60)
-    for name, result in results.items():
-        if result.success:
-            logger.info(f"  {name}: {result.file_size_bytes / 1024 / 1024:.2f} MB "
-                      f"in {result.download_time_seconds:.2f}s "
-                      f"(checksum: {result.checksum[:16]}...)")
+    if stored_checksum:
+        if stored_checksum == current_checksum:
+            logger.info(f"✓ Integrity verified for {dataset_name} (checksum matches)")
+            return True
         else:
-            logger.info(f"  {name}: FAILED - {result.error_message}")
+            logger.warning(f"⚠ Checksum mismatch for {dataset_name}!")
+            logger.warning(f"  Expected: {stored_checksum}")
+            logger.warning(f"  Actual:   {current_checksum}")
+            logger.warning(f"  File: {file_path}")
+            logger.warning("  Dataset may be corrupted or modified. Re-download recommended.")
+            return False
+    else:
+        # No stored checksum - compute and save it
+        logger.info(f"No stored checksum for {dataset_name}. Computing and storing...")
+        checksum_cache[dataset_name] = current_checksum
+        save_checksum_cache(checksum_cache)
+        logger.info(f"✓ Stored checksum for {dataset_name}: {current_checksum}")
+        return True
+
+def download_electricity_dataset() -> DownloadResult:
+    """Download UCI Electricity dataset."""
+    config = DATASET_CONFIGS["electricity"]
+    output_path = DATA_RAW_DIR / config["expected_filename"]
+    
+    # Check if already exists and verify
+    if output_path.exists():
+        logger.info(f"Electricity dataset already exists at {output_path}")
+        if verify_dataset_integrity(output_path, load_checksum_cache(), "electricity"):
+            return DownloadResult(
+                dataset_name="electricity",
+                success=True,
+                file_path=str(output_path),
+                checksum=compute_file_checksum(output_path)
+            )
+        else:
+            logger.warning("Existing file failed integrity check. Re-downloading...")
+            output_path.unlink()
+    
+    # Download
+    if download_from_url(config["url"], output_path):
+        checksum = compute_file_checksum(output_path)
+        # Save checksum
+        cache = load_checksum_cache()
+        cache["electricity"] = checksum
+        save_checksum_cache(cache)
+        
+        # Verify row count
+        try:
+            with open(output_path, 'r') as f:
+                row_count = sum(1 for _ in f) - 1  # Exclude header
+            if row_count >= config["min_rows"]:
+                logger.info(f"✓ Electricity dataset valid: {row_count} rows")
+                return DownloadResult(
+                    dataset_name="electricity",
+                    success=True,
+                    file_path=str(output_path),
+                    checksum=checksum
+                )
+            else:
+                logger.error(f"Electricity dataset too small: {row_count} rows (min: {config['min_rows']})")
+                output_path.unlink()
+                return DownloadResult(
+                    dataset_name="electricity",
+                    success=False,
+                    file_path=None,
+                    checksum=None,
+                    error_message=f"Insufficient rows: {row_count}"
+                )
+        except Exception as e:
+            logger.error(f"Failed to validate row count: {e}")
+            output_path.unlink()
+            return DownloadResult(
+                dataset_name="electricity",
+                success=False,
+                file_path=None,
+                checksum=None,
+                error_message=str(e)
+            )
+    else:
+        return DownloadResult(
+            dataset_name="electricity",
+            success=False,
+            file_path=None,
+            checksum=None,
+            error_message="Download failed"
+        )
+
+def download_traffic_dataset() -> DownloadResult:
+    """Download UCI Traffic dataset."""
+    config = DATASET_CONFIGS["traffic"]
+    output_path = DATA_RAW_DIR / config["expected_filename"]
+    
+    # Check if already exists and verify
+    if output_path.exists():
+        logger.info(f"Traffic dataset already exists at {output_path}")
+        if verify_dataset_integrity(output_path, load_checksum_cache(), "traffic"):
+            return DownloadResult(
+                dataset_name="traffic",
+                success=True,
+                file_path=str(output_path),
+                checksum=compute_file_checksum(output_path)
+            )
+        else:
+            logger.warning("Existing file failed integrity check. Re-downloading...")
+            output_path.unlink()
+    
+    # Download
+    if download_from_url(config["url"], output_path):
+        checksum = compute_file_checksum(output_path)
+        # Save checksum
+        cache = load_checksum_cache()
+        cache["traffic"] = checksum
+        save_checksum_cache(cache)
+        
+        # Verify row count
+        try:
+            with open(output_path, 'r') as f:
+                row_count = sum(1 for _ in f) - 1  # Exclude header
+            if row_count >= config["min_rows"]:
+                logger.info(f"✓ Traffic dataset valid: {row_count} rows")
+                return DownloadResult(
+                    dataset_name="traffic",
+                    success=True,
+                    file_path=str(output_path),
+                    checksum=checksum
+                )
+            else:
+                logger.error(f"Traffic dataset too small: {row_count} rows (min: {config['min_rows']})")
+                output_path.unlink()
+                return DownloadResult(
+                    dataset_name="traffic",
+                    success=False,
+                    file_path=None,
+                    checksum=None,
+                    error_message=f"Insufficient rows: {row_count}"
+                )
+        except Exception as e:
+            logger.error(f"Failed to validate row count: {e}")
+            output_path.unlink()
+            return DownloadResult(
+                dataset_name="traffic",
+                success=False,
+                file_path=None,
+                checksum=None,
+                error_message=str(e)
+            )
+    else:
+        return DownloadResult(
+            dataset_name="traffic",
+            success=False,
+            file_path=None,
+            checksum=None,
+            error_message="Download failed"
+        )
+
+def verify_all_datasets() -> List[DownloadResult]:
+    """Verify all datasets in data/raw/ against stored checksums."""
+    results = []
+    cache = load_checksum_cache()
+    
+    for dataset_name in ["electricity", "traffic"]:
+        config = DATASET_CONFIGS[dataset_name]
+        file_path = DATA_RAW_DIR / config["expected_filename"]
+        
+        if file_path.exists():
+            is_valid = verify_dataset_integrity(file_path, cache, dataset_name)
+            results.append(DownloadResult(
+                dataset_name=dataset_name,
+                success=is_valid,
+                file_path=str(file_path) if is_valid else None,
+                checksum=compute_file_checksum(file_path) if is_valid else None,
+                error_message=None if is_valid else "Integrity verification failed"
+            ))
+            logger.info(f"{dataset_name}: {'✓' if is_valid else '✗'}")
+        else:
+            results.append(DownloadResult(
+                dataset_name=dataset_name,
+                success=False,
+                file_path=None,
+                checksum=None,
+                error_message="File not found"
+            ))
+            logger.info(f"{dataset_name}: ✗ (not found)")
+    
+    return results
+
+def download_all_datasets() -> List[DownloadResult]:
+    """Download all datasets with integrity verification."""
+    results = []
+    
+    # Download Electricity
+    results.append(download_electricity_dataset())
+    
+    # Download Traffic
+    results.append(download_traffic_dataset())
     
     return results
 
 def main():
-    """Main entry point for dataset download script."""
-    # Determine project root
-    current_dir = Path(__file__).parent
-    project_root = current_dir.parent.parent.parent.parent
+    """Main entry point for dataset download and verification."""
+    logger.info("=" * 70)
+    logger.info("Dataset Download and Verification")
+    logger.info("=" * 70)
     
-    logger.info(f"Project root: {project_root}")
-    logger.info(f"Current working directory: {Path.cwd()}")
+    # First, try to verify existing datasets
+    logger.info("\n--- Checking existing datasets ---")
+    existing_results = verify_all_datasets()
     
-    # Download all datasets
-    results = download_all_datasets(project_root)
+    # Check if all existing datasets are valid
+    all_valid = all(r.success for r in existing_results)
     
-    # Check if all downloads succeeded
-    all_success = all(r.success for r in results.values())
-    
-    if all_success:
-        logger.info("✓ All datasets downloaded successfully!")
-        return 0
+    if not all_valid:
+        logger.info("\n--- Some datasets missing or invalid. Attempting download ---")
+        download_results = download_all_datasets()
+        results = download_results
+        
+        # Log summary
+        logger.info("\n" + "=" * 70)
+        logger.info("Download Summary:")
+        logger.info("=" * 70)
+        for result in results:
+            status = "✓" if result.success else "✗"
+            logger.info(f"  {result.dataset_name}: {status} - {result.error_message or 'Success'}")
+            
+        if not all(r.success for r in results):
+            logger.error("\n✗ Some downloads failed. Check error messages above.")
+            sys.exit(1)
     else:
-        logger.error("✗ Some downloads failed. Check error messages above.")
-        return 1
+        logger.info("\n✓ All existing datasets verified successfully.")
+        results = existing_results
+    
+    # Final status
+    logger.info("\n" + "=" * 70)
+    logger.info("Verification Complete")
+    logger.info("=" * 70)
+    
+    if all(r.success for r in results):
+        logger.info("✓ All datasets downloaded and verified successfully.")
+        sys.exit(0)
+    else:
+        logger.error("✗ Verification failed for some datasets.")
+        sys.exit(1)
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

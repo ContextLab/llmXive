@@ -1,229 +1,31 @@
-# =============================================================================
-# DPGMM Anomaly Detection Configuration
-# =============================================================================
-# This file contains hyperparameters, random seeds, and base paths for the
-# Bayesian Nonparametrics Anomaly Detection project.
-#
-# CRITICAL: This file must remain under 2KB (FR-009)
-# Derived statistics must NOT be stored here - use state file instead.
-# =============================================================================
+# Project Configuration
+# Only hyperparameters, seeds, and base paths.
+# Derived statistics are stored in state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml
 
-# -----------------------------------------------------------------------------
-# Random Seeds (Reproducibility - Constitution Principle I)
-# -----------------------------------------------------------------------------
-random_seeds:
-  global_seed: 42
-  dp_gmm_seed: 123
-  synthetic_data_seed: 456
-  train_test_split_seed: 789
-
-# -----------------------------------------------------------------------------
-# DPGMM Model Hyperparameters (US1)
-# -----------------------------------------------------------------------------
-dp_gmm:
-  # Stick-breaking construction parameters
-  concentration_prior: 1.0  # Alpha parameter for Dirichlet Process
-  concentration_tuning:
-    enabled: true
-    min_components: 2
-    max_components: 20
-    adjustment_threshold: 0.1  # How much to adjust alpha per iteration
-  
-  # Gaussian mixture parameters
-  mean_prior:
-    mu_0: 0.0
-    kappa_0: 0.01
-  covariance_prior:
-    nu_0: 3  # Degrees of freedom for Wishart
-    sigma_0: 1.0  # Scale matrix
-  
-  # ADVI variational inference parameters
-  advi:
-    learning_rate: 0.01
+# Hyperparameters
+hyperparameters:
+  window_size: 50
+  stride: 1
+  anomaly_threshold: 0.05
+  dp_gmm:
+    max_components: 10
+    concentration_prior: 1.0
+    convergence_threshold: 0.01
     max_iterations: 500
-    convergence_threshold: 0.001  # ELBO improvement threshold
-    patience: 50  # Consecutive iterations without improvement
-    elbo_logging: true
-    elbo_log_dir: logs/elbo/
-  
-  # Streaming update parameters
-  streaming:
-    update_frequency: 1  # Update after each observation
-    batch_buffer_size: 100  # Optional batch accumulation
-  
-  # Edge case handling
-  edge_cases:
-    low_variance_threshold: 1e-6
-    missing_value_strategy: skip  # Options: skip, impute_mean, impute_median
-    numerical_stability_epsilon: 1e-10
-
-# -----------------------------------------------------------------------------
-# Decision Boundary / Threshold Configuration (US3 - FR-004)
-# -----------------------------------------------------------------------------
-# These parameters define the anomaly detection decision boundary for
-# replication and audit purposes. See US3 acceptance scenario 2.
-# -----------------------------------------------------------------------------
-decision_boundary:
-  # Primary threshold calibration method
-  calibration_method: percentile  # Options: percentile, statistical, adaptive
-  
-  # Percentile-based threshold (default)
-  percentile:
-    value: 95  # 95th percentile of score distribution
-    description: "Points with anomaly score > 95th percentile are flagged"
-  
-  # Statistical threshold (alternative)
-  statistical:
-    z_score_threshold: 3.0  # Points beyond 3 standard deviations
-    description: "Points with z-score > 3.0 are flagged as anomalies"
-  
-  # Adaptive threshold (for streaming)
-  adaptive:
-    enabled: false
-    window_size: 1000  # Sliding window for threshold adaptation
-    adaptation_rate: 0.1  # How quickly threshold adapts (0-1)
-    description: "Threshold adapts based on recent score distribution"
-  
-  # Expected anomaly rate bounds (for validation)
-  anomaly_rate_bounds:
-    min_expected: 0.01  # 1% minimum expected anomaly rate
-    max_expected: 0.10  # 10% maximum expected anomaly rate
-    description: "Validates threshold produces reasonable anomaly rates"
-  
-  # Decision boundary metadata (for audit trail)
-  metadata:
-    version: "1.0.0"
-    created: "2026-05-01"
-    last_modified: "2026-05-01"
-    author: "Speckit Implementation Agent"
-    purpose: "Document decision boundary for replication per FR-009"
-    references:
-      - "US3 Acceptance Scenario 2: Verify threshold calibration"
-      - "FR-009: Configuration file under 2KB with hyperparameters only"
-      - "Constitution Principle I: Reproducibility via documented parameters"
-
-# -----------------------------------------------------------------------------
-# Baseline Models Configuration (US2)
-# -----------------------------------------------------------------------------
-baselines:
   arima:
-    order:
-      p: 2
-      d: 1
-      q: 2
-    seasonal:
-      enabled: false
-      period: 24
-      P: 0
-      D: 0
-      Q: 0
-    threshold:
-      method: z_score
-      value: 3.0
-  
-  moving_average:
-    window_size: 20
-    z_score_threshold: 3.0
-  
-  lstm_autoencoder:
-    sequence_length: 50
-    latent_dim: 16
-    reconstruction_threshold: 0.05  # MSE threshold for anomaly
+    order: [1, 1, 1]
+  gmm_fixed:
+    components: [3, 5, 10]
 
-# -----------------------------------------------------------------------------
-# Dataset Configuration (SC-001)
-# -----------------------------------------------------------------------------
-datasets:
-  base_path: data/raw/
-  processed_path: data/processed/
-  results_path: data/processed/results/
-  
-  # UCI Electricity Load Diagrams
-  electricity:
-    name: "Electricity Load Diagrams"
-    url: "https://archive.ics.uci.edu/ml/machine-learning-databases/00468/"
-    file: "electricity_load_diagrams_2011_2014.csv"
-    checksum: "pending_download"
-    timestamp_column: "time"
-    value_column: "load"
-  
-  # UCI Traffic Monitoring
-  traffic:
-    name: "Traffic Monitoring"
-    url: "https://archive.ics.uci.edu/ml/datasets/PEMS-SF"
-    file: "traffic.csv"
-    checksum: "pending_download"
-    timestamp_column: "timestamp"
-    value_column: "occupancy"
-  
-  # Synthetic Control Chart (Generated)
-  synthetic:
-    name: "Synthetic Control Chart Time Series"
-    source: "generated_locally"
-    generator: "code/src/data/synthetic_generator.py"
-    checksum: "generated"
-    num_series: 100
-    length_per_series: 60
+# Seeds
+seeds:
+  global_seed: 42
+  simulation_seed: 123
 
-# -----------------------------------------------------------------------------
-# Evaluation Configuration (US2)
-# -----------------------------------------------------------------------------
-evaluation:
-  # Metrics to compute
-  metrics:
-    - f1_score
-    - precision
-    - recall
-    - auc_roc
-    - auc_pr
-  
-  # Statistical testing
-  statistical_tests:
-    enabled: true
-    test: paired_ttest
-    correction: bonferroni
-    significance_level: 0.05
-  
-  # Visualization
-  plots:
-    roc_curve: true
-    pr_curve: true
-    confusion_matrix: true
-    output_dir: paper/figures/
-  
-  # Runtime constraints (SC-003)
-  runtime:
-    max_minutes_per_dataset: 30
-    timeout_action: log_warning_and_save_partial
-
-# -----------------------------------------------------------------------------
-# Memory & Performance Constraints (SC-004, FR-005)
-# -----------------------------------------------------------------------------
-performance:
-  memory:
-    max_gb: 7.0  # FR-005: Memory usage < 7GB
-    profile_interval: 100  # Profile every 100 observations
-  
-  hyperparameters:
-    max_tunable_percent: 30  # SC-004: DPGMM should have <30% tunable params
-    description: "Nonparametric models should require fewer hyperparameters than baselines"
-
-# -----------------------------------------------------------------------------
-# Logging & Monitoring (Constitution Principle VI)
-# -----------------------------------------------------------------------------
-logging:
-  level: INFO
-  elbo_log_dir: logs/elbo/
-  elbo_convergence:
-    enabled: true
-    min_improvement: 0.001
-    patience: 50
-    max_iterations: 500
-  
-# -----------------------------------------------------------------------------
-# File Size Verification (FR-009)
-# -----------------------------------------------------------------------------
-# This file must be verified to be under 2KB at runtime.
-# Run: code/scripts/verify_config_compliance.py to validate.
-# Target size: < 2048 bytes
-# =============================================================================
+# Base Paths
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed/results"
+  figures: "figures"
+  logs: "logs"
+  state: "state"

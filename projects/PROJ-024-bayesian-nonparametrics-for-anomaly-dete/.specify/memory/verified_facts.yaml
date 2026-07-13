@@ -1,0 +1,6 @@
+0.1|analysi include sensitivity significance threshold:
+  quote: smaller than 0.05. The remaining pairs form a plausible set of sensitivity
+    parameters
+  source_id: '1501.05788'
+  url: https://arxiv.org/abs/1501.05788
+  value: '0.05'
