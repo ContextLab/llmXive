@@ -1,8 +1,2 @@
-T004 [P] Configure environment configuration management for API keys, dataset paths (code/config/settings.py): 1
-T005 [US1] Implement informed consent flow with IRB approval verification (code/experiment/consent.py) - DEPENDS ON T004: 1
-? T006 [US1] Setup logging infrastructure for experiment.log with participant IDs,
-  condition assignments, seeds (code/logs/experiment.py) - FR-012 infrastructure layer
-  - DEPENDS ON T004
-: 1
-T007 Create base models/entities matching data-model.md (code/data/models.py): 1
-T008 Setup SQLite database schema for Participant, Session, Problem, Submission, Metric entities (code/data/db_schema.py): 1
+T011b: 1
+T012: 1

@@ -281,3 +281,296 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T01:12:55Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'GitHub Actions free-tier resource limits: 2 CPU, 7 GB RAM, 14 GB disk,
+    6 hours'
+  claim_id: c_bfbb1785
+  context: "All tasks MUST run on GitHub Actions free-tier (2 CPU, 7 GB RAM, 14 GB\
+    \ disk, NO GPU, \u22646 h)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GitHub Actions free-tier provides 2 CPU, 7 GB RAM, 14 GB disk, and \u2264\
+    6 h time limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:55:26Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset utilized in experiment
+  claim_id: c_252a352c
+  context: Verify HumanEval dataset URL and download script with commit hash/API snapshot
+    capture
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_utilized_in_experiment
+  kind: entity_fact
+  raw_text: HumanEval dataset is used for the experiment
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:55:45Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Codeforces dataset utilized in experiment
+  claim_id: c_eec7aa18
+  context: Verify Codeforces dataset URL and download script with commit hash/API
+    snapshot capture
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Codeforces_dataset_utilized_in_experiment
+  kind: entity_fact
+  raw_text: Codeforces dataset is used for the experiment
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:56:06Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: "JaCoText model size constraint: \u22641GB"
+  claim_id: c_59a3ae21
+  context: "Verify JaCoText model size \u22641GB and CPU-tractability if used"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/JaCoText_model_size_constraint:_%E2%89%A41GB
+  kind: entity_fact
+  raw_text: "JaCoText model size must be \u22641GB for CPU-tractability"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:56:26Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: "StarCoder model size constraint: \u22641GB"
+  claim_id: c_fe5d33d5
+  context: "Verify StarCoder model size \u22641GB and CPU-tractable"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/StarCoder_model_size_constraint:_%E2%89%A41GB
+  kind: entity_fact
+  raw_text: "StarCoder model size must be \u22641GB for CPU-tractability"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:57:03Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: AES-256-GCM encryption for participant data
+  claim_id: c_5f1c1873
+  context: encryption = AES-256-GCM, keys stored in environment variables
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Participant data encryption uses AES-256-GCM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:57:23Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Secure deletion overwrites file 3 times
+  claim_id: c_acbaea24
+  context: overwrite file content 3x with os.urandom(len) then os.fsync, then os.unlink
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Secure deletion workflow overwrites file content 3 times with os.urandom
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:57:51Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Problem loading rate target: 95%'
+  claim_id: c_554c4748
+  context: "Implement problem loading for HumanEval/Codeforces with \u226595% load\
+    \ rate"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Problem loading rate target is \u226595%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:57:51Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Average solution time medium-difficulty: 5 minutes'
+  claim_id: c_018ac887
+  context: "Implement problem validation per FR-014 (avg solution time \u22655 min,\
+    \ medium-difficulty)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Average solution time for medium-difficulty problems is \u22655 minutes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:57:51Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Timestamp recording precision: 1 second'
+  claim_id: c_eaa75b10
+  context: "Implement timestamp recording with \u22651 second precision in UTC format"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Timestamp recording precision is \u22651 second"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:57:51Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Recruitment filter: 1 year programming experience'
+  claim_id: c_351687d8
+  context: "Implement participant recruitment flow with \u22651 year programming experience\
+    \ filter"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruitment filter requires \u22651 year programming experience"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:57:51Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Pass rate calculation precision: 0.01'
+  claim_id: c_9a398482
+  context: "Implement HumanEval test suite execution and pass rate calculation (\u2265\
+    0.01 precision)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pass rate calculation precision is \u22650.01"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:57:51Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Cyclomatic complexity minimum value: 1'
+  claim_id: c_43c1f21a
+  context: "Implement cyclomatic complexity computation using radon cc (integer \u2265\
+    1)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_minimum_value:_1
+  kind: entity_fact
+  raw_text: "Cyclomatic complexity is an integer \u22651"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:58:13Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Test coverage range: 0-100 percent'
+  claim_id: c_2420aa9e
+  context: Implement test coverage measurement via coverage.py (percentage 0-100%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test coverage is measured as a percentage from 0 to 100%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:59:08Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Cohen''s d effect size: 95% CI, 0.01 precision'
+  claim_id: c_a6dcc24d
+  context: "Implement Cohen's d effect size computation with 95% CI (\xB10.01 precision)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Cohen's d effect size computation includes 95% CI with \xB10.01 precision"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:59:08Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Multiple-comparison correction family-wise error rate: 0.05'
+  claim_id: c_91cc607c
+  context: "Verify multiple-comparison correction achieves family-wise error rate\
+    \ \u22640.05 per SC-004"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Multiple-comparison correction achieves family-wise error rate \u2264\
+    0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:59:08Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis thresholds: 0.01, 0.05, 0.1'
+  claim_id: c_40ac777d
+  context: "Implement sensitivity analysis for a time reduction threshold range (sweep\
+    \ diff \u2208 {0.01, 0.05, 0.1})"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps time reduction thresholds {0.01, 0.05, 0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:59:31Z'
+- artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Fast-completion detection threshold: 30 seconds'
+  claim_id: c_a1311179
+  context: Implement fast-completion detection for tasks <30 seconds
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fast-completion detection flags tasks <30 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T13:59:31Z'

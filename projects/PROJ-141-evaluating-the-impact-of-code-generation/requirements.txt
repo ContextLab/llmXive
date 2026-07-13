@@ -1,4 +1,4 @@
-# Existing dependencies from T002
+# Existing dependencies
 Flask
 radon
 coverage
@@ -7,8 +7,7 @@ scipy
 statsmodels
 torch
 datasets
-pytest
-black
-flake8
-# New dependencies for T005 (Consent Flow)
-# No new external libraries required beyond standard library and existing config
+cryptography
+
+# Additional dependencies for submission handler
+# (No new dependencies required - uses standard library)
