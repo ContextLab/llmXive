@@ -25,60 +25,62 @@
 
 ### User Story 2 - Lightweight Adapter Training & Feasibility Prediction (Priority: P2)
 
-**Journey**: The researcher needs to train a CPU-optimized sequence-to-sequence model on the extracted feature triplets to predict whether a specific failure mode is correctable via syntax rewriting or requires full model retraining. The ground truth for "correctable" is derived independently from manual expert annotation or a separate rule-based oracle, not from the syntactic features themselves.
+**Journey**: The researcher needs to train a CPU-optimized sequence-to-sequence model on the extracted feature triplets to predict whether a specific failure mode is correctable via syntax rewriting or requires full model retraining. The ground truth for "correctable" is derived independently from a **Rule-Based Oracle** that identifies human-verified syntax-only fixes (outcome-based), ensuring independence from the syntactic features being predicted.
 
 **Why this priority**: This addresses the core "to what extent can these features predict..." aspect of the research question. It moves from observation to prediction, determining the feasibility of the proposed lightweight intervention.
 
-**Independent Test**: The training pipeline can be tested independently by running it on a fixed training split and verifying that the loss converges and the model produces a binary classification (Correctable vs. Unfixable) with a measurable accuracy on a held-out validation set.
+**Independent Test**: The training pipeline can be tested independently by running it on a fixed training split and verifying that the loss converges (loss derivative < 1e-4 for 5 consecutive epochs) and the model produces a binary classification (Correctable vs. Unfixable) with a measurable accuracy on a held-out validation set.
 
 **Acceptance Scenarios**:
 
 1. **Given** the constructed triplet dataset (System Prompt, Failed_Trace_Structure, Successful_Correction_Structure), **When** the adapter training process completes, **Then** the model must output a binary prediction for each test sample indicating whether the failure is "syntactically correctable" or "requires retraining."
-2. **Given** a set of known "correctable" failure cases in the validation set, **When** the model processes them, **Then** the prediction accuracy for the "correctable" class must exceed the random baseline (e.g., >50% for a binary task) to demonstrate predictive capability.
+2. **Given** a set of known "correctable" failure cases in the validation set (derived from the Rule-Based Oracle), **When** the model processes them, **Then** the prediction accuracy for the "correctable" class must exceed the random baseline to demonstrate predictive capability.
 3. **Given** the computational constraints (7GB RAM, 2 CPU cores), **When** the training job runs, **Then** the process must complete without triggering an Out-Of-Memory (OOM) error or exceeding the 6-hour time limit.
 
 ---
 
 ### User Story 3 - Artifact Delivery Score Evaluation (Priority: P3)
 
-**Journey**: The researcher needs to evaluate the end-to-end impact of the trained adapter by measuring the "Artifact Delivery Score" on the held-out Lite set, comparing the baseline performance against the adapter-enhanced system. The adapter learns a generalizable correction policy based on abstract fix representations, not raw successful traces.
+**Journey**: The researcher needs to evaluate the end-to-end impact of the trained adapter by measuring the "Artifact Delivery Score" on the held-out Lite set, comparing the baseline performance against the adapter-enhanced system. The adapter learns a generalizable correction policy based on abstract fix representations, not raw successful traces. The "syntax rewriting" policy is applied blindly to cases predicted as "correctable", and the ADS is measured on the actual outcome.
 
 **Why this priority**: This validates the practical utility of the research. It answers whether the linguistic intervention actually improves the outcome (artifact delivery) in the restrictive enterprise environment.
 
-**Independent Test**: The evaluation can be tested by running the baseline and adapter-enhanced configurations on a representative multi-task Lite set and comparing the resulting scores using a statistical test to confirm significance.
+**Independent Test**: The evaluation can be tested by running the baseline and adapter-enhanced configurations on a representative multi-task Lite set (constructed via stratified sampling on Oracle-defined labels) and comparing the resulting scores using a statistical test to confirm significance.
 
 **Acceptance Scenarios**:
 
-1. **Given** the held-out 120-task Lite set and the baseline "Model + Harness" configuration, **When** the evaluation runs, **Then** it must record the Artifact Delivery Score for each task.
-2. **Given** the same 120-task Lite set and the "Model + Adapter + Harness" configuration, **When** the evaluation runs, **Then** it must record the Artifact Delivery Score for each task and log the total runtime latency.
-3. **Given** the paired scores from the baseline and adapter-enhanced runs, **When** the statistical analysis (paired t-test or Wilcoxon signed-rank) is applied, **Then** the system must output a p-value to determine if the improvement is statistically significant (p < 0.05).
+1. **Given** the held-out Lite set and the baseline "Model + Harness" configuration, **When** the evaluation runs, **Then** it must record the Artifact Delivery Score for each task.
+2. **Given** the same Lite set and the "Model + Adapter + Harness" configuration, **When** the evaluation runs, **Then** it must record the Artifact Delivery Score for each task and log the total runtime latency.
+3. **Given** the paired scores from the baseline and adapter-enhanced runs, **When** the statistical analysis (McNemar's test if ADS is binary; paired t-test if continuous and normal; Wilcoxon signed-rank otherwise) is applied, **Then** the system must output a p-value to determine if the improvement is statistically significant (measured against a pre-study determined significance threshold).
 
 ---
 
 ### Edge Cases
 
 - **What happens when a trace contains ambiguous pragmatic markers?** The system must default to a "neutral" classification or flag the trace for manual review, rather than forcing a binary success/failure label that could skew training.
-- **How does the system handle traces that are too large for the 7GB RAM limit?** The pipeline must implement a streaming or chunking strategy to process large logs without loading the entire file into memory at once.
-- **What happens if the adapter training loss does not converge?** The system must trigger a fallback to a simpler heuristic model (e.g., rule-based syntax correction) to ensure the evaluation step can still proceed, while logging the failure for analysis.
+- **How does the system handle traces that are too large for the 7GB RAM limit?** The pipeline must implement a streaming or chunking strategy to process large logs without loading the entire file into memory at once. The memory monitoring task (FR-006) will log peak usage to verify compliance.
+- **What happens if the adapter training loss does not converge?** The system must trigger a fallback to a simpler heuristic model (a rule-based syntax correction script) if the loss derivative > 1e-4 for 10 epochs, ensuring the evaluation step can still proceed, while logging the failure for analysis.
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: System MUST parse raw execution logs to extract syntax tree depth, token frequency distributions, and pragmatic markers (e.g., error recovery attempts) for every trace in the EnterpriseClawBench dataset (See US-1).
-- **FR-002**: System MUST construct a triplet dataset consisting of `(System_Prompt, Failed_Trace_Structure, Successful_Correction_Structure)` where `Successful_Correction_Structure` is extracted from the corresponding successful trace in the dataset for the same task, and the "correctable" label is derived from manual expert annotation or a separate rule-based oracle (See US-2).
-- **FR-003**: System MUST train a distilled T5-small (≤60M parameters) sequence-to-sequence model to predict correction feasibility without requiring GPU acceleration or 8-bit quantization libraries (See US-2).
-- **FR-004**: System MUST implement an evaluation pipeline that runs the "Model + Adapter + Harness" configuration on the 120-task held-out Lite set and calculates the Artifact Delivery Score, ensuring the adapter learns a generalizable correction policy based on abstract fix representations (See US-3).
-- **FR-005**: System MUST apply a statistical significance test (paired t-test or Wilcoxon signed-rank) to compare the baseline and adapter-enhanced Artifact Delivery Scores, reporting the p-value (See US-3).
-- **FR-006**: System MUST log peak RSS memory (via /proc/self/status) and wall-clock time (start to end of training) to verify compliance with the 7GB RAM and 6-hour time limit constraints (See US-2).
+- **FR-002**: System MUST construct a triplet dataset consisting of `(System_Prompt, Failed_Trace_Structure, Successful_Correction_Structure)` where `Successful_Correction_Structure` is extracted from the corresponding successful trace in the dataset for the same task, and the "correctable" label is derived from a Rule-Based Oracle that identifies human-verified syntax-only fixes (outcome-based) (See US-2).
+- **FR-003**: System MUST train a distilled T5-small (≤60M parameters) sequence-to-sequence model exclusively (excluding Llama-3-8B) to predict correction feasibility using only CPU resources and standard float32/float16 precision libraries (See US-2).
+- **FR-004**: System MUST implement an evaluation pipeline that runs the "Model + Adapter + Harness" configuration on the held-out Lite set and calculates the Artifact Delivery Score, ensuring the adapter learns a generalizable correction policy based on abstract fix representations (See US-3).
+- **FR-005**: System MUST apply a statistical significance test to compare the baseline and adapter-enhanced Artifact Delivery Scores, using the following decision rule: If ADS is binary, use McNemar's test; if continuous and normal, use paired t-test; otherwise, use Wilcoxon signed-rank test (See US-3).
+- **FR-006**: System MUST log peak memory usage and wall-clock time (start to end of training) to verify compliance with the 7GB RAM and 6-hour time limit constraints (See US-2).
+- **FR-007**: System MUST implement a memory monitoring task to log peak memory usage, ensuring traceability to the constraint handling in Edge Cases (See US-2).
 
 ### Key Entities
 
 - **Execution Trace**: A log of tool-call sequences from an agent session, containing raw tokens, error states, and outcome labels.
 - **Feature Vector**: A structured representation of a trace containing numerical and categorical values for syntax depth, token frequency, and pragmatic markers.
-- **Correction Triplet**: A training sample linking a failed trace structure to its corresponding successful correction structure.
+- **Correction Triplet**: A training sample linking a failed trace structure, the system prompt, and its corresponding successful correction structure.
 - **Adapter Model**: The lightweight sequence-to-sequence model trained to predict correction feasibility.
 - **Artifact Delivery Score**: The primary metric measuring the success of an agent session in delivering the required output.
+- **Rule-Based Oracle**: A distinct module that identifies "correctable" failures based on human-verified syntax-only fixes, independent of the predictor features.
 
 ## Success Criteria
 
@@ -87,18 +89,21 @@
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The distinctiveness of syntactic and pragmatic markers between failed and successful traces is measured against the distribution differences using non-parametric tests (Mann-Whitney U) with Bonferroni or Benjamini-Hochberg FDR correction (See US-1).
-- **SC-002**: The predictive accuracy of the adapter for "correctable" vs. "unfixable" failures is measured against the ground truth labels in the held-out validation set, with a pass criterion of accuracy ≥ 60% (See US-2).
-- **SC-003**: The improvement in Artifact Delivery Score is measured against the baseline "Model + Harness" configuration on the 120-task Lite set (See US-3).
-- **SC-004**: The statistical significance of the performance improvement is measured against the threshold of p < 0.05 using a paired statistical test (See US-3).
-- **SC-005**: The resource efficiency of the adapter is measured against the constraints of ≤7GB RAM and ≤6 hours total runtime on a CPU-only runner (See US-2).
+- **SC-002**: The predictive accuracy of the adapter for "correctable" vs. "unfixable" failures is measured against the ground truth labels in the held-out validation set, with a pass criterion of accuracy measured against a pre-study determined baseline (See US-2).
+- **SC-003**: The improvement in Artifact Delivery Score is measured against the baseline "Model + Harness" configuration on the held-out Lite set (See US-3).
+- **SC-004**: The statistical significance of the performance improvement is measured against a pre-study determined significance threshold using a paired statistical test (See US-3).
+- **SC-005**: The resource efficiency of the adapter is measured against the constraints of ≤7GB RAM and ≤6 hours total runtime on a CPU-only runner, measured against the peak memory usage logged by FR-006 (See US-2).
 
 ## Assumptions
 
-- **Dataset Availability**: The EnterpriseClawBench dataset (852 tasks) is publicly accessible and contains the necessary raw execution logs and ground truth labels for "failed" and "successful" sessions.
+- **Dataset Availability**: The EnterpriseClawBench dataset is publicly accessible and contains the necessary raw execution logs and ground truth labels for "failed" and "successful" sessions. If no verified source is found, the study is paused until a source is identified or the dataset is provided locally with a verified hash.
 - **Compute Constraints**: The GitHub Actions free-tier runner (multi-core CPU, standard RAM) is sufficient to train a small, distilled sequence-to-sequence model on the sampled dataset without requiring GPU acceleration.
 - **Primary Hypothesis (H1)**: Syntactic and pragmatic features (e.g., syntax tree depth, token frequency) contain sufficient signal to distinguish between failures caused by syntax mismatches and those caused by fundamental reasoning gaps.
-- **Fallback Analysis**: If H1 is rejected (features show no distinctiveness, p > 0.05 after correction), the analysis will pivot to a null model baseline and report the lack of signal as a key finding, rather than proceeding with adapter training.
+- **Fallback Analysis**: If H1 is rejected (features show no distinctiveness, p > pre-study determined threshold after correction), the analysis will pivot to a null model baseline and report the lack of signal as a key finding, rather than proceeding with adapter training.
 - **Correction Feasibility**: There exists a non-trivial subset of "failed" traces that are "correctable" via syntax rewriting, meaning a null result (all failures are unfixable) is a valid and informative outcome.
-- **Statistical Power**: The held-out Lite set provides sufficient statistical power to detect a meaningful difference in Artifact Delivery Scores between the baseline and adapter-enhanced configurations.
+- **Statistical Power**: A pre-study power analysis must be conducted to calculate the minimum detectable effect size for the chosen sample size, and the study proceeds only if the expected effect is within this range.
 - **Inference Framing**: Since the study is observational (analyzing existing traces), all conclusions regarding "feasibility of correction" will be framed as associational predictions rather than causal claims of model capability.
 - **Threshold Justification**: Any decision cutoffs used in feature extraction (e.g., defining a "pragmatic marker") will be based on community-standard definitions or will include a sensitivity analysis sweeping the cutoff over a small set (e.g., {0.01, 0.05, 0.1}) to report stability.
+- **Oracle Logic**: The "Rule-Based Oracle" used to derive the "correctable" label operates on **outcome-based criteria**: it flags a trace as "correctable" ONLY if a human-verified fix exists in the dataset that modifies ONLY syntax tokens (e.g., typos, bracket mismatches) while leaving the semantic intent (tool name, arguments) unchanged. This logic is explicitly independent of the predictor features (syntax depth, token frequency).
+- **Model Choice**: T5-small is the exclusive model choice for this study to satisfy resource constraints, explicitly excluding the Llama-3-8B option mentioned in the Constitution as an alternative path not taken here.
+- **Data Hygiene**: Exact dataset sizes (e.g., "852 tasks", "120 tasks") are deferred to the research phase; the spec refers to "the full dataset" and "a held-out subset".

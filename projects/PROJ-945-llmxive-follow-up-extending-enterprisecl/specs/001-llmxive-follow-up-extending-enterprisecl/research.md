@@ -1,102 +1,111 @@
 # Research: llmXive Follow-up: Extending EnterpriseClawBench
 
-## Overview
+## 1. Research Questions & Hypotheses
 
-This research phase investigates the feasibility of predicting "correction feasibility" for agent failures in the `EnterpriseClawBench` dataset using lightweight, CPU-tractable methods. The study posits that syntactic and pragmatic features (syntax tree depth, token frequency, error recovery markers) contain sufficient signal to distinguish between failures correctable via syntax rewriting and those requiring full model retraining.
+**Primary Question**: To what extent can syntactic and pragmatic features of execution traces predict the feasibility of correcting agent failures via syntax rewriting?
 
-## Dataset Strategy
+**Hypothesis (H1)**: Syntactic and pragmatic features (syntax tree depth, token frequency, error recovery markers) contain sufficient signal to distinguish between failures caused by syntax mismatches (correctable) and those caused by fundamental reasoning gaps (unfixable).
 
-### Source Verification
-The `EnterpriseClawBench` dataset is the primary source.
-- **Status**: **Proprietary / Not Publicly Available**. No verified public URL or accession ID exists in the provided list.
-- **Action**: The implementation will check for local availability in `data/raw/`. **If the dataset is not found, the pipeline halts with a "Data Unavailable" status.** This satisfies the reproducibility requirement by defining the failure mode clearly, rather than assuming availability (Addressing `data_resources-93d8a50d`, `data_resources-1d8d6b32`).
-- **Reproducibility**: If the dataset is available locally, its checksum will be recorded. If not, the project cannot proceed without external access, which is outside the scope of the free-tier CI runner.
+**Null Hypothesis (H0)**: These features show no distinctiveness between correctable and unfixable failures (p > threshold after correction).
 
-### Data Composition
-- **Total Tasks**: 852 (EnterpriseClawBench).
-- **Held-out Set**: 120 tasks (Lite set) for final evaluation.
-- **Data Types**: Raw execution logs (text), ground truth labels (Success/Failure), and task definitions.
+## 2. Dataset Strategy
 
-### Data Access & Preprocessing
-- **Access**: Local file system access for `data/raw/*.log` or `*.json`.
-- **Preprocessing**:
-  - **Streaming**: Large logs will be processed via chunking/streaming to avoid OOM (Addressing Edge Case: "traces too large for 7GB RAM").
-  - **Labeling**: Traces labeled "failed" or "success" based on ground truth.
-  - **Ambiguity**: Traces with ambiguous pragmatic markers will be flagged as "neutral" or excluded from the training split to prevent label noise (Addressing Edge Case: "ambiguous pragmatic markers").
+**Target Dataset**: EnterpriseClawBench ("Benchmarking Agents from Real Workplace Sessions").
 
-## Feature Engineering Strategy
+**Availability Status**:
+- **Verified Source**: **NO verified source found** for EnterpriseClawBench in the provided dataset list.
+- **Action Plan**:
+  1. The pipeline is designed to accept the dataset via a local file path or a verified hash if the user provides the data locally.
+  2. If the dataset is not provided locally, the pipeline will pause at the data-loading step with a clear error: "EnterpriseClawBench source not verified. Please provide data locally with a valid checksum."
+  3. **No URL will be fabricated.** The research will proceed only if the data is present and verified.
 
-### Syntactic Features
-- **Syntax Tree Depth**: Calculated using a parser (e.g., `networkx` or a lightweight AST parser) on the tool-call sequence structure.
-- **Token Frequency**: Distribution of token types (e.g., function calls, arguments, error strings).
+**Local Data Schema Definition**:
+The local data **MUST** conform to the following schema to ensure feasibility:
+- `trace_id`: Unique identifier.
+- `task_id`: Task identifier.
+- `status`: "success" or "failed".
+- `raw_log_content`: The full raw log.
+- `paired_trace_id`: **REQUIRED** for failed traces. Must point to a successful trace for the same task where only syntax tokens differ. If `status` is "failed" and `paired_trace_id` is missing/null, the pipeline halts.
+- `outcome_label`: "success" or "failed".
 
-### Semantic Proxy Features (Construct Validity)
-- **Error Codes**: Specific error strings (e.g., "SyntaxError", "Timeout").
-- **Failed Function Names**: The names of functions that failed.
-- **Rationale**: To address the concern that structural features may not capture "reasoning gaps" (semantic failures), we include these semantic proxies. We will explicitly test if these proxies correlate with the "correctable" label (Addressing `methodology-142dcb74`).
+**Alternative/Supplementary Data**:
+- The verified datasets listed (KisanVaani, jailbreaks-only, HF-Users) are **not** suitable for this specific research as they do not contain the required "agent execution traces" with "tool-call sequences" and "syntax tree" structures. They will not be substituted.
 
-### Triplet Construction (FR-002)
-For each failed trace, a corresponding successful trace for the same task will be identified to form a `(System_Prompt, Failed_Trace_Structure, Successful_Correction_Structure)` triplet.
-- **Oracle Definition**: The "correctable" label is derived from a **Semantic Outcome Oracle**. This oracle is based on **manual expert review** (or a high-level rule-based check of the *final output*) to determine if the failure was due to a fixable syntax error vs. a fundamental reasoning gap. **Crucially, this oracle does not use the structural features (syntax depth, token freq) as inputs**, ensuring the ground truth is independent of the predictors (Addressing `scientific_soundness-702aa9f2`, `scientific_soundness-807b6018`).
+**Data Requirements**:
+- Raw execution logs containing: System Prompt, Failed Trace, **Paired Successful Trace**, Outcome Label.
+- Ground truth for "correctable" vs. "unfixable" (to be derived via the Rule-Based Oracle).
 
-## Model Strategy
+## 3. Methodology
 
-### Architecture
-- **Model**: Distilled T5-small (≤60M parameters).
-- **Reasoning**: T5-small is small enough to train on CPU (2 cores, 7GB RAM) within 6 hours while retaining sequence-to-sequence capabilities required for predicting "correctability" based on structural inputs.
-- **Constraint Compliance**:
-  - **No GPU**: Training will use `device="cpu"`.
-  - **No Quantization**: Standard float32 precision will be used to avoid `bitsandbytes` dependencies which often require CUDA.
-  - **Memory**: Batch sizes will be tuned dynamically to stay under 7GB RAM.
-  - **4-bit Option**: The Constitution (Principle VII) allows 4-bit quantization. This is **deferred** pending a resource feasibility check. If T5-small fits, we use it; if we pivot to a larger model (e.g., Llama-3-8B), we will attempt 4-bit quantization *only if* it fits within the 7GB RAM limit on CPU (Addressing `plan_consistency-31d588a9`).
+### Phase 1: Feature Extraction (FR-001)
+- **Input**: Raw execution logs.
+- **Grammar & Parser Feasibility Check**: Before extraction, the system validates that the `raw_log_content` matches a defined tool-call grammar (e.g., JSON schema or Python AST). If logs are unstructured text or proprietary formats without a parseable structure, the pipeline halts with "Parser Feasibility Check Failed".
+- **Process**:
+  - Parse logs to reconstruct syntax trees (AST) for tool calls using the defined grammar.
+  - Calculate **Syntax Tree Depth** (max depth of the AST).
+  - Calculate **Token Frequency** (distribution of tokens per trace).
+  - Identify **Pragmatic Markers**:
+    - *Error Recovery Attempts*: Count of retry loops.
+    - *State Transition Errors*: Flags for invalid state jumps.
+    - *Ambiguity Flags*: Default to "neutral" if markers are ambiguous (Edge Case handling).
+- **Output**: Structured JSON records with feature vectors and `status` (success/failure).
 
-### Training Objective
-- **Task**: Binary classification (Correctable vs. Unfixable).
-- **Loss**: Cross-Entropy Loss.
-- **Optimizer**: AdamW (default settings).
-- **Fallback**: If training loss does not converge, the system will revert to a rule-based heuristic model (as per Edge Cases) to ensure the evaluation step can still proceed.
+### Phase 2: Label Derivation via Rule-Based Oracle (FR-002)
+- **Paired Trace Requirement**: For every trace with `status: failed`, the system checks for a `paired_trace_id` pointing to a successful trace. If missing, the pipeline halts and logs the specific trace ID.
+- **Logic**: A distinct module identifies "correctable" failures based on **outcome-based criteria**.
+  - A failure is labeled `correctable` ONLY if a human-verified fix exists in the dataset (via the paired trace) that modifies **ONLY** syntax tokens (typos, bracket mismatches) while preserving semantic intent.
+  - This logic is **independent** of the predictor features to prevent data leakage.
+- **Output**: Training triplets `(System_Prompt, Failed_Trace_Structure, Successful_Correction_Structure)` with binary labels.
 
-### Intervention Mechanism (The "Fix")
-- **Role**: The trained model acts as a **Diagnostic Gatekeeper**. It predicts "correctable" or "unfixable".
-- **Action**:
-  - If **Correctable**: A **Rule-Based Rewriter** is triggered. This rewriter applies deterministic syntactic corrections (e.g., reordering arguments, fixing indentation) to the trace before re-injection into the harness.
-  - If **Unfixable**: The original trace is passed through unchanged.
-- **Rationale**: This separates the *prediction* (model) from the *intervention* (rewriter), ensuring the evaluation measures the combined effect of the diagnostic and the correction (Addressing `methodology-7ccccac8`, `methodology-59365faf`).
+### Phase 3: Model Training (FR-003 - Corrected)
+- **Model**: **scikit-learn Classifier** (Random Forest or Logistic Regression).
+  - *Rationale*: T5-small is a sequence-to-sequence model designed for text-to-text tasks. The input here is a numerical feature vector (depth, counts). A standard classifier is methodologically appropriate and computationally lighter. **The spec (FR-003) requires a kickback to update this requirement.**
+- **Hardware**: CPU-only (float32).
+- **Training**:
+  - Input: Feature vectors.
+  - Target: Binary classification (Correctable vs. Unfixable).
+  - **Convergence Check**: Loss derivative < 1e-4 for 5 consecutive epochs (or accuracy plateau).
+  - **Fallback**: If accuracy does not exceed random baseline after 10 epochs, switch to a simple heuristic model (rule-based syntax correction) and log the failure.
+- **Resource Guardrails**:
+  - Streaming/Chunking for large logs to stay under 7GB RAM.
+  - Memory logging (FR-006/007) to verify constraints.
 
-## Evaluation Strategy
+### Phase 4: Evaluation & Statistical Analysis (FR-004, FR-005)
+- **Metric**: Artifact Delivery Score (ADS).
+- **Intervention**:
+  - **If Predictor predicts "correctable"**: Apply the **Syntax Rewriter** (a T5-small text-to-text model trained on the paired traces) to fix the syntax.
+  - **If Predictor predicts "unfixable"**: **No intervention** (default to baseline).
+- **Comparison**: Baseline vs. Adapter-Enhanced (Baseline + Rewriter for predicted correctable) on the held-out **120-task Lite set**.
+- **Statistical Test**:
+  - If ADS is binary per task: **McNemar's test**.
+  - If ADS is continuous and normal: **Paired t-test**.
+  - Otherwise: **Wilcoxon signed-rank test**.
+  - **Control Condition**: The test compares the ADS of the "Baseline" configuration against the "Adapter-Enhanced" configuration where the Rewriter is applied *only* when predicted correctable, and *no change* is made for unfixable predictions.
+- **Significance**: p-value compared against a pre-study determined threshold.
+- **Additional Metric**: **Rewriter Success Rate** (percentage of "correctable" predictions where the rewriter actually improved the outcome) to decouple predictor accuracy from rewriter efficacy.
 
-### Metric: Artifact Delivery Score
-- **Definition**: Success rate of the agent session in delivering the required output.
-- **Comparison**: Baseline ("Model + Harness") vs. Adapter-Enhanced ("Model + Adapter (Diagnostic) + Rewriter (Intervention) + Harness").
-- **Set**: 120-task held-out Lite set.
+## 4. Statistical Rigor & Limitations
 
-### Statistical Analysis (FR-005)
-- **Test**: **McNemar's Test** (for paired binary outcomes: Success/Failure per task) or **Generalized Linear Mixed Model (GLMM)** to account for task-level variance. A t-test is **not** appropriate for binary proportions (Addressing `scientific_soundness-69e347ab`).
-- **Hypothesis**: $H_1$: Adapter-enhanced score > Baseline score.
-- **Significance Threshold**: $p < 0.05$.
-- **Multiple Comparison Correction**: If multiple feature subsets are tested, Bonferroni or Benjamini-Hoch correction will be applied (SC-001).
+- **Multiple Comparisons**: If multiple feature subsets are tested, Bonferroni or Benjamini-Hochberg FDR correction will be applied (SC-001).
+- **Power Analysis**: A pre-study power analysis will be conducted to determine the minimum detectable effect size. If the expected effect is below this range, the study notes the limitation.
+- **Causal Inference**: Since this is an observational study of existing traces, all claims are framed as **associational predictions**, not causal effects.
+- **Collinearity**: If predictors are definitionally related (e.g., token frequency and syntax depth), independent effects will not be claimed; relationships will be reported descriptively.
+- **Dataset Variable Fit**: The plan explicitly acknowledges that EnterpriseClawBench *must* contain the required variables (traces, outcomes, paired traces). If the local data lacks these, the plan halts. No external dataset will be used to substitute missing variables.
 
-### Power Analysis (Addressing `methodology-dd42454a`)
-- **Sample Size**: N=120 (paired tasks).
-- **Calculation**: For a paired binary test (McNemar's) with $\alpha=0.05$ and Power=0.80, the minimum detectable effect size (Cohen's d equivalent) is approximately 0.35 (medium effect).
-- **Implication**: If the true improvement in Artifact Delivery Score is small (d < 0.35), the study is underpowered to detect it. A non-significant result ($p > 0.05$) in this case will be reported as "inconclusive due to power limitations" rather than "no signal".
+## 5. Compute Feasibility
 
-### Resource Monitoring (FR-006)
-- **Memory**: Peak RSS logged via `/proc/self/status`.
-- **Time**: Wall-clock time logged from start to end of training.
-- **Thresholds**: Fail if >7GB RAM or >6 hours.
+- **Constraint**: 2 CPU cores, ~7GB RAM, 6h runtime.
+- **Strategy**:
+  - **Model**: scikit-learn classifier is extremely lightweight on CPU. T5-small (if used for rewriter) is run in float32 on CPU with batch size 1.
+  - **Data**: Sampled or streamed processing to avoid loading full logs into RAM.
+  - **Libraries**: `transformers` (CPU mode), `scikit-learn` (no CUDA dependencies).
+  - **No GPU**: No quantization requiring CUDA, no mixed-precision training.
 
-## Risk Analysis & Mitigation
+## 6. Risk Management
 
-| Risk | Probability | Impact | Mitigation |
-| :--- | :--- | :--- | :--- |
-| **Dataset Unavailability** | High | High | **Data Feasibility Gate**: If data not found in `data/raw/`, halt immediately. |
-| **OOM on CPU** | Medium | High | Implement streaming/chunking; reduce batch size; fallback to rule-based model. |
-| **No Signal in Features** | Medium | Medium | If H1 rejected ($p > 0.05$), report null result or power limitation (per Assumptions). |
-| **Ambiguous Labels** | Low | Medium | Flag "neutral" traces; exclude from training; sensitivity analysis on cutoffs. |
-
-## Decision Rationale
-
-- **Why T5-small?** It is the smallest viable sequence-to-sequence model that can handle the "input structure -> prediction" task without the overhead of larger LLMs. It fits the CPU constraint.
-- **Why not fine-tune a larger model?** A larger model (e.g., Llama-3-8B) would exceed the 7GB RAM limit on a CPU-only runner, even with quantization (which is restricted by the "no 8-bit" constraint in FR-003). 4-bit quantization is a **deferred option** only if T5-small is insufficient.
-- **Why McNemar's Test?** The outcome (Artifact Delivery) is binary (Success/Failure) per task. McNemar's test is the correct statistical tool for paired binary data, avoiding the category error of treating it as continuous (Addressing `scientific_soundness-69e347ab`).
+- **Risk**: Dataset not available. **Mitigation**: Pipeline halts with clear error; no fabrication of URLs.
+- **Risk**: Dataset lacks paired traces. **Mitigation**: Pipeline halts at Phase 2 with specific trace IDs.
+- **Risk**: Model fails to converge. **Mitigation**: Fallback to rule-based heuristic; report as a finding.
+- **Risk**: Memory OOM. **Mitigation**: Chunking strategy; peak memory logging.
+- **Risk**: Ambiguous markers. **Mitigation**: "Neutral" classification or manual review flag.
+- **Risk**: Parser failure. **Mitigation**: Pipeline halts at Phase 1 if grammar does not match.

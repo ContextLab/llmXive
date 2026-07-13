@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T13:15:48.788030Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-945-llmxive-follow-up-extending-enterprisecl
-last_run_id: 871a577d-a3ad-4896-a699-b0d3845b2a3c
+last_run_id: 8bf3e0d6-1aee-48ab-9639-4127c5b5228a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-945-llmxive-follow-up-extending-enterprisecl/specs/001-llmxive-follow-up-extending-enterprisecl
 title: 'llmXive follow-up: extending "EnterpriseClawBench: Benchmarking Agents from
   Real Workplace Sessions"'
-updated_at: '2026-07-12T19:40:44.362442Z'
+updated_at: '2026-07-13T08:40:41.836114Z'

@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correction Triplet"
+description: "Schema for the training triplets used to predict correction feasibility."
+type: "object"
+properties:
+  prompt:
+    type: "string"
+    description: "The system prompt associated with the task."
+  failed_structure:
+    type: "string"
+    description: "Structural representation of the failed trace."
+  success_structure:
+    type: "string"
+    description: "Structural representation of the corresponding successful trace."
+  is_correctable:
+    type: "boolean"
+    description: "Ground truth label: true if the failure is correctable via syntax rewriting."
+required:
+  - "prompt"
+  - "failed_structure"
+  - "success_structure"
+  - "is_correctable"
+additionalProperties: false

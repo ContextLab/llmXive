@@ -1,68 +1,91 @@
 # Data Model: llmXive Follow-up: Extending EnterpriseClawBench
 
-## Overview
+## 1. Entity-Relationship Overview
 
-This document defines the data structures used for the `EnterpriseClawBench` extension feature. It covers the raw input logs, the extracted feature vectors, the training triplets, and the evaluation results.
+The data model centers on the **Execution Trace** and its derived **Feature Vector**. The model supports the flow from raw logs to training triplets and finally to evaluation metrics.
 
-## Entities
+### Key Entities
 
-### 1. ExecutionTrace (Raw Input)
-Represents a single log entry from the `EnterpriseClawBench` dataset.
+1.  **RawExecutionLog**: The unprocessed input file.
+2.  **FeatureVector**: The structured representation of a trace (syntax, tokens, markers).
+3.  **CorrectionTriplet**: A training sample linking a failed trace, its prompt, and a successful correction.
+4.  **EvaluationResult**: The outcome of the ADS calculation.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `trace_id` | string | Unique identifier for the trace. |
-| `task_id` | string | Identifier for the associated task. |
-| `status` | string | Ground truth label: "success" or "failed". |
-| `raw_log` | string | The raw text content of the execution log. |
-| `timestamp` | string | ISO 8601 timestamp of the session. |
+## 2. Data Schema Definitions
 
-### 2. FeatureVector (Processed)
-The output of the feature extraction pipeline (FR-001).
+### 2.1 RawExecutionLog
+*Source*: EnterpriseClawBench (local file or stream).
+*Format*: JSON/Text log.
+*Fields*:
+- `trace_id`: Unique identifier.
+- `task_id`: Task identifier.
+- `system_prompt`: The initial prompt sent to the agent.
+- `tool_sequence`: List of tool calls and responses.
+- `outcome_label`: "success" or "failed".
+- `status`: "success" or "failed".
+- `paired_trace_id`: **REQUIRED** if `status` is "failed". Points to a successful trace for the same task.
+- `timestamp`: ISO 8601.
+*Constraint*: If `status` is "failed" and `paired_trace_id` is null/missing, the pipeline halts.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `trace_id` | string | Reference to the source trace. |
-| `syntax_tree_depth` | integer | Maximum depth of the parsed syntax tree. |
-| `token_freq_dist` | object | Map of token type -> frequency count. |
-| `pragmatic_markers` | array | List of identified markers (e.g., "error_recovery", "state_transition_error"). |
-| `semantic_proxies` | object | Map of semantic features (e.g., `error_code`: "SyntaxError", `failed_func`: "db_query"). |
-| `status` | string | "success", "failed", or "neutral" (if ambiguous). |
-| `is_correctable` | boolean | Ground truth for "correctability" (derived from **Semantic Outcome Oracle**). |
+### 2.2 FeatureVector
+*Derived from*: RawExecutionLog via `extractors`.
+*Format*: JSON/Parquet.
+*Fields*:
+- `trace_id`: FK to RawExecutionLog.
+- `syntax_tree_depth`: Integer (max depth).
+- `token_frequency`: Object (key: token, value: count).
+- `pragmatic_markers`: Object (key: marker_type, value: count/bool).
+  - `error_recovery_attempts`: Integer.
+  - `state_transition_errors`: Boolean.
+- `status`: "success" | "failed".
+- `ambiguity_flag`: Boolean (true if markers were ambiguous).
 
-### 3. CorrectionTriplet (Training Data)
-The structured input for the T5-small model (FR-002).
+### 2.3 CorrectionTriplet
+*Derived from*: FeatureVector + Rule-Based Oracle.
+*Format*: JSON/Parquet.
+*Fields*:
+- `triplet_id`: Unique identifier.
+- `system_prompt`: String.
+- `failed_structure`: Object (reference to FeatureVector of failed trace).
+- `successful_structure`: Object (reference to FeatureVector of successful trace).
+- `label`: "correctable" | "unfixable".
+- `oracle_logic`: String (description of the rule applied).
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `system_prompt` | string | The system prompt used in the session. |
-| `failed_structure` | string | Serialized representation of the failed trace's features. |
-| `successful_structure` | string | Serialized representation of the corresponding successful trace's features. |
-| `label` | string | "correctable" or "unfixable". |
+### 2.4 EvaluationResult
+*Derived from*: Model inference + ADS calculation.
+*Format*: CSV/Parquet.
+*Fields*:
+- `task_id`: Identifier for the task in the Lite set.
+- `baseline_ads`: Float (Artifact Delivery Score).
+- `adapter_ads`: Float (Artifact Delivery Score with adapter).
+- `latency_ms`: Integer.
+- `prediction`: "correctable" | "unfixable".
+- `rewriter_applied`: Boolean (True if prediction was "correctable").
 
-### 4. EvaluationResult (Output)
-The result of the Artifact Delivery Score evaluation (FR-004, FR-005).
+## 3. Data Flow Diagram
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `task_id` | string | Identifier for the task. |
-| `baseline_score` | float | Artifact Delivery Score for the baseline configuration. |
-| `adapter_score` | float | Artifact Delivery Score for the adapter-enhanced configuration. |
-| `intervention_applied` | boolean | Whether the Rule-Based Rewriter was triggered. |
-| `latency_ms` | integer | Inference latency in milliseconds. |
-| `resource_log` | object | Memory (RSS) and time logs. |
+```mermaid
+graph TD
+    A[RawExecutionLog] -->|Extract| B[FeatureVector]
+    B -->|Oracle Logic + Paired Trace Check| C[CorrectionTriplet]
+    C -->|Train| D[scikit-learn Classifier]
+    D -->|Predict| E[EvaluationResult]
+    A -->|Baseline Run| E
+    E -->|Stat Test| F[Final Report]
+```
 
-## Relationships
+## 4. Constraints & Validation Rules
 
-- **1-to-1**: `ExecutionTrace` -> `FeatureVector` (One trace produces one feature vector).
-- **1-to-1**: `FeatureVector` (failed) + `FeatureVector` (success) -> `CorrectionTriplet` (Pairing based on `task_id`).
-- **1-to-Many**: `Task` -> `EvaluationResult` (One task is evaluated once for baseline and once for adapter).
+- **Immutability**: `RawExecutionLog` files are never modified. Derivations (`FeatureVector`, `CorrectionTriplet`) are written to new files.
+- **Checksums**: All files in `data/` must have a recorded SHA-256 checksum in the project state.
+- **PII**: No Personally Identifiable Information is allowed in `FeatureVector` or `CorrectionTriplet`.
+- **Memory**: Streaming processing enforced for `RawExecutionLog` if size > 1GB.
+- **Paired Trace**: `paired_trace_id` is required for all failed traces.
 
-## Data Flow
+## 5. Storage Strategy
 
-1.  **Ingestion**: `ExecutionTrace` loaded from `data/raw/`.
-2.  **Extraction**: `FeatureVector` generated (including semantic proxies) and saved to `data/processed/features.json`.
-3.  **Pairing**: `CorrectionTriplet` constructed and saved to `data/processed/triplets.json`.
-4.  **Training**: Model trained on `triplets.json`.
-5.  **Intervention**: Rule-Based Rewriter applied if model predicts "correctable".
-6.  **Evaluation**: `EvaluationResult` generated for the 120-task Lite set and saved to `data/processed/results.csv`.
+- **Raw Data**: `data/raw/` (Read-only).
+- **Processed Data**: `data/processed/` (Read-Write during pipeline, immutable after run).
+- **Model Artifacts**: `code/models/` (Versioned by content hash).
+- **Results**: `data/results/`.
+- **Lite Set**: `data/lite_set/` (Contains the 120-task subset).

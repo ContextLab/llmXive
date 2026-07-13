@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Trace Feature Vector"
+description: "Schema for the structured representation of an execution trace, including syntax and pragmatic features."
+type: "object"
+required:
+  - "trace_id"
+  - "syntax_tree_depth"
+  - "token_frequency"
+  - "pragmatic_markers"
+  - "status"
+properties:
+  trace_id:
+    type: "string"
+    description: "Unique identifier for the execution trace."
+  syntax_tree_depth:
+    type: "integer"
+    description: "Maximum depth of the abstract syntax tree for the tool call sequence."
+  token_frequency:
+    type: "object"
+    description: "Distribution of tokens in the trace."
+    additionalProperties:
+      type: "integer"
+  pragmatic_markers:
+    type: "object"
+    description: "Identified pragmatic markers in the trace."
+    properties:
+      error_recovery_attempts:
+        type: "integer"
+        description: "Number of retry loops detected."
+      state_transition_errors:
+        type: "boolean"
+        description: "Flag for invalid state jumps."
+    required:
+      - "error_recovery_attempts"
+      - "state_transition_errors"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+    description: "Ground truth outcome of the trace."
+  ambiguity_flag:
+    type: "boolean"
+    description: "True if markers were ambiguous and defaulted to neutral."
+  dataset_source:
+    type: "string"
+    description: "Source of the raw data (e.g., 'EnterpriseClawBench')."
+    pattern: "^(EnterpriseClawBench|Local)$"

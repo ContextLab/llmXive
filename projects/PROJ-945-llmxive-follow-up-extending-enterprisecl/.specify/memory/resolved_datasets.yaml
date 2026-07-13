@@ -1,30 +1,158 @@
-resolved_at: '2026-07-12T18:53:01.114240+00:00'
+resolved_at: '2026-07-13T08:30:06.779620+00:00'
 datasets:
 - intent: EnterpriseClawBench
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/Impact_assessment_of_corporate_social_responsibility_A_special_context_of_third_party/32071857
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Desmarestia_firma_BOL0270707_/32877545
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Desmarestia_firma_BOL0270707_/32877545
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Desmarestia_firma_BOL0270706_/32877542
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Desmarestia_firma_BOL0270706_/32877542
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://acs.figshare.com/articles/journal_contribution/Ce-Doped_Aluminum_Catalysts_with_Adsorption_Capabilities_for_Efficient_HMF_Oxidation_Reactions/32973025
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_b_b_30_June_2025_Malwina_G_balska_NCN_Poland_b_/32801889
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Desmarestia_intermedia_BOL0270705_/32877536
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_30_June_2025_b_b_Monika_Brasser_b_/32801928
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Desmarestia_intermedia_BOL0270705_/32877536
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Desmarestia_latifrons_BOL0270704_/32877530
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://rdr.ucl.ac.uk/articles/media/_b_Me_b_b_et_the_Funders_Round_Table_30_June_2025_b_b_Miko_aj_b_b_Pyczak_b_b_Nat_Centre_for_R_D_b_b_Poland_b_/32801934
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_30_June_2025_b_b_b_b_Ma_gorzata_Jacobs_b_b_b_b_NCN_b_b_b_b_Poland_and_b_b_Mette_Catarina_Skaarup_b_b_b_b_Office_of_Independent_Research_Fund_Denmark_DAFSHE_Denmark_b_/32801943
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Desmarestia_latifrons_BOL0270704_/32877530
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://arxiv.org/abs/2606.23654
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ONLY
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/KisanVaani/agriculture-qa-english-only/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/entfane/jailbreaks-only/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 160026
+      parsed: true
+  - url: https://huggingface.co/datasets/HF-Collab-Center/HF-Users-With-AI-ML-Interests-Only/resolve/main/hf_users_ai_ml_interests_only.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/KisanVaani/agriculture-qa-english-only/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/entfane/jailbreaks-only/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HF-Collab-Center/HF-Users-With-AI-ML-Interests-Only/resolve/main/hf_users_ai_ml_interests_only.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Desmarestia_dudresnayi_BOL0270711_/32877563
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Desmarestia_dudresnayi_BOL0270711_/32877563
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Desmarestia_dudresnayi_BOL0270710_/32877560
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Desmarestia_dudresnayi_BOL0270710_/32877560
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Desmarestia_dudresnayi_BOL0270709_/32877557
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Desmarestia_dudresnayi_BOL0270709_/32877557
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Desmarestia_dudresnayi_BOL0270708_/32877554
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Desmarestia_dudresnayi_BOL0270708_/32877554
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Desmarestia_firma_BOL0270707_/32877545
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Desmarestia_firma_BOL0270707_/32877545
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/545819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20433424
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333146
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333146
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333960
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333960
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21334160
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

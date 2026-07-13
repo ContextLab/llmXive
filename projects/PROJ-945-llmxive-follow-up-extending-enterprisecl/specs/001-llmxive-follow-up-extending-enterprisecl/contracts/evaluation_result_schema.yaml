@@ -25,7 +25,7 @@ properties:
     maximum: 1
   intervention_applied:
     type: "boolean"
-    description: "Whether the Rule-Based Rewriter was triggered for this task."
+    description: "Whether the Syntax Rewriter was triggered for this task (predicted correctable)."
   latency_ms:
     type: "integer"
     description: "Inference latency in milliseconds."

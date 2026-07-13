@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correction Triplet"
+description: "Schema for a training sample linking a failed trace, its prompt, and a successful correction."
+type: "object"
+required:
+  - "triplet_id"
+  - "system_prompt"
+  - "failed_structure"
+  - "successful_structure"
+  - "label"
+properties:
+  triplet_id:
+    type: "string"
+    description: "Unique identifier for the triplet."
+  system_prompt:
+    type: "string"
+    description: "The system prompt used in the session."
+  failed_structure:
+    $ref: "#/definitions/feature_vector_ref"
+    description: "Reference to the feature vector of the failed trace."
+  successful_structure:
+    $ref: "#/definitions/feature_vector_ref"
+    description: "Reference to the feature vector of the successful trace."
+  label:
+    type: "string"
+    enum:
+      - "correctable"
+      - "unfixable"
+    description: "Label derived from the Rule-Based Oracle."
+  oracle_logic:
+    type: "string"
+    description: "Description of the rule applied to derive the label."
+definitions:
+  feature_vector_ref:
+    type: "object"
+    properties:
+      trace_id:
+        type: "string"
+      syntax_tree_depth:
+        type: "integer"
+      token_frequency:
+        type: "object"
+        additionalProperties:
+          type: "integer"
+      pragmatic_markers:
+        type: "object"
+      status:
+        type: "string"

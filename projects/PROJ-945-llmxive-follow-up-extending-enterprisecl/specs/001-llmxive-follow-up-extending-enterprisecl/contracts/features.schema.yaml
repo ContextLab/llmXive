@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Extracted Feature Vector"
+description: "Schema for the output of the feature extraction pipeline. Contains syntactic and pragmatic features for a trace."
+type: "object"
+properties:
+  trace_id:
+    type: "string"
+    description: "Reference to the original trace."
+  syntax_depth:
+    type: "integer"
+    minimum: 0
+    description: "Maximum depth of the syntax tree in the trace."
+  token_frequency:
+    type: "object"
+    description: "Frequency distribution of tool calls and error codes."
+    additionalProperties:
+      type: "integer"
+  pragmatic_markers:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of identified pragmatic markers (e.g., 'retry', 'fallback')."
+  error_recovery_attempts:
+    type: "integer"
+    minimum: 0
+    description: "Count of explicit error recovery attempts in the trace."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "neutral"
+    description: "Status label, potentially 'neutral' if ambiguous."
+required:
+  - "trace_id"
+  - "syntax_depth"
+  - "token_frequency"
+  - "pragmatic_markers"
+  - "error_recovery_attempts"
+  - "status"
+additionalProperties: false

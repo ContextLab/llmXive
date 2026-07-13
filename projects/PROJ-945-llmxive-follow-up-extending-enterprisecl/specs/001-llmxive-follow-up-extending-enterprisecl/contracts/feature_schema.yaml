@@ -7,7 +7,6 @@ required:
   - "syntax_tree_depth"
   - "token_freq_dist"
   - "pragmatic_markers"
-  - "semantic_proxies"
   - "status"
 properties:
   trace_id:
@@ -27,11 +26,6 @@ properties:
     type: "array"
     description: "List of identified pragmatic markers (e.g., error recovery attempts)."
     items:
-      type: "string"
-  semantic_proxies:
-    type: "object"
-    description: "Map of semantic features (e.g., error codes, failed function names) to support construct validity."
-    additionalProperties:
       type: "string"
   status:
     type: "string"

@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results"
+description: "Schema for the output of the evaluation harness on the Lite set."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Identifier for the task."
+  config:
+    type: "string"
+    enum:
+      - "baseline"
+      - "adapter"
+    description: "Configuration used for this run."
+  artifact_delivery_score:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Score indicating successful artifact delivery."
+  latency_ms:
+    type: "integer"
+    minimum: 0
+    description: "Wall-clock time for the task execution in milliseconds."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run."
+required:
+  - "task_id"
+  - "config"
+  - "artifact_delivery_score"
+  - "latency_ms"
+  - "timestamp"
+additionalProperties: false

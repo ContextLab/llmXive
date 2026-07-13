@@ -1,14 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CorrectionTriplet Schema"
-description: "Schema for the training data triplets used for the T5-small adapter."
+description: "Schema for the training data triplets used for the scikit-learn classifier."
 type: "object"
 required:
-  - "system_prompt"
+  - "prompt"
   - "failed_structure"
   - "successful_structure"
   - "label"
 properties:
-  system_prompt:
+  prompt:
     type: "string"
     description: "The system prompt used in the agent session."
   failed_structure:
