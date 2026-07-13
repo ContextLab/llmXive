@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1611.04989",
+  "judged_at": "2026-07-13T21:41:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social comparison on self-perception in ai-generated image platforms psychology",
+  "rationale": "The paper focuses on natural language processing techniques (POS tagging) for code-mixed text on social media, which is a distinct technical construct from the psychological mechanisms of social comparison and self-perception. Although both mention \"social media,\" the paper lacks any measurable connection to the user's variables (social comparison, self-perception) or the specific domain of AI-generated image platforms, falling under the rejection rule for distinct constructs sharing only homony",
+  "relevant": false
+}

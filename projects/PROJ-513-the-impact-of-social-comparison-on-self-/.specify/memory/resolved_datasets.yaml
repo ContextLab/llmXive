@@ -1,0 +1,320 @@
+resolved_at: '2026-07-13T21:49:48.855436+00:00'
+datasets:
+- intent: BISS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/64bd2c56afd1e46c550c5971/5d6f5b60786b4cdcd499f33a77d60e69a18a6b21524fc24f35db8f3263feb50e?Expires=1783982808&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0YmQyYzU2YWZkMWU0NmM1NTBjNTk3MS81ZDZmNWI2MDc4NmI0Y2RjZDQ5OWYzM2E3N2Q2MGU2OWExOGE2YjIxNTI0ZmMyNGYzNWRiOGYzMjYzZmViNTBlKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MjgwOH19fV19&Signature=MEUCIHI8wEAr01xFtLSEEbX7jG36LCXGFPSu5AUMQHCYqDoVAiEA84khuczYDaVlwxPiEh8vLWvAMwjjNlj6fYvCe9wdEbI_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-961eb7f4f5d68fb7.parquet%3B+filename%3D%22test-00000-of-00001-961eb7f4f5d68fb7.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214648Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=01c1de5cb2c7b1b790a941d15ab62d0289b24a1f07400296985597a0925b9573
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/67d1cd41d38cb88cb1c5b0dd/dbce1968d8eadfeafe6c4b6390edb5c120da8f7ed258890d48b47b2cb93f7c43?Expires=1783982808&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY3ZDFjZDQxZDM4Y2I4OGNiMWM1YjBkZC9kYmNlMTk2OGQ4ZWFkZmVhZmU2YzRiNjM5MGVkYjVjMTIwZGE4ZjdlZDI1ODg5MGQ0OGI0N2IyY2I5M2Y3YzQzKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MjgwOH19fV19&Signature=MEUCIQCrARcLCWEjCUCjbhd62JYyk1j3uCYRMG-skAx9ZOLnXQIgOrTriry8meU211ythSB4Y-xKJTnua2CFsMxJDhDMOhI_&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214648Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c399e4744c2b9d0a0d23918debbcba2d2fcda11d35b11d621e7093e6949a3d91
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/681ddbe4ff6aa04bd076b8f8/0fa9a591be677c5765f914ec7f77b5e3bda0e8eaaa23d2d49cc9d03095e8f46a?Expires=1783982808&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY4MWRkYmU0ZmY2YWEwNGJkMDc2YjhmOC8wZmE5YTU5MWJlNjc3YzU3NjVmOTE0ZWM3Zjc3YjVlM2JkYTBlOGVhYWEyM2QyZDQ5Y2M5ZDAzMDk1ZThmNDZhKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MjgwOH19fV19&Signature=MEUCIQDAc0XIh3iUVpGP8g2tO6~NBejnBmrJRruFczwRgD~lrwIgawuzAaAVATmlDXnEbTVneA9MP~DSKTTa~vBU3sMJXSI_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214648Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=283e7e4e7b9732f25d1505ec7569547b67bac54bc5ef28cd3f75b8e13e97fa97
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_Turn-Taking_in_grooming_interactions_of_sooty_mangabeys_i_Cercocebus_atys_i_in_the_wild_p_/29304983
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Improving_parameter_estimation_and_order_selection_for_beta_mixture_models/32978708
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/The_impact_of_secondment_on_the_development_of_teacher_agency/32978696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Experimental_and_Theoretical_Investigation_on_Ta-Doped_NiTe_Nanorods_for_Nonlinear_Optical_Applications/32978685
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_the_Defenders_A_Layer-Aware_Framework-Mapped_Benchmark_for_Model_Context_Protocol_Security_Proxies/32978657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16855027
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673601540040
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673601368654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16904580
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19205709
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tore.tuhh.de/entities/publication/ff4117e0-a5cc-428a-87c2-da9e7cc5f7b4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arbor.bfh.ch/handle/arbor/47841
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/hqcr8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19886951
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19886951
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LME
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_Turn-Taking_in_grooming_interactions_of_sooty_mangabeys_i_Cercocebus_atys_i_in_the_wild_p_/29304983
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Improving_parameter_estimation_and_order_selection_for_beta_mixture_models/32978708
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/The_impact_of_secondment_on_the_development_of_teacher_agency/32978696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Experimental_and_Theoretical_Investigation_on_Ta-Doped_NiTe_Nanorods_for_Nonlinear_Optical_Applications/32978685
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_the_Defenders_A_Layer-Aware_Framework-Mapped_Benchmark_for_Model_Context_Protocol_Security_Proxies/32978657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12699800
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14617105
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12701005
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12701044
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14036922
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21314359
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21314359
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.wwpzgmt13
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://oa.tib.eu/renate/handle/123456789/20918
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.nzs7h4567
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: INCOM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/scikit-learn/adult-census-income/resolve/main/adult.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/meghana/adult_income_dataset/resolve/main/adult.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/69b94435f0897df92bfc1286/acc81795e116f9b744a033ab3ab1155c712f9853efdf8bcce91cbf56595bcb68?Expires=1783982909&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY5Yjk0NDM1ZjA4OTdkZjkyYmZjMTI4Ni9hY2M4MTc5NWUxMTZmOWI3NDRhMDMzYWIzYWIxMTU1YzcxMmY5ODUzZWZkZjhiY2NlOTFjYmY1NjU5NWJjYjY4KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MjkwOX19fV19&Signature=MEUCIQC-ZNHxAirmbptiSWlnGMfttMS~jyvHqKjp-v166-ne0gIgXqtidZkZBaxBptNL8n7qkpR4zOCcD2q17mUC1P5DNlY_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214829Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5a7371091d4d2c3fe966f221f2dc93d4a450c358961aa06f329a426a9894a0c0
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://huggingface.co/datasets/scikit-learn/adult-census-income/resolve/main/adult.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/meghana/adult_income_dataset/resolve/main/adult.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63d02a11da1e1edac8a6dea9/bceba4903dc2b81d0e591602c239d29f74622cd9adfd9aa7e9b93c51dc86c3aa?Expires=1783982910&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzZDAyYTExZGExZTFlZGFjOGE2ZGVhOS9iY2ViYTQ5MDNkYzJiODFkMGU1OTE2MDJjMjM5ZDI5Zjc0NjIyY2Q5YWRmZDlhYTdlOWI5M2M1MWRjODZjM2FhKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MjkxMH19fV19&Signature=MEUCIHZQy9fbms0l4kuna0rmTj65deeq8pSQJ~1QlaAa4-7VAiEA8fI6XYT2j5A2nDMlIGukx7EgTD4ZA2jDrFxnnPmGzms_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-type=application%2Fgzip&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.jsonl.gz%3B+filename%3D%22train.jsonl.gz%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214830Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4e2feb08e288e767651642e9ddf5c18b4a0569363f560f59bbf58a9ed2d867a0
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63d02fac9f1643d2471204ea/0793960fb437186707be49432cd7d360a17adff1eff647350ece7b72c10d3730?Expires=1783982910&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzZDAyZmFjOWYxNjQzZDI0NzEyMDRlYS8wNzkzOTYwZmI0MzcxODY3MDdiZTQ5NDMyY2Q3ZDM2MGExN2FkZmYxZWZmNjQ3MzUwZWNlN2I3MmMxMGQzNzMwKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MjkxMH19fV19&Signature=MEUCIQDQoLDF0h1ZrCc6qyhA-bMMJjCPJNNDhvCLRfV6L6qPiwIgS1WnTWES-JritNMqIdjY-z6cUtSFGHaJSW0~z9O3DL4_&Key-Pair-Id=K1LYXO563TGWFU&response-content-type=application%2Fgzip&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.jsonl.gz%3B+filename%3D%22train.jsonl.gz%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214830Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1efdf92aafbaa90002f85e50f34d4dfd0233f6aba1510ba1220c0e86cc525173
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_Turn-Taking_in_grooming_interactions_of_sooty_mangabeys_i_Cercocebus_atys_i_in_the_wild_p_/29304983
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Improving_parameter_estimation_and_order_selection_for_beta_mixture_models/32978708
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/The_impact_of_secondment_on_the_development_of_teacher_agency/32978696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Experimental_and_Theoretical_Investigation_on_Ta-Doped_NiTe_Nanorods_for_Nonlinear_Optical_Applications/32978685
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_the_Defenders_A_Layer-Aware_Framework-Mapped_Benchmark_for_Model_Context_Protocol_Security_Proxies/32978657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4620322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16283562
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20599092
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18064420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21159614
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270618
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270618
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21159614
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21159614
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kalligeneia.aua.gr/items/3db4edac-adfe-4c6e-a346-ecaf43bce88e
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ONLY
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6605577e3fd3fdf5a4f68976/4d3be41f57f9f73102a2b5b3642e6485e5c4c2864aa67a44618936c63dc0be12?Expires=1783982958&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2MDU1NzdlM2ZkM2ZkZjVhNGY2ODk3Ni80ZDNiZTQxZjU3ZjlmNzMxMDJhMmI1YjM2NDJlNjQ4NWU1YzRjMjg2NGFhNjdhNDQ2MTg5MzZjNjNkYzBiZTEyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4Mjk1OH19fV19&Signature=MEUCIF9dTLjraiuB9ePRcpbnfcRrvNhdZnBJ2ELVqEf9zdheAiEAvCQTEBTGxu73Uwkr3q-YGxRvL0-0Sb0Px-oQkAfFKVs_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214918Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=980fed0731a145578776d0901967c5eff72b13cafd3a1f68a5c4322689a377b3
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/69fe52e9c59e42f1d27976cd/74b392262a59351f8485845e918312df8e0d25cd72c1e9a688f778d7f07fbd12?Expires=1783982958&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY5ZmU1MmU5YzU5ZTQyZjFkMjc5NzZjZC83NGIzOTIyNjJhNTkzNTFmODQ4NTg0NWU5MTgzMTJkZjhlMGQyNWNkNzJjMWU5YTY4OGY3NzhkN2YwN2ZiZDEyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4Mjk1OH19fV19&Signature=MEUCIQDLlrm9JOK500tFfxvyj3lDsb3xGuBza4eu-Lf~sbOz~QIgf~pasJEcY20c4iapZ-aT67qqNPz8KA5elAZiPJAw7DQ_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214918Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c89e66a08ffda2c93d0f5e2e46fec459be1b2ddeea778d5556ef77207f2a770b
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6a1387824ffc71d87a93ad27/17cb641d6dc8f01c28c58c91a38df43b650a00cdb22fac302da242d8d7c82fc5?Expires=1783982958&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzZhMTM4NzgyNGZmYzcxZDg3YTkzYWQyNy8xN2NiNjQxZDZkYzhmMDFjMjhjNThjOTFhMzhkZjQzYjY1MGEwMGNkYjIyZmFjMzAyZGEyNDJkOGQ3YzgyZmM1KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4Mjk1OH19fV19&Signature=MEYCIQClfJ-QWSgUX6sre~t4Z2y4l44IbaDVMA-tRabjfvl8WQIhAPNEhVs0fwYd8NZmG8pGFREhbVrufE6XYu~IpWOLZSY~&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27hf_users_ai_ml_interests_only.parquet%3B+filename%3D%22hf_users_ai_ml_interests_only.parquet%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214918Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4b1e0d8eaecce8c2a2b55ca7490841223ef7290dd1f0299a52bbad80b2b42b0f
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/621ffdd236468d709f183016/dcefad31007426a7d9498ddab97287435a697d076157c3345c24f331ae47d101?Expires=1783982958&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYyMWZmZGQyMzY0NjhkNzA5ZjE4MzAxNi9kY2VmYWQzMTAwNzQyNmE3ZDk0OThkZGFiOTcyODc0MzVhNjk3ZDA3NjE1N2MzMzQ1YzI0ZjMzMWFlNDdkMTAxKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4Mjk1OH19fV19&Signature=MEUCIHprIgVpqNdaPh-uQ-ZLK~xJ52FLbPwhWmgOu8AU86ZtAiEAhqUUKQsMamo1yEoNgscjWPBXMPrlzPwFgzh936yNuo8_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27c4_newslike.parquet%3B+filename%3D%22c4_newslike.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T214918Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=101765270139cd68147d9db918633a7d29f4366a3a5fefd6284204c884f23b71
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_Turn-Taking_in_grooming_interactions_of_sooty_mangabeys_i_Cercocebus_atys_i_in_the_wild_p_/29304983
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Improving_parameter_estimation_and_order_selection_for_beta_mixture_models/32978708
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/The_impact_of_secondment_on_the_development_of_teacher_agency/32978696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Experimental_and_Theoretical_Investigation_on_Ta-Doped_NiTe_Nanorods_for_Nonlinear_Optical_Applications/32978685
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_the_Defenders_A_Layer-Aware_Framework-Mapped_Benchmark_for_Model_Context_Protocol_Security_Proxies/32978657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/545819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20480751
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21324186
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169957
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346754
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346754
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346745
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1604.02522",
+  "judged_at": "2026-07-13T21:41:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social comparison on self-perception in ai-generated image platforms psychology",
+  "rationale": "The paper focuses on musical diversity, socioeconomic status, and personality traits (openness) within the context of the \"Omnivore Thesis,\" which is a distinct construct from the user's specific inquiry into \"social comparison\" and \"self-perception\" on \"AI-generated image platforms.\" While both involve social media and psychology, the paper does not measure the mechanism of social comparison, the specific dependent variable of self-perception, or the domain of AI-generated imagery, failing to m",
+  "relevant": false
+}

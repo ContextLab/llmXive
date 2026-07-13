@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Response Log Schema"
+description: "Schema for validating participant response records."
+type: object
+properties:
+  response_id:
+    type: string
+    description: "Unique identifier for the response."
+  participant_id:
+    type: string
+    description: "Anonymized participant identifier."
+  stimulus_id:
+    type: string
+    description: "Link to the stimulus metadata."
+  biss_score:
+    type: number
+    minimum: 1.0
+    maximum: 5.0
+    description: "Body Image States Scale score."
+  timestamp:
+    type: string
+    format: date-time
+    description: "Time of response submission."
+  trial_order:
+    type: integer
+    minimum: 1
+    maximum: 40
+    description: "Position in the randomized sequence."
+required:
+  - response_id
+  - participant_id
+  - stimulus_id
+  - biss_score
+  - timestamp
+  - trial_order
+additionalProperties: false

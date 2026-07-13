@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.10351",
+  "judged_at": "2026-07-13T21:40:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social comparison on self-perception in ai-generated image platforms psychology",
+  "rationale": "This paper satisfies criteria (b) and (e) by measuring the psychological impact of algorithmic curation and \"curated online personas\" (the mechanism of social comparison) on a specific empirical population (teenagers) within the domain of social media platforms, which serves as the foundational context for studying AI-generated image effects. Although it does not explicitly isolate \"AI-generated images\" as the sole variable, it establishes the canonical baseline for how algorithmic presentation ",
+  "relevant": true
+}

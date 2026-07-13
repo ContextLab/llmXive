@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.05596",
+  "judged_at": "2026-07-13T21:40:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social comparison on self-perception in ai-generated image platforms psychology",
+  "rationale": "This paper satisfies criterion (b) by measuring the dependent variable \"low self-esteem\" (a core component of self-perception) within the user's specified domain of social media platforms (Reddit), providing essential empirical data on the psychological outcomes relevant to the user's question. Additionally, it fits criterion (f) as a canonical study in the alternative-vocabulary cluster for self-perception issues (low self-esteem, interpersonal needs) on social media, which is the necessary bac",
+  "relevant": true
+}

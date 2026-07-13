@@ -1,0 +1,537 @@
+{
+  "fetched_at": "2026-07-13T21:41:03Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Social Comparison on Self-Perception in AI-Generated Image Platforms",
+      "target_n": 5
+    },
+    "duration_seconds": 68.034,
+    "ended_at": "2026-07-13T21:41:03Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "social comparison theory in digital media environments"
+        ],
+        [
+          2,
+          "upward social comparison and body image distortion"
+        ],
+        [
+          3,
+          "self-perception changes from AI-generated imagery"
+        ],
+        [
+          4,
+          "impact of synthetic media on self-esteem"
+        ],
+        [
+          5,
+          "social comparison processes on image-sharing platforms"
+        ],
+        [
+          6,
+          "generative AI and body dissatisfaction"
+        ],
+        [
+          7,
+          "virtual self-image and psychological well-being"
+        ],
+        [
+          8,
+          "algorithmic curation of idealized images and self-evaluation"
+        ],
+        [
+          9,
+          "social media comparison and identity formation in the age of AI"
+        ],
+        [
+          10,
+          "deepfake imagery and self-concept clarity"
+        ],
+        [
+          11,
+          "upward comparison triggers in AI art communities"
+        ],
+        [
+          12,
+          "perceived authenticity of AI images and self-worth"
+        ],
+        [
+          13,
+          "digital body image disturbance and generative tools"
+        ],
+        [
+          14,
+          "social comparison orientation and exposure to synthetic faces"
+        ],
+        [
+          15,
+          "idealized digital avatars and self-perception gaps"
+        ],
+        [
+          16,
+          "psychological effects of non-human generated content"
+        ],
+        [
+          17,
+          "self-discrepancy theory applied to AI-enhanced photos"
+        ],
+        [
+          18,
+          "social comparison on visual social networking sites"
+        ],
+        [
+          19,
+          "media literacy and resistance to AI image influence"
+        ],
+        [
+          20,
+          "parasocial interaction and self-evaluation in AI spaces"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Social Comparison on Self-Perception in AI-Generated Image Platforms psychology": 0,
+        "social comparison theory in digital media environments": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "social comparison theory upward downward self-evaluation",
+      "Instagram TikTok body image filter distortion",
+      "upward comparison envy self-esteem digital media",
+      "body dissatisfaction appearance anxiety platform metrics",
+      "internalization thin ideal self-discrepancy social feedback"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.01017"
+      ]
+    },
+    "per_query_hit_count": {
+      "Instagram TikTok body image filter distortion": 3,
+      "The Impact of Social Comparison on Self-Perception in AI-Generated Image Platforms psychology": 3,
+      "body dissatisfaction appearance anxiety platform metrics": 3,
+      "internalization thin ideal self-discrepancy social feedback": 2,
+      "social comparison theory upward downward self-evaluation": 3,
+      "upward comparison envy self-esteem digital media": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2510.19024",
+          "rationale": "The paper focuses on the impact of labeling transparency and content stakes on trust and engagement, which are distinct constructs from the user's specific interest in \"social comparison\" and its effect on \"self-perception.\" While both topics involve AI-generated images on social media, the candidate paper does not measure the psychological mechanism of social comparison or the resulting changes in self-perception, failing to satisfy the criteria for same-mechanism evidence or variable overlap.",
+          "title": "Examining the Impact of Label Detail and Content Stakes on User Perceptions of AI-Generated Images on Social Media"
+        },
+        {
+          "primary_pointer": "2305.18907",
+          "rationale": "The paper focuses on the technical application of multitask learning algorithms to detect stress and depression from social media text, which is an off-domain computational task unrelated to the psychological mechanism of \"social comparison\" or its specific impact on \"self-perception\" in the context of AI-generated images. It fails to satisfy any inclusion criteria as it does not measure the relevant psychological variables, establish a baseline for the specific phenomenon, or provide foundation",
+          "title": "Multitask learning for recognizing stress and depression in social media"
+        },
+        {
+          "primary_pointer": "2312.11326",
+          "rationale": "The paper focuses on \"politicization\" and \"topic shifts\" in political science and computational social science, which is a distinct construct from the psychological mechanism of \"social comparison\" affecting \"self-perception.\" While both involve social media, the paper does not measure the specific psychological variables (self-perception, social comparison) or the specific domain (AI-generated image platforms) required by the user's question, failing to meet any of the inclusion criteria (a-f) ",
+          "title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media"
+        },
+        {
+          "primary_pointer": "2008.08370",
+          "rationale": "The paper focuses on detecting coordinated disinformation campaigns and network manipulation during a political election, which is a distinct construct from the psychological mechanism of \"social comparison\" affecting \"self-perception.\" While both involve social media, the paper addresses information operations and bot detection rather than the individual cognitive processes or self-evaluation dynamics central to the user's question, failing to meet any of the inclusion criteria (a-f).",
+          "title": "Coordinated Behavior on Social Media in 2019 UK General Election"
+        },
+        {
+          "primary_pointer": "1604.02522",
+          "rationale": "The paper focuses on musical diversity, socioeconomic status, and personality traits (openness) within the context of the \"Omnivore Thesis,\" which is a distinct construct from the user's specific inquiry into \"social comparison\" and \"self-perception\" on \"AI-generated image platforms.\" While both involve social media and psychology, the paper does not measure the mechanism of social comparison, the specific dependent variable of self-perception, or the domain of AI-generated imagery, failing to m",
+          "title": "Understanding Musical Diversity via Online Social Media"
+        },
+        {
+          "primary_pointer": "1611.04989",
+          "rationale": "The paper focuses on natural language processing techniques (POS tagging) for code-mixed text on social media, which is a distinct technical construct from the psychological mechanisms of social comparison and self-perception. Although both mention \"social media,\" the paper lacks any measurable connection to the user's variables (social comparison, self-perception) or the specific domain of AI-generated image platforms, falling under the rejection rule for distinct constructs sharing only homony",
+          "title": "Recurrent Neural Network based Part-of-Speech Tagger for Code-Mixed Social Media Text"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T21:39:55Z",
+    "term_input": {
+      "normalized": "the impact of social comparison on self-perception in ai-generated image platforms psychology",
+      "raw": "The Impact of Social Comparison on Self-Perception in AI-Generated Image Platforms psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent months, the social impact of Artificial Intelligence (AI) has gained considerable public interest, driven by the emergence of Generative AI models, ChatGPT in particular. The rapid development of these models has sparked heated discussions regarding their benefits, limitations, and associated risks. Generative models hold immense promise across multiple domains, such as healthcare, finance, and education, to cite a few, presenting diverse practical applications. Nevertheless, concerns about potential adverse effects have elicited divergent perspectives, ranging from privacy risks to escalating social inequality. This paper adopts a methodology to delve into the societal implications of Generative AI tools, focusing primarily on the case of ChatGPT. It evaluates the potential impact on several social sectors and illustrates the findings of a comprehensive literature review of both positive and negative effects, emerging trends, and areas of opportunity of Generative AI models. This analysis aims to facilitate an in-depth discussion by providing insights that can inspire policy, regulation, and responsible development practices to foster a human-centered AI.",
+          "claimed_authors": [
+            "Maria T. Baldassarre",
+            "Danilo Caivano",
+            "Berenice Fernandez Nieto",
+            "Domenico Gigante",
+            "Azzurra Ragone"
+          ],
+          "claimed_title": "The Social Impact of Generative AI: An Analysis on ChatGPT",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.04667"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='The Social Impact of Generative AI: An Analysis on ChatGPT')",
+        "failed_at": "2026-07-13T21:40:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-07-13T21:40:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A real valued function $f$ defined on a subset $E$ of $\\textbf{R}$, the set of real numbers, is statistically upward continuous if it preserves statistically upward half quasi-Cauchy sequences, is statistically downward continuous if it preserves statistically downward half quasi-Cauchy sequences; and a subset $E$ of $\\textbf{R}$, is statistically upward compact if any sequence of points in $E$ has a statistically upward half quasi-Cauchy subsequence, is statistically downward compact if any sequence of points in $E$ has a statistically downward half quasi-Cauchy subsequence where a sequence $(x_{n})$ of points in $\\textbf{R}$ is called statistically upward half quasi-Cauchy if \\[ \\lim_{n\\rightarrow\\infty}\\frac{1}{n}|\\{k\\leq n: x_{k}-x_{k+1}\\geq \\varepsilon\\}|=0 \\] is statistically downward half quasi-Cauchy if \\[ \\lim_{n\\rightarrow\\infty}\\frac{1}{n}|\\{k\\leq n: x_{k+1}-x_{k}\\geq \\varepsilon\\}|=0 \\] for every $\\varepsilon>0$. We investigate statistically upward continuity, statistically downward continuity, statistically upward half compactness, statistically downward half compactness and prove interesting theorems. It turns out that uniform limit of a sequence of statistically upward continuous functions is statistically upward continuous, and uniform limit of a sequence of statistically downward continuous functions is statistically downward continuous.",
+          "claimed_authors": [
+            "Huseyin Cakalli"
+          ],
+          "claimed_title": "Upward and downward statistical continuities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1307.2418"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Upward and downward statistical continuities')",
+        "failed_at": "2026-07-13T21:40:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces the methods and the results of AIM 2022 challenge on Instagram Filter Removal. Social media filters transform the images by consecutive non-linear operations, and the feature maps of the original content may be interpolated into a different domain. This reduces the overall performance of the recent deep learning strategies. The main goal of this challenge is to produce realistic and visually plausible images where the impact of the filters applied is mitigated while preserving the content. The proposed solutions are ranked in terms of the PSNR value with respect to the original images. There are two prior studies on this task as the baseline, and a total of 9 teams have competed in the final phase of the challenge. The comparison of qualitative results of the proposed solutions and the benchmark for the challenge are presented in this report.",
+          "claimed_authors": [
+            "Furkan Kınlı",
+            "Sami Menteş",
+            "Barış Özcan",
+            "Furkan Kıraç",
+            "Radu Timofte",
+            "Yi Zuo",
+            "Zitao Wang",
+            "Xiaowen Zhang",
+            "Yu Zhu",
+            "Chenghua Li",
+            "Cong Leng",
+            "Jian Cheng",
+            "Shuai Liu",
+            "Chaoyu Feng",
+            "Furui Bai",
+            "Xiaotao Wang",
+            "Lei Lei",
+            "Tianzhi Ma",
+            "Zihan Gao",
+            "Wenxin He",
+            "Woon-Ha Yeo",
+            "Wang-Taek Oh",
+            "Young-Il Kim",
+            "Han-Cheol Ryu",
+            "Gang He",
+            "Shaoyi Long",
+            "S. M. A. Sharif",
+            "Rizwan Ali Naqvi",
+            "Sungjun Kim",
+            "Guisik Kim",
+            "Seohyeon Lee",
+            "Sabari Nathan",
+            "Priya Kansal"
+          ],
+          "claimed_title": "AIM 2022 Challenge on Instagram Filter Removal: Methods and Results",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.08997"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='AIM 2022 Challenge on Instagram Filter Removal: Methods and Results')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Social media images are generally transformed by filtering to obtain aesthetically more pleasing appearances. However, CNNs generally fail to interpret both the image and its filtered version as the same in the visual analysis of social media images. We introduce Instagram Filter Removal Network (IFRNet) to mitigate the effects of image filters for social media analysis applications. To achieve this, we assume any filter applied to an image substantially injects a piece of additional style information to it, and we consider this problem as a reverse style transfer problem. The visual effects of filtering can be directly removed by adaptively normalizing external style information in each level of the encoder. Experiments demonstrate that IFRNet outperforms all compared methods in quantitative and qualitative comparisons, and has the ability to remove the visual effects to a great extent. Additionally, we present the filter classification performance of our proposed model, and analyze the dominant color estimation on the images unfiltered by all compared methods.",
+          "claimed_authors": [
+            "Furkan Kınlı",
+            "Barış Özcan",
+            "Furkan Kıraç"
+          ],
+          "claimed_title": "Instagram Filter Removal on Fashionable Images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.05072"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Instagram Filter Removal on Fashionable Images')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While convolutional neural nets (CNNs) have achieved remarkable performance for a wide range of inverse imaging applications, the filter coefficients are computed in a purely data-driven manner and are not explainable. Inspired by an analytically derived CNN by Hadji et al., in this paper we construct a new layered graph neural net (GNN) using GraphBio as our graph filter. Unlike convolutional filters in previous GNNs, our employed GraphBio is analytically defined and requires no training, and we optimize the end-to-end system only via learning of appropriate graph topology at each layer. In signal filtering terms, it means that our linear graph filter at each layer is always intrepretable as low-pass with known biorthogonal conditions, while the graph spectrum itself is optimized via data training. As an example application, we show that our analytical GNN achieves image denoising performance comparable to a state-of-the-art CNN-based scheme when the training and testing data share the same statistics, and when they differ, our analytical GNN outperforms it by more than 1dB in PSNR.",
+          "claimed_authors": [
+            "Weng-tai Su",
+            "Gene Cheung",
+            "Richard Wildes",
+            "Chia-Wen Lin"
+          ],
+          "claimed_title": "Graph Neural Net using Analytical Graph Filters and Topology Optimization for Image Denoising",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.03975"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Graph Neural Net using Analytical Graph Filters and Topology Optimization for Image Denoising')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fashion styles adopted every day are an important aspect of culture, and style trend analysis helps provide a deeper understanding of our societies and cultures. To analyze everyday fashion trends from the humanities perspective, we need a digital archive that includes images of what people wore in their daily lives over an extended period. In fashion research, building digital fashion image archives has attracted significant attention. However, the existing archives are not suitable for retrieving everyday fashion trends. In addition, to interpret how the trends emerge, we need non-fashion data sources relevant to why and how people choose fashion. In this study, we created a new fashion image archive called Chronicle Archive of Tokyo Street Fashion (CAT STREET) based on a review of the limitations in the existing digital fashion archives. CAT STREET includes images showing the clothing people wore in their daily lives during the period 1970--2017, which contain timestamps and street location annotations. We applied machine learning to CAT STREET and found two types of fashion trend patterns. Then, we demonstrated how magazine archives help us interpret how trend patterns emerge. These empirical analyses show our approach's potential to discover new perspectives to promote an understanding of our societies and cultures through fashion embedded in consumers' daily lives.",
+          "claimed_authors": [
+            "Satoshi Takahashi",
+            "Keiko Yamaguchi",
+            "Asuka Watanabe"
+          ],
+          "claimed_title": "A Novel Approach to Analyze Fashion Digital Archive from Humanities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.08351"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='A Novel Approach to Analyze Fashion Digital Archive from Humanities')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Social media enables activists to directly communicate with the public and provides a space for movement leaders, participants, bystanders, and opponents to collectively construct and contest narratives. Focusing on Twitter messages from social movements surrounding three issues in 2018-2019 (guns, immigration, and LGBTQ rights), we create a codebook, annotated dataset, and computational models to detect diagnostic (problem identification and attribution), prognostic (proposed solutions and tactics), and motivational (calls to action) framing strategies. We conduct an in-depth unsupervised linguistic analysis of each framing strategy, and uncover cross-movement similarities in associations between framing and linguistic features such as pronouns and deontic modal verbs. Finally, we compare framing strategies across issues and other social, cultural, and interactional contexts. For example, we show that diagnostic framing is more common in replies than original broadcast posts, and that social movement organizations focus much more on prognostic and motivational framing than journalists and ordinary citizens.",
+          "claimed_authors": [
+            "Julia Mendelsohn",
+            "Maya Vijan",
+            "Dallas Card",
+            "Ceren Budak"
+          ],
+          "claimed_title": "Framing Social Movements on Social Media: Unpacking Diagnostic, Prognostic, and Motivational Strategies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.13820"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Framing Social Movements on Social Media: Unpacking Diagnostic, Prognostic, and Motivational Strategies')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Residual interactions in many particle systems lead to strong correlations. A multitude of spectacular phenomenae in many particle systems are connected to correlation effects in such systems, e.g. pairing, superconductivity, superfluidity, Bose-Einstein condensation etc. Here we focus on few-body bound states in a many-body surrounding.",
+          "claimed_authors": [
+            "P. Schuck",
+            "M. Beyer",
+            "G. Roepke",
+            "W. Schadow",
+            "A. Schnell"
+          ],
+          "claimed_title": "Few-Body States in Fermi-Systems and Condensation Phenomena",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "nucl-th/9911003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Few-Body States in Fermi-Systems and Condensation Phenomena')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bethe-Salpeter and light-front bound state equations for three scalar particles interacting by scalar exchange-bosons are solved in ladder truncation. In contrast to two-body systems, the three-body binding energies obtained in these two approaches differ significantly from each other: the ladder kernel in light-front dynamics underbinds by approximately a factor of two compared to the ladder Bethe-Salpeter equation. By taking into account three-body forces in the light-front approach, generated by two exchange-bosons in flight, we find that most of this difference disappears; for small exchange masses, the obtained binding energies coincide with each other.",
+          "claimed_authors": [
+            "V. A. Karmanov",
+            "P. Maris"
+          ],
+          "claimed_title": "Manifestation of three-body forces in three-body Bethe-Salpeter and light-front equations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0811.1100"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Manifestation of three-body forces in three-body Bethe-Salpeter and light-front equations')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The relativistic three-nucleon problem is formulated by constructing a dynamical unitary representation of the Poincaré group on the three-nucleon Hilbert space. Two-body interactions are included that preserve the Poincaré symmetry, lead to the same invariant two-body S-matrix as the corresponding non-relativistic problem, and result in a three-body S-matrix satisfying cluster properties. The resulting Faddeev equations are solved by direct integration, without partial waves for both elastic and breakup reactions at laboratory energies up to 2 Gev.",
+          "claimed_authors": [
+            "W. N. Polyzou",
+            "Ch. Elster",
+            "T. Lin",
+            "W. Glöckle"
+          ],
+          "claimed_title": "Three-body scattering in Poincaré invariant quantum mechanics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0711.1635"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Three-body scattering in Poincaré invariant quantum mechanics')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
+          "claimed_authors": [
+            "Emilio Ferrara"
+          ],
+          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.08134"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In 2016, a network of social media accounts animated by Russian operatives attempted to divert political discourse within the American public around the presidential elections. This was a coordinated effort, part of a Russian-led complex information operation. Utilizing the anonymity and outreach of social media platforms Russian operatives created an online astroturf that is in direct contact with regular Americans, promoting Russian agenda and goals. The elusiveness of this type of adversarial approach rendered security agencies helpless, stressing the unique challenges this type of intervention presents. Building on existing scholarship on the functions within influence networks on social media, we suggest a new approach to map those types of operations. We argue that pretending to be legitimate social actors obliges the network to adhere to social expectations, leaving a social footprint. To test the robustness of this social footprint we train artificial intelligence to identify it and create a predictive model. We use Twitter data identified as part of the Russian influence network for training the artificial intelligence and to test the prediction. Our model attains 88% prediction accuracy for the test set. Testing our prediction on two additional models results in 90.7% and 90.5% accuracy, validating our model. The predictive and validation results suggest that building a machine learning model around social functions within the Russian influence network can be used to map its actors and functions.",
+          "claimed_authors": [
+            "Ori Swed",
+            "Sachith Dassanayaka",
+            "Dimitri Volchenkov"
+          ],
+          "claimed_title": "Keeping it Authentic: The Social Footprint of the Trolls Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.07720"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Social Comparison on Self-Perception in AI-Generated Image Platfor', candidate_title='Keeping it Authentic: The Social Footprint of the Trolls Network')",
+        "failed_at": "2026-07-13T21:40:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sunil Arora",
+            "Sahil Arora",
+            "John D. Hastings"
+          ],
+          "title": "The Psychological Impacts of Algorithmic and AI-Driven Social Media on Teenagers: A Call to Action",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.10351",
+        "summary": "This study investigates the meta-issues surrounding social media, which, while theoretically designed to enhance social interactions and improve our social lives by facilitating the sharing of personal experiences and life events, often results in adverse psychological impacts. Our investigation reveals a paradoxical outcome: rather than fostering closer relationships and improving social lives, the algorithms and structures that underlie social media platforms inadvertently contribute to a profound psychological impact on individuals, influencing them in unforeseen ways. This phenomenon is particularly pronounced among teenagers, who are disproportionately affected by curated online personas, peer pressure to present a perfect digital image, and the constant bombardment of notifications and updates that characterize their social media experience. As such, we issue a call to action for policymakers, platform developers, and educators to prioritize the well-being of teenagers in the digital age and work towards creating secure and safe social media platforms that protect the young from harm, online harassment, and exploitation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.10351",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T21:40:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hua Zhao",
+            "Jiapei Gu",
+            "Michelle Mingyue Gu"
+          ],
+          "title": "Psychologically Potent, Computationally Invisible: LLMs Generate Social-Comparison-Eliciting Posts They Fail to Detect",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.01017",
+        "summary": "We introduce Xiaohongshu Social Comparison Reader Elicitation (XHS-SCoRE), a reader-grounded benchmark for detecting whether text-only Xiaohongshu (RedNote) posts elicit Upward, Downward, or Neutral/no clear social comparison from a first-person reader perspective. The task targets a socially meaningful relational, behaviorally real signal not reducible to sentiment. Across prompted LLM classifiers and supervised Chinese encoders, we find a consistent generation--detection mismatch: the signal is textually learnable in-domain, but not robustly accessible to prompt-based classification. Prompted LLM classifiers show stable failures, especially neutralization of comparison-eliciting posts and model-specific directional skew. A controlled pilot shows that LLM-generated Xiaohongshu-style posts can shift perceived standing and comparison-related affect even when prompt-based detection of the same construct remains fragile. XHS-SCoRE contributes a benchmark for reader-grounded comparison detection and a diagnostic framework for studying when socially meaningful relational cues remain only partially visible to prompt-based inference.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.01017",
+          "http_status": 200,
+          "pdf_sample_score": 0.1992,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T21:40:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Muskan Garg",
+            "Manas Gaur",
+            "Raxit Goswami",
+            "Sunghwan Sohn"
+          ],
+          "title": "LOST: A Mental Health Dataset of Low Self-esteem in Reddit Posts",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.05596",
+        "summary": "Low self-esteem and interpersonal needs (i.e., thwarted belongingness (TB) and perceived burdensomeness (PB)) have a major impact on depression and suicide attempts. Individuals seek social connectedness on social media to boost and alleviate their loneliness. Social media platforms allow people to express their thoughts, experiences, beliefs, and emotions. Prior studies on mental health from social media have focused on symptoms, causes, and disorders. Whereas an initial screening of social media content for interpersonal risk factors and low self-esteem may raise early alerts and assign therapists to at-risk users of mental disturbance. Standardized scales measure self-esteem and interpersonal needs from questions created using psychological theories. In the current research, we introduce a psychology-grounded and expertly annotated dataset, LoST: Low Self esTeem, to study and detect low self-esteem on Reddit. Through an annotation approach involving checks on coherence, correctness, consistency, and reliability, we ensure gold-standard for supervised learning. We present results from different deep language models tested using two data augmentation techniques. Our findings suggest developing a class of language models that infuses psychological and clinical knowledge.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.05596",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T21:40:28Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of social comparison on self-perception in ai-generated image platforms psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

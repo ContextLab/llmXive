@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.19024",
+  "judged_at": "2026-07-13T21:40:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social comparison on self-perception in ai-generated image platforms psychology",
+  "rationale": "The paper focuses on the impact of labeling transparency and content stakes on trust and engagement, which are distinct constructs from the user's specific interest in \"social comparison\" and its effect on \"self-perception.\" While both topics involve AI-generated images on social media, the candidate paper does not measure the psychological mechanism of social comparison or the resulting changes in self-perception, failing to satisfy the criteria for same-mechanism evidence or variable overlap.",
+  "relevant": false
+}

@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T01:06:13.405337Z'
-current_stage: flesh_out_in_progress
+current_stage: tasked
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-513-the-impact-of-social-comparison-on-self-
-last_run_id: 3f52143c-ebc3-44b0-9054-983090ce6453
+last_run_id: 1f15349c-fde3-46db-8d3d-5d709ebc3394
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self
 title: The Impact of Social Comparison on Self-Perception in AI-Generated Image Platforms
-updated_at: '2026-06-12T10:07:41.932551Z'
+updated_at: '2026-07-13T22:22:01.465517Z'

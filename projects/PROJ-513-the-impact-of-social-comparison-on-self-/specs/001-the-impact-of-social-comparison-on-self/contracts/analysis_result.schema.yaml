@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for the output of the Linear Mixed Effects analysis."
+type: object
+properties:
+  f_stat:
+    type: number
+    description: "F-statistic or t-statistic for the Image Type effect."
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Uncorrected p-value for the Image Type effect."
+  corrected_p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Bonferroni-corrected p-value."
+  eta_squared:
+    type: number
+    minimum: 0.0
+    description: "Effect size (partial eta-squared)."
+  n:
+    type: integer
+    minimum: 1
+    description: "Number of participants included in the analysis (including partial)."
+  model_summary:
+    type: object
+    description: "Detailed model output (fixed effects, random effects)."
+    additionalProperties: true
+  sensitivity_analysis:
+    type: object
+    description: "Results of the sensitivity analysis excluding outliers."
+    properties:
+      n_excluded:
+        type: integer
+        description: "Number of outliers excluded."
+      p_value_excluded:
+        type: number
+        description: "P-value after excluding outliers."
+    required:
+      - n_excluded
+      - p_value_excluded
+    additionalProperties: false
+required:
+  - f_stat
+  - p_value
+  - corrected_p_value
+  - eta_squared
+  - n
+  - model_summary
+  - sensitivity_analysis
+additionalProperties: false

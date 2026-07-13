@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.08370",
+  "judged_at": "2026-07-13T21:40:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social comparison on self-perception in ai-generated image platforms psychology",
+  "rationale": "The paper focuses on detecting coordinated disinformation campaigns and network manipulation during a political election, which is a distinct construct from the psychological mechanism of \"social comparison\" affecting \"self-perception.\" While both involve social media, the paper addresses information operations and bot detection rather than the individual cognitive processes or self-evaluation dynamics central to the user's question, failing to meet any of the inclusion criteria (a-f).",
+  "relevant": false
+}

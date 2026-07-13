@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stimulus Metadata Schema"
+description: "Schema for validating the metadata of AI and Human body images used in the study."
+type: object
+properties:
+  stimulus_id:
+    type: string
+    description: "Unique identifier for the image (e.g., 'AI_001')."
+  origin:
+    type: string
+    enum:
+      - "AI"
+      - "Human"
+    description: "Source of the image."
+  match_group:
+    type: string
+    description: "Identifier linking an AI image to its Human counterpart."
+  file_path:
+    type: string
+    description: "Relative path to the image file."
+  pose:
+    type: string
+    description: "Description of the pose."
+  lighting:
+    type: string
+    description: "Lighting condition."
+  body_type:
+    type: string
+    description: "Broad category of the body type."
+  content_hash:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 hash of the image file."
+  generation_prompt:
+    type: string
+    description: "The exact prompt used to generate the AI image (required if origin is AI)."
+required:
+  - stimulus_id
+  - origin
+  - match_group
+  - file_path
+  - pose
+  - lighting
+  - body_type
+  - content_hash
+  - generation_prompt
+additionalProperties: false

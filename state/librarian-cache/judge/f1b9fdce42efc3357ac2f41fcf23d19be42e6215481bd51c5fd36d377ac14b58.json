@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.01017",
+  "judged_at": "2026-07-13T21:40:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social comparison on self-perception in ai-generated image platforms psychology",
+  "rationale": "This paper satisfies criteria (a) and (e) by empirically measuring the specific mechanism of \"social comparison\" (upward/downward) and its effect on \"perceived standing and affect\" (self-perception) within the relevant domain of social media platforms (Xiaohongshu), even though it focuses on the role of AI-generated content in eliciting these responses.",
+  "relevant": true
+}
