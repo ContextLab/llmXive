@@ -1,23 +1,19 @@
 {
   "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
   "ok": false,
-  "reason": "3 command(s) failed: python code/analysis/generate_performance_plots.py (rc=1); python code/analysis/generate_significance.py (rc=1); python code/generate_summary.py (rc=1)",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026this implementation, we generate synthetic data that matches the\u2026\u201d; 6 command(s) failed: python code/data/generate_processed_data.py (rc=1); python code/training/train_gnn.py (rc=1); python code/training/train_rf.py (rc=1); 1 declared deliverable(s) absent: data/processed/molecules_10k.parquet",
   "artifacts": [
-    "data/checkpoints/model_seed_0.pt.npy",
-    "data/checkpoints/model_seed_1.pt.npy",
-    "data/checkpoints/model_seed_2.pt.npy",
-    "data/checkpoints/model_seed_3.pt.npy",
-    "data/checkpoints/model_seed_4.pt.npy",
-    "data/processed/features_2d.parquet",
-    "data/processed/features_3d.parquet",
-    "data/processed/molecules_10k.parquet"
+    "results/metrics.csv"
   ],
   "failures": [
-    "python code/analysis/generate_performance_plots.py -> rc=1\n     line 138, in generate_plots\n    df = load_metrics(metrics_csv)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py\", line 51, in load_metrics\n    raise ValueError(f\"Metrics CSV missing columns: {missing}\")\nValueError: Metrics CSV missing columns: {'rmse', 'model', 'mae'}",
-    "python code/analysis/generate_significance.py -> rc=1\n    ric_data = _load_metrics(metrics_path)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py\", line 54, in _load_metrics\n    raise ValueError(f\"Metrics CSV missing required columns: {missing}\")\nValueError: Metrics CSV missing required columns: {'mae', 'model', 'rmse'}",
-    "python code/generate_summary.py -> rc=1\n    ary\n    significance = load_csv_as_dicts(significance_path)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 25, in load_csv_as_dicts\n    raise FileNotFoundError(f\"CSV file not found: {csv_path}\")\nFileNotFoundError: CSV file not found: results/significance.csv"
+    "python code/data/generate_processed_data.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/generate_processed_data.py\", line 9, in <module>\n    import pandas as pd\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py\", line 22, in <module>\n    from pandas.compat import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.ven",
+    "python code/training/train_gnn.py -> rc=1\n    ining/train_gnn.py\", line 160, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py\", line 141, in main\n    mae, rmse, _ = train_one_seed(\n                   ^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py\", line 91, in train_one_seed\n    set_global_seed(seed)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-wit",
+    "python code/training/train_rf.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py\", line 13, in <module>\n    import pandas as pd\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py\", line 22, in <module>\n    from pandas.compat import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site",
+    "python code/analysis/generate_performance_plots.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py\", line 29, in <module>\n    import pandas as pd\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py\", line 22, in <module>\n    from pandas.compat import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments",
+    "python code/analysis/generate_significance.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py\", line 30, in <module>\n    from analysis.statistical_tests import paired_t_test\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py\", line 12, in <module>\n    from scipy import stats\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with",
+    "python code/generate_summary.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 162, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 153, in main\n    generate_summary(\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 66, in generate_summary\n    significance = load_csv_as_dict"
   ],
-  "fix_rounds": 0,
-  "updated_at": "2026-06-28T19:35:46Z",
-  "model_tier": 0
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "updated_at": "2026-07-13T16:58:35Z"
 }

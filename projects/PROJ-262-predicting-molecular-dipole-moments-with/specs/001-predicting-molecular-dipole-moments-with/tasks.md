@@ -1,6 +1,6 @@
 # Tasks: Predicting Molecular Dipole Moments with Graph Neural Networks
 
-**Input**: Design documents from `/specs/001-predicting-molecular-dipole-moments/`  
+**Input**: Design documents from `/specs/001-predicting-molecular-dipole-moments/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -38,17 +38,17 @@
 
 - [X] T004 Setup data directory structure (`data/raw/`, `data/processed/`, `data/checkpoints/`, `data/reports/`) per plan.md in `projects/PROJ-262-predicting-molecular-dipole-moments-with/`
 - [X] T005 [P] Initialize state tracking with `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml`
-- [X] T006 [P] Configure pytest with a current version of the contract test framework in `projects/PROJ-262-predicting-molecular-dipole-moments-with/tests/`. 
+- [X] T006 [P] Configure pytest with a current version of the contract test framework in `projects/PROJ-262-predicting-molecular-dipole-moments-with/tests/`.
 
 The research question is: Can molecular dipole moments be accurately predicted using graph neural networks and atomic properties?
 
 The method is: We will implement and evaluate graph neural network models trained on a dataset of molecular structures and dipole moments, utilizing contract testing to ensure the reliability of model inputs and outputs.
 
 References: [insert references here - not provided in original passage].
-- [X] T007 [P] Create YAML contract schema files in `projects/PROJ-262-predicting-molecular-dipole-moments-with/tests/contracts/`  
-  *molecule.schema.yaml*: `molecule_id (str)`, `atoms (list)`, `coordinates (list of [float,float,float])`, `dipole (float)`.  
-  *feature_set.schema.yaml*: `molecule_id (str)`, `features_2d (list of float)`, `features_3d (list of float)`.  
-  *model_output.schema.yaml*: `molecule_id (str)`, `predicted_dipole (float)`, `true_dipole (float)`.
+- [X] T007 [P] Create YAML contract schema files in `projects/PROJ-262-predicting-molecular-dipole-moments-with/tests/contracts/`
+ *molecule.schema.yaml*: `molecule_id (str)`, `atoms (list)`, `coordinates (list of [float,float,float])`, `dipole (float)`.
+ *feature_set.schema.yaml*: `molecule_id (str)`, `features_2d (list of float)`, `features_3d (list of float)`.
+ *model_output.schema.yaml*: `molecule_id (str)`, `predicted_dipole (float)`, `true_dipole (float)`.
 - [X] T008 Configure environment configuration management with `.env.example` and `config.py` in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/`
 - [X] T009 [P] Setup reproducibility framework in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/reproducibility.py` – pins `random.seed(42)`, `numpy.random.seed(42)`, `torch.manual_seed(42)`.
 - [X] T049 [P] Implement a time-limit wrapper (`@time_limit(T*60*60)`) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/pipeline_time_limit.py` (FR‑010, SC‑003), where T represents a configurable time duration.
@@ -85,7 +85,7 @@ The method is: We will implement and evaluate a graph neural network model train
 - [X] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/preprocess_3d.py` (FR‑002, depends on T016)
 - [X] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/extract_2d_descriptors.py` (FR‑003, depends on T016)
 - [X] T019 [US1] Add validation for missing 3D coordinates in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/handle_missing_coords.py` – generates `data/reports/excluded_molecules.csv` with columns `molecule_id`, `exclusion_reason` (enum: `missing_3d`, `invalid_structure`), `exclusion_timestamp`.
-- [X] T020 [US1] Generate output files: `data/processed/molecules_10k.parquet`, `features_3d.parquet`, `features_2d.parquet`
+- [ ] T020 [US1] Generate output files: `data/processed/molecules_10k.parquet`, `features_3d.parquet`, `features_2d.parquet`
 - [X] T021 [US1] Implement retry/fallback logic for DOI inaccessibility in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/download_qm9.py`
 
 **Checkpoint**: User Story 1 fully functional and testable independently
@@ -109,8 +109,8 @@ The method is: We will implement and evaluate a graph neural network model train
 
 - [X] T026 [P] [US2] Implement SchNet‑style GNN architecture in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/schnet_gnn.py` (FR‑004, CPU‑only)
 - [X] T027 [P] [US2] Implement Random Forest baseline in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/random_forest_baseline.py` (FR‑005)
-- [X] T028 [US2] Implement GNN training with 5 seeds, 50 epochs, early stopping (patience = 10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds and ensure it is recorded (fulfills SC‑005).
-- [X] T029 [US2] Implement Random Forest training with 5 seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance.
+- [ ] T028 [US2] Implement GNN training with 5 seeds, 50 epochs, early stopping (patience = 10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds and ensure it is recorded (fulfills SC‑005). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T029 [US2] Train Random Forest baseline with 5 seeds [UNRESOLVED-CLAIM: c_786bdeea — status=not_enough_info] in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py` (FR‑006)
 - [X] T032 [US2] Compute MAE/RMSE against QM9 dipole‑moment reference values on the held‑out test split (fulfills FR‑011 without external data).
@@ -140,7 +140,7 @@ The method is: We will implement and evaluate a graph neural network model train
 - [X] T040 [US3] Rank structural contributions (e.g., electronegative atom placement, local bond angles) and verify **at least three** distinct features appear in the top‑10 of `results/attributions.json` (FR‑007, SC‑002)
 - [X] T041 [US3] Implement paired t‑tests (α = 0.05) comparing RMSE distributions in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py` (FR‑008, SC‑004)
 - [X] T042 [US3] Generate `results/attributions.json` with feature importance rankings
-- [X] T043 [US3] Generate `results/significance.csv` with columns `seed`, `t_statistic`, `p_value`, `significant_at_alpha_0.05` (FR‑008)
+- [X] T043 [US3 (Wikidata Q126592664, https://www.wikidata.org/wiki/Q126592664)] Generate `results/significance.csv` with columns `seed`, `t_statistic`, `p_value`, `significant_at_alpha_0.05` (FR‑008)
 - [X] T044 [US3] **(Removed – CI computation consolidated into T034)**
 - [X] T045 [US3] Visualize feature‑importance maps on representative molecules (e.g., `data/processed/attributions_*.png`) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/visualize_features.py` (FR‑009)
 

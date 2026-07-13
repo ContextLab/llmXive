@@ -1,10 +1,7 @@
-'|memory verify':
-  quote: 'P12561: 5482060'
-  source_id: Q135076778
-  url: https://www.wikidata.org/wiki/Q135076778
-  value: '5482060'
-'|runtime verify':
-  quote: 'P1733: 3573760'
-  source_id: Q135076778
-  url: https://www.wikidata.org/wiki/Q135076778
-  value: '3573760'
+'|bootstrap ci computed via':
+  quote: In this example, the bootstrapped 95% (percentile) confidence-interval for
+    the population median is (26, 28.5), which is close to the interval for  (25.98,
+    28.46) for the smoothed bootstrap.
+  source_id: Bootstrapping (statistics)
+  url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+  value: (26, 28.5)
