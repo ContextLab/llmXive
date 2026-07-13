@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.01987",
+  "judged_at": "2026-07-13T22:40:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cortical column llms: implementing canonical microcircuits for universal computation neuroscience",
+  "rationale": "The paper focuses on predictive coding models of semantic vs. episodic memory and the role of the hippocampus, which does not address the user's specific question about implementing \"cortical columns\" as a mechanism for \"universal computation\" in LLMs. While both topics fall under computational neuroscience, the paper lacks the specific architectural focus (cortical columns) and the specific computational goal (universal computation) required by the user's query, failing to meet the criteria for",
+  "relevant": false
+}

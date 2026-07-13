@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.08720",
+  "judged_at": "2026-07-13T22:40:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cortical column llms: implementing canonical microcircuits for universal computation neuroscience",
+  "rationale": "This paper satisfies criteria (a) and (d) as it proposes a specific computational framework (error-driven predictive learning via corticothalamic circuits) that directly addresses the user's inquiry into implementing canonical microcircuits for universal computation in the neocortex, serving as a foundational reference for the mechanism and domain in question.",
+  "relevant": true
+}

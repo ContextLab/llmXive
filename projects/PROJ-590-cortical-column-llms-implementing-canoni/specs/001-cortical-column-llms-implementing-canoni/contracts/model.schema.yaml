@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Configuration Schema"
+description: "Schema for model architecture and training configuration."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["baseline", "microcircuit", "ablation_recurrence", "ablation_inhibition", "scaling_2x"]
+  parameters:
+    type: "object"
+    properties:
+      embedding_dim:
+        type: "integer"
+        minimum: 1
+      num_heads:
+        type: "integer"
+        minimum: 1
+      microcircuit:
+        type: "object"
+        properties:
+          layers:
+            type: "array"
+            items:
+              type: "string"
+              enum: ["L2/3", "L4", "L5", "L6"]
+          e_i_ratio:
+            type: "number"
+            minimum: 0
+          homeostasis_enabled:
+            type: "boolean"
+          ablation_flags:
+            type: "object"
+            properties:
+              remove_recurrence:
+                type: "boolean"
+              remove_inhibition:
+                type: "boolean"
+    required: ["embedding_dim", "num_heads"]
+  training:
+    type: "object"
+    properties:
+      epochs:
+        type: "integer"
+        minimum: 1
+      learning_rate:
+        type: "number"
+        minimum: 0
+      batch_size:
+        type: "integer"
+        minimum: 1
+      seed:
+        type: "integer"
+    required: ["epochs", "learning_rate", "batch_size", "seed"]
+required: ["model_type", "parameters", "training"]
+additionalProperties: false

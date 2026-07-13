@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Function Dataset Schema"
+description: "Schema for the raw synthetic function data generated for training and testing."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      generated_at:
+        type: "string"
+        format: "date-time"
+      seed:
+        type: "integer"
+      function_types:
+        type: "array"
+        items:
+          type: "string"
+          enum: ["lorenz", "fourier", "polynomial"]
+    required: ["generated_at", "seed", "function_types"]
+  samples:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        sample_id:
+          type: "integer"
+          minimum: 0
+        function_type:
+          type: "string"
+          enum: ["lorenz", "fourier", "polynomial"]
+        input_vector:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 1
+        target_vector:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 1
+        parameters:
+          type: "object"
+          description: "Parameters used to generate the function (e.g., Lorenz sigma, rho, beta)"
+      required: ["sample_id", "function_type", "input_vector", "target_vector"]
+required: ["metadata", "samples"]
+additionalProperties: false

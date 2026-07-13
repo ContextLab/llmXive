@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-590-cortical-column-llms-implementing-canoni",
+  "stage": "planned",
+  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md.\n  Rules fired: unfilled_bracket_density=6 bracket markers; sample=['[Reviewer: Geoffrey West]', '[Reviewer: Geoffrey West]', '[Reviewer: Stephen Wolfram]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "last_seen": "2026-07-13T22:58:58.468667+00:00",
+  "count": 1
+}

@@ -1,0 +1,739 @@
+{
+  "fetched_at": "2026-07-13T22:40:50Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computation",
+      "target_n": 5
+    },
+    "duration_seconds": 67.982,
+    "ended_at": "2026-07-13T22:40:50Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "canonical microcircuits in neocortex"
+        ],
+        [
+          2,
+          "cortical column computational models"
+        ],
+        [
+          3,
+          "neocortical microcircuit implementation"
+        ],
+        [
+          4,
+          "universal computation in neural circuits"
+        ],
+        [
+          5,
+          "hierarchical predictive coding in cortex"
+        ],
+        [
+          6,
+          "cortical circuitry for general intelligence"
+        ],
+        [
+          7,
+          "spiking neural network cortical columns"
+        ],
+        [
+          8,
+          "mesoscale cortical architecture modeling"
+        ],
+        [
+          9,
+          "biologically plausible deep learning architectures"
+        ],
+        [
+          10,
+          "recurrent microcircuit dynamics for cognition"
+        ],
+        [
+          11,
+          "cortical laminar processing models"
+        ],
+        [
+          12,
+          "neural network models of cortical columns"
+        ],
+        [
+          13,
+          "neuro-inspired universal function approximators"
+        ],
+        [
+          14,
+          "canonical computation in sensory cortex"
+        ],
+        [
+          15,
+          "microcircuit-based artificial neural networks"
+        ],
+        [
+          16,
+          "cortical column dynamics in large-scale models"
+        ],
+        [
+          17,
+          "biologically grounded language model architectures"
+        ],
+        [
+          18,
+          "neocortical circuit motifs for computation"
+        ],
+        [
+          19,
+          "hierarchical cortical processing networks"
+        ],
+        [
+          20,
+          "synaptic plasticity in canonical microcircuits"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computation neuroscience": 0,
+        "canonical microcircuits in neocortex": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "canonical microcircuit cortical column computation",
+      "neocortical layer 2 3 5 6 microcircuit",
+      "predictive coding hierarchical Bayesian inference cortex",
+      "neuromorphic spiking neural network cortical model",
+      "universal Turing machine neural implementation biophysics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2508.06501"
+      ]
+    },
+    "per_query_hit_count": {
+      "Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computation neuroscience": 3,
+      "canonical microcircuit cortical column computation": 1,
+      "neocortical layer 2 3 5 6 microcircuit": 3,
+      "neuromorphic spiking neural network cortical model": 3,
+      "predictive coding hierarchical Bayesian inference cortex": 3,
+      "universal Turing machine neural implementation biophysics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2206.01509",
+          "rationale": "The paper focuses on a specific weight normalization technique and tensor decomposition for standard convolutional neural networks (CNNs) to improve training and compression, which is a distinct construct from the user's question about implementing biological \"canonical microcircuits\" (cortical columns) for universal computation in LLMs. The shared term \"canonical\" refers to a mathematical decomposition method in the paper, not the neuroscientific concept of canonical microcircuits, satisfying t",
+          "title": "Canonical convolutional neural networks"
+        },
+        {
+          "primary_pointer": "2509.01987",
+          "rationale": "The paper focuses on predictive coding models of semantic vs. episodic memory and the role of the hippocampus, which does not address the user's specific question about implementing \"cortical columns\" as a mechanism for \"universal computation\" in LLMs. While both topics fall under computational neuroscience, the paper lacks the specific architectural focus (cortical columns) and the specific computational goal (universal computation) required by the user's query, failing to meet the criteria for",
+          "title": "Semantic and episodic memories in a predictive coding model of the neocortex"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T22:39:42Z",
+    "term_input": {
+      "normalized": "cortical column llms: implementing canonical microcircuits for universal computation neuroscience",
+      "raw": "Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computation neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Immersive virtual reality (VR) emerges as a promising research and clinical tool. However, several studies suggest that VR induced adverse symptoms and effects (VRISE) may undermine the health and safety standards, and the reliability of the scientific results. In the current literature review, the technical reasons for the adverse symptomatology are investigated to provide suggestions and technological knowledge for the implementation of VR head-mounted display (HMD) systems in cognitive neuroscience. The technological systematic literature indicated features pertinent to display, sound, motion tracking, navigation, ergonomic interactions, user experience, and computer hardware that should be considered by the researchers. Subsequently, a meta-analysis of 44 neuroscientific or neuropsychological studies involving VR HMD systems was performed. The meta-analysis of the VR studies demonstrated that new generation HMDs induced significantly less VRISE and marginally fewer dropouts.Importantly, the commercial versions of the new generation HMDs with ergonomic interactions had zero incidents of adverse symptomatology and dropouts. HMDs equivalent to or greater than the commercial versions of contemporary HMDs accompanied with ergonomic interactions are suitable for implementation in cognitive neuroscience. In conclusion, researchers technological competency, along with meticulous methods and reports pertinent to software, hardware, and VRISE, are paramount to ensure the health and safety standards and the reliability of neuroscientific results.",
+          "claimed_authors": [
+            "Panagiotis Kourtesis",
+            "Simona Collina",
+            "Leonidas A. A. Doumas",
+            "Sarah E. MacPherson"
+          ],
+          "claimed_title": "Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.08123"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cortical microcircuits are very complex networks, but they are composed of a relatively small number of stereotypical motifs. Hence one strategy for throwing light on the computational function of cortical microcircuits is to analyze emergent computational properties of these stereotypical microcircuit motifs. We are addressing here the question how spike-timing dependent plasticity (STDP) shapes the computational properties of one motif that has frequently been studied experimentally: interconnected populations of pyramidal cells and parvalbumin-positive inhibitory cells in layer 2/3. Experimental studies suggest that these inhibitory neurons exert some form of divisive inhibition on the pyramidal cells. We show that this data-based form of feedback inhibition, which is softer than that of winner-take-all models that are commonly considered in theoretical analyses, contributes to the emergence of an important computational function through STDP: The capability to disentangle superimposed firing patterns in upstream networks, and to represent their information content through a sparse assembly code.",
+          "claimed_authors": [
+            "Zeno Jonke",
+            "Robert Legenstein",
+            "Stefan Habenschuss",
+            "Wolfgang Maass"
+          ],
+          "claimed_title": "Feedback inhibition shapes emergent computational properties of cortical microcircuit motifs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.07614"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Feedback inhibition shapes emergent computational properties of cortical microcircuit motifs')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A formula for an average connectivity between cortical areas in mammals is derived. Based on comparative neuroanatomical data, it is found, surprisingly, that this connectivity is either only weakly dependent or independent of brain size. It is discussed how this formula can be used to estimate the average length of axons in white matter. Other allometric relations, such as cortical patches and area sizes vs. brain size, are also provided. Finally, some functional implications, with an emphasis on efficient cortical computation, are discussed as well.",
+          "claimed_authors": [
+            "Jan Karbowski"
+          ],
+          "claimed_title": "How does connectivity between cortical areas depend on brain size? Implications for efficient computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "q-bio/0310015"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='How does connectivity between cortical areas depend on brain size? Implications for efficient computation')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Non-rigid cortical registration is an important and challenging task due to the geometric complexity of the human cortex and the high degree of inter-subject variability. A conventional solution is to use a spherical representation of surface properties and perform registration by aligning cortical folding patterns in that space. This strategy produces accurate spatial alignment but often requires a high computational cost. Recently, convolutional neural networks (CNNs) have demonstrated the potential to dramatically speed up volumetric registration. However, due to distortions introduced by projecting a sphere to a 2D plane, a direct application of recent learning-based methods to surfaces yields poor results. In this study, we present SphereMorph, a diffeomorphic registration framework for cortical surfaces using deep networks that addresses these issues. SphereMorph uses a UNet-style network associated with a spherical kernel to learn the displacement field and warps the sphere using a modified spatial transformer layer. We propose a resampling weight in computing the data fitting loss to account for distortions introduced by polar projection, and demonstrate the performance of our proposed method on two tasks, including cortical parcellation and group-wise functional area alignment. The experiments show that the proposed SphereMorph is capable of modeling the geometric registration problem in a CNN framework and demonstrate superior registration accuracy and computational efficiency. The source code of SphereMorph will be released to the public upon acceptance of this manuscript at https://github.com/voxelmorph/spheremorph.",
+          "claimed_authors": [
+            "Jieyu Cheng",
+            "Adrian V. Dalca",
+            "Bruce Fischl",
+            "Lilla Zollei"
+          ],
+          "claimed_title": "Cortical surface registration using unsupervised learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.04617"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Cortical surface registration using unsupervised learning')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inelastic neutron scattering measurements demonstrate that the magnetic interactions in antiferromagnetic LaFeAsO are two-dimensional. Spin wave velocities within the Fe layer and the magnitude of the spin gap are similar to the \\textit{A}Fe$_2$As$_2$ based materials. However, the ratio of interlayer and intralayer exchange is found to be less than $\\sim 10^{-4}$ in LaFeAsO, very similar to the cuprates, and $\\sim$ 100 times smaller than that found in \\textit{A}Fe$_2$As$_2$ compounds. The results suggest that the effective dimensionality of the magnetic system is highly variable in the parent compounds of the iron arsenides and weak 3-D interactions may limit the maximum attainable superconducting $T_{c}$.",
+          "claimed_authors": [
+            "M. Ramazanoglu",
+            " 1",
+            "2 J. Lamsal",
+            " 1",
+            "2 G. S. Tucker",
+            " 1",
+            "2 J. -Q. Yan",
+            "3 S. Calder",
+            "3 T. Guidi",
+            "4 T. Perring",
+            "4 R. W. McCallum",
+            " 1",
+            "2 T. A. Lograsso",
+            " 1",
+            "2 A. Kreyssig",
+            " 1",
+            "2 A. I. Goldman",
+            " 1",
+            " 2",
+            "R. J. McQueeney1",
+            "2 1",
+            " 2",
+            " 3",
+            " 4"
+          ],
+          "claimed_title": "Two-dimensional magnetic interactions in LaFeAsO",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.4033"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Two-dimensional magnetic interactions in LaFeAsO')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Exclusive photoproduction cross sections have been measured for the process $γp \\rightarrow pπ^0(e^+e^-(γ))$ with the Dalitz decay final state using tagged photon energies in the range of $E_γ = 1.275-5.425$ GeV. The complete angular distribution of the final state $π^0$, for the entire photon energy range up to large values of $t$ and $u$, has been measured for the first time. The data obtained show that the cross section $dσ/dt$, at mid to large angles, decreases with energy as $s^{-6.89\\pm 0.26} $. This is in agreement with the perturbative QCD quark counting rule prediction of $s^{-7} $. Paradoxically, the size of angular distribution of measured cross sections is greatly underestimated by the QCD based Generalized Parton Distribution mechanism at highest available invariant energy $s=11$ GeV$^2$. At the same time, the Regge exchange based models for $π^0$ photoproduction are more consistent with experimental data.",
+          "claimed_authors": [
+            "M. C. Kunkel",
+            " 32",
+            "18 M. J. Amaryan",
+            " 32",
+            "I. I. Strakovsky",
+            "16 J. Ritman",
+            " 3",
+            "18 G. R. Goldstein",
+            "43 K. P. Adhikari",
+            "28 S Adhikari",
+            "13 H. Avakian",
+            "39 J. Ball",
+            "7 I. Balossino",
+            "19 L. Barion",
+            "19 M. Battaglieri",
+            "21 V. Batourine",
+            " 39",
+            "27 I. Bedlinskiy",
+            "25 A. S. Biselli",
+            " 11",
+            "5 S. Boiarinov",
+            "39 W. J. Briscoe",
+            "16 W. K. Brooks",
+            " 40",
+            "39 S. Bueltmann",
+            "32 V. D. Burkert",
+            "39 F. Cao",
+            "9 D. S. Carman",
+            "39 A. Celentano",
+            "21 G. Charles",
+            "32 T. Chetry",
+            "31 G. Ciullo",
+            " 19",
+            "12 L. Clark",
+            "42 P. L. Cole",
+            "17 M. Contalbrigo",
+            "19 O. Cortes",
+            "17 V. Crede",
+            "14 A. DAngelo",
+            " 22",
+            "35 N. Dashyan",
+            "47 R. De Vita",
+            "21 E. De Sanctis",
+            "20 P. V. Degtyarenko",
+            "39 M. Defurne",
+            "7 A. Deur",
+            "39 C. Djalali",
+            "37 M. Dugger",
+            "2 R. Dupre",
+            "24 H. Egiyan",
+            "39 A. El Alaoui",
+            "40 L. El Fassi",
+            "28 L. Elouadrhiri",
+            "39 P. Eugenio",
+            "14 G. Fedotov",
+            "31 R. Fersch",
+            " 8",
+            "46 A. Filippi",
+            "23 A. Fradi",
+            "24 G. Gavalian",
+            " 39",
+            "29 Y. Ghandilyan",
+            "47 S. Ghosh",
+            "10 G. P. Gilfoyle",
+            "34 K. L. Giovanetti",
+            "26 F. X. Girod",
+            "39 D. I. Glazier",
+            "42 W. Gohn",
+            " 9",
+            "E. Golovatch",
+            "36 R. W. Gothe",
+            "37 K. A. Griffioen",
+            "46 L. Guo",
+            " 13",
+            "39 M. Guidal",
+            "24 K. Hafidi",
+            "1 H. Hakobyan",
+            " 40",
+            "47 N. Harrison",
+            "39 M. Hattawy",
+            "1 K. Hicks",
+            "31 M. Holtrop",
+            "29 C. E. Hyde",
+            "32 D. G. Ireland",
+            "42 B. S. Ishkhanov",
+            "36 E. L. Isupov",
+            "36 D. Jenkins",
+            "44 K. Joo",
+            "9 M. L. Kabir",
+            "28 D. Keller",
+            "45 G. Khachatryan",
+            "47 M. Khachatryan",
+            "32 M. Khandaker",
+            " 30",
+            "A. Kim",
+            "9 W. Kim",
+            "27 A. Klein",
+            "32 F. Klein",
+            " 6",
+            "16 V. Kubarovsky",
+            "39 S. E. Kuhn",
+            "32 J. M. Laget",
+            " 39",
+            "7 L. Lanza",
+            " 22",
+            "35 P. Lenisa",
+            "19 D. Lersch",
+            "18 K. Livingston",
+            "42 I . J . D. MacGregor",
+            "42 N. Markov",
+            "9 G. Mbianda",
+            "32 B. McKinnon",
+            "42 T. Mineeva",
+            " 40",
+            "9 V. Mokeev",
+            " 39",
+            "36 R. A. Montgomery",
+            "42 A Movsisyan",
+            "19 C. Munoz Camacho",
+            "24 P. Nadel-Turonski",
+            "39 S. Niccolai",
+            "24 G. Niculescu",
+            "26 M. Osipenko",
+            "21 A. I. Ostrovidov",
+            "14 M. Paolone",
+            "38 K. Park",
+            " 39",
+            "37 E. Pasyuk",
+            "39 D. Payette",
+            "32 W. Phelps",
+            " 13",
+            "16 O. Pogorelko",
+            "25 J. Poudel",
+            "32 J. W. Price",
+            "4 S. Procureur",
+            "7 Y. Prok",
+            " 32",
+            "45 D. Protopopescu",
+            "42 M. Ripani",
+            "21 B. G. Ritchie",
+            "2 A. Rizzo",
+            " 22",
+            "35 G. Rosner",
+            "42 A. Roy",
+            "10 F. Sabatie",
+            "7 C. Salgado",
+            "30 S. Schadmand",
+            "18 R. A. Schumacher",
+            "5 Y. G. Sharabian",
+            "39 Iu. Skorodumina",
+            " 37",
+            "36 D. G. Ireland",
+            "42 D. Sokhan",
+            "42 D. I. Sober",
+            "6 N. Sparveris",
+            "38 S. Strauch",
+            " 37",
+            "16 M. Taiuti",
+            " 21",
+            "15 J. A. Tan",
+            "27 M. Ungaro",
+            " 39",
+            "33 H. Voskanyan",
+            "47 E. Voutier",
+            "24 D. P. Watts",
+            "41 L. Weinstein",
+            "32 X. Wei",
+            "39 D. P. Weygand",
+            "8 N. Zachariou",
+            "41 J. Zhang",
+            " 45",
+            "Z. W. Zhao32"
+          ],
+          "claimed_title": "Exclusive photoproduction of $π^0$ up to large values of Mandelstam variables $s, t$ and $u$ with CLAS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.10314"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Exclusive photoproduction of $π^0$ up to large values of Mandelstam variables $s, t$ and $u$ with CLAS')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The expansion of electromagnetic post-solitons emerging from the interaction of a 30 ps, $3\\times 10^{18}$ W cm$^{-2}$ laser pulse with an underdense deuterium plasma has been observed up to 100 ps after the pulse propagation, when large numbers of post-solitons were seen to remain in the plasma. The temporal evolution of the post-solitons has been accurately characterized with a high spatial and temporal resolution. The observed expansion is compared to analytical models and three dimensional particle-in-cell results providing indication of the polarisation dependence of the post-soliton dynamics.",
+          "claimed_authors": [
+            "G. Sarri",
+            "1 D. K. Singh",
+            "2 J. R. Davies",
+            "2 K. L. Lancaster",
+            "3 E. L. Clark",
+            "4 S. Hassan",
+            "4 J. Jiang",
+            "2 N. Kageiwa",
+            "N. Lopes",
+            "A. Rehman",
+            "C. Russo",
+            "R. H. H. Scott",
+            "T. Tanimoto",
+            "Z. Najmudin",
+            "K. A. Tanaka",
+            "M. Tatarakis",
+            "M. Borghesi",
+            "P. A. Norreys"
+          ],
+          "claimed_title": "Observation of post-soliton expansion following laser propagation through an underdense plasma",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1007.0183"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Observation of post-soliton expansion following laser propagation through an underdense plasma')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has historically been a challenge to perform Bayesian inference in a design-based survey context. The present paper develops a Bayesian model for sampling inference in the presence of inverse-probability weights. We use a hierarchical approach in which we model the distribution of the weights of the nonsampled units in the population and simultaneously include them as predictors in a nonparametric Gaussian process regression. We use simulation studies to evaluate the performance of our procedure and compare it to the classical design-based estimator. We apply our method to the Fragile Family and Child Wellbeing Study. Our studies find the Bayesian nonparametric finite population estimator to be more robust than the classical design-based estimator without loss in efficiency, which works because we induce regularization for small cells and thus this is a way of automatically smoothing the highly variable weights.",
+          "claimed_authors": [
+            "Yajuan Si",
+            "Natesh S. Pillai",
+            "Andrew Gelman"
+          ],
+          "claimed_title": "Bayesian Nonparametric Weighted Sampling Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.1799"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Bayesian Nonparametric Weighted Sampling Inference')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Functional data, with basic observational units being functions (e.g., curves, surfaces) varying over a continuum, are frequently encountered in various applications. While many statistical tools have been developed for functional data analysis, the issue of smoothing all functional observations simultaneously is less studied. Existing methods often focus on smoothing each individual function separately, at the risk of removing important systematic patterns common across functions. We propose a nonparametric Bayesian approach to smooth all functional observations simultaneously and nonparametrically. In the proposed approach, we assume that the functional observations are independent Gaussian processes subject to a common level of measurement errors, enabling the borrowing of strength across all observations. Unlike most Gaussian process regression models that rely on pre-specified structures for the covariance kernel, we adopt a hierarchical framework by assuming a Gaussian process prior for the mean function and an Inverse-Wishart process prior for the covariance function. These prior assumptions induce an automatic mean-covariance estimation in the posterior inference in addition to the simultaneous smoothing of all observations. Such a hierarchical framework is flexible enough to incorporate functional data with different characteristics, including data measured on either common or uncommon grids, and data with either stationary or nonstationary covariance structures. Simulations and real data analysis demonstrate that, in comparison with alternative methods, the proposed Bayesian approach achieves better smoothing accuracy and comparable mean-covariance estimation results. Furthermore, it can successfully retain the systematic patterns in the functional observations that are usually neglected by the existing functional data analyses based on individual-curve smoothing.",
+          "claimed_authors": [
+            "Jingjing Yang",
+            "Hongxiao Zhu",
+            "Taeryon Choi",
+            "Dennis D. Cox"
+          ],
+          "claimed_title": "Smoothing and mean-covariance estimation of functional data with a Bayesian hierarchical model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.5723"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Smoothing and mean-covariance estimation of functional data with a Bayesian hierarchical model')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning in Gaussian Process models occurs through the adaptation of hyperparameters of the mean and the covariance function. The classical approach entails maximizing the marginal likelihood yielding fixed point estimates (an approach called \\textit{Type II maximum likelihood} or ML-II). An alternative learning procedure is to infer the posterior over hyperparameters in a hierarchical specification of GPs we call \\textit{Fully Bayesian Gaussian Process Regression} (GPR). This work considers two approximation schemes for the intractable hyperparameter posterior: 1) Hamiltonian Monte Carlo (HMC) yielding a sampling-based approximation and 2) Variational Inference (VI) where the posterior over hyperparameters is approximated by a factorized Gaussian (mean-field) or a full-rank Gaussian accounting for correlations between hyperparameters. We analyze the predictive performance for fully Bayesian GPR on a range of benchmark data sets.",
+          "claimed_authors": [
+            "Vidhi Lalchand",
+            "Carl Edward Rasmussen"
+          ],
+          "claimed_title": "Approximate Inference for Fully Bayesian Gaussian Process Regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.13440"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Approximate Inference for Fully Bayesian Gaussian Process Regression')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spiking Neural Networks (SNNs) are computational models inspired by the structure and dynamics of biological neuronal networks. Their event-driven nature enables them to achieve high energy efficiency, particularly when deployed on neuromorphic hardware platforms. Unlike conventional Artificial Neural Networks (ANNs), which primarily rely on layered architectures, SNNs naturally support a wide range of connectivity patterns, from traditional layered structures to small-world graphs characterized by locally dense and globally sparse connections. In this work, we introduce NeuroCoreX, an FPGA-based emulator designed for the flexible co-design and testing of SNNs. NeuroCoreX supports all-to-all connectivity, providing the capability to implement diverse network topologies without architectural restrictions. It features a biologically motivated local learning mechanism based on Spike-Timing-Dependent Plasticity (STDP). The neuron model implemented within NeuroCoreX is the Leaky Integrate-and-Fire (LIF) model, with current-based synapses facilitating spike integration and transmission . A Universal Asynchronous Receiver-Transmitter (UART) interface is provided for programming and configuring the network parameters, including neuron, synapse, and learning rule settings. Users interact with the emulator through a simple Python-based interface, streamlining SNN deployment from model design to hardware execution. NeuroCoreX is released as an open-source framework, aiming to accelerate research and development in energy-efficient, biologically inspired computing.",
+          "claimed_authors": [
+            "Ashish Gautam",
+            "Prasanna Date",
+            "Shruti Kulkarni",
+            "Robert Patton",
+            "Thomas Potok"
+          ],
+          "claimed_title": "NeuroCoreX: An Open-Source FPGA-Based Spiking Neural Network Emulator with On-Chip Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.14138"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='NeuroCoreX: An Open-Source FPGA-Based Spiking Neural Network Emulator with On-Chip Learning')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is of some interest to understand how statistically based mechanisms for signal processing might be integrated with biologically motivated mechanisms such as neural networks. This paper explores a novel hybrid approach for classifying segments of sequential data, such as individual spoken works. The approach combines a hidden Markov model (HMM) with a spiking neural network (SNN). The HMM, consisting of states and transitions, forms a fixed backbone with nonadaptive transition probabilities. The SNN, however, implements a biologically based Bayesian computation that derives from the spike timing-dependent plasticity (STDP) learning rule. The emission (observation) probabilities of the HMM are represented in the SNN and trained with the STDP rule. A separate SNN, each with the same architecture, is associated with each of the states of the HMM. Because of the STDP training, each SNN implements an expectation maximization algorithm to learn the emission probabilities for one HMM state. The model was studied on synthesized spike-train data and also on spoken word data. Preliminary results suggest its performance compares favorably with other biologically motivated approaches. Because of the model's uniqueness and initial promise, it warrants further study. It provides some new ideas on how the brain might implement the equivalent of an HMM in a neural circuit.",
+          "claimed_authors": [
+            "Amirhossein Tavanaei",
+            "Anthony S Maida"
+          ],
+          "claimed_title": "Training a Hidden Markov Model with a Bayesian Spiking Neural Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.00825"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Training a Hidden Markov Model with a Bayesian Spiking Neural Network')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning, particularly in the form of deep learning, has driven most of the recent fundamental developments in artificial intelligence. Deep learning is based on computational models that are, to a certain extent, bio-inspired, as they rely on networks of connected simple computing units operating in parallel. Deep learning has been successfully applied in areas such as object/pattern recognition, speech and natural language processing, self-driving vehicles, intelligent self-diagnostics tools, autonomous robots, knowledgeable personal assistants, and monitoring. These successes have been mostly supported by three factors: availability of vast amounts of data, continuous growth in computing power, and algorithmic innovations. The approaching demise of Moore's law, and the consequent expected modest improvements in computing power that can be achieved by scaling, raise the question of whether the described progress will be slowed or halted due to hardware limitations. This paper reviews the case for a novel beyond CMOS hardware technology, memristors, as a potential solution for the implementation of power-efficient in-memory computing, deep learning accelerators, and spiking neural networks. Central themes are the reliance on non-von-Neumann computing architectures and the need for developing tailored learning and inference algorithms. To argue that lessons from biology can be useful in providing directions for further progress in artificial intelligence, we briefly discuss an example based reservoir computing. We conclude the review by speculating on the big picture view of future neuromorphic and brain-inspired computing systems.",
+          "claimed_authors": [
+            "Adnan Mehonic",
+            "Abu Sebastian",
+            "Bipin Rajendran",
+            "Osvaldo Simeone",
+            "Eleni Vasilaki",
+            "Anthony J. Kenyon"
+          ],
+          "claimed_title": "Memristors -- from In-memory computing, Deep Learning Acceleration, Spiking Neural Networks, to the Future of Neuromorphic and Bio-inspired Computing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.14942"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Memristors -- from In-memory computing, Deep Learning Acceleration, Spiking Neural Networks, to the Future of Neuromorphic and Bio-inspired Computing')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Turing Machine, list some of its many influences on the theory of computation and complexity of computations, and illustrate its importance.",
+          "claimed_authors": [
+            "P. M. B. Vitanyi"
+          ],
+          "claimed_title": "Turing Machines and Understanding Computational Complexity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1201.1223"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Turing Machines and Understanding Computational Complexity')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The basic concept in Neural Machine Translation (NMT) is to train a large Neural Network that maximizes the translation performance on a given parallel corpus. NMT is then using a simple left-to-right beam-search decoder to generate new translations that approximately maximize the trained conditional probability. The current beam search strategy generates the target sentence word by word from left-to- right while keeping a fixed amount of active candidates at each time step. First, this simple search is less adaptive as it also expands candidates whose scores are much worse than the current best. Secondly, it does not expand hypotheses if they are not within the best scoring candidates, even if their scores are close to the best one. The latter one can be avoided by increasing the beam size until no performance improvement can be observed. While you can reach better performance, this has the draw- back of a slower decoding speed. In this paper, we concentrate on speeding up the decoder by applying a more flexible beam search strategy whose candidate size may vary at each time step depending on the candidate scores. We speed up the original decoder by up to 43% for the two language pairs German-English and Chinese-English without losing any translation quality.",
+          "claimed_authors": [
+            "Markus Freitag",
+            "Yaser Al-Onaizan"
+          ],
+          "claimed_title": "Beam Search Strategies for Neural Machine Translation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1702.01806"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Beam Search Strategies for Neural Machine Translation')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural Turing Machines (NTMs) are an instance of Memory Augmented Neural Networks, a new class of recurrent neural networks which decouple computation from memory by introducing an external memory unit. NTMs have demonstrated superior performance over Long Short-Term Memory Cells in several sequence learning tasks. A number of open source implementations of NTMs exist but are unstable during training and/or fail to replicate the reported performance of NTMs. This paper presents the details of our successful implementation of a NTM. Our implementation learns to solve three sequential learning tasks from the original NTM paper. We find that the choice of memory contents initialization scheme is crucial in successfully implementing a NTM. Networks with memory contents initialized to small constant values converge on average 2 times faster than the next best memory contents initialization scheme.",
+          "claimed_authors": [
+            "Mark Collier",
+            "Joeran Beel"
+          ],
+          "claimed_title": "Implementing Neural Turing Machines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.08518"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Cortical Column LLMs: Implementing Canonical Microcircuits for Universal Computa', candidate_title='Implementing Neural Turing Machines')",
+        "failed_at": "2026-07-13T22:40:12Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "PK Douglas"
+          ],
+          "title": "Computing with Canonical Microcircuits",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.06501",
+        "summary": "The human brain represents the only known example of general intelligence that naturally aligns with human values. On a mere 20-watt power budget, the brain achieves robust learning and adaptive decision-making in ways that continue to elude advanced AI systems. Inspired by the brain, we present a computational architecture based on canonical microcircuits (CMCs) - stereotyped patterns of neurons found ubiquitously throughout the cortex. We implement these circuits as neural ODEs comprising spiny stellate, inhibitory, and pyramidal neurons, forming an 8-dimensional dynamical system with biologically plausible recurrent connections. Our experiments show that even a single CMC node achieves 97.8 percent accuracy on MNIST, while hierarchical configurations - with learnable inter-regional connectivity and recurrent connections - yield improved performance on more complex image benchmarks. Notably, our approach achieves competitive results using substantially fewer parameters than conventional deep learning models. Phase space analysis revealed distinct dynamical trajectories for different input classes, highlighting interpretable, emergent behaviors observed in biological systems. These findings suggest that neuromorphic computing approaches can improve both efficiency and interpretability in artificial neural networks, offering new directions for parameter-efficient architectures grounded in the computational principles of the human brain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.06501",
+          "http_status": 200,
+          "pdf_sample_score": 0.2838,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T22:40:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mark Rowan",
+            "Samuel Neymotin"
+          ],
+          "title": "Synaptic Scaling Balances Learning in a Spiking Model of Neocortex",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1304.2266",
+        "summary": "Learning in the brain requires complementary mechanisms: potentiation and activity-dependent homeostatic scaling. We introduce synaptic scaling to a biologically-realistic spiking model of neocortex which can learn changes in oscillatory rhythms using STDP, and show that scaling is necessary to balance both positive and negative changes in input from potentiation and atrophy. We discuss some of the issues that arise when considering synaptic scaling in such a model, and show that scaling regulates activity whilst allowing learning to remain unaltered.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1304.2266",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T22:40:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Randall C. O'Reilly"
+          ],
+          "title": "This is how the Neocortex Learns",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.08720",
+        "summary": "A sufficient account of how the neocortex learns must meet three criteria: 1. Computationally, it must approximate a powerful, general-purpose learning algorithm known to scale to human-level intelligence; 2. Algorithmically, it must be implementable using known, well-established neural circuits within the neocortex and associated brain structures; 3. Implementationally, there must be a detailed account for how all of the algorithmic mechanisms actually function at a neurochemical level. At present, there is only one framework that meets all of these criteria: error-driven predictive learning via temporal derivatives, driven by corticothalamic circuits, based on competitive kinase synaptic plasticity induction mechanisms. This has been implemented in the Axon neural simulation framework using spiking neurons, and demonstrated to learn across a wide range of challenging cognitively motivated tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.08720",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T22:40:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "cortical column llms: implementing canonical microcircuits for universal computation neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

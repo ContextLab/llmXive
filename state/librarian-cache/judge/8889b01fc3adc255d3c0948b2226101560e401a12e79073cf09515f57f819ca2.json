@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1304.2266",
+  "judged_at": "2026-07-13T22:40:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cortical column llms: implementing canonical microcircuits for universal computation neuroscience",
+  "rationale": "This paper satisfies criterion (a) by investigating the biological mechanism of synaptic scaling within a spiking model of the neocortex, which is a core component of the \"canonical microcircuits\" referenced in the user's question about cortical column implementation. It also meets criterion (d) as it provides foundational methodology for biologically realistic spiking models of the neocortex, a necessary reference for any work attempting to implement such circuits for computation.",
+  "relevant": true
+}

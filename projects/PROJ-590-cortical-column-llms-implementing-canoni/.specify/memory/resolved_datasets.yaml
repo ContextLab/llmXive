@@ -1,0 +1,26 @@
+resolved_at: '2026-07-13T22:49:24.765778+00:00'
+datasets:
+- intent: FunctionBenchmark
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Augmenting_time_and_space_in_design_inquiries/20907211
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/thesis/Te_W_nanga_o_Waipunahau/32978831
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Cooperation_as_Gift_versus_Cooperation_as_Corvee/24797121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Guanine-Rich_DNA_Aptamers_for_Selective_Binding_to_Agarose_Hydrogels/32978829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Eu_Tb-Functionalized_Hydrogen-Bonded_Organic_Framework_for_Ratiometric_Sensing_of_Anthrax_Biomarker_and_Integrated_Intelligent_Bactericidal_Efficacy_Evaluation/32978820
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

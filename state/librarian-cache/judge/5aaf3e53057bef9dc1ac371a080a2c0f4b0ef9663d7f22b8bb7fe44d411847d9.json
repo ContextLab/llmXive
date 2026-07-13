@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.06501",
+  "judged_at": "2026-07-13T22:40:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cortical column llms: implementing canonical microcircuits for universal computation neuroscience",
+  "rationale": "This paper satisfies criteria (a) and (d) as it explicitly implements \"canonical microcircuits\" (the core mechanism in the user's question) to build a computational architecture for universal tasks, serving as a foundational reference for the specific approach of using cortical column models for computation.",
+  "relevant": true
+}

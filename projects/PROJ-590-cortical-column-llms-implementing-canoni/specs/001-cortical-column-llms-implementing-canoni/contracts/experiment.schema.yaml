@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Result Schema"
+description: "Schema for the output of a single experiment run."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+  timestamp:
+    type: "string"
+    format: "date-time"
+  config_hash:
+    type: "string"
+    description: "SHA256 hash of the input configuration"
+  metrics:
+    type: "object"
+    properties:
+      train_mae:
+        type: "number"
+        minimum: 0
+      val_mae:
+        type: "number"
+        minimum: 0
+      test_mae:
+        type: "number"
+        minimum: 0
+      training_time_seconds:
+        type: "number"
+        minimum: 0
+      peak_memory_mb:
+        type: "number"
+        minimum: 0
+      gradient_norm_mean:
+        type: "number"
+    required: ["train_mae", "val_mae", "test_mae", "training_time_seconds", "peak_memory_mb"]
+  scaling_analysis:
+    type: "object"
+    properties:
+      parameter_count:
+        type: "integer"
+        minimum: 0
+      columns_count:
+        type: "integer"
+        minimum: 1
+  status:
+    type: "string"
+    enum: ["completed", "timeout", "oom"]
+required: ["run_id", "timestamp", "config_hash", "metrics", "status"]
+additionalProperties: false
