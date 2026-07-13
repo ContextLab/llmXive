@@ -1,8 +1,11 @@
-"""Scaling confidence intervals via bootstrapping.
+"""
+Task T029: Compute 95% confidence intervals for fitted power-law exponents using bootstrapping.
 
-Computes 95% confidence intervals for power-law exponents fitted to
-specialization index and retrieval efficiency vs. agent count.
-Uses 1000 bootstrap resamples.
+This module implements the bootstrap procedure to estimate confidence intervals
+for the scaling exponents derived from the relationship between agent count and
+performance metrics (specialization index, retrieval efficiency).
+
+Output: projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json
 """
 from __future__ import annotations
 
@@ -17,251 +20,271 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-# Import the existing power-law fitting function from the shared analysis module
+# Import from existing project modules
 from analysis.scaling import fit_power_law, load_scaling_data
-
-# Ensure reproducibility
-np.random.seed(42)
 
 
 def load_scaling_results_for_bootstrap(
-    results_dir: Path,
-) -> Optional[pd.DataFrame]:
-    """Load scaling results from CSV files in the results directory.
-
-    Expects files like:
-      - scaling_results_agents_3.csv
-      - scaling_results_agents_5.csv
-      - scaling_results_agents_7.csv
-
-    Returns a long-format DataFrame with columns:
-      agent_count, specialization_index, retrieval_efficiency
+    data_path: Optional[str] = None
+) -> pd.DataFrame:
     """
-    files = list(results_dir.glob("scaling_results_agents_*.csv"))
-    if not files:
-        warnings.warn(f"No scaling result files found in {results_dir}")
-        return None
-
-    dfs = []
-    for f in files:
-        # Parse agent count from filename
-        try:
-            agent_count = int(f.stem.split("_")[-1])
-        except (IndexError, ValueError):
-            warnings.warn(f"Could not parse agent count from {f.name}, skipping")
-            continue
-
-        df = pd.read_csv(f)
-        if "specialization_index" in df.columns and "retrieval_efficiency" in df.columns:
-            # Take the mean across games for this agent count
-            row = {
-                "agent_count": agent_count,
-                "specialization_index": df["specialization_index"].mean(),
-                "retrieval_efficiency": df["retrieval_efficiency"].mean(),
-            }
-            dfs.append(row)
-        else:
-            warnings.warn(f"Missing expected columns in {f.name}, skipping")
-
-    if not dfs:
-        return None
-
-    return pd.DataFrame(dfs)
+    Load scaling data from CSV or use the default path.
+    
+    Args:
+        data_path: Optional path to the scaling data CSV. If None, uses the default.
+        
+    Returns:
+        DataFrame with columns: agent_count, specialization_index, retrieval_efficiency
+    """
+    if data_path is None:
+        # Default path based on project structure
+        default_path = Path(
+            "projects/PROJ-586-social-memory-networks-modeling-collecti/data/scaling_results.csv"
+        )
+        if not default_path.exists():
+            # Try alternative location if standard one doesn't exist
+            alt_path = Path("data/scaling_results.csv")
+            if alt_path.exists():
+                default_path = alt_path
+            else:
+                raise FileNotFoundError(
+                    f"Scaling data not found at {default_path} or {alt_path}. "
+                    "Run the scaling experiment first."
+                )
+        data_path = str(default_path)
+    
+    df = pd.read_csv(data_path)
+    required_cols = ["agent_count", "specialization_index", "retrieval_efficiency"]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+    return df
 
 
 def bootstrap_power_law_ci(
-    x: np.ndarray,
-    y: np.ndarray,
-    n_resamples: int = 1000,
-    metric_name: str = "metric",
+    df: pd.DataFrame,
+    metric: str,
+    n_bootstrap: int = 1000,
+    seed: int = 42
 ) -> Dict[str, Any]:
-    """Bootstrap confidence intervals for power-law exponent.
-
-    Fits y ~ a * x^b on log-log scale, then bootstraps the exponent b.
-
-    Args:
-        x: Independent variable (agent counts)
-        y: Dependent variable (metric values)
-        n_resamples: Number of bootstrap resamples
-        metric_name: Name of the metric for labeling
-
-    Returns:
-        Dict with 'exponent', 'exponent_ci_lower', 'exponent_ci_upper',
-        'r_squared', and 'resample_exponents'.
     """
-    if len(x) != len(y) or len(x) < 2:
-        raise ValueError("Need at least 2 data points for fitting")
-
-    # Filter out zeros/nans for log transform
-    mask = (x > 0) & (y > 0) & np.isfinite(x) & np.isfinite(y)
-    x_clean = x[mask]
-    y_clean = y[mask]
-
-    if len(x_clean) < 2:
-        raise ValueError("Not enough valid data points after filtering")
-
-    # Original fit
+    Compute 95% confidence intervals for power-law exponent using bootstrapping.
+    
+    Args:
+        df: DataFrame with agent_count and the metric column.
+        metric: Name of the metric column (e.g., 'specialization_index').
+        n_bootstrap: Number of bootstrap resamples.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        Dictionary with point estimate, CI lower/upper bounds, and bootstrap stats.
+    """
+    if seed is not None:
+        np.random.seed(seed)
+    
+    agent_counts = df["agent_count"].values
+    metric_values = df[metric].values
+    
+    # Filter out non-positive values for log transformation
+    valid_mask = (agent_counts > 0) & (metric_values > 0)
+    if not np.all(valid_mask):
+        warnings.warn(
+            "Some data points have non-positive values and will be excluded from log-log fit."
+        )
+    
+    x = agent_counts[valid_mask]
+    y = metric_values[valid_mask]
+    
+    if len(x) < 2:
+        raise ValueError(
+            f"Not enough valid data points for {metric} to fit power law."
+        )
+    
+    # Compute point estimate on original data
     try:
-        exp_orig, r2_orig = fit_power_law(x_clean, y_clean)
+        point_estimate, _ = fit_power_law(x, y)
     except Exception as e:
-        warnings.warn(f"Power-law fit failed: {e}")
-        return {
-            "exponent": None,
-            "exponent_ci_lower": None,
-            "exponent_ci_upper": None,
-            "r_squared": None,
-            "resample_exponents": [],
-            "error": str(e),
-        }
-
-    # Bootstrap
-    resample_exponents = []
-    for _ in range(n_resamples):
+        raise RuntimeError(f"Failed to fit power law on original data: {e}")
+    
+    # Bootstrap resampling
+    bootstrap_exponents = []
+    n_samples = len(x)
+    
+    for i in range(n_bootstrap):
         # Resample with replacement
-        indices = np.random.choice(len(x_clean), size=len(x_clean), replace=True)
-        x_boot = x_clean[indices]
-        y_boot = y_clean[indices]
-
+        indices = np.random.choice(n_samples, size=n_samples, replace=True)
+        x_boot = x[indices]
+        y_boot = y[indices]
+        
+        # Sort to ensure consistent ordering (optional but good practice)
+        sort_idx = np.argsort(x_boot)
+        x_boot = x_boot[sort_idx]
+        y_boot = y_boot[sort_idx]
+        
         try:
             exp_boot, _ = fit_power_law(x_boot, y_boot)
-            if np.isfinite(exp_boot):
-                resample_exponents.append(exp_boot)
+            bootstrap_exponents.append(exp_boot)
         except Exception:
-            # Skip failed fits
+            # Skip this resample if fit fails
             continue
-
-    if not resample_exponents:
-        warnings.warn("No successful bootstrap fits")
-        return {
-            "exponent": exp_orig,
-            "exponent_ci_lower": None,
-            "exponent_ci_upper": None,
-            "r_squared": r2_orig,
-            "resample_exponents": [],
-        }
-
-    resample_exponents = np.array(resample_exponents)
-    ci_lower = float(np.percentile(resample_exponents, 2.5))
-    ci_upper = float(np.percentile(resample_exponents, 97.5))
-
+    
+    if len(bootstrap_exponents) < 10:
+        raise RuntimeError(
+            f"Too few successful bootstrap fits for {metric} (only {len(bootstrap_exponents)})."
+        )
+    
+    bootstrap_exponents = np.array(bootstrap_exponents)
+    
+    # Compute 95% CI using percentile method
+    ci_lower = np.percentile(bootstrap_exponents, 2.5)
+    ci_upper = np.percentile(bootstrap_exponents, 97.5)
+    
+    # Compute additional statistics
+    bootstrap_mean = np.mean(bootstrap_exponents)
+    bootstrap_std = np.std(bootstrap_exponents)
+    
     return {
-        "exponent": float(exp_orig),
-        "exponent_ci_lower": ci_lower,
-        "exponent_ci_upper": ci_upper,
-        "r_squared": float(r2_orig),
-        "resample_exponents": resample_exponents.tolist(),
+        "metric": metric,
+        "point_estimate": float(point_estimate),
+        "ci_95_lower": float(ci_lower),
+        "ci_95_upper": float(ci_upper),
+        "bootstrap_mean": float(bootstrap_mean),
+        "bootstrap_std": float(bootstrap_std),
+        "n_bootstrap_successful": len(bootstrap_exponents),
+        "n_bootstrap_requested": n_bootstrap,
+        "n_data_points": len(x)
     }
 
 
 def run_scaling_ci_analysis(
-    results_dir: Path,
-    output_path: Path,
-    n_resamples: int = 1000,
+    data_path: Optional[str] = None,
+    output_path: Optional[str] = None,
+    n_bootstrap: int = 1000,
+    seed: int = 42
 ) -> Dict[str, Any]:
-    """Run full confidence interval analysis for scaling metrics.
-
+    """
+    Run the full confidence interval analysis for both metrics.
+    
     Args:
-        results_dir: Directory containing scaling result CSV files
-        output_path: Path to write the JSON output
-        n_resamples: Number of bootstrap resamples
-
+        data_path: Path to scaling data CSV.
+        output_path: Path for output JSON. If None, uses default.
+        n_bootstrap: Number of bootstrap resamples.
+        seed: Random seed.
+        
     Returns:
-        Dict with results for both metrics.
+        Dictionary containing results for both metrics.
     """
     # Load data
-    df = load_scaling_results_for_bootstrap(results_dir)
-    if df is None or len(df) < 2:
-        raise ValueError(
-            f"Insufficient scaling data in {results_dir}. "
-            "Need at least 2 agent counts with valid metrics."
-        )
-
-    x = df["agent_count"].values
-    y_spec = df["specialization_index"].values
-    y_ret = df["retrieval_efficiency"].values
-
-    # Compute CIs
-    ci_spec = bootstrap_power_law_ci(x, y_spec, n_resamples, "specialization_index")
-    ci_ret = bootstrap_power_law_ci(x, y_ret, n_resamples, "retrieval_efficiency")
-
-    result = {
-        "metadata": {
-            "n_resamples": n_resamples,
-            "n_agent_counts": len(x),
-            "agent_counts": x.tolist(),
-            "note": "3 data points limit power-law reliability",
+    df = load_scaling_results_for_bootstrap(data_path)
+    
+    # Compute CIs for both metrics
+    results = {
+        "analysis_parameters": {
+            "n_bootstrap": n_bootstrap,
+            "seed": seed,
+            "data_source": str(data_path) if data_path else "default",
+            "n_data_points": len(df)
         },
-        "specialization_index": ci_spec,
-        "retrieval_efficiency": ci_ret,
+        "specialization_index": bootstrap_power_law_ci(
+            df, "specialization_index", n_bootstrap, seed
+        ),
+        "retrieval_efficiency": bootstrap_power_law_ci(
+            df, "retrieval_efficiency", n_bootstrap, seed
+        )
     }
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write JSON
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2)
-
-    return result
+    
+    # Add summary note about data limitations
+    if len(df) < 5:
+        results["warning"] = (
+            "Limited data points (N={}) for power-law fitting. ".format(len(df)) +
+            "Confidence intervals should be interpreted with caution. " +
+            "As noted in SC-005, 3 data points limit power-law reliability."
+        )
+    
+    # Write output
+    if output_path is None:
+        output_path = (
+            "projects/PROJ-586-social-memory-networks-modeling-collecti/"
+            "results/scaling_confidence_intervals.json"
+        )
+    
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
+    
+    return results
 
 
 def build_parser() -> argparse.ArgumentParser:
     """Build argument parser for CLI."""
     parser = argparse.ArgumentParser(
-        description="Compute 95% CI for scaling exponents via bootstrapping"
+        description="Compute 95% confidence intervals for power-law exponents via bootstrapping."
     )
     parser.add_argument(
-        "--results-dir",
+        "--data",
         type=str,
-        default="projects/PROJ-586-social-memory-networks-modeling-collecti/results",
-        help="Directory containing scaling result CSV files",
+        default=None,
+        help="Path to scaling data CSV. Default: data/scaling_results.csv"
     )
     parser.add_argument(
         "--output",
         type=str,
-        default="projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json",
-        help="Output JSON path",
+        default=None,
+        help="Path for output JSON. Default: results/scaling_confidence_intervals.json"
     )
     parser.add_argument(
         "--n-resamples",
         type=int,
         default=1000,
-        help="Number of bootstrap resamples",
+        help="Number of bootstrap resamples (default: 1000)"
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (default: 42)"
     )
     return parser
 
 
 def main() -> None:
-    """CLI entry point."""
+    """Main entry point for CLI."""
     parser = build_parser()
     args = parser.parse_args()
-
-    results_dir = Path(args.results_dir)
-    output_path = Path(args.output)
-
-    if not results_dir.exists():
-        print(f"Error: Results directory not found: {results_dir}", file=sys.stderr)
-        sys.exit(1)
-
+    
+    print(f"Running bootstrap confidence interval analysis...")
+    print(f"  Bootstrap resamples: {args.n_bootstrap}")
+    print(f"  Random seed: {args.seed}")
+    
     try:
-        result = run_scaling_ci_analysis(
-            results_dir=results_dir,
-            output_path=output_path,
-            n_resamples=args.n_resamples,
+        results = run_scaling_ci_analysis(
+            data_path=args.data,
+            output_path=args.output,
+            n_bootstrap=args.n_bootstrap,
+            seed=args.seed
         )
-        print(f"Confidence intervals written to: {output_path}")
-        print(
-            f"Specialization exponent: {result['specialization_index']['exponent']:.4f} "
-            f"[{result['specialization_index']['exponent_ci_lower']:.4f}, "
-            f"{result['specialization_index']['exponent_ci_upper']:.4f}]"
-        )
-        print(
-            f"Retrieval exponent: {result['retrieval_efficiency']['exponent']:.4f} "
-            f"[{result['retrieval_efficiency']['exponent_ci_lower']:.4f}, "
-            f"{result['retrieval_efficiency']['exponent_ci_upper']:.4f}]"
-        )
+        
+        print(f"\nResults written to: {args.output or 'default path'}")
+        print(f"\nSpecialization Index:")
+        print(f"  Point estimate: {results['specialization_index']['point_estimate']:.4f}")
+        print(f"  95% CI: [{results['specialization_index']['ci_95_lower']:.4f}, "
+              f"{results['specialization_index']['ci_95_upper']:.4f}]")
+        
+        print(f"\nRetrieval Efficiency:")
+        print(f"  Point estimate: {results['retrieval_efficiency']['point_estimate']:.4f}")
+        print(f"  95% CI: [{results['retrieval_efficiency']['ci_95_lower']:.4f}, "
+              f"{results['retrieval_efficiency']['ci_95_upper']:.4f}]")
+        
+        if "warning" in results:
+            print(f"\nWARNING: {results['warning']}")
+            
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"Error during analysis: {e}", file=sys.stderr)
+        print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
 
 

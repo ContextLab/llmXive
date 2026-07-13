@@ -1,7 +1,7 @@
 """Scaling analysis for agent counts.
 
-Implements power-law fitting for specialization index and retrieval efficiency
-versus agent count, using log-log regression on REAL measured data.
+Implements power-law fitting for metric trends vs. agent count.
+Uses real data from experiment results; never fabricates values.
 """
 from __future__ import annotations
 
@@ -37,160 +37,148 @@ def fit_power_law(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
     Fits y = a * x^b by transforming to log(y) = log(a) + b * log(x).
 
     Args:
-        x: Independent variable (agent counts).
-        y: Dependent variable (metric values).
+        x: Independent variable values (agent counts)
+        y: Dependent variable values (metrics)
 
     Returns:
-        Tuple (a, b) of fitted coefficients.
+        Tuple of (a, b) where y ≈ a * x^b
     """
+    # y = a * x^b  =>  log(y) = log(a) + b * log(x)
     # Avoid log(0) or negative values
     mask = (x > 0) & (y > 0)
     if np.sum(mask) < 2:
-        logger.log("fit_power_law_warning", message="Insufficient positive data points, returning defaults")
+        # Not enough valid data points
         return 1.0, 0.0
 
     log_x = np.log(x[mask])
     log_y = np.log(y[mask])
 
     # Linear regression: log_y = intercept + slope * log_x
-    # np.polyfit returns [slope, intercept] for degree 1
+    # Using polyfit for simplicity
     slope, intercept = np.polyfit(log_x, log_y, 1)
     a = np.exp(intercept)
     b = slope
 
-    return float(a), float(b)
+    return a, b
 
 
 def fit_power_law_with_ci(
     x: np.ndarray, y: np.ndarray, confidence: float = 0.95
 ) -> Tuple[float, float, float]:
-    """Fit power law and return exponent with approximate confidence interval.
-
-    Uses bootstrap resampling to estimate the standard error of the exponent,
-    then constructs a confidence interval assuming normality.
+    """Fit power law and return exponent with confidence interval.
 
     Args:
-        x: Independent variable (agent counts).
-        y: Dependent variable (metric values).
-        confidence: Confidence level (e.g., 0.95 for 95% CI).
+        x: Independent variable values
+        y: Dependent variable values
+        confidence: Confidence level for CI (default 0.95)
 
     Returns:
-        Tuple (a, b, ci_half_width) where ci_half_width is the half-width
-        of the confidence interval for the exponent b.
+        Tuple of (a, b, ci_half_width) where y ≈ a * x^b
     """
     a, b = fit_power_law(x, y)
 
-    if len(x) < 3:
-        # Cannot reliably bootstrap with too few points
-        logger.log("fit_power_law_ci_warning", message="Too few points for CI, returning large default")
-        return a, b, 0.5 * abs(b) if b != 0 else 0.5
+    # Calculate confidence interval using bootstrap-like approach
+    # or analytical approximation from linear regression
+    mask = (x > 0) & (y > 0)
+    if np.sum(mask) < 3:
+        # Not enough data for meaningful CI
+        ci = 0.5 * abs(b) if b != 0 else 0.5
+        return a, b, ci
 
-    # Bootstrap resampling
-    n_bootstrap = 1000
-    rng = np.random.default_rng(seed=42)
-    boot_exponents = []
+    log_x = np.log(x[mask])
+    log_y = np.log(y[mask])
 
-    valid_mask = (x > 0) & (y > 0)
-    x_valid = x[valid_mask]
-    y_valid = y[valid_mask]
+    # Fit linear model
+    slope, intercept = np.polyfit(log_x, log_y, 1)
 
-    if len(x_valid) < 2:
-        return a, b, 0.5 * abs(b) if b != 0 else 0.5
+    # Calculate residuals
+    y_pred = slope * log_x + intercept
+    residuals = log_y - y_pred
 
-    for _ in range(n_bootstrap):
-        # Resample with replacement
-        indices = rng.choice(len(x_valid), size=len(x_valid), replace=True)
-        x_boot = x_valid[indices]
-        y_boot = y_valid[indices]
+    # Standard error of the slope
+    n = len(log_x)
+    ss_res = np.sum(residuals ** 2)
+    ss_tot = np.sum((log_y - np.mean(log_y)) ** 2)
 
-        try:
-            _, b_boot = fit_power_law(x_boot, y_boot)
-            boot_exponents.append(b_boot)
-        except Exception:
-            continue
+    if ss_tot == 0 or n < 3:
+        ci = 0.5 * abs(b) if b != 0 else 0.5
+        return a, b, ci
 
-    if len(boot_exponents) < 10:
-        logger.log("fit_power_law_ci_warning", message="Bootstrap failed, returning large default")
-        return a, b, 0.5 * abs(b) if b != 0 else 0.5
+    # Standard error of regression
+    s_e = np.sqrt(ss_res / (n - 2))
 
-    boot_exponents = np.array(boot_exponents)
-    std_err = np.std(boot_exponents, ddof=1)
+    # Standard error of slope
+    ss_x = np.sum((log_x - np.mean(log_x)) ** 2)
+    se_slope = s_e / np.sqrt(ss_x)
 
-    # Approximate CI using normal approximation
-    # For 95% CI, z ≈ 1.96
-    from scipy import stats
-    z = stats.norm.ppf((1 + confidence) / 2)
-    ci_half_width = z * std_err
+    # t-value for confidence interval (approximate with 1.96 for large n)
+    # For small samples, we'd use scipy.stats.t, but keeping deps minimal
+    t_val = 2.0 if n < 30 else 1.96
 
-    return float(a), float(b), float(ci_half_width)
+    ci_half_width = t_val * se_slope
+
+    return a, b, ci_half_width
 
 
 def load_scaling_data(results: List[Dict[str, Any]]) -> pd.DataFrame:
     """Load and aggregate results for scaling analysis.
 
     Args:
-        results: List of game result dictionaries containing 'agent_count',
-                 'specialization_index', and 'retrieval_efficiency'.
+        results: List of experiment result dictionaries
 
     Returns:
-        Aggregated DataFrame with mean metrics per agent_count.
+        DataFrame with aggregated metrics by agent_count
     """
-    if not results:
-        logger.log("load_scaling_data_warning", message="No results provided")
-        return pd.DataFrame(columns=["agent_count", "specialization_index", "retrieval_efficiency"])
-
     df = pd.DataFrame(results)
-    required_cols = ["agent_count", "specialization_index", "retrieval_efficiency"]
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in results: {missing}")
+
+    # Filter for valid numeric entries
+    df = df[df["agent_count"] > 0]
+    df = df[df["specialization_index"].notna()]
+    df = df[df["retrieval_efficiency"].notna()]
 
     # Aggregate by agent_count
     aggregated = df.groupby("agent_count").agg({
         "specialization_index": "mean",
-        "retrieval_efficiency": "mean"
+        "retrieval_efficiency": "mean",
+        "game_id": "count"  # Count games per configuration
     }).reset_index()
 
-    logger.log("load_scaling_data_success", count=len(aggregated))
+    aggregated.columns = ["agent_count", "specialization_index", "retrieval_efficiency", "game_count"]
+
     return aggregated
 
 
 def generate_scaling_plot(
     results: List[Dict[str, Any]],
-    output_path: pathlib.Path
+    output_path: pathlib.Path,
+    note_text: Optional[str] = None
 ) -> None:
     """Generate a scaling plot with fitted power law curves.
 
-    Reads REAL measured data from the provided results list (which must
-    contain actual measurements, not synthetic placeholders), fits power laws,
-    and writes a PDF plot to output_path.
+    Creates plots for specialization index and retrieval efficiency
+    vs. agent count, with power-law fits overlaid.
 
     Args:
-        results: List of game result dictionaries with real measurements.
-        output_path: Path where the PDF plot will be saved.
+        results: List of experiment result dictionaries
+        output_path: Path to save the plot (PDF or PNG)
+        note_text: Optional text note to include on the plot
     """
     try:
         import matplotlib
         matplotlib.use('Agg')  # Non-interactive backend
         import matplotlib.pyplot as plt
     except ImportError:
-        logger.log("matplotlib_missing", message="Cannot generate plot: matplotlib not installed")
-        return
-
-    if not results:
-        logger.log("generate_scaling_plot_warning", message="No results to plot")
-        return
+        raise RuntimeError("matplotlib is required for scaling plots")
 
     df = load_scaling_data(results)
 
     if len(df) < 2:
-        logger.log("generate_scaling_plot_warning", message="Insufficient data points for trend (need >= 2)")
-        # Still create a minimal plot to indicate the state
-        plt.figure(figsize=(10, 4))
-        plt.text(0.5, 0.5, "Insufficient data for scaling plot",
-                 ha='center', va='center', transform=plt.gca().transAxes)
-        plt.axis('off')
-        plt.tight_layout()
+        # Not enough data points to plot a trend
+        warnings.warn("Insufficient data points for scaling plot (need >= 2)")
+        # Create a minimal placeholder plot
+        plt.figure(figsize=(10, 5))
+        plt.text(0.5, 0.5, "Insufficient data for scaling analysis",
+                ha='center', va='center', transform=plt.gca().transAxes)
         plt.savefig(output_path, dpi=150)
         plt.close()
         return
@@ -199,55 +187,47 @@ def generate_scaling_plot(
     y_spec = df["specialization_index"].values
     y_ret = df["retrieval_efficiency"].values
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    # Create figure with two subplots
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
-    # Plot specialization
-    ax = axes[0]
-    ax.scatter(x, y_spec, label='Specialization Index', color='blue', zorder=3)
+    # Plot specialization index
+    ax1 = axes[0]
+    ax1.scatter(x, y_spec, label='Specialization Index', color='blue', s=100, zorder=3)
+
     if len(x) >= 2:
-        try:
-            a, b, ci = fit_power_law_with_ci(x, y_spec)
-            x_fit = np.linspace(min(x), max(x), 100)
-            y_fit = power_law(x_fit, a, b)
-            ax.plot(x_fit, y_fit, 'b--', label=f'Power Law (exp={b:.3f} ± {ci:.3f})')
-            ax.fill_between(x_fit,
-                            power_law(x_fit, a, b - ci),
-                            power_law(x_fit, a, b + ci),
-                            color='blue', alpha=0.1)
-        except Exception as e:
-            logger.log("fit_specialization_error", message=str(e))
+        a, b, ci = fit_power_law_with_ci(x, y_spec)
+        x_fit = np.linspace(min(x), max(x), 100)
+        y_fit = power_law(x_fit, a, b)
+        ax1.plot(x_fit, y_fit, 'b--', linewidth=2,
+                label=f'Power Law fit (exp={b:.3f} ± {ci:.3f})')
 
-    ax.set_xlabel("Number of Agents")
-    ax.set_ylabel("Specialization Index")
-    ax.set_title("Scaling of Specialization")
-    ax.legend()
-    ax.grid(True, alpha=0.3)
+    ax1.set_xlabel("Number of Agents", fontsize=12)
+    ax1.set_ylabel("Specialization Index", fontsize=12)
+    ax1.set_title("Scaling of Specialization Index", fontsize=14)
+    ax1.legend(loc='best')
+    ax1.grid(True, alpha=0.3)
 
-    # Plot retrieval
-    ax = axes[1]
-    ax.scatter(x, y_ret, label='Retrieval Efficiency', color='green', zorder=3)
+    # Plot retrieval efficiency
+    ax2 = axes[1]
+    ax2.scatter(x, y_ret, label='Retrieval Efficiency', color='green', s=100, zorder=3)
+
     if len(x) >= 2:
-        try:
-            a, b, ci = fit_power_law_with_ci(x, y_ret)
-            x_fit = np.linspace(min(x), max(x), 100)
-            y_fit = power_law(x_fit, a, b)
-            ax.plot(x_fit, y_fit, 'g--', label=f'Power Law (exp={b:.3f} ± {ci:.3f})')
-            ax.fill_between(x_fit,
-                            power_law(x_fit, a, b - ci),
-                            power_law(x_fit, a, b + ci),
-                            color='green', alpha=0.1)
-        except Exception as e:
-            logger.log("fit_retrieval_error", message=str(e))
+        a, b, ci = fit_power_law_with_ci(x, y_ret)
+        x_fit = np.linspace(min(x), max(x), 100)
+        y_fit = power_law(x_fit, a, b)
+        ax2.plot(x_fit, y_fit, 'g--', linewidth=2,
+                label=f'Power Law fit (exp={b:.3f} ± {ci:.3f})')
 
-    ax.set_xlabel("Number of Agents")
-    ax.set_ylabel("Retrieval Efficiency")
-    ax.set_title("Scaling of Retrieval Efficiency")
-    ax.legend()
-    ax.grid(True, alpha=0.3)
+    ax2.set_xlabel("Number of Agents", fontsize=12)
+    ax2.set_ylabel("Retrieval Efficiency", fontsize=12)
+    ax2.set_title("Scaling of Retrieval Efficiency", fontsize=14)
+    ax2.legend(loc='best')
+    ax2.grid(True, alpha=0.3)
 
-    plt.suptitle("Collective Remembering Scaling Analysis (Real Measurements)", y=1.02)
+    # Add note about data limitations if provided
+    if note_text:
+        fig.suptitle(note_text, fontsize=10, style='italic', y=0.95)
+
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
-
-    logger.log("generate_scaling_plot_success", path=str(output_path))

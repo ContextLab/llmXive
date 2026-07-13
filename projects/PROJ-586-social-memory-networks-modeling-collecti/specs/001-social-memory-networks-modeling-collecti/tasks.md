@@ -58,7 +58,7 @@
 - [X] T004 [P] Implement dataset loaders in `code/data/loaders.py`: Verify URLs against a whitelist. If the dataset (Hanabi/CoQA) lacks a verified URL in the `verified_datasets` block, raise a clear error and trigger the synthetic fallback. (FR-001, FR-011)
 - [X] T004b [P] Implement synthetic fallback generator in `code/data/synthetic.py`: Create a set of synthetic cue-response pairs (minimum 10 per game) from available context spans if explicit cues are missing. (FR-011)
 - [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (model: `facebook/opt-*`, precision: standard floating-point) in `code/agent/base_agent.py`. Ensure no CUDA imports. (FR-002)
-- [X] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. (FR-003, FR-012)
+- [ ] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. (FR-003, FR-012)
 - [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py`. Log format: `[TIMESTAMP] [LEVEL] [MODULE] Message`. (FR-010)
 - [X] T008 [P] Create `code/utils/config.py` with explicit configuration: `seed=42`, `device="cpu"`, `model_name="facebook/opt-125m"`. Ensure these are the default values used by all agents. (FR-002)
 
@@ -81,13 +81,13 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing, invoke synthetic fallback. (FR-001) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T011b [P] [US-1] Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game.
-- [X] T011c [P] [US-1] Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`, ensuring data is checksummed before use.
-- [X] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded 0 to log2(N_agents). (FR-004)
+- [ ] T011 [P] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing, invoke synthetic fallback. (FR-001)
+- [ ] T011b [P] [US-1] Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game.
+- [ ] T011c [P] [US-1] Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`, ensuring data is checksummed before use.
+- [ ] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded 0 to log2(N_agents). (FR-004)
 - [ ] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. (FR-005)
 - [X] T014 [P] [US-1] Implement validation logic in `code/metrics/validator.py`: Assert `(games_with_metrics / total_games) >= 0.95`; log errors for failed games. (SC-001)
-- [ ] T015 [US-1] Output `results_full.csv` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` for [deferred] games. (US-1, FR-004, FR-005, SC-001)
+- [~] T015 [US-1] Output `results_full.csv` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` for [deferred] games. (US-1, FR-004, FR-005, SC-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,7 +106,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US-2] Implement limited-context simulation in `code/run_experiment.py`: Truncate context to a specified token limit before passing to the model. (US-2)
+- [~] T018 [US-2] Implement limited-context simulation in `code/run_experiment.py`: Truncate context to a specified token limit before passing to the model. (US-2)
 - [X] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` for 1000 games. (US-2)
 - [X] T020 [P] [US-2] Implement a two-way independent-samples ANOVA in `code/analysis/anova.py` using `statsmodels.stats.anova.anova_lm`.
  - **Data Structure**: Combine `results_full.csv` and `results_limited.csv` into a single long-format DataFrame with columns: `game_id`, `context_condition` (full/limited), `metric_name` (specialization/retrieval), and `metric_value`.
@@ -137,7 +137,7 @@
 - [~] T027 [US-3] Implement game simulation for varying agent counts (800 games per configuration) in `code/run_experiment.py`. (US-3)
 - [~] T028 [P] [US-3] Implement power-law fitting in `code/analysis/scaling.py`: Fit log-log curves for metric trends vs. agent count (small to medium cohorts) for specialization index and retrieval efficiency. (US-3)
 - [X] T029 [P] [US-3] Compute 95% confidence intervals for fitted exponents using bootstrapping (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`. (US-3, SC-005)
-- [~] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency, and an explicit text note stating that "3 data points limit power-law reliability". (US-3, SC-005)
+- [ ] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency, and an explicit text note stating that "3 data points limit power-law reliability". (US-3, SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 

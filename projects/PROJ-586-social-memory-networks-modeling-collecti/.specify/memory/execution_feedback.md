@@ -51,6 +51,12 @@ ImportError: cannot import name 'compute_game_level_specialization' from 'metric
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 4, in <module>
     from .specialization import (
 ImportError: cannot import name 'compute_game_level_specialization' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
+- python -c "from data.loaders import verify_datasets; verify_datasets()" -> rc=1
+    Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
+    from .loaders import (
+ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 19, in <module>
@@ -82,7 +88,7 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 ### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 16 way(s):
 
 - code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(successful, num_queries, config.agent_count)
-- code/t015_generate_full_results.py: ret_eff, ret_metrics = compute_retrieval_efficiency(
+- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(retrieved_facts, total_facts, config.num_agents)
 - code/metrics/retrieval.py: eff, _ = compute_retrieval_efficiency(retrieved, total, agents)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
@@ -103,7 +109,7 @@ Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of
 ### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 10 way(s):
 
 - code/run_experiment.py: spec_index, _ = compute_specialization_index(skill_lengths, num_agents=config.agent_count)
-- code/t015_generate_full_results.py: spec_index, spec_metrics = compute_specialization_index(skill_lengths, num_agents=agent_count)
+- code/t015_generate_full_results.py: spec_index, _ = compute_specialization_index(agent_skills, num_agents=config.num_agents)
 - code/metrics/specialization.py: idx, _ = compute_specialization_index(res["facts_per_agent"])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(game_results)
@@ -120,7 +126,7 @@ Make `compute_specialization_index` in `code/metrics/specialization.py` accept A
 - code/run_full_pipeline_ci.py: logger = get_logger(__name__)
 - code/run_experiment.py: logger = get_logger(__name__)
 - code/output_full_results.py: logger = get_logger(__name__)
-- code/t015_generate_full_results.py: logger = get_logger(__name__)
+- code/t015_generate_full_results.py: logger = get_logger("T015_generate_full_results")
 - code/run_pipeline_profile.py: logger = get_logger(__name__)
 - code/utils/logging.py: return get_logger().log(op, **kwargs)
 - code/utils/tests/test_logging.py: logger = get_logger(name=logger_name)
@@ -133,10 +139,11 @@ Make `compute_specialization_index` in `code/metrics/specialization.py` accept A
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/generate_full_results.py`; called 4 way(s):
+### `simulate_one_game` — defined in `code/generate_full_results.py`; called 5 way(s):
 
 - code/run_experiment.py: results.append(simulate_one_game(config))
 - code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
+- code/t015_generate_full_results.py: result = simulate_one_game(i, config, logger)
 - code/analysis/sensitivity.py: result = simulate_one_game(game_id, config)
 - code/tests/unit/test_run_experiment.py: spec_metrics, ret_metrics, result = simulate_one_game(1, config)
 
