@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.02900",
+  "judged_at": "2026-07-13T21:13:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kairos: a native world model stack for physical ai\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (e) as it addresses the core domain of \"Physical AI\" and \"Embodied AI\" mentioned in the user's question, providing a canonical survey of the safety mechanisms, risks, and system architectures (perception, planning, action) that are essential context for extending a \"Native World Model Stack\" in this specific field.",
+  "relevant": true
+}

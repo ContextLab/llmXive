@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DiscreteStateVector"
+description: "Schema for a single quantized state vector from the LIBERO dataset."
+type: "object"
+properties:
+  timestamp:
+    type: "number"
+    description: "Timestamp in seconds."
+  bit_depth:
+    type: "integer"
+    enum: [4, 8, 16]
+    description: "Quantization bit depth."
+  noise_std:
+    type: "number"
+    description: "Standard deviation of injected Gaussian noise."
+  state_vector:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of quantized integer values representing the state."
+  metadata:
+    type: "object"
+    properties:
+      scene_id:
+        type: "string"
+      episode_id:
+        type: "string"
+    required:
+      - scene_id
+      - episode_id
+required:
+  - timestamp
+  - bit_depth
+  - noise_std
+  - state_vector
+  - metadata
+additionalProperties: false

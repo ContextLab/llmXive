@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ErrorMetric"
+description: "Schema for model performance metrics and statistical validation results (Bayesian)."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the independent run."
+  bit_depth:
+    type: "integer"
+    enum: [4, 8, 16]
+    description: "Quantization bit depth used."
+  noise_std:
+    type: "number"
+    description: "Standard deviation of injected Gaussian noise."
+  horizon:
+    type: "integer"
+    enum: [100, 500, 1000]
+    description: "Prediction horizon in time steps."
+  mse:
+    type: "number"
+    description: "Mean Squared Error between decoded prediction and continuous ground truth."
+  cumulative_error_rate:
+    type: "number"
+    description: "MSE growth rate per time step."
+  credible_interval:
+    type: "object"
+    properties:
+      lower:
+        type: "number"
+      upper:
+        type: "number"
+    description: "95% Credible interval for the effect size from BHM."
+  is_significant:
+    type: "boolean"
+    description: "True if the credible interval excludes zero."
+required:
+  - run_id
+  - bit_depth
+  - noise_std
+  - horizon
+  - mse
+  - cumulative_error_rate
+  - credible_interval
+  - is_significant
+additionalProperties: false

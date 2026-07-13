@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.02419",
+  "judged_at": "2026-07-13T21:13:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kairos: a native world model stack for physical ai\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) by providing the foundational theoretical framework and canonical evidence for \"world models\" as a computational mechanism, which is the core concept of the user's target paper (\"Kairos: A Native World Model Stack\"). Even though it focuses on the biological convergence rather than the specific \"Kairos\" architecture, it establishes the essential prior work on the shared mechanism of predictive world-modeling that any literature review on this topic must c",
+  "relevant": true
+}

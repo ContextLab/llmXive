@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.08226",
+  "judged_at": "2026-07-13T21:13:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kairos: a native world model stack for physical ai\" computer science",
+  "rationale": "The paper focuses on a \"Clinical World Model\" for healthcare AI competency and human cognition, which is a distinct domain and application from the user's question regarding \"Kairos: A Native World Model Stack for Physical AI\" (robotics/embodied systems). While both use the term \"World Model,\" the paper does not address the specific mechanism, physical observables, or architectural stack of the \"Kairos\" system or physical AI, failing the \"same-mechanism\" and \"same-domain\" criteria while falling ",
+  "relevant": false
+}

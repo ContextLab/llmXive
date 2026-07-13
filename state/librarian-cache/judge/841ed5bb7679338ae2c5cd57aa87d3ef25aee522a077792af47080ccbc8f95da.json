@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.06886",
+  "judged_at": "2026-07-13T21:13:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kairos: a native world model stack for physical ai\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of \"Physical AI\" and \"World Models,\" which are the core components of the user's question regarding the \"Kairos\" stack. It provides the necessary literature review context by mapping the landscape of embodied agents, multi-modal large models, and sim-to-real adaptation that any follow-up work on a native world model stack would need to cite.",
+  "relevant": true
+}
