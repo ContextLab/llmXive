@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create directory structure: `data/raw`, `data/processed`, `code`, `tests/unit`, `tests/integration`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing: `pandas`, `geopandas`, `pysal`, `libpysal`, `scikit-learn`, `numpy`, `statsmodels`, `requests`, `pyarrow`, `linearmodels`, `dask`, `distributed`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create directory structure: `data/raw`, `data/processed`, `code`, `tests/unit`, `tests/integration`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing: `pandas`, `geopandas`, `pysal`, `libpysal`, `scikit-learn`, `numpy`, `statsmodels`, `requests`, `pyarrow`, `linearmodels`, `dask`, `distributed`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. T005 must complete before T011.
 
-- [ ] T006 [P] Create base `SpatialGridCell` entity schema in `code/schemas/grid_cell.py` with fields: `grid_id`, `geometry`, `noise_metrics` (dict), `covariates` (dict), `date`
-- [ ] T007 [P] Create `code/logger.py` with `RotatingFileHandler`, specific format string `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`, and a test function `test_log_format` verifying output
-- [ ] T004b [P] Implement `code/hygiene.py` with `compute_and_record_checksums()` function to update `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`
-- [ ] T005 [P] Implement synthetic data generator `code/synthetic_data.py` to create 50k grid cells with stochastic spatial parameters; **MUST pin random seed AND record generated parameters in `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`**
-- [ ] T005b [P] Implement memory-safe chunking in `code/synthetic_data.py` (using Dask or pandas chunking) to ensure generation of 50k cells stays <7GB RAM, satisfying FR-010 by design
+- [X] T006 [P] Create base `SpatialGridCell` entity schema in `code/schemas/grid_cell.py` with fields: `grid_id`, `geometry`, `noise_metrics` (dict), `covariates` (dict), `date`
+- [X] T007 [P] Create `code/logger.py` with `RotatingFileHandler`, specific format string `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`, and a test function `test_log_format` verifying output
+- [X] T004b [P] Implement `code/hygiene.py` with `compute_and_record_checksums()` function to update `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`
+- [X] T005 [P] Implement synthetic data generator `code/synthetic_data.py` to create 50k grid cells with stochastic spatial parameters; **MUST pin random seed AND record generated parameters in `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`**
+- [ ] T005b [P] Implement memory-safe chunking in `code/synthetic_data.py` (using Dask or pandas chunking) to Implement memory-safe chunking in code/synthetic_data.py (using Dask or pandas chunking) to ensure generation of 50k cells stays <7GB RAM [UNRESOLVED-CLAIM: c_071d3c39 — status=not_enough_info], satisfying FR-010 by design
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,12 +80,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/ingestion.py` to load synthetic noise and covariate data (traffic, land use, population)
+- [ ] T011 [US1] Implement `code/ingestion.py` to load synthetic noise and covariate data (traffic, land use, population) <!-- ATOMIZE: requested -->
 - [ ] T015 [US1] Implement `code/preprocessing.py::clean_traffic_data` to ensure `df['traffic_volume']` retains 0.0 values and only applies imputation/exclusion to `NaN` values, logging the count of excluded rows to `data/processed/exclusion_log.csv`
-- [ ] T012 [US1] Implement `code/preprocessing.py` to apply IQR filter (1.5x IQR) for decibel outlier removal
-- [ ] T013 [US1] Implement daily aggregation logic in `code/preprocessing.py` (mean, median, 95th percentile **per day** per grid cell); **Unit of analysis is (grid_id, date)**; Output is a DataFrame retaining daily granularity
-- [ ] T014 [US1] Implement spatial harmonization in `code/ingestion.py` to merge covariates into 200m grid cells using output from T013, handling missing covariates via exclusion and **logging a WARNING level message indicating the number of excluded cells**
-- [ ] T016 [US1] Write harmonized dataset to `data/processed/harmonized.parquet` and update checksums
+- [~] T012 [US1] Implement `code/preprocessing.py` to apply IQR filter (1.5x IQR) for decibel outlier removal [UNRESOLVED-CLAIM: c_78c7f411 — status=not_enough_info]
+- [~] T013 [US1] Implement daily aggregation logic in `code/preprocessing.py` (mean, median, 95th percentile **per day** per grid cell); **Unit of analysis is (grid_id, date)**; Output is a DataFrame retaining daily granularity
+- [~] T014 [US1] Implement spatial harmonization in `code/ingestion.py` to merge covariates into 200m grid cells using output from T013, handling missing covariates via exclusion and **logging a WARNING level message indicating the number of excluded cells**
+- [~] T016 [US1] Write harmonized dataset to `data/processed/harmonized.parquet` and update checksums
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,16 +99,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_models.py`
-- [ ] T018 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_models.py`
+- [~] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_models.py`
+- [~] T018 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_models.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement spatial weight matrix construction in `code/models.py`: Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)
-- [ ] T020 [US2] Implement OLS regression fitting in `code/models.py` using `statsmodels`
-- [ ] T021 [US2] Implement Spatial Lag and Spatial Error model fitting in `code/models.py` using `PySAL`
-- [ ] T022 [US2] Implement robust standard error calculation: **Conley SEs for OLS**, **HAC/Model-specific robust SEs for Spatial Lag/Error** using `linearmodels`; output p-values
-- [ ] T023 [US2] Apply Benjamini-Hochberg FDR correction (α=0.05) to the p-values **derived from the robust SEs in T022** for primary covariates
+- [~] T019 [US2] Implement spatial weight matrix construction in `code/models.py`: Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)
+- [~] T020 [US2] Implement OLS regression fitting in `code/models.py` using `statsmodels`
+- [~] T021 [US2] Implement Spatial Lag and Spatial Error model fitting in `code/models.py` using `PySAL`
+- [~] T022 [US2] Implement robust standard error calculation: **Conley SEs for OLS**, **HAC/Model-specific robust SEs for Spatial Lag/Error** using `linearmodels`; output p-values
+- [ ] T023 [US2] Apply Benjamini-Hochberg FDR correction (α=0.05) to the p-values [UNRESOLVED-CLAIM: c_edb5a251 — status=not_enough_info] **derived from the robust SEs in T022** for primary covariates
 - [ ] T024 [US2] Implement convergence fallback: if Spatial models fail, fall back to OLS but still calculate/report OLS Moran's I
 - [ ] T025 [US2] Implement weight matrix failure handling: if both Queen and KNN fail, raise `SpatialWeightMatrixError("Both Queen and KNN failed")` and log CRITICAL error to halt execution
 - [ ] T026 [US2] Save model outputs (coefficients, p-values, AIC, R², Moran's I) to `data/processed/model_results.json`
@@ -159,8 +159,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. T005 must complete before T011.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -226,9 +226,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

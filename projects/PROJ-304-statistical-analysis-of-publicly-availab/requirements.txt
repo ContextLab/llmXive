@@ -1,0 +1,17 @@
+pandas
+geopandas
+pysal
+libpysal
+scikit-learn
+numpy
+statsmodels
+requests
+pyarrow
+linearmodels
+dask
+distributed
+pyyaml
+shapely
+pydantic
+ruff
+black

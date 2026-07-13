@@ -1,0 +1,15 @@
+? "T005b [P] Implement memory-safe chunking in `code/synthetic_data.py` (using Dask\
+  \ or pandas chunking) to Implement memory-safe chunking in code/synthetic_data.py\
+  \ (using Dask or pandas chunking) to ensure generation of 50k cells stays <7GB RAM\
+  \ [UNRESOLVED-CLAIM: c_071d3c39 \u2014 status=not_enough_info], satisfying FR-010\
+  \ by design"
+: 1
+T009 [P] [US1] Unit test for IQR outlier filter in `tests/unit/test_preprocessing.py`: 1
+T010 [P] [US1] Integration test for data harmonization flow in `tests/integration/test_ingestion.py`: 1
+? 'T011 [US1] Implement `code/ingestion.py` to load synthetic noise and covariate
+  data (traffic, land use, population) <!-- ATOMIZE: requested -->'
+: 1
+? T015 [US1] Implement `code/preprocessing.py::clean_traffic_data` to ensure `df['traffic_volume']`
+  retains 0.0 values and only applies imputation/exclusion to `NaN` values, logging
+  the count of excluded rows to `data/processed/exclusion_log.csv`
+: 1

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T09:46:55.229677Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-304-statistical-analysis-of-publicly-availab
-last_run_id: 88d86b2e-7575-438d-8d16-a6f708a30716
+last_run_id: 1c980eb5-2e7b-4758-8177-77bb56218818
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Urban Noise Pollution Data
-updated_at: '2026-07-13T02:35:27.709186Z'
+updated_at: '2026-07-13T03:01:52.869635Z'

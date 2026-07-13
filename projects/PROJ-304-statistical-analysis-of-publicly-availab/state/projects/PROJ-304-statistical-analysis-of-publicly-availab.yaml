@@ -1,0 +1,26 @@
+synthetic_data:
+  random_seed: 42
+  noise_mean_db: 60.0
+  noise_std_db: 10.0
+  traffic_mean: 1000.0
+  traffic_std: 500.0
+  pop_density_mean: 2000.0
+  pop_density_std: 1500.0
+  land_use_distribution:
+    residential: 0.6
+    commercial: 0.2
+    industrial: 0.1
+    green: 0.1
+  grid_size_meters: 200
+  total_cells: 50000
+  chunk_size: 5000
+  generated_at: '2024-01-15T10:30:00.000000'
+project:
+  id: PROJ-304-statistical-analysis-of-publicly-availab
+  name: Statistical Analysis of Urban Noise Pollution
+  status: active
+  created_at: '2024-01-15T10:00:00.000000'
+  updated_at: '2024-01-15T10:30:00.000000'
+checksums:
+  last_updated: '2024-01-15T10:30:00.000000'
+  files: []

@@ -1,0 +1,27 @@
+# Ruff configuration for llmXive
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "ANN", # flake8-annotations
+]
+ignore = [
+    "ANN001", # Missing type annotation for function argument
+    "ANN201", # Missing return type annotation for public function
+    "ANN101", # Missing type annotation for self in method
+    "E501",   # Line too long (handled by black)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["ANN", "S101"] # Ignore annotations and asserts in tests
+
+[lint.isort]
+known-first-party = ["code", "tests"]

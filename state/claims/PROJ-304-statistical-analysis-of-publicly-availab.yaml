@@ -1,0 +1,669 @@
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: IQR filter uses 1.5x multiplier for decibel outlier removal
+  claim_id: c_a0c8e7c1
+  context: T012 [US1] Implement code/preprocessing.py to apply IQR filter (1.5x IQR)
+    for decibel outlier removal
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply IQR filter (1.5x IQR) for decibel outlier removal
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:56:07Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: daily aggregation calculates mean, median, and 95th percentile per day
+    per grid cell
+  claim_id: c_09ccbde4
+  context: T013 [US1] Implement daily aggregation logic in code/preprocessing.py (mean,
+    median, 95th percentile per day per grid cell); Unit of analysis is (grid_id,
+    date); Output is a DataFrame retaining daily granularity
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Daily_aggregation_calculates_mean,_median,_and_95th_percenti
+  kind: entity_fact
+  raw_text: Implement daily aggregation logic in code/preprocessing.py (mean, median,
+    95th percentile per day per grid cell)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:56:38Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: spatial weight matrix uses K-Nearest Neighbor with K=8 as fallback
+  claim_id: c_c69adf0d
+  context: 'T019 [US2] Implement spatial weight matrix construction in code/models.py:
+    Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement spatial weight matrix construction in code/models.py: Queen
+    Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:56:43Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: generate 50k grid cells with stochastic spatial parameters
+  claim_id: c_84de1396
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005 [P] Implement synthetic
+    data generator code/synthetic_data.py to create 50k grid cells with stochastic
+    spatial parameters; MUST pin random seed AND record generated parameters in state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement synthetic data generator code/synthetic_data.py to create 50k
+    grid cells with stochastic spatial parameters
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:00:17Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: generate 50k cells with memory usage under 7GB
+  claim_id: c_60f27218
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005b [P] Implement memory-safe
+    chunking in code/synthetic_data.py (using Dask or pandas chunking) to ensure generation
+    of 50k cells stays <7GB RAM, satisfying FR-010 by design'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement memory-safe chunking in code/synthetic_data.py (using Dask or
+    pandas chunking) to ensure generation of 50k cells stays <7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:00:17Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: apply 1.5x IQR filter for decibel outlier removal
+  claim_id: c_cea2b17f
+  context: 'Phase 3: User Story 1 - T012 [US1] Implement code/preprocessing.py to
+    apply IQR filter (1.5x IQR) for decibel outlier removal'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply IQR filter (1.5x IQR) for decibel outlier removal
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:00:17Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: calculate 95th percentile per day per grid cell
+  claim_id: c_f01878ac
+  context: 'Phase 3: User Story 1 - T013 [US1] Implement daily aggregation logic in
+    code/preprocessing.py (mean, median, 95th percentile per day per grid cell); Unit
+    of analysis is (grid_id, date); Output is a DataFrame retaining daily granularity'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_95th_percentile_per_day_per_grid_cell
+  kind: entity_fact
+  raw_text: Implement daily aggregation logic in code/preprocessing.py (mean, median,
+    95th percentile per day per grid cell)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:00:19Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: use K-Nearest Neighbor with K=8 as fallback for spatial weight matrix
+  claim_id: c_f0b0d5e6
+  context: 'Phase 4: User Story 2 - T019 [US2] Implement spatial weight matrix construction
+    in code/models.py: Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement spatial weight matrix construction in code/models.py: Queen
+    Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:00:19Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: perform 5-fold spatial cross-validation
+  claim_id: c_4d95cbea
+  context: 'Phase 5: User Story 3 - T029 [US3] Implement 5-fold spatial cross-validation
+    in code/validation.py ensuring spatially disjoint train/test sets'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 5-fold spatial cross-validation in code/validation.py ensuring
+    spatially disjoint train/test sets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:00:19Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: trigger refactoring if memory usage exceeds 5GB during processing of
+    50k cells
+  claim_id: c_5c156764
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T035 Refactor code/ingestion.py
+    and code/models.py to use pandas chunking or dask if memory usage exceeds 5GB
+    during processing of 50k cells (ensure FR-010 compliance)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/ingestion.py and code/models.py to use pandas chunking or
+    dask if memory usage exceeds 5GB during processing of 50k cells
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:01:31Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 50k grid cells generation stays under 7GB RAM
+  claim_id: c_cfd8ada6
+  context: T005b [P] Implement memory-safe chunking in code/synthetic_data.py (using
+    Dask or pandas chunking) to ensure generation of 50k cells stays <7GB RAM, satisfying
+    FR-010 by design
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: memory-safe chunking in code/synthetic_data.py (using Dask or pandas chunking)
+    to ensure generation of 50k cells stays <7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:11:26Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: IQR filter uses 1.5x IQR for decibel outlier removal
+  claim_id: c_759ed855
+  context: T012 [US1] Implement code/preprocessing.py to apply IQR filter (1.5x IQR)
+    for decibel outlier removal
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply IQR filter (1.5x IQR) for decibel outlier removal
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:11:26Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: K-Nearest Neighbor fallback uses K=8
+  claim_id: c_b331b2d9
+  context: 'T019 [US2] Implement spatial weight matrix construction in code/models.py:
+    Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement spatial weight matrix construction in code/models.py: Queen
+    Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:11:28Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 5-fold spatial cross-validation
+  claim_id: c_0943d6ff
+  context: T029 [US3] Implement 5-fold spatial cross-validation in code/validation.py
+    ensuring spatially disjoint train/test sets
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 5-fold spatial cross-validation in code/validation.py ensuring
+    spatially disjoint train/test sets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:11:28Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: pandas chunking or dask used if memory exceeds 5GB for 50k cells
+  claim_id: c_21387b3b
+  context: T035 Refactor code/ingestion.py and code/models.py to use pandas chunking
+    or dask if memory usage exceeds 5GB during processing of 50k cells (ensure FR-010
+    compliance)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/ingestion.py and code/models.py to use pandas chunking or
+    dask if memory usage exceeds 5GB during processing of 50k cells
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:11:28Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: synthetic data generator creates 50000 grid cells
+  claim_id: c_4397d858
+  context: T005 [P] Implement synthetic data generator code/synthetic_data.py to create
+    50k grid cells with stochastic spatial parameters; MUST pin random seed AND record
+    generated parameters in state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement synthetic data generator code/synthetic_data.py to create 50k
+    grid cells with stochastic spatial parameters
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:18:23Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: generation of 50000 cells stays under 7GB RAM
+  claim_id: c_56468fe4
+  context: T005b [P] Implement memory-safe chunking in code/synthetic_data.py (using
+    Dask or pandas chunking) to ensure generation of 50k cells stays <7GB RAM, satisfying
+    FR-010 by design
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement memory-safe chunking in code/synthetic_data.py to ensure generation
+    of 50k cells stays <7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:18:23Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: apply 1.5x IQR filter for decibel outlier removal
+  claim_id: c_92562102
+  context: T012 [US1] Implement code/preprocessing.py to apply IQR filter (1.5x IQR)
+    for decibel outlier removal
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply IQR filter (1.5x IQR) for decibel outlier removal
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:18:23Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: daily aggregation includes 95th percentile per day per grid cell
+  claim_id: c_f73e7063
+  context: T013 [US1] Implement daily aggregation logic in code/preprocessing.py (mean,
+    median, 95th percentile per day per grid cell); Unit of analysis is (grid_id,
+    date); Output is a DataFrame retaining daily granularity
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Daily_aggregation_includes_95th_percentile_per_day_per_grid
+  kind: entity_fact
+  raw_text: Implement daily aggregation logic in code/preprocessing.py (mean, median,
+    95th percentile per day per grid cell)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:18:26Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: merge covariates into 200m grid cells
+  claim_id: c_02631f19
+  context: T014 [US1] Implement spatial harmonization in code/ingestion.py to merge
+    covariates into 200m grid cells using output from T013, handling missing covariates
+    via exclusion and logging a WARNING level message indicating the number of excluded
+    cells
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Merge covariates into 200m grid cells
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:18:54Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: fallback to K-Nearest Neighbor with K equals 8
+  claim_id: c_54b4210a
+  context: 'T019 [US2] Implement spatial weight matrix construction in code/models.py:
+    Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement spatial weight matrix construction: Queen Contiguity first,
+    fallback to K-Nearest Neighbor (K=8)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:19:57Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg FDR correction with alpha 0.05
+  claim_id: c_23f37665
+  context: "T023 [US2] Apply Benjamini-Hochberg FDR correction (\u03B1=0.05) to the\
+    \ p-values derived from the robust SEs in T022 for primary covariates"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Benjamini-Hochberg FDR correction (\u03B1=0.05) to the p-values"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:20:44Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: implement 5-fold spatial cross-validation
+  claim_id: c_78a7dcaa
+  context: T029 [US3] Implement 5-fold spatial cross-validation in code/validation.py
+    ensuring spatially disjoint train/test sets
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 5-fold spatial cross-validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:21:34Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: refactor to use chunking if memory usage exceeds 5GB during processing
+    of 50000 cells
+  claim_id: c_f6c69686
+  context: T035 Refactor code/ingestion.py and code/models.py to use pandas chunking
+    or dask if memory usage exceeds 5GB during processing of 50k cells (ensure FR-010
+    compliance)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/ingestion.py and code/models.py to use pandas chunking or
+    dask if memory usage exceeds 5GB during processing of 50k cells
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:21:34Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: spatial weight matrix fallback to K-Nearest Neighbor with K=8
+  claim_id: c_617184ed
+  context: 'T019 [US2] Implement spatial weight matrix construction in code/models.py:
+    Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement spatial weight matrix construction in code/models.py: Queen
+    Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:25:43Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: memory usage exceeds 5GB during processing of 50k cells
+  claim_id: c_f63b8d59
+  context: T035 Refactor code/ingestion.py and code/models.py to use pandas chunking
+    or dask if memory usage exceeds 5GB during processing of 50k cells (ensure FR-010
+    compliance)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/ingestion.py and code/models.py to use pandas chunking or
+    dask if memory usage exceeds 5GB during processing of 50k cells
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:25:43Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 3
+  canonical: generation of 50k cells stays under 7GB RAM
+  claim_id: c_9c51ebd4
+  context: T005b [P] Implement memory-safe chunking in code/synthetic_data.py (using
+    Dask or pandas chunking) to ensure generation of 50k cells stays <7GB RAM, satisfying
+    FR-010 by design
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement memory-safe chunking in code/synthetic_data.py (using Dask or
+    pandas chunking) to ensure generation of 50k cells stays <7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:26:39Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: covariates merged into 200m grid cells
+  claim_id: c_e2369c14
+  context: T014 [US1] Implement spatial harmonization in code/ingestion.py to merge
+    covariates into 200m grid cells using output from T013, handling missing covariates
+    via exclusion and logging a WARNING level message indicating the number of excluded
+    cells
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: merge covariates into 200m grid cells
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:26:39Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: spatial weight matrix uses K=8 nearest neighbor fallback
+  claim_id: c_aa868a98
+  context: 'T019 [US2] Implement spatial weight matrix construction in code/models.py:
+    Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:28:33Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 5-fold spatial cross-validation implemented
+  claim_id: c_52b321a9
+  context: T029 [US3] Implement 5-fold spatial cross-validation in code/validation.py
+    ensuring spatially disjoint train/test sets
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 5-fold spatial cross-validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:28:33Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 5
+  canonical: synthetic data generator creates 50k grid cells
+  claim_id: c_44070890
+  context: T005 [P] Implement synthetic data generator code/synthetic_data.py to create
+    50k grid cells with stochastic spatial parameters; MUST pin random seed AND record
+    generated parameters in state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement synthetic data generator code/synthetic_data.py to create 50k
+    grid cells with stochastic spatial parameters
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:35:23Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: generation of 50k grid cells stays under 7GB RAM
+  claim_id: c_071d3c39
+  context: T005b [P] Implement memory-safe chunking in code/synthetic_data.py (using
+    Dask or pandas chunking) to Implement memory-safe chunking in code/synthetic_data.py
+    (using Dask or pandas chunking) to ensure generation of 50k cells stays <7GB RAM,
+    satisfying FR-010 by design
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure generation of 50k cells stays <7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:36:09Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: IQR filter uses 1.5x IQR threshold for decibel outlier removal
+  claim_id: c_78c7f411
+  context: T012 [US1] Implement code/preprocessing.py to apply IQR filter (1.5x IQR)
+    for decibel outlier removal
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply IQR filter (1.5x IQR) for decibel outlier removal
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:36:09Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: daily aggregation calculates mean, median, and 95th percentile per grid
+    cell
+  claim_id: c_d9806c84
+  context: T013 [US1] Implement daily aggregation logic in code/preprocessing.py (mean,
+    median, 95th percentile per day per grid cell); Unit of analysis is (grid_id,
+    date); Output is a DataFrame retaining daily granularity
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Daily_aggregation_calculates_mean,_median,_and_95th_percenti
+  kind: entity_fact
+  raw_text: Implement daily aggregation logic in code/preprocessing.py (mean, median,
+    95th percentile per day per grid cell)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:36:11Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: spatial weight matrix uses Queen Contiguity with K-Nearest Neighbor K=8
+    fallback
+  claim_id: c_0efc1972
+  context: 'T019 [US2] Implement spatial weight matrix construction in code/models.py:
+    Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement spatial weight matrix construction in code/models.py: Queen
+    Contiguity first, fallback to K-Nearest Neighbor (K=8)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:36:11Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction uses alpha 0.05
+  claim_id: c_edb5a251
+  context: "T023 [US2] Apply Benjamini-Hochberg FDR correction (\u03B1=0.05) to the\
+    \ p-values derived from the robust SEs in T022 for primary covariates"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Benjamini-Hochberg FDR correction (\u03B1=0.05) to the p-values"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:36:11Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: spatial cross-validation uses 5 folds
+  claim_id: c_ac65bbd9
+  context: T029 [US3] Implement 5-fold spatial cross-validation in code/validation.py
+    ensuring spatially disjoint train/test sets
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 5-fold spatial cross-validation in code/validation.py ensuring
+    spatially disjoint train/test sets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:36:11Z'
+- artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: chunking triggered if memory usage exceeds 5GB during processing of 50k
+    cells
+  claim_id: c_a60e6466
+  context: T035 Refactor code/ingestion.py and code/models.py to use pandas chunking
+    or dask if memory usage exceeds 5GB during processing of 50k cells (ensure FR-010
+    compliance)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: refactor code/ingestion.py and code/models.py to use pandas chunking or
+    dask if memory usage exceeds 5GB during processing of 50k cells
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:36:11Z'
