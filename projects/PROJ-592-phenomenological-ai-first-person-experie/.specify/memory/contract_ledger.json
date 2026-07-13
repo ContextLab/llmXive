@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "retry_on_failure",
+    "owner": null
+  }
+]

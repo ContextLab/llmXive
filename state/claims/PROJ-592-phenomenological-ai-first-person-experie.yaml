@@ -1292,3 +1292,18 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T16:15:45Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/quickstart.md
+  attempts: 1
+  canonical: TinyLlama-1.1B requires approximately 2GB RAM on CPU
+  claim_id: c_7b0f156c
+  context: Prerequisites section listing hardware requirements for the chosen model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TinyLlama-1.1B requires ~2GB RAM on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T17:02:11Z'

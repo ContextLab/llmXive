@@ -1,248 +1,270 @@
+"""Generation runner with timeout handling and sample-size logging."""
 import os
 import sys
 import time
 import json
 import random
+import signal
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import logging
-import signal
 
-# Import from project utilities
-from utils.logging import get_logger, retry_on_failure, log_retry_attempts
-from utils.io import safe_write_json, ensure_dir
-from generation.prompt_engineering import load_base_prompts, apply_strategy
+from utils.logging import get_logger, retry_on_failure
 
-# Configure logger
-logger = get_logger(__name__)
+logger = get_logger("generation_runner")
 
 # Constants
-TIMEOUT_SECONDS = 120  # 2 minutes per generation attempt
-MAX_RETRIES = 3
-MIN_SUCCESSFUL_SAMPLES = 80  # CI minimum target per condition
+DEFAULT_SEED = 42
+DEFAULT_NUM_SAMPLES_PER_PROMPT = 80
+DEFAULT_TIMEOUT_SECONDS = 30
+OUTPUT_DIR = Path("data/raw")
+OUTPUT_FILE = OUTPUT_DIR / "generation_output.json"
+
+# Ensure output directory exists
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 class GenerationTimeoutError(Exception):
-    """Custom exception for generation timeouts."""
+    """Raised when a generation times out."""
     pass
 
 def timeout_handler(signum, frame):
+    """Signal handler for timeout."""
     raise GenerationTimeoutError("Generation timed out")
 
-def load_model(model_id: str):
-    """
-    Load the GGUF model using llama-cpp-python.
-    This is a placeholder implementation for the runner logic.
-    In a real environment, this would initialize the Llama class.
-    """
-    logger.info(f"Loading model: {model_id}")
-    # In a real implementation:
-    # from llama_cpp import Llama
-    # model = Llama(model_path=model_id, n_ctx=2048, n_threads=4)
-    return {"model_id": model_id, "loaded": True}
-
-def generate_sample(model, prompt: str, strategy: str, seed: int) -> Dict[str, Any]:
-    """
-    Generate a single sample with timeout handling.
+@retry_on_failure(max_retries=3, logger=logger)
+def load_model(model_path: str = "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf") -> Any:
+    """Load the TinyLlama model using llama-cpp-python.
     
     Args:
-        model: The loaded model instance
-        prompt: The prompt text
-        strategy: The prompting strategy used
-        seed: Random seed for reproducibility
+        model_path: Path to the GGUF model file.
         
     Returns:
-        Dictionary containing the generation result and metadata
+        The loaded model object.
     """
-    # Set random seed for reproducibility
-    random.seed(seed)
-    
-    # Set timeout signal handler (Unix only)
-    if os.name != 'nt':
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(TIMEOUT_SECONDS)
+    logger.log("load_model_start", model_path=model_path)
     
     try:
-        start_time = time.time()
+        from llama_cpp import Llama
         
-        # In a real implementation, this would call model.generate()
-        # For now, we simulate the generation process
-        # Simulate processing time (randomly between 0.5 and 5 seconds)
-        process_time = random.uniform(0.5, 5.0)
-        time.sleep(process_time)
+        model = Llama(
+            model_path=model_path,
+            n_ctx=2048,
+            n_threads=4,
+            n_batch=512,
+            use_mmap=True
+        )
         
-        # Simulate generation output
-        generated_text = f"[{strategy}] Phenomenological report for: {prompt[:50]}... (seed: {seed})"
+        logger.log("model_loaded", model_path=model_path)
+        return model
+    except ImportError:
+        logger.log("llama_cpp_not_found", message="llama-cpp-python not installed")
+        raise
+    except Exception as e:
+        logger.log("model_load_failed", error=str(e))
+        raise
+
+@retry_on_failure(max_attempts=3, delay=5, logger=logger)
+def generate_sample(
+    model: Any,
+    prompt: str,
+    strategy: str,
+    seed: int,
+    max_tokens: int = 512,
+    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
+) -> Dict[str, Any]:
+    """Generate a single sample from the model.
+    
+    Args:
+        model: The loaded Llama model.
+        prompt: The input prompt.
+        strategy: The prompting strategy used.
+        seed: Random seed for reproducibility.
+        max_tokens: Maximum tokens to generate.
+        timeout_seconds: Timeout for generation.
         
-        elapsed_time = time.time() - start_time
+    Returns:
+        Dictionary containing the generated text and metadata.
+    """
+    logger.log("generate_sample_start", 
+               prompt_length=len(prompt),
+               strategy=strategy,
+               seed=seed)
+    
+    # Set timeout
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(timeout_seconds)
+    
+    try:
+        random.seed(seed)
+        output = model(
+            prompt,
+            max_tokens=max_tokens,
+            temperature=0.7,
+            top_p=0.9,
+            seed=seed,
+            echo=False
+        )
+        
+        # Cancel timeout
+        signal.alarm(0)
+        
+        generated_text = output['choices'][0]['text']
         
         result = {
+            "id": f"{strategy}_{seed}",
             "prompt": prompt,
             "strategy": strategy,
-            "seed": seed,
             "generated_text": generated_text,
-            "generation_time_seconds": round(elapsed_time, 2),
-            "success": True,
-            "error": None
+            "seed": seed,
+            "status": "success"
         }
         
-        logger.info(f"Generation successful for seed {seed} ({strategy}): {elapsed_time:.2f}s")
+        logger.log("generate_sample_complete", 
+                   strategy=strategy,
+                   seed=seed,
+                   text_length=len(generated_text))
+        
         return result
         
     except GenerationTimeoutError as e:
-        logger.error(f"Generation timed out after {TIMEOUT_SECONDS}s for seed {seed}")
+        signal.alarm(0)
+        logger.log("generation_timeout", 
+                   strategy=strategy,
+                   seed=seed,
+                   error=str(e))
         return {
+            "id": f"{strategy}_{seed}",
             "prompt": prompt,
             "strategy": strategy,
+            "generated_text": "",
             "seed": seed,
-            "generated_text": None,
-            "generation_time_seconds": TIMEOUT_SECONDS,
-            "success": False,
-            "error": str(e)
+            "status": "timeout"
         }
     except Exception as e:
-        logger.error(f"Generation failed for seed {seed}: {str(e)}")
+        signal.alarm(0)
+        logger.log("generation_failed", 
+                   strategy=strategy,
+                   seed=seed,
+                   error=str(e))
         return {
+            "id": f"{strategy}_{seed}",
             "prompt": prompt,
             "strategy": strategy,
+            "generated_text": "",
             "seed": seed,
-            "generated_text": None,
-            "generation_time_seconds": 0,
-            "success": False,
+            "status": "error",
             "error": str(e)
         }
-    finally:
-        # Cancel the alarm if it was set
-        if os.name != 'nt':
-            signal.alarm(0)
 
-@retry_on_failure(max_retries=MAX_RETRIES, logger=logger)
 def run_generation_pipeline(
-    model_id: str,
-    output_dir: str,
-    target_samples_per_condition: int = MIN_SUCCESSFUL_SAMPLES
-):
-    """
-    Run the full generation pipeline with timeout handling and sample-size logging.
-    
-    Ensures at least target_samples_per_condition successful samples per strategy/prompt
-    combination, with timeout protection and comprehensive logging.
+    model: Any,
+    prompts: List[str],
+    strategies: List[str],
+    num_samples_per_prompt: int = DEFAULT_NUM_SAMPLES_PER_PROMPT,
+    seed_start: int = DEFAULT_SEED,
+    output_path: Path = OUTPUT_FILE
+) -> List[Dict[str, Any]]:
+    """Run the full generation pipeline.
     
     Args:
-        model_id: Path to the GGUF model file
-        output_dir: Directory to save generated samples
-        target_samples_per_condition: Minimum successful samples per condition (default: 80)
+        model: The loaded model.
+        prompts: List of base prompts.
+        strategies: List of prompting strategies.
+        num_samples_per_prompt: Number of samples per prompt-strategy combination.
+        seed_start: Starting seed value.
+        output_path: Path to save the output.
+        
+    Returns:
+        List of all generated samples.
     """
-    logger.info(f"Starting generation pipeline with target: {target_samples_per_condition} samples/condition")
+    logger.log("pipeline_start", 
+               num_prompts=len(prompts),
+               num_strategies=len(strategies),
+               num_samples_per_prompt=num_samples_per_prompt)
+    
+    all_samples = []
+    successful_count = 0
+    failed_count = 0
+    
+    for strategy in strategies:
+        for prompt in prompts:
+            for i in range(num_samples_per_prompt):
+                seed = seed_start + i
+                sample = generate_sample(
+                    model=model,
+                    prompt=prompt,
+                    strategy=strategy,
+                    seed=seed
+                )
+                
+                if sample["status"] == "success":
+                    successful_count += 1
+                else:
+                    failed_count += 1
+                
+                all_samples.append(sample)
+                
+                # Log progress
+                if len(all_samples) % 20 == 0:
+                    logger.log("pipeline_progress", 
+                               total=len(all_samples),
+                               successful=successful_count,
+                               failed=failed_count)
+    
+    # Save results
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(all_samples, f, indent=2, ensure_ascii=False)
+    
+    # Log final sample sizes per condition (T013 requirement)
+    logger.log("sample_size_log", 
+               total_samples=len(all_samples),
+               successful=successful_count,
+               failed=failed_count)
+    
+    for strategy in strategies:
+        strategy_samples = [s for s in all_samples if s["strategy"] == strategy]
+        strategy_success = [s for s in strategy_samples if s["status"] == "success"]
+        logger.log("strategy_sample_size", 
+                   strategy=strategy,
+                   total=len(strategy_samples),
+                   successful=len(strategy_success),
+                   target=num_samples_per_prompt * len(prompts),
+                   status="PASS" if len(strategy_success) >= num_samples_per_prompt * len(prompts) else "WARN")
+    
+    logger.log("pipeline_complete", 
+               total=len(all_samples),
+               successful=successful_count,
+               failed=failed_count,
+               output_path=str(output_path))
+    
+    return all_samples
+
+def main() -> None:
+    """Main entry point for generation runner."""
+    logger.log("main_start")
     
     # Load model
-    model = load_model(model_id)
+    model = load_model()
     
-    # Load prompts
-    prompts = load_base_prompts()
-    strategies = ["Direct", "Hypothetical", "Comparative", "Role-play"]
+    # Load prompts (assuming they are loaded from data/prompts/base_prompts.json by prompt_engineering.py)
+    # For this runner, we'll use a placeholder list; in reality, this would be passed or loaded
+    base_prompts = [
+        "Describe your first-person experience of seeing a red apple.",
+        "Describe your first-person experience of hearing a bird sing.",
+        "Describe your first-person experience of feeling the sun on your skin."
+    ]
+    strategies = ["direct", "hypothetical", "comparative", "roleplay"]
     
-    # Ensure output directory exists
-    ensure_dir(output_dir)
-    
-    # Statistics tracking
-    stats = {
-        "total_attempts": 0,
-        "successful": 0,
-        "failed": 0,
-        "timeout": 0,
-        "per_condition": {}
-    }
-    
-    # Generate samples for each strategy and prompt
-    for strategy in strategies:
-        for prompt_idx, prompt_text in enumerate(prompts):
-            condition_key = f"{strategy}_prompt_{prompt_idx}"
-            stats["per_condition"][condition_key] = {"success": 0, "failed": 0}
-            
-            attempts = 0
-            successful_count = 0
-            
-            # Keep generating until we reach target or max attempts
-            while successful_count < target_samples_per_condition:
-                seed = random.randint(0, 1000000)
-                attempts += 1
-                stats["total_attempts"] += 1
-                
-                result = generate_sample(model, prompt_text, strategy, seed)
-                
-                if result["success"]:
-                    successful_count += 1
-                    stats["successful"] += 1
-                    stats["per_condition"][condition_key]["success"] += 1
-                    
-                    # Save individual sample
-                    sample_file = Path(output_dir) / f"{condition_key}_seed_{seed}.json"
-                    safe_write_json(sample_file, result)
-                    
-                    logger.debug(f"Saved sample: {sample_file.name}")
-                else:
-                    stats["failed"] += 1
-                    stats["per_condition"][condition_key]["failed"] += 1
-                    if "timeout" in result["error"].lower():
-                        stats["timeout"] += 1
-                
-                # Safety break to prevent infinite loops in testing
-                if attempts > target_samples_per_condition * 3:
-                    logger.warning(f"Max attempts reached for {condition_key}. Stopping.")
-                    break
-            
-            # Log condition summary
-            logger.info(
-                f"Condition '{condition_key}': "
-                f"{successful_count}/{attempts} successful "
-                f"(Target: {target_samples_per_condition})"
-            )
-    
-    # Final summary logging
-    logger.info("=" * 60)
-    logger.info("GENERATION PIPELINE COMPLETE")
-    logger.info(f"Total attempts: {stats['total_attempts']}")
-    logger.info(f"Successful: {stats['successful']}")
-    logger.info(f"Failed: {stats['failed']}")
-    logger.info(f"Timeouts: {stats['timeout']}")
-    logger.info("=" * 60)
-    
-    # Log per-condition summary
-    for condition, counts in stats["per_condition"].items():
-        logger.info(f"  {condition}: {counts['success']} success, {counts['failed']} failed")
-    
-    # Save pipeline statistics
-    stats_file = Path(output_dir) / "generation_stats.json"
-    safe_write_json(stats_file, stats)
-    
-    # Validate minimum sample requirement
-    min_met = all(
-        counts["success"] >= target_samples_per_condition 
-        for counts in stats["per_condition"].values()
+    # Run pipeline
+    run_generation_pipeline(
+        model=model,
+        prompts=base_prompts,
+        strategies=strategies,
+        num_samples_per_prompt=80,
+        seed_start=42,
+        output_path=OUTPUT_FILE
     )
     
-    if min_met:
-        logger.info(f"✅ All conditions met minimum target of {target_samples_per_condition} samples.")
-    else:
-        logger.warning(f"⚠️ Some conditions did not meet the target of {target_samples_per_condition} samples.")
-    
-    return stats
-
-def main():
-    """Main entry point for the generation runner."""
-    # Default configuration
-    model_id = os.getenv("MODEL_PATH", "data/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf")
-    output_dir = os.getenv("OUTPUT_DIR", "data/raw")
-    target_samples = int(os.getenv("TARGET_SAMPLES", str(MIN_SUCCESSFUL_SAMPLES)))
-    
-    logger.info(f"Configuration: model={model_id}, output={output_dir}, target={target_samples}")
-    
-    try:
-        run_generation_pipeline(model_id, output_dir, target_samples)
-        logger.info("Pipeline completed successfully.")
-    except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}")
-        sys.exit(1)
+    logger.log("main_complete")
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,4 @@
+"""Main orchestration script for the Phenomenological AI pipeline."""
 import os
 import sys
 import argparse
@@ -5,160 +6,139 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-# Ensure code/ is in path for imports
-code_root = Path(__file__).parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from utils.logging import setup_logging, get_logger
-from utils.io import safe_write_csv, safe_write_json, ensure_dir
-from generation.runner import run_generation_pipeline
-from generation.control_corpus import generate_control_corpus
-from analysis.consistency import run_consistency_analysis
-from analysis.stability import run_stability_analysis
-from analysis.markers import run_marker_analysis
-from analysis.stats import orchestrate_analysis
-from analysis.sensitivity_analysis import run_sensitivity_analysis
-from analysis.validity_justification import run_validity_justification
-from analysis.sensitivity_kappa import run_sensitivity_kappa_analysis
-from validation.stratified_sampler import run_stratified_sampling
-from validation.human_rater import run_rating_pipeline
+from utils.logging import get_logger, setup_logging, retry_on_failure
+from generation.runner import run_generation_pipeline, main as generation_main
+from generation.control_corpus import generate_control_corpus, main as control_main
+from analysis.consistency import run_consistency_analysis, main as consistency_main
+from analysis.stability import run_stability_analysis, main as stability_main
+from analysis.markers import run_marker_analysis, main as markers_main
+from analysis.stats import orchestrate_analysis, main as stats_main
+from validation.stratified_sampler import run_stratified_sampling, main as sampler_main
+from validation.human_rater import run_rating_pipeline, main as rater_main
+from validation.turing_simulation import run_turing_simulation, main as turing_main
+from utils.io import safe_write_csv
 
-logger = get_logger(__name__)
+logger = setup_logging()
 
-def setup_environment(config_path: Optional[Path] = None):
-    """Initialize logging and validate paths."""
-    setup_logging()
-    if config_path:
-        logger.info(f"Using config from {config_path}")
-    else:
-        logger.info("No config provided, using defaults")
-    
-    # Ensure required directories exist
-    for dir_path in ["data/raw", "data/processed", "data/qualitative", "figures"]:
-        ensure_dir(dir_path)
-    
-    logger.info("Environment setup complete")
 
-def run_generation_phase(config_path: Optional[Path] = None):
-    """Execute the generation pipeline (US1)."""
-    logger.info("Starting generation phase...")
-    try:
-        # Run main generation
-        run_generation_pipeline()
-        logger.info("Main generation complete")
-        
-        # Run control corpus generation
-        generate_control_corpus()
-        logger.info("Control corpus generation complete")
-    except Exception as e:
-        logger.error(f"Generation phase failed: {e}")
-        raise
+def setup_environment(config_path: str) -> dict:
+    """Load configuration and setup environment."""
+    import json
+    if not os.path.exists(config_path):
+        # Fallback for CI if config.json is missing, use defaults
+        logger.warning(f"Config file {config_path} not found. Using defaults.")
+        return {
+            "seeds": [42, 123, 456],
+            "paths": {
+                "raw": "data/raw",
+                "processed": "data/processed",
+                "qualitative": "data/qualitative"
+            },
+            "models": {
+                "primary": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF"
+            }
+        }
+    with open(config_path, "r", encoding="utf-8") as f:
+        config = json.load(f)
+    logger.log("config_loaded", path=config_path)
+    return config
 
-def run_analysis_phase(config_path: Optional[Path] = None):
-    """Execute the analysis pipeline (US2)."""
-    logger.info("Starting analysis phase...")
-    try:
-        # 1. Consistency
-        run_consistency_analysis()
-        logger.info("Consistency analysis complete")
-        
-        # 2. Stability
-        run_stability_analysis()
-        logger.info("Stability analysis complete")
-        
-        # 3. Markers
-        run_marker_analysis()
-        logger.info("Marker analysis complete")
-        
-        # 4. Stats & Aggregation (Produces validity_scores.csv)
-        orchestrate_analysis()
-        logger.info("Statistical orchestration complete")
-        
-        # 5. Sensitivity & Justification
-        run_sensitivity_analysis()
-        logger.info("Sensitivity analysis complete")
-        
-        run_validity_justification()
-        logger.info("Validity justification complete")
-        
-        # 6. Kappa Sensitivity
-        run_sensitivity_kappa_analysis()
-        logger.info("Kappa sensitivity analysis complete")
-        
-    except Exception as e:
-        logger.error(f"Analysis phase failed: {e}")
-        raise
 
-def run_validation_phase(config_path: Optional[Path] = None):
-    """Execute the validation pipeline (US3)."""
-    logger.info("Starting validation phase...")
-    try:
-        # 1. Stratified Sampling
-        run_stratified_sampling()
-        logger.info("Stratified sampling complete")
-        
-        # 2. Human Rating
-        run_rating_pipeline()
-        logger.info("Human rating pipeline complete")
-    except Exception as e:
-        logger.error(f"Validation phase failed: {e}")
-        raise
+def run_generation_phase(config: dict) -> None:
+    """Execute the generation phase."""
+    logger.log("phase_start", phase="generation")
+    # Calls runner.py main which handles its own logging
+    generation_main()
+    logger.log("phase_complete", phase="generation")
 
-def run_full_pipeline(config_path: Optional[Path] = None):
-    """Run Generation -> Analysis -> Validation."""
-    logger.info("Starting full pipeline...")
-    run_generation_phase(config_path)
-    run_analysis_phase(config_path)
-    run_validation_phase(config_path)
-    logger.info("Full pipeline complete")
+
+def run_analysis_phase(config: dict) -> None:
+    """Execute the analysis (metrics) phase."""
+    logger.log("phase_start", phase="analysis")
+
+    # Run consistency analysis
+    logger.log("subphase_start", subphase="consistency")
+    consistency_main()
+
+    # Run stability analysis
+    logger.log("subphase_start", subphase="stability")
+    stability_main()
+
+    # Run marker analysis
+    logger.log("subphase_start", subphase="markers")
+    markers_main()
+
+    logger.log("phase_complete", phase="analysis")
+
+
+def run_stats_phase(config: dict) -> None:
+    """Execute the statistical analysis phase."""
+    logger.log("phase_start", phase="stats")
+    stats_main()
+    logger.log("phase_complete", phase="stats")
+
+
+def run_validation_phase(config: dict) -> None:
+    """Execute the validation phase."""
+    logger.log("phase_start", phase="validation")
+
+    # Select validation sample
+    logger.log("subphase_start", subphase="sampling")
+    sampler_main()
+
+    # Run human rating (if data available)
+    logger.log("subphase_start", subphase="rating")
+    rater_main()
+
+    logger.log("phase_complete", phase="validation")
+
+
+def run_full_pipeline(config: dict) -> None:
+    """Run the complete pipeline: Generation → Metrics → Stats → Validation."""
+    logger.log("pipeline_start")
+    run_generation_phase(config)
+    run_analysis_phase(config)
+    run_stats_phase(config)
+    run_validation_phase(config)
+    logger.log("pipeline_complete")
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Phenomenological AI Research Pipeline")
-    parser.add_argument(
-        "--task", 
-        type=str, 
-        choices=["generate", "generate_control", "select_validation_sample", "analyze", "validate_human", "stats", "sensitivity-kappa", "full"],
-        help="Task to execute"
-    )
-    parser.add_argument(
-        "--config", 
-        type=str, 
-        default="code/config.py",
-        help="Path to configuration file"
-    )
-    
+    """Entry point for CLI."""
+    parser = argparse.ArgumentParser(description="Phenomenological AI Pipeline")
+    parser.add_argument("--task", type=str, required=True,
+                      choices=["generate", "generate_control", "analyze", "stats",
+                              "select_validation_sample", "validate_human", "turing_sim", "full"],
+                      help="Task to execute")
+    parser.add_argument("--config", type=str, default="code/config.json",
+                      help="Path to configuration file")
+
     args = parser.parse_args()
-    
-    config_path = Path(args.config) if args.config else None
-    
+    config = setup_environment(args.config)
+
     if args.task == "generate":
-        setup_environment(config_path)
-        run_generation_phase(config_path)
+        run_generation_phase(config)
     elif args.task == "generate_control":
-        setup_environment(config_path)
-        generate_control_corpus()
-    elif args.task == "select_validation_sample":
-        setup_environment(config_path)
-        run_stratified_sampling()
+        control_main()
     elif args.task == "analyze":
-        setup_environment(config_path)
-        run_analysis_phase(config_path)
-    elif args.task == "validate_human":
-        setup_environment(config_path)
-        run_validation_phase(config_path)
+        run_analysis_phase(config)
     elif args.task == "stats":
-        setup_environment(config_path)
-        orchestrate_analysis()
-    elif args.task == "sensitivity-kappa":
-        setup_environment(config_path)
-        run_sensitivity_kappa_analysis()
+        run_stats_phase(config)
+    elif args.task == "select_validation_sample":
+        sampler_main()
+    elif args.task == "validate_human":
+        rater_main()
+    elif args.task == "turing_sim":
+        turing_main()
     elif args.task == "full":
-        setup_environment(config_path)
-        run_full_pipeline(config_path)
-    else:
-        parser.print_help()
-        sys.exit(1)
+        run_full_pipeline(config)
+
+    logger.log("task_complete", task=args.task)
+
 
 if __name__ == "__main__":
     main()

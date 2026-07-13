@@ -58,7 +58,7 @@
 - [X] T004 Implement `code/config.py` with:
  1. Seeds, paths, and model IDs (Primary: `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF ` for CI; Optional: 7B models for local only).
  2. **Phenomenological Marker Dictionaries**: Define concrete lists for 'sensory' (e.g., see, hear, feel, touch, taste, smell, light, sound), 'temporal' (e.g., now, then, before, after, moment, duration), and 'intentional' (e.g., think, believe, desire, intend, perceive, experience) keywords as per FR-008 and FR-009.
-- [X] T005 [P] Setup `code/utils/logging.py` for structured logging, warning capture, and retry logic (multiple attempts per sample)
+- [ ] T005 [P] Setup `code/utils/logging.py` for structured logging, warning capture, and retry logic (multiple attempts per sample)
 - [X] T006 [P] Implement `code/utils/io.py` for JSON/CSV schema validation and artifact archiving
 - [X] T007 [P] Create base data schemas in `specs/contracts/`: `specs/contracts/generation_output.schema.yaml`, `specs/contracts/validity_scores.schema.yaml`, `specs/contracts/qualitative_ratings.schema.yaml`
 - [X] T008 [P] Implement `code/generation/prompt_engineering.py` with the defined strategies (Direct, Hypothetical, Comparative, Role-play) and 20 base prompts loaded from `data/prompts/base_prompts.json`. **Execution**: {{claim:c_4d5dfa7d}}
@@ -79,7 +79,10 @@
 - [X] T010 [US1] Implement retry logic in `runner.py`: A fixed number of attempts per prompt/strategy combination, marking samples as missing after failure (FR-001).
 - [X] T011 [P] [US1] Create `code/generation/control_corpus.py` to generate ≥80 control samples using `datasets.load_dataset("arxiv_nlp")` with `filter='arxiv_nlp'` and random sampling. **Verification**: Ensure these samples are processed through the same three validity metrics (Consistency, Stability, Markers) as the phenomenological reports to compute discriminant validity (FR-001).
 - [X] T012 [P] [US1] Implement `code/generation/runner_local.py` for the second checkpoint (Mistral-7B or Llama-7B) using `llama-cpp-python` with 4-bit GGUF. **Note**: This script is for local execution only (users with ≥16GB RAM) and satisfies the "two checkpoints" requirement of FR-001/US-1. It is NOT used in the primary CI path.
-- [X] T013 [US1] Add timeout handling and sample-size logging to ensure ≥80 successful samples per condition. **Note**: This is the CI minimum; The Plan's statistical power target is a research goal to be addressed via sensitivity analysis if CI limits are hit.
+- [ ] T013 [US1] Add timeout handling and sample-size logging to ensure ≥80 successful samples per condition. **Note**: This is the CI minimum; The Plan's statistical power target is a research goal to be addressed via sensitivity analysis if CI limits are hit. <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,7 +106,10 @@
 - [X] T021 [P] [US3] Implement `code/validation/human_rater.py` to load generated reports, apply independent validation rubric from `code/validation/rubric.md` (FR-010), and store ratings. **Dependency**: Requires T020 to create the rubric.
 - [X] T022 [US2] Implement Cohen's κ calculation and threshold sensitivity analysis in `code/analysis/sensitivity_kappa.py`: Analyze robustness of conclusions across a range of kappa thresholds as required by FR-011. **Note**: Report the threshold as the benchmark., but do not enforce it as a hard gate in the analysis logic itself.
 - [X] T023 [US3] Create `code/validation/stratified_sampler.py` to select a representative set of reports per condition for human rating (SC-002).
-- [X] T024 [US2] Implement `code/main.py` to orchestrate the full pipeline: Generation → Metrics → Stats (enables US1+US2 integration testing).
+- [ ] T024 [US2] Implement `code/main.py` to orchestrate the full pipeline: Generation → Metrics → Stats (enables US1+US2 integration testing). <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
 - [X] T034 [US2] Implement `code/analysis/experience_trace.py` (FR-009/Review-DanRockmore): Create a lightweight attention-mapping script that extracts and logs the top-k token attention heads for specific phenomenological keywords (e.g., "feel", "now") to trace internal state activation patterns. Output to `data/processed/experience_traces.json`. <!-- ATOMIZE: requested -->
 - [X] T035 [US2] Implement `code/analysis/stylistic_comparison.py` (FR-009/Review-DavidKrakauer): Add a comparative analysis module that explicitly tests the "phenomenological style" hypothesis by comparing the generated reports against a baseline of "ordinary conversation" (e.g., from `datasets.load_dataset("imdb")` or `common_crawl` subset) to measure the operational difference in marker density and structural coherence.
 
@@ -136,7 +142,7 @@
 - [ ] T030a [P] Add CLI usage examples and environment setup instructions to `quickstart.md`. **Examples**: Document `python main.py --mode generation`, `python main.py --mode analysis`, `python main.py --mode validate`. <!-- FAILED: unspecified -->
 - [X] T030b [P] Add schema descriptions and data flow diagrams to `data-model.md`
 - [X] T031a [P] Refactor `code/analysis/stats.py` to add type hints and remove duplicate imports.
-- [X] T031b [P] Refactor `code/utils/logging.py` to standardize log levels and output formats.
+- [ ] T031b [P] Refactor `code/utils/logging.py` to standardize log levels and output formats.
 - [X] T032 [P] Add unit tests in `tests/unit/`: specifically `tests/unit/test_markers.py::test_count_sensory_keywords`, `tests/unit/test_consistency.py::test_pairwise_contradiction`.
 - [X] T033 [P] Run `quickstart.md` validation to ensure full pipeline execution ≤6 hours on free-tier <!-- FAILED: unspecified -->
 - [X] T037 [US2/US3] Update `research.md` and `data-model.md` to document the implementation details of "Experience Trace" (T034) and "Stylistic Comparison" (T035) as secondary outputs for validity, addressing Review-DanRockmore and Review-DavidKrakauer concerns. **Note**: Do not modify `spec.md` or `plan.md` requirements; document implementation in research docs. **Dependency**: Must run after T034, T035, T036.

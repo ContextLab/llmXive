@@ -1,16 +1,28 @@
-transformers>=4.35.0
+# Core dependencies
 llama-cpp-python>=0.2.0
-sentence-transformers>=2.2.0
-scikit-learn>=1.3.0
-pandas>=2.0.0
-nltk>=3.8.0
-torch>=2.0.0
 datasets>=2.14.0
-statsmodels>=0.14.0
 numpy>=1.24.0
-scipy>=1.11.0
-pyyaml>=6.0
-ruff>=0.1.0
-black>=23.0.0
-config  # auto-added: imported by run-book but missing from venv
-llama_cpp  # auto-added: imported by run-book but missing from venv
+pandas>=2.0.0
+torch>=2.0.0
+transformers>=4.30.0
+
+# NLI and embeddings
+sentence-transformers>=2.2.0
+cross-encoder>=1.0.0
+
+# Statistical analysis
+scipy>=1.10.0
+statsmodels>=0.14.0
+scikit-learn>=1.3.0
+
+# Data handling
+pyyaml>=6.0.0
+jsonschema>=4.17.0
+
+# Utilities
+tqdm>=4.65.0
+rich>=13.0.0
+
+# Testing
+pytest>=7.3.0
+pytest-cov>=4.1.0
