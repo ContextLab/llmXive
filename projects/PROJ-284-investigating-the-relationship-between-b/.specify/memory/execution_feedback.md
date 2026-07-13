@@ -16,12 +16,11 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…nput to output (assuming synthetic input is already 'corrected' f…”; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…original implementation generated synthetic NIfTI‑like data, which v…”; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…d without     generating synthetic NIfTI data.  The function simply ca…”; 1 command(s) failed: python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv
+**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…nput to output (assuming synthetic input is already 'corrected' f…”; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…original implementation generated synthetic NIfTI‑like data, which v…”; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…d without     generating synthetic NIfTI data.  The function simply ca…”; run-book completed but produced no data/figure artifacts; 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --step analyze -> rc=1
-    
+- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
 
 ## Declared deliverables still missing
 
@@ -63,15 +62,17 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_logger` — defined in `code/logging_config.py`; called 17 way(s):
+### `get_logger` — defined in `code/logging_config.py`; called 19 way(s):
 
 - code/logging_config.py: return get_logger().log(op, **kwargs)
+- code/logging_config.py: logger = get_logger()
 - code/main.py: logger = get_logger(__name__)
 - code/viz/network.py: logger = get_logger(__name__)
 - code/viz/scatter.py: logger = get_logger(__name__)
 - code/analysis/power.py: logger = get_logger(__name__)
 - code/analysis/correlations.py: logger = get_logger(__name__)
 - code/analysis/generate_full_metrics.py: logger = get_logger(__name__)
+- code/analysis/pca_runner.py: logger = get_logger(__name__)
 - code/analysis/create_full_metrics.py: logger = get_logger(__name__)
 - code/report/generate.py: logger = get_logger(__name__)
 - code/data/preprocess.py: logger = get_logger("data.preprocess")

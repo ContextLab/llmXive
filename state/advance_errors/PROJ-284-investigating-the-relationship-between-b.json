@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-284-investigating-the-relationship-between-b",
+  "stage": "in_progress",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 - {'detail': 'ExceededBudget: End User=848c9f24-ca72-4aea-af34-f48cd3c74755 over budget. Spend=2.0207469000000002, Budget=2.0'} | local: transformers is not installed; required by local backend",
+  "last_seen": "2026-07-13T22:49:15.852381+00:00",
+  "count": 1
+}

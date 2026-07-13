@@ -1,12 +1,10 @@
 {
   "project_id": "PROJ-284-investigating-the-relationship-between-b",
   "ok": false,
-  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nput to output (assuming synthetic input is already 'corrected' f\u2026\u201d; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026original implementation generated synthetic NIfTI\u2011like data, which v\u2026\u201d; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d without     generating synthetic NIfTI data.  The function simply ca\u2026\u201d; 1 command(s) failed: python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv",
+  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nput to output (assuming synthetic input is already 'corrected' f\u2026\u201d; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026original implementation generated synthetic NIfTI\u2011like data, which v\u2026\u201d; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d without     generating synthetic NIfTI data.  The function simply ca\u2026\u201d; run-book completed but produced no data/figure artifacts; 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv",
   "artifacts": [],
-  "failures": [
-    "python code/main.py --step analyze -> rc=1\n    "
-  ],
-  "fix_rounds": 3,
+  "failures": [],
+  "fix_rounds": 5,
   "model_tier": 2,
-  "updated_at": "2026-07-13T22:26:51Z"
+  "updated_at": "2026-07-13T22:45:16Z"
 }

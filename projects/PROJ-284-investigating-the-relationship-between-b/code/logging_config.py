@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import functools
 import json
+import sys
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
@@ -74,5 +75,5 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 
 def setup_logging(*args: Any, **kwargs: Any) -> None:
-    """Setup logging — no-op in this tolerant implementation."""
+    """Setup logging — tolerant no-op."""
     pass
