@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Result Schema"
+description: "Schema for the output of a single strategy execution on a task."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Reference to the task_id."
+  strategy:
+    type: "string"
+    enum:
+      - "Full"
+      - "Lazy"
+      - "Greedy"
+    description: "The traversal strategy used."
+  accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Binary accuracy (1.0 if match, 0.0 otherwise)."
+  nodes_visited:
+    type: "integer"
+    minimum: 0
+    description: "Count of nodes traversed."
+  edges_explored:
+    type: "integer"
+    minimum: 0
+    description: "Count of edges traversed."
+  latency_seconds:
+    type: "number"
+    minimum: 0.0
+    description: "Total execution time in seconds."
+  token_count:
+    type: "integer"
+    minimum: 0
+    description: "Total tokens generated/consumed."
+  status:
+    type: "string"
+    enum:
+      - "COMPLETED"
+      - "TIMEOUT"
+      - "ERROR"
+      - "DEGENERATE"
+    description: "Execution status."
+  error_message:
+    type: "string"
+    description: "Error details if status is not COMPLETED."
+required:
+  - task_id
+  - strategy
+  - accuracy
+  - nodes_visited
+  - latency_seconds
+  - status
+additionalProperties: false

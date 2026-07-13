@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Result Schema"
+description: "Schema for the aggregated statistical analysis output (FR-005, FR-006)."
+type: "object"
+properties:
+  comparison_pair:
+    type: "string"
+    description: "Identifier for the comparison (e.g., 'Baseline_vs_Lazy')."
+  test_type:
+    type: "string"
+    enum:
+      - "Paired t-test"
+      - "Wilcoxon signed-rank test"
+      - "Point-Biserial correlation"
+      - "Logistic Regression"
+    description: "Statistical test performed."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value from the hypothesis test."
+  test_statistic:
+    type: "number"
+    description: "The t-statistic, W-statistic, or regression coefficient."
+  correlation_coefficient:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Point-Biserial correlation coefficient or regression odds ratio for depth vs. binary success."
+  threshold_point:
+    type: "number"
+    nullable: true
+    description: "Inflection point in nodes_visited where accuracy drops (if significant)."
+  significance_level:
+    type: "number"
+    default: 0.05
+    description: "Alpha level used for significance testing."
+required:
+  - comparison_pair
+  - test_type
+  - p_value
+  - test_statistic
+  - correlation_coefficient
+  - significance_level
+additionalProperties: false

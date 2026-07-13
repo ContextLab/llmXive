@@ -1,0 +1,236 @@
+resolved_at: '2026-07-13T12:12:31.223088+00:00'
+datasets:
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.le.ac.uk/articles/thesis/God_and_the_Category_of_the_Relative_and_Relation_in_the_Philosophy_of_al-Kind_and_al-F_r_b_/32974658
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_BUSCO_protein_coding_gene_assessment_of_5_snake_species_b_/32974640
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/CIMMAS-CAD-RCPA-2026-028/32974652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/167_-_The_Wedge-Tailed_Eagle_Forensic_Audit_of_Aerial-Surveillance_Engineering/32974637
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Shifting_Patterns_Across_Time_Evolving_Associations_Between_AI_Addiction_and_Dehumanization_in_a_Three-Wave_Longitudinal_Study/32974657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1972 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7f9282b2bb10>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337238
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337238
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17071173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17071173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17896686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LoCoMo
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Aman279/Locomo/resolve/main/locomo.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/DLS-IIT/quadruped_locomotion/resolve/main/data/aliengo/perlin/lin_vel=(-1.5,
+      1.5) ang_vel=(-0.5, 0.5) friction=(0.7, 1.0)_action_noise_std=1.0/ep=300_steps=1249.h5
+    source: huggingface
+    format: hdf5
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mlnomad/imnet1k_electric_locomotive/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Aman279/Locomo/resolve/main/locomo.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/DLS-IIT/quadruped_locomotion/resolve/main/data/aliengo/perlin/lin_vel=(-1.5,
+      1.5) ang_vel=(-0.5, 0.5) friction=(0.7, 1.0)_action_noise_std=1.0/ep=300_steps=1249.h5
+    source: huggingface
+    status: verified
+    format: hdf5
+  - url: https://huggingface.co/datasets/mlnomad/imnet1k_electric_locomotive/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mlnomad/imnet1k_steam_locomotive/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/CIMMAS-CAD-RCPA-2026-029/32974667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/thesis/God_and_the_Category_of_the_Relative_and_Relation_in_the_Philosophy_of_al-Kind_and_al-F_r_b_/32974658
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_BUSCO_protein_coding_gene_assessment_of_5_snake_species_b_/32974640
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/CIMMAS-CAD-RCPA-2026-028/32974652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/167_-_The_Wedge-Tailed_Eagle_Forensic_Audit_of_Aerial-Surveillance_Engineering/32974637
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21278302
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stp.ust.edu.ua/article/view/224260
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20485468
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 502
+  - url: https://stp.ust.edu.ua/article/view/280012
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.13367720
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 503'
+  - url: https://doi.org/10.5281/zenodo.21303621
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 503'
+  - url: https://zenodo.org/records/21303621
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21278301
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/21278302
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21275674
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MRAgent
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.le.ac.uk/articles/thesis/The_social_development_of_public_sphere_in_Qatar_and_its_relation_to_digital_media_and_Qatari_social_groups/32974673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/CIMMAS-CAD-RCPA-2026-029/32974667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/thesis/God_and_the_Category_of_the_Relative_and_Relation_in_the_Philosophy_of_al-Kind_and_al-F_r_b_/32974658
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_BUSCO_protein_coding_gene_assessment_of_5_snake_species_b_/32974640
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/CIMMAS-CAD-RCPA-2026-028/32974652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14184396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21264553
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21264553
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21264553
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.06036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14184396
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14184396
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

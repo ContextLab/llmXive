@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Task Schema"
+description: "Schema for a single reasoning task from the LoCoMo benchmark."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task."
+  question:
+    type: "string"
+    description: "The multi-hop reasoning question."
+  context:
+    type: "string"
+    description: "The raw text context used to build the memory graph."
+  ground_truth:
+    type: "string"
+    description: "The correct answer used for accuracy validation."
+  split:
+    type: "string"
+    description: "Dataset split (e.g., train, test)."
+required:
+  - task_id
+  - question
+  - context
+  - ground_truth
+additionalProperties: false
