@@ -44,14 +44,14 @@
 - [X] T009 [P] Verify HumanEval dataset URL and download script with commit hash/API snapshot capture (code/data/download_humaneval.py)
 - [X] T010 [P] Verify Codeforces dataset URL and download script with commit hash/API snapshot capture (code/data/download_codeforces.py)
 - [X] T011a [P] Research and document alternative Java code generation model if JaCoText unavailable (code/research/java_model_alternatives.md) - deliverable: list of multiple alternatives with CPU-tractability assessment, verified sources
-- [X] T011b [P] Verify JaCoText model size ≤1GB and CPU-tractability if used; document verification process (code/models/jacotext_cpu.py) - deliverable: model size verification, CPU inference test, performance metrics
+- [X] T011b [P] Verify JaCoText model size ≤1GB and CPU-tractability if used [UNRESOLVED-CLAIM: c_23996b17 — status=not_enough_info]; document verification process (code/models/jacotext_cpu.py) - deliverable: model size verification, CPU inference test, performance metrics
 - [X] T011c [P] Run Reference-Validator Agent on JaCoText citation per Constitution II; record verification status in research.md (code/research/reference_validation.md) - deliverable: verified/mismatch/unreachable status with citation details
-- [X] T012 Verify StarCoder model size ≤1GB and CPU-tractable; implement CPU-only inference wrapper (code/models/starcoder_cpu.py)
-- [X] T053a [P] Implement anonymization and encryption for participant data: anonymization = remove PII fields (name, email, IP), replace participant ID with SHA-256 hash; encryption = AES-256-GCM, keys stored in environment variables (CODEX_ENCRYPTION_KEY) (code/analysis/anonymizer.py, code/analysis/encryption.py) - MUST complete BEFORE data collection per Constitution VII
-- [X] T053b [P] Implement secure deletion workflow for participant data: overwrite file content 3x with os.urandom(len) then os.fsync, then os.unlink (code/analysis/data_deletion.py) - MUST complete BEFORE data collection per Constitution VII
+- [X] T012 Verify StarCoder model size ≤1GB [UNRESOLVED-CLAIM: c_3b605e3d — status=not_enough_info]; implement CPU-only inference wrapper (code/models/starcoder_cpu.py)
+- [X] T053a [P] Implement anonymization and encryption for participant data: anonymization = remove PII fields (name, email, IP), replace participant ID with SHA-256 hash; encryption = AES-256-GCM [UNRESOLVED-CLAIM: c_230bf9b4 — status=not_enough_info], keys stored in environment variables (CODEX_ENCRYPTION_KEY) (code/analysis/anonymizer.py, code/analysis/encryption.py) - MUST complete BEFORE data collection per Constitution VII
+- [X] T053b [P] Implement secure deletion workflow for participant data: overwrite file content 3x with os.urandom(len) then os.fsync [UNRESOLVED-CLAIM: c_029671e4 — status=not_enough_info], then os.unlink then os.fsync, then os.unlink (code/analysis/data_deletion.py) - MUST complete BEFORE data collection per Constitution VII
 - [X] T055a [P] Implement automated state file timestamp update via pre-commit hook (code/hooks/pre_commit_update.py) that triggers on git commit to update state/projects/PROJ-141-evaluating-the-impact-of-code-generation.yaml updated_at on artifact changes - Constitution V compliance
 - [X] T056a [P] Write data checksums to data/checksums.csv AND state file artifact_hashes map per Constitution Principle III; implement checksum generation and state file update (data/checksums.py, state/projects/PROJ-141-evaluating-the-impact-of-code-generation.yaml)
-- [ ] T057 [P] Verify GitHub Actions free-tier compatibility (2 CPU, 7 GB RAM, 14 GB disk, ≤6 h) with full pipeline test (code/infrastructure/compatibility_test.py) - deliverable: compatibility report with resource usage metrics
+- [X] T057 [P] Verify GitHub Actions free-tier compatibility (2 CPU, 7 GB RAM, 14 GB disk, ≤6 h) [UNRESOLVED-CLAIM: c_ea2761dd — status=not_enough_info] with full pipeline test (code/infrastructure/compatibility_test.py) - deliverable: compatibility report with resource usage metrics
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,24 +67,24 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Contract test for submission schema in tests/contract/test_submission.py
-- [ ] T014 [P] [US1] Integration test for experiment flow with single participant in tests/integration/test_experiment_flow.py
+- [X] T013 [P] [US1] Contract test for submission schema in tests/contract/test_submission.py
+- [X] T014 [P] [US1] Integration test for experiment flow with single participant in tests/integration/test_experiment_flow.py
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement problem loading for HumanEval/Codeforces with ≥95% load rate (code/experiment/problem_loader.py)
-- [ ] T015a [P] [US1] Verify ≥95% problem loading rate per FR-001: run 100-sample load test, count successful loads, compute rate = successes/100, verify ≥0.95 (code/experiment/problem_loader.py)
-- [~] T016 [P] [US1] Implement problem validation per FR-014 (avg solution time ≥5 min, medium-difficulty) (code/experiment/problem_validator.py)
-- [~] T017 [US1] Implement Flask experiment interface (app.py) with problem presentation and code input (code/experiment/app.py)
-- [~] T018 [US1] Implement timestamp recording with ≥1 second precision in UTC format (code/experiment/timestamp_recorder.py)
-- [~] T019 [US1] Implement code submission streaming as UTF-8 with unique submission ID per problem (code/experiment/submission_handler.py)
-- [~] T020 [US1] Implement condition switching logic (LLM-assisted → baseline) with LLM assistant disable (code/experiment/condition_manager.py)
-- [~] T021 [US1] Implement randomization with participant ID, condition assignment, seed logging AND pinning random seeds in code/ for reproducibility per Constitution Principle I (code/experiment/randomization.py) - FR-012 logging layer
+- [X] T015 [P] [US1] Implement problem loading for HumanEval/Codeforces with ≥95% load rate [UNRESOLVED-CLAIM: c_84db99a7 — status=not_enough_info] (code/experiment/problem_loader.py)
+- [X] T015a [P] [US1] Verify ≥95% problem loading rate per FR-001: run 100-sample load test, count successful loads, compute rate = successes/100, verify ≥0.95 (code/experiment/problem_loader.py)
+- [X] T016 [P] [US1] Implement problem validation per FR-014 (avg solution time ≥5 min, medium-difficulty) (code/experiment/problem_validator.py)
+- [X] T017 [US1] Implement Flask experiment interface (app.py) with problem presentation and code input (code/experiment/app.py)
+- [X] T018 [US1] Implement timestamp recording with ≥1 second precision in UTC format [UNRESOLVED-CLAIM: c_9300aa17 — status=not_enough_info] (code/experiment/timestamp_recorder.py)
+- [ ] T019 [US1] Implement code submission streaming as UTF-8 with unique submission ID per problem (code/experiment/submission_handler.py)
+- [ ] T020 [US1] Implement condition switching logic (LLM-assisted → baseline) with LLM assistant disable (code/experiment/condition_manager.py)
+- [X] T021 [US1] Implement randomization with participant ID, condition assignment, seed logging AND pinning random seeds in code/ for reproducibility per Constitution Principle I (code/experiment/randomization.py) - FR-012 logging layer
 - [~] T022 [US1] Implement counterbalancing (Latin square or random order swap) for carryover mitigation (code/experiment/counterbalance.py)
 - [~] T023 [US1] Implement JaCoText model integration for Java code generation (CPU-only): load model from code/models/jacotext_cpu.py, call inference API with prompt, catch model loading/inference errors, log submission with model response (code/models/jacotext_cpu.py) - MUST wait for T011b/T011c resolution confirmation <!-- FAILED: unspecified -->
 - [~] T024 [US1] Implement StarCoder model integration for Python code generation (CPU-only) (code/models/starcoder_cpu.py) - MUST wait for T012 completion
 - [~] T024a [US1] Implement conditional model selection fallback: unavailable = model load failure OR size >1GB; trigger = config flag in settings.py; fallback = StarCoder for both languages with warning logged (code/models/model_selector.py)
-- [~] T025 [US1] Implement participant recruitment flow with ≥1 year programming experience filter (code/experiment/recruitment.py)
+- [~] T025 [US1] Implement participant recruitment flow with ≥1 year programming experience filter [UNRESOLVED-CLAIM: c_9f0411de — status=not_enough_info] (code/experiment/recruitment.py)
 
 ### User Story 1 Test Execution
 
@@ -109,20 +109,20 @@
 
 ### Implementation for User Story 2
 
-- [~] T028 [P] [US2] Implement HumanEval test suite execution and pass rate calculation (≥0.01 precision) (code/quality/pass_rate.py)
-- [~] T029 [P] [US2] Implement cyclomatic complexity computation using radon cc (integer ≥1 (Wikidata Q6007191, https://www.wikidata.org/wiki/Q6007191)) (code/quality/complexity.py)
-- [~] T030 [P] [US2] Implement test coverage measurement via coverage.py (percentage 0-100%) (code/quality/coverage.py)
+- [~] T028 [P] [US2] Implement HumanEval test suite execution and pass rate calculation (≥0.01 precision) [UNRESOLVED-CLAIM: c_20f40018 — status=not_enough_info] (code/quality/pass_rate.py)
+- [~] T029 [P] [US2] Implement cyclomatic complexity computation using radon cc (integer ≥1 (Wikidata Q6007191, https://www.wikidata.org/wiki/Q6007191)) [UNRESOLVED-CLAIM: c_3e8fc3c4 — status=not_enough_info] (code/quality/complexity.py)
+- [~] T030 [P] [US2] {{claim:c_d6f9e3b9}} (code/quality/coverage.py)
 - [~] T031 [P] [US2] Implement static analysis warning count using pylint (Python) or checkstyle (Java) (code/quality/static_analysis.py)
 - [~] T032 [US2] Implement quality metric aggregation and storage per submission (code/quality/metric_aggregator.py)
-- [~] T033 [P] [US2] Implement timeout/crash handling for test suite execution: set 300s timeout, catch subprocess.TimeoutExpired/Exception, log error with submission ID and traceback, return error response to client (code/quality/execution_sandbox.py)
-- [ ] T034 [P] [US2] Implement syntax error detection and handling for invalid submissions: parse with ast.parse(), catch SyntaxError, log submission ID with error details and line number, return 400 response to user with error message (code/quality/syntax_validator.py)
-- [ ] T035 [P] [US2] Implement GitHub Actions job-level session timeout handling: set session limits with appropriate warning thresholds and force-stop mechanisms with graceful submission save, distinct from inference-level timeouts (code/quality/llm_timeout_handler.py)
+- [~] T033 [P] [US2] Set 300s timeout for test suite execution [UNRESOLVED-CLAIM: c_06c1d1f2 — status=not_enough_info], catch subprocess.TimeoutExpired/Exception, log error with submission ID and traceback, return error response to client (code/quality/execution_sandbox.py)
+- [~] T034 [P] [US2] Implement syntax error detection and handling for invalid submissions: parse with ast.parse(), catch SyntaxError, log submission ID with error details and line number, return 400 response to user with error message (code/quality/syntax_validator.py)
+- [~] T035 [P] [US2] Implement GitHub Actions job-level session timeout handling: set session limits with appropriate warning thresholds and force-stop mechanisms with graceful submission save, distinct from inference-level timeouts (code/quality/llm_timeout_handler.py)
 
 ### User Story 2 Test Execution
 
-- [ ] T050b [P] Run contract tests for US2 schemas (tests/contract/test_metric.py)
-- [ ] T051b [P] Run integration tests for US2 (tests/integration/test_quality_pipeline.py)
-- [ ] T052b [P] Run unit tests for US2 components (tests/unit/test_quality_*.py)
+- [~] T050b [P] Run contract tests for US2 schemas (tests/contract/test_metric.py)
+- [~] T051b [P] Run integration tests for US2 (tests/integration/test_quality_pipeline.py) <!-- FAILED: unspecified -->
+- [~] T052b [P] Run unit tests for US2 components (tests/unit/test_quality_*.py)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -144,16 +144,16 @@
 - [ ] T038 [P] [US3] Implement CSV dataset loading for paired participant data (code/analysis/data_loader.py)
 - [ ] T039 [P] [US3] Implement paired t-test computation for time and quality metrics (code/analysis/statistical_tests.py)
 - [ ] T040 [P] [US3] Implement Wilcoxon signed-rank test for non-normal distributions (code/analysis/statistical_tests.py)
-- [ ] T041 [P] [US3] Implement Cohen's d effect size computation with 95% CI (±0.01 precision) (code/analysis/statistical_tests.py)
+- [ ] T041 [P] [US3] Implement Cohen's d effect size computation with 95% CI (±0.01 precision) [UNRESOLVED-CLAIM: c_dfc0f22c — status=not_enough_info] (code/analysis/statistical_tests.py)
 - [ ] T042 [P] [US3] Implement Bonferroni multiple-comparison correction (code/analysis/correction.py)
 - [ ] T043 [P] [US3] Implement Holm multiple-comparison correction (code/analysis/correction.py)
 - [ ] T043a [US3] Verify multiple-comparison correction achieves family-wise error rate ≤0.05 per SC-004 (code/analysis/correction.py)
-- [ ] T044 [P] [US3] Implement sensitivity analysis for a time reduction threshold range (sweep diff ∈ {0.01, 0.05, 0.1}) with coefficient of variation reporting (FR-011 combined output with verification) (code/analysis/sensitivity.py)
+- [ ] T044 [P] [US3] Implement sensitivity analysis for a time reduction threshold range (sweep diff ∈ {0.01, 0.05, 0.1}) with coefficient of variation reporting with coefficient of variation reporting (FR-011 combined output with verification) (code/analysis/sensitivity.py)
 - [ ] T045 [US3] Implement results export with all statistics and 95% CIs; generate trace_id (hash of data_row_id + code_block_file:line + timestamp) for each statistic to ensure single-source-of-truth per Constitution IV (code/analysis/export.py)
 - [ ] T045a [P] [US3] Generate trace_id for each statistic: hash(data_row_id + code_block_file:line + timestamp) to create unique identifier for traceability (code/analysis/traceability.py)
 - [ ] T045b [P] [US3] Validate traceability constraint enforcement: verify each exported statistic has valid trace_id that maps to exactly one data row and one code block (code/analysis/traceability_validator.py)
 - [ ] T046 [P] [US3] Implement dropout handling for incomplete within-subject data: exclude incomplete pairs from paired analysis, document exclusion criteria in data/metadata.yaml with participant IDs, flag excluded participants for manual review (code/analysis/dropout_handler.py)
-- [ ] T047 [P] [US3] Implement fast-completion detection for tasks <30 seconds: log task ID with completion time, flag for manual review if time <30s, record in experiment.log (code/analysis/fast_completion.py)
+- [ ] T047 [P] [US3] Implement fast-completion detection for tasks <30 seconds [UNRESOLVED-CLAIM: c_f70241fe — status=not_enough_info]: log task ID with completion time, flag for manual review if time <30s, record in experiment.log (code/analysis/fast_completion.py)
 
 ### User Story 3 Test Execution
 
@@ -250,9 +250,9 @@ Task: "Contract test for submission schema in tests/contract/test_submission.py"
 Task: "Integration test for experiment flow with single participant in tests/integration/test_experiment_flow.py"
 
 # Launch all foundation verification tasks together:
-Task: "Verify HumanEval dataset URL and download script with commit hash/API snapshot capture"
-Task: "Verify Codeforces dataset URL and download script with commit hash/API snapshot capture"
-Task: "Verify StarCoder model size ≤1GB and CPU-tractable "
+Task: "Verify HumanEval dataset URL and download script with commit hash/API snapshot capture "
+Task: "Verify Codeforces dataset URL and download script with commit hash/API snapshot capture "
+Task: "Verify StarCoder model size ≤1GB [UNRESOLVED-CLAIM: c_3b605e3d — status=not_enough_info] "
 Task: "Research and document alternative Java code generation model if JaCoText unavailable"
 Task: "Verify JaCoText model size ≤1GB and CPU-tractable if used"
 Task: "Run Reference-Validator Agent on JaCoText citation"

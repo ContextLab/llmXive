@@ -13,6 +13,7 @@ import logging
 import json
 from typing import Dict, Any, Optional, Tuple
 from pathlib import Path
+from datetime import datetime, timezone
 
 # Add project root to path for imports
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -96,7 +97,7 @@ def create_error_response(
         'message': error_message,
         'submission_id': submission_id,
         'error_details': error_details,
-        'timestamp': __import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat()
+        'timestamp': datetime.now(timezone.utc).isoformat()
     }
 
 
@@ -105,6 +106,7 @@ def main():
     Main entry point for syntax validation demonstration.
     
     Tests syntax validation with valid and invalid code samples.
+    Writes real results to data/quality/syntax_validation_results.json.
     """
     logger.info("Starting syntax validation demonstration")
     

@@ -1,12 +1,6 @@
 """
 Flask experiment interface for the code generation productivity study.
-
-Provides endpoints for:
-- Participant registration and consent verification
-- Problem presentation (randomized, counterbalanced)
-- Code submission with streaming
-- Timestamp recording
-- Condition switching (LLM-assisted vs baseline)
+Provides endpoints for problem presentation, code submission, and session management.
 """
 import os
 import sys
@@ -14,326 +8,320 @@ import json
 import logging
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
-from flask import Flask, request, jsonify, session, render_template_string
 from functools import wraps
+from flask import Flask, request, jsonify, g
 
-# Import from project modules (matching API surface)
-from config.settings import get_config, get_experiment_config, get_logging_config
-from logs.experiment import setup_experiment_logger, log_experiment_event, log_condition_assignment, log_session_start, log_session_complete
-from experiment.consent import is_participant_consented, load_consent_record, ConsentError
+# Import from existing project modules
+from experiment.consent import is_participant_consented, load_consent_record
 from experiment.problem_loader import load_all_problems
-from experiment.problem_validator import validate_problem_set, filter_medium_difficulty_problems
-from experiment.randomization import assign_condition, generate_problem_order
-from experiment.counterbalance import apply_counterbalancing
-from experiment.condition_manager import get_active_condition, disable_llm_assistant
-from data.models import Participant, Session, Problem, Submission, Condition
-from data.db_schema import get_connection, init_schema
+from experiment.problem_validator import validate_problem_set
+from experiment.timestamp_recorder import (
+    get_current_utc_timestamp,
+    record_problem_view,
+    record_code_submission,
+    record_condition_switch,
+)
+from experiment.condition_manager import ConditionManager
+from experiment.submission_handler import SubmissionHandler
+from experiment.randomization import initialize_participant_session
+from logs.experiment import setup_experiment_logger, log_experiment_event
+from config.settings import get_experiment_config
 
-# Initialize Flask app
+# Configure logging
+logger = setup_experiment_logger()
+config = get_experiment_config()
+
 app = Flask(__name__)
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'dev-secret-key-change-in-prod')
 
-# Setup logging
-config = get_config()
-log_config = get_logging_config()
-logger = setup_experiment_logger(log_config)
-
-# Global state for experiment data (in production, use database)
-experiment_state: Dict[str, Any] = {
-    'problems': [],
-    'active_participant': None,
-    'current_session': None,
-    'llm_disabled': False
-}
+# Global state for active sessions (in production, use a database)
+active_sessions = {}
+condition_managers = {}
+submission_handlers = {}
 
 def require_consented(f):
-    """Decorator to ensure participant has given consent."""
+    """Decorator to ensure participant has consented before accessing endpoints."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        participant_id = session.get('participant_id')
+        participant_id = request.headers.get('X-Participant-ID')
         if not participant_id:
-            return jsonify({'error': 'No participant session'}), 401
-        
+            return jsonify({"error": "Missing participant ID"}), 400
+
         if not is_participant_consented(participant_id):
-            return jsonify({'error': 'Consent not verified'}), 403
-        
+            return jsonify({"error": "Participant has not provided consent"}), 403
+
+        g.participant_id = participant_id
         return f(*args, **kwargs)
     return decorated_function
 
-@app.route('/health')
+@app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint."""
-    return jsonify({'status': 'healthy', 'timestamp': datetime.now(timezone.utc).isoformat()})
+    return jsonify({"status": "healthy", "timestamp": get_current_utc_timestamp()})
 
 @app.route('/register', methods=['POST'])
 def register_participant():
-    """Register a new participant and verify consent."""
+    """Register a new participant and generate their ID."""
     data = request.get_json()
-    participant_id = data.get('participant_id')
-    irb_approval_id = data.get('irb_approval_id')
-    
-    if not participant_id:
-        return jsonify({'error': 'participant_id required'}), 400
-    
-    try:
-        # Verify IRB approval and collect consent
-        from experiment.consent import verify_irb_approval, collect_consent, save_consent_record
-        
-        # Verify IRB approval (simplified for implementation)
-        irb_valid = verify_irb_approval(irb_approval_id) if irb_approval_id else False
-        if not irb_valid and irb_approval_id:
-            return jsonify({'error': 'Invalid IRB approval ID'}), 400
-        
-        # Collect consent
-        consent_data = {
-            'participant_id': participant_id,
-            'consent_timestamp': datetime.now(timezone.utc).isoformat(),
-            'irb_approval_id': irb_approval_id or 'N/A',
-            'consent_version': '1.0'
-        }
-        save_consent_record(participant_id, consent_data)
-        
-        # Initialize participant in database
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT OR IGNORE INTO participants (id, created_at)
-            VALUES (?, ?)
-        ''', (participant_id, datetime.now(timezone.utc).isoformat()))
-        conn.commit()
-        
-        session['participant_id'] = participant_id
-        logger.info(f"Participant registered: {participant_id}")
-        log_experiment_event('participant_registered', {'participant_id': participant_id})
-        
-        return jsonify({
-            'status': 'success',
-            'participant_id': participant_id,
-            'consent_verified': True
-        }), 201
-        
-    except ConsentError as e:
-        return jsonify({'error': str(e)}), 400
-    except Exception as e:
-        logger.error(f"Registration failed: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
+    email = data.get('email')
+    experience_years = data.get('experience_years')
 
-@app.route('/start_session', methods=['POST'])
+    if not email or experience_years is None:
+        return jsonify({"error": "Email and experience years are required"}), 400
+
+    participant_id = str(uuid.uuid4())
+    
+    # Initialize session
+    session = initialize_participant_session(participant_id, experience_years)
+    active_sessions[participant_id] = session
+    
+    # Initialize condition manager
+    condition_managers[participant_id] = ConditionManager(participant_id)
+    
+    # Initialize submission handler
+    submission_handlers[participant_id] = SubmissionHandler(participant_id)
+
+    log_experiment_event(
+        event_type="participant_registered",
+        participant_id=participant_id,
+        metadata={"email": email, "experience_years": experience_years}
+    )
+
+    return jsonify({
+        "participant_id": participant_id,
+        "condition": session["condition"],
+        "seed": session["seed"],
+        "timestamp": get_current_utc_timestamp()
+    }), 201
+
+@app.route('/start-session', methods=['POST'])
 @require_consented
 def start_session():
-    """Start a new experiment session for the participant."""
-    participant_id = session['participant_id']
-    data = request.get_json() or {}
-    condition_preference = data.get('condition')  # Optional hint for counterbalancing
-    
-    try:
-        # Load and validate problems
-        problems = load_all_problems()
-        medium_problems = filter_medium_difficulty_problems(problems)
-        
-        if len(medium_problems) == 0:
-            return jsonify({'error': 'No valid medium-difficulty problems available'}), 500
-        
-        # Assign condition and generate order
-        condition_assignment = assign_condition(participant_id)
-        problem_order = generate_problem_order(participant_id, medium_problems)
-        problem_order = apply_counterbalancing(participant_id, problem_order, condition_assignment['condition'])
-        
-        # Create session record
-        session_id = str(uuid.uuid4())
-        session_data = {
-            'session_id': session_id,
-            'participant_id': participant_id,
-            'condition': condition_assignment['condition'],
-            'seed': condition_assignment['seed'],
-            'start_time': datetime.now(timezone.utc).isoformat(),
-            'problem_order': [p['id'] for p in problem_order]
-        }
-        
-        # Store in database
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO sessions (id, participant_id, condition, seed, start_time, problem_order)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (
-            session_id, participant_id, 
-            condition_assignment['condition'].value,
-            condition_assignment['seed'],
-            session_data['start_time'],
-            json.dumps(session_data['problem_order'])
-        ))
-        conn.commit()
-        
-        # Update state
-        experiment_state['active_participant'] = participant_id
-        experiment_state['current_session'] = session_data
-        experiment_state['problems'] = problem_order
-        experiment_state['llm_disabled'] = (condition_assignment['condition'] == Condition.BASELINE)
-        
-        # Log condition assignment
-        log_condition_assignment(participant_id, session_id, condition_assignment['condition'].value, condition_assignment['seed'])
-        log_session_start(participant_id, session_id, condition_assignment['condition'].value)
-        logger.info(f"Session started: {session_id} for {participant_id}, condition: {condition_assignment['condition']}")
-        
-        return jsonify({
-            'status': 'success',
-            'session_id': session_id,
-            'condition': condition_assignment['condition'].value,
-            'problem_count': len(problem_order),
-            'llm_assisted': not experiment_state['llm_disabled']
-        }), 201
-        
-    except Exception as e:
-        logger.error(f"Session start failed: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
+    """Start an experiment session for a participant."""
+    participant_id = g.participant_id
 
-@app.route('/problem', methods=['GET'])
+    if participant_id not in active_sessions:
+        return jsonify({"error": "Participant not registered"}), 404
+
+    session = active_sessions[participant_id]
+    if session.get("started"):
+        return jsonify({"error": "Session already started"}), 400
+
+    session["started"] = True
+    session["start_time"] = get_current_utc_timestamp()
+    
+    # Log session start
+    log_experiment_event(
+        event_type="session_started",
+        participant_id=participant_id,
+        metadata={"condition": session["condition"]}
+    )
+
+    return jsonify({
+        "status": "started",
+        "condition": session["condition"],
+        "problem_order": session["problem_order"],
+        "timestamp": get_current_utc_timestamp()
+    })
+
+@app.route('/next-problem', methods=['GET'])
 @require_consented
 def get_next_problem():
-    """Get the next problem for the current session."""
-    session_id = experiment_state.get('current_session', {}).get('session_id')
-    if not session_id:
-        return jsonify({'error': 'No active session'}), 400
+    """Get the next problem for the participant based on their condition and order."""
+    participant_id = g.participant_id
+
+    if participant_id not in active_sessions:
+        return jsonify({"error": "Participant not registered"}), 404
+
+    session = active_sessions[participant_id]
+    if not session.get("started"):
+        return jsonify({"error": "Session not started"}), 400
+
+    # Get current problem index
+    current_index = session.get("current_problem_index", 0)
+    problem_order = session.get("problem_order", [])
+
+    if current_index >= len(problem_order):
+        return jsonify({
+            "status": "complete",
+            "message": "All problems completed",
+            "timestamp": get_current_utc_timestamp()
+        })
+
+    problem_id = problem_order[current_index]
     
-    # Get next problem from order
-    current_idx = experiment_state.get('current_session', {}).get('current_problem_index', 0)
-    problem_order = experiment_state.get('current_session', {}).get('problem_order', [])
-    
-    if current_idx >= len(problem_order):
-        return jsonify({'error': 'All problems completed'}), 404
-    
-    problem_id = problem_order[current_idx]
-    # Find problem details (simplified - in production, fetch from DB)
-    problem_data = next((p for p in experiment_state['problems'] if p['id'] == problem_id), None)
-    
-    if not problem_data:
-        return jsonify({'error': 'Problem not found'}), 404
-    
-    # Log problem presentation
-    log_experiment_event('problem_presented', {
-        'session_id': session_id,
-        'problem_id': problem_id,
-        'timestamp': datetime.now(timezone.utc).isoformat()
-    })
-    
+    # Load problems
+    problems = load_all_problems()
+    problem = next((p for p in problems if p["id"] == problem_id), None)
+
+    if not problem:
+        logger.error(f"Problem {problem_id} not found")
+        return jsonify({"error": "Problem not found"}), 404
+
+    # Record problem view timestamp
+    record_problem_view(participant_id, problem_id)
+
+    # Increment index
+    session["current_problem_index"] = current_index + 1
+
     return jsonify({
-        'status': 'success',
-        'problem': problem_data,
-        'index': current_idx + 1,
-        'total': len(problem_order)
+        "problem": problem,
+        "problem_id": problem_id,
+        "condition": session["condition"],
+        "attempt_number": current_index + 1,
+        "total_problems": len(problem_order),
+        "timestamp": get_current_utc_timestamp()
     })
 
-@app.route('/submit', methods=['POST'])
+@app.route('/submit-code', methods=['POST'])
 @require_consented
 def submit_code():
     """Submit code solution for the current problem."""
-    session_id = experiment_state.get('current_session', {}).get('session_id')
-    if not session_id:
-        return jsonify({'error': 'No active session'}), 400
-    
+    participant_id = g.participant_id
     data = request.get_json()
-    code = data.get('code')
-    problem_id = data.get('problem_id')
+
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    problem_id = data.get("problem_id")
+    code = data.get("code")
+    language = data.get("language", "python")
+
+    if not problem_id or not code:
+        return jsonify({"error": "Problem ID and code are required"}), 400
+
+    if participant_id not in active_sessions:
+        return jsonify({"error": "Participant not registered"}), 404
+
+    session = active_sessions[participant_id]
     
-    if not code:
-        return jsonify({'error': 'Code is required'}), 400
-    
-    current_idx = experiment_state.get('current_session', {}).get('current_problem_index', 0)
-    
-    # Create submission record
-    submission_id = str(uuid.uuid4())
-    submission_data = {
-        'submission_id': submission_id,
-        'session_id': session_id,
-        'problem_id': problem_id,
-        'code': code,
-        'timestamp': datetime.now(timezone.utc).isoformat(),
-        'condition': experiment_state['current_session']['condition']
-    }
-    
-    # Store in database
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO submissions (id, session_id, problem_id, code, timestamp, condition)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (
-        submission_id, session_id, problem_id, code,
-        submission_data['timestamp'],
-        experiment_state['current_session']['condition']
-    ))
-    conn.commit()
-    
+    # Get current condition
+    condition_manager = condition_managers.get(participant_id)
+    current_condition = condition_manager.get_current_condition() if condition_manager else session["condition"]
+
+    # Create submission
+    submission_handler = submission_handlers.get(participant_id)
+    if not submission_handler:
+        return jsonify({"error": "Submission handler not initialized"}), 500
+
+    submission_id = submission_handler.create_submission(
+        participant_id=participant_id,
+        problem_id=problem_id,
+        code=code,
+        language=language,
+        condition=current_condition
+    )
+
+    # Record submission timestamp
+    record_code_submission(participant_id, problem_id, submission_id)
+
     # Log submission
-    log_experiment_event('code_submitted', {
-        'session_id': session_id,
-        'submission_id': submission_id,
-        'problem_id': problem_id,
-        'timestamp': submission_data['timestamp']
-    })
-    
-    # Update current problem index
-    experiment_state['current_session']['current_problem_index'] = current_idx + 1
-    
-    # Check if all problems completed
-    problem_order = experiment_state['current_session']['problem_order']
-    if experiment_state['current_session']['current_problem_index'] >= len(problem_order):
-        log_session_complete(session_id, datetime.now(timezone.utc).isoformat())
-        logger.info(f"Session completed: {session_id}")
-    
+    log_experiment_event(
+        event_type="code_submitted",
+        participant_id=participant_id,
+        metadata={
+            "problem_id": problem_id,
+            "submission_id": submission_id,
+            "condition": current_condition,
+            "language": language
+        }
+    )
+
     return jsonify({
-        'status': 'success',
-        'submission_id': submission_id,
-        'next_problem_index': experiment_state['current_session']['current_problem_index']
+        "submission_id": submission_id,
+        "status": "submitted",
+        "timestamp": get_current_utc_timestamp()
     })
 
 @app.route('/condition', methods=['GET'])
 @require_consented
 def get_current_condition():
-    """Get the current condition for the session."""
-    session_id = experiment_state.get('current_session', {}).get('session_id')
-    if not session_id:
-        return jsonify({'error': 'No active session'}), 400
-    
-    condition = experiment_state['current_session']['condition']
-    llm_disabled = experiment_state['llm_disabled']
-    
+    """Get the current condition for the participant."""
+    participant_id = g.participant_id
+
+    if participant_id not in active_sessions:
+        return jsonify({"error": "Participant not registered"}), 404
+
+    session = active_sessions[participant_id]
+    condition_manager = condition_managers.get(participant_id)
+
+    current_condition = condition_manager.get_current_condition() if condition_manager else session["condition"]
+
     return jsonify({
-        'status': 'success',
-        'condition': condition,
-        'llm_assisted': not llm_disabled
+        "condition": current_condition,
+        "timestamp": get_current_utc_timestamp()
     })
 
-@app.route('/complete', methods=['POST'])
+@app.route('/switch-condition', methods=['POST'])
+@require_consented
+def switch_condition():
+    """Switch to the next condition (for within-subject design)."""
+    participant_id = g.participant_id
+    data = request.get_json()
+    force_switch = data.get("force", False)
+
+    if participant_id not in active_sessions:
+        return jsonify({"error": "Participant not registered"}), 404
+
+    condition_manager = condition_managers.get(participant_id)
+    if not condition_manager:
+        return jsonify({"error": "Condition manager not initialized"}), 500
+
+    try:
+        new_condition = condition_manager.switch_condition(force_switch=force_switch)
+        
+        # Record condition switch timestamp
+        record_condition_switch(participant_id, new_condition)
+
+        # Log condition switch
+        log_experiment_event(
+            event_type="condition_switched",
+            participant_id=participant_id,
+            metadata={"new_condition": new_condition}
+        )
+
+        return jsonify({
+            "condition": new_condition,
+            "timestamp": get_current_utc_timestamp()
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/complete-session', methods=['POST'])
 @require_consented
 def complete_session():
-    """Mark the session as complete."""
-    session_id = experiment_state.get('current_session', {}).get('session_id')
-    if not session_id:
-        return jsonify({'error': 'No active session'}), 400
-    
-    end_time = datetime.now(timezone.utc).isoformat()
-    log_session_complete(session_id, end_time)
-    
-    # Clear session state
-    experiment_state['active_participant'] = None
-    experiment_state['current_session'] = None
-    
+    """Complete the experiment session for a participant."""
+    participant_id = g.participant_id
+
+    if participant_id not in active_sessions:
+        return jsonify({"error": "Participant not registered"}), 404
+
+    session = active_sessions[participant_id]
+    session["completed"] = True
+    session["end_time"] = get_current_utc_timestamp()
+
+    # Log session completion
+    log_experiment_event(
+        event_type="session_completed",
+        participant_id=participant_id,
+        metadata={
+            "total_problems": len(session.get("problem_order", [])),
+            "condition": session["condition"]
+        }
+    )
+
     return jsonify({
-        'status': 'success',
-        'message': 'Session completed successfully',
-        'end_time': end_time
+        "status": "completed",
+        "timestamp": get_current_utc_timestamp()
     })
 
 def init_app():
-    """Initialize the application."""
-    init_schema()
-    logger.info("Flask experiment interface initialized")
+    """Initialize the Flask application with configuration."""
+    app.config['DEBUG'] = config.get('debug', False)
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max code size
+    return app
 
 if __name__ == '__main__':
     init_app()
     port = int(os.environ.get('PORT', 5000))
-    debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+    debug = config.get('debug', False)
     app.run(host='0.0.0.0', port=port, debug=debug)

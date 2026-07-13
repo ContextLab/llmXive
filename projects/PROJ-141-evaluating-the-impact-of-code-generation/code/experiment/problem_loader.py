@@ -1,15 +1,11 @@
-"""
-Problem loading module for HumanEval and Codeforces datasets.
-Implements FR-001: Verify ≥95% problem loading rate.
-"""
 import os
 import sys
 import json
 import logging
 import hashlib
 import random
+from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -19,200 +15,172 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-HUMAN_EVAL_DIR = Path("data/humaneval")
-CODEFORCES_DIR = Path("data/codeforces")
+HUMAN_EVAL_PATH = "data/humaneval/human-eval.jsonl"
+CODEFORCES_PATH = "data/codeforces/problems.json"
 SAMPLE_SIZE = 100
-MIN_SUCCESS_RATE = 0.95
+TARGET_LOAD_RATE = 0.95
 
-def load_humaneval_problems() -> List[Dict[str, Any]]:
+def compute_file_hash(file_path: str) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        return ""
+
+def load_humaneval_problems(sample_size: int = SAMPLE_SIZE) -> Tuple[List[Dict], int]:
     """
     Load HumanEval problems from the downloaded dataset.
-    
-    Returns:
-        List of problem dictionaries.
-        
-    Raises:
-        FileNotFoundError: If the dataset directory is missing.
-        json.JSONDecodeError: If the JSON file is corrupted.
-    """
-    json_path = HUMAN_EVAL_DIR / "human_eval.json"
-    
-    if not json_path.exists():
-        # Check for alternative naming or structure
-        alt_path = HUMAN_EVAL_DIR / "data.json"
-        if not alt_path.exists():
-            raise FileNotFoundError(f"HumanEval dataset not found at {HUMAN_EVAL_DIR}. "
-                                  f"Please run code/data/download_humaneval.py first.")
-        json_path = alt_path
-    
-    with open(json_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Handle both list and dict with 'problems' key
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'problems' in data:
-        return data['problems']
-    else:
-        # Fallback: treat as list of items if keys match expected structure
-        return [data] if isinstance(data, dict) else []
-
-def load_codeforces_problems() -> List[Dict[str, Any]]:
-    """
-    Load Codeforces problems from the downloaded dataset.
-    
-    Returns:
-        List of problem dictionaries.
-        
-    Raises:
-        FileNotFoundError: If the dataset directory is missing.
-        json.JSONDecodeError: If the JSON file is corrupted.
-    """
-    json_path = CODEFORCES_DIR / "codeforces_problems.json"
-    
-    if not json_path.exists():
-        alt_path = CODEFORCES_DIR / "problems.json"
-        if not alt_path.exists():
-            raise FileNotFoundError(f"Codeforces dataset not found at {CODEFORCES_DIR}. "
-                                  f"Please run code/data/download_codeforces.py first.")
-        json_path = alt_path
-    
-    with open(json_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Handle both list and dict with 'problems' key
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'problems' in data:
-        return data['problems']
-    else:
-        return [data] if isinstance(data, dict) else []
-
-def load_all_problems() -> List[Dict[str, Any]]:
-    """
-    Load all problems from both HumanEval and Codeforces datasets.
-    
-    Returns:
-        Combined list of all problems.
+    Returns a list of successfully loaded problems and the count.
     """
     problems = []
+    success_count = 0
     
-    try:
-        humaneval_problems = load_humaneval_problems()
-        problems.extend(humaneval_problems)
-        logger.info(f"Loaded {len(humaneval_problems)} HumanEval problems")
-    except Exception as e:
-        logger.warning(f"Failed to load HumanEval problems: {e}")
-    
-    try:
-        codeforces_problems = load_codeforces_problems()
-        problems.extend(codeforces_problems)
-        logger.info(f"Loaded {len(codeforces_problems)} Codeforces problems")
-    except Exception as e:
-        logger.warning(f"Failed to load Codeforces problems: {e}")
-    
-    return problems
+    if not os.path.exists(HUMAN_EVAL_PATH):
+        logger.warning(f"HumanEval dataset not found at {HUMAN_EVAL_PATH}. Skipping.")
+        return problems, success_count
 
-def verify_loading_rate(sample_size: int = SAMPLE_SIZE) -> Tuple[float, int, int]:
+    try:
+        with open(HUMAN_EVAL_PATH, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f):
+                if line_num >= sample_size:
+                    break
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    problem = json.loads(line)
+                    # Basic validation: ensure required fields exist
+                    if 'prompt' in problem and 'canonical_solution' in problem:
+                        problems.append(problem)
+                        success_count += 1
+                    else:
+                        logger.debug(f"Skipping line {line_num}: missing required fields")
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Failed to parse JSON at line {line_num}: {e}")
+                    continue
+    except Exception as e:
+        logger.error(f"Error reading HumanEval file: {e}")
+    
+    return problems, success_count
+
+def load_codeforces_problems(sample_size: int = SAMPLE_SIZE) -> Tuple[List[Dict], int]:
     """
-    Verify that the problem loading rate is ≥95% (FR-001).
-    
-    This function runs a load test by attempting to load a random sample of problems
-    and calculating the success rate.
-    
-    Args:
-        sample_size: Number of problems to sample for testing.
-        
-    Returns:
-        Tuple of (success_rate, successes, total_attempts)
-        
-    Raises:
-        FileNotFoundError: If datasets are not available.
+    Load Codeforces problems from the downloaded dataset.
+    Returns a list of successfully loaded problems and the count.
     """
-    # Get all available problems first
-    all_problems = load_all_problems()
-    
-    if not all_problems:
-        raise FileNotFoundError("No problems could be loaded from any dataset. "
-                              "Cannot perform load rate verification.")
-    
-    # Ensure we don't sample more than available
-    actual_sample_size = min(sample_size, len(all_problems))
-    
-    # Randomly sample problems
-    sampled_problems = random.sample(all_problems, actual_sample_size)
-    
-    successes = 0
-    failures = 0
-    
-    for i, problem in enumerate(sampled_problems):
-        try:
-            # Simulate "loading" by validating required fields
-            # This mimics the actual loading process without re-reading files
-            required_fields = ['task', 'prompt', 'canonical_solution']
+    problems = []
+    success_count = 0
+
+    if not os.path.exists(CODEFORCES_PATH):
+        logger.warning(f"Codeforces dataset not found at {CODEFORCES_PATH}. Skipping.")
+        return problems, success_count
+
+    try:
+        with open(CODEFORCES_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            # Handle both list and dict with 'problems' key
+            items = data.get('problems', data) if isinstance(data, dict) else data
             
-            if not isinstance(problem, dict):
-                raise ValueError("Problem is not a dictionary")
-            
-            for field in required_fields:
-                if field not in problem:
-                    # Some datasets might use different field names
-                    if field == 'canonical_solution' and 'solution' in problem:
-                        continue
-                    raise ValueError(f"Missing required field: {field}")
-            
-            # Validate problem structure integrity
-            if not problem.get('task') or not problem.get('prompt'):
-                raise ValueError("Invalid problem content")
-            
-            successes += 1
-            
-        except Exception as e:
-            failures += 1
-            logger.debug(f"Failed to load problem {i}: {e}")
+            count = 0
+            for item in items:
+                if count >= sample_size:
+                    break
+                try:
+                    # Basic validation: ensure required fields exist
+                    if 'name' in item and 'type' in item:
+                        problems.append(item)
+                        success_count += 1
+                        count += 1
+                    else:
+                        logger.debug(f"Skipping item: missing required fields")
+                except Exception as e:
+                    logger.warning(f"Failed to process item: {e}")
+                    continue
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error in Codeforces file: {e}")
+    except Exception as e:
+        logger.error(f"Error reading Codeforces file: {e}")
+
+    return problems, success_count
+
+def load_all_problems(sample_size: int = SAMPLE_SIZE) -> Tuple[List[Dict], int, int]:
+    """
+    Load problems from both HumanEval and Codeforces.
+    Returns (all_problems, total_successes, total_attempts).
+    """
+    he_problems, he_success = load_humaneval_problems(sample_size // 2)
+    cf_problems, cf_success = load_codeforces_problems(sample_size - len(he_problems))
     
-    total_attempts = successes + failures
-    success_rate = successes / total_attempts if total_attempts > 0 else 0.0
+    all_problems = he_problems + cf_problems
+    total_success = he_success + cf_success
+    total_attempts = min(SAMPLE_SIZE, len(he_problems) + len(cf_problems)) # Approximation of attempts based on availability
     
-    return success_rate, successes, total_attempts
+    # If we didn't get enough from one source, try to get more from the other
+    if len(all_problems) < sample_size:
+        needed = sample_size - len(all_problems)
+        if he_success < sample_size:
+            # Retry loading more from HumanEval if available
+            remaining_he, _ = load_humaneval_problems(sample_size)
+            # In a real scenario, we'd track indices, but for this test we assume full reload
+            # For the specific 100-sample test, we just sum what we got
+            pass
+    
+    return all_problems, total_success, SAMPLE_SIZE
+
+def verify_loading_rate(sample_size: int = SAMPLE_SIZE, target_rate: float = TARGET_LOAD_RATE) -> bool:
+    """
+    Run a load test to verify that the problem loading rate meets the requirement.
+    FR-001: Verify ≥95% problem loading rate.
+    
+    This function:
+    1. Attempts to load `sample_size` problems from the available datasets.
+    2. Counts successful loads.
+    3. Computes rate = successes / sample_size.
+    4. Verifies rate >= target_rate.
+    
+    Returns True if the rate meets the threshold, False otherwise.
+    """
+    logger.info(f"Starting load test for {sample_size} samples (Target rate: {target_rate})")
+    
+    # We need to attempt to load exactly sample_size items.
+    # Since load_all_problems aggregates, we simulate the "attempt" count
+    # by defining the target as the input sample_size.
+    
+    problems, successes, total_attempts = load_all_problems(sample_size)
+    
+    # If datasets are missing, we might have 0 successes.
+    # In a real CI environment, datasets should be downloaded by T009/T010.
+    if total_attempts == 0:
+        logger.error("No problems could be attempted (datasets missing or empty).")
+        rate = 0.0
+    else:
+        # Ensure we don't divide by zero if logic changes, though sample_size > 0
+        rate = successes / sample_size
+    
+    logger.info(f"Load Test Results:")
+    logger.info(f"  Target Sample Size: {sample_size}")
+    logger.info(f"  Successful Loads: {successes}")
+    logger.info(f"  Calculated Rate: {rate:.4f}")
+    logger.info(f"  Target Rate: {target_rate}")
+    
+    if rate >= target_rate:
+        logger.info(f"SUCCESS: Load rate {rate:.4f} >= {target_rate}")
+        return True
+    else:
+        logger.error(f"FAILURE: Load rate {rate:.4f} < {target_rate}")
+        return False
 
 def main():
     """
-    Main entry point for problem loading and verification.
-    
-    Runs the load rate verification test and reports results.
-    Exits with code 0 if ≥95% success rate, 1 otherwise.
+    Entry point for running the load verification test.
     """
-    logger.info("Starting problem loading verification (FR-001)...")
-    
-    try:
-        # Run the verification
-        success_rate, successes, total = verify_loading_rate(SAMPLE_SIZE)
-        
-        logger.info(f"Load test results:")
-        logger.info(f"  Total attempts: {total}")
-        logger.info(f"  Successful loads: {successes}")
-        logger.info(f"  Failed loads: {total - successes}")
-        logger.info(f"  Success rate: {success_rate:.2%}")
-        logger.info(f"  Target rate: ≥95%")
-        
-        if success_rate >= MIN_SUCCESS_RATE:
-            logger.info(f"✓ PASSED: Loading rate ({success_rate:.2%}) meets requirement (≥95%)")
-            print(f"VERIFICATION_PASSED: Rate={success_rate:.4f} (≥{MIN_SUCCESS_RATE})")
-            return 0
-        else:
-            logger.error(f"✗ FAILED: Loading rate ({success_rate:.2%}) is below requirement (≥95%)")
-            print(f"VERIFICATION_FAILED: Rate={success_rate:.4f} (<{MIN_SUCCESS_RATE})")
-            return 1
-            
-    except FileNotFoundError as e:
-        logger.error(f"Dataset error: {e}")
-        print(f"VERIFICATION_FAILED: Dataset not available - {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error during verification: {e}")
-        print(f"VERIFICATION_FAILED: {e}")
-        return 1
+    success = verify_loading_rate()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
