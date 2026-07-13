@@ -1,120 +1,112 @@
 """
-Migrate derived statistics from config.yaml to state file.
+Migrate derived statistics from config.yaml to the state file.
 
 This script moves keys 'dataset_stats', 'inference_results', and 'simulation_metrics'
-from code/config.yaml to state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml.
-It then verifies that code/config.yaml is under 2048 bytes.
+from code/config.yaml to state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml,
+then verifies the config file size is under 2048 bytes.
 """
 import os
 import sys
 import yaml
 from pathlib import Path
-from datetime import datetime
+import logging
 
-def get_project_root():
-    """Get the project root directory."""
-    current = Path(__file__).resolve()
-    # Script is at code/src/utils/migrate_config.py
-    # Navigate up 4 levels: utils -> src -> code -> project_root
-    # Wait, the structure is:
-    # projects/PROJ-024.../
-    #   code/
-    #     src/
-    #       utils/
-    #         migrate_config.py
-    #   state/
-    #     projects/
-    #
-    # So from migrate_config.py:
-    # parent: utils
-    # parent: src
-    # parent: code
-    # parent: project_root
-    return current.parent.parent.parent.parent
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def load_yaml(path):
+# Define paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
+STATE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
+MAX_CONFIG_SIZE = 2048  # 2KB
+
+KEYS_TO_MIGRATE = ['dataset_stats', 'inference_results', 'simulation_metrics']
+
+def load_yaml(path: Path) -> dict:
     """Load a YAML file."""
-    with open(path, 'r') as f:
-        return yaml.safe_load(f)
+    if not path.exists():
+        logger.error(f"File not found: {path}")
+        return {}
+    with open(path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f) or {}
 
-def save_yaml(path, data):
+def save_yaml(path: Path, data: dict) -> None:
     """Save data to a YAML file."""
-    with open(path, 'w') as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)
+
+def migrate_config() -> bool:
+    """
+    Migrate derived statistics from config to state file.
+    
+    Returns:
+        True if migration was successful and config size is compliant, False otherwise.
+    """
+    logger.info(f"Loading config from {CONFIG_PATH}")
+    config = load_yaml(CONFIG_PATH)
+    
+    logger.info(f"Loading state from {STATE_PATH}")
+    state = load_yaml(STATE_PATH)
+    
+    # Ensure state has the required nested structure
+    if 'projects' not in state:
+        state['projects'] = {}
+    proj_key = "PROJ-024-bayesian-nonparametrics-for-anomaly-dete"
+    if proj_key not in state['projects']:
+        state['projects'][proj_key] = {}
+    
+    project_state = state['projects'][proj_key]
+    if 'derived_statistics' not in project_state:
+        project_state['derived_statistics'] = {}
+    
+    derived_stats = project_state['derived_statistics']
+    migrated_count = 0
+    
+    for key in KEYS_TO_MIGRATE:
+        if key in config:
+            logger.info(f"Migrating key '{key}' from config to state")
+            derived_stats[key] = config.pop(key)
+            migrated_count += 1
+        else:
+            logger.info(f"Key '{key}' not found in config (already migrated or not present)")
+    
+    if migrated_count > 0:
+        logger.info(f"Saving updated state to {STATE_PATH}")
+        save_yaml(STATE_PATH, state)
+        
+        logger.info(f"Saving updated config to {CONFIG_PATH}")
+        save_yaml(CONFIG_PATH, config)
+    else:
+        logger.info("No keys to migrate. Config and state remain unchanged.")
+    
+    # Verify config size
+    if not CONFIG_PATH.exists():
+        logger.error("Config file missing after migration!")
+        return False
+        
+    size_bytes = os.path.getsize(CONFIG_PATH)
+    logger.info(f"Config file size: {size_bytes} bytes (limit: {MAX_CONFIG_SIZE} bytes)")
+    
+    if size_bytes > MAX_CONFIG_SIZE:
+        logger.error(f"Config file size ({size_bytes}) exceeds limit ({MAX_CONFIG_SIZE})")
+        return False
+        
+    logger.info("Config migration and size verification successful.")
+    return True
 
 def main():
-    project_root = get_project_root()
-    config_path = project_root / "code" / "config.yaml"
-    state_path = project_root / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
-
-    print(f"Project root: {project_root}")
-    print(f"Config path: {config_path}")
-    print(f"State path: {state_path}")
-
-    if not config_path.exists():
-        print(f"ERROR: Config file not found at {config_path}")
+    """Entry point for the migration script."""
+    try:
+        success = migrate_config()
+        sys.exit(0 if success else 1)
+    except Exception as e:
+        logger.exception(f"Migration failed with exception: {e}")
         sys.exit(1)
-
-    if not state_path.exists():
-        print(f"ERROR: State file not found at {state_path}")
-        sys.exit(1)
-
-    # Load config
-    config = load_yaml(config_path)
-    print(f"Loaded config with {len(config)} keys")
-
-    # Keys to migrate
-    keys_to_migrate = ['dataset_stats', 'inference_results', 'simulation_metrics']
-    migrated_data = {}
-    remaining_keys = []
-
-    for key in list(config.keys()):
-        if key in keys_to_migrate:
-            migrated_data[key] = config.pop(key)
-            print(f"Migrated key: {key}")
-        else:
-            remaining_keys.append(key)
-
-    print(f"Remaining keys in config: {remaining_keys}")
-
-    # Load state file
-    state = load_yaml(state_path)
-    print(f"Loaded state file with keys: {list(state.keys())}")
-
-    # Ensure 'migrated_data' section exists in state
-    if 'migrated_data' not in state:
-        state['migrated_data'] = {}
-    
-    # Add migration timestamp
-    state['migrated_data']['migration_timestamp'] = datetime.now().isoformat()
-    state['migrated_data']['migration_task'] = 'T060'
-
-    # Add the migrated data
-    for key, value in migrated_data.items():
-        state['migrated_data'][key] = value
-        print(f"Added {key} to state file")
-
-    # Save updated state file
-    save_yaml(state_path, state)
-    print(f"Updated state file saved to {state_path}")
-
-    # Save updated config file
-    save_yaml(config_path, config)
-    print(f"Updated config file saved to {config_path}")
-
-    # Verify config size
-    config_size = os.path.getsize(config_path)
-    max_size = 2048  # 2KB
-
-    print(f"\nConfig file size: {config_size} bytes")
-    print(f"Max allowed size: {max_size} bytes")
-
-    if config_size > max_size:
-        print(f"ERROR: Config file exceeds 2KB limit by {config_size - max_size} bytes")
-        sys.exit(1)
-    else:
-        print("SUCCESS: Config file is under 2KB limit")
-        return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

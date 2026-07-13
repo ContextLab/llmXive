@@ -36,19 +36,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
     /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/config.py': [Errno 2] No such file or directory
 - python code/src/data/download_datasets.py -> rc=1
     e/projects/data/raw/traffic.csv
-2026-07-13 16:13:54,139 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-13 16:13:54,139 - INFO - Traffic: ✗
-2026-07-13 16:13:54,139 - INFO - Downloading from https://archive.ics.uci.edu/static/public/363/synthetic_control_data.zip to /home/runner/work/llmXive/llmXive/projects/data/raw/synthetic_control_chart.csv
-2026-07-13 16:13:54,567 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-13 16:13:54,567 - INFO - Synthetic Control Chart: ✗
-2026-07-13 16:13:54,568 - INFO - Saved checksum cache to /home/runner/work/llmXive/llmXive/projects/state/checksums.json
-2026-07-13 16:13:54,568 - INFO - ============================================================
-2026-07-13 16:13:54,568 - INFO - Download Summary:
-2026-07-13 16:13:54,568 - INFO - ============================================================
-2026-07-13 16:13:54,568 - INFO -   electricity: FAILED - HTTP Error 404: Not Found
-2026-07-13 16:13:54,568 - INFO -   traffic: FAILED - HTTP Error 404: Not Found
-2026-07-13 16:13:54,568 - INFO -   synthetic_control_chart: FAILED - HTTP Error 404: Not Found
-2026-07-13 16:13:54,568 - ERROR - ✗ Some downloads failed. Check error messages above.
+2026-07-13 16:49:03,804 - ERROR - Download failed: HTTP Error 404: Not Found
+2026-07-13 16:49:03,805 - INFO - Traffic: ✗
+2026-07-13 16:49:03,805 - INFO - Downloading from https://archive.ics.uci.edu/static/public/363/synthetic_control_data.zip to /home/runner/work/llmXive/llmXive/projects/data/raw/synthetic_control_chart.csv
+2026-07-13 16:49:04,305 - ERROR - Download failed: HTTP Error 404: Not Found
+2026-07-13 16:49:04,306 - INFO - Synthetic Control Chart: ✗
+2026-07-13 16:49:04,306 - INFO - Saved checksum cache to /home/runner/work/llmXive/llmXive/projects/state/checksums.json
+2026-07-13 16:49:04,306 - INFO - ============================================================
+2026-07-13 16:49:04,306 - INFO - Download Summary:
+2026-07-13 16:49:04,306 - INFO - ============================================================
+2026-07-13 16:49:04,306 - INFO -   electricity: FAILED - HTTP Error 404: Not Found
+2026-07-13 16:49:04,306 - INFO -   traffic: FAILED - HTTP Error 404: Not Found
+2026-07-13 16:49:04,306 - INFO -   synthetic_control_chart: FAILED - HTTP Error 404: Not Found
+2026-07-13 16:49:04,306 - ERROR - ✗ Some downloads failed. Check error messages above.
 - python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 -> rc=2
     usage: synthetic_generator.py [-h] [--n_samples N_SAMPLES]
                               [--anomaly_rate ANOMALY_RATE]
