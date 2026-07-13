@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Static Feature Vector"
+description: "Schema for the static input features used to predict DelTA Coefficients. Features are computed using sentence-transformers/all-MiniLM-L6-v2 for semantic similarity, ensuring independence from the Oracle model (Phi-3-mini)."
+type: "object"
+properties:
+  example_id:
+    type: "string"
+    description: "Unique identifier for the GSM8K example."
+  token_index:
+    type: "integer"
+    description: "Position of the token in the solution sequence."
+  feature_vector:
+    type: "array"
+    items:
+      type: "number"
+    description: "Concatenated vector of n-gram counts, POS tags, and semantic similarity."
+  ngram_features:
+    type: "array"
+    items:
+      type: "number"
+    description: "Flattened counts of local n-grams (n=1 to 3)."
+  pos_tags:
+    type: "array"
+    items:
+      type: "integer"
+    description: "One-hot encoded part-of-speech tags."
+  semantic_similarity:
+    type: "number"
+    description: "Cosine similarity to known reasoning patterns, computed using sentence-transformers/all-MiniLM-L6-v2."
+required:
+  - example_id
+  - token_index
+  - feature_vector
+  - ngram_features
+  - pos_tags
+  - semantic_similarity
+additionalProperties: false

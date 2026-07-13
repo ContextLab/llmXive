@@ -1,0 +1,107 @@
+resolved_at: '2026-07-13T17:44:26.357313+00:00'
+datasets:
+- intent: GSM8K
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/MU-NLPC/Calc-gsm8k/resolve/main/data/test-00000-of-00001-cd73a5a625e99cb9.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/skrishna/gsm8k_only_answer/ff5ae986e89102894e6d9ba4a055c02393793df0/test.json?%2Fdatasets%2Fskrishna%2Fgsm8k_only_answer%2Fresolve%2Fmain%2Ftest.json=&etag=%22e9feab9670cce1f6bcad4e5ad65ec0158c03a1d8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/MU-NLPC/Calc-gsm8k/resolve/main/data/test-00000-of-00001-cd73a5a625e99cb9.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BlackKakapo/gsm8k-ro/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://plos.figshare.com/articles/figure/_p_Allele_frequencies_for_clinal_loci_around_the_i_CRE_i_gene_on_Chromosome_1_p_/32977627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Proposed_ML_models_per_task_of_CPP2Vec_p_/32977628
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Allele_frequencies_for_clinal_loci_downstream_of_i_FLA_i_gene_300kb_on_Chromosome_2_p_/32977621
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Overview_of_the_proposed_W2V_model_parameters_per_task_p_/32977625
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Performance_metrics_of_ML_Models_across_validation_and_test_datasets_p_/32977622
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13294003
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17587991
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11126655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753555
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753643
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.20140
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21323304
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

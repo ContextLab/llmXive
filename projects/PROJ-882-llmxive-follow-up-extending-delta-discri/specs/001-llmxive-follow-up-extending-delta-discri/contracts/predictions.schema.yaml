@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Predictions and Metrics"
+description: "Schema for the output of the prediction and evaluation phase. Includes example-level aggregation for primary analysis."
+type: "object"
+properties:
+  example_id:
+    type: "string"
+    description: "Unique identifier for the GSM8K example."
+  token_index:
+    type: "integer"
+    description: "Position of the token in the solution sequence."
+  true_delta:
+    type: "number"
+    description: "Ground-truth DelTA Coefficient."
+  predicted_delta:
+    type: "number"
+    description: "Predicted DelTA Coefficient from the MLP."
+  residual:
+    type: "number"
+    description: "Difference between true and predicted values."
+  feature_importance:
+    type: "object"
+    description: "SHAP or permutation importance scores for each feature type."
+    properties:
+      ngram:
+        type: "number"
+      pos:
+        type: "number"
+      semantic:
+        type: "number"
+    required:
+      - ngram
+      - pos
+      - semantic
+  collinearity_note:
+    type: "string"
+    description: "If high collinearity (Pearson r > 0.7) is detected between features, this field documents the finding and caveats for SHAP interpretation."
+required:
+  - example_id
+  - token_index
+  - true_delta
+  - predicted_delta
+  - residual
+  - feature_importance
+additionalProperties: false

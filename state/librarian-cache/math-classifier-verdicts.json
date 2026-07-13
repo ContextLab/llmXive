@@ -1211,6 +1211,10 @@
     "classified_at": "2026-07-13T16:47:48Z",
     "verdict": false
   },
+  "PROJ-882-llmxive-follow-up-extending-delta-discri::1.6.0": {
+    "classified_at": "2026-07-13T17:37:28Z",
+    "verdict": false
+  },
   "PROJ-883-llmxive-follow-up-extending-omniretrieva::1.6.0": {
     "classified_at": "2026-07-03T13:03:39Z",
     "verdict": false

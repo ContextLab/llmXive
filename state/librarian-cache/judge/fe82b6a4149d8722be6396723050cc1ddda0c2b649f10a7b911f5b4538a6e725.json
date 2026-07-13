@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.12375",
+  "judged_at": "2026-07-13T17:37:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"delta: discriminative token credit assignment for reinforcement learni\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the core mechanism of \"Discriminative Token Credit Assignment\" by providing a canonical alternative approach to credit assignment and exploration in Reinforcement Learning (specifically using ensemble errors for value bonuses), which satisfies criteria (a) for same-mechanism evidence and (d) for foundational methodology in the RL domain. Although it does not explicitly mention \"tokens\" or \"LLMs,\" it establishes the empirical baseli",
+  "relevant": true
+}

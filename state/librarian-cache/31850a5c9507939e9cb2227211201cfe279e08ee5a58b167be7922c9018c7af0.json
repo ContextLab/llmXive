@@ -1,0 +1,583 @@
+{
+  "fetched_at": "2026-07-13T17:37:53Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for Reinforcement Learni\"",
+      "target_n": 5
+    },
+    "duration_seconds": 55.752,
+    "ended_at": "2026-07-13T17:37:53Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "discriminative token credit assignment in reinforcement learning"
+        ],
+        [
+          2,
+          "token-level credit assignment for large language models"
+        ],
+        [
+          3,
+          "fine-grained reward attribution in LLM reinforcement learning"
+        ],
+        [
+          4,
+          "DelTA algorithm for reinforcement learning from human feedback"
+        ],
+        [
+          5,
+          "sparse reward attribution in sequence generation"
+        ],
+        [
+          6,
+          "reinforcement learning with token-level value estimation"
+        ],
+        [
+          7,
+          "policy gradient methods for large language model alignment"
+        ],
+        [
+          8,
+          "attribution methods for reinforcement learning in NLP"
+        ],
+        [
+          9,
+          "credit assignment problem in transformer-based reinforcement learning"
+        ],
+        [
+          10,
+          "reward shaping for large language model fine-tuning"
+        ],
+        [
+          11,
+          "interpretable credit assignment in generative models"
+        ],
+        [
+          12,
+          "token importance scoring for RLHF"
+        ],
+        [
+          13,
+          "discriminative reward models for language generation"
+        ],
+        [
+          14,
+          "gradient-based credit assignment for sequential decision making"
+        ],
+        [
+          15,
+          "reinforcement learning optimization for large language models"
+        ],
+        [
+          16,
+          "sparse reward signal propagation in deep reinforcement learning"
+        ],
+        [
+          17,
+          "attention-based credit assignment in transformer RL"
+        ],
+        [
+          18,
+          "value function approximation for token-level rewards"
+        ],
+        [
+          19,
+          "direct preference optimization with token-level granularity"
+        ],
+        [
+          20,
+          "reward decomposition in language model reinforcement learning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "discriminative token credit assignment in reinforcement learning": 5,
+        "llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for Reinforcement Learni\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "discriminative token attribution reinforcement fine-tuning",
+      "RLHF reward model gradient propagation token level",
+      "credit assignment sparse reward policy gradient",
+      "token-level reward modeling LLM alignment",
+      "sparse credit assignment policy gradient variance reduction"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.21467"
+      ]
+    },
+    "per_query_hit_count": {
+      "RLHF reward model gradient propagation token level": 3,
+      "credit assignment sparse reward policy gradient": 3,
+      "discriminative token attribution reinforcement fine-tuning": 3,
+      "llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for Reinforcement Learni\" computer science": 3,
+      "sparse credit assignment policy gradient variance reduction": 1,
+      "token-level reward modeling LLM alignment": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T17:36:57Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"delta: discriminative token credit assignment for reinforcement learni\" computer science",
+      "raw": "llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for Reinforcement Learni\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the great promises of robot learning systems is that they will be able to learn from their mistakes and continuously adapt to ever-changing environments. Despite this potential, most of the robot learning systems today are deployed as a fixed policy and they are not being adapted after their deployment. Can we efficiently adapt previously learned behaviors to new environments, objects and percepts in the real world? In this paper, we present a method and empirical evidence towards a robot learning framework that facilitates continuous adaption. In particular, we demonstrate how to adapt vision-based robotic manipulation policies to new variations by fine-tuning via off-policy reinforcement learning, including changes in background, object shape and appearance, lighting conditions, and robot morphology. Further, this adaptation uses less than 0.2% of the data necessary to learn the task from scratch. We find that our approach of adapting pre-trained policies leads to substantial performance gains over the course of fine-tuning, and that pre-training via RL is essential: training from scratch or adapting from supervised ImageNet features are both unsuccessful with such small amounts of data. We also find that these positive results hold in a limited continual learning setting, in which we repeatedly fine-tune a single lineage of policies using data from a succession of new tasks. Our empirical conclusions are consistently supported by experiments on simulated manipulation tasks, and by 52 unique fine-tuning experiments on a real robotic grasping system pre-trained on 580,000 grasps.",
+          "claimed_authors": [
+            "Ryan Julian",
+            "Benjamin Swanson",
+            "Gaurav S. Sukhatme",
+            "Sergey Levine",
+            "Chelsea Finn",
+            "Karol Hausman"
+          ],
+          "claimed_title": "Never Stop Learning: The Effectiveness of Fine-Tuning in Robotic Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.10190"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Never Stop Learning: The Effectiveness of Fine-Tuning in Robotic Reinforcement Learning')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Legged robots are physically capable of traversing a wide range of challenging environments, but designing controllers that are sufficiently robust to handle this diversity has been a long-standing challenge in robotics. Reinforcement learning presents an appealing approach for automating the controller design process and has been able to produce remarkably robust controllers when trained in a suitable range of environments. However, it is difficult to predict all likely conditions the robot will encounter during deployment and enumerate them at training-time. What if instead of training controllers that are robust enough to handle any eventuality, we enable the robot to continually learn in any setting it finds itself in? This kind of real-world reinforcement learning poses a number of challenges, including efficiency, safety, and autonomy. To address these challenges, we propose a practical robot reinforcement learning system for fine-tuning locomotion policies in the real world. We demonstrate that a modest amount of real-world training can substantially improve performance during deployment, and this enables a real A1 quadrupedal robot to autonomously fine-tune multiple locomotion skills in a range of environments, including an outdoor lawn and a variety of indoor terrains.",
+          "claimed_authors": [
+            "Laura Smith",
+            "J. Chase Kew",
+            "Xue Bin Peng",
+            "Sehoon Ha",
+            "Jie Tan",
+            "Sergey Levine"
+          ],
+          "claimed_title": "Legged Robots that Keep on Learning: Fine-Tuning Locomotion Policies in the Real World",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.05457"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Legged Robots that Keep on Learning: Fine-Tuning Locomotion Policies in the Real World')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is impossible today to pretend that the practice of machine learning is always compatible with the idea that training and testing data follow the same distribution. Several authors have recently used ensemble techniques to show how scenarios involving multiple data distributions are best served by representations that are both richer than those obtained by regularizing for the best in-distribution performance, and richer than those obtained under the influence of the implicit sparsity bias of common stochastic gradient procedures.\n  This contribution investigates the use of very high dropout rates instead of ensembles to obtain such rich representations. Although training a deep network from scratch using such dropout rates is virtually impossible, fine-tuning a large pre-trained model under such conditions is not only possible but also achieves out-of-distribution performances that exceed those of both ensembles and weight averaging methods such as model soups.\n  This result has practical significance because the importance of the fine-tuning scenario has considerably grown in recent years. This result also provides interesting insights on the nature of rich representations and on the intrinsically linear nature of fine-tuning a large network using a comparatively small dataset.",
+          "claimed_authors": [
+            "Jianyu Zhang",
+            "Léon Bottou"
+          ],
+          "claimed_title": "Fine-tuning with Very Large Dropout",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.00946"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Fine-tuning with Very Large Dropout')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning from human feedback (RLHF) has emerged as the primary method for aligning large language models (LLMs) with human preferences. The RLHF process typically starts by training a reward model (RM) using human preference data. Conventional RMs are trained on pairwise responses to the same user request, with relative ratings indicating which response humans prefer. The trained RM serves as a proxy for human preferences. However, due to the black-box nature of RMs, their outputs lack interpretability, as humans cannot intuitively understand why an RM thinks a response is good or not. As RMs act as human preference proxies, we believe they should be human-interpretable to ensure that their internal decision processes are consistent with human preferences and to prevent reward hacking in LLM alignment. To build RMs with interpretable preferences, we propose a two-stage approach: i) train an Absolute-Rating Multi-Objective Reward Model (ArmoRM) with multi-dimensional absolute-rating data, each dimension corresponding to a human-interpretable objective (e.g., honesty, verbosity, safety); ii) employ a Mixture-of-Experts (MoE) strategy with a gating network that automatically selects the most suitable reward objectives based on the context. We efficiently trained an ArmoRM with Llama-3 8B and a gating network consisting of a shallow MLP on top of the ArmoRM. Our trained model, ArmoRM-Llama3-8B, obtains state-of-the-art performance on RewardBench, a benchmark evaluating RMs for language modeling. Notably, the performance of our model surpasses the LLM-as-a-judge method with GPT-4 judges by a margin, and approaches the performance of the much larger Nemotron-4 340B reward model.",
+          "claimed_authors": [
+            "Haoxiang Wang",
+            "Wei Xiong",
+            "Tengyang Xie",
+            "Han Zhao",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.12845"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reward models learned from human preferences are central to aligning large language models (LLMs) via reinforcement learning from human feedback, yet they are often vulnerable to reward hacking due to noisy annotations and systematic biases such as response length or style. We propose Bayesian Non-Negative Reward Model (BNRM), a principled reward modeling framework that integrates non-negative factor analysis into Bradley-Terry (BT) preference model. BNRM represents rewards through a sparse, non-negative latent factor generative process that operates at two complementary levels: instance-specific latent variables induce disentangled reward representations, while sparsity over global latent factors acts as an implicit debiasing mechanism that suppresses spurious correlations. Together, this disentanglement-then-debiasing structure enables robust uncertainty-aware reward learning. To scale BNRM to modern LLMs, we develop an amortized variational inference network conditioned on deep model representations, allowing efficient end-to-end training. Extensive empirical results demonstrate that BNRM substantially mitigates reward over-optimization, improves robustness under distribution shifts, and yields more interpretable reward decompositions than strong baselines.",
+          "claimed_authors": [
+            "Zhibin Duan",
+            "Guowei Rong",
+            "Zhuo Li",
+            "Bo Chen",
+            "Mingyuan Zhou",
+            "Dandan Guo"
+          ],
+          "claimed_title": "Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.10623"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning from human feedback (RLHF) is a widely used method for aligning large language models with human preferences. However, RLHF often suffers from reward model overoptimisation, in which models overfit to the reward function, resulting in non-generalisable policies that exploit the idiosyncrasies and peculiarities of the reward function. A common mitigation is iterated RLHF, in which reward models are repeatedly retrained with updated human feedback and policies are re-optimised. Despite its increasing adoption, the dynamics of overoptimisation in this setting remain poorly understood. In this work, we present the first comprehensive study of overoptimisation in iterated RLHF. We systematically analyse key design choices - how reward model training data is transferred across iterations, which reward function is used for optimisation, and how policies are initialised. Using the controlled AlpacaFarm benchmark, we observe that overoptimisation tends to decrease over successive iterations, as reward models increasingly approximate ground-truth preferences. However, performance gains diminish over time, and while reinitialising from the base policy is robust, it limits optimisation flexibility. Other initialisation strategies often fail to recover from early overoptimisation. These findings offer actionable insights for building more stable and generalisable RLHF pipelines.",
+          "claimed_authors": [
+            "Lorenz Wolf",
+            "Robert Kirk",
+            "Mirco Musolesi"
+          ],
+          "claimed_title": "Reward Model Overoptimisation in Iterated RLHF",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.18126"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Reward Model Overoptimisation in Iterated RLHF')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning has achieved impressive prediction accuracies in a variety of scientific and industrial domains. However, the nested non-linear feature of deep learning makes the learning highly non-transparent, i.e., it is still unknown how the learning coordinates a huge number of parameters to achieve a decision making. To explain this hierarchical credit assignment, we propose a mean-field learning model by assuming that an ensemble of sub-networks, rather than a single network, are trained for a classification task. Surprisingly, our model reveals that apart from some deterministic synaptic weights connecting two neurons at neighboring layers, there exist a large number of connections that can be absent, and other connections can allow for a broad distribution of their weight values. Therefore, synaptic connections can be classified into three categories: very important ones, unimportant ones, and those of variability that may partially encode nuisance factors. Therefore, our model learns the credit assignment leading to the decision, and predicts an ensemble of sub-networks that can accomplish the same task, thereby providing insights toward understanding the macroscopic behavior of deep learning through the lens of distinct roles of synaptic weights.",
+          "claimed_authors": [
+            "Chan Li",
+            "Haiping Huang"
+          ],
+          "claimed_title": "Learning credit assignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.03354"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Learning credit assignment')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many transfer problems require re-using previously optimal decisions for solving new tasks, which suggests the need for learning algorithms that can modify the mechanisms for choosing certain actions independently of those for choosing others. However, there is currently no formalism nor theory for how to achieve this kind of modular credit assignment. To answer this question, we define modular credit assignment as a constraint on minimizing the algorithmic mutual information among feedback signals for different decisions. We introduce what we call the modularity criterion for testing whether a learning algorithm satisfies this constraint by performing causal analysis on the algorithm itself. We generalize the recently proposed societal decision-making framework as a more granular formalism than the Markov decision process to prove that for decision sequences that do not contain cycles, certain single-step temporal difference action-value methods meet this criterion while all policy-gradient methods do not. Empirical evidence suggests that such action-value methods are more sample efficient than policy-gradient methods on transfer problems that require only sparse changes to a sequence of previously optimal decisions.",
+          "claimed_authors": [
+            "Michael Chang",
+            "Sidhant Kaushik",
+            "Sergey Levine",
+            "Thomas L. Griffiths"
+          ],
+          "claimed_title": "Modularity in Reinforcement Learning via Algorithmic Independence in Credit Assignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.14993"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Modularity in Reinforcement Learning via Algorithmic Independence in Credit Assignment')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Group Relative Policy Optimization (GRPO) eliminates the learned critic in PPO by using the mean reward of grouped rollouts as a baseline. We provide a rigorous derivation of GRPO from first principles of the policy gradient theorem, revealing a fundamental credit assignment failure: under output-only reward, every token in a rollout receives identical advantage, collapsing token-level credit to a single scalar. We prove this induces gradient sparsity that intensifies over training, and demonstrate empirically via SVD analysis of GRPO gradients on Nemotron-4B/GSM8K that the gradient matrix has effective rank $\\approx$ 2 regardless of group size $R \\in \\{2, 4, 8\\}$. We formalize this as an intrinsic rank-2 structure arising from the zero-sum constraint on advantages and derive conditions under which GRPO's baseline is optimal. Our results characterize when GRPO's simplicity is theoretically justified and identify the credit assignment bottleneck as the key limitation for multi-step reasoning.",
+          "claimed_authors": [
+            "Amritansh Mishra",
+            "Supriyo Chakraborty",
+            "Berkcan Kapusuzoglu"
+          ],
+          "claimed_title": "On the Policy Gradient Foundations of Group Relative Policy Optimization: Credit Assignment, Gradient Sparsity, and Rank Collapse",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.29238"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='On the Policy Gradient Foundations of Group Relative Policy Optimization: Credit Assignment, Gradient Sparsity, and Rank Collapse')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In natural human-to-human conversations, participants often receive feedback signals from one another based on their follow-up reactions. These reactions can include verbal responses, facial expressions, changes in emotional state, and other non-verbal cues. Similarly, in human-machine interactions, the machine can leverage the user's follow-up utterances as feedback signals to assess whether it has appropriately addressed the user's request. Therefore, we propose using the likelihood of follow-up utterances as rewards to differentiate preferred responses from less favored ones, without relying on human or commercial LLM-based preference annotations. Our proposed reward mechanism, ``Follow-up Likelihood as Reward\" (FLR), matches the performance of strong reward models trained on large-scale human or GPT-4 annotated data on 8 pairwise-preference and 4 rating-based benchmarks. Building upon the FLR mechanism, we propose to automatically mine preference data from the online generations of a base policy model. The preference data are subsequently used to boost the helpfulness of the base model through direct alignment from preference (DAP) methods, such as direct preference optimization (DPO). Lastly, we demonstrate that fine-tuning the language model that provides follow-up likelihood with natural language feedback significantly enhances FLR's performance on reward modeling benchmarks and effectiveness in aligning the base policy model's helpfulness.",
+          "claimed_authors": [
+            "Chen Zhang",
+            "Dading Chong",
+            "Feng Jiang",
+            "Chengguang Tang",
+            "Anningzhe Gao",
+            "Guohua Tang",
+            "Haizhou Li"
+          ],
+          "claimed_title": "Aligning Language Models Using Follow-up Likelihood as Reward Signal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.13948"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Aligning Language Models Using Follow-up Likelihood as Reward Signal')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Supervised Fine-Tuning (SFT) on response demonstrations combined with Reinforcement Learning from Human Feedback (RLHF) constitutes a powerful paradigm for aligning LLM-based AI agents. However, a significant limitation of such an approach is its dependency on high-quality human annotations, making its application to intricate tasks challenging due to difficulties in obtaining consistent response demonstrations and in-distribution response preferences. This paper presents a novel approach, namely SALMON, to align base language models with minimal human supervision, using only a small set of human-defined principles, yet achieving superior performance. Central to our approach is an instructable reward model. Trained on synthetic preference data, this model can generate reward scores based on arbitrary human-defined principles. By merely adjusting these principles during the RL training phase, we gain full control over the preferences with the instructable reward model, subsequently influencing the behavior of the RL-trained policy models, and reducing the reliance on the collection of online human preferences. Applying our method to the LLaMA-2-70b base language model, we developed an AI assistant named Dromedary-2. With only 6 exemplars for in-context learning and 31 human-defined principles, Dromedary-2 significantly surpasses the performance of several state-of-the-art AI systems, including LLaMA-2-Chat-70b, on various benchmark datasets. We have open-sourced the code and model weights to encourage further research into aligning LLM-based AI agents with enhanced supervision efficiency, improved controllability, and scalable oversight.",
+          "claimed_authors": [
+            "Zhiqing Sun",
+            "Yikang Shen",
+            "Hongxin Zhang",
+            "Qinhong Zhou",
+            "Zhenfang Chen",
+            "David Cox",
+            "Yiming Yang",
+            "Chuang Gan"
+          ],
+          "claimed_title": "SALMON: Self-Alignment with Instructable Reward Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.05910"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='SALMON: Self-Alignment with Instructable Reward Models')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Online Learning to Rank (OL2R) algorithms learn from implicit user feedback on the fly. The key of such algorithms is an unbiased estimation of gradients, which is often (trivially) achieved by uniformly sampling from the entire parameter space. This unfortunately introduces high-variance in gradient estimation, and leads to a worse regret of model estimation, especially when the dimension of parameter space is large.\n  In this paper, we aim at reducing the variance of gradient estimation in OL2R algorithms. We project the selected updating direction into a space spanned by the feature vectors from examined documents under the current query (termed the \"document space\" for short), after interleaved test. Our key insight is that the result of interleaved test solely is governed by a user's relevance evaluation over the examined documents. Hence, the true gradient introduced by this test result should lie in the constructed document space, and components orthogonal to the document space in the proposed gradient can be safely removed for variance reduction. We prove that the projected gradient is an unbiased estimation of the true gradient, and show that this lower-variance gradient estimation results in significant regret reduction. Our proposed method is compatible with all existing OL2R algorithms which rank documents using a linear model. Extensive experimental comparisons with several state-of-the-art OL2R algorithms have confirmed the effectiveness of our proposed method in reducing the variance of gradient estimation and improving overall performance.",
+          "claimed_authors": [
+            "Huazheng Wang",
+            "Sonwoo Kim",
+            "Eric McCord-Snook",
+            "Qingyun Wu",
+            "Hongning Wang"
+          ],
+          "claimed_title": "Variance Reduction in Gradient Exploration for Online Learning to Rank",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.03766"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DelTA: Discriminative Token Credit Assignment for ', candidate_title='Variance Reduction in Gradient Exploration for Online Learning to Rank')",
+        "failed_at": "2026-07-13T17:37:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dilip Arumugam",
+            "Peter Henderson",
+            "Pierre-Luc Bacon"
+          ],
+          "title": "An Information-Theoretic Perspective on Credit Assignment in Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2103.06224",
+        "summary": "How do we formalize the challenge of credit assignment in reinforcement learning? Common intuition would draw attention to reward sparsity as a key contributor to difficult credit assignment and traditional heuristics would look to temporal recency for the solution, calling upon the classic eligibility trace. We posit that it is not the sparsity of the reward itself that causes difficulty in credit assignment, but rather the \\emph{information sparsity}. We propose to use information theory to define this notion, which we then use to characterize when credit assignment is an obstacle to efficient learning. With this perspective, we outline several information-theoretic mechanisms for measuring credit under a fixed behavior policy, highlighting the potential of information theory as a key tool towards provably-efficient credit assignment.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2103.06224",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T17:37:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael Chang",
+            "Sidhant Kaushik",
+            "Sergey Levine",
+            "Thomas L. Griffiths"
+          ],
+          "title": "Modularity in Reinforcement Learning via Algorithmic Independence in Credit Assignment",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2106.14993",
+        "summary": "Many transfer problems require re-using previously optimal decisions for solving new tasks, which suggests the need for learning algorithms that can modify the mechanisms for choosing certain actions independently of those for choosing others. However, there is currently no formalism nor theory for how to achieve this kind of modular credit assignment. To answer this question, we define modular credit assignment as a constraint on minimizing the algorithmic mutual information among feedback signals for different decisions. We introduce what we call the modularity criterion for testing whether a learning algorithm satisfies this constraint by performing causal analysis on the algorithm itself. We generalize the recently proposed societal decision-making framework as a more granular formalism than the Markov decision process to prove that for decision sequences that do not contain cycles, certain single-step temporal difference action-value methods meet this criterion while all policy-gradient methods do not. Empirical evidence suggests that such action-value methods are more sample efficient than policy-gradient methods on transfer problems that require only sparse changes to a sequence of previously optimal decisions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2106.14993",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T17:37:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chan Li",
+            "Haiping Huang"
+          ],
+          "title": "Learning credit assignment",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2001.03354",
+        "summary": "Deep learning has achieved impressive prediction accuracies in a variety of scientific and industrial domains. However, the nested non-linear feature of deep learning makes the learning highly non-transparent, i.e., it is still unknown how the learning coordinates a huge number of parameters to achieve a decision making. To explain this hierarchical credit assignment, we propose a mean-field learning model by assuming that an ensemble of sub-networks, rather than a single network, are trained for a classification task. Surprisingly, our model reveals that apart from some deterministic synaptic weights connecting two neurons at neighboring layers, there exist a large number of connections that can be absent, and other connections can allow for a broad distribution of their weight values. Therefore, synaptic connections can be classified into three categories: very important ones, unimportant ones, and those of variability that may partially encode nuisance factors. Therefore, our model learns the credit assignment leading to the decision, and predicts an ensemble of sub-networks that can accomplish the same task, thereby providing insights toward understanding the macroscopic behavior of deep learning through the lens of distinct roles of synaptic weights.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2001.03354",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T17:37:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12375",
+        "summary": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12375",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T17:37:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kaiyi Zhang",
+            "Wei Wu",
+            "Yankai Lin"
+          ],
+          "title": "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.21467",
+        "summary": "Reinforcement learning from verifiable rewards (RLVR) has emerged as a central technique for improving the reasoning capabilities of large language models. Despite its effectiveness, how response-level rewards translate into token-level probability changes remains poorly understood. We introduce a discriminator view of RLVR updates, showing that the policy-gradient update direction implicitly acts as a linear discriminator over token-gradient vectors and thereby determines which token probabilities are increased or decreased during learning. Under standard sequence-level RLVR, this discriminator is constructed from positive- and negative-side centroids formed by advantage-weighted averaging of token-gradient vectors. However, such centroid construction can be dominated by shared high-frequency patterns, such as formatting tokens, diluting sparse yet discriminative directions that better distinguish high-reward responses from low-reward ones. To address this limitation, we propose $\\textbf{DelTA}$, a discriminative token credit assignment method that estimates token coefficients to amplify side-specific token-gradient directions and downweight shared or weakly discriminative ones. These coefficients reweight a self-normalized RLVR surrogate, making the effective side-wise centroids more contrastive and thereby reshaping the RLVR update direction. On seven mathematical benchmarks, DelTA outperforms the strongest same-scale baselines by 3.26 and 2.62 average points on Qwen3-8B-Base and Qwen3-14B-Base, respectively. Additional results on code generation, a different backbone, and out-of-domain evaluations further demonstrate the generalization ability of DelTA.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.21467",
+          "http_status": 200,
+          "pdf_sample_score": 0.3738,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T17:37:36Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"delta: discriminative token credit assignment for reinforcement learni\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
