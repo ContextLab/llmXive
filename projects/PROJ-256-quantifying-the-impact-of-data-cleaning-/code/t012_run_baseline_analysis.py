@@ -3,43 +3,43 @@ import sys
 import json
 import logging
 from typing import List, Dict, Any
-from data_loader import download_dataset, load_datasets_from_raw
-from analysis import run_baseline_analysis
+from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from utils import setup_logging
 from config import Config
-
-logger = logging.getLogger(__name__)
+from analysis import run_baseline_analysis
 
 def main():
-    setup_logging("INFO")
+    logger = setup_logging("INFO")
+    logger.info("Starting T012: Run Baseline Analysis")
+    
     config = Config()
+    
+    # Get paths from config or defaults
     raw_dir = config.get("RAW_DATA_PATH", "data/raw")
     output_path = config.get("PROCESSED_DATA_PATH", "data/processed")
+    output_file = os.path.join(output_path, "baseline_metrics.json")
     
+    logger.info(f"Input directory: {raw_dir}")
+    logger.info(f"Output file: {output_file}")
+    
+    # Ensure output directory exists
     os.makedirs(output_path, exist_ok=True)
     
-    dfs = load_datasets_from_raw(raw_dir)
-    if not dfs:
-        logger.error("No datasets found. Please download data first.")
-        return False
+    # Run analysis
+    # run_baseline_analysis handles both batch (path) and single (df) modes
+    # We pass the raw_dir path to trigger batch processing
+    success = run_baseline_analysis(raw_dir, output_path=output_file)
     
-    all_results = []
-    
-    for df in dfs:
-        # Heuristic: use filename without extension
-        dataset_name = "dataset" # Simplified for now
-        logger.info(f"Running baseline analysis on {dataset_name}")
-        
-        results = run_baseline_analysis(df, dataset_name=dataset_name, config=config)
-        all_results.append(results)
-    
-    output_file = os.path.join(output_path, "baseline_metrics.json")
-    with open(output_file, 'w') as f:
-        json.dump(all_results, f, indent=2)
-    
-    logger.info(f"Baseline metrics written to {output_file}")
-    return True
+    if success:
+        logger.info("T012 completed successfully. baseline_metrics.json generated.")
+        return 0
+    else:
+        logger.error("T012 failed to generate metrics.")
+        return 1
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    sys.exit(main())

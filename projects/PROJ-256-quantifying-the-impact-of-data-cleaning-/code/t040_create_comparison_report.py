@@ -1,7 +1,9 @@
 """
-Task T040: Create Comparison Report
-Generates a ComparisonReport entity (JSON) containing baseline metrics,
-cleaned metrics, absolute/relative differences, and sensitivity analysis.
+Task T040: Create comparison report (ComparisonReport entity) with baseline_metrics,
+cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis.
+
+This script aggregates the results from baseline analysis and cleaned variants,
+computes differences, and generates a structured ComparisonReport artifact.
 """
 import os
 import json
@@ -10,204 +12,197 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import numpy as np
 
-# Local imports from project API surface
-from models import ComparisonReport, AnalysisResult, CleaningStrategy, Dataset
-from config import Config, get_config
+# Import models to construct the report entity
+from models import ComparisonReport, Dataset, CleaningStrategy, AnalysisResult
+from reporting import load_json_file, calculate_p_value_shift, compute_ci_width_change, compute_effect_size_delta
 from utils import setup_logging, compute_file_checksum
 
 logger = logging.getLogger(__name__)
 
-# Default paths
-BASELINE_METRICS_PATH = "data/processed/baseline_metrics.json"
-CLEANED_METRICS_PATH = "data/processed/cleaned_metrics.json"
-SENSITIVITY_ANALYSIS_PATH = "data/processed/sensitivity_analysis.json"
-OUTPUT_PATH = "data/processed/comparison_report.json"
+def load_baseline_metrics(filepath: str = "data/processed/baseline_metrics.json") -> Optional[Dict[str, Any]]:
+    """Load baseline metrics from the generated JSON file."""
+    if not os.path.exists(filepath):
+        logger.warning(f"Baseline metrics file not found at {filepath}. Skipping comparison report generation.")
+        return None
+    return load_json_file(filepath)
 
-def load_json_file(path: str) -> Optional[Dict[str, Any]]:
-    """Load a JSON file safely."""
-    if not os.path.exists(path):
-        logger.warning(f"File not found: {path}. Returning empty dict.")
-        return {}
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"Error loading {path}: {e}")
-        return {}
+def load_cleaned_metrics(filepath: str = "data/processed/cleaned_metrics.json") -> Optional[Dict[str, Any]]:
+    """Load cleaned metrics from the generated JSON file."""
+    if not os.path.exists(filepath):
+        logger.warning(f"Cleaned metrics file not found at {filepath}. Skipping comparison report generation.")
+        return None
+    return load_json_file(filepath)
 
-def load_baseline_metrics() -> Dict[str, Any]:
-    """Load baseline metrics from the processed directory."""
-    return load_json_file(BASELINE_METRICS_PATH)
-
-def load_cleaned_metrics() -> Dict[str, Any]:
-    """Load cleaned metrics from the processed directory."""
-    return load_json_file(CLEANED_METRICS_PATH)
-
-def load_sensitivity_analysis() -> Dict[str, Any]:
+def load_sensitivity_analysis(filepath: str = "data/processed/sensitivity_analysis.json") -> Optional[Dict[str, Any]]:
     """Load sensitivity analysis results if available."""
-    return load_json_file(SENSITIVITY_ANALYSIS_PATH)
+    if not os.path.exists(filepath):
+        logger.info(f"Sensitivity analysis file not found at {filepath}. Proceeding without it.")
+        return None
+    return load_json_file(filepath)
 
-def calculate_absolute_diff(baseline_val: float, cleaned_val: float) -> float:
-    """Calculate absolute difference between two values."""
-    if baseline_val is None or cleaned_val is None:
-        return float('nan')
-    return abs(cleaned_val - baseline_val)
+def calculate_absolute_diff(base_val: float, clean_val: float) -> float:
+    """Calculate absolute difference between baseline and cleaned values."""
+    if base_val is None or clean_val is None:
+        return 0.0
+    return abs(clean_val - base_val)
 
-def calculate_relative_diff(baseline_val: float, cleaned_val: float) -> float:
-    """Calculate relative difference (percentage change)."""
-    if baseline_val is None or cleaned_val is None or baseline_val == 0:
-        return float('nan')
-    return (cleaned_val - baseline_val) / abs(baseline_val)
+def calculate_relative_diff(base_val: float, clean_val: float) -> float:
+    """Calculate relative difference (percentage change) between baseline and cleaned values."""
+    if base_val is None or clean_val is None or base_val == 0:
+        return 0.0
+    return (clean_val - base_val) / abs(base_val)
 
 def aggregate_metrics_for_comparison(
-    baseline_entry: Dict[str, Any],
-    cleaned_entry: Dict[str, Any]
-) -> Dict[str, Any]:
+    baseline_data: Dict[str, Any],
+    cleaned_data: Dict[str, Any]
+) -> List[Dict[str, Any]]:
     """
-    Aggregate metrics for a single dataset/strategy pair.
-    Extracts p-values, CIs, and effect sizes, then computes diffs.
+    Aggregate baseline and cleaned metrics to compute diffs.
+    Returns a list of comparison entries.
     """
-    result = {
-        "dataset_name": baseline_entry.get("dataset_name", "Unknown"),
-        "cleaning_strategy": cleaned_entry.get("strategy", cleaned_entry.get("cleaning_strategy", "Unknown")),
-        "metrics": {}
-    }
+    comparisons = []
 
-    # Helper to safely get a float or None
-    def safe_float(val):
-        if val is None:
-            return None
-        try:
-            return float(val)
-        except (ValueError, TypeError):
-            return None
+    # Ensure we have datasets to compare
+    base_datasets = baseline_data.get('datasets', []) if baseline_data else []
+    clean_datasets = cleaned_data.get('datasets', []) if cleaned_data else []
 
-    # Process p-values
-    base_p = safe_float(baseline_entry.get("p_value"))
-    clean_p = safe_float(cleaned_entry.get("p_value"))
-    
-    if base_p is not None and clean_p is not None:
-        result["metrics"]["p_value"] = {
-            "baseline": base_p,
-            "cleaned": clean_p,
-            "absolute_diff": calculate_absolute_diff(base_p, clean_p),
-            "relative_diff": calculate_relative_diff(base_p, clean_p)
+    # Create a map of cleaned datasets for easy lookup
+    clean_map = {}
+    for entry in clean_datasets:
+        key = (entry.get('dataset_name'), entry.get('strategy'))
+        clean_map[key] = entry
+
+    for base_entry in base_datasets:
+        dataset_name = base_entry.get('dataset_name')
+        base_analysis = base_entry.get('analysis', {})
+        
+        # Extract baseline metrics
+        base_p = base_analysis.get('t_test', {}).get('p_value')
+        base_ci_width = base_analysis.get('t_test', {}).get('ci_width')
+        base_effect_size = base_analysis.get('t_test', {}).get('effect_size')
+
+        comparison_entry = {
+            "dataset_name": dataset_name,
+            "baseline": base_entry,
+            "cleaned_variants": []
         }
 
-    # Process Confidence Intervals (assuming 'ci_width' or 'ci' field)
-    base_ci = safe_float(baseline_entry.get("ci_width", baseline_entry.get("ci", {}).get("width", 0)))
-    clean_ci = safe_float(cleaned_entry.get("ci_width", cleaned_entry.get("ci", {}).get("width", 0)))
-    
-    if base_ci is not None and clean_ci is not None:
-        result["metrics"]["ci_width"] = {
-            "baseline": base_ci,
-            "cleaned": clean_ci,
-            "absolute_diff": calculate_absolute_diff(base_ci, clean_ci),
-            "relative_diff": calculate_relative_diff(base_ci, clean_ci)
-        }
+        # Compare against each cleaning strategy applied to this dataset
+        for strategy_name in ["outlier_removal", "mean_imputation", "median_imputation", "knn_imputation"]:
+            key = (dataset_name, strategy_name)
+            if key in clean_map:
+                clean_entry = clean_map[key]
+                clean_analysis = clean_entry.get('analysis', {})
+                
+                clean_p = clean_analysis.get('t_test', {}).get('p_value')
+                clean_ci_width = clean_analysis.get('t_test', {}).get('ci_width')
+                clean_effect_size = clean_analysis.get('t_test', {}).get('effect_size')
 
-    # Process Effect Sizes (Cohen's d or R-squared)
-    base_es = safe_float(baseline_entry.get("effect_size", baseline_entry.get("cohens_d", baseline_entry.get("r_squared", 0))))
-    clean_es = safe_float(cleaned_entry.get("effect_size", cleaned_entry.get("cohens_d", cleaned_entry.get("r_squared", 0))))
-    
-    if base_es is not None and clean_es is not None:
-        result["metrics"]["effect_size"] = {
-            "baseline": base_es,
-            "cleaned": clean_es,
-            "absolute_diff": calculate_absolute_diff(base_es, clean_es),
-            "relative_diff": calculate_relative_diff(base_es, clean_es)
-        }
+                p_shift = calculate_p_value_shift(base_p, clean_p) if base_p and clean_p else 0.0
+                ci_change = compute_ci_width_change(base_ci_width, clean_ci_width) if base_ci_width and clean_ci_width else 0.0
+                es_delta = compute_effect_size_delta(base_effect_size, clean_effect_size) if base_effect_size and clean_effect_size else 0.0
 
-    return result
+                comparison_entry["cleaned_variants"].append({
+                    "strategy": strategy_name,
+                    "metrics": {
+                        "p_value_shift": p_shift,
+                        "ci_width_change": ci_change,
+                        "effect_size_delta": es_delta,
+                        "absolute_diff_p": calculate_absolute_diff(base_p, clean_p),
+                        "relative_diff_p": calculate_relative_diff(base_p, clean_p)
+                    }
+                })
+
+        comparisons.append(comparison_entry)
+
+    return comparisons
 
 def create_comparison_report(
-    baseline_data: Dict[str, Any],
-    cleaned_data: Dict[str, Any],
-    sensitivity_data: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    baseline_metrics: Dict[str, Any],
+    cleaned_metrics: Dict[str, Any],
+    sensitivity_analysis: Optional[Dict[str, Any]] = None,
+    output_path: str = "data/processed/comparison_report.json"
+) -> ComparisonReport:
     """
-    Create the full ComparisonReport structure.
-    Matches the schema of the ComparisonReport Pydantic model.
+    Create the ComparisonReport entity with all required fields.
     """
-    report = {
-        "id": f"cmp_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-        "created_at": datetime.now().isoformat(),
-        "baseline_metrics": baseline_data.get("datasets", []),
-        "cleaned_metrics": cleaned_data.get("datasets", []),
-        "comparisons": [],
-        "sensitivity_analysis": sensitivity_data or {},
-        "summary": {}
-    }
-
-    # Aggregate comparisons
-    baseline_list = baseline_data.get("datasets", [])
-    cleaned_list = cleaned_data.get("datasets", [])
-
-    # Map cleaned by dataset name + strategy
-    cleaned_map = {}
-    for c in cleaned_list:
-        key = (c.get("dataset_name"), c.get("strategy", c.get("cleaning_strategy")))
-        cleaned_map[key] = c
-
-    for b in baseline_list:
-        ds_name = b.get("dataset_name")
-        # Compare against all strategies applied to this dataset
-        for (key_ds, key_strat), c in cleaned_map.items():
-            if key_ds == ds_name:
-                comp = aggregate_metrics_for_comparison(b, c)
-                report["comparisons"].append(comp)
+    logger.info("Aggregating metrics for comparison report...")
+    comparisons = aggregate_metrics_for_comparison(baseline_metrics, cleaned_metrics)
 
     # Calculate summary statistics
-    if report["comparisons"]:
-        p_shifts = [c["metrics"]["p_value"]["absolute_diff"] for c in report["comparisons"] 
-                    if "p_value" in c["metrics"] and not np.isnan(c["metrics"]["p_value"]["absolute_diff"])]
-        ci_shifts = [c["metrics"]["ci_width"]["absolute_diff"] for c in report["comparisons"] 
-                     if "ci_width" in c["metrics"] and not np.isnan(c["metrics"]["ci_width"]["absolute_diff"])]
-        
-        report["summary"] = {
-            "total_comparisons": len(report["comparisons"]),
-            "avg_p_value_shift": float(np.mean(p_shifts)) if p_shifts else None,
-            "median_p_value_shift": float(np.median(p_shifts)) if p_shifts else None,
-            "avg_ci_width_change": float(np.mean(ci_shifts)) if ci_shifts else None,
-            "median_ci_width_change": float(np.median(ci_shifts)) if ci_shifts else None
-        }
+    total_p_shifts = []
+    total_ci_changes = []
+    
+    for comp in comparisons:
+        for variant in comp.get("cleaned_variants", []):
+            metrics = variant.get("metrics", {})
+            if metrics.get("p_value_shift") is not None:
+                total_p_shifts.append(metrics["p_value_shift"])
+            if metrics.get("ci_width_change") is not None:
+                total_ci_changes.append(metrics["ci_width_change"])
 
-    return report
+    avg_p_shift = float(np.mean(total_p_shifts)) if total_p_shifts else 0.0
+    avg_ci_change = float(np.mean(total_ci_changes)) if total_ci_changes else 0.0
+    max_p_shift = float(np.max(total_p_shifts)) if total_p_shifts else 0.0
+
+    report_data = {
+        "report_id": "CMP-001",
+        "generated_at": datetime.now().isoformat(),
+        "baseline_metrics_path": "data/processed/baseline_metrics.json",
+        "cleaned_metrics_path": "data/processed/cleaned_metrics.json",
+        "summary": {
+            "total_datasets_analyzed": len(comparisons),
+            "average_p_value_shift": avg_p_shift,
+            "average_ci_width_change": avg_ci_change,
+            "max_p_value_shift": max_p_shift
+        },
+        "detailed_comparisons": comparisons,
+        "sensitivity_analysis": sensitivity_analysis
+    }
+
+    # Write to file
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(report_data, f, indent=2)
+    
+    logger.info(f"Comparison report written to {output_path}")
+
+    # Construct the Pydantic model for return
+    # Note: We are constructing a simplified version for the return type
+    # The full data is in the JSON file
+    return ComparisonReport(
+        report_id="CMP-001",
+        baseline_metrics=baseline_metrics,
+        cleaned_metrics=cleaned_metrics,
+        absolute_diff=avg_p_shift, # Simplified aggregate
+        relative_diff=avg_p_shift / 0.05 if avg_p_shift != 0 else 0.0, # Simplified relative to alpha
+        sensitivity_analysis=sensitivity_analysis
+    )
 
 def main():
-    """Main entry point for T040."""
-    # Setup logging
+    """Main entry point for Task T040."""
     setup_logging("INFO")
-    
-    logger.info("Starting T040: Create Comparison Report")
-    
-    # Load data
-    baseline_data = load_baseline_metrics()
-    cleaned_data = load_cleaned_metrics()
-    sensitivity_data = load_sensitivity_analysis()
+    logger.info("Starting Task T040: Create Comparison Report")
 
-    if not baseline_data or not baseline_data.get("datasets"):
-        logger.error("Baseline metrics are missing or empty. Cannot create comparison report.")
-        # Still generate a report with empty data to satisfy artifact requirement
-        report = create_comparison_report({}, {}, sensitivity_data)
-    elif not cleaned_data or not cleaned_data.get("datasets"):
-        logger.warning("Cleaned metrics are missing or empty. Creating report with baseline only.")
-        report = create_comparison_report(baseline_data, {}, sensitivity_data)
-    else:
-        logger.info("Loading complete. Generating comparison report.")
-        report = create_comparison_report(baseline_data, cleaned_data, sensitivity_data)
+    baseline = load_baseline_metrics()
+    cleaned = load_cleaned_metrics()
+    sensitivity = load_sensitivity_analysis()
 
-    # Write output
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2, default=str)
+    if not baseline:
+        logger.error("Cannot proceed without baseline metrics. Ensure T012/T013 have run.")
+        return 1
     
-    # Compute checksum
-    checksum = compute_file_checksum(OUTPUT_PATH)
-    logger.info(f"Comparison report written to {OUTPUT_PATH} (SHA256: {checksum})")
-    
-    return 0
+    if not cleaned:
+        logger.error("Cannot proceed without cleaned metrics. Ensure T023 has run.")
+        return 1
+
+    try:
+        report = create_comparison_report(baseline, cleaned, sensitivity)
+        logger.info(f"Successfully created comparison report: {report.report_id}")
+        return 0
+    except Exception as e:
+        logger.exception(f"Failed to create comparison report: {e}")
+        return 1
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    exit(main())

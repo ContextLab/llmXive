@@ -71,7 +71,31 @@ def main():
         sys.exit(1)
     logger.info("Visualization steps completed successfully.")
 
-    # Step 7: Final Report (T041)
+    # Step 7: Generate Per-Dataset Reports (T036-T038)
+    logger.info("Generating per-dataset p-value shift report (T036)...")
+    if not run_script("t036_pvalue_shift_reporting.py"):
+        logger.error("Pipeline failed at t036_pvalue_shift_reporting.py")
+        sys.exit(1)
+    
+    logger.info("Generating per-dataset CI width report (T037)...")
+    if not run_script("t037_ci_width_reporting.py"):
+        logger.error("Pipeline failed at t037_ci_width_reporting.py")
+        sys.exit(1)
+    
+    logger.info("Generating per-dataset effect size report (T038)...")
+    if not run_script("t038_effect_size_reporting.py"):
+        logger.error("Pipeline failed at t038_effect_size_reporting.py")
+        sys.exit(1)
+    logger.info("Per-dataset reporting steps completed successfully.")
+
+    # Step 8: Generate Null FPR Metrics (T032)
+    logger.info("Generating null FPR metrics (T032)...")
+    if not run_script("t032_permutation_null_fpr.py"):
+        logger.error("Pipeline failed at t032_permutation_null_fpr.py")
+        sys.exit(1)
+    logger.info("Null FPR metrics generation completed successfully.")
+
+    # Step 9: Final Report (T041)
     logger.info("Generating final report (T041)...")
     if not run_script("t041_generate_final_report.py"):
         logger.error("Pipeline failed at t041_generate_final_report.py")

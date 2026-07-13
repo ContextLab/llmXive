@@ -1,6 +1,9 @@
 """
-Statistical analysis functions.
-Implements t-tests, linear regression, and effect size calculations.
+Analysis module for statistical inference tasks.
+
+Implements t-tests, linear regressions, and effect size calculations.
+Provides a unified `run_baseline_analysis` function that handles multiple
+calling signatures as required by the pipeline.
 """
 import os
 import json
@@ -9,262 +12,366 @@ from typing import List, Dict, Any, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 from scipy import stats
-from sklearn.linear_model import LinearRegression
+import statsmodels.api as sm
+from statsmodels.stats.weightstats import ttest_ind
 
 logger = logging.getLogger(__name__)
 
-def run_t_test(df: pd.DataFrame, predictor_col: str, outcome_col: str) -> Dict[str, Any]:
-    """
-    Run an independent samples t-test.
-    Assumes the predictor is binary or can be split into two groups.
-    """
-    if predictor_col not in df.columns or outcome_col not in df.columns:
-        raise ValueError(f"Columns {predictor_col} or {outcome_col} not found in dataframe")
-
-    # Drop NaNs
-    data = df[[predictor_col, outcome_col]].dropna()
-    if len(data) < 2:
-        return {"p_value": None, "statistic": None, "ci": None, "cohens_d": None}
-
-    # Check if predictor is binary
-    if data[predictor_col].nunique() == 2:
-        groups = data.groupby(predictor_col)[outcome_col]
-        g1 = groups.get_group(data[predictor_col].unique()[0])
-        g2 = groups.get_group(data[predictor_col].unique()[1])
-        t_stat, p_val = stats.ttest_ind(g1, g2)
-    else:
-        # Fallback: treat predictor as continuous and run correlation
-        # Or split by median if not binary? For now, just warn and use correlation
-        logger.warning(f"Predictor {predictor_col} is not binary. Using correlation approach.")
-        corr, p_val = stats.pearsonr(data[predictor_col], data[outcome_col])
-        t_stat = None
-    
-    # Calculate CI for difference in means if binary, else for correlation
-    ci = None
-    if t_stat is not None:
-        # Simple 95% CI for difference
-        mean_diff = g1.mean() - g2.mean()
-        se = np.sqrt(np.var(g1, ddof=1)/len(g1) + np.var(g2, ddof=1)/len(g2))
-        ci = (mean_diff - 1.96*se, mean_diff + 1.96*se)
-
-    # Cohen's d
-    cohens_d = None
-    if t_stat is not None:
-        pooled_std = np.sqrt(((len(g1)-1)*np.var(g1, ddof=1) + (len(g2)-1)*np.var(g2, ddof=1)) / (len(g1)+len(g2)-2))
-        if pooled_std > 0:
-            cohens_d = mean_diff / pooled_std
-
-    return {
-        "p_value": float(p_val) if p_val is not None else None,
-        "statistic": float(t_stat) if t_stat is not None else None,
-        "ci": ci,
-        "ci_width": float(ci[1] - ci[0]) if ci else None,
-        "cohens_d": float(cohens_d) if cohens_d is not None else None
-    }
-
-def run_linear_regression(df: pd.DataFrame, predictor_col: str, outcome_col: str) -> Dict[str, Any]:
-    """
-    Run a simple linear regression.
-    """
-    if predictor_col not in df.columns or outcome_col not in df.columns:
-        raise ValueError(f"Columns {predictor_col} or {outcome_col} not found in dataframe")
-
-    data = df[[predictor_col, outcome_col]].dropna()
-    if len(data) < 2:
-        return {"coefficients": [], "r_squared": None, "p_values": []}
-
-    X = data[predictor_col].values.reshape(-1, 1)
-    y = data[outcome_col].values
-
-    model = LinearRegression()
-    model.fit(X, y)
-
-    # Calculate p-values for coefficients (t-test)
-    n = len(y)
-    p_val = 0.05 # Placeholder for simplicity, scipy.stats.linregress gives exact
-    # Using scipy for exact p-value
-    slope, intercept, r_value, p_val, std_err = stats.linregress(X.flatten(), y)
-
-    return {
-        "coefficients": [float(intercept), float(slope)],
-        "r_squared": float(r_value**2),
-        "p_values": [1.0, float(p_val)], # Intercept p-value usually not tested, set to 1
-        "adj_r_squared": float(1 - (1 - r_value**2) * (n - 1) / (n - 2)) if n > 2 else None
-    }
-
-def compute_effect_size_cohen_d(group1: pd.Series, group2: pd.Series) -> float:
-    """Compute Cohen's d effect size."""
-    mean1, mean2 = group1.mean(), group2.mean()
-    std1, std2 = group1.std(ddof=1), group2.std(ddof=1)
-    n1, n2 = len(group1), len(group2)
-    
-    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-    if pooled_std == 0:
-        return 0.0
-    return (mean1 - mean2) / pooled_std
-
 def load_datasets_from_raw(raw_dir: str) -> List[pd.DataFrame]:
     """Load all CSV datasets from the raw directory."""
+    datasets = []
     if not os.path.exists(raw_dir):
         logger.warning(f"Raw directory {raw_dir} does not exist.")
-        return []
+        return datasets
     
-    datasets = []
-    for file in os.listdir(raw_dir):
-        if file.endswith('.csv'):
-            path = os.path.join(raw_dir, file)
+    for filename in os.listdir(raw_dir):
+        if filename.endswith('.csv'):
+            filepath = os.path.join(raw_dir, filename)
             try:
-                df = pd.read_csv(path)
+                df = pd.read_csv(filepath)
                 datasets.append(df)
-                logger.info(f"Loaded {file}: {df.shape}")
+                logger.info(f"Loaded dataset: {filename}")
             except Exception as e:
-                logger.error(f"Error loading {file}: {e}")
+                logger.error(f"Failed to load {filename}: {e}")
     return datasets
 
-def analyze_dataset(df: pd.DataFrame, predictor_col: str, outcome_col: str) -> Dict[str, Any]:
-    """Run full analysis (t-test and regression) on a dataset."""
-    t_result = run_t_test(df, predictor_col, outcome_col)
-    reg_result = run_linear_regression(df, predictor_col, outcome_col)
+def run_t_test(df: pd.DataFrame, outcome_col: str, group_col: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Perform a t-test.
+    If group_col is provided, performs an independent t-test between groups.
+    Otherwise, performs a one-sample t-test against 0 (or mean).
+    """
+    if group_col:
+        if group_col not in df.columns:
+            raise ValueError(f"Group column '{group_col}' not found in dataframe.")
+        groups = df[group_col].unique()
+        if len(groups) < 2:
+            logger.warning(f"Not enough groups for t-test in {outcome_col}")
+            return {"p_value": np.nan, "statistic": np.nan, "ci": [np.nan, np.nan]}
+        
+        # Assume binary for simplicity if >2, or take first two
+        g1 = groups[0]
+        g2 = groups[1] if len(groups) > 1 else None
+        
+        if g2 is None:
+            return {"p_value": np.nan, "statistic": np.nan, "ci": [np.nan, np.nan]}
+        
+        mask1 = df[group_col] == g1
+        mask2 = df[group_col] == g2
+        
+        # Drop NaNs
+        x1 = df.loc[mask1, outcome_col].dropna()
+        x2 = df.loc[mask2, outcome_col].dropna()
+        
+        if len(x1) < 2 or len(x2) < 2:
+            return {"p_value": np.nan, "statistic": np.nan, "ci": [np.nan, np.nan]}
+        
+        # Independent t-test
+        stat, p_val = ttest_ind(x1, x2, equal_var=False) # Welch's t-test
+        
+        # Calculate 95% CI for difference in means
+        mean1, mean2 = x1.mean(), x2.mean()
+        diff = mean1 - mean2
+        # Standard error of difference
+        se1 = x1.std(ddof=1) / np.sqrt(len(x1))
+        se2 = x2.std(ddof=1) / np.sqrt(len(x2))
+        se_diff = np.sqrt(se1**2 + se2**2)
+        
+        # CI
+        df_deg = len(x1) + len(x2) - 2
+        t_crit = stats.t.ppf(0.975, df_deg)
+        ci_low = diff - t_crit * se_diff
+        ci_high = diff + t_crit * se_diff
+        
+        return {
+            "p_value": float(p_val),
+            "statistic": float(stat),
+            "ci": [float(ci_low), float(ci_high)],
+            "method": "independent_ttest"
+        }
+    else:
+        # One sample t-test against 0
+        x = df[outcome_col].dropna()
+        if len(x) < 2:
+            return {"p_value": np.nan, "statistic": np.nan, "ci": [np.nan, np.nan]}
+        
+        stat, p_val = stats.ttest_1samp(x, 0.0)
+        mean = x.mean()
+        se = x.std(ddof=1) / np.sqrt(len(x))
+        t_crit = stats.t.ppf(0.975, len(x)-1)
+        ci_low = mean - t_crit * se
+        ci_high = mean + t_crit * se
+        
+        return {
+            "p_value": float(p_val),
+            "statistic": float(stat),
+            "ci": [float(ci_low), float(ci_high)],
+            "method": "one_sample_ttest"
+        }
+
+def run_linear_regression(df: pd.DataFrame, outcome_col: str, feature_cols: Optional[List[str]] = None) -> Dict[str, Any]:
+    """
+    Run a linear regression.
+    If feature_cols is None, uses all other numeric columns as features.
+    """
+    if feature_cols is None:
+        # Select numeric columns excluding outcome
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        if outcome_col in numeric_cols:
+            numeric_cols.remove(outcome_col)
+        feature_cols = numeric_cols
+    
+    if not feature_cols:
+        return {"r_squared": np.nan, "coefficients": [], "p_values": [], "method": "no_features"}
+    
+    # Ensure features and outcome are numeric and drop NaNs
+    X = df[feature_cols].dropna()
+    y = df.loc[X.index, outcome_col].dropna()
+    
+    # Align indices
+    common_idx = X.index.intersection(y.index)
+    X = X.loc[common_idx]
+    y = y.loc[common_idx]
+    
+    if len(X) < 5: # Need enough data points
+        return {"r_squared": np.nan, "coefficients": [], "p_values": [], "method": "insufficient_data"}
+    
+    X = sm.add_constant(X)
+    model = sm.OLS(y, X).fit()
+    
+    coefs = model.params.tolist()
+    p_vals = model.pvalues.tolist()
+    r_sq = model.rsquared
     
     return {
-        "t_test": t_result,
-        "regression": reg_result
+        "r_squared": float(r_sq),
+        "coefficients": [float(c) for c in coefs],
+        "p_values": [float(p) for p in p_vals],
+        "method": "ols"
     }
 
-def run_baseline_analysis(
-    input_data: Union[str, pd.DataFrame, List[pd.DataFrame]], 
-    dataset_name: Optional[str] = None,
-    config: Optional[Any] = None
+def compute_effect_size_cohen_d(df: pd.DataFrame, outcome_col: str, group_col: str) -> float:
+    """Compute Cohen's d for two groups."""
+    groups = df[group_col].unique()
+    if len(groups) < 2:
+        return np.nan
+    
+    g1, g2 = groups[0], groups[1]
+    x1 = df.loc[df[group_col] == g1, outcome_col].dropna()
+    x2 = df.loc[df[group_col] == g2, outcome_col].dropna()
+    
+    if len(x1) < 2 or len(x2) < 2:
+        return np.nan
+    
+    mean1, mean2 = x1.mean(), x2.mean()
+    std1, std2 = x1.std(ddof=1), x2.std(ddof=1)
+    n1, n2 = len(x1), len(x2)
+    
+    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+    
+    if pooled_std == 0:
+        return 0.0
+    
+    return float((mean1 - mean2) / pooled_std)
+
+def analyze_dataset(
+    df: pd.DataFrame, 
+    dataset_name: str, 
+    outcome_col: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Run baseline analysis.
-    Flexible signature to support multiple call patterns:
-    1. run_baseline_analysis(raw_dir, output_path, config) -> saves to output_path
-    2. run_baseline_analysis(df, dataset_name=...) -> returns result dict
-    3. run_baseline_analysis(df_cleaned, dataset_name=...) -> returns result dict
+    Perform full analysis on a dataset.
+    Returns a dict with t-test, regression, and effect size results.
     """
-    # Handle different input types
-    df = None
-    name = dataset_name or "unknown"
+    if outcome_col is None:
+        # Infer outcome: last numeric column
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        if not numeric_cols:
+            return {"error": "No numeric columns found"}
+        outcome_col = numeric_cols[-1]
     
-    if isinstance(input_data, str):
-        # Assume it's a directory path or file path
-        if os.path.isdir(input_data):
-            datasets = load_datasets_from_raw(input_data)
-            if not datasets:
-                return {"datasets": []}
-            # Analyze first dataset for simplicity in this context
-            df = datasets[0]
-            name = os.path.basename(datasets[0].iloc[0].name if hasattr(datasets[0].iloc[0], 'name') else "dataset")
-        else:
-            # Assume file path
-            df = pd.read_csv(input_data)
-            name = os.path.basename(input_data)
-    elif isinstance(input_data, pd.DataFrame):
-        df = input_data
-    elif isinstance(input_data, list):
-        # List of dataframes
-        if not input_data:
-            return {"datasets": []}
-        df = input_data[0]
+    # Check if outcome_col exists
+    if outcome_col not in df.columns:
+        return {"error": f"Outcome column '{outcome_col}' not found"}
     
-    if df is None:
-        return {"datasets": []}
-
-    # Determine columns (simple heuristic: last col is outcome, first numeric is predictor)
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    if len(numeric_cols) < 2:
-        logger.warning(f"Not enough numeric columns in {name}")
-        return {"datasets": []}
-    
-    predictor = numeric_cols[0]
-    outcome = numeric_cols[-1]
-
-    result = analyze_dataset(df, predictor, outcome)
-    
-    output = {
-        "dataset_name": name,
-        "predictor": predictor,
-        "outcome": outcome,
+    result = {
+        "dataset_name": dataset_name,
+        "outcome_column": outcome_col,
         "n_rows": len(df),
-        "analysis": result
+        "t_test": {},
+        "regression": {},
+        "effect_size": {}
     }
     
-    # If config and output_path are provided (legacy call style 1)
-    # This handles: run_baseline_analysis(raw_dir, output_path, config)
-    # But the signature above doesn't match exactly. 
-    # The caller t012_run_baseline_analysis.py calls: run_baseline_analysis(raw_dir, output_path, config)
-    # We need to handle that specific case if it passes 3 args.
-    # Since the function signature is flexible, we check if 'config' was passed as the 3rd arg
-    # and if 'output_path' was passed as the 2nd arg.
+    # T-Test: Try to find a binary grouping column
+    # Heuristic: Look for a column with 2 unique values
+    group_col = None
+    for col in df.columns:
+        if col == outcome_col:
+            continue
+        if df[col].nunique() == 2 and df[col].dtype in ['int64', 'float64', 'object', 'bool']:
+            group_col = col
+            break
     
-    # However, the signature defined here is (input_data, dataset_name, config).
-    # The caller calls with (raw_dir, output_path, config).
-    # So:
-    # input_data = raw_dir
-    # dataset_name = output_path (misinterpreted)
-    # config = config
+    if group_col:
+        t_res = run_t_test(df, outcome_col, group_col)
+        result["t_test"] = t_res
+        result["effect_size"] = {
+            "cohens_d": compute_effect_size_cohen_d(df, outcome_col, group_col),
+            "group_col": group_col
+        }
+    else:
+        # One sample t-test if no group
+        t_res = run_t_test(df, outcome_col)
+        result["t_test"] = t_res
+        result["effect_size"] = {"cohens_d": np.nan}
     
-    # We need to detect this. If dataset_name looks like a path, treat it as output_path.
-    # And if config is passed, we might need to use it.
+    # Regression
+    reg_res = run_linear_regression(df, outcome_col)
+    result["regression"] = reg_res
     
-    # Let's adjust logic:
-    # If the second argument is a string that looks like a path (contains / or ends in .json),
-    # treat it as output_path.
+    return result
+
+def run_baseline_analysis(
+    input_data: Union[str, pd.DataFrame, Dict[str, Any]],
+    output_path: Optional[str] = None,
+    config: Optional[Any] = None,
+    dataset_name: Optional[str] = None,
+    outcome_col: Optional[str] = None
+) -> Union[Dict[str, Any], bool]:
+    """
+    Unified entry point for baseline analysis.
     
-    # Actually, the caller t012_run_baseline_analysis.py does:
-    # success = run_baseline_analysis(raw_dir, output_path, config)
-    # So we need to support:
-    # def run_baseline_analysis(raw_dir, output_path, config):
+    Handles multiple calling signatures:
+    1. run_baseline_analysis(raw_dir, output_path, config) -> writes file, returns bool
+       (Legacy signature for T012 style)
+    2. run_baseline_analysis(df, dataset_name=..., config=...) -> returns dict
+       (Signature for T013, T023, T033)
+    3. run_baseline_analysis(df_cleaned, dataset_name=...) -> returns dict
     
-    # But we also need to support:
-    # results = run_baseline_analysis(df, dataset_name=dataset_name)
+    Args:
+        input_data: Can be a directory path (str), a DataFrame, or a dict (unused in this context but tolerated).
+        output_path: Path to write results (only used in signature 1).
+        config: Config object (tolerated).
+        dataset_name: Name of the dataset (required for signature 2/3).
+        outcome_col: Specific outcome column to use.
     
-    # The current signature handles the keyword argument case.
-    # For the positional case (3 args), we need to handle it inside.
-    
-    # Re-interpreting the arguments based on types:
-    # If input_data is a string (path), and dataset_name is a string (path), and config is an object...
-    # Then we are in the "save to file" mode.
-    
-    if isinstance(input_data, str) and isinstance(dataset_name, str) and config is not None:
-        # This is the legacy call: run_baseline_analysis(raw_dir, output_path, config)
-        # But our signature is (input_data, dataset_name, config).
-        # So:
-        # input_data = raw_dir
-        # dataset_name = output_path
-        # config = config
+    Returns:
+        Dict of results if analyzing a DataFrame, or bool if writing to file.
+    """
+    # Case 1: Directory path -> Load all datasets, run analysis, write to file
+    if isinstance(input_data, str) and os.path.isdir(input_data):
+        raw_dir = input_data
+        if output_path is None:
+            raise ValueError("output_path is required when input_data is a directory.")
         
-        # We already loaded data from input_data (raw_dir) above.
-        # Now we need to save to dataset_name (output_path).
+        datasets = load_datasets_from_raw(raw_dir)
+        if not datasets:
+            logger.error("No datasets found in raw directory.")
+            return False
         
-        # Wait, the logic above for loading from raw_dir used 'input_data'.
-        # So if input_data is a dir, we loaded it.
-        # Now we need to save to dataset_name.
+        all_results = []
+        for df in datasets:
+            # Infer name from filename if possible, else use index
+            # Since we loaded from dir, we might not have the filename here easily without passing it.
+            # We'll use a generic name or try to extract from index if we tracked it.
+            # For now, assume we process each and name them.
+            # To be robust, let's assume the caller passed a list or we iterate.
+            # Actually, load_datasets_from_raw returns a list of DFs.
+            # We need names. Let's assume generic naming for this path or skip.
+            # Better: The caller (T012) likely loads specific files.
+            # Let's assume the input_data is a single file path for simplicity in this branch?
+            # No, the signature says raw_dir.
+            # We'll process all and write a combined JSON.
+            pass # Logic handled below in loop if we had names.
         
-        # But 'dataset_name' in this context is the output path.
-        # Let's save the result.
+        # Re-implementing logic for directory input:
+        # We need to know the dataset names. load_datasets_from_raw doesn't return names.
+        # Let's assume the caller (T012) handles this differently or we infer from file list.
+        # For this implementation, we'll assume the input_data is a single CSV file path if it's a string.
+        # If it's a directory, we might be in a legacy mode.
+        # Let's refine: If input_data is a string ending in .csv, treat as single file.
+        if input_data.endswith('.csv'):
+            try:
+                df = pd.read_csv(input_data)
+                name = os.path.basename(input_data).replace('.csv', '')
+                res = analyze_dataset(df, name, outcome_col)
+                if output_path:
+                    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                    with open(output_path, 'w') as f:
+                        json.dump(res, f, indent=2)
+                    return True
+                return res
+            except Exception as e:
+                logger.error(f"Failed to process file {input_data}: {e}")
+                return False
+        else:
+            # It is a directory.
+            # We need to iterate files.
+            if not os.path.exists(raw_dir):
+                logger.error(f"Directory {raw_dir} not found.")
+                return False
+            
+            results_list = []
+            for filename in os.listdir(raw_dir):
+                if filename.endswith('.csv'):
+                    filepath = os.path.join(raw_dir, filename)
+                    try:
+                        df = pd.read_csv(filepath)
+                        name = filename.replace('.csv', '')
+                        res = analyze_dataset(df, name, outcome_col)
+                        results_list.append(res)
+                    except Exception as e:
+                        logger.error(f"Error processing {filename}: {e}")
+            
+            if output_path:
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                with open(output_path, 'w') as f:
+                    json.dump(results_list, f, indent=2)
+                return True
+            return results_list
+
+    # Case 2: DataFrame input -> Return analysis dict
+    elif isinstance(input_data, pd.DataFrame):
+        df = input_data
+        if dataset_name is None:
+            dataset_name = "unknown_dataset"
         
-        # The result 'output' is for one dataset. We need to structure it for the file.
-        final_output = {"datasets": [output]}
-        
-        os.makedirs(os.path.dirname(dataset_name) if os.path.dirname(dataset_name) else '.', exist_ok=True)
-        with open(dataset_name, 'w') as f:
-            json.dump(final_output, f, indent=2)
-        
-        return True # Success
+        res = analyze_dataset(df, dataset_name, outcome_col)
+        return res
     
-    return output
+    # Case 3: Dict or other (tolerated)
+    elif isinstance(input_data, dict):
+        # Maybe it's a pre-loaded dict with data?
+        if 'data' in input_data and 'name' in input_data:
+            df = input_data['data']
+            name = input_data['name']
+            return analyze_dataset(df, name, outcome_col)
+        else:
+            logger.warning("Received a dict but no 'data' key. Returning empty result.")
+            return {}
+    
+    else:
+        logger.error(f"Unsupported input type: {type(input_data)}")
+        return {}
 
 def main():
-    """Test the analysis module."""
-    # Create a dummy dataframe
-    df = pd.DataFrame({
-        'x': np.random.randn(100),
-        'y': np.random.randn(100)
-    })
-    result = analyze_dataset(df, 'x', 'y')
-    print(json.dumps(result, indent=2))
+    """CLI entry point for analysis module."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Run statistical analysis on datasets.")
+    parser.add_argument("--input", type=str, required=True, help="Input CSV file or directory.")
+    parser.add_argument("--output", type=str, required=True, help="Output JSON file path.")
+    parser.add_argument("--outcome", type=str, default=None, help="Outcome column name.")
+    
+    args = parser.parse_args()
+    
+    result = run_baseline_analysis(args.input, args.output, outcome_col=args.outcome)
+    if result:
+        print(f"Analysis complete. Output written to {args.output}")
+    else:
+        print("Analysis failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
+    import sys
     main()

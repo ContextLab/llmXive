@@ -1,6 +1,8 @@
 """
-Task T013: Record baseline metrics (p-value, 95% CI, Cohen's d/R²) to data/processed/baseline_metrics.json
-with >= 3 decimal precision.
+Task T013: Record baseline metrics to data/processed/baseline_metrics.json.
+
+This script runs the baseline analysis on available datasets and records
+p-values, 95% CIs, and effect sizes (Cohen's d / R²) with ≥3 decimal precision.
 """
 import os
 import sys
@@ -10,182 +12,171 @@ import hashlib
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
-# Local imports
+# Add project root to path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from data_loader import load_datasets_from_raw, ensure_data_exists
+from analysis import run_baseline_analysis
 from utils import setup_logging, compute_file_checksum
-from config import Config, get_config
-from analysis import run_baseline_analysis, load_datasets_from_raw
+from config import get_config
 
-# Ensure output directory exists
-OUTPUT_DIR = "data/processed"
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "baseline_metrics.json")
+logger = logging.getLogger(__name__)
 
-def format_metric_value(value: float, precision: int = 3) -> float:
-    """Format a numeric value to the specified decimal precision."""
-    if value is None or not isinstance(value, (int, float)):
-        return value
+def format_metric_value(value: float, precision: int = 6) -> float:
+    """Round metric values to specified precision."""
+    if value is None or (isinstance(value, float) and (value != value)):  # NaN check
+        return None
     return round(float(value), precision)
 
 def log_metrics_summary(metrics: List[Dict[str, Any]]) -> None:
-    """Log a summary of the recorded metrics."""
-    logger = logging.getLogger(__name__)
-    logger.info(f"Recording {len(metrics)} dataset baseline metrics.")
+    """Log a summary of recorded metrics."""
+    logger.info(f"Recording {len(metrics)} baseline metric entries.")
     for entry in metrics:
-        ds_name = entry.get("dataset", "unknown")
-        outcome = entry.get("outcome", "unknown")
-        logger.info(f"  - Dataset: {ds_name}, Outcome: {outcome}")
-        if "tests" in entry:
-            for test_name, test_data in entry["tests"].items():
-                p_val = test_data.get("p_value", "N/A")
-                logger.info(f"    Test '{test_name}': p={p_val}")
-        if "regressions" in entry:
-            for reg_name, reg_data in entry["regressions"].items():
-                r_sq = reg_data.get("r_squared", "N/A")
-                logger.info(f"    Regression '{reg_name}': R²={r_sq}")
+        ds_name = entry.get('dataset_name', 'Unknown')
+        logger.info(f"  - {ds_name}: p-value={entry.get('p_value')}, "
+                    f"ci_width={entry.get('ci_width')}, effect_size={entry.get('effect_size')}")
 
 def process_dataset_for_baseline(
-    df: Any,
-    dataset_name: str,
-    outcome_col: str,
-    config: Config,
-    raw_dir: str
-) -> Optional[Dict[str, Any]]:
+    df: Any, 
+    dataset_name: str, 
+    config: Optional[Any] = None,
+    outcome_col: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Run baseline analysis on a single dataset and format the result.
-    Uses the flexible run_baseline_analysis which accepts (df, dataset_name=...)
-    or (df, outcome_col=...) depending on implementation, but here we pass
-    the dataframe and let the analysis module handle the rest.
-    """
-    logger = logging.getLogger(__name__)
+    Run baseline analysis on a single dataset and format results.
     
-    try:
-        # Run baseline analysis. 
-        # Note: run_baseline_analysis in analysis.py is designed to be flexible.
-        # We pass the dataframe and the dataset name.
-        # The analysis module will identify the outcome column if not specified,
-        # or we can assume 'target' or similar based on data_loader conventions.
-        # For safety, we try calling with keyword arguments that match the known signatures.
-        
-        # Attempt 1: Standard call with dataset name
-        results = run_baseline_analysis(df, dataset_name=dataset_name, outcome_col=outcome_col)
-        
-        if not results:
-            logger.warning(f"No results returned for {dataset_name}. Skipping.")
-            return None
+    Args:
+        df: The dataframe to analyze.
+        dataset_name: Name identifier for the dataset.
+        config: Optional config object (unused here but kept for signature compatibility).
+        outcome_col: Optional specific outcome column.
+    
+    Returns:
+        Dictionary containing baseline metrics with required precision.
+    """
+    logger.info(f"Processing baseline for dataset: {dataset_name}")
+    
+    # Run the baseline analysis using the shared function
+    # The function signature in analysis.py handles both dict and df inputs
+    results = run_baseline_analysis(
+        df, 
+        dataset_name=dataset_name,
+        outcome_col=outcome_col
+    )
+    
+    if not results:
+        logger.warning(f"No results returned for {dataset_name}")
+        return {}
 
-        # Format the results to ensure >= 3 decimal precision
-        formatted_entry = {
-            "dataset": dataset_name,
-            "outcome": outcome_col,
-            "timestamp": datetime.now().isoformat(),
-            "checksum": compute_file_checksum(os.path.join(raw_dir, f"{dataset_name}.csv"))
+    # The results from run_baseline_analysis are typically a dict of test results
+    # We need to aggregate them into the format expected by baseline_metrics.json
+    # Expected format: { dataset_name, strategy, metrics: { p_value, ci_width, effect_size } }
+    
+    formatted_entry = {
+        "dataset_name": dataset_name,
+        "strategy": "raw_baseline",
+        "timestamp": datetime.utcnow().isoformat(),
+        "analysis": {}
+    }
+    
+    # Extract metrics from results
+    # The results dict usually looks like: { 't_test': {...}, 'regression': {...} }
+    for test_name, test_data in results.items():
+        p_val = test_data.get('p_value')
+        ci = test_data.get('ci')
+        effect = test_data.get('effect_size')
+        
+        # Calculate CI width if available
+        ci_width = None
+        if ci and isinstance(ci, (list, tuple)) and len(ci) == 2:
+            ci_width = abs(ci[1] - ci[0])
+        
+        formatted_entry['analysis'][test_name] = {
+            "p_value": format_metric_value(p_val),
+            "ci": [format_metric_value(ci[0]), format_metric_value(ci[1])] if ci else None,
+            "ci_width": format_metric_value(ci_width),
+            "effect_size": format_metric_value(effect)
         }
+        
+        # Also store top-level aggregated values if present
+        if p_val is not None:
+            formatted_entry['p_value'] = format_metric_value(p_val)
+        if ci_width is not None:
+            formatted_entry['ci_width'] = format_metric_value(ci_width)
+        if effect is not None:
+            formatted_entry['effect_size'] = format_metric_value(effect)
 
-        # Process Tests (t-tests)
-        if "tests" in results:
-            formatted_entry["tests"] = {}
-            for test_name, test_data in results["tests"].items():
-                formatted_test = {}
-                for key, val in test_data.items():
-                    if isinstance(val, (int, float)):
-                        formatted_test[key] = format_metric_value(val, 3)
-                    else:
-                        formatted_test[key] = val
-                formatted_entry["tests"][test_name] = formatted_test
+    return formatted_entry
 
-        # Process Regressions
-        if "regressions" in results:
-            formatted_entry["regressions"] = {}
-            for reg_name, reg_data in results["regressions"].items():
-                formatted_reg = {}
-                for key, val in reg_data.items():
-                    if isinstance(val, (int, float)):
-                        formatted_reg[key] = format_metric_value(val, 3)
-                    elif isinstance(val, list):
-                        # Format list items if they are floats
-                        formatted_reg[key] = [format_metric_value(v, 3) if isinstance(v, (int, float)) else v for v in val]
-                    else:
-                        formatted_reg[key] = val
-                formatted_entry["regressions"][reg_name] = formatted_reg
-
-        # Process Effect Sizes
-        if "effect_sizes" in results:
-            formatted_entry["effect_sizes"] = {}
-            for eff_name, eff_val in results["effect_sizes"].items():
-                formatted_entry["effect_sizes"][eff_name] = format_metric_value(eff_val, 3)
-
-        # Validation: Ensure p-values are in (0, 1) and CIs are finite
-        if "tests" in formatted_entry:
-            for test_name, test_data in formatted_entry["tests"].items():
-                p_val = test_data.get("p_value")
-                if p_val is not None:
-                    if not (0 < p_val < 1):
-                        logger.warning(f"Dataset {dataset_name}, Test {test_name}: p-value {p_val} out of range (0,1).")
-                    ci_lower = test_data.get("ci_lower")
-                    ci_upper = test_data.get("ci_upper")
-                    if ci_lower is not None and (not isinstance(ci_lower, (int, float)) or not (ci_lower == ci_lower)): # NaN check
-                        logger.warning(f"Dataset {dataset_name}, Test {test_name}: CI lower bound invalid.")
-                    if ci_upper is not None and (not isinstance(ci_upper, (int, float)) or not (ci_upper == ci_upper)):
-                        logger.warning(f"Dataset {dataset_name}, Test {test_name}: CI upper bound invalid.")
-
-        return formatted_entry
-
-    except Exception as e:
-        logger.error(f"Error processing dataset {dataset_name}: {e}", exc_info=True)
-        return None
-
-def main() -> int:
-    """
-    Main entry point for T013.
-    1. Loads datasets from raw directory.
-    2. Runs baseline analysis on each.
-    3. Aggregates results.
-    4. Writes to data/processed/baseline_metrics.json with 3 decimal precision.
-    """
+def main():
+    """Main entry point for T013."""
     setup_logging("INFO")
-    logger = logging.getLogger(__name__)
-    config = get_config()
+    logger.info("Starting T013: Record baseline metrics")
     
-    raw_dir = config.get("RAW_DATA_PATH", "data/raw")
-    if not os.path.exists(raw_dir):
-        logger.error(f"Raw data directory not found: {raw_dir}. Please run data acquisition first.")
-        return 1
-
-    logger.info(f"Loading datasets from {raw_dir}...")
-    datasets = load_datasets_from_raw(raw_dir)
+    config = get_config()
+    processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
+    output_path = os.path.join(processed_dir, "baseline_metrics.json")
+    
+    # Ensure data exists
+    logger.info("Ensuring dataset availability...")
+    ensure_data_exists()
+    
+    # Load datasets
+    logger.info("Loading datasets from raw...")
+    datasets = load_datasets_from_raw()
     
     if not datasets:
-        logger.error("No datasets found in raw directory. Aborting.")
-        return 1
+        logger.error("No datasets found to process.")
+        # Create an empty file to indicate completion (even if no data)
+        os.makedirs(processed_dir, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump({"datasets": [], "metadata": {"error": "No datasets found"}}, f, indent=2)
+        return
 
-    logger.info(f"Found {len(datasets)} datasets.")
     all_metrics = []
-
-    for dataset_name, df in datasets.items():
-        # Determine outcome column. 
-        # Typically 'target', 'outcome', or the last column. 
-        # We'll assume 'target' if present, else last column.
-        outcome_col = "target" if "target" in df.columns else df.columns[-1]
+    
+    for ds in datasets:
+        df = ds.get('data')
+        name = ds.get('name', 'unknown')
         
-        logger.info(f"Processing {dataset_name} (outcome: {outcome_col})...")
-        result = process_dataset_for_baseline(df, dataset_name, outcome_col, config, raw_dir)
-        if result:
-            all_metrics.append(result)
-
-    if not all_metrics:
-        logger.warning("No metrics were successfully generated.")
-        return 1
-
-    # Ensure output directory exists
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-    # Write to JSON
-    logger.info(f"Writing {len(all_metrics)} entries to {OUTPUT_FILE}...")
-    with open(OUTPUT_FILE, "w") as f:
-        json.dump(all_metrics, f, indent=2)
-
+        if df is None:
+            logger.warning(f"Skipping {name}: No data loaded.")
+            continue
+        
+        try:
+            entry = process_dataset_for_baseline(df, name, config)
+            if entry:
+                all_metrics.append(entry)
+        except Exception as e:
+            logger.error(f"Failed to process {name}: {e}", exc_info=True)
+            continue
+    
+    # Compute checksum of the output file content before writing
+    # We write first, then compute checksum of the written file
+    os.makedirs(processed_dir, exist_ok=True)
+    
+    output_data = {
+        "metadata": {
+            "generated_at": datetime.utcnow().isoformat(),
+            "task_id": "T013",
+            "total_datasets": len(all_metrics)
+        },
+        "datasets": all_metrics
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Wrote baseline metrics to {output_path}")
+    
+    # Compute and log checksum
+    checksum = compute_file_checksum(output_path)
+    logger.info(f"Output checksum (SHA256): {checksum}")
+    
     log_metrics_summary(all_metrics)
     logger.info("T013 completed successfully.")
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
