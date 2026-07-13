@@ -1,0 +1,107 @@
+resolved_at: '2026-07-13T18:37:25.357866+00:00'
+datasets:
+- intent: LMM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lmms-lab/POPE/resolve/main/Full/adversarial-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lmms-lab/RefCOCO/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lmms-lab/MP-DocVQA/resolve/main/data/test-00000-of-00023.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lmms-lab/POPE/resolve/main/Full/adversarial-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/RefCOCO/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/MP-DocVQA/resolve/main/data/test-00000-of-00023.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/egoschema/resolve/main/GENERATION/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/Video-MME/resolve/main/videomme/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Local_Heat_Accumulation_during_Methane_Hydrate_Crystallization_Effects_of_Heat-Dissipation_Pathways_on_Growth_Kinetics/32978206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Specific_Stratigraphic_Division_and_Interpretation_Method_Using_DNA_Sequencing_of_Cuttings_for_Sustainable_Development_of_Shale_Resources/31445397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reading_anxiety_s_longitudinal_associations_with_reading_skills_and_reading_interest_from_second_to_third_grade/32978203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Commentary_Analyzes_Confronting_the_Structural_Crisis_in_Maternal_Healthcare_A_Global_Commentary_on_Obstetric_Violence_and_Path_to_Reform_Sections_b_/32978198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Research_Group_Meeting_071326/32978201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6657148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17361190
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4053698
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11166211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ojs.uc.cl/index.php/ijanr/article/view/36711
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://iris.uniupo.it//handle/11579/46198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.v41ns1s9q
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/101647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

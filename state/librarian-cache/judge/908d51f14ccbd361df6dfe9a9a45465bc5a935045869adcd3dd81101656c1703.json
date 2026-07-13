@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.12337",
+  "judged_at": "2026-07-13T18:29:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of text message tone on perceived emotional support psychology",
+  "rationale": "The paper focuses on user perceptions of LLMs as mental health tools based on social media discourse, which does not measure the specific mechanism of \"text message tone\" or its causal impact on \"perceived emotional support\" in human-to-human communication. While both topics fall under the broad domain of digital mental health, the paper lacks the specific independent variable (tone) and the specific dependent variable relationship (tone -> support perception) required by criteria (a) or (b), an",
+  "relevant": false
+}

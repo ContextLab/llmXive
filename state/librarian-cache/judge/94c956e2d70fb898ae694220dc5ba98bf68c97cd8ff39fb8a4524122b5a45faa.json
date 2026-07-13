@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2101.00963",
+  "judged_at": "2026-07-13T18:29:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of text message tone on perceived emotional support psychology",
+  "rationale": "The paper focuses on hate speech, toxicity, and the effects of content moderation in unmoderated vs. moderated social media environments, which is a distinct construct from the user's specific question about \"text message tone\" and \"perceived emotional support.\" While both involve text analysis, the paper does not measure the mechanism of emotional support perception, nor does it study the specific variables of tone and support in the context of interpersonal messaging, failing to meet criteria ",
+  "relevant": false
+}

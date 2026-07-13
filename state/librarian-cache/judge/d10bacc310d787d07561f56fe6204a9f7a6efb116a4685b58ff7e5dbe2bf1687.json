@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.08411",
+  "judged_at": "2026-07-13T18:29:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of text message tone on perceived emotional support psychology",
+  "rationale": "This paper satisfies criterion (a) and (b) because it empirically measures the impact of \"tone formality\" (a specific text message/chatbot tone) on \"perceptions of friendliness and credibility\" (proxies for perceived emotional support and social connection) within a communication context, directly addressing the core mechanism of how tone influences social perception. Although the domain is disaster preparedness and the medium is a chatbot rather than SMS, the underlying psychological construct ",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2005.07473",
+  "judged_at": "2026-07-13T18:29:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of text message tone on perceived emotional support psychology",
+  "rationale": "This paper satisfies criterion (a) and (b) as it empirically investigates the relationship between text-based interactions (specifically the emotional tone of comments) and the reception of emotional support within an online mental health community, which is the core mechanism and domain of the user's question. Although the study focuses on Reddit rather than SMS, it provides canonical evidence for the \"text message tone\" variable affecting \"perceived emotional support\" in a digital communicatio",
+  "relevant": true
+}

@@ -1,0 +1,558 @@
+{
+  "fetched_at": "2026-07-13T18:29:25Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Text Message Tone on Perceived Emotional Support",
+      "target_n": 5
+    },
+    "duration_seconds": 76.936,
+    "ended_at": "2026-07-13T18:29:25Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "textual tone and perceived social support"
+        ],
+        [
+          2,
+          "emotional tone in computer-mediated communication"
+        ],
+        [
+          3,
+          "perceived empathy in text-based messages"
+        ],
+        [
+          4,
+          "linguistic cues of emotional support"
+        ],
+        [
+          5,
+          "affective tone in digital interpersonal communication"
+        ],
+        [
+          6,
+          "sentiment analysis of supportive text messages"
+        ],
+        [
+          7,
+          "nonverbal cues in text messaging and emotional perception"
+        ],
+        [
+          8,
+          "textual pragmatics and perceived care"
+        ],
+        [
+          9,
+          "emotional nuance in instant messaging"
+        ],
+        [
+          10,
+          "perceived warmth in written digital communication"
+        ],
+        [
+          11,
+          "linguistic markers of emotional availability in texts"
+        ],
+        [
+          12,
+          "tone of voice in text messages and recipient well-being"
+        ],
+        [
+          13,
+          "textual empathy detection in mental health contexts"
+        ],
+        [
+          14,
+          "impact of punctuation and emojis on perceived support"
+        ],
+        [
+          15,
+          "computer-mediated communication and emotional validation"
+        ],
+        [
+          16,
+          "text message sentiment and psychological comfort"
+        ],
+        [
+          17,
+          "perceived sincerity in asynchronous digital communication"
+        ],
+        [
+          18,
+          "linguistic features of supportive feedback in texting"
+        ],
+        [
+          19,
+          "emotional contagion in text-based interactions"
+        ],
+        [
+          20,
+          "digital communication style and perceived relational support"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Text Message Tone on Perceived Emotional Support psychology": 0,
+        "emotional tone in computer-mediated communication": 4,
+        "textual tone and perceived social support": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "affective valence textual pragmatics emotional resonance",
+      "SMS dyadic interaction perceived empathy mental health",
+      "linguistic style matching affiliation computer-mediated communication",
+      "supportive communication efficacy emotional well-being outcomes",
+      "paralinguistic cues text messaging social support theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2005.07473"
+      ]
+    },
+    "per_query_hit_count": {
+      "SMS dyadic interaction perceived empathy mental health": 3,
+      "The Impact of Text Message Tone on Perceived Emotional Support psychology": 3,
+      "affective valence textual pragmatics emotional resonance": 3,
+      "linguistic style matching affiliation computer-mediated communication": 3,
+      "paralinguistic cues text messaging social support theory": 3,
+      "supportive communication efficacy emotional well-being outcomes": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2504.12337",
+          "rationale": "The paper focuses on user perceptions of LLMs as mental health tools based on social media discourse, which does not measure the specific mechanism of \"text message tone\" or its causal impact on \"perceived emotional support\" in human-to-human communication. While both topics fall under the broad domain of digital mental health, the paper lacks the specific independent variable (tone) and the specific dependent variable relationship (tone -> support perception) required by criteria (a) or (b), an",
+          "title": "\"It Listens Better Than My Therapist\": Exploring Social Media Discourse on LLMs as Mental Health Tool"
+        },
+        {
+          "primary_pointer": "2312.11326",
+          "rationale": "The paper focuses on \"politicization\" and \"topic shifts\" in political discourse on social media, which is a distinct construct from the user's question about \"text message tone\" and \"perceived emotional support\" in a psychological context. It fails all inclusion criteria (a-f) as it does not measure the same mechanism, variables, or population, and the shared keyword \"social media\" represents a domain overlap rather than a relevant connection to the specific psychological mechanism of emotional ",
+          "title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media"
+        },
+        {
+          "primary_pointer": "2101.00963",
+          "rationale": "The paper focuses on hate speech, toxicity, and the effects of content moderation in unmoderated vs. moderated social media environments, which is a distinct construct from the user's specific question about \"text message tone\" and \"perceived emotional support.\" While both involve text analysis, the paper does not measure the mechanism of emotional support perception, nor does it study the specific variables of tone and support in the context of interpersonal messaging, failing to meet criteria ",
+          "title": "Characterizing (Un)moderated Textual Data in Social Systems"
+        },
+        {
+          "primary_pointer": "2105.07333",
+          "rationale": "The paper focuses on the specific domain of sexual consent and violence prevention on dating apps, which is a distinct construct from the user's question about the general impact of text message tone on perceived emotional support. While both involve computer-mediated communication, the paper does not measure the mechanism of \"tone,\" the variable of \"emotional support,\" or the psychological construct of \"perceived support,\" failing to meet any of the inclusion criteria (a-f) and falling under th",
+          "title": "Computer-Mediated Consent to Sex: The Context of Tinder"
+        },
+        {
+          "primary_pointer": "1211.5648",
+          "rationale": "The paper focuses on the technical infrastructure (cloud computing, internet speed) and adoption barriers of communication tools in rural healthcare, rather than the psychological mechanism of how text message tone influences perceived emotional support. It fails to measure the relevant variables (tone, emotional support perception) or address the specific domain of psychological communication dynamics, falling under the \"off-domain entirely\" rejection rule.",
+          "title": "Improving Computer-Mediated Synchronous Communication of Doctors in Rural Communities through Cloud Computing: A Case Study of Rural Hospitals in South Africa"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T18:28:08Z",
+    "term_input": {
+      "normalized": "the impact of text message tone on perceived emotional support psychology",
+      "raw": "The Impact of Text Message Tone on Perceived Emotional Support psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text summarization is an interesting area for researchers to develop new techniques to provide human like summaries for vast amounts of information. Summarization techniques tend to focus on providing accurate representation of content, and often the tone of the content is ignored. Tone of the content sets a baseline for how a reader perceives the content. As such being able to generate summary with tone that is appropriate for the reader is important. In our work we implement Maximal Marginal Relevance [MMR] based multi-document text summarization and propose a naive model to change tone of the summarization by setting a bias to specific set of words and restricting other words in the summarization output. This bias towards a specified set of words produces a summary whose tone is same as tone of specified words.",
+          "claimed_authors": [
+            "Mayank Chaudhari",
+            "Aakash Nelson Mattukoyya"
+          ],
+          "claimed_title": "Tone Biased MMR Text Summarization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.09426"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Tone Biased MMR Text Summarization')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents \"Emotion Talk,\" a system designed to provide continuous emotional support through audio messages for psychological assistance. The primary objective is to offer consistent support to patients outside traditional therapy sessions by analyzing audio messages to detect emotions and generate appropriate responses. The solution focuses on Portuguese-speaking users, ensuring that the system is linguistically and culturally relevant. This system aims to complement and enhance the psychological follow-up process conducted by therapists, providing immediate and accessible assistance, especially in emergency situations where rapid response is crucial. Experimental results demonstrate the effectiveness of the proposed system, highlighting its potential in applications of psychological support.",
+          "claimed_authors": [
+            "Fabrycio Leite Nakano Almada",
+            "Kauan Divino Pouso Mariano",
+            "Maykon Adriell Dutra",
+            "Victor Emanuel da Silva Monteiro"
+          ],
+          "claimed_title": "Emotion Talk: Emotional Support via Audio Messages for Psychological Assistance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.08992"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Emotion Talk: Emotional Support via Audio Messages for Psychological Assistance')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The visual and audio information from movies can evoke a variety of emotions in viewers. Towards a better understanding of viewer impact, we present our methods for the MediaEval 2018 Emotional Impact of Movies Task to predict the expected valence and arousal continuously in movies. This task, using the LIRIS-ACCEDE dataset, enables researchers to compare different approaches for predicting viewer impact from movies. Our approach leverages image, audio, and face based features computed using pre-trained neural networks. These features were computed over time and modeled using a gated recurrent unit (GRU) based network followed by a mixture of experts model to compute multiclass predictions. We smoothed these predictions using a Butterworth filter for our final result. Our method enabled us to achieve top performance in three evaluation metrics in the MediaEval 2018 task.",
+          "claimed_authors": [
+            "Jennifer J. Sun",
+            "Ting Liu",
+            "Gautam Prasad"
+          ],
+          "claimed_title": "GLA in MediaEval 2018 Emotional Impact of Movies Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.12361"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='GLA in MediaEval 2018 Emotional Impact of Movies Task')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces BReG-NeXt, a residual-based network architecture using a function wtih bounded derivative instead of a simple shortcut path (a.k.a. identity mapping) in the residual units for automatic recognition of facial expressions based on the categorical and dimensional models of affect. Compared to ResNet, our proposed adaptive complex mapping results in a shallower network with less numbers of training parameters and floating point operations per second (FLOPs). Adding trainable parameters to the bypass function further improves fitting and training the network and hence recognizing subtle facial expressions such as contempt with a higher accuracy. We conducted comprehensive experiments on the categorical and dimensional models of affect on the challenging in-the-wild databases of AffectNet, FER2013, and Affect-in-Wild. Our experimental results show that our adaptive complex mapping approach outperforms the original ResNet consisting of a simple identity mapping as well as other state-of-the-art methods for Facial Expression Recognition (FER). Various metrics are reported in both affect models to provide a comprehensive evaluation of our method. In the categorical model, BReG-NeXt-50 with only 3.1M training parameters and 15 MFLOPs, achieves 68.50% and 71.53% accuracy on AffectNet and FER2013 databases, respectively. In the dimensional model, BReG-NeXt achieves 0.2577 and 0.2882 RMSE value on AffectNet and Affect-in-Wild databases, respectively.",
+          "claimed_authors": [
+            "Behzad Hasani",
+            "Pooran Singh Negi",
+            "Mohammad H. Mahoor"
+          ],
+          "claimed_title": "BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08495"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How could we gather affect annotations in a rapid, unobtrusive, and accessible fashion? How could we still make sure that these annotations are reliable enough for data-hungry affect modelling methods? This paper addresses these questions by introducing PAGAN, an accessible, general-purpose, online platform for crowdsourcing affect labels in videos. The design of PAGAN overcomes the accessibility limitations of existing annotation tools, which often require advanced technical skills or even the on-site involvement of the researcher. Such limitations often yield affective corpora that are restricted in size, scope and use, as the applicability of modern data-demanding machine learning methods is rather limited. The description of PAGAN is accompanied by an exploratory study which compares the reliability of three continuous annotation tools currently supported by the platform. Our key results reveal higher inter-rater agreement when annotation traces are processed in a relative manner and collected via unbounded labelling.",
+          "claimed_authors": [
+            "David Melhart",
+            "Antonios Liapis",
+            "Georgios N. Yannakakis"
+          ],
+          "claimed_title": "PAGAN: Video Affect Annotation Made Easy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01008"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='PAGAN: Video Affect Annotation Made Easy')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How does the form of our surroundings impact the ways we feel? This paper extends the body of research on the effects that space and light have on emotion by focusing on critical features of architectural form and illumination colors and their spatiotemporal impact on arousal. For that purpose, we solicited a corpus of spatial transitions in video form, lasting over 60 minutes, annotated by three participants in terms of arousal in a time-continuous and unbounded fashion. We process the annotation traces of that corpus in a relative fashion, focusing on the direction of arousal changes (increasing or decreasing) as affected by changes between consecutive rooms. Results show that properties of the form such as curved or complex spaces align highly with increased arousal. The analysis presented in this paper sheds some initial light in the relationship between arousal and core spatiotemporal features of form that is of particular importance for the affect-driven design of architectural spaces.",
+          "claimed_authors": [
+            "Emmanouil Xylakis",
+            "Antonios Liapis",
+            "Georgios N. Yannakakis"
+          ],
+          "claimed_title": "Architectural Form and Affect: A Spatiotemporal Study of Arousal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.05938"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Architectural Form and Affect: A Spatiotemporal Study of Arousal')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This research paper presents a meta-analysis of the multifaceted role of technology in mental health. The pervasive influence of technology on daily lives necessitates a deep understanding of its impact on mental health services. This study synthesizes literature covering Behavioral Intervention Technologies (BITs), digital mental health interventions during COVID-19, young men's attitudes toward mental health technologies, technology-based interventions for university students, and the applicability of mobile health technologies for individuals with serious mental illnesses. BITs are recognized for their potential to provide evidence-based interventions for mental health conditions, especially anxiety disorders. The COVID-19 pandemic acted as a catalyst for the adoption of digital mental health services, underscoring their crucial role in providing accessible and quality care; however, their efficacy needs to be reinforced by workforce training, high-quality evidence, and digital equity. A nuanced understanding of young men's attitudes toward mental health is imperative for devising effective online services. Technology-based interventions for university students are promising, although variable in effectiveness; their deployment must be evidence-based and tailored to individual needs. Mobile health technologies, particularly activity tracking, hold promise for individuals with serious mental illnesses. Collectively, technology has immense potential to revolutionize mental health care. However, the implementation must be evidence-based, ethical, and equitable, with continued research focusing on experiences across diverse populations, ensuring accessibility and efficacy for all.",
+          "claimed_authors": [
+            "Hamza Mohammed"
+          ],
+          "claimed_title": "Technology in Association With Mental Health: Meta-ethnography",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.10513"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Technology in Association With Mental Health: Meta-ethnography')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While the applications and demands of Machine learning (ML) systems in mental health are growing, there is little discussion nor consensus regarding a uniquely challenging aspect: building security methods and requirements into these ML systems, and keep the ML system usable for end-users. This question of usable security is very important, because the lack of consideration in either security or usability would hinder large-scale user adoption and active usage of ML systems in mental health applications.\n  In this short paper, we introduce a framework of four pillars, and a set of desired properties which can be used to systematically guide and evaluate security-related designs, implementations, and deployments of ML systems for mental health. We aim to weave together threads from different domains, incorporate existing views, and propose new principles and requirements, in an effort to lay out a clear framework where criteria and expectations are established, and are used to make security mechanisms usable for end-users of those ML systems in mental health. Together with this framework, we present several concrete scenarios where different usable security cases and profiles in ML-systems in mental health applications are examined and evaluated.",
+          "claimed_authors": [
+            "Helen Jiang",
+            "Erwen Senge"
+          ],
+          "claimed_title": "Usable Security for ML Systems in Mental Health: A Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.07738"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Usable Security for ML Systems in Mental Health: A Framework')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper reports an interview study about how consent to sexual activity is computer-mediated. The study's context of online dating is chosen due to the prevalence of sexual violence, or nonconsensual sexual activity, that is associated with dating app-use. Participants (n=19) represent a range of gender identities and sexual orientations, and predominantly used the dating app Tinder. Findings reveal two computer-mediated consent processes: consent signaling and affirmative consent. With consent signaling, users employed Tinder's interface to infer and imply agreement to sex without any explicit confirmation before making sexual advances in-person. With affirmative consent, users employed the interface to establish patterns of overt discourse around sex and consent across online and offline modalities. The paper elucidates shortcomings of both computer-mediated consent processes that leave users susceptible to sexual violence and envisions dating apps as potential sexual violence prevention solutions if deliberately designed to mediate consent exchange.",
+          "claimed_authors": [
+            "Douglas Zytko",
+            "Nicholas Furlo",
+            "Bailey Carlin",
+            "Matthew Archer"
+          ],
+          "claimed_title": "Computer-Mediated Consent to Sex: The Context of Tinder",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.07333"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Computer-Mediated Consent to Sex: The Context of Tinder')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The current research used the contexts of U.S. presidential debates and negotiations to examine whether matching the linguistic style of an opponent in a two-party exchange affects the reactions of third-party observers. Building off communication accommodation theory (CAT), interaction alignment theory (IAT), and processing fluency, we propose that language style matching (LSM) will improve subsequent third-party evaluations because matching an opponent's linguistic style reflects greater perspective taking and will make one's arguments easier to process. In contrast, research on status inferences predicts that LSM will negatively impact third-party evaluations because LSM implies followership. We conduct two studies to test these competing hypotheses. Study 1 analyzed transcripts of U.S. presidential debates between 1976 and 2012 and found that candidates who matched their opponent's linguistic style increased their standing in the polls. Study 2 demonstrated a causal relationship between LSM and third-party observer evaluations using negotiation transcripts.",
+          "claimed_authors": [
+            "Daniel M. Romero",
+            "Roderick I. Swaab",
+            "Brian Uzzi",
+            "Adam D. Galinsky"
+          ],
+          "claimed_title": "Mimicry Is Presidential: Linguistic Style Matching in Presidential Debates and Improved Polling Numbers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.01786"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Mimicry Is Presidential: Linguistic Style Matching in Presidential Debates and Improved Polling Numbers')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study is among the first to develop different prototypes of generative artificial intelligence (GenAI) chatbots powered by GPT-4 to communicate hurricane preparedness information to diverse residents. Drawing from the Computers Are Social Actors paradigm and the literature on disaster vulnerability and cultural tailoring, we conducted a between-subjects experiment with 441 Black, Hispanic, and Caucasian residents of Florida. Our results suggest that GenAI chatbots varying in tone formality and cultural tailoring significantly influence perceptions of their friendliness and credibility, which, in turn, relate to hurricane preparedness outcomes. These results highlight the potential of using GenAI chatbots to improve diverse communities' disaster preparedness.",
+          "claimed_authors": [
+            "Xinyan Zhao",
+            "Yuan Sun",
+            "Wenlin Liu",
+            "Chau-Wai Wong"
+          ],
+          "claimed_title": "Tailoring Generative AI Chatbots for Multiethnic Communities in Disaster Preparedness Communication: Extending the CASA Paradigm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.08411"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Tailoring Generative AI Chatbots for Multiethnic Communities in Disaster Preparedness Communication: Extending the CASA Paradigm')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For most health or well-being interventions, the process of evaluation is distinct from the activity itself, both in terms of who is involved, and how the actual data is collected and analyzed. Tangible interaction affords the opportunity to combine direct and embodied collaboration with a holistic approach to data collection and evaluation. We demonstrate this potential by describing our experiences designing and using the Communal Loom, an artifact for art therapy that translates quantitative data to collectively woven artifacts.",
+          "claimed_authors": [
+            "Niti Parikh",
+            "Yiran Zhao",
+            "Maria Alinea-Bravo",
+            "Tapan Parikh"
+          ],
+          "claimed_title": "The Communal Loom: Integrating Tangible Interaction and Participatory Data Collection for Assessing Well-Being",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.24036"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='The Communal Loom: Integrating Tangible Interaction and Participatory Data Collection for Assessing Well-Being')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence (AI) is changing the world, but its impacts on the environment and human well-being remain uncertain. We conducted a systematic literature review of 1,291 studies selected from 6,655 records, identifying the main impacts of AI and how they are assessed. The evidence reveals an uneven landscape: 72% of environmental studies focus narrowly on energy use and CO2 emissions, while only 11% consider systemic effects. Well-being research is largely conceptual and overlooks subjective dimensions. Strikingly, 83% of environmental studies portray AI's impacts as positive, while well-being analyses show a near-even split overall (44% positive; 46% negative). However, this split masks differences across well-being dimensions. While the impacts of AI on income and health are expected to be positive, its impacts on inequality, social cohesion, and employment are expected to be negative. Based on our findings, we suggest several areas for future research. Environmental assessments should incorporate water, material, and biodiversity impacts, and apply a full life-cycle perspective, while well-being research should prioritise empirical analyses. Evaluating AI's overall impact requires accounting for computing-related, application-level, and systemic impacts, while integrating both environmental and social dimensions. Bridging these gaps is essential to understand the full scope of AI's impacts and to steer its development towards environmental sustainability and human flourishing.",
+          "claimed_authors": [
+            "Noemi Luna Carmeno",
+            "Tiago Domingos",
+            "Daniel W. O'Neill"
+          ],
+          "claimed_title": "The impacts of artificial intelligence on environmental sustainability and human well-being",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.24091"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='The impacts of artificial intelligence on environmental sustainability and human well-being')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has become clear that early career astrophysics researchers (doctoral researchers, post-docs, etc) have a very diverse appreciation of their career, with some declaring it the best job that you can have and others suffering from overwork, harrassment and stress from the precarity of their job, and associated difficulties. In order to establish how astrophysics researchers, primarily in France, experience their career, we sent out a survey to understand the impact that their job has on their well-being. 276 people responded to the survey. Whilst around half of the respondents expressed pleasure derived from their career, it is clear that many (early career) researchers are suffering due to overwork, with more than a quarter saying that they work in excess of 50 hours per week and 2\\% in excess of 90 h per week. Almost 30\\% professed to having suffered harrassment or discrimination in the course of their work. Further, whilst only 20\\% had suffered mental health issues before starting their career in astrophysics, $\\sim$45\\% said that they suffered with mental health problems since starting in astrophysics. Here we provide results from the survey as well as possible avenues to explore and a list of recommendations to improve (early) careers in astrophysics.",
+          "claimed_authors": [
+            "N. A. Webb",
+            "C. Bot",
+            "S. Charpinet",
+            "T. Contini",
+            "L. Jouve",
+            "F. Koliopanos",
+            "A. Lamberts",
+            "H. Meheut",
+            "S. Mei",
+            "I. Ristorcelli",
+            "G. Soucail"
+          ],
+          "claimed_title": "Well-being in French Astrophysics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.01768"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Well-being in French Astrophysics')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes Centre for Development of Advanced Computing's (CDACM) submission to the shared task-'Tool Contest on POS tagging for Code-Mixed Indian Social Media (Facebook, Twitter, and Whatsapp) Text', collocated with ICON-2016. The shared task was to predict Part of Speech (POS) tag at word level for a given text. The code-mixed text is generated mostly on social media by multilingual users. The presence of the multilingual words, transliterations, and spelling variations make such content linguistically complex. In this paper, we propose an approach to POS tag code-mixed social media text using Recurrent Neural Network Language Model (RNN-LM) architecture. We submitted the results for Hindi-English (hi-en), Bengali-English (bn-en), and Telugu-English (te-en) code-mixed data.",
+          "claimed_authors": [
+            "Raj Nath Patel",
+            "Prakash B. Pimpale",
+            "M Sasikumar"
+          ],
+          "claimed_title": "Recurrent Neural Network based Part-of-Speech Tagger for Code-Mixed Social Media Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.04989"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Recurrent Neural Network based Part-of-Speech Tagger for Code-Mixed Social Media Text')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Online communication via avatars provides a richer online social experience than text communication. This reinforces the importance of online social support. Online social support is effective for people who lack social resources because of the anonymity of online communities. We aimed to understand online social support via avatars and their social relationships to provide better social support to avatar users. Therefore, we administered a questionnaire to three avatar communication service users (Second Life, ZEPETO, and Pigg Party) and three text communication service users (Facebook, X, and Instagram) (N=8,947). There was no duplication of users for each service. By comparing avatar and text communication users, we examined the amount of online social support, stability of online relationships, and the relationships between online social support and offline social resources (e.g., offline social support). We observed that avatar communication service users received more online social support, had more stable relationships, and had fewer offline social resources than text communication service users. However, the positive association between online and offline social support for avatar communication users was more substantial than for text communication users. These findings highlight the significance of realistic online communication experiences through avatars, including nonverbal and real-time interactions with co-presence. The findings also highlighted avatar communication service users' problems in the physical world, such as the lack of offline social resources. This study suggests that enhancing online social support through avatars can address these issues. This could help resolve social resource problems, both online and offline in future metaverse societies.",
+          "claimed_authors": [
+            "Masanori Takano",
+            "Kenji Yokotani",
+            "Takahiro Kato",
+            "Nobuhito Abe",
+            "Fumiaki Taka"
+          ],
+          "claimed_title": "Avatar Communication Provides More Efficient Online Social Support Than Text Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.00287"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Text Message Tone on Perceived Emotional Support psychology', candidate_title='Avatar Communication Provides More Efficient Online Social Support Than Text Communication')",
+        "failed_at": "2026-07-13T18:28:45Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xinyan Zhao",
+            "Yuan Sun",
+            "Wenlin Liu",
+            "Chau-Wai Wong"
+          ],
+          "title": "Tailoring Generative AI Chatbots for Multiethnic Communities in Disaster Preparedness Communication: Extending the CASA Paradigm",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.08411",
+        "summary": "This study is among the first to develop different prototypes of generative artificial intelligence (GenAI) chatbots powered by GPT-4 to communicate hurricane preparedness information to diverse residents. Drawing from the Computers Are Social Actors paradigm and the literature on disaster vulnerability and cultural tailoring, we conducted a between-subjects experiment with 441 Black, Hispanic, and Caucasian residents of Florida. Our results suggest that GenAI chatbots varying in tone formality and cultural tailoring significantly influence perceptions of their friendliness and credibility, which, in turn, relate to hurricane preparedness outcomes. These results highlight the potential of using GenAI chatbots to improve diverse communities' disaster preparedness.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.08411",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T18:28:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bárbara Silveira",
+            "Henrique S. Silva",
+            "Fabricio Murai",
+            "Ana Paula Couto da Silva"
+          ],
+          "title": "Predicting User Emotional Tone in Mental Disorder Online Communities",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2005.07473",
+        "summary": "In recent years, Online Social Networks have become an important medium for people who suffer from mental disorders to share moments of hardship, and receive emotional and informational support. In this work, we analyze how discussions in Reddit communities related to mental disorders can help improve the health conditions of their users. Using the emotional tone of users' writing as a proxy for emotional state, we uncover relationships between user interactions and state changes. First, we observe that authors of negative posts often write rosier comments after engaging in discussions, indicating that users' emotional state can improve due to social support. Second, we build models based on SOTA text embedding techniques and RNNs to predict shifts in emotional tone. This differs from most of related work, which focuses primarily on detecting mental disorders from user activity. We demonstrate the feasibility of accurately predicting the users' reactions to the interactions experienced in these platforms, and present some examples which illustrate that the models are correctly capturing the effects of comments on the author's emotional tone. Our models hold promising implications for interventions to provide support for people struggling with mental illnesses.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2005.07473",
+          "http_status": 200,
+          "pdf_sample_score": 0.2557,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T18:28:58Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of text message tone on perceived emotional support psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

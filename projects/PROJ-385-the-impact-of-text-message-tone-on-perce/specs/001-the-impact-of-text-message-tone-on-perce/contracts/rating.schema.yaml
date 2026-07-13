@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Rating Schema"
+description: "Schema for participant ratings (FR-002, FR-006)."
+type: "object"
+required:
+  - "rating_id"
+  - "participant_id"
+  - "stimulus_id"
+  - "relationship_context"
+  - "rating_score"
+properties:
+  rating_id:
+    type: "string"
+    description: "Unique identifier for the rating record."
+  participant_id:
+    type: "string"
+    pattern: "^P-[0-9]{3}$"
+    description: "Unique identifier for the participant."
+  stimulus_id:
+    type: "string"
+    pattern: "^S-[0-9]{3}$"
+    description: "Reference to the stimulus."
+  relationship_context:
+    type: "string"
+    enum: ["friend", "acquaintance"]
+    description: "The relational context of the interaction."
+  rating_score:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+    description: "Perceived emotional support rating on a 7-point Likert scale."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Simulated timestamp of the rating."
+additionalProperties: false

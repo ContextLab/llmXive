@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stimulus Schema"
+description: "Schema for the generated text message stimuli (FR-001)."
+type: "object"
+required:
+  - "stimulus_id"
+  - "base_scenario"
+  - "emoji_level"
+  - "punctuation_type"
+  - "length_category"
+  - "generated_text"
+properties:
+  stimulus_id:
+    type: "string"
+    pattern: "^S-[0-9]{3}$"
+    description: "Unique identifier for the stimulus."
+  base_scenario:
+    type: "string"
+    description: "The core message text before feature addition."
+  emoji_level:
+    type: "integer"
+    enum: [0, 1, 2]
+    description: "Level of emoji presence: 0=None, 1=One, 2=Multiple."
+  punctuation_type:
+    type: "string"
+    enum: ["standard", "exaggerated"]
+    description: "Punctuation pattern used."
+  length_category:
+    type: "string"
+    enum: ["concise", "elaborate"]
+    description: "Message length category."
+  generated_text:
+    type: "string"
+    description: "The final text string presented to participants."
+additionalProperties: false

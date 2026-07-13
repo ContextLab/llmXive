@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1211.5648",
+  "judged_at": "2026-07-13T18:29:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of text message tone on perceived emotional support psychology",
+  "rationale": "The paper focuses on the technical infrastructure (cloud computing, internet speed) and adoption barriers of communication tools in rural healthcare, rather than the psychological mechanism of how text message tone influences perceived emotional support. It fails to measure the relevant variables (tone, emotional support perception) or address the specific domain of psychological communication dynamics, falling under the \"off-domain entirely\" rejection rule.",
+  "relevant": false
+}
