@@ -6,23 +6,13 @@ from typing import Optional
 
 def create_reproducible_subset(df: pd.DataFrame, size: int = 10000, seed: int = 42) -> pd.DataFrame:
     """
-    Creates a reproducible random subset of the dataframe.
-    
-    Args:
-        df: Input DataFrame
-        size: Target number of rows
-        seed: Random seed for reproducibility
-        
-    Returns:
-        Subset DataFrame
+    Create a reproducible random subset of the dataframe.
     """
     if len(df) <= size:
-        return df.copy()
+        return df.reset_index(drop=True)
     
-    # Set seed for reproducibility
+    # Use numpy random for reproducibility
     np.random.seed(seed)
-    
-    # Randomly sample indices
     indices = np.random.choice(len(df), size=size, replace=False)
-    
-    return df.iloc[indices].reset_index(drop=True)
+    subset = df.iloc[indices].reset_index(drop=True)
+    return subset

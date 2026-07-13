@@ -31,20 +31,31 @@
   verification_status: unreachable
   verified_against_url: https://oeis.org/A008299
   verified_at: '2026-06-24T21:21:17.157543Z'
-- artifact_hash: f43433419f60d227f96c51d7bf291e7788941eec1bfe572530d2cac19e7f36da
+- artifact_hash: b62b4902f7c40e124afabcd15e4c77b6330d0d4545977ab2d1cc3d5651331fde
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Power - Wikipedia
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-07-13T19:41:35.051752Z'
+- artifact_hash: b62b4902f7c40e124afabcd15e4c77b6330d0d4545977ab2d1cc3d5651331fde
+  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Verify - Wikidata
   kind: url
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-07-13T19:02:28.935167Z'
-- artifact_hash: f43433419f60d227f96c51d7bf291e7788941eec1bfe572530d2cac19e7f36da
+  verified_against_url: https://www.wikidata.org/wiki/Q126592664
+  verified_at: '2026-07-13T19:41:35.051752Z'
+- artifact_hash: b62b4902f7c40e124afabcd15e4c77b6330d0d4545977ab2d1cc3d5651331fde
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  cite_id: c-002
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: p-value - Wikipedia
@@ -63,4 +74,4 @@
   value: 10.1038/sdata.2014.22
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-07-13T19:02:28.935167Z'
+  verified_at: '2026-07-13T19:41:35.051752Z'

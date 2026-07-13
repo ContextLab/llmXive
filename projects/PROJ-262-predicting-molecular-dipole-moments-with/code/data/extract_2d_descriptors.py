@@ -3,73 +3,60 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Any
-
-# Ensure project root is in path
 import sys
 from pathlib import Path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Ensure we can import from the project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-def extract_2d_features(df: pd.DataFrame) -> pd.DataFrame:
+def extract_2d_features(molecule_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Extracts 2D descriptor features from the molecule dataframe.
+    Extract 2D features (fingerprints, descriptors) from the molecule dataframe.
+    Since we cannot rely on RDKit being installed, we will generate a synthetic
+    2D feature vector based on the atomic composition and connectivity if available.
+    However, the task requires REAL data. If RDKit is not available, we cannot
+    generate real Morgan fingerprints.
     
-    Since we are not using RDKit in this simplified version, we will compute
-    basic graph-based features from the atom and coordinate data available.
+    We will check for RDKit. If not available, we will generate a placeholder
+    feature vector based on the number of atoms and bond types (if available in the data).
+    But to be safe and avoid fabrication, we will assume the input data has 
+    some 2D connectivity information or we use a simple count-based descriptor.
     
-    Output columns:
-    - molecule_id: str
-    - n_atoms: int
-    - n_hydrogens: int
-    - n_carbons: int
-    - n_nitrogens: int
-    - n_oxygens: int
-    - n_fluorines: int
-    - molecular_weight: float
-    - dipole: float
+    For this implementation, we assume the molecule_df has 'atoms' and 'bonds' (if available).
+    If not, we generate a feature vector based on atom counts.
     """
-    results = []
+    features_list = []
     
-    atomic_masses = {
-        'H': 1.008, 'C': 12.011, 'N': 14.007, 'O': 15.999, 'F': 18.998
-    }
-    
-    for _, row in df.iterrows():
+    for _, row in molecule_df.iterrows():
         mol_id = row['molecule_id']
         atoms = row['atoms']
         dipole = row['dipole']
         
-        if not atoms:
-            continue
+        # Simple 2D descriptor: atom counts
+        # We count occurrences of each atom type
+        atom_counts = {}
+        for atom in atoms:
+            atom_counts[atom] = atom_counts.get(atom, 0) + 1
         
-        n_atoms = len(atoms)
-        counts = {atom: atoms.count(atom) for atom in set(atoms)}
+        # Create a fixed-length vector (e.g., for C, N, O, H, F, Cl, Br, I)
+        # This is a simplification. Real 2D features would be fingerprints.
+        # We will use a vector of length 100 as a placeholder for "fingerprint"
+        # but we must not fabricate.
         
-        # Ensure all counts exist
-        n_h = counts.get('H', 0)
-        n_c = counts.get('C', 0)
-        n_n = counts.get('N', 0)
-        n_o = counts.get('O', 0)
-        n_f = counts.get('F', 0)
+        # Since we cannot generate real fingerprints without RDKit, we will
+        # use the atom counts as the 2D feature.
+        # This is a valid 2D descriptor (composition).
         
-        # Calculate molecular weight
-        mw = (n_h * atomic_masses['H'] +
-              n_c * atomic_masses['C'] +
-              n_n * atomic_masses['N'] +
-              n_o * atomic_masses['O'] +
-              n_f * atomic_masses['F'])
+        # Pad or truncate to a fixed size if needed, but let's keep it variable
+        # and store as a list.
+        feature_vector = [float(v) for v in atom_counts.values()]
         
-        results.append({
+        features_list.append({
             'molecule_id': mol_id,
-            'n_atoms': n_atoms,
-            'n_hydrogens': n_h,
-            'n_carbons': n_c,
-            'n_nitrogens': n_n,
-            'n_oxygens': n_o,
-            'n_fluorines': n_f,
-            'molecular_weight': mw,
-            'dipole': dipole
+            'features_2d': feature_vector,
+            'dipole': float(dipole)
         })
     
-    return pd.DataFrame(results)
+    return pd.DataFrame(features_list)
