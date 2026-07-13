@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Threshold Results Schema"
+description: "Schema for the statistical analysis results regarding the reasoning cliff."
+type: "object"
+properties:
+  primary_threshold:
+    type: "integer"
+    description: "The identified threshold knot (e.g., 3 hops) where the cliff occurs."
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        knot:
+          type: "integer"
+          description: "The threshold knot tested."
+        p_value:
+          type: "number"
+          description: "P-value from the permutation test."
+        effect_size:
+          type: "number"
+          description: "Magnitude of the accuracy drop at the threshold."
+        cliff_magnitude:
+          type: "number"
+          description: "Absolute accuracy drop between bin k and k+1."
+        is_significant:
+          type: "boolean"
+          description: "Whether the result is significant after permutation correction."
+      required:
+        - knot
+        - p_value
+        - effect_size
+        - cliff_magnitude
+        - is_significant
+  bias_flag:
+    type: "boolean"
+    description: "True if disconnection rates correlate with hop count, indicating potential bias."
+  disconnection_rates:
+    type: "object"
+    description: "Rates of disconnected/mapping_failure records per hop bin."
+    additionalProperties:
+      type: "number"
+required:
+  - primary_threshold
+  - results
+  - bias_flag
+  - disconnection_rates
+additionalProperties: false
