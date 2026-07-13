@@ -9,68 +9,62 @@ The gate detected that your reported numbers are NOT real measurements: they are
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
 - code/analysis/scaling_plot_generator.py: synthetic/fake INPUT data not authorized by the spec — “…scaling data from CSV or generate realistic synthetic data for demo.      NOTE…”
-- code/data/loaders.py: synthetic/fake INPUT data not authorized by the spec — “…th real data sources. NO synthetic data generation.""" from __fu…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ublication.  Per FR-011, synthetic data generation is a FALLBACK…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     name: str     nu…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate a synthetic dataset for structural t…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Specification for the synthetic dataset. If None, uses defaults.…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Any]]         A list of synthetic records, each marked with 'is_sy…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…SE FOR RESEARCH. This is synthetic test data."         }         reco…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 15 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/scaling_plot_generator.py: synthetic/fake INPUT data not authorized by the spec — “…scaling data from CSV or generate realistic synthetic data for demo.      NOTE…”; code/data/loaders.py: synthetic/fake INPUT data not authorized by the spec — “…th real data sources. NO synthetic data generation.""" from __fu…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
+**Summary**: 13 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/scaling_plot_generator.py: synthetic/fake INPUT data not authorized by the spec — “…scaling data from CSV or generate realistic synthetic data for demo.      NOTE…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ublication.  Per FR-011, synthetic data generation is a FALLBACK…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
-    from .loaders import (
-ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 19, in <module>
+    from metrics.specialization import compute_specialization_index
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 4, in <module>
+    from .specialization import (
+ImportError: cannot import name 'compute_game_level_specialization' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
 - python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
-    from .loaders import (
-ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 19, in <module>
+    from metrics.specialization import compute_specialization_index
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 4, in <module>
+    from .specialization import (
+ImportError: cannot import name 'compute_game_level_specialization' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
 - python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
-    from .loaders import (
-ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 19, in <module>
+    from metrics.specialization import compute_specialization_index
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 4, in <module>
+    from .specialization import (
+ImportError: cannot import name 'compute_game_level_specialization' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
 - python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
-    from .loaders import (
-ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
-- python -c "from data.loaders import verify_datasets; verify_datasets()" -> rc=1
-    Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
-    from .loaders import (
-ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 19, in <module>
+    from metrics.specialization import compute_specialization_index
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 4, in <module>
+    from .specialization import (
+ImportError: cannot import name 'compute_game_level_specialization' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
-    from .loaders import (
-ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 19, in <module>
+    from metrics.specialization import compute_specialization_index
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 4, in <module>
+    from .specialization import (
+ImportError: cannot import name 'compute_game_level_specialization' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
-    from .loaders import (
-ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 19, in <module>
+    from metrics.specialization import compute_specialization_index
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 4, in <module>
+    from .specialization import (
+ImportError: cannot import name 'compute_game_level_specialization' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -85,17 +79,11 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 22 way(s):
+### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 16 way(s):
 
-- code/run_experiment.py: retrieval_eff, _ = compute_retrieval_efficiency(retrieved_facts, num_queries, num_agents)
-- code/t015_generate_full_results.py: # compute_retrieval_efficiency(retrieved, total, agent_count)
-- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(retrieved_count, total_facts, agent_count)
-- code/metrics/validator.py: ret_metrics, _ = compute_retrieval_efficiency(retrieved, total, agent_count)
-- code/metrics/retrieval.py: 1. compute_retrieval_efficiency(retrieved, total, agent_count) - standard
-- code/metrics/retrieval.py: 2. compute_retrieval_efficiency(agent_list, num_agents=N) - keyword style
-- code/metrics/retrieval.py: 3. compute_retrieval_efficiency(agent_count, game_id) - legacy (agent_count as list length)
-- code/metrics/retrieval.py: 4. compute_retrieval_efficiency([]) - empty list handling
-- code/metrics/retrieval.py: metrics, efficiency = compute_retrieval_efficiency(
+- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(successful, num_queries, config.agent_count)
+- code/t015_generate_full_results.py: ret_eff, ret_metrics = compute_retrieval_efficiency(
+- code/metrics/retrieval.py: eff, _ = compute_retrieval_efficiency(retrieved, total, agents)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(0, 10, 3)
@@ -108,27 +96,22 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(15, 10, 3)
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(5, 10, [0, 1, 2])
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(0, 0, 3)
-- code/data/generate_scaling_data.py: _, ret_efficiency = compute_retrieval_efficiency(retrieved_facts, total_facts, agent_count)
+- code/data/generate_scaling_data.py: ret_eff, _ = compute_retrieval_efficiency(total_retrieved, total_facts, agent_count)
 
 Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of the above.
 
-### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 15 way(s):
+### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 10 way(s):
 
-- code/run_experiment.py: spec_index, _ = compute_specialization_index(skill_lengths, num_agents=num_agents)
-- code/t015_generate_full_results.py: # compute_specialization_index(agent_skills, num_agents=...)
-- code/t015_generate_full_results.py: spec_idx, _ = compute_specialization_index(agent_base_skills, num_agents=agent_count)
-- code/metrics/specialization.py: 3. Keyword style: compute_specialization_index(agent_skills=[...], num_agents=3)
-- code/metrics/specialization.py: 4. Legacy style: compute_specialization_index(agent_count, game_id) - deprecated, treated as list of length agent_count
-- code/metrics/specialization.py: idx, metrics = compute_specialization_index(agent_skills, num_agents)
-- code/metrics/specialization.py: return compute_specialization_index(skill_counts, num_agents)
-- code/metrics/validator.py: spec_metrics, _ = compute_specialization_index(agent_skills, num_agents=agent_count)
+- code/run_experiment.py: spec_index, _ = compute_specialization_index(skill_lengths, num_agents=config.agent_count)
+- code/t015_generate_full_results.py: spec_index, spec_metrics = compute_specialization_index(skill_lengths, num_agents=agent_count)
+- code/metrics/specialization.py: idx, _ = compute_specialization_index(res["facts_per_agent"])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(game_results)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agent_skills)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index([])
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agents=agent_skills, num_agents=2)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(5, 10)
-- code/data/generate_scaling_data.py: spec_index, spec_metrics = compute_specialization_index(agent_skills, num_agents=agent_count)
+- code/data/generate_scaling_data.py: spec_index, _ = compute_specialization_index(agent_skills, num_agents=agent_count)
 
 Make `compute_specialization_index` in `code/metrics/specialization.py` accept ALL of the above.
 
@@ -150,10 +133,11 @@ Make `compute_specialization_index` in `code/metrics/specialization.py` accept A
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/generate_full_results.py`; called 3 way(s):
+### `simulate_one_game` — defined in `code/generate_full_results.py`; called 4 way(s):
 
-- code/run_experiment.py: result = simulate_one_game(i, config)
+- code/run_experiment.py: results.append(simulate_one_game(config))
 - code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
+- code/analysis/sensitivity.py: result = simulate_one_game(game_id, config)
 - code/tests/unit/test_run_experiment.py: spec_metrics, ret_metrics, result = simulate_one_game(1, config)
 
 Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the above.

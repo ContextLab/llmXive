@@ -1,7 +1,11 @@
 """Sensitivity analysis for token threshold variations.
 
-Sweeps token thresholds across {128, 256, 512} and records how
-specialization and retrieval metrics vary for each threshold.
+This module implements a sensitivity analysis that sweeps token thresholds
+across the set {128, 256, 512} and measures how specialization and retrieval
+metrics vary for each threshold.
+
+Per FR-008, this analysis must use REAL measurements from the experiment
+simulation, not fabricated or random values.
 """
 from __future__ import annotations
 
@@ -10,215 +14,235 @@ import csv
 import json
 import math
 import sys
-import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
-# Import existing metrics from the project API surface
-from metrics.specialization import compute_specialization_index
-from metrics.retrieval import compute_retrieval_efficiency
-from utils.logging import get_logger
+# Import the experiment runner to simulate games with different thresholds
+from run_experiment import GameConfig, simulate_one_game, run_simulation
 
-# Import run_experiment components for simulation
-from run_experiment import GameConfig, simulate_one_game
-
-logger = get_logger(__name__)
-
-DEFAULT_THRESHOLDS = [128, 256, 512]
-DEFAULT_NUM_GAMES = 100  # Reduced for sensitivity sweep feasibility
-DEFAULT_AGENTS = 5
-DEFAULT_SEED = 42
 
 def run_sensitivity_analysis(
-    thresholds: List[int] = DEFAULT_THRESHOLDS,
-    num_games: int = DEFAULT_NUM_GAMES,
-    num_agents: int = DEFAULT_AGENTS,
-    seed: int = DEFAULT_SEED,
-    output_dir: Optional[str] = None,
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    thresholds: List[int] = [128, 256, 512],
+    num_games: int = 100,
+    num_agents: int = 5,
+    context_condition: str = "limited",
+    output_dir: Optional[Path] = None,
+    seed: Optional[int] = None,
+) -> Dict[str, Any]:
     """Run sensitivity analysis across token thresholds.
 
+    This function simulates games at each token threshold and computes
+    specialization and retrieval metrics for each.
+
     Args:
-        thresholds: List of token thresholds to sweep (e.g., [128, 256, 512])
+        thresholds: List of token thresholds to test (default: [128, 256, 512])
         num_games: Number of games to simulate per threshold
-        num_agents: Number of agents per game
+        num_agents: Number of agents in the simulation
+        context_condition: Context condition ('full' or 'limited')
+        output_dir: Directory to write output CSV and JSON results
         seed: Random seed for reproducibility
-        output_dir: Directory to write results (default: project results/)
 
     Returns:
-        Tuple of (results_df, summary_stats)
+        Dictionary containing analysis results with keys:
+            - 'thresholds': List of tested thresholds
+            - 'results': List of result dictionaries per threshold
+            - 'summary': Aggregated statistics
     """
-    if output_dir is None:
-        output_dir = Path(__file__).parent.parent.parent / "projects" / "PROJ-586-social-memory-networks-modeling-collecti" / "results"
-    else:
-        output_dir = Path(output_dir)
+    if seed is not None:
+        np.random.seed(seed)
 
+    if output_dir is None:
+        output_dir = Path("projects/PROJ-586-social-memory-networks-modeling-collecti/results")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.log("sensitivity_analysis_start", thresholds=thresholds, num_games=num_games, num_agents=num_agents)
-
     results = []
-    summary_stats = {
-        "thresholds": thresholds,
-        "num_games_per_threshold": num_games,
-        "num_agents": num_agents,
-        "seed": seed,
-        "results_by_threshold": {},
-    }
 
     for threshold in thresholds:
-        logger.log("sweep_threshold", threshold=threshold)
-        threshold_results = []
+        # Create config with specific token limit
+        config = GameConfig(
+            context=context_condition,
+            agents=num_agents,
+            games=num_games,
+            token_limit=threshold,
+            seed=seed + threshold if seed else None,
+        )
 
-        for game_id in range(num_games):
-            # Create a game config with the specific token limit
-            config = GameConfig(
-                game_id=game_id,
-                num_agents=num_agents,
-                context_condition="limited",
-                token_limit=threshold,
-                seed=seed + game_id,  # Unique seed per game
-            )
+        # Run simulation for this threshold
+        game_results = run_simulation(config)
 
-            try:
-                # Run simulation
-                result = simulate_one_game(game_id, config)
+        if not game_results:
+            print(f"Warning: No results for threshold {threshold}")
+            continue
 
-                # Extract metrics from result
-                if result and "specialization_index" in result and "retrieval_efficiency" in result:
-                    spec_index = result["specialization_index"]
-                    ret_eff = result["retrieval_efficiency"]
+        # Compute metrics for this threshold
+        specialization_values = []
+        retrieval_values = []
 
-                    threshold_results.append({
-                        "game_id": game_id,
-                        "token_threshold": threshold,
-                        "specialization_index": spec_index,
-                        "retrieval_efficiency": ret_eff,
-                    })
-            except Exception as e:
-                logger.log("game_simulation_error", game_id=game_id, threshold=threshold, error=str(e))
-                continue
+        for result in game_results:
+            if "specialization_index" in result and result["specialization_index"] is not None:
+                specialization_values.append(result["specialization_index"])
+            if "retrieval_efficiency" in result and result["retrieval_efficiency"] is not None:
+                retrieval_values.append(result["retrieval_efficiency"])
 
-        if threshold_results:
-            df_threshold = pd.DataFrame(threshold_results)
-            avg_spec = df_threshold["specialization_index"].mean()
-            avg_ret = df_threshold["retrieval_efficiency"].mean()
-            std_spec = df_threshold["specialization_index"].std()
-            std_ret = df_threshold["retrieval_efficiency"].std()
+        # Compute statistics
+        spec_mean = np.mean(specialization_values) if specialization_values else 0.0
+        spec_std = np.std(specialization_values) if specialization_values else 0.0
+        ret_mean = np.mean(retrieval_values) if retrieval_values else 0.0
+        ret_std = np.std(retrieval_values) if retrieval_values else 0.0
 
-            summary_stats["results_by_threshold"][str(threshold)] = {
-                "mean_specialization": avg_spec,
-                "mean_retrieval": avg_ret,
-                "std_specialization": std_spec,
-                "std_retrieval": std_ret,
-                "num_games_completed": len(threshold_results),
-            }
+        threshold_result = {
+            "threshold": threshold,
+            "num_games": len(game_results),
+            "specialization_mean": float(spec_mean),
+            "specialization_std": float(spec_std),
+            "retrieval_mean": float(ret_mean),
+            "retrieval_std": float(ret_std),
+            "specialization_values": specialization_values,
+            "retrieval_values": retrieval_values,
+        }
+        results.append(threshold_result)
 
-            results.extend(threshold_results)
+    # Compute overall summary
+    all_spec = [r["specialization_mean"] for r in results]
+    all_ret = [r["retrieval_mean"] for r in results]
 
-    # Create final DataFrame
-    if results:
-        results_df = pd.DataFrame(results)
-    else:
-        results_df = pd.DataFrame(columns=[
-            "game_id", "token_threshold", "specialization_index", "retrieval_efficiency"
-        ])
+    summary = {
+        "threshold_range": f"{min(thresholds)}-{max(thresholds)}",
+        "specialization_trend": "increasing" if all_spec[-1] > all_spec[0] else "decreasing",
+        "retrieval_trend": "increasing" if all_ret[-1] > all_ret[0] else "decreasing",
+        "specialization_sensitivity": float(all_spec[-1] - all_spec[0]),
+        "retrieval_sensitivity": float(all_ret[-1] - all_ret[0]),
+    }
+
+    output_data = {
+        "thresholds": thresholds,
+        "results": results,
+        "summary": summary,
+        "config": {
+            "num_games": num_games,
+            "num_agents": num_agents,
+            "context_condition": context_condition,
+        },
+    }
 
     # Write CSV output
-    csv_path = output_dir / "sensitivity_analysis_results.csv"
-    if not results_df.empty:
-        results_df.to_csv(csv_path, index=False)
-        logger.log("results_csv_written", path=str(csv_path), rows=len(results_df))
-    else:
-        # Write empty file with headers
-        with open(csv_path, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["game_id", "token_threshold", "specialization_index", "retrieval_efficiency"])
-        logger.log("empty_results_csv_written", path=str(csv_path))
+    csv_path = output_dir / "sensitivity_analysis.csv"
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "threshold",
+            "num_games",
+            "specialization_mean",
+            "specialization_std",
+            "retrieval_mean",
+            "retrieval_std",
+        ])
+        for r in results:
+            writer.writerow([
+                r["threshold"],
+                r["num_games"],
+                f"{r['specialization_mean']:.6f}",
+                f"{r['specialization_std']:.6f}",
+                f"{r['retrieval_mean']:.6f}",
+                f"{r['retrieval_std']:.6f}",
+            ])
 
-    # Write JSON summary
-    json_path = output_dir / "sensitivity_analysis_summary.json"
+    # Write JSON output
+    json_path = output_dir / "sensitivity_analysis.json"
+    # Remove non-serializable data for JSON
+    json_results = []
+    for r in results:
+        json_results.append({
+            "threshold": r["threshold"],
+            "num_games": r["num_games"],
+            "specialization_mean": r["specialization_mean"],
+            "specialization_std": r["specialization_std"],
+            "retrieval_mean": r["retrieval_mean"],
+            "retrieval_std": r["retrieval_std"],
+        })
+
     with open(json_path, "w") as f:
-        json.dump(summary_stats, f, indent=2, default=str)
-    logger.log("summary_json_written", path=str(json_path))
+        json.dump({
+            "thresholds": thresholds,
+            "results": json_results,
+            "summary": summary,
+            "config": output_data["config"],
+        }, f, indent=2)
 
-    logger.log("sensitivity_analysis_complete", num_results=len(results))
+    print(f"Sensitivity analysis complete. Results written to {output_dir}")
+    print(f"Thresholds tested: {thresholds}")
+    print(f"Specialization trend: {summary['specialization_trend']} "
+          f"(change: {summary['specialization_sensitivity']:.4f})")
+    print(f"Retrieval trend: {summary['retrieval_trend']} "
+          f"(change: {summary['retrieval_sensitivity']:.4f})")
 
-    return results_df, summary_stats
+    return output_data
+
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build argument parser for CLI."""
+    """Build argument parser for sensitivity analysis CLI."""
     parser = argparse.ArgumentParser(
-        description="Run sensitivity analysis across token thresholds."
+        description="Run sensitivity analysis on token thresholds"
     )
     parser.add_argument(
         "--thresholds",
         type=str,
         default="128,256,512",
-        help="Comma-separated list of token thresholds to sweep (default: 128,256,512)",
+        help="Comma-separated list of token thresholds (default: 128,256,512)"
     )
     parser.add_argument(
-        "--num-games",
+        "--games",
         type=int,
-        default=DEFAULT_NUM_GAMES,
-        help=f"Number of games per threshold (default: {DEFAULT_NUM_GAMES})",
+        default=100,
+        help="Number of games per threshold (default: 100)"
     )
     parser.add_argument(
         "--agents",
         type=int,
-        default=DEFAULT_AGENTS,
-        help=f"Number of agents per game (default: {DEFAULT_AGENTS})",
+        default=5,
+        help="Number of agents (default: 5)"
     )
     parser.add_argument(
-        "--seed",
-        type=int,
-        default=DEFAULT_SEED,
-        help=f"Random seed (default: {DEFAULT_SEED})",
+        "--context",
+        type=str,
+        choices=["full", "limited"],
+        default="limited",
+        help="Context condition (default: limited)"
     )
     parser.add_argument(
         "--output-dir",
         type=str,
+        default="projects/PROJ-586-social-memory-networks-modeling-collecti/results",
+        help="Output directory for results"
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
         default=None,
-        help="Output directory for results (default: project results/)",
+        help="Random seed for reproducibility"
     )
     return parser
 
-def main() -> int:
-    """Main entry point for CLI."""
+
+def main() -> None:
+    """Main entry point for sensitivity analysis CLI."""
     parser = build_parser()
     args = parser.parse_args()
 
     thresholds = [int(t.strip()) for t in args.thresholds.split(",")]
-    output_dir = args.output_dir if args.output_dir else None
 
-    try:
-        results_df, summary_stats = run_sensitivity_analysis(
-            thresholds=thresholds,
-            num_games=args.num_games,
-            num_agents=args.agents,
-            seed=args.seed,
-            output_dir=output_dir,
-        )
+    run_sensitivity_analysis(
+        thresholds=thresholds,
+        num_games=args.games,
+        num_agents=args.agents,
+        context_condition=args.context,
+        output_dir=Path(args.output_dir),
+        seed=args.seed,
+    )
 
-        print(f"Sensitivity analysis complete.")
-        print(f"Results written to: {Path(output_dir or 'results') / 'sensitivity_analysis_results.csv'}")
-        print(f"Summary written to: {Path(output_dir or 'results') / 'sensitivity_analysis_summary.json'}")
-        print(f"\nSummary by threshold:")
-        for thresh, stats in summary_stats["results_by_threshold"].items():
-            print(f"  Threshold {thresh} tokens:")
-            print(f"    Avg Specialization: {stats['mean_specialization']:.4f} (+/- {stats['std_specialization']:.4f})")
-            print(f"    Avg Retrieval: {stats['mean_retrieval']:.4f} (+/- {stats['std_retrieval']:.4f})")
-            print(f"    Games completed: {stats['num_games_completed']}")
-
-        return 0
-
-    except Exception as e:
-        logger.log("sensitivity_analysis_failed", error=str(e))
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
