@@ -1,12 +1,12 @@
 {
   "project_id": "PROJ-306-evaluating-the-impact-of-llm-generated-c",
   "ok": false,
-  "reason": "1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=2)",
+  "reason": "1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=2); 1 declared deliverable(s) absent: data/processed/sensitivity_report.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2\n    Warning: LLM_API_KEY not found in environment. Local models will be used if available.\n\nusage: main.py [-h] [--dataset DATASET] [--model MODEL]\n               [--batch-size BATCH_SIZE] [--output-dir OUTPUT_DIR]\nmain.py: error: unrecognized arguments: --num-tasks 100"
+    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2\n    Warning: LLM_API_KEY not found in environment. Local models will be used if available.\n\nusage: main.py [-h] [--dataset DATASET] [--model MODEL]\n               [--batch-size BATCH_SIZE] [--output-dir OUTPUT_DIR]\n               [--catalog-path CATALOG_PATH]\nmain.py: error: unrecognized arguments: --num-tasks 100"
   ],
-  "fix_rounds": 9,
+  "fix_rounds": 11,
   "model_tier": 0,
-  "updated_at": "2026-07-13T17:54:47Z"
+  "updated_at": "2026-07-13T18:28:51Z"
 }
