@@ -1,0 +1,9 @@
+T001 Create project structure per implementation plan (`projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/`): 1
+? T002 Initialize Python 3.11 project with pinned `code/requirements.txt` (pandas,
+  numpy, scikit-learn, xgboost, shap, pymatgen, requests, pyarrow, pytest, psutil)
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T004 [P] Create `contracts/dataset.schema.yaml` defining schema for `dataset_cleaned.csv`: 1
+? T005 [P] Create `contracts/model_output.schema.yaml` defining schema for `model_results.json`,
+  `feature_importance.json`, and `variance_partition.csv`
+: 1

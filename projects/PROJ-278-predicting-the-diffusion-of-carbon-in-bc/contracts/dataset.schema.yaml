@@ -1,0 +1,114 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Cleaned Schema
+description: |
+  Schema for the cleaned dataset of carbon diffusion in BCC metals.
+  Produced by code/02_preprocess.py.
+type: object
+required:
+  - properties
+  - records
+properties:
+  properties:
+    type: object
+    description: Metadata about the dataset columns.
+    required:
+      - name
+      - type
+      - description
+    properties:
+      name:
+        type: array
+        items:
+          type: string
+        description: List of column names in the dataset.
+      type:
+        type: array
+        items:
+          type: string
+        description: List of data types for each column (e.g., float, string).
+      description:
+        type: array
+        items:
+          type: string
+        description: Description for each column.
+  records:
+    type: object
+    description: Structure definition for a single row record.
+    required:
+      - solute_element
+      - structure
+      - composition
+      - atomic_radius_variance
+      - VEC
+      - electronegativity_spread
+      - log_diffusion_coefficient
+    properties:
+      solute_element:
+        type: string
+        const: "C"
+        description: Solute element symbol (must be Carbon).
+      structure:
+        type: string
+        const: "BCC"
+        description: Crystal structure (must be BCC).
+      composition:
+        type: object
+        description: Atomic fractions of all elements in the alloy.
+        additionalProperties:
+          type: number
+          minimum: 0
+          maximum: 1
+        minProperties: 1
+        description: |
+          Key-value pairs where key is element symbol and value is atomic fraction.
+          The sum of all values must be 1.0.
+      atomic_radius_variance:
+        type: number
+        minimum: 0
+        description: Variance of atomic radii of the constituent elements.
+      VEC:
+        type: number
+        description: Average Valence Electron Concentration.
+      electronegativity_spread:
+        type: number
+        minimum: 0
+        description: Standard deviation of electronegativity values.
+      log_diffusion_coefficient:
+        type: number
+        description: Log10 transformed diffusion coefficient.
+examples:
+  - properties:
+      name:
+        - "solute_element"
+        - "structure"
+        - "composition"
+        - "atomic_radius_variance"
+        - "VEC"
+        - "electronegativity_spread"
+        - "log_diffusion_coefficient"
+      type:
+        - "string"
+        - "string"
+        - "object"
+        - "number"
+        - "number"
+        - "number"
+        - "number"
+      description:
+        - "Solute element symbol"
+        - "Crystal structure"
+        - "Atomic fractions"
+        - "Atomic radius variance"
+        - "Valence Electron Concentration"
+        - "Electronegativity spread"
+        - "Log transformed diffusion coefficient"
+    records:
+      solute_element: "C"
+      structure: "BCC"
+      composition:
+        Fe: 0.95
+        Cr: 0.05
+      atomic_radius_variance: 0.00012
+      VEC: 6.8
+      electronegativity_spread: 0.15
+      log_diffusion_coefficient: -12.5

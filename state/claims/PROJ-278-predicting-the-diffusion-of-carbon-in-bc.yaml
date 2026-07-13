@@ -1,0 +1,132 @@
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Train Random Forest XGBoost and Elastic Net models
+  claim_id: c_7a92a08d
+  context: 'Goal: Train RF, XGBoost, Elastic Net models, perform grid search, and
+    run permutation tests.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Random_Forest_XGBoost_and_Elastic_Net_models
+  kind: entity_fact
+  raw_text: The project will train Random Forest, XGBoost, and Elastic Net models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T11:16:15Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Permutation test with 10000 iterations comparing best ML model vs Elastic
+    Net baseline
+  claim_id: c_de629b63
+  context: Perform a permutation test with 10,000 iterations comparing best ML model
+    vs. the Elastic Net baseline
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_10000_iterations_comparing_best_ML_mod
+  kind: magnitude
+  raw_text: A permutation test with 10,000 iterations will be performed comparing
+    the best ML model vs. the Elastic Net baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T11:17:03Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Linear baseline for permutation tests is Elastic Net model
+  claim_id: c_9d26ec74
+  context: The 'linear baseline' for permutation tests is explicitly an Elastic Net
+    model, as defined in FR-005 and the Plan.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: elastic net regularization
+      source_id: Q5353562
+      url: https://www.wikidata.org/wiki/Q5353562
+      value: elastic net regularization
+    filled: true
+  kind: entity_fact
+  raw_text: The linear baseline for permutation tests is explicitly an Elastic Net
+    model.
+  resolved_value: elastic net regularization
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T11:17:09Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Split data 80/20 if N >= 30 else LOOCV
+  claim_id: c_b5f549a2
+  context: 'Split data: 80/20 if $N \ge 30$, else LOOCV (emit `PowerWarning`)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Split_data_80/20_if_N_%3E=_30_else_LOOCV
+  kind: magnitude
+  raw_text: The system will split data 80/20 if N is greater than or equal to 30,
+    otherwise it will use Leave-One-Out Cross-Validation (LOOCV).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T11:17:49Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Runtime less than 6 hours on CPU-only CI
+  claim_id: c_cbf73ed2
+  context: 'Independent Test: `model_results.json` contains $R^2$, RMSE, MAE, and
+    p-value; runtime < 6 hours on CPU-only CI; memory < 6 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours_on_CPU-only_CI
+  kind: magnitude
+  raw_text: The runtime must be less than 6 hours on CPU-only CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T11:18:11Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Peak memory usage below 6 GB
+  claim_id: c_064bdf69
+  context: 'Independent Test: `model_results.json` contains $R^2$, RMSE, MAE, and
+    p-value; runtime < 6 hours on CPU-only CI; memory < 6 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Peak memory usage must stay below 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T11:18:27Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Dataset size assumed less than 10000 rows
+  claim_id: c_dc42e7a1
+  context: 'Constraint Reminder: All models MUST run on CPU-only CI (no CUDA, no 8-bit
+    quantization). Dataset size is assumed < 10k rows to fit in available RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_assumed_less_than_10000_rows
+  kind: magnitude
+  raw_text: The dataset size is assumed to be less than 10,000 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T11:18:59Z'

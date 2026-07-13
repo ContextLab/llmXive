@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Diffusion Dataset Schema"
+description: "Schema for the cleaned, feature-engineered dataset used for training."
+type: "object"
+properties:
+  atomic_radius_variance:
+    type: number
+    description: "Variance of atomic radii in the alloy composition."
+  VEC:
+    type: number
+    description: "Valence Electron Concentration (weighted average)."
+  electronegativity_spread:
+    type: number
+    description: "Standard deviation of electronegativity in the composition."
+  mixing_entropy:
+    type: number
+    description: "Configurational mixing entropy of the alloy."
+  inv_temperature:
+    type: number
+    description: "Inverse temperature (1/T) in 1/K to capture Arrhenius behavior."
+  log_D:
+    type: number
+    description: "Base-10 logarithm of the diffusion coefficient (m²/s)."
+  composition_str:
+    type: string
+    description: "String representation of the atomic fractions."
+required:
+  - atomic_radius_variance
+  - VEC
+  - electronegativity_spread
+  - mixing_entropy
+  - inv_temperature
+  - log_D
+  - composition_str
+additionalProperties: false

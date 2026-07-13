@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for the output of the training and evaluation pipeline."
+type: "object"
+properties:
+  best_model:
+    type: string
+    description: "Name of the best performing model (e.g., 'XGBoost')."
+  metrics:
+    type: object
+    properties:
+      R2:
+        type: number
+        description: "Coefficient of determination on the test set."
+      RMSE:
+        type: number
+        description: "Root Mean Squared Error on the test set."
+      MAE:
+        type: number
+        description: "Mean Absolute Error on the test set."
+    required:
+      - R2
+      - RMSE
+      - MAE
+  hyperparameters:
+    type: object
+    description: "Dictionary of the best hyperparameters found."
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        value:
+          type: number
+      required:
+        - feature
+        - value
+  permutation_p_value:
+    type: number
+    description: "P-value from the permutation test against linear baseline."
+required:
+  - best_model
+  - metrics
+  - hyperparameters
+  - feature_importance
+  - permutation_p_value
+additionalProperties: false

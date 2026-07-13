@@ -1,0 +1,9 @@
+{
+  "paths": {
+    "raw_data": "data/raw",
+    "processed_data": "data/processed",
+    "outputs": "data/outputs",
+    "figures": "figures"
+  },
+  "random_seed": 42
+}

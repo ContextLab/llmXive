@@ -1,0 +1,11 @@
+- artifact_hash: f6c6fe74f55449b360df634e487d2811f8fe14b42b1d8cc01f6d92e2549564a3
+  artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/bccnf/MeLiDC-shuffled-completo/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/62feb077b0c4d449a4537d91/73e26dd65bcee293c72a6953bdbcc0c706b17dc6eebc9e2ec36aa9f19714efe5?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783943555&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJmZWIwNzdiMGM0ZDQ0OWE0NTM3ZDkxLzczZTI2ZGQ2NWJjZWUyOTNjNzJhNjk1M2JkYmNjMGM3MDZiMTdkYzZlZWJjOWUyZWMzNmFhOWYxOTcxNGVmZTVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM5NDM1NTV9fX1dfQ__&Signature=MEUCIFgyXK0lcVH1XjjrdQkMBIUvWKaNmwtuzlcrEd6RE7kdAiEApEBuTQT64QgOQ7qL-fDYiVdg1bhCv6QSTejJlW%7Eu7eU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-13T10:52:35.167495Z'

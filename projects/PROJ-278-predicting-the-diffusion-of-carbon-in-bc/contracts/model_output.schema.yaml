@@ -1,0 +1,58 @@
+# Schema for Model Output Artifacts
+# Generated for PROJ-278: Predicting the Diffusion of Carbon in BCC Metals
+# This file defines the expected structure for:
+# 1. data/outputs/model_results.json
+# 2. data/outputs/feature_importance.json
+# 3. data/outputs/variance_partition.csv
+
+# ---------------------------------------------------------------------------
+# 1. model_results.json Schema
+# ---------------------------------------------------------------------------
+# Contains aggregate metrics for the best model and baseline comparisons.
+# Expected keys:
+best_model_name: string          # e.g., "XGBoost", "RandomForest", "ElasticNet"
+best_model_r2: float             # Coefficient of determination on test set
+best_model_rmse: float           # Root Mean Squared Error on test set
+best_model_mae: float            # Mean Absolute Error on test set
+baseline_name: string            # Name of the linear baseline (e.g., "ElasticNet")
+baseline_r2: float               # R2 of the baseline model
+permutation_p_value: float       # p-value from the 10,000 iteration permutation test
+permutation_iterations: integer  # Number of permutations performed (should be 10000)
+train_test_split_ratio: string   # e.g., "80/20" or "LOOCV"
+n_samples: integer               # Total number of samples used
+timestamp: string                # ISO 8601 timestamp of execution
+
+# ---------------------------------------------------------------------------
+# 2. feature_importance.json Schema
+# ---------------------------------------------------------------------------
+# Contains ranked feature importance derived from SHAP values.
+# Expected keys:
+model_type: string               # Type of model used for SHAP explanation
+top_n_features: integer          # Number of top features reported
+features:                        # List of feature objects sorted by |SHAP| magnitude
+  - name: string                 # Feature descriptor name (e.g., "atomic_radius_variance")
+    mean_abs_shap: float         # Mean absolute SHAP value
+    shap_sign: string            # "positive", "negative", or "mixed"
+    rank: integer                # 1-based rank
+top_two_descriptors:             # Explicit list of the top two descriptors
+  - name: string
+    rank: integer
+  - name: string
+    rank: integer
+explanation_method: string       # e.g., "KernelSHAP", "TreeSHAP"
+
+# ---------------------------------------------------------------------------
+# 3. variance_partition.csv Schema
+# ---------------------------------------------------------------------------
+# CSV file with headers defining the variance decomposition.
+# Expected columns:
+# source: string                 # Source of variance (e.g., "composition", "residual")
+# adjusted_r2: float             # Adjusted R^2 representing variance explained
+# description: string            # Human-readable description of the source
+#
+# Expected rows:
+# 1. composition | <float> | "Variance explained by compositional descriptors (SHAP-based)"
+# 2. residual    | <float> | "Noise, measurement error, and missing compositional descriptors"
+# 3. microstructural_gap | <float> | "Variance attributable to microstructural factors not captured by composition"
+#
+# Note: The 'residual' row explicitly labels unexplained variance as noise/error/missing descriptors per FR-007.

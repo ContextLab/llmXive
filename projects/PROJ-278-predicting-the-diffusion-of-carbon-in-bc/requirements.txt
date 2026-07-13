@@ -1,0 +1,12 @@
+pandas
+numpy
+scikit-learn
+xgboost
+shap
+pymatgen
+requests
+pyarrow
+pytest
+psutil
+ruff
+black
