@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2204.10358",
+  "judged_at": "2026-07-13T17:18:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of cognitive dissonance in justifying unethical ai use psychology",
+  "rationale": "The paper focuses on the technical architecture of creative problem-solving in AI agents (a computer science/engineering topic) and does not measure or discuss the psychological mechanism of cognitive dissonance, human unethical behavior, or the justification processes of human users. It fails all inclusion criteria (a-f) as it addresses a distinct construct sharing only the keyword \"AI\" while operating in a completely different domain (agent design vs. human psychology).",
+  "relevant": false
+}

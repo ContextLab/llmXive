@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1209.4017",
+  "judged_at": "2026-07-13T17:18:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of cognitive dissonance in justifying unethical ai use psychology",
+  "rationale": "This paper satisfies criterion (a) as it empirically investigates the mechanism of \"cognitive dissonance\" and its tolerance, which is the core psychological construct in the user's question, even though the specific context (music vs. AI) differs. It also meets criterion (f) by belonging to the canonical literature cluster on the psychological mechanisms of cognitive dissonance that a literature review on justifying unethical behavior would need to cite.",
+  "relevant": true
+}

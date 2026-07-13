@@ -1,0 +1,484 @@
+{
+  "fetched_at": "2026-07-13T17:18:42Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Role of Cognitive Dissonance in Justifying Unethical AI Use",
+      "target_n": 5
+    },
+    "duration_seconds": 65.223,
+    "ended_at": "2026-07-13T17:18:42Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Cognitive dissonance and unethical behavior justification"
+        ],
+        [
+          2,
+          "Moral disengagement in artificial intelligence usage"
+        ],
+        [
+          3,
+          "Rationalization of unethical decisions with AI tools"
+        ],
+        [
+          4,
+          "Psychological mechanisms of ethical drift in AI adoption"
+        ],
+        [
+          5,
+          "Self-justification strategies for violating AI ethics guidelines"
+        ],
+        [
+          6,
+          "Moral licensing effects in human-AI interaction"
+        ],
+        [
+          7,
+          "Reducing cognitive dissonance after unethical AI deployment"
+        ],
+        [
+          8,
+          "Ethical decision-making biases in generative AI contexts"
+        ],
+        [
+          9,
+          "Psychological barriers to adhering to AI ethical standards"
+        ],
+        [
+          10,
+          "Post-decision dissonance reduction in technology misuse"
+        ],
+        [
+          11,
+          "Neutralization techniques for AI-related ethical violations"
+        ],
+        [
+          12,
+          "The role of moral identity in justifying AI misconduct"
+        ],
+        [
+          13,
+          "Cognitive restructuring following unethical AI use"
+        ],
+        [
+          14,
+          "Moral dissonance and algorithmic accountability"
+        ],
+        [
+          15,
+          "Justifying harmful outcomes from autonomous systems"
+        ],
+        [
+          16,
+          "Ethical fading in human-AI collaborative decision making"
+        ],
+        [
+          17,
+          "Psychological defenses against AI-induced moral injury"
+        ],
+        [
+          18,
+          "The impact of cognitive dissonance on AI policy compliance"
+        ],
+        [
+          19,
+          "Rationalizing algorithmic bias and discrimination"
+        ],
+        [
+          20,
+          "Moral justification frameworks for rogue AI applications"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Cognitive dissonance and unethical behavior justification": 1,
+        "Moral disengagement in artificial intelligence usage": 5,
+        "The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "moral disengagement neutralization techniques",
+      "moral licensing AI automation justification",
+      "ethical fading moral disengagement technology",
+      "unethical behavior intention self-report survey",
+      "cognitive dissonance reduction moral justification"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1209.4017"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology": 3,
+      "cognitive dissonance reduction moral justification": 2,
+      "ethical fading moral disengagement technology": 2,
+      "moral disengagement neutralization techniques": 3,
+      "moral licensing AI automation justification": 2,
+      "unethical behavior intention self-report survey": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2110.01831",
+          "rationale": "The paper focuses on architectural approaches to Artificial General Intelligence (AGI) and does not measure, discuss, or provide a baseline for the psychological mechanism of cognitive dissonance or the human justification of unethical behavior. It falls under the \"off-domain entirely\" rejection rule as it addresses AI system design rather than the human psychological factors surrounding AI use.",
+          "title": "The Artificial Scientist: Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence"
+        },
+        {
+          "primary_pointer": "2110.01835",
+          "rationale": "The paper discusses cognitive mechanisms in the context of AGI communication and control (specifically \"cognitive impairment\" as a safety measure), but it does not address the user's specific construct of \"cognitive dissonance\" as a psychological driver for humans justifying unethical AI use. The paper falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" or \"Off-domain entirely,\" as it focuses on AI alignment and information theory rather than the social psycholo",
+          "title": "Compression, The Fermi Paradox and Artificial Super-Intelligence"
+        },
+        {
+          "primary_pointer": "2204.10358",
+          "rationale": "The paper focuses on the technical architecture of creative problem-solving in AI agents (a computer science/engineering topic) and does not measure or discuss the psychological mechanism of cognitive dissonance, human unethical behavior, or the justification processes of human users. It fails all inclusion criteria (a-f) as it addresses a distinct construct sharing only the keyword \"AI\" while operating in a completely different domain (agent design vs. human psychology).",
+          "title": "Creative Problem Solving in Artificially Intelligent Agents: A Survey and Framework"
+        },
+        {
+          "primary_pointer": "2304.04780",
+          "rationale": "The paper focuses on technical explainability (XAI) methodologies in healthcare to build trust, which is a distinct construct from the psychological mechanism of \"cognitive dissonance\" used to justify unethical behavior. It fails to address the user's specific variables (cognitive dissonance, unethical justification) or the psychological domain, falling under the rejection rule for \"Distinct construct sharing only homonym keywords\" (sharing \"AI\" and \"trust/ethics\" broadly but lacking the specifi",
+          "title": "A Review on Explainable Artificial Intelligence for Healthcare: Why, How, and When?"
+        },
+        {
+          "primary_pointer": "1301.2158",
+          "rationale": "The paper focuses on the technical implementation of a Markov Decision Process for optimizing clinical decision-making and cost-efficiency, which is an off-domain application of AI in healthcare. It does not address the psychological mechanisms of cognitive dissonance, the justification of unethical behavior, or the human factors involved in AI adoption, failing to meet any of the inclusion criteria (a-f) for the user's specific research question.",
+          "title": "Artificial Intelligence Framework for Simulating Clinical Decision-Making: A Markov Decision Process Approach"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T17:17:37Z",
+    "term_input": {
+      "normalized": "the role of cognitive dissonance in justifying unethical ai use psychology",
+      "raw": "The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-augmented systems are traditionally designed to streamline human decision-making by minimizing cognitive load, clarifying arguments, and optimizing efficiency. However, in a world where algorithmic certainty risks becoming an Orwellian tool of epistemic control, true intellectual growth demands not passive acceptance but active struggle. Drawing on the dystopian visions of George Orwell and Philip K. Dick - where reality is unstable, perception malleable, and truth contested - this paper introduces Cognitive Dissonance AI (CD-AI): a novel framework that deliberately sustains uncertainty rather than resolving it. CD-AI does not offer closure, but compels users to navigate contradictions, challenge biases, and wrestle with competing truths. By delaying resolution and promoting dialectical engagement, CD-AI enhances reflective reasoning, epistemic humility, critical thinking, and adaptability in complex decision-making. This paper examines the theoretical foundations of the approach, presents an implementation model, explores its application in domains such as ethics, law, politics, and science, and addresses key ethical concerns - including decision paralysis, erosion of user autonomy, cognitive manipulation, and bias in AI reasoning. In reimagining AI as an engine of doubt rather than a deliverer of certainty, CD-AI challenges dominant paradigms of AI-augmented reasoning and offers a new vision - one in which AI sharpens the mind not by resolving conflict, but by sustaining it. Rather than reinforcing Huxleyan complacency or pacifying the user into intellectual conformity, CD-AI echoes Nietzsche's vision of the Uebermensch - urging users to transcend passive cognition through active epistemic struggle.",
+          "claimed_authors": [
+            "Delia Deliu"
+          ],
+          "claimed_title": "Cognitive Dissonance Artificial Intelligence (CD-AI): The Mind at War with Itself. Harnessing Discomfort to Sharpen Critical Thinking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.08804"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Cognitive Dissonance Artificial Intelligence (CD-AI): The Mind at War with Itself. Harnessing Discomfort to Sharpen Critical Thinking')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence is increasingly embedded in human decision making. In some cases, it enhances human reasoning. In others, it fosters excessive cognitive dependence. This paper introduces a conceptual and mathematical framework to distinguish cognitive amplification, where AI improves hybrid human AI performance while preserving human expertise, from cognitive delegation, where reasoning is progressively outsourced to the AI system, risking long term atrophy of human capabilities.\n  We define four operational metrics: the Cognitive Amplification Index, or CAI star, which measures collaborative gain beyond the best standalone agent; the Dependency Ratio, or D, and Human Reliance Index, or HRI, which quantify the structural dominance of the AI within the hybrid output; and the Human Cognitive Drift Rate, or HCDR, which captures the temporal erosion or maintenance of autonomous human performance. Together, these quantities characterize human AI systems in terms of both immediate hybrid performance and long term cognitive sustainability.\n  We validate the framework through an agent based simulation in NetLogo across three reliance regimes and multiple dependency and atrophy configurations. The results distinguish degenerate AI dominated delegation, human preserving but weakly competitive interaction, and intermediate boundary regimes that approach the AI baseline while remaining structurally dependent. Across all tested configurations, no regime achieves genuine amplification.\n  A constrained optimization over the atrophy parameter shows that reducing atrophy improves retained human capability, collaborative gain, and dependency structure, but even zero atrophy does not yield positive collaborative gain. The framework therefore provides a practical tool for evaluating whether human AI systems perform well in a way that also preserves human capability over time.",
+          "claimed_authors": [
+            "Eduardo Di Santi"
+          ],
+          "claimed_title": "Cognitive Amplification vs Cognitive Delegation in Human-AI Systems: A Metric Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.18677"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Cognitive Amplification vs Cognitive Delegation in Human-AI Systems: A Metric Framework')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence (AI) predictions are increasingly used to inform human decisions. Here, using a behavioral implementation of the classic Newcomb's paradox in 1,305 participants, we show that AI predictions can also shape the reasoning people use to make a decision. In this paradigm, perceived predictive authority can alter how people reason about their future actions, leading them to forgo a guaranteed reward. Over 40% of participants treated AI as such a predictive authority about their own behavior, significantly increasing the odds of forgoing the guaranteed reward by a factor of 3.39 (95% CI: 2.45-4.70) and reducing earnings by 10.7-42.9%. The effect appeared across AI presentations and decision contexts and remained detectable even when predictions repeatedly failed. When people perceive AI as capable of predicting their personal behavior, the mere presence of AI predictions may shape their decision-making, narrowing the futures they consider.",
+          "claimed_authors": [
+            "Aoi Naito",
+            "Hirokazu Shirado"
+          ],
+          "claimed_title": "Faith in AI can narrow the futures individuals consider",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28944"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Faith in AI can narrow the futures individuals consider')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Work in AI ethics and fairness has made much progress in regulating LLMs to reflect certain values, such as fairness, truth, and diversity. However, it has taken the problem of how LLMs might 'mean' anything at all for granted. Without addressing this, it is not clear what imbuing LLMs with such values even means. In response, we provide a general theory of meaning that extends beyond humans. We use this theory to explicate the precise nature of LLMs as meaning-agents. We suggest that the LLM, by virtue of its position as a meaning-agent, already grasps the constructions of human society (e.g. morality, gender, and race) in concept. Consequently, under certain ethical frameworks, currently popular methods for model alignment are limited at best and counterproductive at worst. Moreover, unaligned models may help us better develop our moral and social philosophy.",
+          "claimed_authors": [
+            "Mark Pock",
+            "Andre Ye",
+            "Jared Moore"
+          ],
+          "claimed_title": "LLMs grasp morality in concept",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.02294"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='LLMs grasp morality in concept')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fields of AI current lacks methods to quantitatively assess and potentially alter the moral values inherent in the output of large language models (LLMs). However, decades of social science research has developed and refined widely-accepted moral value surveys, such as the World Values Survey (WVS), eliciting value judgments from direct questions in various geographies. We have turned those questions into value statements and use NLP to compute to how well popular LLMs are aligned with moral values for various demographics and cultures. While the WVS is accepted as an explicit assessment of values, we lack methods for assessing implicit moral and cultural values in media, e.g., encountered in social media, political rhetoric, narratives, and generated by AI systems such as LLMs that are increasingly present in our daily lives. As we consume online content and utilize LLM outputs, we might ask, which moral values are being implicitly promoted or undercut, or -- in the case of LLMs -- if they are intending to represent a cultural identity, are they doing so consistently? In this paper we utilize a Recognizing Value Resonance (RVR) NLP model to identify WVS values that resonate and conflict with a given passage of output text. We apply RVR to the text generated by LLMs to characterize implicit moral values, allowing us to quantify the moral/cultural distance between LLMs and various demographics that have been surveyed using the WVS. In line with other work we find that LLMs exhibit several Western-centric value biases; they overestimate how conservative people in non-Western countries are, they are less accurate in representing gender for non-Western countries, and portray older populations as having more traditional values. Our results highlight value misalignment and age groups, and a need for social science informed technological solutions addressing value plurality in LLMs.",
+          "claimed_authors": [
+            "Noam Benkler",
+            "Drisana Mosaphir",
+            "Scott Friedman",
+            "Andrew Smart",
+            "Sonja Schmer-Galunder"
+          ],
+          "claimed_title": "Assessing LLMs for Moral Value Pluralism",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10075"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Assessing LLMs for Moral Value Pluralism')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding how media rhetoric shapes audience engagement is crucial in the attention economy. This study examines how moral emotional framing by mainstream news channels on YouTube influences user behavior across Korea and the United States. To capture the platform's multimodal nature, combining thumbnail images and video titles, we develop a multimodal moral emotion classifier by fine tuning a vision language model. The model is trained on human annotated multimodal datasets in both languages and applied to approximately 400,000 videos from major news outlets. We analyze engagement levels including views, likes, and comments, representing increasing degrees of commitment. The results show that other condemning rhetoric expressions of moral outrage that criticize others morally consistently increase all forms of engagement across cultures, with effects ranging from passive viewing to active commenting. These findings suggest that moral outrage is a particularly effective emotional strategy, attracting not only attention but also active participation. We discuss concerns about the potential misuse of other condemning rhetoric, as such practices may deepen polarization by reinforcing in group and out group divisions. To facilitate future research and ensure reproducibility, we publicly release our Korean and English multimodal moral emotion classifiers.",
+          "claimed_authors": [
+            "Seongchan Park",
+            "Jaehong Kim",
+            "Hyeonseung Kim",
+            "Heejin Bin",
+            "Sue Moon",
+            "Wonjae Lee"
+          ],
+          "claimed_title": "Moral Outrage Shapes Commitments Beyond Attention: Multimodal Moral Emotions on YouTube in Korea and the US",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.21815"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Moral Outrage Shapes Commitments Beyond Attention: Multimodal Moral Emotions on YouTube in Korea and the US')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Solving the AI alignment problem requires having clear, defensible values towards which AI systems can align. Currently, targets for alignment remain underspecified and do not seem to be built from a philosophically robust structure. We begin the discussion of this problem by presenting five core, foundational values, drawn from moral philosophy and built on the requisites for human existence: survival, sustainable intergenerational existence, society, education, and truth. We show that these values not only provide a clearer direction for technical alignment work, but also serve as a framework to highlight threats and opportunities from AI systems to both obtain and sustain these values.",
+          "claimed_authors": [
+            "Betty Li Hou",
+            "Brian Patrick Green"
+          ],
+          "claimed_title": "Foundational Moral Values for AI Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17017"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Foundational Moral Values for AI Alignment')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Are AI systems truly representing human values, or merely averaging across them? Our study suggests a concerning reality: Large Language Models (LLMs) fail to represent diverse cultural moral frameworks despite their linguistic capabilities. We expose significant gaps between AI-generated and human moral intuitions by applying the Moral Foundations Questionnaire across 19 cultural contexts. Comparing multiple state-of-the-art LLMs' origins against human baseline data, we find these models systematically homogenize moral diversity. Surprisingly, increased model size doesn't consistently improve cultural representation fidelity. Our findings challenge the growing use of LLMs as synthetic populations in social science research and highlight a fundamental limitation in current AI alignment approaches. Without data-driven alignment beyond prompting, these systems cannot capture the nuanced, culturally-specific moral intuitions. Our results call for more grounded alignment objectives and evaluation metrics to ensure AI systems represent diverse human values rather than flattening the moral landscape.",
+          "claimed_authors": [
+            "Simon Münker"
+          ],
+          "claimed_title": "Cultural Bias in Large Language Models: Evaluating AI Agents through Moral Questionnaires",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.10073"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Cultural Bias in Large Language Models: Evaluating AI Agents through Moral Questionnaires')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In order to make spoken dialogue systems (such as Amazon Alexa or Google Assistant) more accessible and naturally interactive for people with cognitive impairments, appropriate data must be obtainable. Recordings of multi-modal spontaneous conversations with vulnerable user groups are scarce however and this valuable data is challenging to collect. Researchers that call for this data are commonly inexperienced in ethical and legal issues around working with vulnerable participants. Additionally, standard recording equipment is insecure and should not be used to capture sensitive data. We spent a year consulting experts on how to ethically capture and share recordings of multi-modal spontaneous conversations with vulnerable user groups. In this paper we provide guidance, collated from these experts, on how to ethically collect such data and we present a new system - \"CUSCO\" - to capture, transport and exchange sensitive data securely. This framework is intended to be easily followed and implemented to encourage further publications of similar corpora. Using this guide and secure recording system, researchers can review and refine their ethical measures.",
+          "claimed_authors": [
+            "Angus Addlesee",
+            "Pierre Albert"
+          ],
+          "claimed_title": "Ethically Collecting Multi-Modal Spontaneous Conversations with People that have Cognitive Impairments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.14361"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Ethically Collecting Multi-Modal Spontaneous Conversations with People that have Cognitive Impairments')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ethics of artificial intelligence (AI) systems has risen as an imminent concern across scholarly communities. This concern has propagated a great interest in algorithmic fairness. Large research agendas are now devoted to increasing algorithmic fairness, assessing algorithmic fairness, and understanding human perceptions of fairness. We argue that there is an overreliance on fairness as a single dimension of morality, which comes at the expense of other important human values. Drawing from moral psychology, we present five moral dimensions that go beyond fairness, and suggest three ways these alternative dimensions may contribute to ethical AI development.",
+          "claimed_authors": [
+            "Kimi Wenzel",
+            "Geoff Kaufman",
+            "Laura Dabbish"
+          ],
+          "claimed_title": "Beyond Fairness: Alternative Moral Dimensions for Assessing Algorithms and Designing Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.12559"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Beyond Fairness: Alternative Moral Dimensions for Assessing Algorithms and Designing Systems')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We use observations from the 9 square degree multiwavelength survey in Bootes to identify hundreds of obscured active galactic nuclei (AGN) with high redshifts (z > 0.7), luminosities (L_bol > 10^45 ergs/s), and moderate obscuring columns (N_H > 10^22 cm^-2), and to measure the clustering properties of X-ray AGN at z > 1. In the Bootes region, shallow (5 ks) Chandra X-ray observations have detected ~4,000 X-ray sources, and the same region has been mapped with deep optical imaging and by Spitzer IRAC, which detects ~300,000 point sources, of which ~30,000 have detections in all four IRAC bands, for which we can select AGN on the basis of their mid-IR colors. With the MMT/Hectospec we have obtained modest resolution optical spectra for about half the X-ray sources (out to z > 3) and ~20,000 galaxies (out to z = 0.7). With this multiwavelength data we select >400 AGN per square degree (compared to 12 per square degree from SDSS). Among a sample of IRAC-selected AGN we identify 641 candidate obscured objects based on their R band and IRAC luminosities. We use X-ray stacking techniques to verify that they are obscured AGN and measure their absorbing column densities. We also measure the three-dimensional two-point correlation function for X-ray selected AGN.",
+          "claimed_authors": [
+            "R. C. Hickox",
+            "C. Jones",
+            "W. R. Forman",
+            "S. S. Murray",
+            "A. Kenter",
+            "M. Brodwin",
+            "the Chandra XBootes",
+            "NOAO Deep Wide-Field Survey",
+            "Spitzer IRAC Shallow Survey",
+            "AGES Teams"
+          ],
+          "claimed_title": "A rich bounty of AGN in the 9 square degree Bootes survey: high-z obscured AGN and large-scale structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0611654"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='A rich bounty of AGN in the 9 square degree Bootes survey: high-z obscured AGN and large-scale structure')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The recent development and wider accessibility of LLMs have spurred discussions about how they can be used in survey research, including classifying open-ended survey responses. Due to their linguistic capacities, it is possible that LLMs are an efficient alternative to time-consuming manual coding and the pre-training of supervised machine learning models. As most existing research on this topic has focused on English-language responses relating to non-complex topics or on single LLMs, it is unclear whether its findings generalize and how the quality of these classifications compares to established methods. In this study, we investigate to what extent different LLMs can be used to code open-ended survey responses in other contexts, using German data on reasons for survey participation as an example. We compare several state-of-the-art LLMs and several prompting approaches, and evaluate the LLMs' performance by using human expert codings. Overall performance differs greatly between LLMs, and only a fine-tuned LLM achieves satisfactory levels of predictive performance. Performance differences between prompting approaches are conditional on the LLM used. Finally, LLMs' unequal classification performance across different categories of reasons for survey participation results in different categorical distributions when not using fine-tuning. We discuss the implications of these findings, both for methodological research on coding open-ended responses and for their substantive analysis, and for practitioners processing or substantively analyzing such data. Finally, we highlight the many trade-offs researchers need to consider when choosing automated methods for open-ended response classification in the age of LLMs. In doing so, our study contributes to the growing body of research about the conditions under which LLMs can be efficiently, accurately, and reliably leveraged in survey research.",
+          "claimed_authors": [
+            "Leah von der Heyde",
+            "Anna-Carolina Haensch",
+            "Bernd Weiß",
+            "Jessica Daikeler"
+          ],
+          "claimed_title": "AIn't Nothing But a Survey? Using Large Language Models for Coding German Open-Ended Survey Responses on Survey Motivation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.14634"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title=\"AIn't Nothing But a Survey? Using Large Language Models for Coding German Open-Ended Survey Responses on Survey Motivation\")",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A purpose built 7-beam methanol receiver, installed on the Parkes Radio Telescope, was used to survey the Galactic plane for newly forming high mass stars, pinpointed by strong methanol maser emission at 6.7 GHz. The Methanol Multibeam (MMB) survey observed over 60% of the Galactic plane, detecting close to 1000 sources. The MMB survey provides a huge resource for studies of high-mass star formation, an important stage in the evolution of the interstellar medium. The MMB survey is also a valuable resource for investigations into the structure and dynamics of our Galaxy: with narrow velocity ranges of emission (typically only a few km/s) and velocities closely correlated with the systemic velocity of their surrounding molecular clouds, 6.7-GHz methanol masers provide estimates of the spiral arm velocities and their structure. I will discuss the techniques and properties of the MMB survey, before outlining recent results, which include the identification of regions of enhanced star formation believed to be indicative of the origins of the spiral arms and the interaction of the Galactic bar with the 3-kpc arms. I will also discuss the various follow-up programmes including a study of magnetic fields through associated hydroxyl masers.",
+          "claimed_authors": [
+            "J. A. Green",
+            "the Methanol Multibeam Survey Collaboration"
+          ],
+          "claimed_title": "The Methanol Multibeam Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.0979"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='The Methanol Multibeam Survey')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale behavioral datasets enable researchers to use complex machine learning algorithms to better predict human behavior, yet this increased predictive power does not always lead to a better understanding of the behavior in question. In this paper, we outline a data-driven, iterative procedure that allows cognitive scientists to use machine learning to generate models that are both interpretable and accurate. We demonstrate this method in the domain of moral decision-making, where standard experimental approaches often identify relevant principles that influence human judgments, but fail to generalize these findings to \"real world\" situations that place these principles in conflict. The recently released Moral Machine dataset allows us to build a powerful model that can predict the outcomes of these conflicts while remaining simple enough to explain the basis behind human decisions.",
+          "claimed_authors": [
+            "Mayank Agrawal",
+            "Joshua C. Peterson",
+            "Thomas L. Griffiths"
+          ],
+          "claimed_title": "Using Machine Learning to Guide Cognitive Modeling: A Case Study in Moral Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.06744"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Role of Cognitive Dissonance in Justifying Unethical AI Use psychology', candidate_title='Using Machine Learning to Guide Cognitive Modeling: A Case Study in Moral Reasoning')",
+        "failed_at": "2026-07-13T17:18:08Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Leonid Perlovsky",
+            "Arnaud Cabanac",
+            "Marie-Claude Bonniot-Cabanac",
+            "Michel Cabanac"
+          ],
+          "title": "Mozart Effect, Cognitive Dissonance, and the Pleasure of Music",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1209.4017",
+        "summary": "The Mozart effect refers to scientific data on short-term improvement on certain mental tasks after listening to Mozart, and also to its popularized version that listening to Mozart makes you smarter (Tomatis, 1991; Wikipedia, 2012). Does Mozart effect point to a fundamental cognitive function of music? Would such an effect of music be due to the hedonicity, a fundamental dimension of mental experience? The present paper explores a recent hypothesis that music helps to tolerate cognitive dissonances and thus enabled accumulation of knowledge and human cultural evolution (Perlovsky, 2010, 2012). We studied whether the influence of music is related to its hedonicity and whether pleasant or unpleasant music would influence scholarly test performance and cognitive dissonance. Specific hypotheses evaluated here are that during a test students experience contradictory cognitions that cause cognitive dissonances. If some music helps to tolerate cognitive dissonances, then first, this music should increase the duration during which participants can tolerate stressful conditions while evaluating test choices. Second, this should result in improved performance. These hypotheses are tentatively confirmed in the reported experiments as the agreeable music was correlated with better performance above that under indifferent or unpleasant music. It follows that music likely performs a fundamental cognitive function explaining the origin and evolution of musical ability considered previously a mystery.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1209.4017",
+          "http_status": 200,
+          "pdf_sample_score": 0.2929,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T17:18:15Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the role of cognitive dissonance in justifying unethical ai use psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

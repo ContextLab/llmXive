@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.01835",
+  "judged_at": "2026-07-13T17:18:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of cognitive dissonance in justifying unethical ai use psychology",
+  "rationale": "The paper discusses cognitive mechanisms in the context of AGI communication and control (specifically \"cognitive impairment\" as a safety measure), but it does not address the user's specific construct of \"cognitive dissonance\" as a psychological driver for humans justifying unethical AI use. The paper falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" or \"Off-domain entirely,\" as it focuses on AI alignment and information theory rather than the social psycholo",
+  "relevant": false
+}

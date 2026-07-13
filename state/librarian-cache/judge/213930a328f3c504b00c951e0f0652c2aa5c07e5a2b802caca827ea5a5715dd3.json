@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.04780",
+  "judged_at": "2026-07-13T17:18:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of cognitive dissonance in justifying unethical ai use psychology",
+  "rationale": "The paper focuses on technical explainability (XAI) methodologies in healthcare to build trust, which is a distinct construct from the psychological mechanism of \"cognitive dissonance\" used to justify unethical behavior. It fails to address the user's specific variables (cognitive dissonance, unethical justification) or the psychological domain, falling under the rejection rule for \"Distinct construct sharing only homonym keywords\" (sharing \"AI\" and \"trust/ethics\" broadly but lacking the specifi",
+  "relevant": false
+}
