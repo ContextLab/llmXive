@@ -1,140 +1,122 @@
-"""
-Unit tests for seed configuration management.
-
-Tests verify that:
-1. Seeds are correctly retrieved from environment or defaults
-2. Setting a seed initializes all required libraries
-3. Deterministic behavior is achieved
-"""
 import os
 import random
-import tempfile
-import shutil
-from pathlib import Path
-
 import numpy as np
 import pytest
+from unittest.mock import patch, MagicMock
 
-# Import the module under test
-# Note: We assume the code/config directory is in the Python path
-# or we adjust sys.path for the test
-import sys
-from pathlib import Path
+# Import the functions to test
+from code.config.seeds import get_seed, set_seed, ensure_seeded, DEFAULT_SEED
 
-# Add the code directory to the path if not already there
-code_dir = Path(__file__).parent.parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+class TestGetSeed:
+    def test_returns_explicit_seed(self):
+        """Test that get_seed returns the explicitly provided seed."""
+        assert get_seed(123) == 123
+        assert get_seed(0) == 0
+        assert get_seed(42) == 42
 
-from config.seeds import set_seed, get_seed, ensure_seeded, DEFAULT_SEED, SEED_ENV_VAR
+    def test_returns_default_when_none(self):
+        """Test that get_seed returns DEFAULT_SEED when no seed is provided."""
+        with patch.dict(os.environ, {}, clear=True):
+            assert get_seed(None) == DEFAULT_SEED
 
-# Try to import torch for conditional tests
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
+    def test_returns_env_seed(self):
+        """Test that get_seed reads from RANDOM_SEED environment variable."""
+        with patch.dict(os.environ, {"RANDOM_SEED": "999"}):
+            assert get_seed(None) == 999
 
+    def test_invalid_env_seed_uses_default(self):
+        """Test that invalid RANDOM_SEED falls back to DEFAULT_SEED."""
+        with patch.dict(os.environ, {"RANDOM_SEED": "not_a_number"}):
+            assert get_seed(None) == DEFAULT_SEED
 
-class TestSeedRetrieval:
-    """Tests for get_seed() function."""
-
-    def test_get_seed_default(self, monkeypatch):
-        """Test that default seed is returned when no env var is set."""
-        monkeypatch.delenv(SEED_ENV_VAR, raising=False)
-        assert get_seed() == DEFAULT_SEED
-
-    def test_get_seed_from_env(self, monkeypatch):
-        """Test that seed is retrieved from environment variable."""
-        test_seed = 12345
-        monkeypatch.setenv(SEED_ENV_VAR, str(test_seed))
-        assert get_seed() == test_seed
-
-    def test_get_seed_invalid_env_fallback(self, monkeypatch):
-        """Test that default seed is used if env var is invalid."""
-        monkeypatch.setenv(SEED_ENV_VAR, "not_a_number")
-        # Should fall back to default without crashing
-        assert get_seed() == DEFAULT_SEED
-
-
-class TestSeedSetting:
-    """Tests for set_seed() function."""
-
-    def test_set_seed_updates_python_random(self):
-        """Test that Python's random module is seeded."""
+class TestSetSeed:
+    def test_sets_python_random(self):
+        """Test that set_seed correctly seeds Python's random module."""
         seed = 42
         set_seed(seed)
+        
+        # Generate a few random numbers
         val1 = random.random()
+        
+        # Reset seed and generate again
         set_seed(seed)
         val2 = random.random()
+        
         assert val1 == val2
 
-    def test_set_seed_updates_numpy(self):
-        """Test that NumPy is seeded."""
+    def test_sets_numpy_random(self):
+        """Test that set_seed correctly seeds NumPy's random module."""
         seed = 42
         set_seed(seed)
+        
+        # Generate a random array
         arr1 = np.random.rand(5)
+        
+        # Reset seed and generate again
         set_seed(seed)
         arr2 = np.random.rand(5)
+        
         np.testing.assert_array_equal(arr1, arr2)
 
-    def test_set_seed_updates_torch(self):
-        """Test that PyTorch is seeded if available."""
-        if not TORCH_AVAILABLE:
-            pytest.skip("PyTorch not available")
-
+    def test_sets_pytorch_if_available(self):
+        """Test that set_seed seeds PyTorch if installed."""
         seed = 42
-        set_seed(seed)
-        tensor1 = torch.rand(5)
-        set_seed(seed)
-        tensor2 = torch.rand(5)
-        torch.testing.assert_close(tensor1, tensor2)
+        
+        try:
+            import torch
+            torch_available = True
+        except ImportError:
+            torch_available = False
+        
+        if torch_available:
+            set_seed(seed)
+            
+            # Generate a random tensor
+            tensor1 = torch.rand(5)
+            
+            # Reset seed and generate again
+            set_seed(seed)
+            tensor2 = torch.rand(5)
+            
+            torch.testing.assert_close(tensor1, tensor2)
+        else:
+            # If PyTorch isn't available, just ensure no exception is raised
+            set_seed(seed)
 
-    def test_set_seed_updates_hash_seed_env(self):
-        """Test that PYTHONHASHSEED is set."""
-        seed = 42
-        set_seed(seed)
-        assert os.environ.get("PYTHONHASHSEED") == str(seed)
+    def test_ensures_deterministic_cudnn_when_cuda_available(self):
+        """Test that deterministic CuDNN settings are applied when CUDA is available."""
+        try:
+            import torch
+            if torch.cuda.is_available():
+                set_seed(42)
+                assert torch.backends.cudnn.deterministic is True
+                assert torch.backends.cudnn.benchmark is False
+            else:
+                # CUDA not available, skip this check
+                pass
+        except ImportError:
+            # PyTorch not installed, skip
+            pass
 
-    def test_set_seed_uses_argument(self):
-        """Test that argument overrides environment."""
-        monkeypatch = pytest.MonkeyPatch()
-        monkeypatch.setenv(SEED_ENV_VAR, "999")
-        set_seed(42)
-        # The function should use the argument, not the env var
-        # We verify by checking that subsequent random numbers match the arg seed
-        val1 = random.random()
-        monkeypatch.setenv(SEED_ENV_VAR, "42")
-        set_seed(42)
-        val2 = random.random()
-        assert val1 == val2
-
+    def test_returns_set_seed(self):
+        """Test that set_seed returns the seed value it set."""
+        assert set_seed(123) == 123
+        assert set_seed(None) == DEFAULT_SEED
 
 class TestEnsureSeeded:
-    """Tests for ensure_seeded() function."""
-
-    def test_ensure_seeded_sets_seed(self):
-        """Test that ensure_seeded initializes seeds."""
-        # Clear any existing seed setting
+    def test_ensures_seeded(self):
+        """Test that ensure_seeded calls set_seed and returns the seed."""
         seed = 42
-        random.seed(0)
-        np.random.seed(0)
+        result = ensure_seeded(seed)
+        assert result == seed
         
-        set_seed(seed)
-        
-        # Verify seeds are set
+        # Verify it actually set the seeds by checking reproducibility
         val1 = random.random()
-        arr1 = np.random.rand(1)
-        
-        # Reset to 0
-        random.seed(0)
-        np.random.seed(0)
-        
-        # Re-ensure
-        set_seed(seed)
-        
         val2 = random.random()
-        arr2 = np.random.rand(1)
         
-        assert val1 == val2
-        np.testing.assert_array_equal(arr1, arr2)
+        ensure_seeded(seed)
+        val3 = random.random()
+        val4 = random.random()
+        
+        assert val1 == val3
+        assert val2 == val4

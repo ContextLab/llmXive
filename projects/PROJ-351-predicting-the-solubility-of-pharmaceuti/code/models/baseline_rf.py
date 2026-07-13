@@ -1,10 +1,8 @@
 """
 Random Forest Baseline Model for ESOL Solubility Prediction.
 
-Implements a Random Forest regressor using Morgan fingerprints (radius=2, 2048 bits)
-as input features. This model serves as a performance baseline for the GNN models.
+Implements Morgan Fingerprints and RandomForestRegressor training.
 """
-
 import os
 import sys
 import json
@@ -17,267 +15,160 @@ import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+import joblib
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-# Configure logging
+# Configure logger
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    ))
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
 def generate_morgan_fingerprint(smiles: str, radius: int = 2, n_bits: int = 2048) -> np.ndarray:
     """
-    Generate a Morgan fingerprint (ECFP) for a given SMILES string.
-
+    Generate a Morgan fingerprint for a given SMILES string.
+    
     Args:
-        smiles: The SMILES string of the molecule.
-        radius: Radius of the fingerprint (default 2 for ECFP4).
-        n_bits: Number of bits in the fingerprint vector (default 2048).
-
+        smiles: SMILES string of the molecule.
+        radius: Radius of the fingerprint.
+        n_bits: Number of bits in the fingerprint.
+        
     Returns:
-        A numpy array of shape (n_bits,) representing the fingerprint.
+        Numpy array of the fingerprint.
     """
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            return None
+            return np.zeros(n_bits)
+        
         fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
-        arr = np.zeros((n_bits,), dtype=np.int8)
+        arr = np.zeros(n_bits)
         AllChem.DataStructs.ConvertToNumpyArray(fp, arr)
         return arr
     except Exception as e:
-        logger.warning(f"Failed to generate fingerprint for SMILES '{smiles}': {e}")
-        return None
+        logger.warning(f"Failed to generate fingerprint for {smiles}: {e}")
+        return np.zeros(n_bits)
 
-def load_processed_data(split_type: str = "train") -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_processed_data(data_path: str) -> pd.DataFrame:
     """
-    Load processed data from the split indices.
-
+    Load the processed CSV data.
+    
     Args:
-        split_type: One of 'train', 'val', or 'test'.
-
+        data_path: Path to the CSV file.
+        
     Returns:
-        Tuple of (features_df, targets_df) where features are SMILES and targets are logS.
+        DataFrame with SMILES and logS columns.
     """
-    # Path to split indices (created by T006)
-    splits_path = PROJECT_ROOT / "data" / "processed" / "splits"
-    if not splits_path.exists():
-        raise FileNotFoundError(f"Split indices not found at {splits_path}")
-
-    # Load the split indices JSON
-    with open(splits_path / "split_indices.json", "r") as f:
-        splits = json.load(f)
-
-    if split_type not in splits:
-        raise ValueError(f"Split type '{split_type}' not found in split_indices.json")
-
-    indices = splits[split_type]
-
-    # Load the cleaned data (created by T005)
-    cleaned_data_path = PROJECT_ROOT / "data" / "processed" / "cleaned_data.csv"
-    if not cleaned_data_path.exists():
-        raise FileNotFoundError(f"Cleaned data not found at {cleaned_data_path}")
-
-    df = pd.read_csv(cleaned_data_path)
-    logger.info(f"Loaded {len(df)} molecules from cleaned data")
-
-    # Filter to the specific split indices
-    split_df = df.iloc[indices].reset_index(drop=True)
-    logger.info(f"Loaded {len(split_df)} molecules for {split_type} split")
-
-    return split_df
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+    return pd.read_csv(data_path)
 
 def prepare_features_and_targets(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Convert SMILES to Morgan fingerprints and extract logS targets.
-
+    Prepare features (fingerprints) and targets (logS) from the DataFrame.
+    
     Args:
-        df: DataFrame with 'smiles' and 'logS' columns.
-
+        df: DataFrame with 'SMILES' and 'logS' columns.
+        
     Returns:
-        Tuple of (X, y) where X is the fingerprint matrix and y is the logS array.
+        Tuple of (X, y) arrays.
     """
-    logger.info("Generating Morgan fingerprints for all molecules...")
-    fingerprints = []
-    valid_indices = []
-    invalid_count = 0
-
-    for i, row in df.iterrows():
-        fp = generate_morgan_fingerprint(row['smiles'])
-        if fp is not None:
-            fingerprints.append(fp)
-            valid_indices.append(i)
-        else:
-            invalid_count += 1
-
-    if invalid_count > 0:
-        logger.warning(f"Excluded {invalid_count} molecules due to fingerprint generation failure")
-
-    X = np.array(fingerprints)
-    y = df.iloc[valid_indices]['logS'].values
-
-    logger.info(f"Generated {len(X)} valid fingerprints")
+    smiles_list = df['SMILES'].values
+    logS_list = df['logS'].values
+    
+    fps = [generate_morgan_fingerprint(smiles) for smiles in smiles_list]
+    X = np.array(fps)
+    y = np.array(logS_list)
+    
     return X, y
 
-def train_random_forest(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_val: Optional[np.ndarray] = None,
-    y_val: Optional[np.ndarray] = None,
-    n_estimators: int = 100,
-    max_depth: int = None,
-    random_state: int = 42
-) -> RandomForestRegressor:
+def train_random_forest(X: np.ndarray, y: np.ndarray, n_estimators: int = 100, max_depth: int = 10) -> RandomForestRegressor:
     """
-    Train a Random Forest regressor.
-
+    Train a Random Forest Regressor.
+    
     Args:
-        X_train: Training feature matrix.
-        y_train: Training target values.
-        X_val: Validation feature matrix (optional).
-        y_val: Validation target values (optional).
-        n_estimators: Number of trees in the forest.
+        X: Feature matrix.
+        y: Target vector.
+        n_estimators: Number of trees.
         max_depth: Maximum depth of trees.
-        random_state: Random seed for reproducibility.
-
+        
     Returns:
         Trained RandomForestRegressor model.
     """
-    logger.info(f"Training Random Forest with {n_estimators} estimators...")
-
-    model = RandomForestRegressor(
-        n_estimators=n_estimators,
-        max_depth=max_depth,
-        random_state=random_state,
-        n_jobs=-1,
-        verbose=1
-    )
-
-    model.fit(X_train, y_train)
-
-    if X_val is not None and y_val is not None:
-        val_pred = model.predict(X_val)
-        val_r2 = r2_score(y_val, val_pred)
-        val_rmse = np.sqrt(mean_squared_error(y_val, val_pred))
-        logger.info(f"Validation R²: {val_r2:.4f}, RMSE: {val_rmse:.4f}")
-
+    logger.info(f"Training Random Forest with {n_estimators} trees and max_depth={max_depth}")
+    model = RandomForestRegressor(n_estimators=n_estimators, max_depth=max_depth, random_state=42, n_jobs=-1)
+    model.fit(X, y)
+    logger.info("Training completed.")
     return model
 
-def evaluate_model(
-    model: RandomForestRegressor,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-    predictions_path: Optional[str] = None
-) -> Dict[str, float]:
+def evaluate_model(model: RandomForestRegressor, X: np.ndarray, y: np.ndarray) -> Dict[str, float]:
     """
-    Evaluate the model on the test set.
-
+    Evaluate the model on the given data.
+    
     Args:
-        model: Trained Random Forest model.
-        X_test: Test feature matrix.
-        y_test: Test target values.
-        predictions_path: Path to save predictions (optional).
-
+        model: Trained model.
+        X: Feature matrix.
+        y: Target vector.
+        
     Returns:
-        Dictionary with evaluation metrics.
+        Dictionary with 'r2' and 'rmse' metrics.
     """
-    logger.info("Evaluating model on test set...")
+    y_pred = model.predict(X)
+    rmse = np.sqrt(mean_squared_error(y, y_pred))
+    r2 = r2_score(y, y_pred)
+    
+    logger.info(f"Evaluation - RMSE: {rmse:.4f}, R2: {r2:.4f}")
+    return {"rmse": float(rmse), "r2": float(r2)}
 
-    y_pred = model.predict(X_test)
-
-    r2 = r2_score(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    mae = np.mean(np.abs(y_test - y_pred))
-
-    metrics = {
-        'r2': float(r2),
-        'rmse': float(rmse),
-        'mae': float(mae),
-        'n_samples': len(y_test)
-    }
-
-    logger.info(f"Test R²: {r2:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}")
-
-    if predictions_path:
-        os.makedirs(os.path.dirname(predictions_path), exist_ok=True)
-        predictions_df = pd.DataFrame({
-            'true': y_test,
-            'predicted': y_pred
-        })
-        predictions_df.to_csv(predictions_path, index=False)
-        logger.info(f"Predictions saved to {predictions_path}")
-
-    return metrics
+def save_model(model: RandomForestRegressor, path: str):
+    """
+    Save the model to disk.
+    
+    Args:
+        model: Model to save.
+        path: Path to save the model.
+    """
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    joblib.dump(model, path)
+    logger.info(f"Model saved to {path}")
 
 def main():
     """
-    Main function to train and evaluate the Random Forest baseline.
+    Main entry point for training the Random Forest baseline.
     """
-    logger.info("Starting Random Forest Baseline Training")
-
-    # Ensure seeded environment
-    from config.seeds import set_seed
-    set_seed(42)
-
-    # Load training data
+    # Default paths (can be overridden by args in a real CLI)
+    train_path = "data/processed/train.csv"
+    test_path = "data/processed/test.csv"
+    model_save_path = "models/baseline_rf.pkl"
+    metrics_save_path = "results/baseline_metrics.json"
+    
+    # Ensure directories exist
+    Path(model_save_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(metrics_save_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load Data
     try:
-        train_df = load_processed_data("train")
-        val_df = load_processed_data("val")
-        test_df = load_processed_data("test")
-    except Exception as e:
-        logger.error(f"Failed to load processed data: {e}")
+        train_df = load_processed_data(train_path)
+        test_df = load_processed_data(test_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
-
-    # Prepare features and targets
+    
+    # Prepare Features
     X_train, y_train = prepare_features_and_targets(train_df)
-    X_val, y_val = prepare_features_and_targets(val_df)
     X_test, y_test = prepare_features_and_targets(test_df)
-
-    if len(X_train) == 0:
-        logger.error("No training data available after fingerprint generation")
-        sys.exit(1)
-
-    # Train model
-    model = train_random_forest(
-        X_train, y_train,
-        X_val, y_val,
-        n_estimators=100,
-        max_depth=None,
-        random_state=42
-    )
-
-    # Evaluate model
-    metrics = evaluate_model(
-        model, X_test, y_test,
-        predictions_path=str(PROJECT_ROOT / "results" / "rf_predictions.csv")
-    )
-
-    # Save metrics
-    metrics_path = PROJECT_ROOT / "results" / "baseline_metrics.json"
-    os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
-
-    with open(metrics_path, 'w') as f:
+    
+    # Train
+    model = train_random_forest(X_train, y_train)
+    
+    # Evaluate
+    metrics = evaluate_model(model, X_test, y_test)
+    
+    # Save Model
+    save_model(model, model_save_path)
+    
+    # Save Metrics
+    with open(metrics_save_path, 'w') as f:
         json.dump(metrics, f, indent=2)
-
-    logger.info(f"Metrics saved to {metrics_path}")
-
-    # Log training metrics using the project's logging utility
-    from setup_logging import log_training_metrics
-    log_training_metrics(
-        model_type="RandomForest",
-        metrics=metrics,
-        output_path=str(PROJECT_ROOT / "data" / "logs" / "baseline_training.log")
-    )
-
-    logger.info("Random Forest Baseline Training Complete")
+    
+    logger.info(f"Pipeline complete. Metrics saved to {metrics_save_path}")
 
 if __name__ == "__main__":
     main()

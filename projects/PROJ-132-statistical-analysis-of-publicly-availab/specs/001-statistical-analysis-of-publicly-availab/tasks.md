@@ -118,16 +118,16 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T021 [P] [US2] Add `tests/contract/test_output_schemas.py` with function `test_gamm_output_schema` verifying coefficient and p-value columns
-- [ ] T022 [P] [US2] Add `tests/integration/test_modeling.py` with function `test_gamm_convergence` verifying fit on synthetic data
+- [~] T022 [P] [US2] Add `tests/integration/test_modeling.py` with function `test_gamm_convergence` verifying fit on synthetic data
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `src/models/gamm_fit.py` to fit a **Unified Spatial Model**.
+- [~] T023 [P] [US2] Implement `src/models/gamm_fit.py` to fit a **Unified Spatial Model**.
  - **Model**: `phenology_metric ~ s(temp) + s(precip) + s(effort) + (1 + temp | species) + GP_spatial(lon, lat; kernel=Matérn(nu=1.5))`.
  - **Requirement**: The Gaussian Process (GP) **MUST ALWAYS be applied** (per Plan Phase 3).
  - **Diagnostic**: Compute Moran's I on residuals and log it, but do NOT use it to conditionally skip the GP. The implementation must follow the Plan's "Unified Spatial Model" regardless of the Spec's conditional wording.
-- [ ] T024 [US2] Implement species-year random intercepts and slopes logic in `src/models/gamm_fit.py`
-- [ ] T025 [US2] Implement permutation test in `src/models/utils.py` with `n_shuffles=10000`.
+- [~] T024 [US2] Implement species-year random intercepts and slopes logic in `src/models/gamm_fit.py`
+- [~] T025 [US2] Implement permutation test in `src/models/utils.py` with `n_shuffles=10000`.
  - **Logic**: Run 100 shuffles, check interim p < 0.001, set `early_stop_flag=True`, but **CONTINUE** to full [deferred] shuffles. The flag is for reporting only; the full [deferred] shuffles MUST complete.
  - **Optimization**: Use `joblib` parallelization to ensure full shuffles complete within the 5.5h CI budget.
  - **Output**: Write to `data/processed/permutation_results.json` with schema: `{ "species": str, "coefficient": str, "p_value": float, "n_shuffles": int, "early_stop_flag": bool, "final_p_value": float }`.

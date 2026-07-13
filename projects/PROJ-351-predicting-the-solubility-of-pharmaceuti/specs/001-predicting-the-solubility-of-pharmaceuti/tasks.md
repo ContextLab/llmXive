@@ -59,8 +59,8 @@
 - [X] T005 [P] Implement `code/data/preprocess.py` to load raw CSV, parse SMILES with RDKit, exclude invalid SMILES/NaN `logS` *before* split, extract atom/bond features, and save cleaned graphs to `data/processed/`
 - [X] T006 [P] Implement `code/data/split.py` to perform a stratified train/validation/test split on cleaned data using quantile binning on `logS` and save indices to `data/processed/`
 - [X] T007 Create base data models/entities (`Molecule`, `DatasetSplit`) in `code/__init__.py` or `code/models.py`
-- [~] T008 Configure logging infrastructure to capture exclusion counts and training metrics to `data/logs/`
-- [~] T009 Setup environment configuration management for random seeds (pinned in `code/`)
+- [ ] T008 Configure logging infrastructure to capture exclusion counts and training metrics to `data/logs/`
+- [ ] T009 Setup environment configuration management for random seeds (pinned in `code/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,13 +76,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for SMILES validation logic in `tests/unit/test_preprocess.py`
-- [~] T011 [P] [US1] Unit test for quantile binning split logic in `tests/unit/test_split.py`
-- [~] T012 [P] [US1] Integration test for full RF baseline pipeline in `tests/integration/test_baseline_pipeline.py`
+- [ ] T010 [P] [US1] Unit test for SMILES validation logic in `tests/unit/test_preprocess.py`
+- [ ] T011 [P] [US1] Unit test for quantile binning split logic in `tests/unit/test_split.py`
+- [ ] T012 [P] [US1] Integration test for full RF baseline pipeline in `tests/integration/test_baseline_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement Random Forest baseline training in `code/models/baseline_rf.py` using Morgan fingerprints (radius=2, 2048 bits)
+- [X] T013 [US1] Implement Random Forest baseline training in `code/models/baseline_rf.py` using Morgan fingerprints (radius=2, 2048 bits)
 - [~] T014 [US1] Implement `code/training/train_baseline.py` to train RF on training set, evaluate on test set, and save model to `models/`
 - [~] T015 [US1] Implement logging of R-squared and RMSE to `results/baseline_metrics.json` within 10 minutes of CPU time
 - [~] T016 [US1] Add error handling for RDKit parsing failures (log invalid count, exclude from dataset)
@@ -146,8 +146,8 @@
 - [~] T033 [P] Documentation updates in `docs/` and `README.md`
 - [~] T034 Code cleanup and refactoring across `code/` <!-- ATOMIZE: requested -->
 - [~] T035 Performance optimization for GNN training loop (CPU efficiency)
-- [ ] T036 [P] Additional unit tests for edge cases (malformed SMILES, non-convergent GNN) in `tests/unit/`
-- [ ] T037 Run quickstart.md validation
+- [~] T036 [P] Additional unit tests for edge cases (malformed SMILES, non-convergent GNN) in `tests/unit/`
+- [~] T037 Run quickstart.md validation
 
 ---
 

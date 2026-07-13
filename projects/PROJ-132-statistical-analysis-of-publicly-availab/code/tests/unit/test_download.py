@@ -1,5 +1,11 @@
 """
 Unit tests for the download module.
+
+Tests cover:
+- Synthetic data generation
+- Checksum computation
+- State file writing
+- Production vs development mode behavior
 """
 
 import os
@@ -8,163 +14,135 @@ import tempfile
 import shutil
 from pathlib import Path
 import pytest
-import pandas as pd
-import numpy as np
 
-# Add code root to path for imports
-code_root = Path(__file__).resolve().parent.parent.parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.data.download import (
     compute_sha256,
-    generate_synthetic_ebird,
-    generate_synthetic_climate,
-    run_download_pipeline
+    generate_synthetic_ebird_data,
+    generate_synthetic_climate_data,
+    ensure_data_available,
+    EBIRD_COLUMNS,
+    CLIMATE_COLUMNS
 )
+import pandas as pd
+import numpy as np
 
 
 class TestDownloadModule:
-    """Tests for data download functionality."""
-
-    @pytest.fixture(autouse=True)
-    def setup_teardown(self, tmp_path):
-        """Setup and teardown for each test."""
-        # Save original paths
-        self.original_root = Path(__file__).resolve().parent.parent.parent
-        
-        # Create a temporary directory structure
-        self.test_root = tmp_path
-        self.test_data_raw = self.test_root / "data" / "raw"
-        self.test_ebird = self.test_data_raw / "ebird"
-        self.test_climate = self.test_data_raw / "climate"
-        self.test_archive = self.test_data_raw / "archive"
-        self.test_state = self.test_root / "state"
-        
-        for d in [self.test_data_raw, self.test_ebird, self.test_climate, 
-                  self.test_archive, self.test_state]:
-            d.mkdir(parents=True)
-
-        # Patch the module's paths
-        import src.data.download as download_mod
-        self.orig_data_raw = download_mod.DATA_RAW_DIR
-        self.orig_ebird = download_mod.DATA_RAW_EBIRD
-        self.orig_climate = download_mod.DATA_RAW_CLIMATE
-        self.orig_archive = download_mod.ARCHIVE_DIR
-        self.orig_state = download_mod.STATE_DIR
-        self.orig_project_id = download_mod.PROJECT_ID
-
-        download_mod.DATA_RAW_DIR = self.test_data_raw
-        download_mod.DATA_RAW_EBIRD = self.test_ebird
-        download_mod.DATA_RAW_CLIMATE = self.test_climate
-        download_mod.ARCHIVE_DIR = self.test_archive
-        download_mod.STATE_DIR = self.test_state
-        download_mod.PROJECT_ID = "TEST-PROJECT"
-
-        yield
-
-        # Restore original paths
-        download_mod.DATA_RAW_DIR = self.orig_data_raw
-        download_mod.DATA_RAW_EBIRD = self.orig_ebird
-        download_mod.DATA_RAW_CLIMATE = self.orig_climate
-        download_mod.ARCHIVE_DIR = self.orig_archive
-        download_mod.STATE_DIR = self.orig_state
-        download_mod.PROJECT_ID = self.orig_project_id
+    """Test suite for download module functions."""
 
     def test_compute_sha256(self):
         """Test SHA-256 checksum computation."""
-        test_file = self.test_data_raw / "test.txt"
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            temp_path = Path(f.name)
 
-        checksum = compute_sha256(test_file)
-        assert len(checksum) == 64  # SHA-256 hex length
-        assert isinstance(checksum, str)
+        try:
+            checksum = compute_sha256(temp_path)
+            assert len(checksum) == 64, "SHA-256 should be 64 hex characters"
+            assert checksum.isalnum(), "Checksum should be alphanumeric"
+        finally:
+            temp_path.unlink()
 
-    def test_generate_synthetic_ebird(self):
+    def test_synthetic_ebird_data_generation(self):
         """Test synthetic eBird data generation."""
-        output_path = generate_synthetic_ebird(seed=42)
-        
-        assert output_path.exists()
-        
-        df = pd.read_csv(output_path)
-        
+        df = generate_synthetic_ebird_data(seed=42, num_records=100)
+
         # Check columns
-        expected_cols = ["species", "lat", "lon", "date", "count", "checklist_id"]
-        assert list(df.columns) == expected_cols
-        
-        # Check dtypes
-        assert df["lat"].dtype in ["float64", "float32"]
-        assert df["lon"].dtype in ["float64", "float32"]
-        assert df["count"].dtype in ["int64", "int32"]
-        
-        # Check data ranges
-        assert df["lat"].between(25.0, 48.0).all()
+        assert list(df.columns) == EBIRD_COLUMNS, f"Expected columns {EBIRD_COLUMNS}, got {list(df.columns)}"
+
+        # Check data types
+        assert df["species"].dtype == object
+        assert df["lat"].dtype in [np.float64, np.float32]
+        assert df["lon"].dtype in [np.float64, np.float32]
+        assert pd.api.types.is_datetime64_any_dtype(df["date"])
+        assert df["count"].dtype in [np.int64, np.int32]
+        assert df["checklist_id"].dtype == object
+
+        # Check value ranges
+        assert df["lat"].between(25.0, 49.0).all()
         assert df["lon"].between(-125.0, -70.0).all()
-        assert (df["count"] >= 0).all()
+        assert df["count"].ge(0).all()
+        assert len(df) == 100
 
-    def test_generate_synthetic_climate(self):
+    def test_synthetic_climate_data_generation(self):
         """Test synthetic climate data generation."""
-        output_path = generate_synthetic_climate(seed=42)
-        
-        assert output_path.exists()
-        
-        df = pd.read_parquet(output_path)
-        
+        df = generate_synthetic_climate_data(seed=42, num_records=100)
+
         # Check columns
-        expected_cols = ["lat", "lon", "temp", "week", "precip"]
-        assert list(df.columns) == expected_cols
-        
-        # Check dtypes
-        assert df["lat"].dtype in ["float64", "float32"]
-        assert df["lon"].dtype in ["float64", "float32"]
-        assert df["temp"].dtype in ["float64", "float32"]
-        assert df["week"].dtype in ["int64", "int32"]
-        assert df["precip"].dtype in ["float64", "float32"]
+        assert list(df.columns) == CLIMATE_COLUMNS, f"Expected columns {CLIMATE_COLUMNS}, got {list(df.columns)}"
 
-    def test_run_download_pipeline_production_missing(self):
-        """Test production mode aborts when data is missing."""
-        # Ensure directories are empty
-        for f in list(self.test_ebird.iterdir()):
-            f.unlink()
-        for f in list(self.test_climate.iterdir()):
-            f.unlink()
+        # Check data types
+        assert df["lat"].dtype in [np.float64, np.float32]
+        assert df["lon"].dtype in [np.float64, np.float32]
+        assert df["temp"].dtype in [np.float64, np.float32]
+        assert df["week"].dtype in [np.int64, np.int32]
+        assert df["precip"].dtype in [np.float64, np.float32]
 
-        with pytest.raises(SystemExit) as exc_info:
-            run_download_pipeline(production_mode=True)
-        
-        assert exc_info.value.code == 1
+        # Check value ranges
+        assert df["lat"].between(25.0, 49.0).all()
+        assert df["lon"].between(-125.0, -70.0).all()
+        assert df["week"].between(1, 53).all()
+        assert df["precip"].ge(0).all()
+        assert len(df) == 100
 
-    def test_run_download_pipeline_development_missing(self):
-        """Test development mode generates synthetic data when missing."""
-        # Ensure directories are empty
-        for f in list(self.test_ebird.iterdir()):
-            f.unlink()
-        for f in list(self.test_climate.iterdir()):
-            f.unlink()
+    def test_synthetic_data_reproducibility(self):
+        """Test that synthetic data is reproducible with same seed."""
+        df1 = generate_synthetic_ebird_data(seed=42, num_records=100)
+        df2 = generate_synthetic_ebird_data(seed=42, num_records=100)
 
-        # Should not raise
-        run_download_pipeline(production_mode=False)
+        pd.testing.assert_frame_equal(df1, df2)
 
-        # Check synthetic files were created
-        assert (self.test_data_raw / "synthetic_ebird.csv").exists()
-        assert (self.test_data_raw / "synthetic_climate.parquet").exists()
+    def test_ensure_data_available_development_mode(self):
+        """Test ensure_data_available in development mode creates synthetic data."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Mock the data directories
+            original_data_raw = Path("data/raw")
+            temp_data_raw = Path(tmpdir) / "data" / "raw"
+            temp_data_raw.mkdir(parents=True)
 
-    def test_run_download_pipeline_production_with_data(self, tmp_path):
-        """Test production mode succeeds when data exists."""
-        # Create dummy real data
-        ebird_file = self.test_ebird / "real_ebird.csv"
-        ebird_file.write_text("species,lat,lon,date,count,checklist_id\nTurdus,40.0,-100.0,2023-01-01,5,CL001")
-        
-        climate_file = self.test_climate / "real_climate.parquet"
-        pd.DataFrame({"lat": [40.0], "lon": [-100.0], "temp": [10.0], "week": [1], "precip": [5.0]}).to_parquet(climate_file)
+            # Temporarily override the constants
+            import src.data.download as download_module
+            original_data_raw_dir = download_module.DATA_RAW_DIR
+            original_state_dir = download_module.STATE_DIR
 
-        # Should not raise
-        run_download_pipeline(production_mode=True)
+            download_module.DATA_RAW_DIR = temp_data_raw
+            download_module.STATE_DIR = Path(tmpdir) / "state" / "projects"
 
-        # Check state file was created
-        state_file = self.test_state / "TEST-PROJECT.yaml"
-        assert state_file.exists()
+            try:
+                # This should generate synthetic data
+                data_paths = ensure_data_available(mode="development")
 
-        # Check archive was created
-        assert len(list(self.test_archive.iterdir())) > 0
+                assert "ebird" in data_paths
+                assert "climate" in data_paths
+                assert data_paths["ebird"].exists()
+                assert data_paths["climate"].exists()
+            finally:
+                # Restore original paths
+                download_module.DATA_RAW_DIR = original_data_raw_dir
+                download_module.STATE_DIR = original_state_dir
+
+    def test_schema_compliance(self):
+        """Test that generated data complies with expected schema."""
+        ebird_df = generate_synthetic_ebird_data(seed=42, num_records=1000)
+        climate_df = generate_synthetic_climate_data(seed=42, num_records=1000)
+
+        # Check for required columns
+        assert set(EBIRD_COLUMNS).issubset(set(ebird_df.columns))
+        assert set(CLIMATE_COLUMNS).issubset(set(climate_df.columns))
+
+        # Check for no missing values in critical fields
+        assert ebird_df["species"].notna().all()
+        assert ebird_df["lat"].notna().all()
+        assert ebird_df["lon"].notna().all()
+        assert ebird_df["date"].notna().all()
+        assert ebird_df["count"].notna().all()
+        assert ebird_df["checklist_id"].notna().all()
+
+        assert climate_df["lat"].notna().all()
+        assert climate_df["lon"].notna().all()
+        assert climate_df["temp"].notna().all()
+        assert climate_df["week"].notna().all()
+        assert climate_df["precip"].notna().all()

@@ -1,17 +1,6 @@
-? 'T001 Create project structure per implementation plan by executing: `mkdir -p src/data
-  src/models src/analysis data/raw data/processed data/interim tests/contract tests/unit
-  tests/integration docs`'
-: 2
-? T003a Create `pyproject.toml` at repository root with `[tool.black]` (line-length=88,
-  target-version=['py311']) and `[tool.ruff]` (lint.select=['E','F','W','I'], lint.ignore=[])
-  configuration sections
-: 2
-? T003b Create `.pre-commit-config.yaml` with hooks for `black` and `ruff` and configure
-  pre-commit installation instructions in `README.md`
-: 2
-T004 Create empty `src/data/download.py` file at repository root: 2
-'T005 [P] Implement `src/data/download.py` to:': 2
-? 'T006 [P] Add `tests/contract/test_schemas.py::test_ebird_schema_columns` asserting
-  `df.columns` equals [species, lat, lon, date, count, checklist_id] and `df.dtypes`
-  match expected types (TDD: Write before implementation)'
-: 2
+T001: 1
+T003a: 1
+T003b: 1
+T004: 1
+T005: 1
+T006: 1

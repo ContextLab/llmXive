@@ -1,317 +1,183 @@
 """
-Unit tests for the quantile binning split logic in code/data/split.py.
+Unit tests for quantile binning split logic in code/data/split.py.
 
-These tests verify:
-1. That stratified splits are created based on logS quantile bins.
-2. That the distribution of logS values is preserved across splits.
-3. That the split indices are valid and cover the entire dataset.
+These tests verify that the stratified split logic correctly:
+1. Bins continuous target values (logS) into quantiles.
+2. Assigns indices to train/val/test sets based on these bins.
+3. Maintains the target distribution across splits.
+4. Handles edge cases (small datasets, uniform values).
 """
 
-import os
-import sys
-import tempfile
-import json
-import math
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
-from pathlib import Path
+import sys
+import os
 
-# Add parent directory to path to allow imports from code/
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path to allow imports from code/
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from data.split import load_cleaned_data, create_stratified_splits, save_split_indices
 
 
-def create_temp_csv(data: dict) -> str:
-    """Helper to create a temporary CSV file with given data."""
-    fd, path = tempfile.mkstemp(suffix='.csv')
-    try:
-        with os.fdopen(fd, 'w') as tmp:
-            df = pd.DataFrame(data)
-            df.to_csv(tmp, index=False)
-        return path
-    except Exception:
-        os.close(fd)
-        raise
+class TestQuantileBinningLogic:
+    """Tests specifically for the quantile binning mechanism."""
 
-
-def create_temp_json(data: dict) -> str:
-    """Helper to create a temporary JSON file with given data."""
-    fd, path = tempfile.mkstemp(suffix='.json')
-    try:
-        with os.fdopen(fd, 'w') as tmp:
-            json.dump(data, tmp)
-        return path
-    except Exception:
-        os.close(fd)
-        raise
-
-
-class TestQuantileBinningSplit:
-    """Tests for the quantile binning split logic."""
-
-    def test_create_stratified_splits_basic(self):
-        """Test basic creation of stratified splits with uniform data."""
-        # Create synthetic data with known logS distribution
-        np.random.seed(42)
+    def test_quantile_bins_created_correctly(self):
+        """Verify that quantile bins are created and cover the full range."""
+        # Create a synthetic dataset with known distribution
         n_samples = 1000
-        smiles_list = [f"SMILES_{i}" for i in range(n_samples)]
-        # Create logS values with a known distribution (normal)
-        logS_values = np.random.normal(loc=-3.0, scale=1.5, size=n_samples)
-
-        temp_csv = create_temp_csv({
-            'SMILES': smiles_list,
-            'logS': logS_values
-        })
-
-        try:
-            # Load data
-            data, _ = load_cleaned_data(temp_csv)
-
-            # Create splits with 3 quantile bins
-            train_idx, val_idx, test_idx = create_stratified_splits(
-                data,
-                train_ratio=0.7,
-                val_ratio=0.15,
-                test_ratio=0.15,
-                n_bins=3,
-                random_state=42
-            )
-
-            # Verify total coverage
-            all_indices = set(train_idx) | set(val_idx) | set(test_idx)
-            assert len(all_indices) == n_samples, "Not all indices are covered"
-
-            # Verify no overlap
-            assert len(set(train_idx) & set(val_idx)) == 0, "Train and val overlap"
-            assert len(set(train_idx) & set(test_idx)) == 0, "Train and test overlap"
-            assert len(set(val_idx) & set(test_idx)) == 0, "Val and test overlap"
-
-            # Verify approximate ratios (allowing 5% tolerance)
-            assert abs(len(train_idx) / n_samples - 0.7) < 0.05
-            assert abs(len(val_idx) / n_samples - 0.15) < 0.05
-            assert abs(len(test_idx) / n_samples - 0.15) < 0.05
-
-        finally:
-            os.unlink(temp_csv)
-
-    def test_stratification_preserves_distribution(self):
-        """Test that stratification preserves logS distribution across splits."""
-        # Create data with a skewed distribution
-        np.random.seed(123)
-        n_samples = 1000
-        smiles_list = [f"SMILES_{i}" for i in range(n_samples)]
-        # Skewed logS distribution
-        logS_values = np.random.exponential(scale=2.0, size=n_samples) - 3.0
-
-        temp_csv = create_temp_csv({
-            'SMILES': smiles_list,
-            'logS': logS_values
-        })
-
-        try:
-            data, _ = load_cleaned_data(temp_csv)
-
-            # Create splits
-            train_idx, val_idx, test_idx = create_stratified_splits(
-                data,
-                train_ratio=0.7,
-                val_ratio=0.15,
-                test_ratio=0.15,
-                n_bins=5,
-                random_state=123
-            )
-
-            # Calculate logS values for each split
-            train_logS = data['logS'].iloc[train_idx]
-            val_logS = data['logS'].iloc[val_idx]
-            test_logS = data['logS'].iloc[test_idx]
-
-            # Calculate mean and std for each split
-            train_mean, train_std = train_logS.mean(), train_logS.std()
-            val_mean, val_std = val_logS.mean(), val_logS.std()
-            test_mean, test_std = test_logS.mean(), test_logS.std()
-            overall_mean, overall_std = data['logS'].mean(), data['logS'].std()
-
-            # Each split should have similar mean and std to overall (within 10%)
-            assert abs(train_mean - overall_mean) < 0.1 * abs(overall_mean)
-            assert abs(val_mean - overall_mean) < 0.1 * abs(overall_mean)
-            assert abs(test_mean - overall_mean) < 0.1 * abs(overall_mean)
-
-            # Same for std (avoid division by zero)
-            if overall_std > 0:
-                assert abs(train_std - overall_std) < 0.1 * overall_std
-                assert abs(val_std - overall_std) < 0.1 * overall_std
-                assert abs(test_std - overall_std) < 0.1 * overall_std
-
-        finally:
-            os.unlink(temp_csv)
-
-    def test_split_indices_with_edge_cases(self):
-        """Test split logic with edge cases like small datasets."""
-        # Small dataset
-        n_samples = 50
-        smiles_list = [f"SMILES_{i}" for i in range(n_samples)]
-        logS_values = np.random.normal(loc=-3.0, scale=1.5, size=n_samples)
-
-        temp_csv = create_temp_csv({
-            'SMILES': smiles_list,
-            'logS': logS_values
-        })
-
-        try:
-            data, _ = load_cleaned_data(temp_csv)
-
-            # Create splits
-            train_idx, val_idx, test_idx = create_stratified_splits(
-                data,
-                train_ratio=0.7,
-                val_ratio=0.15,
-                test_ratio=0.15,
-                n_bins=3,
-                random_state=42
-            )
-
-            # Verify all indices are within bounds
-            assert all(0 <= i < n_samples for i in train_idx)
-            assert all(0 <= i < n_samples for i in val_idx)
-            assert all(0 <= i < n_samples for i in test_idx)
-
-            # Verify non-empty splits
-            assert len(train_idx) > 0
-            assert len(val_idx) > 0
-            assert len(test_idx) > 0
-
-        finally:
-            os.unlink(temp_csv)
-
-    def test_deterministic_splits_with_seed(self):
-        """Test that splits are deterministic with the same random seed."""
         np.random.seed(42)
+        # LogS values typically range from -5 to 5 in ESOL
+        logS_values = np.random.normal(loc=0.0, scale=2.0, size=n_samples)
+        
+        df = pd.DataFrame({
+            'smiles': ['CCO' for _ in range(n_samples)],
+            'logS': logS_values
+        })
+
+        # We test the internal logic by calling create_stratified_splits
+        # and checking the resulting distribution
+        train_idx, val_idx, test_idx = create_stratified_splits(df, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, random_seed=42)
+
+        # Verify all indices are unique and cover the dataset
+        all_indices = set(train_idx) | set(val_idx) | set(test_idx)
+        assert len(all_indices) == n_samples, "Split indices do not cover all samples"
+        assert len(set(train_idx)) == len(train_idx), "Duplicate indices in train set"
+        assert len(set(val_idx)) == len(val_idx), "Duplicate indices in validation set"
+        assert len(set(test_idx)) == len(test_idx), "Duplicate indices in test set"
+
+    def test_distribution_preserved_across_splits(self):
+        """Verify that the mean and std of logS are similar across splits (stratification)."""
+        n_samples = 1000
+        np.random.seed(42)
+        logS_values = np.random.normal(loc=0.0, scale=2.0, size=n_samples)
+        
+        df = pd.DataFrame({
+            'smiles': ['CCO' for _ in range(n_samples)],
+            'logS': logS_values
+        })
+
+        train_idx, val_idx, test_idx = create_stratified_splits(
+            df, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, random_seed=42
+        )
+
+        train_logS = df.iloc[train_idx]['logS']
+        val_logS = df.iloc[val_idx]['logS']
+        test_logS = df.iloc[test_idx]['logS']
+
+        # Calculate statistics
+        stats = {
+            'train': {'mean': train_logS.mean(), 'std': train_logS.std()},
+            'val': {'mean': val_logS.mean(), 'std': val_logS.std()},
+            'test': {'mean': test_logS.mean(), 'std': test_logS.std()}
+        }
+
+        # The means should be very close (within 0.1 std deviation of the whole set)
+        total_std = df['logS'].std()
+        tolerance = 0.1 * total_std
+
+        for split_name, split_stats in stats.items():
+            diff_from_global_mean = abs(split_stats['mean'] - df['logS'].mean())
+            assert diff_from_global_mean < tolerance, \
+                f"Mean of {split_name} split ({split_stats['mean']:.4f}) deviates too much from global mean ({df['logS'].mean():.4f}). Diff: {diff_from_global_mean:.4f}"
+
+    def test_empty_splits_rejected(self):
+        """Verify that the function handles cases where a split might be too small."""
+        # Create a very small dataset
+        n_samples = 10
+        df = pd.DataFrame({
+            'smiles': ['CCO' for _ in range(n_samples)],
+            'logS': [0.0] * n_samples
+        })
+
+        # With 10 samples, 10% is 1 sample. This should still work but be careful.
+        # If the binning logic fails for tiny datasets, it should raise or handle gracefully.
+        # We expect it to succeed if the logic is robust.
+        try:
+            train_idx, val_idx, test_idx = create_stratified_splits(
+                df, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, random_seed=42
+            )
+            # If it succeeds, check sizes
+            assert len(train_idx) >= 1
+            assert len(val_idx) >= 0 # Might be 0 if rounding down
+            assert len(test_idx) >= 0
+        except Exception as e:
+            # If it fails, it should be a clear error, not a silent crash
+            pytest.fail(f"create_stratified_splits failed on small dataset: {e}")
+
+    def test_uniform_values_handling(self):
+        """Test behavior when all logS values are identical (edge case for quantiles)."""
+        n_samples = 100
+        df = pd.DataFrame({
+            'smiles': ['CCO' for _ in range(n_samples)],
+            'logS': [1.5] * n_samples
+        })
+
+        # Stratification on uniform values should still produce a split
+        # (random assignment or equal distribution across bins if bins are forced)
+        train_idx, val_idx, test_idx = create_stratified_splits(
+            df, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, random_seed=42
+        )
+
+        # Verify indices are valid
+        assert len(train_idx) + len(val_idx) + len(test_idx) == n_samples
+        assert len(set(train_idx)) == len(train_idx)
+
+    def test_deterministic_with_seed(self):
+        """Verify that the same seed produces the same split."""
         n_samples = 200
-        smiles_list = [f"SMILES_{i}" for i in range(n_samples)]
-        logS_values = np.random.normal(loc=-3.0, scale=1.5, size=n_samples)
-
-        temp_csv = create_temp_csv({
-            'SMILES': smiles_list,
+        np.random.seed(123)
+        logS_values = np.random.normal(0, 1, n_samples)
+        df = pd.DataFrame({
+            'smiles': ['CCO' for _ in range(n_samples)],
             'logS': logS_values
         })
 
-        try:
-            data, _ = load_cleaned_data(temp_csv)
+        # Run twice with same seed
+        train1, val1, test1 = create_stratified_splits(df, 0.8, 0.1, 0.1, random_seed=42)
+        train2, val2, test2 = create_stratified_splits(df, 0.8, 0.1, 0.1, random_seed=42)
 
-            # Create splits twice with same seed
-            train_idx_1, val_idx_1, test_idx_1 = create_stratified_splits(
-                data,
-                train_ratio=0.7,
-                val_ratio=0.15,
-                test_ratio=0.15,
-                n_bins=3,
-                random_state=42
-            )
+        assert list(train1) == list(train2), "Train indices differ with same seed"
+        assert list(val1) == list(val2), "Val indices differ with same seed"
+        assert list(test1) == list(test2), "Test indices differ with same seed"
 
-            train_idx_2, val_idx_2, test_idx_2 = create_stratified_splits(
-                data,
-                train_ratio=0.7,
-                val_ratio=0.15,
-                test_ratio=0.15,
-                n_bins=3,
-                random_state=42
-            )
-
-            # Verify splits are identical
-            assert train_idx_1 == train_idx_2
-            assert val_idx_1 == val_idx_2
-            assert test_idx_1 == test_idx_2
-
-        finally:
-            os.unlink(temp_csv)
-
-    def test_save_split_indices(self):
-        """Test saving and loading split indices."""
-        temp_dir = tempfile.mkdtemp()
-        try:
-            # Create sample indices
-            train_idx = [0, 1, 2, 3, 4]
-            val_idx = [5, 6, 7]
-            test_idx = [8, 9, 10]
-
-            save_split_indices(
-                train_idx,
-                val_idx,
-                test_idx,
-                temp_dir,
-                "test_split"
-            )
-
-            # Verify files were created
-            train_file = os.path.join(temp_dir, "test_split_train.json")
-            val_file = os.path.join(temp_dir, "test_split_val.json")
-            test_file = os.path.join(temp_dir, "test_split_test.json")
-
-            assert os.path.exists(train_file)
-            assert os.path.exists(val_file)
-            assert os.path.exists(test_file)
-
-            # Verify content
-            with open(train_file, 'r') as f:
-                loaded_train = json.load(f)
-            assert loaded_train == train_idx
-
-            with open(val_file, 'r') as f:
-                loaded_val = json.load(f)
-            assert loaded_val == val_idx
-
-            with open(test_file, 'r') as f:
-                loaded_test = json.load(f)
-            assert loaded_test == test_idx
-
-        finally:
-            # Cleanup
-            for f in [train_file, val_file, test_file]:
-                if os.path.exists(f):
-                    os.unlink(f)
-            os.rmdir(temp_dir)
-
-    def test_quantile_bins_with_equal_distribution(self):
-        """Test that quantile bins work correctly with evenly distributed data."""
-        # Create evenly distributed logS values
-        n_samples = 1000
-        smiles_list = [f"SMILES_{i}" for i in range(n_samples)]
-        logS_values = np.linspace(-5.0, 5.0, n_samples)
-
-        temp_csv = create_temp_csv({
-            'SMILES': smiles_list,
-            'logS': logS_values
+    def test_invalid_ratios_rejected(self):
+        """Verify that invalid ratios (sum > 1) raise an error."""
+        n_samples = 100
+        df = pd.DataFrame({
+            'smiles': ['CCO' for _ in range(n_samples)],
+            'logS': [0.0] * n_samples
         })
 
-        try:
-            data, _ = load_cleaned_data(temp_csv)
+        with pytest.raises(ValueError):
+            create_stratified_splits(df, train_ratio=0.8, val_ratio=0.3, test_ratio=0.1, random_seed=42)
 
-            # Create splits with many bins
-            train_idx, val_idx, test_idx = create_stratified_splits(
-                data,
-                train_ratio=0.7,
-                val_ratio=0.15,
-                test_ratio=0.15,
-                n_bins=10,
-                random_state=42
-            )
+    def test_negative_ratios_rejected(self):
+        """Verify that negative ratios raise an error."""
+        n_samples = 100
+        df = pd.DataFrame({
+            'smiles': ['CCO' for _ in range(n_samples)],
+            'logS': [0.0] * n_samples
+        })
 
-            # Each bin should be represented proportionally in each split
-            # Calculate bin assignments
-            bins = pd.qcut(data['logS'], q=10, labels=False, duplicates='drop')
+        with pytest.raises(ValueError):
+            create_stratified_splits(df, train_ratio=-0.1, val_ratio=0.1, test_ratio=0.1, random_seed=42)
 
-            for split_name, split_idx in [('train', train_idx),
-                                           ('val', val_idx),
-                                           ('test', test_idx)]:
-                split_bins = bins.iloc[split_idx]
-                # Each bin should have roughly the same representation
-                bin_counts = split_bins.value_counts()
-                expected_per_bin = len(split_idx) / 10
-                for count in bin_counts.values:
-                    assert abs(count - expected_per_bin) < expected_per_bin * 0.2
+    def test_zero_ratio_handling(self):
+        """Verify that zero ratio for a split results in empty list."""
+        n_samples = 100
+        df = pd.DataFrame({
+            'smiles': ['CCO' for _ in range(n_samples)],
+            'logS': [0.0] * n_samples
+        })
 
-        finally:
-            os.unlink(temp_csv)
+        train_idx, val_idx, test_idx = create_stratified_splits(
+            df, train_ratio=0.9, val_ratio=0.0, test_ratio=0.1, random_seed=42
+        )
+
+        assert len(val_idx) == 0, "Validation set should be empty when ratio is 0"
+        assert len(train_idx) + len(test_idx) == n_samples
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

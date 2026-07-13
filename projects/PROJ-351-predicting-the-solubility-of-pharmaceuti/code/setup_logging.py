@@ -4,123 +4,109 @@ import logging
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import Any, Dict, Optional
 
-# Ensure the data/logs directory exists
+# Ensure the log directory exists
 LOG_DIR = Path("data/logs")
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Define log file paths
-RUN_LOG_FILE = LOG_DIR / f"run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-METRICS_LOG_FILE = LOG_DIR / "metrics.jsonl"
-
-def setup_logger(name: str = "llmXive") -> logging.Logger:
+def setup_logger(name: str, log_file: str = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Configures and returns a logger that writes to both console and a rotating file.
+    Sets up a logger with console and optional file output.
+    
+    Args:
+        name: The name of the logger.
+        log_file: Relative path to the log file within data/logs/. 
+                  If None, only console output is used.
+        level: Logging level (e.g., logging.INFO).
+    
+    Returns:
+        A configured logging.Logger instance.
     """
     logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # Avoid adding handlers multiple times if called repeatedly
     if logger.handlers:
         return logger
 
-    logger.setLevel(logging.DEBUG)
-
-    # File handler
-    file_handler = logging.FileHandler(RUN_LOG_FILE)
-    file_handler.setLevel(logging.DEBUG)
-    file_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
-    file_handler.setFormatter(file_formatter)
 
     # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_formatter = logging.Formatter('%(levelname)s: %(message)s')
-    console_handler.setFormatter(console_formatter)
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
+    # File handler
+    if log_file:
+        log_path = LOG_DIR / log_file
+        fh = logging.FileHandler(log_path)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
 
     return logger
 
-def log_exclusion_counts(
-    total_count: int,
-    invalid_smiles: int,
-    missing_logS: int,
-    source: str = "preprocess"
-) -> None:
+def log_exclusion_counts(logger: logging.Logger, total_count: int, excluded_count: int, reason: str = "Invalid SMILES"):
     """
-    Logs the counts of excluded molecules during data processing.
-    """
-    logger = setup_logger()
-    logger.info(f"Exclusion counts for {source}: Total={total_count}, Invalid SMILES={invalid_smiles}, Missing logS={missing_logS}")
+    Logs the count of excluded items (e.g., invalid SMILES) to the logger.
     
-    # Also append to a summary file for easy retrieval
-    summary_file = LOG_DIR / "exclusion_summary.json"
-    summary_data = []
-    if summary_file.exists():
-        try:
-            with open(summary_file, 'r') as f:
-                summary_data = json.load(f)
-        except json.JSONDecodeError:
-            summary_data = []
-
-    summary_data.append({
-        "timestamp": datetime.now().isoformat(),
-        "source": source,
-        "total": total_count,
-        "invalid_smiles": invalid_smiles,
-        "missing_logs": missing_logS,
-        "excluded": invalid_smiles + missing_logS
-    })
-
-    with open(summary_file, 'w') as f:
-        json.dump(summary_data, f, indent=2)
-
-def log_training_metrics(
-    model_name: str,
-    metrics: Dict[str, float],
-    split: str = "test"
-) -> None:
+    Args:
+        logger: The logger instance.
+        total_count: Total number of items processed.
+        excluded_count: Number of items excluded.
+        reason: The reason for exclusion.
     """
-    Logs training or evaluation metrics to a JSONL file for aggregation.
+    if excluded_count > 0:
+        logger.warning(f"Exclusion Summary: {excluded_count}/{total_count} items excluded due to {reason}.")
+    else:
+        logger.info(f"Exclusion Summary: {excluded_count}/{total_count} items excluded due to {reason}.")
+
+def log_training_metrics(logger: logging.Logger, metrics: dict, epoch: int = -1):
     """
-    logger = setup_logger()
-    log_entry = {
-        "timestamp": datetime.now().isoformat(),
-        "model": model_name,
-        "split": split,
-        **metrics
-    }
+    Logs training metrics (e.g., RMSE, R2) to the logger and optionally to a JSON file.
     
-    logger.info(f"Metrics for {model_name} ({split}): {json.dumps(metrics)}")
+    Args:
+        logger: The logger instance.
+        metrics: Dictionary of metric names to values.
+        epoch: Current epoch number (optional, -1 if not applicable).
+    """
+    if epoch >= 0:
+        logger.info(f"Epoch {epoch} Metrics: {metrics}")
+    else:
+        logger.info(f"Final Training Metrics: {metrics}")
     
-    with open(METRICS_LOG_FILE, 'a') as f:
-        f.write(json.dumps(log_entry) + "\n")
+    # Also save a snapshot of metrics to a JSON file for easy parsing
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    metrics_file = LOG_DIR / f"training_metrics_{timestamp}.json"
+    with open(metrics_file, 'w') as f:
+        json.dump(metrics, f, indent=4)
+    logger.info(f"Metrics saved to {metrics_file}")
 
 def main():
     """
-    Entry point for testing the logging configuration.
+    Main function to demonstrate logging setup and usage.
+    This script ensures the logging infrastructure is configured
+    and logs a sample exclusion count and training metric.
     """
-    logger = setup_logger()
+    # Setup logger
+    logger = setup_logger("PipelineLogger", "pipeline_run.log")
+    
     logger.info("Logging infrastructure initialized.")
     
-    # Simulate exclusion counts
-    log_exclusion_counts(
-        total_count=1128,
-        invalid_smiles=5,
-        missing_logS=2,
-        source="test_preprocess"
-    )
+    # Simulate exclusion logging
+    log_exclusion_counts(logger, total_count=1000, excluded_count=42, reason="Invalid SMILES or NaN logS")
     
-    # Simulate training metrics
-    log_training_metrics(
-        model_name="RandomForestBaseline",
-        metrics={"rmse": 0.85, "r_squared": 0.68},
-        split="test"
-    )
-    
-    logger.info("Logging test completed successfully.")
+    # Simulate training metrics logging
+    sample_metrics = {
+        "rmse": 0.85,
+        "r_squared": 0.72,
+        "mae": 0.65
+    }
+    log_training_metrics(logger, sample_metrics)
+
+    logger.info("Logging demonstration complete.")
 
 if __name__ == "__main__":
     main()
