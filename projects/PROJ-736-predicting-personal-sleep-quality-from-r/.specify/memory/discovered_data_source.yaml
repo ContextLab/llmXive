@@ -1,0 +1,15 @@
+status: none
+intent: Human Connectome Project 1200 Schaefer 200 functional connectivity vectors
+  download python package dataset
+required_fields:
+- subject_id
+- sleep_questionnaire_score
+- schaefer200_time_series
+- subcortical_time_series
+- bandpass_filtered_time_series
+- nuisance_regressed_time_series
+- framewise_displacement
+- fisher_z_connectivity_vector
+- upper_triangular_connectivity_vector
+- inclusion_flag
+- processing_log
