@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 2ec5cab0b06c6071d53ad5203b645c02faff43160583847789b4016b6fba3bde
+  artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/lichess/big-chess-dataset`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/lichess/big-chess-dataset
+  verified_at: '2026-07-13T20:36:28.638149Z'
+- artifact_hash: 0ba773d1e741a64cc8e898132d44d3d6e6606bd87f0b795a54cd7362587c1eb8
+  artifact_path: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/lichess/big-chess-dataset`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/lichess/big-chess-dataset
+  verified_at: '2026-07-13T20:36:40.148434Z'

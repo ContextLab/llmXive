@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GameRecord"
+description: "Schema for a single chess game record with calculated features."
+type: "object"
+properties:
+  game_id:
+    type: "string"
+    description: "Unique identifier for the game."
+  white_rating:
+    type: "integer"
+    description: "White player's rating."
+  black_rating:
+    type: "integer"
+    description: "Black player's rating."
+  eco_code:
+    type: "string"
+    description: "Original ECO code."
+  eco_family:
+    type: "string"
+    description: "Collapsed opening family."
+  avg_move_time_white:
+    type: "number"
+    description: "Average move time for White in seconds."
+  avg_move_time_black:
+    type: "number"
+    description: "Average move time for Black in seconds."
+  material_imbalance_move5:
+    type: "number"
+    description: "Material difference at move 5 (White - Black)."
+  outcome:
+    type: "number"
+    description: "Actual result (1.0, 0.5, or 0.0)."
+    minimum: 0.0
+    maximum: 1.0
+  elo_expected_prob:
+    type: "number"
+    description: "Expected win probability for White."
+    minimum: 0.0001
+    maximum: 0.9999
+  outcome_deviation:
+    type: "number"
+    description: "Difference between actual and expected outcome."
+    minimum: -1.0
+    maximum: 1.0
+required:
+  - game_id
+  - white_rating
+  - black_rating
+  - eco_code
+  - eco_family
+  - avg_move_time_white
+  - avg_move_time_black
+  - material_imbalance_move5
+  - outcome
+  - elo_expected_prob
+  - outcome_deviation
+additionalProperties: false

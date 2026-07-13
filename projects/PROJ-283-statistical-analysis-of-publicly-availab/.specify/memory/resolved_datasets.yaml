@@ -1,4 +1,4 @@
-resolved_at: '2026-07-13T20:14:19.157962+00:00'
+resolved_at: '2026-07-13T20:23:05.606987+00:00'
 datasets:
 - intent: PGN
   status: verified
@@ -39,15 +39,11 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/dataset/Contralateral_lower-limb_muscle_activation_induced_by_PNF_patterns_sEMG_dataset_and_analysis_code/32978393
+  - url: https://figshare.com/articles/figure/Q_07033307887_Department_of_Nursing_Sciences_University_of_Benin_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_/32978420
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ctsnet.figshare.com/articles/media/The_Cox-Maze_III_Procedure_Combined_With_Valve-Sparing_Aortic_Surgery_and_CABG/32975501
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/journal_contribution/Complete_Supplementary_Material_from_CP4SBI_local_conformal_calibration_of_credible_sets_in_simulation-based_inference/32978404
+  - url: https://rs.figshare.com/articles/journal_contribution/Supplementary_Table_1_from_Sex_ratio_shapes_female_response_to_sexual_conflict_in_the_wild/32978423
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -55,7 +51,11 @@ datasets:
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/A_PC_Algorithm_for_Max-Linear_Bayesian_Networks/32978398
+  - url: https://figshare.com/articles/dataset/_07033307887_Department_of_Nursing_Sciences_University_of_Benin_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_/32978414
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Loss-based_prior_for_CART_and_BART_models/32978417
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -96,6 +96,107 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/18224601
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AIC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mihajlo04/aic-port-insertion-eval/resolve/main/eval/ACT_1000/022_20260704-040641/metrics.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2367
+      parsed: true
+  - url: https://huggingface.co/datasets/ctu-aic/csfever/resolve/main/data/test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/AI-companionship/INTIMA/resolve/main/INTIMA.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/Mihajlo04/aic-port-insertion-eval/resolve/main/eval/ACT_1000/022_20260704-040641/metrics.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ctu-aic/csfever/resolve/main/data/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/journal_contribution/K_07033307887_Department_of_Nursing_Sciences_University_of_Benin_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_/32978426
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Q_07033307887_Department_of_Nursing_Sciences_University_of_Benin_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_/32978420
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Supplementary_Table_1_from_Sex_ratio_shapes_female_response_to_sexual_conflict_in_the_wild/32978423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/figure/Supplementary_Figure_1_from_Sex_ratio_shapes_female_response_to_sexual_conflict_in_the_wild/32978401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_07033307887_Department_of_Nursing_Sciences_University_of_Benin_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_/32978414
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://checklist.pensoft.net/articles.php?id=20205
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7684550
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7806798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.5sj852c
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1244240
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345389
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345389
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21233529
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21233529
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.5dv41nsbc
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

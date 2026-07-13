@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModelOutput"
+description: "Schema for the output of a fitted regression model."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model: 'gaussian_glm' or 'ridge'."
+    enum:
+      - "gaussian_glm"
+      - "ridge"
+  coefficients:
+    type: "object"
+    description: "Map of feature names to coefficient values."
+    additionalProperties:
+      type: "number"
+  p_values:
+    type: "object"
+    description: "Map of feature names to raw p-values."
+    additionalProperties:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+  p_values_fdr:
+    type: "object"
+    description: "Map of feature names to FDR-corrected p-values."
+    additionalProperties:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+  r_squared:
+    type: "number"
+    description: "Model R² score."
+    minimum: 0.0
+    maximum: 1.0
+  aic:
+    type: "number"
+    description: "Akaike Information Criterion."
+  cv_scores:
+    type: "array"
+    description: "R² scores from 5-fold cross-validation."
+    items:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+    minItems: 5
+    maxItems: 5
+  significant_features:
+    type: "array"
+    description: "List of features with FDR-corrected p < 0.01."
+    items:
+      type: "string"
+required:
+  - model_type
+  - coefficients
+  - p_values
+  - p_values_fdr
+  - r_squared
+  - aic
+  - cv_scores
+  - significant_features
+additionalProperties: false

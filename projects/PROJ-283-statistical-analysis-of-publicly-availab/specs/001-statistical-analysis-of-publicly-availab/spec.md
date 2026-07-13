@@ -1,6 +1,6 @@
 # Feature Specification: Statistical Analysis of Publicly Available Chess Game Data for Elo Rating Prediction
 
-**Feature Branch**: `001-chess-elo-deviation-analysis`  
+**Feature Branch**: `001-statistical-chess-elo-analysis`  
 **Created**: 2023-10-27  
 **Status**: Draft  
 **Input**: User description: "Statistical Analysis of Publicly Available Chess Game Data for Elo Rating Prediction"
@@ -9,101 +9,99 @@
 
 ### User Story 1 - Data Ingestion and Feature Extraction (Priority: P1)
 
-As a data analyst, I want to download a subset of ≤100,000 public chess games from the Lichess database and extract specific game features (opening code, move times, material imbalance) so that I have a clean, structured dataset ready for statistical modeling.
+**As a** data analyst, **I want** to download a subset of public Lichess PGN games and parse them to extract specific game features (opening codes, move times, material imbalance) and calculate Elo-based expected win probabilities, **so that** I have a clean, structured dataset ready for statistical modeling.
 
-**Why this priority**: Without a valid, parsed dataset containing the required predictors and outcomes, no statistical analysis can occur. This is the foundational step for the entire research pipeline.
+**Why this priority**: This is the foundational step. Without a validated dataset containing the predictors and the target variable (outcome deviation), no analysis can occur. It must function independently to ensure data integrity before modeling begins.
 
-**Independent Test**: Can be fully tested by executing the data ingestion script on a sample of [deferred] games and verifying the output CSV contains ≥99% non-null values for all defined feature columns and the calculated outcome deviation.
+**Independent Test**: The system can be tested by running the ingestion pipeline on a small sample (e.g., 100 games) and verifying that the output collection of GameRecord entities contains the expected columns (ECO code, avg_move_time, material_imbalance_move10, elo_expected_prob, outcome_deviation) with no null values in critical fields.
 
 **Acceptance Scenarios**:
 
-1. **Given** the Lichess PGN database is accessible, **When** the ingestion script runs on a sample of [deferred] games, **Then** the output file contains [deferred] rows with columns for `eco_code`, `avg_move_time_white`, `avg_move_time_black`, `material_imbalance_move_10`, and `outcome_deviation`.
-2. **Given** a game file with missing move-time metadata, **When** the parser processes it, **Then** the row is either excluded or marked with the value 'NaN', and the script logs the exclusion count without crashing.
-3. **Given** the dataset is limited to ≤100,000 games, **When** the full ingestion completes, **Then** the resulting CSV file size is ≤ 500 MB, ensuring it fits within the 7 GB RAM limit of the CI runner.
+1. **Given** a valid Lichess PGN file URL and a request for [deferred] games, **When** the ingestion script executes, **Then** the output collection of GameRecord entities contains [deferred] records with calculated `outcome_deviation` values and no missing data in the predictor columns.
+2. **Given** a PGN file with malformed move lists, **When** the parser encounters an error, **Then** the specific game is skipped, logged, and the process continues without crashing, ensuring the final dataset size is within ±1% of the requested target.
 
 ---
 
 ### User Story 2 - Regression Modeling and Significance Testing (Priority: P2)
 
-As a researcher, I want to fit multiple regression models (linear, ridge) using the extracted game features to predict outcome deviations, validate against an external engine-evaluation proxy, and perform statistical significance tests on the coefficients so that I can determine if specific game features systematically bias Elo predictions.
+**As a** researcher, **I want** to fit multiple regression models (Beta, Ridge) using the extracted features to predict outcome deviations, apply multiple-comparison correction (Benjamini-Hochberg FDR) to p-values, and perform statistical significance tests, **so that** I can identify which game features systematically correlate with Elo prediction errors.
 
-**Why this priority**: This is the core scientific inquiry. It transforms raw data into statistical evidence regarding the research question (do features correlate with deviations?) while mitigating circular validation risks.
+**Why this priority**: This is the core analytical engine. It directly addresses the research question by quantifying the relationship between features and deviations. It relies on the output of Story 1 but is independently testable as a statistical pipeline.
 
-**Independent Test**: Can be fully tested by running the modeling script on the pre-processed dataset and verifying that the output includes a summary table of coefficients, p-values, R², and an engine-evaluation comparison report.
+**Independent Test**: The system can be tested by running the modeling script on the generated dataset and verifying that the output includes coefficient tables with p-values, R² scores, and AIC values for all specified models, with p-values corrected for multiple comparisons.
 
 **Acceptance Scenarios**:
 
-1. **Given** a clean dataset of [deferred] games, **When** the linear regression model is fitted, **Then** the output includes a coefficient table where every predictor has an associated p-value and standard error.
-2. **Given** the fitted model, **When** the cross-validation (k=5) is executed, **Then** the system reports the mean R² and standard deviation across the 5 folds, ensuring R² > 0.05.
-3. **Given** a model with multiple predictors, **When** the variance inflation factor (VIF) is calculated, **Then** the system reports VIF scores for each predictor, specifically checking the correlation between move time and material imbalance.
+1. **Given** a dataset of [deferred] games with calculated deviations, **When** the regression module runs, **Then** it outputs a summary table where every coefficient has an associated p-value (corrected for multiple comparisons) and the model fit statistics (R², AIC) are recorded for each model type.
+2. **Given** a fitted model, **When** the significance test module runs, **Then** it correctly identifies coefficients with p < 0.01 (after correction) as statistically significant and flags them in the final report.
+3. **Given** a set of one-hot encoded ECO codes, **When** the feature preparation step runs, **Then** the system collapses ECO codes into broader opening families to reduce multicollinearity before fitting the regression model.
 
 ---
 
-### User Story 3 - Diagnostic Visualization and Reporting (Priority: P3)
+### User Story 3 - Cross-Validation and Diagnostic Reporting (Priority: P3)
 
-As a stakeholder, I want to generate diagnostic plots (residuals, feature importance, predicted vs. actual) and a summary report so that I can visually inspect model validity and communicate the findings regarding Elo system biases.
+**As a** reviewer, **I want** to see the results of 5-fold cross-validation and diagnostic plots (residuals, feature importance, predicted vs. actual) to ensure the model generalizes and to visualize the nature of the Elo biases, **so that** I can validate the robustness of the findings before publication.
 
-**Why this priority**: While the statistical tests provide the numbers, visualizations are essential for validating assumptions (e.g., normality of residuals) and communicating the magnitude of deviations to non-technical audiences.
+**Why this priority**: This adds rigor to the findings by preventing overfitting and providing visual evidence. It depends on the models from Story 2 but serves as a distinct validation step.
 
-**Independent Test**: Can be fully tested by running the reporting script and verifying that the output directory contains at least three distinct plot images (residual plot, scatter plot, bar chart) and a text summary file.
+**Independent Test**: The system can be tested by executing the validation script and verifying that the output includes a confusion matrix or residual plot and a report of the mean squared error (MSE) across the 5 folds.
 
 **Acceptance Scenarios**:
 
-1. **Given** a fitted model, **When** the diagnostic script runs, **Then** a residual plot is generated showing residuals on the y-axis and predicted values on the x-axis.
-2. **Given** the model coefficients, **When** the feature importance chart is generated, **Then** the chart displays the magnitude of each feature's effect on the outcome deviation.
-3. **Given** the analysis results, **When** the summary report is generated, **Then** it explicitly states whether the p-value for the overall model fit is < 0.01, lists the top 3 features with significant coefficients, and reports the R² value.
+1. **Given** a trained regression model, **When** the cross-validation routine executes, **Then** it produces a report showing the variation in R² and MSE across the 5 folds, confirming the model's stability.
+2. **Given** the final model results, **When** the diagnostic generator runs, **Then** it produces a scatter plot of predicted vs. actual deviation and a residual plot that can be saved as a PNG file for the final report.
+
+---
 
 ### Edge Cases
 
-- **What happens when** the Lichess API or database download fails due to network timeout?
-  - The system MUST retry the download up to 3 times with a 10-second backoff before failing the job.
-- **How does the system handle** games where the material imbalance cannot be calculated (e.g., incomplete games ending before move 10)?
-  - The system MUST exclude these games from the analysis *before* feature extraction and log the count of excluded games to ensure the sample size remains accurate.
-- **What happens when** a specific opening code (ECO) has fewer than 100 occurrences in the 100k sample?
-  - The system MUST either group these rare codes into an "Other" category or exclude them to prevent unstable coefficient estimates in the regression.
+- **What happens when** the Lichess API is temporarily unavailable or rate-limited? The system must implement an exponential backoff retry strategy with a configurable maximum number of retries. and exit gracefully with a clear error message if the download fails after retries.
+- **How does the system handle** games where the rating difference is so extreme that the expected probability is effectively 0 or 1 (causing numerical instability in log-odds)? The system must cap expected probabilities within a bounded range away from the theoretical extremes. to prevent division-by-zero or log-of-zero errors during deviation calculation.
+- **What happens when** a game lacks move-time metadata? The system must exclude that specific game from the analysis rather than imputing a value, as imputation could bias the "move time" predictor.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST download and parse a subset of ≤100,000 chess games from the Lichess public database, extracting ECO codes, move times, and material imbalance at move 10. Games ending before move 10 MUST be excluded prior to extraction. (See US-1)
-- **FR-002**: The system MUST calculate the expected win probability for White using the standard Elo logistic formula: $P = 1 / (1 + 10^{(R_{black} - R_{white})/400})$, where $R_{white}$ is White's rating and $R_{black}$ is Black's rating. (See US-2)
-- **FR-003**: The system MUST compute the outcome deviation as the difference between the actual result for White (1 for win, 0.5 for draw, 0 for loss) and the expected win probability $P$ calculated in FR-002. (See US-2)
-- **FR-004**: The system MUST fit at least two regression models (Linear and Ridge) using the extracted features as predictors and outcome deviation as the target variable. (See US-2)
-- **FR-005**: The system MUST perform 5-fold cross-validation on the fitted models and report the mean R² and standard deviation. (See US-2)
-- **FR-006**: The system MUST calculate and report Variance Inflation Factors (VIF) for all predictors to assess collinearity. (See US-2)
-- **FR-007**: The system MUST generate a residual plot, a predicted-vs-actual scatter plot, and a feature importance bar chart. (See US-3)
-- **FR-008**: The system MUST apply a multiple-comparison correction (e.g., Bonferroni or False Discovery Rate) when testing the significance of multiple regression coefficients. (See US-2)
-- **FR-009**: The system MUST report 95% confidence intervals for the Elo expectation calculation and perform a sensitivity analysis on the expectation formula parameters (e.g., varying the K-factor or rating difference scaling) to validate robustness. (See US-2)
-- **FR-010**: The system MUST perform a power analysis demonstrating that the sample size ([deferred] games) is sufficient to detect a deviation magnitude of effect size ≥ 0.1 with power ≥ 0.8. (See US-2)
-- **FR-011**: The system MUST validate the 'outcome deviation' findings against an external ground truth proxy, specifically the difference in engine evaluation (in centipawns) at move 20, to ensure findings are not purely circular residuals. (See US-2)
-- **FR-012**: The system MUST explicitly test for and report the correlation between `avg_move_time` and `material_imbalance`, and exclude or adjust for high collinearity (VIF > 5.0) between these specific predictors before interpreting coefficients. (See US-2)
-- **FR-013**: The system MUST include a 'rating_difference' binning feature or interaction term in the model to explicitly account for and distinguish 'regression to the mean' artifacts from genuine Elo biases. (See US-2)
+- **FR-001**: System MUST download a subset of [deferred] games from the Lichess database (or a verified mirror) containing complete rating and move-time data (See US-1).
+- **FR-002**: System MUST parse PGN files to extract opening ECO codes, average move times per player, and material_imbalance_move10 (See US-1).
+- **FR-003**: System MUST calculate the expected win probability using the standard Elo logistic formula: P = 1 / (1 + 10^((R2-R1)/400)) for every game (See US-1).
+- **FR-004**: System MUST compute the outcome deviation as (actual_result - expected_probability) where actual_result is 1 (win), 0.5 (draw), or 0 (loss) (See US-1).
+- **FR-005**: System MUST fit at least two regression models (Beta Regression, Ridge Regression) using the extracted features as predictors and outcome deviation as the target (See US-2).
+- **FR-006**: System MUST perform k-fold cross-validation (k=5) on all models to assess generalizability and prevent overfitting (See US-3).
+- **FR-007**: System MUST perform significance tests (t-tests on coefficients, F-test for model fit) and report p-values for all predictors (See US-2).
+- **FR-008**: System MUST generate diagnostic plots including residual plots, feature importance rankings, and predicted vs. actual deviation scatterplots (See US-3).
+- **FR-009**: System MUST apply the Benjamini-Hochberg False Discovery Rate (FDR) correction to p-values when reporting significant predictors to control the false discovery rate, specifically accounting for correlated predictors (See US-2).
+- **FR-010**: System MUST perform a sensitivity analysis on the decision threshold for "statistical significance" (e.g., p < 0.01) by sweeping the threshold over {0.005, 0.01, 0.05} and reporting the variation in the number of significant predictors (See US-2).
+- **FR-011**: System MUST collapse one-hot encoded ECO codes into broader opening families (e.g., King's Pawn, Queen's Gambit) before significance testing to reduce multicollinearity (See US-2).
 
 ### Key Entities
 
-- **GameRecord**: Represents a single chess game. Attributes include `game_id`, `white_rating`, `black_rating`, `eco_code`, `avg_move_time_white`, `avg_move_time_black`, `material_imbalance_move_10`, `actual_result_white`, `expected_probability_white`, `outcome_deviation`.
-- **ModelFit**: Represents the result of a regression analysis. Attributes include `model_type` (e.g., "Linear", "Ridge"), `coefficients`, `p_values`, `r_squared`, `aic`, `vif_scores`, `confidence_intervals`.
-- **DiagnosticPlot**: Represents a visual output. Attributes include `plot_type` (e.g., "Residuals", "Scatter"), `file_path`, `generation_timestamp`.
+- **GameRecord**: Represents a single chess game. Attributes: `game_id`, `white_rating`, `black_rating`, `eco_code`, `avg_move_time_white`, `avg_move_time_black`, `material_imbalance_move10`, `outcome`, `elo_expected_prob`, `outcome_deviation`.
+- **RegressionModel**: Represents a fitted statistical model. Attributes: `model_type` (beta/ridge), `coefficients`, `p_values`, `r_squared`, `aic`, `cross_validation_scores`.
+- **DiagnosticReport**: Represents the output of the validation step. Attributes: `residual_plot_path`, `feature_importance_ranking`, `predicted_vs_actual_plot_path`, `cross_validation_summary`.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-- **SC-001**: The dataset validity is measured against the requirement that ≥99% of included games have non-null values for `eco_code`, `avg_move_time`, and `material_imbalance_move_10`, based on the [deferred] game limit defined in FR-001. (See US-1)
-- **SC-002**: The model generalizability is measured against the requirement that the 5-fold cross-validation R² standard deviation is ≤ 0.05. (See US-2)
-- **SC-003**: The statistical significance is measured against the requirement that the model explains a significant proportion of variance (R² > 0.05) AND at least one predictor has a p-value < 0.01 after applying the multiple-comparison correction. (See US-2)
-- **SC-004**: The collinearity risk is measured against the requirement that no predictor has a Variance Inflation Factor (VIF) > 5.0, specifically including the pair `avg_move_time` and `material_imbalance`. (See US-2)
-- **SC-005**: The compute feasibility is measured against the requirement that the entire analysis (ingestion, modeling, plotting) completes within 6 hours on a CPU-only runner with ≤ 7 GB RAM usage. (See US-1, US-2, US-3)
-- **SC-006**: The constitutional rigor is measured against the requirement that the sensitivity analysis for the Elo expectation covers a parameter sweep range of ±10% and reports the variance in outcome deviation. (See US-2, FR-009)
-- **SC-007**: The sample size justification is measured against the requirement that the power analysis confirms a detectable effect size of ≥ 0.1 with power ≥ 0.8 for the [deferred] game sample. (See US-2, FR-010)
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The proportion of games successfully parsed and included in the dataset is measured against the number of valid PGN files in the requested subset (target ≥ 95% inclusion rate) (See US-1).
+- **SC-002**: The statistical significance of the regression coefficients is measured against the corrected p-value threshold (p < 0.01 after Benjamini-Hochberg FDR correction) to determine if systematic biases exist (See US-2).
+- **SC-003**: The model generalizability is measured against the variance in R² scores (scale [0.0, 1.0]) across the 5 cross-validation folds (target: standard deviation of R² < 0.05) (See US-3).
+- **SC-004**: The robustness of the findings is measured against the sensitivity analysis sweep (target: the set of "significant" predictors remains stable with a Jaccard index ≥ 0.8 across the {0.005, 0.01, 0.05} threshold range) (See US-2).
+- **SC-005**: The computational feasibility is measured against the GitHub Actions free-tier constraints (target: total job runtime ≤ 6 hours, RAM usage ≤ 7 GB, no GPU errors) (See US-1).
 
 ## Assumptions
 
-- **Dataset-variable fit**: It is assumed that the Lichess public PGN database contains accurate move-time data and game-ending results for the selected [deferred] games. If the source data lacks precise move times for a significant portion of games, the sample size may need to be reduced, which is recorded as a limitation.
-- **Inference framing**: The analysis is framed as **associational**; findings will identify correlations between game features and Elo deviations, not causal effects of those features on player performance, as the data is observational (no random assignment of game features).
-- **Threshold justification**: A significance threshold of **p < 0.01** is used for declaring statistical significance, consistent with standard practices in sports statistics to reduce false positives. A sensitivity analysis will sweep this threshold over **{0.005, 0.01, 0.05}** to report how the count of significant features varies.
-- **Compute constraints**: The analysis assumes that the [deferred] game dataset (approx. 500 MB CSV) fits entirely in RAM (~7 GB limit) and that standard Python libraries (`pandas`, `scikit-learn`, `statsmodels`) can process this volume on a 2-core CPU within the 6-hour job limit.
-- **Measurement validity**: The Elo formula used ($P = 1 / (1 + 10^{(R_{black} - R_{white})/400})$) is assumed to be the standard definition for expected win probability in the context of the Lichess rating system.
-- **Predictor collinearity**: It is assumed that `avg_move_time` and `material_imbalance` are not definitionally related; however, if high collinearity is detected (VIF > 5), the interpretation of independent effects will be restricted to descriptive joint relationships, as mandated by FR-012.
-- **Sample Size Justification**: The [deferred] game sample size is selected to satisfy the power analysis requirement (FR-010) for detecting an effect size of ≥ 0.1, ensuring the study is not underpowered.
+- The Lichess database (or a verified mirror) contains the necessary variables (move times, ratings, ECO codes) for the selected subset of [deferred] games; if move time data is missing for a significant portion, the analysis scope will be limited to games with complete data.
+- The analysis is observational; therefore, all findings regarding "correlations" and "biases" are framed as associational, not causal, as there is no random assignment of game features.
+- The dataset size will fit within the RAM limit of the GitHub Actions runner. after loading into a pandas DataFrame; if memory pressure occurs, the sample size will be reduced.
+- The standard Elo logistic formula (P = 1 / (1 + 10^((R2-R1)/400))) is the accepted baseline for expected win probability in this context.
+- The `python-chess` library and `statsmodels` package are sufficient for parsing PGNs and performing the required regression analyses on a CPU-only environment.
+- The "material_imbalance_move10" is a valid proxy for early-game strategic complexity, assuming the move 10 state is representative of the opening phase.
+- **Methodological Rigor Justification**: The requirement for multiple-comparison correction (FR-009) and sensitivity analysis (FR-010) is included as essential methodological rigor to ensure valid inference and robust findings, preventing false positives in the presence of multiple predictors and threshold sensitivity.
+- **Feature Selection Justification**: The exclusion of "pawn structure complexity" and "number of captures" from FR-002 is based on the lack of a defined metric in the original idea, ensuring all requirements are verifiable and testable.

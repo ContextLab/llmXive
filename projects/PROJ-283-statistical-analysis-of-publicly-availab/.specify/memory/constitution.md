@@ -37,13 +37,27 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-283-statistical-analysis-of-publicly-availab.yaml` `updated_at` timestamp.
 
-### VI. PGN Data Integrity and Parsing Rigor
+### VI. PGN Parsing and Feature Extraction Consistency
 
-Given that the project's methodology relies on parsing Portable Game Notation (PGN) files to extract independent measurements such as opening codes, move times, and material imbalance, all parsing logic MUST be validated against a known set of edge-case PGN strings before processing the full dataset. Any deviation in parsing logic (e.g., handling of ambiguous move notation or time control syntax) that alters the derived feature set MUST trigger a full re-computation of downstream statistics. This principle ensures that the "independent measurements" cited in the research question remain distinct from the predicted variable, preventing circularity introduced by parsing artifacts.
+All game features (opening codes, move times, material imbalance) MUST be
+derived from raw PGN files using a single, deterministic parsing pipeline
+defined in `code/`. The extraction logic MUST treat identical PGN strings
+identically across all runs, ensuring that predictor variables are
+independent measurements of game state rather than artifacts of varying
+parsing heuristics. This principle is grounded in the methodology's
+requirement that predictors be "independent measurements from game PGN
+files" to avoid conflating feature extraction noise with genuine Elo
+prediction signal.
 
-### VII. Statistical Robustness Against Rating Bias
+### VII. Outcome Deviation Calculation Integrity
 
-As the project investigates whether the current rating standard captures all relevant predictive signal, any regression model reporting "outcome deviation" MUST explicitly report confidence intervals and sensitivity analyses regarding the Elo expectation calculation. The methodology must distinguish between systematic biases in the Elo system and noise inherent in individual game outcomes. Results claiming a "null result" (validating Elo's robustness) or a "positive result" (identifying biases) MUST be accompanied by power analysis demonstrating that the sample size of available chess games is sufficient to detect the magnitude of deviation being tested.
+The predicted variable (outcome deviation) MUST be calculated strictly as
+the difference between actual game results and Elo expectations derived
+from historical player ratings, with no leakage of current-game features
+into the expectation calculation. This separation of data sources is
+mandated by the research design to prevent circularity, ensuring that
+Elo expectations remain a function of historical ratings distinct from
+the specific game features being tested.
 
 ## Reproducibility Requirements
 
