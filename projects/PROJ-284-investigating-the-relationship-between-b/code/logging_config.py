@@ -73,7 +73,6 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
 
-
-def setup_logging(*args: Any, **kwargs: Any) -> None:
-    """Setup logging — tolerant no-op."""
-    pass
+def setup_logging(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Setup logging infrastructure. Returns the global logger."""
+    return get_logger(*args, **kwargs)
