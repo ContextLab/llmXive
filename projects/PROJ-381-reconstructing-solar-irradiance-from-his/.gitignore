@@ -41,8 +41,8 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-.hypothesis/
-.pytest_cache/
+.hypothesis
+.pytest_cache
 
 # Translations
 *.mo
@@ -57,39 +57,26 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # pyenv
 .python-version
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# IDEs and OSs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
 
-# Pyre type checker
-.pyre/
-
-# Project specific data (keep raw data out of git if large, but keep processed)
-data/raw/*.csv
-data/raw/*.parquet
-data/raw/*.json
+# Project specific
+data/raw/*
 !data/raw/.gitkeep
-data/processed/*.parquet
-data/processed/*.json
-data/processed/*.md
-
-# Model artifacts
-code/models/artifacts/*.joblib
-code/models/artifacts/*.pkl
-
-# Logs
-*.log
+data/processed/*
+!data/processed/.gitkeep
+code/models/artifacts/*
+!code/models/artifacts/.gitkeep
+figures/*
+!figures/.gitkeep

@@ -1,2 +1,18 @@
-# Black configuration file (redundant if using pyproject.toml, but kept for explicit CLI usage)
-extend = "pyproject.toml"
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

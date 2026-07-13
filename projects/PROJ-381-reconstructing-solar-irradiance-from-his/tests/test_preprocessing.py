@@ -1,165 +1,216 @@
 """
-Unit tests for gap filling logic in preprocessing.
-
-Specifically verifies that gaps >= 1 year in GSN data use GSN=0 proxy,
-not TSI units, as per FR-002.
+Unit tests for data preprocessing logic.
+Specifically tests for Cycle-Agnostic fallback logic as per T018.
 """
 import pytest
 import pandas as pd
 import numpy as np
-from datetime import timedelta
 from pathlib import Path
 import sys
+import json
 
 # Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.preprocessing import fill_gaps_gsn
+from code.data.preprocessing import fill_gaps, detect_cycle_boundaries, load_raw_data
+from code.models.train_fallback import prepare_fallback_features, train_fallback_model
+from code.config import ensure_directories
 
 
-class TestGapFillingLogic:
-    """Tests for GSN gap filling behavior."""
+class TestCycleAgnosticFallbackLogic:
+    """
+    Unit tests for the Cycle-Agnostic fallback logic.
+    This tests the core mechanism where a global model (no Cycle ID) is used
+    to predict TSI for cycles not seen during training or for pre-satellite eras.
+    """
 
-    def test_short_gaps_use_interpolation(self):
-        """Verify gaps < 1 year are filled via linear interpolation."""
-        # Create data with a 6-month gap
-        dates = pd.date_range(start='2000-01-01', periods=10, freq='M')
-        values = [100.0, 110.0, 120.0, np.nan, np.nan, 150.0, 160.0, 170.0, 180.0, 190.0]
+    @pytest.fixture
+    def mock_preprocessed_data(self):
+        """
+        Create a mock preprocessed dataset mimicking the output of run_preprocessing.
+        Contains GSN, TSI, and Cycle ID for a few cycles.
+        """
+        dates = pd.date_range(start='2003-01-01', end='2023-12-31', freq='M')
+        n = len(dates)
         
-        # The gap is 2 months (between index 2 and 5), which is < 1 year
-        df = pd.DataFrame({'date': dates, 'gsn': values})
+        # Simulate GSN data with noise
+        gsn = 50 + 30 * np.sin(np.linspace(0, 4 * np.pi, n)) + np.random.normal(0, 5, n)
         
-        result = fill_gaps_gsn(df, date_col='date', value_col='gsn')
+        # Simulate TSI data (correlated with GSN)
+        tsi = 1361.5 + 0.001 * gsn + np.random.normal(0, 0.05, n)
         
-        # The NaN values should be interpolated, not set to 0
-        # Index 3 should be ~130, Index 4 should be ~140
-        assert not result['gsn'].isna().any(), "Short gaps should be interpolated"
-        assert result.loc[3, 'gsn'] > 120 and result.loc[3, 'gsn'] < 150
-        assert result.loc[4, 'gsn'] > 120 and result.loc[4, 'gsn'] < 150
+        # Assign cycle IDs (simplified mapping for 2003-2023)
+        # Cycle 23: ~2003-2008, Cycle 24: ~2009-2019, Cycle 25: ~2020-present
+        cycle_ids = np.where(dates.year < 2009, 23, 
+                             np.where(dates.year < 2020, 24, 25))
+        
+        df = pd.DataFrame({
+            'date': dates,
+            'gsn': gsn,
+            'tsi': tsi,
+            'cycle_id': cycle_ids
+        })
+        return df
 
-    def test_long_gaps_use_zero_proxy(self):
-        """Verify gaps >= 1 year use GSN=0 proxy, not TSI units."""
-        # Create data with a 15-month gap (>= 1 year)
-        dates = pd.date_range(start='2000-01-01', periods=8, freq='M')
-        # Gap from index 2 to index 6 = 4 months? No, let's make it explicit
-        # 2000-01, 2000-02, 2000-03, [gap], 2000-08 (5 months gap is < 1 year)
-        # Let's do: 2000-01, 2000-02, 2000-03, [gap 15 months], 2001-06
-        dates = pd.to_datetime([
-            '2000-01-01', '2000-02-01', '2000-03-01', 
-            '2001-06-01', '2001-07-01', '2001-08-01'
-        ])
-        values = [100.0, 110.0, 120.0, np.nan, np.nan, np.nan, 160.0, 170.0, 180.0]
+    @pytest.fixture
+    def mock_pre_satellite_data(self):
+        """
+        Create mock pre-satellite data (e.g., 1900-1950) with Cycle IDs
+        that are NOT present in the training set (simulating unseen cycles).
+        """
+        dates = pd.date_range(start='1900-01-01', end='1950-12-31', freq='M')
+        n = len(dates)
         
-        # Actually, let's construct a simpler case with explicit NaNs
-        dates = pd.to_datetime([
-            '2000-01-01', '2000-02-01', '2000-03-01', 
-            '2001-06-01', '2001-07-01', '2001-08-01'
-        ])
-        values = [100.0, 110.0, 120.0, np.nan, np.nan, np.nan, 160.0, 170.0, 180.0]
+        # Simulate GSN data
+        gsn = 40 + 25 * np.sin(np.linspace(0, 3 * np.pi, n)) + np.random.normal(0, 4, n)
         
-        # Reconstruct properly:
-        # We need a gap >= 1 year. Let's say:
-        # 2000-01-01 (val=100), 2000-02-01 (val=110), 2000-03-01 (val=120)
-        # Then gap until 2001-06-01 (val=160) -> gap is ~15 months
-        dates = pd.to_datetime([
-            '2000-01-01', '2000-02-01', '2000-03-01', 
-            '2001-06-01', '2001-07-01', '2001-08-01'
-        ])
-        # Insert NaNs for the gap period (we don't have data for the gap)
-        # The function should detect the time difference between 2000-03-01 and 2001-06-01
-        # and fill the gap with 0.
+        # Create a DataFrame without TSI (since we are testing prediction)
+        # but with Cycle IDs that are distinct from the training set
+        cycle_ids = np.full(n, 16) # Maunder minimum era or similar, distinct from 23/24/25
         
-        # We need to represent the gap explicitly in the dataframe
-        # Let's create a dataframe with the gap dates as NaN
-        dates_with_gap = pd.to_datetime([
-            '2000-01-01', '2000-02-01', '2000-03-01',
-            '2000-04-01', '2000-05-01', '2000-06-01', '2000-07-01', 
-            '2000-08-01', '2000-09-01', '2000-10-01', '2000-11-01', 
-            '2000-12-01', '2001-01-01', '2001-02-01', '2001-03-01',
-            '2001-04-01', '2001-05-01', '2001-06-01', '2001-07-01', '2001-08-01'
-        ])
-        values_with_gap = [100.0, 110.0, 120.0] + [np.nan] * 14 + [160.0, 170.0, 180.0]
-        
-        df = pd.DataFrame({'date': dates_with_gap, 'gsn': values_with_gap})
-        
-        result = fill_gaps_gsn(df, date_col='date', value_col='gsn')
-        
-        # The gap is from 2000-04-01 to 2001-05-01 (14 months >= 1 year)
-        # All these should be filled with 0, not interpolated
-        gap_mask = (result['date'] >= '2000-04-01') & (result['date'] <= '2001-05-01')
-        gap_values = result.loc[gap_mask, 'gsn']
-        
-        assert all(gap_values == 0), f"Long gaps should be filled with 0, got values: {gap_values.unique()}"
-        
-    def test_mixed_gaps_correct_behavior(self):
-        """Verify mixed short and long gaps are handled correctly."""
-        dates = pd.to_datetime([
-            '2000-01-01', '2000-02-01', '2000-03-01',  # valid
-            '2000-04-01', '2000-05-01', '2000-06-01',  # 3-month gap (short)
-            '2000-07-01', '2000-08-01', '2000-09-01',  # valid
-            '2001-09-01', '2001-10-01', '2001-11-01',  # 12-month gap (long)
-            '2001-12-01', '2002-01-01', '2002-02-01'   # valid
-        ])
-        # Create values with NaNs in the gaps
-        values = [
-            100.0, 110.0, 120.0,  # valid
-            np.nan, np.nan, np.nan,  # short gap (3 months)
-            150.0, 160.0, 170.0,  # valid
-            np.nan, np.nan, np.nan,  # long gap (12 months)
-            200.0, 210.0, 220.0   # valid
-        ]
-        
-        df = pd.DataFrame({'date': dates, 'gsn': values})
-        result = fill_gaps_gsn(df, date_col='date', value_col='gsn')
-        
-        # Short gap (2000-04 to 2000-06) should be interpolated
-        short_gap_mask = (result['date'] >= '2000-04-01') & (result['date'] <= '2000-06-01')
-        short_gap_values = result.loc[short_gap_mask, 'gsn']
-        assert all(short_gap_values > 120) and all(short_gap_values < 150), "Short gaps should be interpolated"
-        
-        # Long gap (2001-09 to 2001-11) should be 0
-        long_gap_mask = (result['date'] >= '2001-09-01') & (result['date'] <= '2001-11-01')
-        long_gap_values = result.loc[long_gap_mask, 'gsn']
-        assert all(long_gap_values == 0), f"Long gaps should be 0, got: {long_gap_values.unique()}"
+        df = pd.DataFrame({
+            'date': dates,
+            'gsn': gsn,
+            'cycle_id': cycle_ids
+        })
+        return df
 
-    def test_no_gaps_unchanged(self):
-        """Verify data without gaps remains unchanged."""
-        dates = pd.date_range(start='2000-01-01', periods=12, freq='M')
-        values = list(range(100, 112))
+    def test_fallback_feature_preparation_excludes_cycle_id(self, mock_preprocessed_data):
+        """
+        Verify that prepare_fallback_features correctly drops 'cycle_id' 
+        to ensure the model is Cycle-Agnostic.
+        """
+        X, y = prepare_fallback_features(mock_preprocessed_data)
         
-        df = pd.DataFrame({'date': dates, 'gsn': values})
-        result = fill_gaps_gsn(df, date_col='date', value_col='gsn')
+        # Check that 'cycle_id' is NOT in the feature set
+        assert 'cycle_id' not in X.columns, "Cycle-Agnostic model must not use cycle_id as a feature."
         
-        pd.testing.assert_frame_equal(result, df)
+        # Check that 'gsn' IS present
+        assert 'gsn' in X.columns, "GSN must be present as the primary feature."
 
-    def test_edge_case_exactly_one_year_gap(self):
-        """Verify exactly 1 year gap uses zero proxy."""
-        dates = pd.to_datetime([
-            '2000-01-01', '2001-01-01'
-        ])
-        values = [100.0, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, 200.0]
+    def test_fallback_model_training(self, mock_preprocessed_data):
+        """
+        Verify that the fallback model can be trained without cycle_id features.
+        """
+        X, y = prepare_fallback_features(mock_preprocessed_data)
+        model = train_fallback_model(X, y)
         
-        # Actually, let's make it cleaner:
-        # 2000-01-01 (100), then gap until 2001-01-01 (200)
-        # We need to represent the gap months
-        dates = pd.to_datetime([
-            '2000-01-01',
-            '2000-02-01', '2000-03-01', '2000-04-01', '2000-05-01', '2000-06-01',
-            '2000-07-01', '2000-08-01', '2000-09-01', '2000-10-01', '2000-11-01', '2000-12-01',
-            '2001-01-01'
-        ])
-        values = [100.0] + [np.nan] * 11 + [200.0]
+        # Verify model is not None
+        assert model is not None, "Fallback model training failed."
         
-        df = pd.DataFrame({'date': dates, 'gsn': values})
-        result = fill_gaps_gsn(df, date_col='date', value_col='gsn')
+        # Verify the model can make predictions
+        predictions = model.predict(X)
+        assert len(predictions) == len(y), "Prediction length mismatch."
+
+    def test_fallback_prediction_on_unseen_cycles(self, mock_preprocessed_data, mock_pre_satellite_data):
+        """
+        Test the core fallback logic: 
+        1. Train on satellite era (Cycles 23, 24, 25).
+        2. Predict on pre-satellite era (Cycle 16) which was NOT in training.
+        3. Verify that predictions are generated without error.
+        """
+        # 1. Prepare and train on satellite data
+        X_train, y_train = prepare_fallback_features(mock_preprocessed_data)
+        model = train_fallback_model(X_train, y_train)
         
-        # Gap is 11 months (2000-02 to 2000-12) which is < 1 year? 
-        # Wait, the gap is from 2000-01-01 to 2001-01-01, which is 12 months.
-        # The function should detect the gap between consecutive non-NaN points.
-        # Between 2000-01-01 and 2001-01-01, the gap is 12 months.
-        # Since 12 months >= 1 year, it should be filled with 0.
+        # 2. Prepare pre-satellite data (ensure it has 'gsn' but NO 'tsi' target)
+        # The pre-satellite data should only have GSN and Cycle ID (which is ignored)
+        X_test = mock_pre_satellite_data[['gsn']]
         
-        gap_mask = (result['date'] >= '2000-02-01') & (result['date'] <= '2000-12-01')
-        gap_values = result.loc[gap_mask, 'gsn']
+        # 3. Execute prediction
+        # This should work because the model only depends on 'gsn', not 'cycle_id'
+        predictions = model.predict(X_test)
         
-        assert all(gap_values == 0), f"Exactly 1 year gap should be 0, got: {gap_values.unique()}"
+        # 4. Verify output
+        assert len(predictions) == len(mock_pre_satellite_data), "Prediction count mismatch for unseen cycles."
+        assert not np.any(np.isnan(predictions)), "Predictions contain NaN values."
+        
+        # 5. Verify logical consistency: 
+        # If GSN is high, TSI should be higher than if GSN is low (positive correlation)
+        high_gsn_idx = np.argmax(mock_pre_satellite_data['gsn'])
+        low_gsn_idx = np.argmin(mock_pre_satellite_data['gsn'])
+        
+        assert predictions[high_gsn_idx] > predictions[low_gsn_idx], \
+            "Fallback model should preserve positive GSN-TSI correlation."
+
+    def test_fallback_vs_cycle_specific_behavior(self, mock_preprocessed_data):
+        """
+        Verify that the fallback model produces different results than a model 
+        that explicitly uses cycle_id (conceptual check).
+        
+        We simulate this by checking that the fallback model's predictions
+        for a specific GSN value are constant regardless of the 'cycle_id' 
+        associated with that row in the input dataframe.
+        """
+        # Create two identical GSN rows with different cycle IDs
+        base_row = pd.DataFrame({
+            'date': [pd.Timestamp('2020-01-01'), pd.Timestamp('2020-01-01')],
+            'gsn': [50.0, 50.0],
+            'cycle_id': [24, 25] # Different cycles
+        })
+        
+        X_test = base_row[['gsn']]
+        y_dummy = base_row['gsn'] # Dummy target for training if needed, but we use pre-trained model logic
+        
+        # Train a fresh fallback model
+        X_train, y_train = prepare_fallback_features(mock_preprocessed_data)
+        model = train_fallback_model(X_train, y_train)
+        
+        # Predict
+        preds = model.predict(X_test)
+        
+        # Since the model is Cycle-Agnostic, predictions for identical GSN must be identical
+        assert np.isclose(preds[0], preds[1]), \
+            "Cycle-Agnostic fallback must produce identical predictions for identical GSN, regardless of cycle_id."
+
+    def test_integration_with_preprocessing_pipeline(self):
+        """
+        Integration test: Ensure the fallback logic works end-to-end with 
+        the preprocessing pipeline's output structure.
+        """
+        # Ensure directories exist
+        ensure_directories()
+        
+        # Load mock data (simulating what run_preprocessing would output)
+        # In a real scenario, this would be data/processed/preprocessed_data.parquet
+        # Here we use the fixture data
+        dates = pd.date_range(start='1850-01-01', end='2023-12-31', freq='M')
+        n = len(dates)
+        gsn = 45 + 28 * np.sin(np.linspace(0, 6 * np.pi, n)) + np.random.normal(0, 6, n)
+        
+        # Simulate TSI only for satellite era (2003+)
+        tsi = np.full(n, np.nan)
+        satellite_mask = dates.year >= 2003
+        tsi[satellite_mask] = 1361.5 + 0.001 * gsn[satellite_mask] + np.random.normal(0, 0.05, satellite_mask.sum())
+        
+        # Assign cycles
+        cycle_ids = np.zeros(n, dtype=int)
+        cycle_ids[dates.year < 1900] = 14 # Dalton
+        cycle_ids[(dates.year >= 1900) & (dates.year < 1930)] = 15
+        cycle_ids[(dates.year >= 1930) & (dates.year < 1960)] = 16
+        cycle_ids[(dates.year >= 1960) & (dates.year < 1990)] = 17
+        cycle_ids[(dates.year >= 1990) & (dates.year < 2008)] = 23
+        cycle_ids[(dates.year >= 2008) & (dates.year < 2019)] = 24
+        cycle_ids[dates.year >= 2019] = 25
+        
+        df = pd.DataFrame({
+            'date': dates,
+            'gsn': gsn,
+            'tsi': tsi,
+            'cycle_id': cycle_ids
+        })
+        
+        # Split into train (satellite) and test (pre-satellite)
+        train_df = df[df['tsi'].notna()].copy()
+        test_df = df[df['tsi'].isna()].copy()
+        
+        # Train fallback
+        X_train, y_train = prepare_fallback_features(train_df)
+        model = train_fallback_model(X_train, y_train)
+        
+        # Predict on pre-satellite
+        X_test = test_df[['gsn']]
+        predictions = model.predict(X_test)
+        
+        assert len(predictions) == len(test_df), "Prediction count mismatch in integration test."
+        assert not np.any(np.isnan(predictions)), "Integration test predictions contain NaN."

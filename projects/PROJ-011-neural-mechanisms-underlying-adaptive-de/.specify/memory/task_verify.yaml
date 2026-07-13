@@ -1,8 +1,13 @@
-T007 Create `data/` directory structure (`raw`, `processed`, `models`) and `state/` for artifact hashes: 2
-T008 Configure `pytest` with `conftest.py` for test fixtures and temporary data directories: 2
 ? T010 [P] [US1] Contract test for data validation in `tests/contract/test_data_validation.py`
   (verifies OpenNeuro ds003694 structure)
-: 1
+: 2
 ? T011 [P] [US1] Integration test for ROI extraction in `tests/integration/test_roi_extraction.py`
   (verifies dimensions match timepoints)
+: 2
+? T012 [P] [US1] Implement `code/preprocessing/data_validation.py` to verify presence
+  of NIfTI and behavioral logs (private_belief, social_feedback, choice)
+: 1
+? T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro ds003694
+  using `openneuro-py` or direct URL; include logic to exclude participants with missing
+  assets (NIfTI, logs, motion) and write reasons to `state/exclusions.yaml`
 : 1

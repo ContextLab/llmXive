@@ -65,10 +65,10 @@ The researcher needs to perform mixed-effects logistic regression to determine t
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest the ARC-Bench 25-topic subset and output a labeled dataset where each failure case is annotated with exactly one structural feature (Syntactic Error, Logical Loop, Semantic Ambiguity, Missing Context, or Unstructured) (See US-1).
+- **FR-001**: System MUST ingest the ARC-Bench topic subset and output a labeled dataset where each failure case is annotated with exactly one structural feature (Syntactic Error, Logical Loop, Semantic Ambiguity, Missing Context, or Unstructured) (See US-1).
 - **FR-002**: System MUST utilize a CPU-tractable small language model (e.g., Llama-3-8B-INT4 or smaller) to generate a rule library from the labeled dataset, where the rule set covers ≥90% of annotated failure patterns in a [deferred] held-out validation split (See US-1).
 - **FR-003**: System MUST implement a lightweight Python rule-matching engine that parses error logs and executes pivot actions without invoking a large language model or multi-agent debate (See US-2).
-- **FR-004**: System MUST execute both the distilled rule engine (on 2-core CPU, ~7 GB RAM, 6-hour limit) and the full AutoResearchClaw baseline agent (on standard resources: 4 cores, 16 GB RAM) on a stratified random sample of 100 unseen tasks from the ARC-Bench 25-topic subset (See US-2).
+- **FR-004**: System MUST execute both the distilled rule engine (on 2-core CPU, ~7 GB RAM, 6-hour limit) and the full AutoResearchClaw baseline agent (on standard resources: multiple cores, sufficient memory) on a stratified random sample of 100 unseen tasks from the ARC-Bench 25-topic subset (See US-2).
 - **FR-005**: System MUST record "Time-to-Pivot" (seconds) and "Success Rate of First Pivot" (binary) for every task, stratified by the annotated failure feature type (See US-2).
 - **FR-006**: System MUST apply a mixed-effects logistic regression model to predict "Success Rate" based on "Failure Type," "Method," and their interaction, using "Task ID" as a random effect, tested on the held-out set to verify generalization (See US-3).
 - **FR-007**: System MUST categorize every failed pivot from the rule engine into either "Coverage Gap" (no rule matches the error log) or "Distillation Error" (a rule matches but the executed pivot action differs from the ground-truth resolution) (See US-3).
@@ -89,7 +89,7 @@ The researcher needs to perform mixed-effects logistic regression to determine t
 - **SC-002**: The "Success Rate of First Pivot" for the distilled engine is measured against the baseline agent's success rate, stratified by failure type to test the structural dichotomy hypothesis (See US-2).
 - **SC-003**: The statistical significance of the interaction term (Failure Type * Method) in the mixed-effects logistic regression is measured against a standard alpha threshold, where significance is determined if the p-value < 0.05, to determine if failure structure dictates method viability (See US-3).
 - **SC-004**: The proportion of failed pivots attributed to "Coverage Gap" vs. "Distillation Error" is measured against the total number of failures to determine the primary source of rule-engine limitations, using the ground-truth resolution as the arbiter (See US-3).
-- **SC-005**: The total compute time and peak memory usage of the entire experiment (data processing, distillation, execution, analysis) are measured against the GitHub Actions free-tier limits (6 hours, 2 cores, 7 GB RAM) (See US-2).
+- **SC-005**: The total compute time and peak memory usage of the entire experiment (data processing, distillation, execution, analysis) are measured against the GitHub Actions free-tier limits (several hours, 2 cores, 7 GB RAM) (See US-2).
 
 ## Assumptions
 

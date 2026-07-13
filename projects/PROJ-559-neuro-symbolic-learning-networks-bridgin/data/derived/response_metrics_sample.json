@@ -1,0 +1,132 @@
+{
+  "metrics": [
+    {
+      "student_id": "student_1",
+      "problem_id": "problem_1",
+      "knowledge": 0.8,
+      "difficulty": 0.3,
+      "response_time": 1.45,
+      "comprehension_rating": 4
+    },
+    {
+      "student_id": "student_1",
+      "problem_id": "problem_2",
+      "knowledge": 0.8,
+      "difficulty": 0.6,
+      "response_time": 1.78,
+      "comprehension_rating": 4
+    },
+    {
+      "student_id": "student_1",
+      "problem_id": "problem_3",
+      "knowledge": 0.8,
+      "difficulty": 0.8,
+      "response_time": 2.12,
+      "comprehension_rating": 3
+    },
+    {
+      "student_id": "student_2",
+      "problem_id": "problem_1",
+      "knowledge": 0.5,
+      "difficulty": 0.3,
+      "response_time": 2.34,
+      "comprehension_rating": 3
+    },
+    {
+      "student_id": "student_2",
+      "problem_id": "problem_2",
+      "knowledge": 0.5,
+      "difficulty": 0.6,
+      "response_time": 2.67,
+      "comprehension_rating": 3
+    },
+    {
+      "student_id": "student_2",
+      "problem_id": "problem_3",
+      "knowledge": 0.5,
+      "difficulty": 0.8,
+      "response_time": 3.01,
+      "comprehension_rating": 2
+    },
+    {
+      "student_id": "student_3",
+      "problem_id": "problem_1",
+      "knowledge": 0.3,
+      "difficulty": 0.3,
+      "response_time": 2.89,
+      "comprehension_rating": 2
+    },
+    {
+      "student_id": "student_3",
+      "problem_id": "problem_2",
+      "knowledge": 0.3,
+      "difficulty": 0.6,
+      "response_time": 3.22,
+      "comprehension_rating": 2
+    },
+    {
+      "student_id": "student_3",
+      "problem_id": "problem_3",
+      "knowledge": 0.3,
+      "difficulty": 0.8,
+      "response_time": 3.56,
+      "comprehension_rating": 1
+    },
+    {
+      "student_id": "student_4",
+      "problem_id": "problem_1",
+      "knowledge": 0.9,
+      "difficulty": 0.3,
+      "response_time": 1.23,
+      "comprehension_rating": 5
+    },
+    {
+      "student_id": "student_4",
+      "problem_id": "problem_2",
+      "knowledge": 0.9,
+      "difficulty": 0.6,
+      "response_time": 1.56,
+      "comprehension_rating": 4
+    },
+    {
+      "student_id": "student_4",
+      "problem_id": "problem_3",
+      "knowledge": 0.9,
+      "difficulty": 0.8,
+      "response_time": 1.89,
+      "comprehension_rating": 4
+    },
+    {
+      "student_id": "student_5",
+      "problem_id": "problem_1",
+      "knowledge": 0.4,
+      "difficulty": 0.3,
+      "response_time": 2.56,
+      "comprehension_rating": 3
+    },
+    {
+      "student_id": "student_5",
+      "problem_id": "problem_2",
+      "knowledge": 0.4,
+      "difficulty": 0.6,
+      "response_time": 2.89,
+      "comprehension_rating": 2
+    },
+    {
+      "student_id": "student_5",
+      "problem_id": "problem_3",
+      "knowledge": 0.4,
+      "difficulty": 0.8,
+      "response_time": 3.23,
+      "comprehension_rating": 2
+    }
+  ],
+  "validation": {
+    "valid": true,
+    "max_gap": 0.59,
+    "total_gaps": 14,
+    "mean_gap": 0.26,
+    "message": "Distribution passes SC-005"
+  },
+  "total_records": 15
+}

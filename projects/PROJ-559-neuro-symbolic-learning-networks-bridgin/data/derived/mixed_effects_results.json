@@ -1,0 +1,14 @@
+{
+  "model_formula": "comprehension_rating ~ C(condition) + prior_knowledge + difficulty + C(data_source) + (1|student_id)",
+  "dependent_variable": "comprehension_rating",
+  "num_observations": 0,
+  "num_groups": 0,
+  "converged": false,
+  "log_likelihood": null,
+  "aic": null,
+  "bic": null,
+  "fixed_effects": {},
+  "random_effects": {},
+  "p_values": {},
+  "note": "This file is a placeholder. Run code/analyze/mixed_effects.py with real data to populate results."
+}

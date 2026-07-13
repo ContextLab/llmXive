@@ -15,7 +15,7 @@ This project implements a comparative study to determine the viability of determ
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `pydantic`, `datasets` (HuggingFace), `torch` (CPU-only), `transformers` (CPU-optimized).  
 **Storage**: Local filesystem (`data/` for raw/processed datasets, `artifacts/` for rules/logs).  
 **Testing**: `pytest` (unit tests for rule matching, integration tests for pipeline execution).  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7 GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7 GB RAM, no GPU).  
 **Project Type**: Computational Research Pipeline / Data Science  
 **Performance Goals**: Total runtime ≤ 6 hours; Peak memory ≤ 7 GB; Rule matching latency < 10ms per log.  
 **Constraints**: 

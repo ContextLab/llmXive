@@ -1,13 +1,13 @@
-? 'T016 [US1] Implement `code/generate/explanation_generator.py` orchestrator logic
-  to call generators and handle error states. **Dependency**: T013, T014, T015.'
-: 2
-? 'T017 [US1] Add validation to ensure symbolic traces are distinct from neural outputs
-  (Addressing Rockmore''s "concrete mathematical objects" concern). **Dependency**:
-  T013, T015.'
-: 2
 T018 [P] [US2] Contract test for SimulationLog schema in `code/tests/contract/test_schemas.py`: 2
-T019 [P] [US2] Unit test for BKT state transitions in `code/tests/unit/test_bkt.py`: 1
+? 'T018 [P] [US2] Contract test for SimulationLog schema in `code/tests/contract/test_schemas.py`
+  <!-- FAILED: unspecified -->'
+: 1
+T019 [P] [US2] Unit test for BKT state transitions in `code/tests/unit/test_bkt.py`: 2
 ? 'T020 [P] [US2] Implement `code/simulate/bkt_simulator.py` with deterministic seed
   support (Addressing Von Neumann''s "stability under perturbation" concern). **Dependency**:
   T007, T005.'
+: 2
+? 'T021 [US2] Implement `code/simulate/run_simulation.py` loop logic to iterate over
+  all conditions defined in T021b and process [deferred] students per condition. **Dependency**:
+  T020, T021b.'
 : 1

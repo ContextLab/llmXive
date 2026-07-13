@@ -1,1 +1,2 @@
-# Directory for raw data (e.g., OpenNeuro downloads)
+# This directory stores raw data downloaded from OpenNeuro.
+# Do not commit large binary files.

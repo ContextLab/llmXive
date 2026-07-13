@@ -1,3 +1,3 @@
 """
-Test suite for the Solar Irradiance Reconstruction Pipeline.
+Test suite for llmXive Solar Irradiance Reconstruction.
 """

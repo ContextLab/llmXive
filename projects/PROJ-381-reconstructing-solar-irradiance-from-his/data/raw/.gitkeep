@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory is tracked by git.
-# Raw data files (e.g., from SILSO, SORCE) will be downloaded here.
+# This directory tracks raw data files fetched from external sources.
+# Files here are not committed to version control individually to save space.

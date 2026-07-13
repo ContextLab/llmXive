@@ -601,22 +601,6 @@
   updated_at: '2026-07-09T23:35:55Z'
 - artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
   attempts: 1
-  canonical: exclude participants with >10% volumes exceeding 3mm translation
-  claim_id: c_3245a13d
-  context: T018 [US1] Implement code/preprocessing/qc_filter.py to exclude participants
-    with >10% volumes exceeding 3mm translation (SC-001) and log reasons
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: exclude participants with >10% volumes exceeding 3mm translation
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-09T23:41:09Z'
-- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
-  attempts: 1
   canonical: compute prediction accuracy target >=60%
   claim_id: c_83f7ed7e
   context: "T026 [US2] Implement code/modeling/prediction.py to generate held-out\
@@ -1120,3 +1104,141 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-09T23:57:18Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 2
+  canonical: exclude participants with >10% volumes exceeding 3mm translation
+  claim_id: c_3245a13d
+  context: T018 [US1] Implement code/preprocessing/qc_filter.py to exclude participants
+    with >10% volumes exceeding 3mm translation (SC-001) and log reasons
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exclude participants with >10% volumes exceeding 3mm translation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T08:18:08Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: enforce 6-hour runtime limit and N=30 sample size target
+  claim_id: c_a6151362
+  context: T024b [US2] Implement code/modeling/runtime_enforcer.py to enforce 6-hour
+    runtime limit and N=30 sample size target; provides dynamic sample reduction logic
+    if constraints are violated.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce 6-hour runtime limit and N=30 sample size target
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T08:18:38Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: verify convergence rate meets >=90% threshold
+  claim_id: c_ee57e993
+  context: "T025b [US2] Implement code/modeling/convergence_reporter.py to aggregate\
+    \ convergence logs, calculate the global convergence rate against the N_valid\
+    \ count, and explicitly verify/assert it meets the \u226590% threshold (SC-002),\
+    \ generating data/models/convergence_report.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "explicitly verify/assert it meets the \u226590% threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T08:18:38Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: compute held-out choice prediction accuracy with target >=60%
+  claim_id: c_a7a8d29a
+  context: "T026 [US2] Implement code/modeling/prediction.py to generate held-out\
+    \ choice predictions and compute accuracy (target \u2265 60%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "compute accuracy (target \u2265 60%)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T08:18:39Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: perform voxel-wise inference with 1000 permutations and FDR correction
+    q < 0.05
+  claim_id: c_4bf1c813
+  context: T033 [US3] Implement code/analysis/permutation_test.py for voxel-wise inference
+    (1000 perms) with FDR correction explicitly applied to the union of all p-values
+    from voxel-wise and ROI analyses (q < 0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: voxel-wise inference (1000 perms) with FDR correction explicitly applied
+    to the union of all p-values from voxel-wise and ROI analyses (q < 0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T08:18:53Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: sweep belief-updating threshold values 0.01 0.05 0.1
+  claim_id: c_b6b400b1
+  context: T036a [US3] Implement code/analysis/sensitivity_sweeper.py to re-run correlation
+    logic for a sweep of belief-updating threshold/cutoff values ({0.01, 0.05, 0.1})
+    on the alpha parameter to verify stability of headline correlation rates (FR-006);
+    depends on filtered alpha set from T028/T027.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep of belief-updating threshold/cutoff values ({0.01, 0.05, 0.1})
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T08:19:16Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: generate sensitivity stability report with change < 0.05
+  claim_id: c_18d00019
+  context: T036b [US3] Implement code/analysis/sensitivity_reporter.py to aggregate
+    sweep results and generate data/analysis/sensitivity_stability_report.csv containing
+    stability metrics (change < 0.05) as required by FR-006
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate data/analysis/sensitivity_stability_report.csv containing stability
+    metrics (change < 0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T08:19:16Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: fit permutation testing within 6 hours on 2 CPU cores
+  claim_id: c_7e98165d
+  context: T041 Performance optimization for P4 (permutation testing) to fit within
+    6h on 2 CPU cores
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fit within 6h on 2 CPU cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T08:19:34Z'

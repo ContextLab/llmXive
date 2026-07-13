@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T11:29:13.392640Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-865-llmxive-follow-up-extending-autoresearch
-last_run_id: 26d09ba4-ed55-4cf2-bd09-8d21f4c520e1
+last_run_id: d243e921-51df-47ae-a9db-6e6305b43b8c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch
 title: 'llmXive follow-up: extending "AutoResearchClaw: Self-Reinforcing Autonomous
   Research with Human-AI C"'
-updated_at: '2026-07-13T03:26:02.557168Z'
+updated_at: '2026-07-13T07:56:22.399453Z'

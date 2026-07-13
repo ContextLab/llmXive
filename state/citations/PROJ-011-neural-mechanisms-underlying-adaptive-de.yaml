@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://openneuro.org/datasets/ds000202
   verified_at: '2026-07-07T01:39:31.781118Z'
-- artifact_hash: 50d39e740f3c417b325ad97a3bf10c48af4e65f5f23df9e754b261038367bac4
+- artifact_hash: ae9a4c09b19625bbeee628b52f3a075bebb96927536d695e9dee30f2947aa2e8
   artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -43,4 +43,4 @@
   value: https://arxiv.org/abs/2607.02000
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2607.02000
-  verified_at: '2026-07-09T23:57:18.554256Z'
+  verified_at: '2026-07-13T08:21:50.040166Z'

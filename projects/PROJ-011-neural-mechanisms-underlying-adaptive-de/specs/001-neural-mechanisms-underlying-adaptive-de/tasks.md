@@ -61,8 +61,8 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T004 Setup `code/utils/io.py` for robust file loading and CSV/JSON parsing
 - [X] T005 [P] Implement `code/utils/hashing.py` for `sha256sum` computation (utility function only)
 - [X] T006 [P] Setup `code/utils/config.py` for environment configuration and seed management (numpy/pymc)
-- [ ] T007 Create `data/` directory structure (`raw`, `processed`, `models`) and `state/` for artifact hashes
-- [ ] T008 Configure `pytest` with `conftest.py` for test fixtures and temporary data directories
+- [X] T007 Create `data/` directory structure (`raw`, `processed`, `models`) and `state/` for artifact hashes
+- [X] T008 Configure `pytest` with `conftest.py` for test fixtures and temporary data directories
 - [X] T009 Setup logging infrastructure in `code/utils/logger.py` to track QC failures and model convergence
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -84,13 +84,13 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/preprocessing/data_validation.py` to verify presence of NIfTI and behavioral logs (private_belief, social_feedback, choice)
-- [~] T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro ds003694 using `openneuro-py` or direct URL; include logic to exclude participants with missing assets (NIfTI, logs, motion) and write reasons to `state/exclusions.yaml`
-- [ ] T014 [US1] Implement `code/preprocessing/motion_correction.py` using `nibabel`/`nilearn` (no fMRIPrep dependency) to correct motion and extract framewise displacement
-- [ ] T015 [US1] Implement `code/preprocessing/normalization.py` for spatial normalization to MNI space (using `nilearn` templates)
-- [ ] T016 [US1] Implement `code/preprocessing/smoothing.py` for spatial smoothing with a moderate kernel width.
-- [ ] T017 [US1] Implement `code/preprocessing/roi_extraction.py` to extract BOLD signals from dlPFC, ventral striatum, and ACC masks
-- [ ] T018 [US1] Implement `code/preprocessing/qc_filter.py` to exclude participants with >10% volumes exceeding 3mm translation [UNRESOLVED-CLAIM: c_8c061758 — status=not_enough_info] (SC-001) and log reasons
+- [ ] T012 [P] [US1] Implement `code/preprocessing/data_validation.py` to verify presence of NIfTI and behavioral logs (private_belief, social_feedback, choice)
+- [ ] T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro ds003694 using `openneuro-py` or direct URL; include logic to exclude participants with missing assets (NIfTI, logs, motion) and write reasons to `state/exclusions.yaml`
+- [~] T014 [US1] Implement `code/preprocessing/motion_correction.py` using `nibabel`/`nilearn` (no fMRIPrep dependency) to correct motion and extract framewise displacement
+- [~] T015 [US1] Implement `code/preprocessing/normalization.py` for spatial normalization to MNI space (using `nilearn` templates)
+- [~] T016 [US1] Implement `code/preprocessing/smoothing.py` for spatial smoothing with a moderate kernel width.
+- [~] T017 [US1] Implement `code/preprocessing/roi_extraction.py` to extract BOLD signals from dlPFC, ventral striatum, and ACC masks
+- [ ] T018 [US1] Implement `code/preprocessing/qc_filter.py` to exclude participants with >10% volumes exceeding 3mm translation (SC-001) and log reasons
 - [ ] T018b [US1] Implement `code/preprocessing/qc_reporter.py` to calculate the final exclusion rate against the SC-001 threshold (10% volumes > 3mm) and report stability in `data/reports/qc_summary.json`
 - [ ] T019 [US1] Create `code/main.py` entry point (setup only) - initializes config and logging, does not run pipeline logic yet.
 
@@ -106,17 +106,17 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Contract test for model convergence in `tests/contract/test_model_convergence.py` (verifies {{claim:c_02979941}} (2607.02000, https://arxiv.org/abs/2607.02000) [UNRESOLVED-CLAIM: c_d9291cfc — status=not_enough_info])
+- [ ] T021 [P] [US2] Contract test for model convergence in `tests/contract/test_model_convergence.py` (verifies {{claim:c_02979941}} (2607.02000, https://arxiv.org/abs/2607.02000))
 - [ ] T022 [P] [US2] Integration test for synthetic data recovery in `tests/integration/test_synthetic_recovery.py`
 
 ### Implementation for User Story 2
 
 - [ ] T023 [P] [US2] Implement `code/modeling/synthetic_data_generator.py` to create ground-truth behavioral data for validation
-- [ ] T024b [US2] Implement `code/modeling/runtime_enforcer.py` to enforce 6-hour runtime limit [UNRESOLVED-CLAIM: c_b422b9e2 — status=not_enough_info] and N=30 sample size target; provides dynamic sample reduction logic if constraints are violated.
+- [ ] T024b [US2] Implement `code/modeling/runtime_enforcer.py` to enforce 6-hour runtime limit and N=30 sample size target; provides dynamic sample reduction logic if constraints are violated.
 - [ ] T024 [US2] Implement `code/modeling/belief_updater.py` using `pymc` with `numpyro` CPU backend (hierarchical structure, multiple chains, sufficient samples for convergence); **Must respect runtime constraints enforced by T024b**.
 - [ ] T025 [US2] Implement `code/modeling/validation.py` to check convergence (R-hat, ESS) and handle non-convergence (multiple restart attempts)
 - [ ] T025b [US2] Implement `code/modeling/convergence_reporter.py` to aggregate convergence logs, calculate the global convergence rate against the N_valid count, and explicitly verify/assert it meets the ≥90% threshold (SC-002), generating `data/models/convergence_report.json`.
-- [ ] T026 [US2] Implement `code/modeling/prediction.py` to generate held-out choice predictions and compute accuracy (target ≥ 60%) [UNRESOLVED-CLAIM: c_838b01f0 — status=not_enough_info]
+- [ ] T026 [US2] Implement `code/modeling/prediction.py` to generate held-out choice predictions and compute accuracy (target ≥ 60%)
 - [ ] T028 [US2] Implement `code/main.py` logic for P2 integration: Read convergence reports (T025b), filter non-converging participants, and prepare valid participant list for T027. **Sequential Dependency: Must run after T025b, before T027.**
 - [ ] T027 [US2] Create `code/modeling/model_output.py` to save individual alpha parameters and group-level hyperparameters to `data/models/` for valid participants only (input filtered by T028).
 
@@ -140,11 +140,11 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T037 [US3] Implement `code/main.py` logic for P3-P5 integration: Ensure data flow from P2 (alpha parameters from T027) to P3 (correlation tasks). **Must run before T031-T036.**
 - [ ] T031 [P] [US3] Implement `code/analysis/glm_analysis.py` to perform GLM analysis with parametric modulation by feedback discrepancy and extract beta values (satisfies FR-003).
 - [ ] T032 [US3] Implement `code/analysis/partial_correlation.py` to compute partial correlation between neural activation and alpha (controlling for input discrepancy).
-- [ ] T033 [US3] Implement `code/analysis/permutation_test.py` for voxel-wise inference (1000 perms [UNRESOLVED-CLAIM: c_a8703ebf — status=not_enough_info]) with FDR correction explicitly applied to the union of all p-values from voxel-wise and ROI analyses (q < 0.05) [UNRESOLVED-CLAIM: c_4604c259 — status=not_enough_info].
+- [ ] T033 [US3] Implement `code/analysis/permutation_test.py` for voxel-wise inference (1000 perms) with FDR correction explicitly applied to the union of all p-values from voxel-wise and ROI analyses (q < 0.05).
 - [ ] T034 [US3] Implement `code/analysis/confound_control.py` to include motion parameters and aCompCor components as regressors
 - [ ] T035 [US3] Implement `code/analysis/loso_validation.py` for Leave-One-Subject-Out cross-validation to prevent tautology
 - [ ] T036a [US3] Implement `code/analysis/sensitivity_sweeper.py` to re-run correlation logic for a sweep of **belief-updating threshold/cutoff** values ({0.01, 0.05, 0.1}) on the alpha parameter to verify stability of headline correlation rates (FR-006); depends on filtered alpha set from T028/T027.
-- [ ] T036b [US3] Implement `code/analysis/sensitivity_reporter.py` to aggregate sweep results and generate `data/analysis/sensitivity_stability_report.csv` containing stability metrics (change < 0.05) [UNRESOLVED-CLAIM: c_ea42a89f — status=not_enough_info] as required by FR-006
+- [ ] T036b [US3] Implement `code/analysis/sensitivity_reporter.py` to aggregate sweep results and generate `data/analysis/sensitivity_stability_report.csv` containing stability metrics (change < 0.05) as required by FR-006
 - [ ] T038a [US3] Implement `code/reporting/generate_stats.py` to compile final statistics into `results/final_stats.json`
 - [ ] T038b [US3] Implement `code/reporting/generate_figures.py` to create figures and save to `results/figures/`
 - [ ] T038c [US3] Implement `code/reporting/generate_research_doc.py` to compile `docs/research.md` with all results
@@ -160,7 +160,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T039a [P] Update `README.md` with sections: Installation, Data Download, Usage, and Troubleshooting
 - [ ] T039b [P] Generate API documentation for modules: preprocessing, modeling, analysis in `docs/api/`
 - [ ] T040 Code cleanup and refactoring for CPU memory optimization (chunking, masking)
-- [ ] T041 Performance optimization for P4 (permutation testing) to fit within 6h on 2 CPU cores [UNRESOLVED-CLAIM: c_ec3fe0b2 — status=not_enough_info]
+- [ ] T041 Performance optimization for P4 (permutation testing) to fit within 6h on 2 CPU cores
 - [ ] T042 [P] Additional unit tests in `tests/unit/` for edge cases (motion exclusion, non-convergence)
 - [ ] T043 Run `quickstart.md` validation to ensure end-to-end reproducibility
 - [ ] T020 [P] Implement `code/utils/hash_artifacts.py` to compute sha256 checksums for **all final files** in `data/` and `code/` and store them in `state/artifact_hashes.yaml` in the required format. **Must run AFTER T038c (all data processing and model generation complete).**
@@ -260,6 +260,6 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint Reminder**: All tasks must run on CPU-only (limited cores, limited RAM). No GPU, no 8-bit quantization. Use `numpyro` backend for `pymc`.
-- **Data Integrity**: {{claim:c_5f643418}} No synthetic data for final results [UNRESOLVED-CLAIM: c_f3a6a4b7 — status=not_enough_info].
+- **Data Integrity**: {{claim:c_5f643418}} No synthetic data for final results.
 - **Main.py Execution**: T019 (Init) -> T028 (P2 Logic) -> T037 (P3 Logic) are sequential. Do not run T028 or T037 in parallel.
 - **Hashing**: T020 runs only after all processing (Phase N) to hash final artifacts.

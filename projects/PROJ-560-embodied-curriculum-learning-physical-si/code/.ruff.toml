@@ -1,2 +1,16 @@
-# Ruff configuration file (redundant if using pyproject.toml, but kept for explicit CLI usage)
-extend = "pyproject.toml"
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "ARG"]
+ignore = ["E501", "B008"]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+allowed-confusables = []
+
+[lint.per-file-ignores]
+"code/tests/*" = ["S101"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

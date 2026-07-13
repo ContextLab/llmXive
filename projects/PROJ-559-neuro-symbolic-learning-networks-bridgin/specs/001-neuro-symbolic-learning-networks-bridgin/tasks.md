@@ -91,9 +91,9 @@ found character '`' that cannot start any token
 - [X] T013 [US1] Implement `code/generate/symbolic_explanation.py` using a fixed rule-based engine to solve arithmetic/logic problems. **Rules**: Implement commutativity, associativity, distributive property, and identity element for arithmetic problems in the ASSISTments subset. Output a JSON trace of rule applications. **Dependency**: T012.
 - [X] T014 [US1] Implement `code/generate/neural_explanation.py` using a distilled CPU-tractable LLM (e.g., TinyLlama-1.1B or similar) in default precision (Addressing CPU constraints). **Dependency**: T012.
 - [X] T015 [US1] Implement `code/generate/neuro_symbolic_explanation.py` to combine neural narrative with symbolic trace, ensuring symbolic rules govern the structure (Addressing Turing's "post-hoc rationalization" concern). **Dependency**: T012, T013, T014.
-- [ ] T016 [US1] Implement `code/generate/explanation_generator.py` orchestrator logic to call generators and handle error states. **Dependency**: T013, T014, T015.
+- [X] T016 [US1] Implement `code/generate/explanation_generator.py` orchestrator logic to call generators and handle error states. **Dependency**: T013, T014, T015.
 - [X] T016b [US1] Implement file I/O and artifact naming for explanation outputs in `code/generate/explanation_generator.py`. **Dependency**: T016.
-- [ ] T017 [US1] Add validation to ensure symbolic traces are distinct from neural outputs (Addressing Rockmore's "concrete mathematical objects" concern). **Dependency**: T013, T015.
+- [X] T017 [US1] Add validation to ensure symbolic traces are distinct from neural outputs (Addressing Rockmore's "concrete mathematical objects" concern). **Dependency**: T013, T015.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,7 +107,7 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for SimulationLog schema in `code/tests/contract/test_schemas.py`
+- [ ] T018 [P] [US2] Contract test for SimulationLog schema in `code/tests/contract/test_schemas.py` <!-- FAILED: unspecified -->
 - [ ] T019 [P] [US2] Unit test for BKT state transitions in `code/tests/unit/test_bkt.py`
 
 ### Implementation for User Story 2
@@ -115,8 +115,8 @@ found character '`' that cannot start any token
 - [ ] T020 [P] [US2] Implement `code/simulate/bkt_simulator.py` with deterministic seed support (Addressing Von Neumann's "stability under perturbation" concern). **Dependency**: T007, T005.
 - [X] T021b [US2] Implement configuration logic to define the list of three conditions (neural, symbolic, neuro-symbolic) and a sufficient sample size per condition. **Deliverable**: `code/simulate/simulation_config.yaml`. **Dependency**: T033 (calibration check).
 - [ ] T021 [US2] Implement `code/simulate/run_simulation.py` loop logic to iterate over all conditions defined in T021b and process [deferred] students per condition. **Dependency**: T020, T021b.
-- [ ] T022 [US2] Implement logging to aggregate `data/derived/simulation_logs.csv` with required fields (FR-004, FR-005). **Dependency**: T021.
-- [ ] T023 [US2] Add logic to simulate response times and comprehension ratings (1-5 Likert) ensuring no gaps > 5s in distribution (SC-005). **Dependency**: T022.
+- [~] T022 [US2] Implement logging to aggregate `data/derived/simulation_logs.csv` with required fields (FR-004, FR-005). **Dependency**: T021.
+- [~] T023 [US2] Add logic to simulate response times and comprehension ratings (1-5 Likert) ensuring no gaps > 5s in distribution (SC-005). **Dependency**: T022.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,12 +130,12 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Contract test for analysis output schema in `code/tests/contract/test_schemas.py`
-- [ ] T025 [P] [US3] Integration test for full analysis pipeline in `code/tests/integration/test_pipeline.py`
+- [~] T024 [P] [US3] Contract test for analysis output schema in `code/tests/contract/test_schemas.py`
+- [~] T025 [P] [US3] Integration test for full analysis pipeline in `code/tests/integration/test_pipeline.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement `code/analyze/mixed_effects.py` using `statsmodels` (CPU-only) with fixed effects for condition, prior knowledge, difficulty, and `data_source` (simulated vs real), and random intercepts (FR-006, FR-011). **Dependency**: T022, T007.
+- [~] T026 [P] [US3] Implement `code/analyze/mixed_effects.py` using `statsmodels` (CPU-only) with fixed effects for condition, prior knowledge, difficulty, and `data_source` (simulated vs real), and random intercepts (FR-006, FR-011). **Dependency**: T022, T007.
 - [ ] T027 [US3] Implement `code/analyze/effect_sizes.py` to compute Cohen's d with 95% CI for pairwise comparisons and validate CI width ≤0.20 (FR-006, SC-003). **Dependency**: T026.
 - [ ] T028 [US3] Implement logic to merge simulated and real student data (≥200 records) and validate `data_source` effects. **Dependency**: T026, T034.
 - [ ] T029 [US3] Generate results markdown with significance testing (p < 0.05) and CI width validation (SC-003). **Dependency**: T027, T028, T034.

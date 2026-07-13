@@ -1,1 +1,2 @@
-# Directory for processed data (cleaned, normalized)
+# This directory stores preprocessed and processed data.
+# Includes motion-corrected, normalized, and smoothed images.

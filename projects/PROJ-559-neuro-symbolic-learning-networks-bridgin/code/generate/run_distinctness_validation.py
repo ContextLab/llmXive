@@ -3,7 +3,6 @@ import sys
 import json
 import logging
 from typing import List, Dict, Any, Tuple
-
 from generate.validate_distinctness import validate_distinctness, validate_explanation_pair
 
 # Configure logging
@@ -14,150 +13,160 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def find_explanation_pairs(
-    explanations_dir: str
+    symbolic_dir: str,
+    neuro_symbolic_dir: str
 ) -> List[Tuple[Dict[str, Any], Dict[str, Any]]]:
     """
-    Find pairs of symbolic and neuro-symbolic explanations in the given directory.
-
+    Find pairs of symbolic and neuro-symbolic explanations for the same problem.
+    
     Args:
-        explanations_dir: Path to the directory containing explanation files
-
+        symbolic_dir: Directory containing symbolic explanation JSON files
+        neuro_symbolic_dir: Directory containing neuro-symbolic explanation JSON files
+    
     Returns:
         List of tuples (symbolic_explanation, neuro_symbolic_explanation)
     """
     pairs = []
-
-    if not os.path.exists(explanations_dir):
-        logger.error(f"Explanations directory not found: {explanations_dir}")
+    
+    if not os.path.exists(symbolic_dir) or not os.path.exists(neuro_symbolic_dir):
+        logger.error(f"Directories not found: {symbolic_dir} or {neuro_symbolic_dir}")
         return pairs
-
-    # Walk through the directory to find explanation files
-    for root, _, files in os.walk(explanations_dir):
-        for file in files:
-            if file.endswith('.json'):
-                file_path = os.path.join(root, file)
-                try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        explanation = json.load(f)
-
-                    # Determine if this is a symbolic or neuro-symbolic explanation
-                    if 'symbolic_trace' in explanation and 'neural_narrative' in explanation:
-                        # This is a neuro-symbolic explanation
-                        # We need to find the corresponding pure symbolic explanation
-                        # For now, we'll treat the neuro-symbolic as both (in a real scenario,
-                        # we'd match by problem_id)
-                        pairs.append((explanation, explanation))
-                    elif 'symbolic_trace' in explanation:
-                        # This is a symbolic explanation
-                        # Look for the corresponding neuro-symbolic explanation
-                        problem_id = explanation.get('problem_id', '')
-                        if problem_id:
-                            # Try to find matching neuro-symbolic explanation
-                            # This is a simplified approach
-                            pass
-                except (json.JSONDecodeError, IOError) as e:
-                    logger.warning(f"Failed to read {file_path}: {e}")
-
+    
+    # Get all JSON files
+    symbolic_files = [f for f in os.listdir(symbolic_dir) if f.endswith('.json')]
+    neuro_symbolic_files = [f for f in os.listdir(neuro_symbolic_dir) if f.endswith('.json')]
+    
+    # Create mapping by problem_id
+    symbolic_map = {}
+    for filename in symbolic_files:
+        filepath = os.path.join(symbolic_dir, filename)
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+                problem_id = data.get('problem_id')
+                if problem_id:
+                    symbolic_map[problem_id] = data
+        except Exception as e:
+            logger.error(f"Error loading {filepath}: {e}")
+    
+    neuro_symbolic_map = {}
+    for filename in neuro_symbolic_files:
+        filepath = os.path.join(neuro_symbolic_dir, filename)
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+                problem_id = data.get('problem_id')
+                if problem_id:
+                    neuro_symbolic_map[problem_id] = data
+        except Exception as e:
+            logger.error(f"Error loading {filepath}: {e}")
+    
+    # Find common problem IDs
+    common_ids = set(symbolic_map.keys()) & set(neuro_symbolic_map.keys())
+    
+    for problem_id in common_ids:
+        pairs.append((symbolic_map[problem_id], neuro_symbolic_map[problem_id]))
+    
+    logger.info(f"Found {len(pairs)} explanation pairs")
     return pairs
 
 def run_batch_validation(
-    explanations_dir: str,
+    pairs: List[Tuple[Dict[str, Any], Dict[str, Any]]],
+    threshold: float = 0.3,
     output_path: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Run distinctness validation on all explanation pairs in a directory.
-
+    Run distinctness validation on a batch of explanation pairs.
+    
     Args:
-        explanations_dir: Path to the directory containing explanation files
-        output_path: Optional path to write validation results
-
+        pairs: List of (symbolic, neuro_symbolic) explanation pairs
+        threshold: Maximum allowed Jaccard similarity
+        output_path: Optional path to save results JSON
+    
     Returns:
-        Validation summary dictionary
+        Validation report dictionary
     """
-    pairs = find_explanation_pairs(explanations_dir)
-
-    if not pairs:
-        logger.warning("No explanation pairs found for validation")
-        return {
-            'total_pairs': 0,
-            'valid_pairs': 0,
-            'invalid_pairs': 0,
-            'details': []
-        }
-
-    results = []
-    valid_count = 0
-    invalid_count = 0
-
-    for i, (symbolic_exp, neuro_symbolic_exp) in enumerate(pairs):
-        is_valid, details = validate_explanation_pair(symbolic_exp, neuro_symbolic_exp)
-
-        result = {
-            'pair_id': i,
-            'problem_id': neuro_symbolic_exp.get('problem_id', 'unknown'),
-            'is_valid': is_valid,
-            'details': details
-        }
-        results.append(result)
-
-        if is_valid:
-            valid_count += 1
-        else:
-            invalid_count += 1
-
-    summary = {
-        'total_pairs': len(pairs),
-        'valid_pairs': valid_count,
-        'invalid_pairs': invalid_count,
-        'validation_rate': valid_count / len(pairs) if pairs else 0.0,
-        'details': results
+    results = {
+        "total_pairs": len(pairs),
+        "passed": 0,
+        "failed": 0,
+        "details": []
     }
-
-    # Write results to output file if specified
+    
+    for i, (symbolic, neuro_symbolic) in enumerate(pairs):
+        problem_id = symbolic.get('problem_id', f'unknown_{i}')
+        is_valid, report = validate_explanation_pair(symbolic, neuro_symbolic, threshold)
+        
+        result_entry = {
+            "problem_id": problem_id,
+            "is_valid": is_valid,
+            "checks": report['checks']
+        }
+        
+        results["details"].append(result_entry)
+        
+        if is_valid:
+            results["passed"] += 1
+        else:
+            results["failed"] += 1
+            logger.warning(f"Validation failed for {problem_id}")
+    
+    results["pass_rate"] = results["passed"] / results["total_pairs"] if results["total_pairs"] > 0 else 0.0
+    
     if output_path:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(summary, f, indent=2)
-        logger.info(f"Validation results written to {output_path}")
-
-    return summary
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        logger.info(f"Validation results saved to {output_path}")
+    
+    return results
 
 def main():
     """
     Main entry point for running distinctness validation.
+    
+    Usage:
+        python code/generate/run_distinctness_validation.py
+    
+    Expected directory structure:
+        data/explanations/symbolic/
+        data/explanations/neuro_symbolic/
+    
+    Output:
+        data/validation/distinctness_report.json
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description='Validate distinctness between symbolic and neural explanations'
-    )
-    parser.add_argument(
-        '--explanations-dir',
-        type=str,
-        default='data/explanations',
-        help='Directory containing explanation JSON files'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default='data/validation/distinctness_report.json',
-        help='Output path for validation results'
-    )
-
-    args = parser.parse_args()
-
-    logger.info(f"Running distinctness validation on {args.explanations_dir}")
-
-    summary = run_batch_validation(args.explanations_dir, args.output)
-
-    print(json.dumps(summary, indent=2))
-
-    # Exit with error code if validation failed for any pair
-    if summary['invalid_pairs'] > 0:
-        logger.warning(f"{summary['invalid_pairs']} pairs failed validation")
-        sys.exit(1)
-    else:
-        logger.info("All explanation pairs passed distinctness validation")
+    logger.info("Starting batch distinctness validation")
+    
+    # Define paths
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    symbolic_dir = os.path.join(project_root, "data", "explanations", "symbolic")
+    neuro_symbolic_dir = os.path.join(project_root, "data", "explanations", "neuro_symbolic")
+    output_path = os.path.join(project_root, "data", "validation", "distinctness_report.json")
+    
+    # Find pairs
+    pairs = find_explanation_pairs(symbolic_dir, neuro_symbolic_dir)
+    
+    if not pairs:
+        logger.warning("No explanation pairs found. Validation cannot proceed.")
+        return 1
+    
+    # Run validation
+    results = run_batch_validation(pairs, threshold=0.3, output_path=output_path)
+    
+    # Print summary
+    print(json.dumps({
+        "total": results["total_pairs"],
+        "passed": results["passed"],
+        "failed": results["failed"],
+        "pass_rate": results["pass_rate"]
+    }, indent=2))
+    
+    if results["failed"] > 0:
+        logger.error(f"Validation failed for {results['failed']} pairs")
+        return 1
+    
+    logger.info("All validations passed")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

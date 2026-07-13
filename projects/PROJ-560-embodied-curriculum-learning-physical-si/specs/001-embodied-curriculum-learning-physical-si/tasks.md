@@ -58,8 +58,8 @@
 - [ ] T004 Setup directory structure for `data/raw`, `data/processed`, `data/synthetic`, `data/derivation_logs`
 - [X] T005 [P] Implement `code/src/__init__.py` and basic logging configuration in `code/src/logging_config.py`
 - [X] T006 [P] Create `DatasetRecord` dataclass in `code/src/models.py` with `pre_test_score`, `post_test_score`, `instruction_type`, `covariates` (static data structure only)
-- [~] T007 Create `AnalysisResult` and `SensitivitySweep` dataclasses in `code/src/models.py`
-- [~] T008 Implement CLI argument parser in `code/src/cli.py` supporting `--mode`, `--input`, `--sweep_thresholds`, and `--seed`
+- [X] T007 Create `AnalysisResult` and `SensitivitySweep` dataclasses in `code/src/models.py`
+- [X] T008 Implement CLI argument parser in `code/src/cli.py` supporting `--mode`, `--input`, `--sweep_thresholds`, and `--seed`
 - [~] T009 Setup deterministic random seed management in `code/src/utils.py` for reproducibility (numpy, python)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -108,11 +108,11 @@
 
 - [~] T020 [US2] Implement `run_t_test` in `code/src/stats_engine.py` to perform Student's or Welch's t-test on gain scores based on Levene's test result (FR-002).
 - [~] T021 [US2] Implement `calculate_effect_size` (Cohen's d) and `confidence_interval` in `code/src/stats_engine.py` (FR-002).
-- [ ] T022 [US2] Implement `apply_bonferroni_correction` in `code/src/stats_engine.py` to adjust alpha based on number of concepts tested (FR-004).
-- [ ] T023 [US2] Implement `frame_inference` in `code/src/stats_engine.py` to explicitly label all findings as "associational" and include methodological caveats (FR-003).
-- [ ] T024 [US2] Implement `check_collinearity` in `code/src/stats_engine.py` to detect |r| > 0.8 between predictors and report diagnostics (FR-006).
-- [ ] T025 [US2] Implement `calculate_power` in `code/src/stats_engine.py` to compute achieved power and flag "underpowered" results if < 0.80 (FR-007).
-- [ ] T026 [US2] Aggregate all statistical results into an `AnalysisResult` object and write to JSON output in `data/processed/results.json`.
+- [~] T022 [US2] Implement `apply_bonferroni_correction` in `code/src/stats_engine.py` to adjust alpha based on number of concepts tested (FR-004).
+- [~] T023 [US2] Implement `frame_inference` in `code/src/stats_engine.py` to explicitly label all findings as "associational" and include methodological caveats (FR-003).
+- [~] T024 [US2] Implement `check_collinearity` in `code/src/stats_engine.py` to detect |r| > 0.8 between predictors and report diagnostics (FR-006).
+- [~] T025 [US2] Implement `calculate_power` in `code/src/stats_engine.py` to compute achieved power and flag "underpowered" results if < 0.80 (FR-007).
+- [~] T026 [US2] Aggregate all statistical results into an `AnalysisResult` object and write to JSON output in `data/processed/results.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,14 +126,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`
+- [~] T027 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py` to iterate over thresholds representing small, moderate, and large significance levels (FR-005).
-- [ ] T029 [US3] Implement logic to skip sweep and flag "insufficient data for robustness check" if N < 30 (FR-005).
-- [ ] T030 [US3] Implement `check_robustness_warning` in `code/src/sensitivity.py` to flag `robustness_warning: true` if effect size drops below a substantively meaningful threshold at any threshold (FR-005).
-- [ ] T031 [US3] Aggregate sweep results into `SensitivitySweep` objects and append to the main JSON report.
+- [~] T028 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py` to iterate over thresholds representing small, moderate, and large significance levels (FR-005).
+- [~] T029 [US3] Implement logic to skip sweep and flag "insufficient data for robustness check" if N < 30 (FR-005).
+- [~] T030 [US3] Implement `check_robustness_warning` in `code/src/sensitivity.py` to flag `robustness_warning: true` if effect size drops below a substantively meaningful threshold at any threshold (FR-005).
+- [~] T031 [US3] Aggregate sweep results into `SensitivitySweep` objects and append to the main JSON report.
 
 **Checkpoint**: All user stories should now be independently functional
 

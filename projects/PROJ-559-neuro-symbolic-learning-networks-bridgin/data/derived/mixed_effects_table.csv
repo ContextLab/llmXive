@@ -1,0 +1,2 @@
+parameter,estimate,std_err,z_value,p_value,conf_int_lower,conf_int_upper
+# This file is a placeholder. Run code/analyze/mixed_effects.py with real data to populate results.
