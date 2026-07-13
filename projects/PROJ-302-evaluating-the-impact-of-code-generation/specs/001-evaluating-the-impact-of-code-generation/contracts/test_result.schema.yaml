@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TestResult"
+description: "Statistical test output (p-value, effect size, significance)."
+type: object
+properties:
+  test_type:
+    type: string
+    enum:
+      - "paired_t_test"
+      - "mann_whitney_u"
+    description: "Type of statistical test performed"
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value from the test"
+  effect_size:
+    type: number
+    description: "Cohen's d or rank-biserial correlation"
+  significance:
+    type: boolean
+    description: "True if p < 0.05"
+  sample_size:
+    type: integer
+    description: "Number of matched pairs"
+  normality_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Shapiro-Wilk p-value"
+required:
+  - test_type
+  - p_value
+  - effect_size
+  - significance
+  - sample_size
+  - normality_p_value
+additionalProperties: false

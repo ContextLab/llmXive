@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MatchedPair"
+description: "Represents a statistical unit (Human-LLM-like pair after matching)."
+type: object
+properties:
+  pair_id:
+    type: string
+    description: "Unique pair identifier"
+  human_pr_ref:
+    type: string
+    description: "Reference to 'Human-typical' PR"
+  llm_like_pr_ref:
+    type: string
+    description: "Reference to 'LLM-like' PR"
+  complexity_diff:
+    type: number
+    description: "human_complexity - llm_complexity"
+  size_diff:
+    type: number
+    description: "human_size - llm_size"
+  activity_diff:
+    type: number
+    description: "human_activity - llm_activity"
+  balance_verified:
+    type: boolean
+    description: "True if all SMD < 0.1"
+required:
+  - pair_id
+  - human_pr_ref
+  - llm_like_pr_ref
+  - complexity_diff
+  - size_diff
+  - activity_diff
+  - balance_verified
+additionalProperties: false

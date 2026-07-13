@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PullRequest"
+description: "Represents a GitHub PR with metadata and review metrics (Classifier-Based Proxy)."
+type: object
+properties:
+  pr_id:
+    type: string
+    description: "Unique PR identifier (e.g., repo#123)"
+  repo_id:
+    type: string
+    description: "Repository identifier (e.g., owner/repo)"
+  author_type:
+    type: string
+    enum:
+      - "human"
+    description: "Source of the code (always human in this study)"
+  llm_style_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Probability of 'LLM-like' style"
+  created_at:
+    type: string
+    format: date-time
+    description: "PR creation timestamp"
+  first_comment_at:
+    type: string
+    format: date-time
+    description: "First reviewer comment timestamp"
+  review_latency:
+    type: number
+    description: "Duration (hours) from created_at to first_comment_at"
+  file_size:
+    type: integer
+    description: "Lines of code (LOC)"
+  complexity_score:
+    type: number
+    description: "Cyclomatic complexity"
+  repo_stars:
+    type: integer
+    description: "Repository star count"
+  repo_pr_count:
+    type: integer
+    description: "Total PRs in repository"
+required:
+  - pr_id
+  - repo_id
+  - author_type
+  - llm_style_score
+  - created_at
+  - first_comment_at
+  - review_latency
+  - file_size
+  - complexity_score
+  - repo_stars
+  - repo_pr_count
+additionalProperties: false

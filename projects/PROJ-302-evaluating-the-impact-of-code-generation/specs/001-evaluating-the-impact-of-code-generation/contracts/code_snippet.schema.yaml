@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeSnippet"
+description: "Represents a code artifact (human-written, classified by style)."
+type: object
+properties:
+  snippet_id:
+    type: string
+    description: "Unique snippet identifier"
+  source_commit:
+    type: string
+    description: "Original commit hash"
+  generation_source:
+    type: string
+    enum:
+      - "human"
+    description: "Generation source (always human in this study)"
+  code_content:
+    type: string
+    description: "Code text"
+  complexity_metrics:
+    type: object
+    properties:
+      cyclomatic:
+        type: number
+        description: "Cyclomatic complexity"
+      lines:
+        type: integer
+        description: "Lines of code"
+    required:
+      - cyclomatic
+      - lines
+  llm_style_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Probability of 'LLM-like' style"
+  model_version:
+    type: string
+    description: "Classifier version (e.g., codebert-base)"
+required:
+  - snippet_id
+  - source_commit
+  - generation_source
+  - code_content
+  - complexity_metrics
+  - llm_style_score
+  - model_version
+additionalProperties: false
