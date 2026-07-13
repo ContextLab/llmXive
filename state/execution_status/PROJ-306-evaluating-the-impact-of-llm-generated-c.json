@@ -6,7 +6,7 @@
   "failures": [
     "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2\n    Warning: LLM_API_KEY not found in environment. Local models will be used if available.\n\nusage: main.py [-h] [--dataset DATASET] [--model MODEL]\n               [--batch-size BATCH_SIZE]\nmain.py: error: unrecognized arguments: --num-tasks 100 --output-dir data/processed"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 4,
   "model_tier": 1,
-  "updated_at": "2026-07-13T19:10:27Z"
+  "updated_at": "2026-07-13T19:52:07Z"
 }
