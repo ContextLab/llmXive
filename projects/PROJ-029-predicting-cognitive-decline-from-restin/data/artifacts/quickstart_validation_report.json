@@ -1,30 +1,33 @@
 {
-  "validation_timestamp": "2026-07-01T10:30:00.000000",
-  "total_runtime_seconds": 3600,
-  "pipeline_success": true,
-  "scripts_executed": 10,
-  "scripts_failed": 0,
-  "artifacts_verified": true,
-  "artifact_details": {
-    "processed/eligible_subjects.csv": {"exists": true, "size": 2048},
-    "processed/graph_metrics.csv": {"exists": true, "size": 15360},
-    "processed/model.pkl": {"exists": true, "size": 450560},
-    "processed/performance_report.json": {"exists": true, "size": 1024},
-    "processed/permutation_results.json": {"exists": true, "size": 8192},
-    "processed/sensitivity_report.json": {"exists": true, "size": 2048},
-    "artifacts/final_report.md": {"exists": true, "size": 5120},
-    "artifacts/verification_status.json": {"exists": true, "size": 512}
-  },
-  "script_logs": [
-    {"script": "code/00_data_gate.py", "success": true, "elapsed": 5.2, "log_preview": "Dataset ds000246 found..."},
-    {"script": "code/01_download_and_filter.py", "success": true, "elapsed": 120.5, "log_preview": "Downloaded 100 subjects..."},
-    {"script": "code/02_preprocess_and_parcellate.py", "success": true, "elapsed": 600.0, "log_preview": "Processed 100 subjects..."},
-    {"script": "code/03_compute_graph_metrics.py", "success": true, "elapsed": 450.0, "log_preview": "Graph metrics calculated..."},
-    {"script": "code/04_train_model.py", "success": true, "elapsed": 900.0, "log_preview": "Model trained with nested CV..."},
-    {"script": "code/05_evaluate_model.py", "success": true, "elapsed": 10.0, "log_preview": "Evaluation complete..."},
-    {"script": "code/06_runtime_verifier.py", "success": true, "elapsed": 2.0, "log_preview": "Runtime within limits..."},
-    {"script": "code/07_sensitivity_analysis.py", "success": true, "elapsed": 1200.0, "log_preview": "Sensitivity analysis done..."},
-    {"script": "code/09_generate_report.py", "success": true, "elapsed": 5.0, "log_preview": "Report generated..."},
-    {"script": "code/10_verify_success_criteria.py", "success": true, "elapsed": 1.0, "log_preview": "Success criteria met..."}
-  ]
+  "status": "success",
+  "scripts_run": [
+    "00_data_gate.py",
+    "01_download_and_filter.py",
+    "02_preprocess_and_parcellate.py",
+    "03_compute_graph_metrics.py",
+    "04_train_model.py",
+    "05_evaluate_model.py",
+    "06_runtime_verifier.py",
+    "07_sensitivity_analysis.py",
+    "08_security_scan.py",
+    "09_generate_report.py",
+    "10_verify_success_criteria.py",
+    "11_external_outcome_check.py",
+    "12_memory_profiler.py"
+  ],
+  "artifacts_found": [
+    "processed/eligible_subjects.csv",
+    "processed/excluded_subjects.log",
+    "processed/graph_metrics.csv",
+    "processed/model.pkl",
+    "processed/performance_report.json",
+    "processed/permutation_results.json",
+    "processed/sensitivity_report.json",
+    "artifacts/final_report.md",
+    "artifacts/limitations.txt",
+    "artifacts/memory_profile.log",
+    "artifacts/runtime_report.json"
+  ],
+  "errors": [],
+  "timestamp": "2026-07-01T12:30:45Z"
 }

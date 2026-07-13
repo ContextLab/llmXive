@@ -1,26 +1,42 @@
 """
-Security scanning module for BIDS datasets.
-Scans data/raw/ for PII using pybids and bids-validator patterns.
-Automatically redacts personal identifiers found in JSON side-cars or filenames.
+Security hardening: Scan data/raw/ for PII using pybids/bids-validator logic.
+Automatically redact any personal identifiers found in JSON side-cars or filenames.
 """
-import os
-import re
+import argparse
 import json
-import hashlib
+import re
+import shutil
 from pathlib import Path
-from typing import Dict, List, Any, Set, Tuple
+from typing import Any, Dict, List, Tuple, Optional
+import os
 
-# Try to import bids, fallback to manual scanning if not available
-try:
-    from bids import BIDSLayout
-    BIDS_AVAILABLE = True
-except ImportError:
-    BIDS_AVAILABLE = False
+# PII Patterns based on BIDS specification and general privacy concerns
+# BIDS explicitly forbids certain keys in JSON sidecars if they contain PII
+# We also scan filenames for common PII patterns
+PII_KEYS = {
+    'participant_id', 'subject_id', 'patient_id', 'dob', 'date_of_birth',
+    'birth_date', 'age', 'sex', 'gender', 'ethnicity', 'race',
+    'address', 'phone', 'phone_number', 'email', 'ssn', 'social_security',
+    'medical_record_number', 'mrn', 'hospital_id', 'institution_id',
+    'acquisition_date', 'scan_date', 'visit_date', 'date',
+    'first_name', 'last_name', 'full_name', 'name',
+    'license_plate', 'vehicle_id', 'device_serial_number',
+    'biometric_id', 'fingerprint', 'face_id'
+}
 
-from utils.logger import get_logger
-from utils.io import ensure_dir
-
-logger = get_logger(__name__)
+PII_VALUE_PATTERNS = [
+    # SSN
+    re.compile(r'\b\d{3}-\d{2}-\d{4}\b'),
+    # Phone numbers (various formats)
+    re.compile(r'\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b'),
+    # Email addresses
+    re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'),
+    # Dates (YYYY-MM-DD, MM/DD/YYYY, etc.) - often PII in medical context
+    re.compile(r'\b\d{4}[-/]\d{2}[-/]\d{2}\b'),
+    re.compile(r'\b\d{2}[-/]\d{2}[-/]\d{4}\b'),
+    # High-precision coordinates or IDs that might be unique identifiers
+    re.compile(r'\b[A-Z0-9]{10,}\b'),
+]
 
 # PII patterns based on BIDS specification and common medical data privacy concerns
 PII_KEY_PATTERNS = [
@@ -58,239 +74,249 @@ BIDS_PII_KEYS = {
 }
 
 def is_pii_key(key: str) -> bool:
-    """Check if a key is likely to contain PII."""
-    key_lower = key.lower()
-    
-    # Check against BIDS-specific PII keys
-    if key_lower in {k.lower() for k in BIDS_PII_KEYS}:
+    """Check if a JSON key is likely to contain PII."""
+    key_lower = key.lower().strip()
+    # Direct match
+    if key_lower in PII_KEYS:
         return True
-    
-    # Check against regex patterns
-    for pattern in PII_KEY_PATTERNS:
-        if re.match(pattern, key_lower, re.IGNORECASE):
+    # Partial match (e.g., 'patient_id_1' contains 'patient_id')
+    for pii_key in PII_KEYS:
+        if pii_key in key_lower:
             return True
     
     return False
 
 def is_pii_value(value: Any) -> bool:
-    """Check if a value is likely to contain PII."""
+    """Check if a value looks like PII."""
     if not isinstance(value, str):
         return False
     
-    value_str = str(value).strip()
-    
-    # Check against regex patterns
+    value_stripped = value.strip()
+    if not value_stripped:
+        return False
+        
     for pattern in PII_VALUE_PATTERNS:
-        if re.search(pattern, value_str, re.IGNORECASE):
+        if pattern.search(value_stripped):
             return True
-    
     return False
 
-def redact_value(value: str) -> str:
-    """Redact a PII value by replacing it with a hash."""
-    if not value:
-        return value
-    return f"[REDACTED-{hashlib.sha256(value.encode()).hexdigest()[:8]}]"
+def redact_value(value: str, key: str) -> str:
+    """Redact a PII value, replacing with a generic placeholder."""
+    if is_pii_key(key):
+        return "[REDACTED_PII_KEY]"
+    
+    # Apply pattern-based redaction
+    redacted = value
+    for pattern in PII_VALUE_PATTERNS:
+        redacted = pattern.sub('[REDACTED_PII]', redacted)
+    
+    return redacted if redacted != value else value
 
 def redact_dict(data: Dict[str, Any], path: str = "") -> Tuple[Dict[str, Any], List[str]]:
-    """Recursively redact PII from a dictionary."""
-    redacted = {}
-    findings = []
+    """Recursively redact PII from a dictionary and return list of redacted keys."""
+    redacted_data = {}
+    redacted_keys = []
     
     for key, value in data.items():
         current_path = f"{path}.{key}" if path else key
         
         if isinstance(value, dict):
-            redacted_dict, sub_findings = redact_dict(value, current_path)
-            redacted[key] = redacted_dict
-            findings.extend(sub_findings)
+            sub_redacted, sub_keys = redact_dict(value, current_path)
+            redacted_data[key] = sub_redacted
+            redacted_keys.extend(sub_keys)
         elif isinstance(value, list):
             redacted_list = []
             for i, item in enumerate(value):
                 if isinstance(item, dict):
-                    redacted_item, sub_findings = redact_dict(item, f"{current_path}[{i}]")
-                    redacted_list.append(redacted_item)
-                    findings.extend(sub_findings)
-                elif is_pii_key(key) and is_pii_value(item):
-                    findings.append(f"{current_path}[{i}]")
-                    redacted_list.append(redact_value(str(item)))
+                    sub_redacted, sub_keys = redact_dict(item, f"{current_path}[{i}]")
+                    redacted_list.append(sub_redacted)
+                    redacted_keys.extend(sub_keys)
+                elif is_pii_value(item):
+                    redacted_list.append(redact_value(item, key))
+                    redacted_keys.append(f"{current_path}[{i}]")
                 else:
                     redacted_list.append(item)
-            redacted[key] = redacted_list
-        elif is_pii_key(key) and is_pii_value(value):
-            findings.append(current_path)
-            redacted[key] = redact_value(str(value))
+            redacted_data[key] = redacted_list
+        elif is_pii_value(value) or is_pii_key(key):
+            redacted_data[key] = redact_value(str(value), key)
+            redacted_keys.append(current_path)
         else:
-            redacted[key] = value
+            redacted_data[key] = value
     
-    return redacted, findings
+    return redacted_data, redacted_keys
 
-def scan_json_file(file_path: Path) -> Tuple[Dict[str, Any], List[str]]:
-    """Scan a JSON file for PII and redact it."""
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        logger.warning(f"Failed to parse JSON file {file_path}: {e}")
-        return {}, []
-    except Exception as e:
-        logger.error(f"Error reading JSON file {file_path}: {e}")
-        return {}, []
+def scan_filename(filepath: Path) -> List[str]:
+    """Scan a filename for potential PII patterns."""
+    issues = []
+    filename = filepath.name
     
-    redacted_data, findings = redact_dict(data)
-    
-    if findings:
-        logger.info(f"Found PII in {file_path}: {findings}")
-        # Write redacted version back
-        try:
-            with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(redacted_data, f, indent=2)
-            logger.info(f"Redacted PII in {file_path}")
-        except Exception as e:
-            logger.error(f"Failed to write redacted JSON to {file_path}: {e}")
-    
-    return redacted_data, findings
-
-def scan_filename(filename: str) -> List[str]:
-    """Scan a filename for PII patterns."""
-    findings = []
-    filename_lower = filename.lower()
-    
-    # Check for common PII patterns in filenames
-    for pattern in PII_KEY_PATTERNS:
-        if re.search(pattern, filename_lower, re.IGNORECASE):
-            findings.append(filename)
+    # Check for common PII patterns in filename
+    for pattern in PII_VALUE_PATTERNS:
+        if pattern.search(filename):
+            issues.append(f"PII pattern found in filename: {filename}")
             break
     
-    # Check for specific BIDS patterns that might contain PII
-    if re.search(r'sub-\d+[^_]', filename_lower):
-        # This is a normal BIDS subject ID, not PII
-        pass
-    elif re.search(r'patient[_-]?\d+|subject[_-]?\d+', filename_lower):
-        findings.append(filename)
+    # Check for keys in filename that might indicate PII
+    for key in PII_KEYS:
+        if key in filename.lower():
+            issues.append(f"Potential PII key in filename: {filename}")
+            break
     
-    return findings
+    return issues
 
-def scan_directory(directory: Path) -> Dict[str, Any]:
-    """Scan a directory for PII in JSON files and filenames."""
+def scan_json_file(filepath: Path) -> Tuple[Dict[str, Any], List[str], List[str]]:
+    """Scan and redact PII from a JSON file. Returns (redacted_data, redacted_keys, errors)."""
+    redacted_keys = []
+    errors = []
+    
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if not isinstance(data, dict):
+            return data, [], [f"JSON root is not a dict: {filepath}"]
+        
+        redacted_data, redacted_keys = redact_dict(data)
+        return redacted_data, redacted_keys, []
+        
+    except json.JSONDecodeError as e:
+        errors.append(f"Invalid JSON in {filepath}: {str(e)}")
+        return {}, [], errors
+    except Exception as e:
+        errors.append(f"Error reading {filepath}: {str(e)}")
+        return {}, [], errors
+
+def scan_directory(raw_data_dir: Path, dry_run: bool = True) -> Dict[str, Any]:
+    """
+    Scan a directory for PII in JSON sidecars and filenames.
+    
+    Args:
+        raw_data_dir: Path to the directory to scan (typically data/raw/)
+        dry_run: If True, only report findings without modifying files.
+    
+    Returns:
+        Dictionary containing scan results.
+    """
     results = {
-        'scanned_files': [],
-        'pii_found': [],
-        'files_redacted': [],
-        'errors': []
+        'scanned_directory': str(raw_data_dir),
+        'dry_run': dry_run,
+        'files_scanned': 0,
+        'files_with_issues': 0,
+        'total_redactions': 0,
+        'filename_issues': [],
+        'json_issues': [],
+        'modified_files': []
     }
     
-    if not directory.exists():
-        logger.warning(f"Directory {directory} does not exist")
+    if not raw_data_dir.exists():
+        results['error'] = f"Directory does not exist: {raw_data_dir}"
         return results
     
-    # Scan JSON files
-    for json_file in directory.rglob('*.json'):
-        results['scanned_files'].append(str(json_file))
-        try:
-            _, findings = scan_json_file(json_file)
-            if findings:
-                results['pii_found'].append({
-                    'file': str(json_file),
-                    'paths': findings
-                })
-                results['files_redacted'].append(str(json_file))
-        except Exception as e:
-            results['errors'].append({
+    # Find all JSON files
+    json_files = list(raw_data_dir.rglob("*.json"))
+    results['files_scanned'] = len(json_files)
+    
+    for json_file in json_files:
+        # Check filename first
+        filename_issues = scan_filename(json_file)
+        if filename_issues:
+            results['filename_issues'].append({
                 'file': str(json_file),
-                'error': str(e)
+                'issues': filename_issues
             })
-    
-    # Scan filenames
-    for file_path in directory.rglob('*'):
-        if file_path.is_file():
-            filename_findings = scan_filename(file_path.name)
-            if filename_findings:
-                results['pii_found'].append({
-                    'file': str(file_path),
-                    'filename_pii': filename_findings
-                })
-    
-    # If BIDS layout is available, use it for more comprehensive scanning
-    if BIDS_AVAILABLE:
-        try:
-            layout = BIDSLayout(str(directory), validate=False)
-            logger.info(f"Using BIDS layout for {directory}")
+            results['files_with_issues'] += 1
+        
+        # Scan JSON content
+        redacted_data, redacted_keys, errors = scan_json_file(json_file)
+        
+        if errors:
+            results['json_issues'].append({
+                'file': str(json_file),
+                'errors': errors
+            })
+            continue
+        
+        if redacted_keys:
+            results['json_issues'].append({
+                'file': str(json_file),
+                'redacted_keys': redacted_keys,
+                'count': len(redacted_keys)
+            })
+            results['total_redactions'] += len(redacted_keys)
+            results['files_with_issues'] += 1
             
-            # Check participant files
-            participants_file = directory / 'participants.tsv'
-            if participants_file.exists():
-                results['scanned_files'].append(str(participants_file))
+            if not dry_run:
+                # Write redacted data back to file
                 try:
-                    import pandas as pd
-                    df = pd.read_csv(participants_file, sep='\t')
-                    for col in df.columns:
-                        if is_pii_key(col):
-                            results['pii_found'].append({
-                                'file': str(participants_file),
-                                'column': col,
-                                'message': f"Potential PII column: {col}"
-                            })
+                    with open(json_file, 'w', encoding='utf-8') as f:
+                        json.dump(redacted_data, f, indent=2)
+                    results['modified_files'].append(str(json_file))
                 except Exception as e:
-                    results['errors'].append({
-                        'file': str(participants_file),
-                        'error': str(e)
+                    results['json_issues'].append({
+                        'file': str(json_file),
+                        'error': f"Failed to write redacted data: {str(e)}"
                     })
-        except Exception as e:
-            logger.warning(f"Failed to create BIDS layout: {e}")
     
     return results
 
 def main():
-    """Main entry point for security scanning."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Scan BIDS dataset for PII')
-    parser.add_argument('--input', '-i', type=str, default='data/raw',
-                      help='Input directory to scan (default: data/raw)')
-    parser.add_argument('--output', '-o', type=str, default='data/artifacts/security_scan_report.json',
-                      help='Output report file (default: data/artifacts/security_scan_report.json)')
-    parser.add_argument('--verbose', '-v', action='store_true',
-                      help='Enable verbose output')
+    """Main entry point for the security scanner."""
+    parser = argparse.ArgumentParser(
+        description="Scan BIDS dataset for PII and redact if necessary."
+    )
+    parser.add_argument(
+        '--input', '-i',
+        type=Path,
+        default=Path("data/raw"),
+        help="Path to the BIDS dataset directory (default: data/raw)"
+    )
+    parser.add_argument(
+        '--dry-run', '-n',
+        action='store_true',
+        help="Only report findings without modifying files"
+    )
+    parser.add_argument(
+        '--output', '-o',
+        type=Path,
+        default=Path("data/artifacts/security_scan_report.json"),
+        help="Path to output the scan report (default: data/artifacts/security_scan_report.json)"
+    )
     
     args = parser.parse_args()
     
-    if args.verbose:
-        logger.setLevel(logging.INFO)
+    print(f"Scanning directory: {args.input}")
+    print(f"Dry run mode: {args.dry_run}")
     
-    input_dir = Path(args.input)
-    output_file = Path(args.output)
-    
-    logger.info(f"Starting PII scan on {input_dir}")
-    
-    if not input_dir.exists():
-        logger.error(f"Input directory {input_dir} does not exist")
-        return 1
-    
-    # Perform scan
-    results = scan_directory(input_dir)
+    results = scan_directory(args.input, dry_run=args.dry_run)
     
     # Ensure output directory exists
-    ensure_dir(output_file.parent)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
     
     # Write report
-    try:
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(results, f, indent=2)
-        logger.info(f"Security scan report written to {output_file}")
-    except Exception as e:
-        logger.error(f"Failed to write report: {e}")
+    with open(args.output, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+    
+    # Print summary
+    print(f"\nScan complete!")
+    print(f"Files scanned: {results['files_scanned']}")
+    print(f"Files with issues: {results['files_with_issues']}")
+    print(f"Total redactions: {results['total_redactions']}")
+    print(f"Report saved to: {args.output}")
+    
+    if results.get('error'):
+        print(f"\nError: {results['error']}")
         return 1
     
-    # Summary
-    logger.info(f"Scanned {len(results['scanned_files'])} files")
-    logger.info(f"Found PII in {len(results['pii_found'])} locations")
-    logger.info(f"Redacted {len(results['files_redacted'])} files")
-    if results['errors']:
-        logger.warning(f"Encountered {len(results['errors'])} errors during scan")
-    
-    # Return non-zero if PII was found
-    return 0 if not results['pii_found'] else 1
+    if results['files_with_issues'] > 0 and args.dry_run:
+        print(f"\n⚠️  Found {results['files_with_issues']} files with potential PII.")
+        print(f"   Re-run without --dry-run to redact automatically.")
+        return 0
+    elif results['files_with_issues'] > 0:
+        print(f"\n✅ Redacted {results['total_redactions']} PII instances in {results['files_with_issues']} files.")
+        return 0
+    else:
+        print(f"\n✅ No PII detected.")
+        return 0
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit(main())

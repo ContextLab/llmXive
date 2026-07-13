@@ -1,141 +1,68 @@
 """
-Integration test for data filtering logic (MMSE/MOCA non-null check).
-
-This test verifies that the filtering logic correctly identifies subjects
-with valid longitudinal cognitive scores and excludes those without.
-It simulates the behavior of code/01_download_and_filter.py using synthetic
-BIDS-like metadata to ensure the filtering criteria (non-null at both timepoints)
-are applied correctly.
+Integration tests for data filtering logic (MMSE/MOCA non-null check).
 """
-import os
-import tempfile
-import json
+import pytest
 import pandas as pd
-import numpy as np
 from pathlib import Path
+from utils.io import load_csv, save_csv
+from code.utils.stats import check_collinearity # Just to ensure imports work
 
-# Import from sibling modules (relative to code/ directory)
-# Since tests are at root and code is at root, we adjust path
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-
-from utils.io import ensure_dir, save_dataframe
-from utils.logger import setup_logger, get_logger
-
-def test_filtering_logic():
+def test_filter_eligible_subjects_logic():
     """
-    Integration test: Verify filtering logic for MMSE/MOCA scores.
-    
-    Simulates a BIDS-like structure with subjects having various score combinations:
-    - Valid: Both timepoints have scores
-    - Invalid: One or both timepoints missing
-    
-    Expected: Only subjects with scores at both timepoints are retained.
+    Test the logic of filtering subjects based on MMSE/MOCA scores.
+    This simulates the logic in 01_download_and_filter.py without running the full download.
     """
-    # Setup temporary directory for test data
-    with tempfile.TemporaryDirectory() as tmpdir:
-        data_dir = Path(tmpdir) / "data"
-        ensure_dir(data_dir)
-        
-        # Create synthetic subject metadata
-        # Simulating the output of parsing BIDS metadata for ds000246
-        subjects_data = [
-            {
-                "subject_id": "sub-001", 
-                "timepoint_1": "MMSE", 
-                "timepoint_1_value": 28.0, 
-                "timepoint_2": "MMSE", 
-                "timepoint_2_value": 25.0,
-                "session_1": "baseline",
-                "session_2": "followup"
-            },
-            {
-                "subject_id": "sub-002", 
-                "timepoint_1": "MOCA", 
-                "timepoint_1_value": 24.0, 
-                "timepoint_2": "MOCA", 
-                "timepoint_2_value": 22.0,
-                "session_1": "baseline",
-                "session_2": "followup"
-            },
-            {
-                "subject_id": "sub-003", 
-                "timepoint_1": "MMSE", 
-                "timepoint_1_value": 29.0, 
-                "timepoint_2": None, 
-                "timepoint_2_value": None,
-                "session_1": "baseline",
-                "session_2": "followup"
-            },
-            {
-                "subject_id": "sub-004", 
-                "timepoint_1": None, 
-                "timepoint_1_value": None, 
-                "timepoint_2": "MMSE", 
-                "timepoint_2_value": 26.0,
-                "session_1": "baseline",
-                "session_2": "followup"
-            },
-            {
-                "subject_id": "sub-005", 
-                "timepoint_1": None, 
-                "timepoint_1_value": None, 
-                "timepoint_2": None, 
-                "timepoint_2_value": None,
-                "session_1": "baseline",
-                "session_2": "followup"
-            },
-        ]
-        
-        # Convert to DataFrame
-        df = pd.DataFrame(subjects_data)
-        
-        # Apply filtering logic: keep only rows where both timepoints have values
-        # This mimics the logic in code/01_download_and_filter.py
-        # The condition ensures that cognitive scores exist at both baseline and followup
-        eligible = df[
-            (df["timepoint_1_value"].notna()) & 
-            (df["timepoint_2_value"].notna())
-        ].copy()
-        
-        excluded = df[
-            (df["timepoint_1_value"].isna()) | 
-            (df["timepoint_2_value"].isna())
-        ].copy()
-        
-        # Assertions
-        assert len(eligible) == 2, f"Expected 2 eligible subjects, got {len(eligible)}"
-        assert len(excluded) == 3, f"Expected 3 excluded subjects, got {len(excluded)}"
-        
-        # Verify specific subjects
-        assert "sub-001" in eligible["subject_id"].values, "sub-001 should be eligible"
-        assert "sub-002" in eligible["subject_id"].values, "sub-002 should be eligible"
-        assert "sub-003" in excluded["subject_id"].values, "sub-003 should be excluded (missing t2)"
-        assert "sub-004" in excluded["subject_id"].values, "sub-004 should be excluded (missing t1)"
-        assert "sub-005" in excluded["subject_id"].values, "sub-005 should be excluded (missing both)"
-        
-        # Save results to verify outputs (as per task requirements)
-        # These paths simulate the actual output structure expected by the pipeline
-        output_dir = Path(tmpdir) / "output"
-        ensure_dir(output_dir)
-        
-        eligible_path = output_dir / "eligible_subjects.csv"
-        excluded_path = output_dir / "excluded_subjects.csv"
-        
-        save_dataframe(eligible, eligible_path)
-        save_dataframe(excluded, excluded_path)
-        
-        # Log results using the project's logging utility
-        logger = setup_logger("test_filtering", output_dir)
-        logger.info(f"Filtering test completed: {len(eligible)} eligible, {len(excluded)} excluded")
-        
-        # Verify files were written
-        assert eligible_path.exists(), f"Eligible subjects file not written: {eligible_path}"
-        assert excluded_path.exists(), f"Excluded subjects file not written: {excluded_path}"
-        
-        print("Integration test PASSED: Filtering logic correctly identified eligible subjects.")
-        print(f"Eligible subjects saved to: {eligible_path}")
-        print(f"Excluded subjects saved to: {excluded_path}")
+    # Create a mock dataframe similar to what parse_bids_metadata would produce
+    data = {
+        'subject_id': ['sub-01', 'sub-02', 'sub-03', 'sub-04'],
+        'mmse_t1': [28.0, 25.0, None, 29.0],
+        'moca_t1': [27.0, None, 26.0, 28.0],
+        'mmse_t2': [27.0, 24.0, 28.0, None],
+        'moca_t2': [26.0, 25.0, None, 27.0]
+    }
+    df = pd.DataFrame(data)
 
-if __name__ == "__main__":
-    test_filtering_logic()
+    # Logic: Keep if (mmse_t1 or moca_t1) is not null AND (mmse_t2 or moca_t2) is not null
+    def is_eligible(row):
+        has_t1 = pd.notna(row['mmse_t1']) or pd.notna(row['moca_t1'])
+        has_t2 = pd.notna(row['mmse_t2']) or pd.notna(row['moca_t2'])
+        return has_t1 and has_t2
+
+    eligible = df[df.apply(is_eligible, axis=1)]
+    
+    # Expected: sub-01 (has both), sub-02 (has both), sub-04 (has t1, t2 missing? No, t2 has mmse null, moca present -> has_t2 is True)
+    # sub-01: t1(28,27), t2(27,26) -> OK
+    # sub-02: t1(25,NA), t2(24,25) -> OK (has t1 via mmse, has t2 via both)
+    # sub-03: t1(NA,26), t2(28,NA) -> OK (has t1 via moca, has t2 via mmse)
+    # sub-04: t1(29,28), t2(NA,27) -> OK (has t1, has t2 via moca)
+    # Wait, let's re-read the requirement: "filter for subjects with non‑null MMSE/MOCA at both timepoints"
+    # This usually means: (MMSE or MOCA) at T1 AND (MMSE or MOCA) at T2.
+    
+    # Let's adjust the mock data to create a clear failure case
+    data_fail = {
+        'subject_id': ['sub-05'],
+        'mmse_t1': [None],
+        'moca_t1': [None],
+        'mmse_t2': [28.0],
+        'moca_t2': [27.0]
+    }
+    df_fail = pd.DataFrame(data_fail)
+    assert not is_eligible(df_fail.iloc[0])
+
+    assert len(eligible) == 4
+    assert 'sub-01' in eligible['subject_id'].values
+    assert 'sub-02' in eligible['subject_id'].values
+    assert 'sub-03' in eligible['subject_id'].values
+    assert 'sub-04' in eligible['subject_id'].values
+
+def test_collinearity_filter_logic():
+    """Test that collinearity filter correctly identifies high correlation."""
+    from utils.stats import check_collinearity
+    import numpy as np
+
+    # Create data with high correlation (>0.95)
+    x = np.random.rand(100)
+    y = x * 1.0 + 0.01 # Almost identical
+    
+    corr, p = check_collinearity(x, y)
+    assert corr > 0.95

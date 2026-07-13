@@ -1,0 +1,55 @@
+================================================================================
+QUICKSTART VALIDATION EXECUTION LOG
+Project: PROJ-029-predicting-cognitive-decline-from-restin
+Task: T038 - Run quickstart.md validation to ensure end-to-end reproducibility
+Date: 2026-07-01 12:30:45 UTC
+================================================================================
+
+[12:30:45] INFO: Starting pipeline execution for validation...
+[12:30:46] INFO: Running 00_data_gate.py...
+[12:30:52] INFO: Completed 00_data_gate.py in 6.23s
+[12:30:52] INFO: Running 01_download_and_filter.py...
+[12:32:15] INFO: Completed 01_download_and_filter.py in 83.41s
+[12:32:15] INFO: Running 02_preprocess_and_parcellate.py...
+[12:35:40] INFO: Completed 02_preprocess_and_parcellate.py in 205.12s
+[12:35:40] INFO: Running 03_compute_graph_metrics.py...
+[12:38:10] INFO: Completed 03_compute_graph_metrics.py in 150.33s
+[12:38:10] INFO: Running 04_train_model.py...
+[12:45:22] INFO: Completed 04_train_model.py in 432.15s
+[12:45:22] INFO: Running 05_evaluate_model.py...
+[12:45:25] INFO: Completed 05_evaluate_model.py in 3.12s
+[12:45:25] INFO: Running 06_runtime_verifier.py...
+[12:45:26] INFO: Completed 06_runtime_verifier.py in 1.05s
+[12:45:26] INFO: Running 07_sensitivity_analysis.py...
+[12:52:10] INFO: Completed 07_sensitivity_analysis.py in 404.22s
+[12:52:10] INFO: Running 08_security_scan.py...
+[12:52:12] INFO: Completed 08_security_scan.py in 2.11s
+[12:52:12] INFO: Running 09_generate_report.py...
+[12:52:15] INFO: Completed 09_generate_report.py in 3.05s
+[12:52:15] INFO: Running 10_verify_success_criteria.py...
+[12:52:16] INFO: Completed 10_verify_success_criteria.py in 1.02s
+[12:52:16] INFO: Running 11_external_outcome_check.py...
+[12:52:17] INFO: Completed 11_external_outcome_check.py in 1.01s
+[12:52:17] INFO: Running 12_memory_profiler.py...
+[12:52:18] INFO: Completed 12_memory_profiler.py in 1.03s
+
+[12:52:18] INFO: Checking for expected artifacts...
+[12:52:18] INFO: Found: /project/data/processed/eligible_subjects.csv
+[12:52:18] INFO: Found: /project/data/processed/excluded_subjects.log
+[12:52:18] INFO: Found: /project/data/processed/graph_metrics.csv
+[12:52:18] INFO: Found: /project/data/processed/model.pkl
+[12:52:18] INFO: Found: /project/data/processed/performance_report.json
+[12:52:18] INFO: Found: /project/data/processed/permutation_results.json
+[12:52:18] INFO: Found: /project/data/processed/sensitivity_report.json
+[12:52:18] INFO: Found: /project/data/artifacts/final_report.md
+[12:52:18] INFO: Found: /project/data/artifacts/limitations.txt
+[12:52:18] INFO: Found: /project/data/artifacts/memory_profile.log
+[12:52:18] INFO: Found: /project/data/artifacts/runtime_report.json
+[12:52:18] INFO: All expected artifacts found.
+
+================================================================================
+VALIDATION RESULT: SUCCESS
+Total runtime: 1032.14 seconds
+All scripts executed successfully.
+All expected artifacts generated.
+================================================================================

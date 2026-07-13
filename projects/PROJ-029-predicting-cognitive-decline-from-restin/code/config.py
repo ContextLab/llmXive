@@ -1,59 +1,44 @@
-"""
-Configuration management for the cognitive decline prediction pipeline.
-
-Loads configuration from environment variables and default values.
-"""
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Default configuration
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 DEFAULT_CONFIG = {
-    "data": {
-        "raw": str(Path("data/raw")),
-        "processed": str(Path("data/processed")),
-        "artifacts": str(Path("data/artifacts"))
-    },
-    "logs": {
-        "dir": str(Path("data/logs")),
-        "level": "INFO"
-    },
+    "raw_data_dir": str(PROJECT_ROOT / "data" / "raw"),
+    "processed_data_dir": str(PROJECT_ROOT / "data" / "processed"),
+    "artifacts_dir": str(PROJECT_ROOT / "data" / "artifacts"),
+    "figures_dir": str(PROJECT_ROOT / "figures"),
+    "log_dir": str(PROJECT_ROOT / "logs"),
     "random_seed": 42,
-    "runtime_limit_seconds": 10800,  # 3 hours
+    "max_runtime_hours": 6,
     "memory_limit_gb": 7,
-    "max_subjects": 100,
-    "atlas": {
-        "aal_path": os.getenv("AAL_ATLAS_PATH", "")  # Can be set via environment variable
-    },
-    "fsl": {
-        "enabled": os.getenv("FSL_ENABLED", "true").lower() == "true"
-    }
+    "n_jobs": 2,
+    "log_level": "INFO"
 }
 
-def get_config() -> Dict[str, Any]:
-    """
-    Get the current configuration.
-    
-    Returns
-    -------
-    Dict[str, Any]
-        Configuration dictionary
-    """
-    config = DEFAULT_CONFIG.copy()
-    
-    # Override with environment variables if set
-    if os.getenv("DATA_RAW_DIR"):
-        config["data"]["raw"] = os.getenv("DATA_RAW_DIR")
-    if os.getenv("DATA_PROCESSED_DIR"):
-        config["data"]["processed"] = os.getenv("DATA_PROCESSED_DIR")
-    if os.getenv("AAL_ATLAS_PATH"):
-        config["atlas"]["aal_path"] = os.getenv("AAL_ATLAS_PATH")
-    
-    return config
+_config_cache = None
 
-# Set up directories
-LOG_DIR = Path(DEFAULT_CONFIG["logs"]["dir"])
-LOG_LEVEL = DEFAULT_CONFIG["logs"]["level"]
-DATA_RAW_DIR = Path(DEFAULT_CONFIG["data"]["raw"])
-DATA_PROCESSED_DIR = Path(DEFAULT_CONFIG["data"]["processed"])
-DATA_ARTIFACTS_DIR = Path(DEFAULT_CONFIG["data"]["artifacts"])
+def get_config() -> Dict[str, Any]:
+    """Load configuration from file or return defaults."""
+    global _config_cache
+    if _config_cache is not None:
+        return _config_cache
+    
+    config_path = PROJECT_ROOT / "config.json"
+    if config_path.exists():
+        import json
+        try:
+            with open(config_path, 'r') as f:
+                custom = json.load(f)
+                _config_cache = {**DEFAULT_CONFIG, **custom}
+        except Exception:
+            _config_cache = DEFAULT_CONFIG
+    else:
+        _config_cache = DEFAULT_CONFIG
+    
+    return _config_cache
+
+def ensure_dir(path: Path):
+    """Ensure directory exists."""
+    path.mkdir(parents=True, exist_ok=True)

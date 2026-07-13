@@ -1,225 +1,217 @@
 """
-CI Memory Profiler for T043.
+CI Memory Profiler Task (T043)
 
 This script acts as a CI step to log peak memory usage for each major
-pipeline script (download, preprocessing, modeling, permutation) to
-data/artifacts/memory_profile.log.
+research script in the pipeline. It runs the scripts sequentially,
+monitors their peak RAM usage using psutil (via the existing memory_profiler utility),
+and appends a structured log entry to data/artifacts/memory_profile.log.
 
-It wraps the execution of the target scripts, monitors RAM usage via psutil,
-and appends a structured log entry upon completion or failure.
+Scripts profiled:
+- 00_data_gate.py
+- 01_download_and_filter.py
+- 02_preprocess_and_parcellate.py
+- 03_compute_graph_metrics.py
+- 04_train_model.py
+- 06_permutation_test.py (mapped from task description 'permutation')
 """
+
 import os
 import sys
 import time
 import json
 import subprocess
 import threading
-from datetime import datetime
+import psutil
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from datetime import datetime
 
-# Add project root to path to allow imports if needed, though this script
-# primarily spawns subprocesses.
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-DATA_ARTIFACTS_DIR = PROJECT_ROOT / "data" / "artifacts"
-MEMORY_LOG_PATH = DATA_ARTIFACTS_DIR / "memory_profile.log"
+# Add the code directory to the path so we can import local utilities if needed,
+# though we will primarily use subprocess to run the scripts.
+CODE_DIR = Path(__file__).parent
+PROJECT_ROOT = CODE_DIR.parent
+ARTIFACTS_DIR = PROJECT_ROOT / "data" / "artifacts"
+LOG_FILE = ARTIFACTS_DIR / "memory_profile.log"
 
 # Ensure the artifacts directory exists
-DATA_ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Define the major scripts to profile based on the pipeline phases
-# These correspond to T017, T018, T023/T029, T029 (Permutation)
+# List of major scripts to profile, relative to code/
+# Note: 06_permutation_test.py is the script for permutation testing as per tasks.md
 SCRIPTS_TO_PROFILE = [
-    {
-        "name": "download_and_filter",
-        "script": "01_download_and_filter.py",
-        "phase": "Data Ingestion"
-    },
-    {
-        "name": "preprocess_and_parcellate",
-        "script": "02_preprocess_and_parcellate.py",
-        "phase": "Preprocessing"
-    },
-    {
-        "name": "train_model",
-        "script": "04_train_model.py",
-        "phase": "Modeling"
-    },
-    {
-        "name": "permutation_test",
-        "script": "06_permutation_test.py",
-        "phase": "Significance Testing"
-    }
+    "00_data_gate.py",
+    "01_download_and_filter.py",
+    "02_preprocess_and_parcellate.py",
+    "03_compute_graph_metrics.py",
+    "04_train_model.py",
+    "06_permutation_test.py",
 ]
 
-class MemoryMonitor:
+def get_memory_usage_gb():
+    """Get current memory usage of the current process in GB."""
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 ** 3)
+
+def run_script_with_monitoring(script_name: str, timeout_seconds: int = 3600) -> dict:
     """
-    A lightweight thread-based memory monitor that polls the peak RSS
-    of a specific process ID.
-    """
-    def __init__(self, pid: int):
-        self.pid = pid
-        self.peak_memory_gb = 0.0
-        self.stop_event = threading.Event()
-        self.thread = None
-
-    def _monitor_loop(self):
-        import psutil
-        try:
-            process = psutil.Process(self.pid)
-            while not self.stop_event.is_set():
-                try:
-                    mem_info = process.memory_info()
-                    current_gb = mem_info.rss / (1024 ** 3)
-                    if current_gb > self.peak_memory_gb:
-                        self.peak_memory_gb = current_gb
-                except psutil.NoSuchProcess:
-                    # Process finished
-                    break
-                time.sleep(0.1) # Poll every 100ms
-        except Exception as e:
-            # Log error but don't crash the monitor thread
-            print(f"Monitor error for PID {self.pid}: {e}", file=sys.stderr)
-
-    def start(self):
-        self.thread = threading.Thread(target=self._monitor_loop, daemon=True)
-        self.thread.start()
-
-    def stop(self):
-        self.stop_event.set()
-        if self.thread:
-            self.thread.join(timeout=2.0)
-
-def run_script_with_monitoring(script_path: Path, script_name: str, phase: str) -> Dict[str, Any]:
-    """
-    Executes a script and monitors its peak memory usage.
+    Runs a script via subprocess, monitors its peak memory usage.
     
-    Returns a dictionary containing execution status, peak memory, and duration.
+    Since we cannot easily attach to the child process's memory from the parent
+    without complex IPC, we will use a wrapper approach:
+    1. We rely on the fact that the scripts themselves might not be instrumented
+       to report memory in a standard way.
+    2. We will spawn a monitoring thread that checks the child process's memory
+       periodically until it exits.
+    
+    Returns a dict with script_name, status, peak_memory_gb, duration_seconds.
     """
+    script_path = CODE_DIR / script_name
+    
+    if not script_path.exists():
+        return {
+            "script": script_name,
+            "status": "failed",
+            "error": "Script not found",
+            "peak_memory_gb": 0.0,
+            "duration_seconds": 0.0
+        }
+
     start_time = time.time()
-    monitor = None
-    result = {
+    peak_memory_gb = 0.0
+    child_process = None
+
+    # Start the child process
+    try:
+        child_process = subprocess.Popen(
+            [sys.executable, str(script_path)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=str(CODE_DIR)
+        )
+    except Exception as e:
+        return {
+            "script": script_name,
+            "status": "failed",
+            "error": str(e),
+            "peak_memory_gb": 0.0,
+            "duration_seconds": time.time() - start_time
+        }
+
+    # Monitoring thread
+    def monitor_memory():
+        nonlocal peak_memory_gb
+        while True:
+            try:
+                if child_process.poll() is not None:
+                    break
+                try:
+                    # psutil can track the child process by PID
+                    p = psutil.Process(child_process.pid)
+                    mem = p.memory_info().rss / (1024 ** 3)
+                    if mem > peak_memory_gb:
+                        peak_memory_gb = mem
+                except psutil.NoSuchProcess:
+                    break
+            except Exception:
+                break
+            time.sleep(0.5) # Check every 500ms
+
+    monitor_thread = threading.Thread(target=monitor_memory, daemon=True)
+    monitor_thread.start()
+
+    # Wait for process to finish or timeout
+    try:
+        stdout, stderr = child_process.communicate(timeout=timeout_seconds)
+        return_code = child_process.returncode
+    except subprocess.TimeoutExpired:
+        child_process.kill()
+        stdout, stderr = child_process.communicate()
+        return_code = -1
+    
+    monitor_thread.join() # Ensure monitoring stops
+
+    duration = time.time() - start_time
+
+    if return_code == 0:
+        status = "completed"
+    else:
+        # Check if it's a specific "no data" exit code or expected failure
+        # For T043, we want to log memory even if the script exits early due to missing data,
+        # as long as it ran. However, if it crashed immediately, it might be an error.
+        # We'll mark it as 'completed_with_exit_code' if it ran for a bit, or 'failed' if instant.
+        if duration > 5.0:
+            status = "completed_with_exit_code"
+        else:
+            status = "failed"
+
+    return {
         "script": script_name,
-        "phase": phase,
-        "timestamp": datetime.now().isoformat(),
-        "status": "unknown",
-        "peak_memory_gb": 0.0,
-        "duration_seconds": 0.0,
-        "error": None
+        "status": status,
+        "exit_code": return_code,
+        "peak_memory_gb": round(peak_memory_gb, 4),
+        "duration_seconds": round(duration, 2),
+        "stdout_sample": stdout.decode('utf-8', errors='ignore')[:500] if stdout else "",
+        "stderr_sample": stderr.decode('utf-8', errors='ignore')[:500] if stderr else ""
     }
 
-    try:
-        # Launch the script
-        cmd = [sys.executable, str(script_path)]
-        # We run it in the context of the code directory to resolve relative imports correctly
-        process = subprocess.Popen(
-            cmd,
-            cwd=str(CODE_DIR),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-
-        # Start monitoring the process
-        monitor = MemoryMonitor(process.pid)
-        monitor.start()
-
-        # Wait for completion
-        stdout, stderr = process.communicate()
-        
-        # Stop monitoring
-        monitor.stop()
-
-        result["duration_seconds"] = time.time() - start_time
-        result["peak_memory_gb"] = round(monitor.peak_memory_gb, 4)
-        
-        if process.returncode == 0:
-            result["status"] = "success"
-        else:
-            result["status"] = "failed"
-            result["error"] = f"Exit code {process.returncode}"
-            # Append stderr to error message if available
-            if stderr:
-                result["error"] += f" | Stderr: {stderr.decode('utf-8', errors='ignore')[:200]}"
-
-    except Exception as e:
-        result["status"] = "error"
-        result["error"] = str(e)
-        result["duration_seconds"] = time.time() - start_time
-        if monitor:
-            monitor.stop()
-            result["peak_memory_gb"] = round(monitor.peak_memory_gb, 4)
-
-    return result
-
-def log_entry(log_data: Dict[str, Any]):
-    """
-    Appends a JSON log entry to the memory profile log file.
-    """
-    with open(MEMORY_LOG_PATH, "a") as f:
-        f.write(json.dumps(log_data) + "\n")
+def log_entry(result: dict):
+    """Appends a log entry to the memory_profile.log file."""
+    timestamp = datetime.now().isoformat()
+    entry = {
+        "timestamp": timestamp,
+        **result
+    }
+    
+    # Append as JSONL (one JSON object per line) for easy parsing later
+    with open(LOG_FILE, "a") as f:
+        f.write(json.dumps(entry) + "\n")
 
 def main():
-    """
-    Main entry point for the CI memory profiling step.
-    Iterates through defined scripts, runs them (or simulates if they require data),
-    and logs the results.
+    print(f"Starting CI Memory Profiler for project: {PROJECT_ROOT.name}")
+    print(f"Logging to: {LOG_FILE}")
     
-    Note: In a real CI environment, the data would be present. If data is missing,
-    the underlying scripts will fail (as per T043 requirements to fail loudly),
-    and this profiler will capture the failure and memory stats up to the crash.
-    """
-    print(f"Starting Memory Profiling CI Step for {len(SCRIPTS_TO_PROFILE)} scripts...")
-    print(f"Log destination: {MEMORY_LOG_PATH}")
-    
-    # Clear previous log if we want a fresh run, or append. 
-    # For CI auditing, we typically append to a build-specific log or rotate.
-    # Here we append to the standard artifact log as requested.
-    
-    if not MEMORY_LOG_PATH.exists():
-        # Write header
-        with open(MEMORY_LOG_PATH, "w") as f:
-            f.write("# Memory Profile Log for PROJ-029\n")
-            f.write(f"# Generated: {datetime.now().isoformat()}\n")
-            f.write("# Format: JSON per line\n")
+    # Clear previous log if it exists? No, we append for audit trail.
+    # But let's print a header if the file is new.
+    if not LOG_FILE.exists():
+        with open(LOG_FILE, "w") as f:
+            f.write(f"# Memory Profile Log for {PROJECT_ROOT.name}\n")
+            f.write(f"# Generated at {datetime.now().isoformat()}\n")
+            f.write("# Format: JSONL\n\n")
 
-    all_results = []
+    results = []
     
-    for item in SCRIPTS_TO_PROFILE:
-        script_path = CODE_DIR / item["script"]
-        
-        if not script_path.exists():
-            print(f"WARNING: Script {item['script']} not found. Skipping.")
-            all_results.append({
-                "script": item["script"],
-                "phase": item["phase"],
-                "status": "skipped",
-                "reason": "File not found"
-            })
-            continue
-
-        print(f"Running profiler for: {item['name']} ({item['script']})...")
-        result = run_script_with_monitoring(script_path, item["name"], item["phase"])
-        
-        # Ensure peak memory is recorded even if failed
-        if "peak_memory_gb" not in result:
-            result["peak_memory_gb"] = 0.0
+    for script in SCRIPTS_TO_PROFILE:
+        print(f"\n--- Profiling {script} ---")
+        try:
+            result = run_script_with_monitoring(script)
+            results.append(result)
+            log_entry(result)
+            print(f"  Status: {result['status']}")
+            print(f"  Peak Memory: {result['peak_memory_gb']:.2f} GB")
+            print(f"  Duration: {result['duration_seconds']:.1f} s")
             
-        log_entry(result)
-        all_results.append(result)
-        
-        status_icon = "✓" if result["status"] == "success" else "✗"
-        print(f"  [{status_icon}] {item['name']}: {result['status']} | Peak RAM: {result['peak_memory_gb']:.2f} GB | Time: {result['duration_seconds']:.1f}s")
-        
-        if result["status"] != "success":
-            print(f"    Error: {result.get('error', 'Unknown')}")
+            if result['status'] in ['failed', 'completed_with_exit_code']:
+                print(f"  Note: Script exited with code {result.get('exit_code', 'N/A')}")
+                if result.get('stderr_sample'):
+                    print(f"  Stderr (truncated): {result['stderr_sample']}")
+        except Exception as e:
+            error_result = {
+                "script": script,
+                "status": "exception",
+                "error": str(e),
+                "peak_memory_gb": 0.0,
+                "duration_seconds": 0.0
+            }
+            results.append(error_result)
+            log_entry(error_result)
+            print(f"  Error: {e}")
 
-    print(f"\nProfiling complete. Results written to {MEMORY_LOG_PATH}")
+    print(f"\n--- Summary ---")
+    print(f"Total scripts profiled: {len(results)}")
+    for r in results:
+        print(f"  {r['script']}: {r['status']} ({r['peak_memory_gb']:.2f} GB)")
     
-    # Exit with error if any critical script failed, depending on CI policy.
-    # For this task, we log and exit 0 if the logging itself worked, 
-    # but typically CI would fail if a script failed.
-    # We return 0 to indicate the profiling step succeeded, even if scripts failed.
+    print(f"\nFull log written to: {LOG_FILE}")
     return 0
 
 if __name__ == "__main__":

@@ -1,144 +1,93 @@
 """
-Test suite runner for the llmXive automated science pipeline.
-Executes all tests in the tests/ directory and produces a summary report.
+Run the full test suite for the cognitive decline prediction pipeline.
+This script executes all pytest tests and generates a summary report.
 """
 import sys
 import subprocess
 import json
-import os
 from pathlib import Path
 from datetime import datetime
 
-def run_tests():
-    """
-    Runs the pytest suite located in the tests/ directory.
-    Returns a dictionary containing the exit code, stdout, stderr, and summary.
-    """
+def main():
+    """Run the full test suite and generate a summary report."""
     project_root = Path(__file__).parent.parent
     tests_dir = project_root / "tests"
-    output_log = project_root / "data" / "artifacts" / "test_results.json"
+    artifacts_dir = project_root / "data" / "artifacts"
     
-    # Ensure output directory exists
-    output_log.parent.mkdir(parents=True, exist_ok=True)
-
-    if not tests_dir.exists():
-        return {
-            "status": "error",
-            "message": "Tests directory not found",
-            "exit_code": 1
-        }
-
-    # Construct pytest command
-    # -v: verbose
-    # --tb=short: short traceback
-    # --json-report: generate JSON report (requires pytest-json-report plugin)
-    # If pytest-json-report is not available, we fallback to parsing standard output
-    cmd = [
+    # Ensure artifacts directory exists
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Build pytest command
+    pytest_cmd = [
         sys.executable, "-m", "pytest",
         str(tests_dir),
         "-v",
         "--tb=short",
-        "--color=yes"
+        "--json-report",
+        f"--json-report-file={artifacts_dir / 'test_results.json'}",
+        "--cov=code",
+        f"--cov-report=term-missing",
+        f"--cov-report=html:{artifacts_dir / 'coverage_html'}",
+        f"--cov-report=xml:{artifacts_dir / 'coverage.xml'}"
     ]
-
-    print(f"Running tests from: {tests_dir}")
-    print(f"Command: {' '.join(cmd)}")
-
-    try:
-        # Run subprocess and capture output
-        result = subprocess.run(
-            cmd,
-            cwd=str(project_root),
-            capture_output=True,
-            text=True,
-            timeout=600  # 10 minute timeout for full suite
-        )
-
-        exit_code = result.returncode
-        stdout = result.stdout
-        stderr = result.stderr
-
-        # Parse basic stats from stdout if possible
-        # Expected format: "X passed, Y failed, Z skipped in T.TTs"
-        summary = {
-            "timestamp": datetime.now().isoformat(),
-            "exit_code": exit_code,
-            "passed": 0,
-            "failed": 0,
-            "skipped": 0,
-            "total": 0,
-            "log_path": str(output_log)
-        }
-
-        # Simple regex-free parsing of the final line
-        # Look for patterns like "X passed"
-        for line in stdout.split('\n'):
-            if 'passed' in line:
-                parts = line.split()
-                for i, part in enumerate(parts):
-                    if part == 'passed':
-                        summary['passed'] = int(parts[i-1])
-                    if part == 'failed':
-                        summary['failed'] = int(parts[i-1])
-                    if part == 'skipped':
-                        summary['skipped'] = int(parts[i-1])
-                # Total is usually sum or explicitly stated
-                # We'll calculate total as passed + failed + skipped + errors
-                summary['total'] = summary['passed'] + summary['failed'] + summary['skipped']
-                break
-
-        # Write detailed log
-        log_entry = {
-            "summary": summary,
-            "stdout": stdout,
-            "stderr": stderr
-        }
-
-        with open(output_log, 'w') as f:
-            json.dump(log_entry, f, indent=2)
-
-        print(f"\n--- Test Summary ---")
-        print(f"Passed: {summary['passed']}")
-        print(f"Failed: {summary['failed']}")
-        print(f"Skipped: {summary['skipped']}")
-        print(f"Total: {summary['total']}")
-        print(f"Exit Code: {exit_code}")
-        print(f"Log saved to: {output_log}")
-
-        return {
-            "status": "success" if exit_code == 0 else "failure",
-            "exit_code": exit_code,
-            "summary": summary
-        }
-
-    except subprocess.TimeoutExpired:
-        return {
-            "status": "error",
-            "message": "Test suite timed out after 600 seconds",
-            "exit_code": 1
-        }
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e),
-            "exit_code": 1
-        }
-
-def main():
-    """
-    Entry point for the test runner.
-    """
-    result = run_tests()
     
-    if result["status"] == "success":
-        print("\nAll tests passed.")
-        sys.exit(0)
-    elif result["status"] == "failure":
-        print("\nSome tests failed. See data/artifacts/test_results.json for details.")
-        sys.exit(1)
+    print(f"Running test suite from: {tests_dir}")
+    print(f"Command: {' '.join(pytest_cmd)}")
+    print("-" * 80)
+    
+    # Run pytest
+    result = subprocess.run(pytest_cmd)
+    
+    # Generate summary report
+    summary_path = artifacts_dir / "test_summary.json"
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    
+    summary = {
+        "timestamp": timestamp,
+        "test_directory": str(tests_dir),
+        "pytest_exit_code": result.returncode,
+        "status": "passed" if result.returncode == 0 else "failed",
+        "report_files": {
+            "json_report": str(artifacts_dir / "test_results.json"),
+            "coverage_html": str(artifacts_dir / "coverage_html"),
+            "coverage_xml": str(artifacts_dir / "coverage.xml"),
+            "summary": str(summary_path)
+        }
+    }
+    
+    # Try to extract detailed stats from the JSON report
+    json_report_path = artifacts_dir / "test_results.json"
+    if json_report_path.exists():
+        try:
+            with open(json_report_path, "r") as f:
+                report_data = json.load(f)
+            
+            summary["total_tests"] = report_data.get("tests", []) and len(report_data["tests"])
+            summary["passed"] = sum(1 for t in report_data.get("tests", []) if t["outcome"] == "passed")
+            summary["failed"] = sum(1 for t in report_data.get("tests", []) if t["outcome"] == "failed")
+            summary["skipped"] = sum(1 for t in report_data.get("tests", []) if t["outcome"] == "skipped")
+            summary["errors"] = sum(1 for t in report_data.get("tests", []) if t.get("error"))
+            
+            if report_data.get("tests"):
+                summary["duration_seconds"] = report_data.get("duration", 0)
+        except Exception as e:
+            summary["parse_error"] = str(e)
+    
+    # Write summary
+    with open(summary_path, "w") as f:
+        json.dump(summary, f, indent=2)
+    
+    print("-" * 80)
+    print(f"Test summary written to: {summary_path}")
+    print(f"Overall status: {summary['status'].upper()}")
+    
+    if result.returncode == 0:
+        print("✅ All tests passed!")
     else:
-        print(f"\nError running tests: {result['message']}")
-        sys.exit(1)
+        print("❌ Some tests failed or errors occurred.")
+        print("Check the detailed reports in data/artifacts/")
+    
+    return result.returncode
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
