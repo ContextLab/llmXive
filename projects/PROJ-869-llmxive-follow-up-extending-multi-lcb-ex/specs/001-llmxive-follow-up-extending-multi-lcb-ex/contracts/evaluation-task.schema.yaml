@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationTask"
+description: "Schema for a single evaluation task in the Multi-LCB study."
+type: "object"
+required:
+  - "task_id"
+  - "problem_statement"
+  - "python_solution"
+  - "target_language"
+  - "test_cases"
+  - "difficulty"
+  - "topic"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task."
+  problem_statement:
+    type: "string"
+    description: "Natural language description of the problem."
+  python_solution:
+    type: "string"
+    description: "Ground-truth Python solution code."
+  target_language:
+    type: "string"
+    description: "Target language for generation (e.g., 'rust', 'kotlin')."
+    enum:
+      - "rust"
+      - "kotlin"
+      - "go"
+  target_solution:
+    type: "string"
+    description: "Ground-truth solution in the target language (optional, for verification)."
+  test_cases:
+    type: "array"
+    description: "List of input/output pairs for execution."
+    items:
+      type: "object"
+      required:
+        - "input"
+        - "expected_output"
+      properties:
+        input:
+          type: "string"
+          description: "Input string for the test case."
+        expected_output:
+          type: "string"
+          description: "Expected output string."
+  difficulty:
+    type: "string"
+    description: "Difficulty level of the task."
+    enum:
+      - "Easy"
+      - "Medium"
+      - "Hard"
+  topic:
+    type: "string"
+    description: "Algorithmic topic (e.g., 'DP', 'Graphs', 'Math')."
+  metadata:
+    type: "object"
+    description: "Additional metadata (e.g., source URL, timestamp)."
+    properties:
+      source_url:
+        type: "string"
+        description: "URL of the dataset source."
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "Timestamp of task creation or download."

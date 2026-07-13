@@ -1,0 +1,110 @@
+resolved_at: '2026-07-13T07:15:05.696423+00:00'
+datasets:
+- intent: LCB
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/huypn16/LCB-R/resolve/main/data/test-00000-of-00013.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huypn16/LCB-R-F/resolve/main/data/test-00000-of-00006.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sigcp/lcb_ccp_easy/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/huypn16/LCB-R/resolve/main/data/test-00000-of-00013.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/huypn16/LCB-R-F/resolve/main/data/test-00000-of-00006.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sigcp/lcb_ccp_easy/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sigcp/lcb_ccp_hard/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/plaguss/lcb_code_generation_lite/resolve/main/data/test-00000-of-00009.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://openresearch.newcastle.edu.au/articles/conference_contribution/Autonomous_Dialectics_Mapping_Desire_and_Confict_in_the_Suburban_Peripheries/32972588
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Evaluating_the_effectiveness_of_models_in_predicting_the_genetic_outcome_of_reintroduction_strategies/32972573
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Evaluating_the_effectiveness_of_models_in_predicting_the_genetic_outcome_of_reintroduction_strategies/32972573
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Investigating_the_association_between_work_family_conflict_WFC_and_generalized_anxiety_disorder_GAD_in_an_Australian_community-based_cohort_study/32767008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CauseExp-Dataset/31895059
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Multi-Class_Ovarian_Cancer_Subtype_Classification_b_/32972447
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.7c7q0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mycokeys.pensoft.net/article/39057/element/2/11/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mycokeys.pensoft.net/article/39057/element/2/13/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mycokeys.pensoft.net/article/39057/element/2/15/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10489705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/877b4mb5vz/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/877b4mb5vz
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://iris.uniupo.it//handle/11579/97185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Adsorption_properties_of_lung_cancer_biomarkers_using_-phosphoaluminane_nanosheets_a_first-principles_study/32531556/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Adsorption_properties_of_lung_cancer_biomarkers_using_-phosphoaluminane_nanosheets_a_first-principles_study/32531556
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

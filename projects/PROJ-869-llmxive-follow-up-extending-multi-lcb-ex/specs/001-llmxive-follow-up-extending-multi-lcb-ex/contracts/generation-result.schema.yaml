@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GenerationResult"
+description: "Schema for the output of a single generation and execution attempt."
+type: "object"
+required:
+  - "task_id"
+  - "condition"
+  - "model_output"
+  - "execution_status"
+  - "error_type"
+properties:
+  task_id:
+    type: "string"
+    description: "Reference to the EvaluationTask."
+  condition:
+    type: "string"
+    description: "Experimental condition."
+    enum:
+      - "blind"
+      - "guided"
+  model_output:
+    type: "string"
+    description: "The generated code string."
+  execution_status:
+    type: "string"
+    description: "Result of sandbox execution."
+    enum:
+      - "Pass"
+      - "Fail"
+      - "Timeout"
+      - "CompileError"
+      - "RuntimeError"
+  error_type:
+    type: "string"
+    description: "Categorized failure type (if status != Pass)."
+    enum:
+      - "None"
+      - "Syntax"
+      - "Library"
+      - "Runtime"
+      - "LogicTransfer"
+  anchor_verification:
+    type: "boolean"
+    description: "True if generated code implements all anchor steps (only for 'Pass' cases)."
+  latency_ms:
+    type: "integer"
+    description: "Time taken for generation + execution in milliseconds."
+  logs:
+    type: "string"
+    description: "Raw stderr/stdout logs from the sandbox."

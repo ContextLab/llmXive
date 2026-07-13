@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T12:44:37.025963Z'
-current_stage: brainstormed
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-869-llmxive-follow-up-extending-multi-lcb-ex
-last_run_id: null
+last_run_id: cfd0ad80-f26d-48fd-8ea8-0de7f4e3ecd8
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/specs/001-llmxive-follow-up-extending-multi-lcb-ex
 title: 'llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple
   Programming Languages"'
-updated_at: '2026-07-02T12:44:37.025963Z'
+updated_at: '2026-07-13T07:37:52.964319Z'

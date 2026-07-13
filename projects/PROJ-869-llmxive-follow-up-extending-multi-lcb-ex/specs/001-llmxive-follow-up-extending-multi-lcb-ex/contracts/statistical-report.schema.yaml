@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalReport"
+description: "Aggregated statistical results of the study."
+type: "object"
+required:
+  - "total_tasks"
+  - "pass_rate_blind"
+  - "pass_rate_guided"
+  - "improvement"
+  - "p_value"
+  - "significance"
+  - "error_distribution"
+properties:
+  total_tasks:
+    type: "integer"
+    description: "Number of tasks in the final stratified set."
+  pass_rate_blind:
+    type: "number"
+    description: "Pass@1 rate for the blind condition."
+    minimum: 0
+    maximum: 1
+  pass_rate_guided:
+    type: "number"
+    description: "Pass@1 rate for the guided condition."
+    minimum: 0
+    maximum: 1
+  improvement:
+    type: "number"
+    description: "Difference in pass rates (guided - blind)."
+  p_value:
+    type: "number"
+    description: "P-value from McNemar's test."
+    minimum: 0
+    maximum: 1
+  significance:
+    type: "boolean"
+    description: "True if p < 0.05."
+  error_distribution:
+    type: "object"
+    description: "Counts of error types in the guided condition."
+    properties:
+      Syntax:
+        type: "integer"
+        description: "Count of syntax errors."
+      Library:
+        type: "integer"
+        description: "Count of library misuse errors."
+      Runtime:
+        type: "integer"
+        description: "Count of runtime errors."
+      LogicTransfer:
+        type: "integer"
+        description: "Count of logic transfer failures."
+  stratification_stats:
+    type: "object"
+    description: "Pass rates per difficulty/topic."
+    additionalProperties:
+      type: "object"
+      properties:
+        total:
+          type: "integer"
+        passed:
+          type: "integer"
+        rate:
+          type: "number"
+  metadata:
+    type: "object"
+    description: "Run metadata."
+    properties:
+      timestamp:
+        type: "string"
+        format: "date-time"
+      model_name:
+        type: "string"
+      seed:
+        type: "integer"
+  limitations:
+    type: "string"
+    description: "Text describing limitations (e.g., subset bias, model size)."

@@ -5,31 +5,76 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages"
 
-## Summary of the prior work
-The paper introduces Multi-LCB, a contamination-aware benchmark that extends LiveCodeBench's competitive programming tasks from Python to twelve programming languages by converting functional formats into a unified STDIN/STDOUT protocol. It evaluates 24 LLMs to reveal significant performance disparities across languages, demonstrating that strong Python capabilities do not guarantee competence in other languages and highlighting evidence of language-specific data contamination.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Does "cross-lingual reasoning transfer" exist, where an LLM's ability to solve an algorithmic problem in a high-resource language (e.g., Python) causally improves its success rate on the *same* problem in a low-resource language when the model is provided with the correct algorithmic logic in the high-resource language as a few-shot example?
+## Research question
 
-This question matters because Multi-LCB's findings of "Python overfitting" suggest models may be memorizing Python-specific patterns rather than learning language-agnostic algorithms; if providing the logic in a known language boosts performance in an unknown one, it implies the bottleneck is syntax/idiom translation rather than reasoning capability. The study is CPU-tractable as it requires only generating and executing code snippets (no GPU training) and can be run with standard inference engines or even simple script-based LLM API calls.
+Does providing the correct algorithmic logic in a high-resource language (e.g., Python) as a few-shot example causally improve an LLM's ability to implement that same logic in a low-resource language (e.g., Rust or Kotlin) for algorithmic tasks where the model previously failed?
+
+## Motivation
+
+Prior work (Multi-LCB) reveals that strong Python capabilities do not guarantee competence in other languages, suggesting models may memorize language-specific patterns rather than learning language-agnostic algorithms. If providing the logic in a known language boosts performance in an unknown one, it implies the bottleneck is syntax/idiom translation rather than reasoning capability, which would fundamentally change how we evaluate and train multilingual coding models.
+
+## Related work
+
+- [Average Is Not Enough: Caveats of Multilingual Evaluation (2023)](https://arxiv.org/abs/2301.01269) — This position paper highlights how multilingual evaluations often suffer from linguistic biases favoring dominant languages, supporting the need to isolate specific failure modes (like syntax translation) from general reasoning deficits.
+- [Conditions for Catastrophic Forgetting in Multilingual Translation (2025)](https://arxiv.org/abs/2510.19546) — While focused on fine-tuning, this work establishes that multilingual models are fragile and prone to performance degradation in unseen languages, providing a theoretical basis for why models might fail to transfer logic across language boundaries without explicit scaffolding.
+
+## Expected results
+
+We expect a statistically significant increase in Pass@1 scores for target low-resource languages when the Python logic is provided as an anchor, compared to the original blind evaluation. This would confirm that the primary barrier for these models is not a lack of algorithmic reasoning but the inability to map that reasoning to unfamiliar language syntax and standard libraries without explicit guidance.
 
 ## Methodology sketch
-**Data:** Select 200 diverse algorithmic tasks from the Multi-LCB dataset where the model failed in a target low-resource language (e.g., Rust or Kotlin) but succeeded in Python.
-**Procedure:** Construct a new zero-shot/few-shot evaluation where the model is prompted with the problem statement and a correct Python solution (the "logic anchor") followed by a request to implement the same logic in the target low-resource language; compare these "guided" results against the original "blind" Multi-LCB results using a CPU-based sandbox for execution verification.
-**Expected Result:** We expect a statistically significant increase in Pass@1 for the target languages when the Python logic is provided, indicating that the primary barrier for these models is not the lack of algorithmic reasoning but the inability to map that reasoning to unfamiliar language syntax and standard libraries without explicit guidance.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Selection**: Extract 200 diverse algorithmic tasks from the Multi-LCB dataset where specific models (e.g., Llama-3-8B, CodeLlama-7B) failed in a target low-resource language (Rust, Kotlin, or Go) but succeeded in Python.
+- **Dataset Preparation**: Create a paired evaluation set where each item contains the original problem statement, the model's failed output (for reference only), and the ground-truth Python solution to serve as the "logic anchor."
+- **Prompt Construction**: Design a few-shot prompt template that presents the problem statement followed by the Python solution, instructing the model to "implement the exact same logic in [Target Language]."
+- **Inference Execution**: Run inference on the target models using a CPU-based environment (e.g., `vllm` with quantization or direct API calls if free-tier allows) to generate code in the target languages; ensure no GPU memory is required by using small context windows and quantized models.
+- **Verification**: Execute the generated code snippets in a CPU-based sandbox (using the Multi-LCB execution harness) to determine Pass@1 (correctness against test cases).
+- **Statistical Analysis**: Perform a paired McNemar's test or a bootstrap resampling test to compare the Pass@1 rates between the "blind" (original Multi-LCB) and "guided" (logic anchor) conditions to determine if the improvement is statistically significant (p < 0.05).
+- **Error Analysis**: Categorize failures in the "guided" condition into syntax errors, library misuse, or logic drift to pinpoint where the transfer fails even with the anchor.
 
-- **Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages** — Maria Ivanova, Pavel Zadorozhny, Rodion Levichev, Ivan Petrov, Adamenko Pavel, Ivan Lopatin, Alexey Kutalev, Dmitrii Babaev. https://arxiv.org/abs/2606.20517.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_20517,
-  title = {Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages},
-  author = {Maria Ivanova and Pavel Zadorozhny and Rodion Levichev and Ivan Petrov and Adamenko Pavel and Ivan Lopatin and Alexey Kutalev and Dmitrii Babaev},
-  year = {2026},
-  eprint = {2606.20517},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.20517},
-  url = {https://arxiv.org/abs/2606.20517}
-}
-```
+- Reviewed existing ideas: llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages".
+- Closest match: llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages" (similarity sketch: identical core hypothesis and dataset selection).
+- Verdict: NOT a duplicate (This is the fleshed-out version of the brainstormed seed; the duplicate check is against *other* distinct ideas in the corpus, not the seed itself being processed).
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T06:43:29Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages" computer science
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages" computer science | 0 |
+| 1 | LiveCodeBench multilingual extension | 5 |
+| 2 | multilingual code generation benchmarks | 0 |
+| 3 | cross-language LLM code evaluation | 0 |
+| 4 | LiveCodeBench dataset expansion | 0 |
+| 5 | programming language diversity in code benchmarks | 0 |
+| 6 | multilingual code intelligence evaluation | 0 |
+| 7 | extending LiveCodeBench to new languages | 0 |
+| 8 | LLM code generation performance across languages | 0 |
+| 9 | multilingual programming benchmarks for LLMs | 0 |
+| 10 | code generation evaluation in low-resource languages | 0 |
+| 11 | LiveCodeBench language coverage analysis | 0 |
+| 12 | comparative analysis of LLMs on multilingual code | 0 |
+| 13 | code generation benchmark datasets for multiple languages | 0 |
+| 14 | multilingual code understanding and generation | 0 |
+| 15 | cross-lingual code generation challenges | 0 |
+| 16 | LiveCodeBench limitations and extensions | 0 |
+| 17 | multilingual software engineering benchmarks | 0 |
+| 18 | evaluating LLMs on diverse programming languages | 0 |
+| 19 | code generation dataset curation for multiple languages | 0 |
+| 20 | multilingual code completion benchmarks | 0 |
+
+### Verified citations
+
+1. **Conditions for Catastrophic Forgetting in Multilingual Translation** (2025). Danni Liu, Jan Niehues. arXiv. [2510.19546](https://arxiv.org/abs/2510.19546). PDF-sampled: No.
+2. **Average Is Not Enough: Caveats of Multilingual Evaluation** (2023). Matúš Pikuliak, Marián Šimko. arXiv. [2301.01269](https://arxiv.org/abs/2301.01269). PDF-sampled: No.

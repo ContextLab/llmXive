@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LiveCodeBench Dataset Schema"
+description: "Schema for the raw LiveCodeBench dataset loaded from HuggingFace."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task."
+  problem_statement:
+    type: string
+    description: "The problem description text."
+  difficulty:
+    type: string
+    enum:
+      - Easy
+      - Medium
+      - Hard
+    description: "Difficulty level of the task."
+  topic:
+    type: string
+    description: "Algorithmic topic (e.g., DP, Graphs)."
+  python_solution:
+    type: string
+    description: "Ground-truth Python solution."
+  target_language:
+    type: string
+    description: "The target language for the experiment (e.g., Rust, Kotlin)."
+  target_solution:
+    type: string
+    description: "Ground-truth solution in the target language (optional)."
+  test_cases:
+    type: array
+    description: "List of test cases (input, expected_output)."
+    items:
+      type: object
+      properties:
+        input:
+          type: string
+        expected_output:
+          type: string
+      required:
+        - input
+        - expected_output
+  invariant_tests:
+    type: array
+    description: "Subset of test cases used for invariant checking (edge cases)."
+    items:
+      type: object
+      properties:
+        input:
+          type: string
+        expected_output:
+          type: string
+      required:
+        - input
+        - expected_output
+required:
+  - task_id
+  - problem_statement
+  - python_solution
+  - test_cases

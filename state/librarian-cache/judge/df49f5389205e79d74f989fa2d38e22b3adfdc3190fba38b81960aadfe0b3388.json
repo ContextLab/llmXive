@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.00649",
+  "judged_at": "2026-07-13T06:43:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"multi-lcb: extending livecodebench to multiple programming languages\" computer science",
+  "rationale": "The paper focuses on automatic speech recognition (ASR) and word error rate estimation, which is a distinct domain from the user's question about extending a programming language benchmark (LiveCodeBench) for Large Language Models (LLMs). This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (e.g., \"multilingual\" in speech vs. \"multilingual\" in code) and \"Off-domain entirely,\" as there is no measurable connection to the mechanism, variables, or empirical sett",
+  "relevant": false
+}

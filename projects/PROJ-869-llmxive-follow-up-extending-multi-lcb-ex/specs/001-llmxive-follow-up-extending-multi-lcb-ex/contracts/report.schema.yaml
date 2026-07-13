@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Report Schema"
+description: "Schema for the final aggregated statistical report."
+type: object
+properties:
+  total_tasks:
+    type: integer
+    description: "Number of tasks in the study."
+  pass_at_1_blind:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Pass@1 rate for the blind condition."
+  pass_at_1_guided:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Pass@1 rate for the guided condition."
+  improvement:
+    type: number
+    description: "Difference (Guided - Blind)."
+  p_value:
+    type: number
+    description: "P-value from McNemar's test."
+  is_significant:
+    type: boolean
+    description: "True if p < 0.05."
+  error_distribution:
+    type: object
+    properties:
+      Syntax:
+        type: integer
+      Library:
+        type: integer
+      Runtime:
+        type: integer
+      Logic Drift:
+        type: integer
+    description: "Count of failures by type in the guided condition."
+required:
+  - total_tasks
+  - pass_at_1_blind
+  - pass_at_1_guided
+  - p_value
+  - is_significant
+  - error_distribution
