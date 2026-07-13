@@ -1,22 +1,24 @@
 """
-Small wrapper that forwards the ``main`` call to the concrete implementation
-in ``code.analysis.correlations``. The original version attempted to import
-``analysis.correlation_main_runner`` (a non‑existent module) which caused a
-``ModuleNotFoundError`` and prevented the entire pipeline from executing.
-This file now correctly imports the ``main`` function from the
-``code.analysis.correlations`` module and exposes it under the expected name.
+Entry‑point wrapper used by ``code/main.py`` to run the correlation
+analysis pipeline.
+
+The original file attempted to import from a non‑existent top‑level
+``analysis`` package which caused ``ModuleNotFoundError`` during the
+quick‑start run‑book.  This rewritten version simply forwards the call
+to the real ``correlations.main`` implementation inside the same package.
 """
 
 import logging
-from code.analysis import correlations
+from pathlib import Path
 
-logger = logging.getLogger(__name__)
+# Import the real implementation from the sibling module.
+from code.analysis.correlations import main as _correlations_main
+
+__all__ = ["main"]
 
 def main() -> None:
-    """
-    Entry point used by ``code/main.py``. Delegates to
-    ``code.analysis.correlations.main`` which performs the full analysis
-    workflow (loading metrics, PCA, merging, and saving outputs).
-    """
-    logger.info("Running correlation_main_runner")
-    correlations.main()
+    """Run the full correlation analysis pipeline."""
+    logger = logging.getLogger(__name__)
+    logger.info("Starting correlation analysis via correlation_main_runner")
+    _correlations_main()
+    logger.info("Correlation analysis completed")
