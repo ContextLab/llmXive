@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Configuration Schema"
+description: "Defines the parameters for a single simulation configuration"
+type: object
+properties:
+  config_id:
+    type: string
+    description: "Unique identifier for the configuration"
+  sample_size:
+    type: integer
+    minimum: 10
+    maximum: 1000
+    description: "Number of samples per group"
+  distribution:
+    type: string
+    enum:
+      - normal
+      - uniform
+      - lognormal
+    description: "Type of distribution for data generation"
+  effect_size:
+    type: number
+    enum:
+      - 0.0
+      - 0.5
+    description: "True effect size (0.0 for null, 0.5 for alternative)"
+  test_type:
+    type: string
+    enum:
+      - ttest
+      - anova
+      - chi2
+    description: "Statistical test to perform"
+required:
+  - config_id
+  - sample_size
+  - distribution
+  - effect_size
+  - test_type
+additionalProperties: false

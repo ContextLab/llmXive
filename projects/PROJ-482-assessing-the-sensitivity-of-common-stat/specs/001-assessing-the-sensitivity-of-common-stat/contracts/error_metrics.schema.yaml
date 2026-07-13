@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Error Metrics Schema"
+description: "Aggregated error rates and confidence intervals for a configuration"
+type: object
+properties:
+  config_id:
+    type: string
+    description: "Foreign key to simulation configuration"
+  sample_size:
+    type: integer
+    description: "Sample size used"
+  distribution:
+    type: string
+    description: "Distribution type"
+  effect_size:
+    type: number
+    description: "True effect size"
+  test_type:
+    type: string
+    description: "Test type used"
+  error_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Observed error rate (Type I or Type II)"
+  ci_lower:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Lower bound of 95% confidence interval"
+  ci_upper:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Upper bound of 95% confidence interval"
+  replicate_count:
+    type: integer
+    minimum: 1000
+    description: "Number of Monte Carlo replicates performed"
+  convergence_achieved:
+    type: boolean
+    description: "True if CI width <= 0.01"
+required:
+  - config_id
+  - sample_size
+  - distribution
+  - effect_size
+  - test_type
+  - error_rate
+  - ci_lower
+  - ci_upper
+  - replicate_count
+  - convergence_achieved
+additionalProperties: false
