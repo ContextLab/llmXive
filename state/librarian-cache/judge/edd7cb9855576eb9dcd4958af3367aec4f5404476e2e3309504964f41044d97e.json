@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.18967",
+  "judged_at": "2026-07-13T16:48:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"efficientrollout: system-aware self-speculative decoding for rl rollou\" computer science",
+  "rationale": "The candidate paper is the foundational work that the user's research question explicitly references as the \"llmXive follow-up\" to extend; it establishes the canonical baseline, mechanism (system-aware self-speculative decoding for RL rollouts), and empirical results that any subsequent literature review on this specific topic must cite. This satisfies criteria (d) as the foundational methodology paper and (c) as the empirical baseline for the specific problem domain.",
+  "relevant": true
+}

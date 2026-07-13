@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TokenSequence"
+description: "Schema for single-pass ground truth generation output (US-1)"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the sequence"
+  task_type:
+    type: "string"
+    enum: ["gsm8k", "minigrid"]
+    description: "The dataset source"
+  prompt:
+    type: "string"
+    description: "The input prompt"
+  ground_truth:
+    type: "string"
+    description: "The expected solution string or action sequence (external source)"
+  generated_tokens:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of generated token IDs"
+  validity_flags:
+    type: "array"
+    items:
+      type: "integer"
+      enum: [0, 1]
+    description: "Binary validity flag for each token (1=valid, 0=invalid) derived from external ground truth"
+  sequence_length:
+    type: "integer"
+    minimum: 1
+    description: "Length of the generated sequence"
+  entropy_profiles:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+    description: "Layer-wise entropy values for each token (captured in same pass)"
+required:
+  - id
+  - task_type
+  - prompt
+  - ground_truth
+  - generated_tokens
+  - validity_flags
+  - sequence_length
+  - entropy_profiles

@@ -1,0 +1,582 @@
+{
+  "fetched_at": "2026-07-13T16:48:23Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative Decoding for RL Rollou\"",
+      "target_n": 5
+    },
+    "duration_seconds": 68.415,
+    "ended_at": "2026-07-13T16:48:23Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "System-aware speculative decoding for reinforcement learning"
+        ],
+        [
+          2,
+          "Efficient rollout strategies for large language models"
+        ],
+        [
+          3,
+          "Self-speculative decoding techniques in RLHF"
+        ],
+        [
+          4,
+          "Accelerating RL rollout with speculative execution"
+        ],
+        [
+          5,
+          "Hardware-aware decoding algorithms for language models"
+        ],
+        [
+          6,
+          "Speculative sampling for reinforcement learning policy optimization"
+        ],
+        [
+          7,
+          "Low-latency inference for large language model rollouts"
+        ],
+        [
+          8,
+          "Parallel speculative decoding for RL training"
+        ],
+        [
+          9,
+          "System-level optimizations for language model sampling"
+        ],
+        [
+          10,
+          "Reducing latency in LLM-based reinforcement learning"
+        ],
+        [
+          11,
+          "Draft-verify decoding for efficient RL exploration"
+        ],
+        [
+          12,
+          "Adaptive speculative decoding for large-scale language models"
+        ],
+        [
+          13,
+          "Computational efficiency in LLM rollout generation"
+        ],
+        [
+          14,
+          "Speculative execution for transformer-based RL agents"
+        ],
+        [
+          15,
+          "Optimizing inference speed for reinforcement learning policies"
+        ],
+        [
+          16,
+          "Model-parallel speculative decoding for language models"
+        ],
+        [
+          17,
+          "Energy-efficient decoding for large language model rollouts"
+        ],
+        [
+          18,
+          "Accelerated token generation for RL fine-tuning"
+        ],
+        [
+          19,
+          "System-agnostic speculative decoding methods for LLMs"
+        ],
+        [
+          20,
+          "Fast rollout generation using self-speculative algorithms"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "System-aware speculative decoding for reinforcement learning": 5,
+        "llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative Decoding for RL Rollou\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "speculative decoding self-sampling token prediction",
+      "RL rollout system-aware inference latency",
+      "EfficientRollout self-speculative algorithm optimization",
+      "token acceptance rate speculative sampling throughput",
+      "training data leakage model memorization contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2203.16487"
+      ]
+    },
+    "per_query_hit_count": {
+      "EfficientRollout self-speculative algorithm optimization": 2,
+      "RL rollout system-aware inference latency": 3,
+      "llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative Decoding for RL Rollou\" computer science": 3,
+      "speculative decoding self-sampling token prediction": 3,
+      "token acceptance rate speculative sampling throughput": 3,
+      "training data leakage model memorization contamination": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2602.12375",
+          "rationale": "The candidate paper focuses on exploration mechanisms (Value Bonuses with Ensemble errors) in standard Reinforcement Learning, whereas the user's question specifically targets \"System-Aware Self-Speculative Decoding\" for LLM inference efficiency. While both involve RL concepts, the paper does not address the specific mechanism of speculative decoding, system-awareness in inference, or the LLM domain required by the user's follow-up research, failing to meet the criteria for same-mechanism eviden",
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2507.02910",
+          "rationale": "The paper focuses on curriculum reinforcement learning and task sequencing using Structural Causal Models, which is a distinct research area from the user's question about \"System-Aware Self-Speculative Decoding\" for LLM inference efficiency. While both involve reinforcement learning concepts, the candidate paper does not address the specific mechanism of speculative decoding, system-aware rollout optimization, or the LLM inference context required by the user's query.",
+          "title": "Causal-Paced Deep Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T16:47:15Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"efficientrollout: system-aware self-speculative decoding for rl rollou\" computer science",
+      "raw": "llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative Decoding for RL Rollou\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T16:47:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T16:47:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T16:47:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Speculative Decoding (SpecDec), for the first time ever, to formally study exploiting the idea of speculative execution to accelerate autoregressive (AR) decoding. Speculative Decoding has two innovations: Spec-Drafter -- an independent model specially optimized for efficient and accurate drafting -- and Spec-Verification -- a reliable method for verifying the drafted tokens efficiently in the decoding paradigm. Experimental results on various seq2seq tasks including machine translation and abstractive summarization show our approach can achieve around $5\\times$ speedup for the popular Transformer architectures with comparable generation quality to beam search decoding, refreshing the impression that the draft-then-verify paradigm introduces only $1.4\\times$$\\sim$$2\\times$ speedup. In addition to the remarkable speedup, we also demonstrate 3 additional advantages of SpecDec, revealing its practical value for accelerating generative models in real-world applications. Our models and codes are available at https://github.com/hemingkx/SpecDec.",
+          "claimed_authors": [
+            "Heming Xia",
+            "Tao Ge",
+            "Peiyi Wang",
+            "Si-Qing Chen",
+            "Furu Wei",
+            "Zhifang Sui"
+          ],
+          "claimed_title": "Speculative Decoding: Exploiting Speculative Execution for Accelerating Seq2seq Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.16487"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Speculative Decoding: Exploiting Speculative Execution for Accelerating Seq2seq Generation')",
+        "failed_at": "2026-07-13T16:47:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite extensive efforts to align Large Language Models (LLMs) with human values and safety rules, jailbreak attacks that exploit certain vulnerabilities continuously emerge, highlighting the need to strengthen existing LLMs with additional safety properties to defend against these attacks. However, tuning large models has become increasingly resource intensive and may have difficulty ensuring consistent performance. We introduce Speculative Safety-Aware Decoding (SSD), a lightweight decoding-time approach that equips LLMs with the desired safety property while accelerating inference. We assume that there exists a small language model that possesses this desired property. SSD integrates speculative sampling during decoding and leverages the match ratio between the small and composite models to quantify jailbreak risks. This enables SSD to dynamically switch between decoding schemes to prioritize utility or safety, to handle the challenge of different model capacities. The output token is then sampled from a new distribution that combines the distributions of the original and the small models. Experimental results show that SSD successfully equips the large model with the desired safety property, and also allows the model to remain helpful to benign queries. Furthermore, SSD accelerates the inference time, thanks to the speculative sampling design.",
+          "claimed_authors": [
+            "Xuekang Wang",
+            "Shengyu Zhu",
+            "Xueqi Cheng"
+          ],
+          "claimed_title": "Speculative Safety-Aware Decoding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.17739"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Speculative Safety-Aware Decoding')",
+        "failed_at": "2026-07-13T16:47:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A recent advance in networking is the deployment of path-aware multipath network architectures, where network endpoints are given multiple network paths to send their data on. In this work, we tackle the challenge of selecting paths for latency-sensitive applications. Even today's path-aware networks, which are much smaller than the current Internet, already offer dozens and in several cases over a hundred paths to a given destination, making it impractical to measure all path latencies to find the lowest latency path. Furthermore, for short flows, performing latency measurements may not provide benefits as the flow may finish before completing the measurements. To overcome these issues, we argue that endpoints should be provided with a latency estimate before sending any packets, enabling latency-aware path choice for the first packet sent. As we cannot predict the end-to-end latency due to dynamically changing queuing delays, we measure and disseminate the propagation latency, enabling novel use cases and solving concrete problems in current network protocols. We present the Global Latency Information Dissemination System (GLIDS), which is a step toward global latency transparency through the dissemination of propagation latency information.",
+          "claimed_authors": [
+            "Cyrill Krähenbühl",
+            "Seyedali Tabaeiaghdaei",
+            "Simon Scherrer",
+            "Matthias Frei",
+            "Adrian Perrig"
+          ],
+          "claimed_title": "GLIDS: A Global Latency Information Dissemination System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.04319"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='GLIDS: A Global Latency Information Dissemination System')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agentic Reinforcement Learning (RL) enables LLMs to solve complex tasks by alternating between a data-collection rollout phase and a policy training phase. During rollout, the agent generates trajectories, i.e., multi-step interactions between LLMs and external tools. Yet, frequent tool calls induce long-tailed trajectory generation that bottlenecks rollouts. This stems from step-centric designs that ignore trajectory context, triggering three system problems for long-tail trajectory generation: queueing delays, interference overhead, and inflated per-token time. We propose Heddle, a trajectory-centric system to optimize the when, where, and how of agentic rollout execution. Heddle integrates three core mechanisms: trajectory-level scheduling using runtime prediction and progressive priority to minimize cumulative queueing; trajectory-aware placement via presorted dynamic programming and opportunistic migration during idle tool call intervals to minimize interference; and trajectory-adaptive resource manager that dynamically tunes model parallelism to accelerate the per-token time of long-tail trajectories while maintaining high throughput for short trajectories. Evaluations across diverse agentic RL workloads demonstrate that Heddle effectively neutralizes the long-tail bottleneck, achieving up to 2.5$\\times$ higher end-to-end rollout throughput compared to state-of-the-art baselines.",
+          "claimed_authors": [
+            "Zili Zhang",
+            "Yinmin Zhong",
+            "Chengxu Yang",
+            "Chao Jin",
+            "Bingyang Wu",
+            "Xinming Wei",
+            "Yuliang Liu",
+            "Xin Jin"
+          ],
+          "claimed_title": "Heddle: A Distributed Orchestration System for Agentic RL Rollout",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28101"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Heddle: A Distributed Orchestration System for Agentic RL Rollout')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces and investigates a regularity condition in the asymptotic sense for optimization problems whose objective functions are polynomial. Under this regularity condition, the normalization argument in asymptotic analysis enables us to see the solution existence as well as the solution stability of these problems. We prove a Frank-Wolfe type theorem for regular optimization problems and an Eaves type theorem for non-regular pseudoconvex optimization problems. Moreover, we show results on the stability such as upper semicontinuity and local upper-Hölder stability of the solution map of polynomial optimization problems. At the end of the paper, we discuss the genericity of the regularity condition.",
+          "claimed_authors": [
+            "Vu Trung Hieu"
+          ],
+          "claimed_title": "On the solution existence and stability of polynomial optimization problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.06100"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='On the solution existence and stability of polynomial optimization problems')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nonnegative matrix factorization is the following problem: given a nonnegative input matrix $V$ and a factorization rank $K$, compute two nonnegative matrices, $W$ with $K$ columns and $H$ with $K$ rows, such that $WH$ approximates $V$ as well as possible. In this paper, we propose two new approaches for computing high-quality NMF solutions using conic optimization. These approaches rely on the same two steps. First, we reformulate NMF as minimizing a concave function over a product of convex cones--one approach is based on the exponential cone, and the other on the second-order cone. Then, we solve these reformulations iteratively: at each step, we minimize exactly, over the feasible set, a majorization of the objective functions obtained via linearization at the current iterate. Hence these subproblems are convex conic programs and can be solved efficiently using dedicated algorithms. We prove that our approaches reach a stationary point with an accuracy decreasing as $\\mathcal{O}(\\frac{1}{i})$, where $i$ denotes the iteration number. To the best of our knowledge, our analysis is the first to provide a convergence rate to stationary points for NMF. Furthermore, in the particular cases of rank-one factorizations (that is, $K=1$), we show that one of our formulations can be expressed as a convex optimization problem implying that optimal rank-one approximations can be computed efficiently. Finally, we show on several numerical examples that our approaches are able to frequently compute exact NMFs (that is, with $V = WH$), and compete favorably with the state of the art.",
+          "claimed_authors": [
+            "Valentin Leplat",
+            "Yurii Nesterov",
+            "Nicolas Gillis",
+            "François Glineur"
+          ],
+          "claimed_title": "Conic-Optimization Based Algorithms for Nonnegative Matrix Factorization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.13646"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Conic-Optimization Based Algorithms for Nonnegative Matrix Factorization')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inference optimizations are critical for improving user experience and reducing infrastructure costs and power consumption. In this article, we illustrate a form of dynamic execution known as speculative sampling to reduce the overall latency of text generation and compare it with standard autoregressive sampling. This can be used together with model-based optimizations (e.g. quantization) to provide an optimized solution. Both sampling methods make use of KV caching. A Jupyter notebook and some sample executions are provided.",
+          "claimed_authors": [
+            "Haim Barad",
+            "Ekaterina Aidova",
+            "Yury Gorbachev"
+          ],
+          "claimed_title": "Leveraging Speculative Sampling and KV-Cache Optimizations Together for Generative AI using OpenVINO",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.04951"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Leveraging Speculative Sampling and KV-Cache Optimizations Together for Generative AI using OpenVINO')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Speculative decoding accelerates large language model inference by proposing tokens with a lightweight draft model and selectively accepting them using a target model. This work introduces DropMatch, a novel approach that matches draft tokens to the predictive distribution of the target model via Monte Carlo dropout applied exclusively to the LM head, enabling sampling-based acceptance decisions. By generating multiple decoding paths, our method forms an empirical token distribution against which draft tokens are evaluated for consistency. This acceptance mechanism enables the model to adaptively control the size of decoding paths under an appropriate dropout probability, preventing substantial distortion of the target model predictive distribution. The proposed method operates in a training-free, data-free, and calibration-free manner, requires no architectural modification to pretrained models, and can be orthogonally integrated with a wide range of existing speculative decoding and inference acceleration techniques. Experiments across multiple benchmarks demonstrate that our approach increases acceptance length while maintaining competitive task performance, yielding inference speedups ranging from 1.09x to 1.33x over the standard baseline, and up to an additional 1.09x speedup when applied on top of EAGLE3.",
+          "claimed_authors": [
+            "Jeongtae Lee",
+            "Minjung Jo",
+            "Hyunjoon Jeong",
+            "Gunho Park",
+            "Sunghyeon Woo",
+            "Joonghoon Kim",
+            "Se Jung Kwon",
+            "Dongsoo Lee"
+          ],
+          "claimed_title": "Training-free Dropout Sampling for Semantic Token Acceptance in Speculative Decoding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03333"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Training-free Dropout Sampling for Semantic Token Acceptance in Speculative Decoding')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Speculative sampling (SpS) has been successful in accelerating the decoding throughput of auto-regressive large language models by leveraging smaller draft models. SpS strictly enforces the generated distribution to match that of the verifier LLM. This is unnecessarily restrictive as slight variations of the verifier's distribution, such as sampling with top-$k$ or temperature, would also be acceptable. Typical acceptance sampling (TAS) alleviates this issue by accepting more tokens using entropy-based heuristics. However, this approach distorts the verifier distribution, potentially degrading output quality when the verifier encodes critical information. In this work, we formalize the speculative sampling algorithm through the lens of constrained optimization. Based on this formulation, we propose Cactus (constrained acceptance speculative sampling), a method that guarantees controlled divergence from the verifier distribution and increasing acceptance rates. Empirical results across a wide range of benchmarks confirm the effectiveness of our approach.",
+          "claimed_authors": [
+            "Yongchang Hao",
+            "Lili Mou"
+          ],
+          "claimed_title": "Cactus: Accelerating Auto-Regressive Decoding with Constrained Acceptance Speculative Sampling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.04987"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Cactus: Accelerating Auto-Regressive Decoding with Constrained Acceptance Speculative Sampling')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
+          "claimed_authors": [
+            "Jonathan McDowell",
+            "Doug Tody",
+            "Tamas Budavari",
+            "Markus Dolensky",
+            "Inga Kamp",
+            "Kelly McCusker",
+            "Pavlos Protopapas",
+            "Arnold Rots",
+            "Randy Thompson",
+            "Frank Valdes",
+            "Petr Skoda",
+            "Bruno Rino",
+            "Sebastien Derriere",
+            "Jesus Salgado",
+            "Omar Laurino",
+            "the IVOA Data Access Layer",
+            "Data Model Working Groups"
+          ],
+          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.3055"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EfficientRollout: System-Aware Self-Speculative De', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-13T16:47:49Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hector Borobia",
+            "Elies Seguí-Mas",
+            "Guillermina Tormo-Carbó"
+          ],
+          "title": "Component-Aware Self-Speculative Decoding in Hybrid Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.01106",
+        "summary": "Speculative decoding accelerates autoregressive inference by drafting candidate tokens with a fast model and verifying them in parallel with the target. Self-speculative methods avoid the need for an external drafter but have been studied exclusively in homogeneous Transformer architectures. We introduce component-aware self-speculative decoding, the first method to exploit the internal architectural heterogeneity of hybrid language models, isolating the SSM/linear-attention subgraph as a zero-cost internal draft. We evaluate this on two architecturally distinct hybrid families: Falcon-H1 (parallel: Mamba-2 + attention per layer) and Qwen3.5 (sequential: interleaved linear and attention layers), with a pure Transformer control (Qwen2.5). Parallel hybrids achieve acceptance rates of alpha = 0.68 at draft length k=2 under greedy decoding, while sequential hybrids yield only alpha = 0.038 -- an 18x gap attributable to how each architecture integrates its components. The property is scale-invariant: Falcon-H1 at 3B reproduces the rates observed at 0.5B. We further show that perplexity degradation from a companion ablation study predicts speculative viability without running speculative decoding: a 3.15x ratio (Falcon) maps to alpha = 0.37 at k=4, while 81.96x (Qwen) maps to alpha = 0.019. For sequential hybrids, generic LayerSkip achieves 12x higher acceptance rates than the component-aware strategy. The composition pattern of hybrid models -- not merely the presence of alternative components -- determines whether component-level self-speculation is viable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.01106",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T16:47:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Minseo Kim",
+            "Minjae Lee",
+            "Seunghyuk Oh",
+            "Kevin Galim",
+            "Donghoon Kim",
+            "Coleman Hooper",
+            "Harman Singh",
+            "Amir Gholami",
+            "Hyung Il Koo",
+            "Wonjun Kang"
+          ],
+          "title": "EfficientRollout: System-Aware Self-Speculative Decoding for RL Rollouts",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.18967",
+        "summary": "Reinforcement learning (RL) has become a representative post-training paradigm for LLMs, enabling strong reasoning and agentic capabilities. However, rollout generation remains a dominant latency bottleneck because autoregressive sampling decodes responses sequentially and a small number of long-tailed generations often determine completion time. Speculative decoding (SD) offers a natural way to address this bottleneck, as it is a well-established technique for serving fixed LLMs that reduces latency by rapidly drafting tokens and accepting them through parallel verification while preserving the target-model distribution. However, its practical speedups do not directly carry over to RL rollouts: (i) the evolving target policy makes any fixed drafter increasingly mismatched with the policy's output distribution; and (ii) active batch sizes shrink throughout rollout decoding, shifting decoding from compute-bound to memory-bound regimes where parallel verification can exploit underutilized compute. Therefore, accelerating RL rollouts requires both a drafter that remains effective under long, high-temperature generations from an evolving policy and system-aware use of SD that avoids compute-bound regimes. We present EfficientRollout, a system-aware self-SD framework designed to address this gap for RL rollouts. EfficientRollout induces a quantized drafter from the target model (i.e. self-speculative decoding), keeping it coupled to the evolving policy without separate drafter pretraining or online adaptation. It further coordinates a system-aware SD toggle policy with acceptance-aware draft-length adaptation, enabling speculation only in beneficial regimes while matching the drafting budget to evolving drafter quality. EfficientRollout reduces rollout and end-to-end latency by up to 19.6% and 12.7%, respectively, over an accelerated AR rollout baseline, while preserving final model quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.18967",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T16:47:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Heming Xia",
+            "Tao Ge",
+            "Peiyi Wang",
+            "Si-Qing Chen",
+            "Furu Wei",
+            "Zhifang Sui"
+          ],
+          "title": "Speculative Decoding: Exploiting Speculative Execution for Accelerating Seq2seq Generation",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2203.16487",
+        "summary": "We propose Speculative Decoding (SpecDec), for the first time ever, to formally study exploiting the idea of speculative execution to accelerate autoregressive (AR) decoding. Speculative Decoding has two innovations: Spec-Drafter -- an independent model specially optimized for efficient and accurate drafting -- and Spec-Verification -- a reliable method for verifying the drafted tokens efficiently in the decoding paradigm. Experimental results on various seq2seq tasks including machine translation and abstractive summarization show our approach can achieve around $5\\times$ speedup for the popular Transformer architectures with comparable generation quality to beam search decoding, refreshing the impression that the draft-then-verify paradigm introduces only $1.4\\times$$\\sim$$2\\times$ speedup. In addition to the remarkable speedup, we also demonstrate 3 additional advantages of SpecDec, revealing its practical value for accelerating generative models in real-world applications. Our models and codes are available at https://github.com/hemingkx/SpecDec.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2203.16487",
+          "http_status": 200,
+          "pdf_sample_score": 0.2235,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T16:47:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xuekang Wang",
+            "Shengyu Zhu",
+            "Xueqi Cheng"
+          ],
+          "title": "Speculative Safety-Aware Decoding",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.17739",
+        "summary": "Despite extensive efforts to align Large Language Models (LLMs) with human values and safety rules, jailbreak attacks that exploit certain vulnerabilities continuously emerge, highlighting the need to strengthen existing LLMs with additional safety properties to defend against these attacks. However, tuning large models has become increasingly resource intensive and may have difficulty ensuring consistent performance. We introduce Speculative Safety-Aware Decoding (SSD), a lightweight decoding-time approach that equips LLMs with the desired safety property while accelerating inference. We assume that there exists a small language model that possesses this desired property. SSD integrates speculative sampling during decoding and leverages the match ratio between the small and composite models to quantify jailbreak risks. This enables SSD to dynamically switch between decoding schemes to prioritize utility or safety, to handle the challenge of different model capacities. The output token is then sampled from a new distribution that combines the distributions of the original and the small models. Experimental results show that SSD successfully equips the large model with the desired safety property, and also allows the model to remain helpful to benign queries. Furthermore, SSD accelerates the inference time, thanks to the speculative sampling design.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.17739",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T16:47:56Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"efficientrollout: system-aware self-speculative decoding for rl rollou\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

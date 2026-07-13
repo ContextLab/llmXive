@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionResult"
+description: "Schema for Mixed-Effects Logistic Regression (GLMM) analysis output (US-3)"
+type: "object"
+properties:
+  task_type:
+    type: "string"
+    enum: ["gsm8k", "minigrid"]
+    description: "The dataset source"
+  layer_group:
+    type: "string"
+    description: "Grouping of layers (e.g., 'early', 'mid', 'late', 'all', or specific layer index)"
+  coefficient:
+    type: "number"
+    description: "Log-odds coefficient for entropy"
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value"
+  p_value_corrected:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Multiple-comparison corrected p-value"
+  auc_roc:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Area Under the ROC Curve"
+  optimal_threshold:
+    type: "number"
+    minimum: 0
+    description: "Entropy threshold minimizing weighted error"
+  fpr_at_threshold:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "False Positive Rate at optimal threshold"
+  fnr_at_threshold:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "False Negative Rate at optimal threshold"
+  random_effect_variance:
+    type: "number"
+    minimum: 0
+    description: "Variance of the random intercept for sequence_id (GLMM)"
+required:
+  - task_type
+  - layer_group
+  - coefficient
+  - p_value
+  - p_value_corrected
+  - auc_roc
+  - optimal_threshold
+  - fpr_at_threshold
+  - fnr_at_threshold
+  - random_effect_variance

@@ -1,0 +1,394 @@
+resolved_at: '2026-07-13T17:04:28.354892+00:00'
+datasets:
+- intent: GSM8K
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/MU-NLPC/Calc-gsm8k/resolve/main/data/test-00000-of-00001-cd73a5a625e99cb9.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/skrishna/gsm8k_only_answer/ff5ae986e89102894e6d9ba4a055c02393793df0/test.json?%2Fdatasets%2Fskrishna%2Fgsm8k_only_answer%2Fresolve%2Fmain%2Ftest.json=&etag=%22e9feab9670cce1f6bcad4e5ad65ec0158c03a1d8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/MU-NLPC/Calc-gsm8k/resolve/main/data/test-00000-of-00001-cd73a5a625e99cb9.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BlackKakapo/gsm8k-ro/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Integrative_phylogenomics_polyphasic_taxonomy_and_metagenomics_expand_the_taxonomic_framework_of_i_Thermoleophilia_i_/32956241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Provincial_Energy_Transition_Policy_Intensity_ETPI_Dataset_2000_2025_/32975879
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_The_Generative_Anthropocene_b_b_A_Policy_and_Technology_Roadmap_for_Mitigating_the_Escalating_Energy_and_CO2_Burden_of_Advanced_AI_b_/32975819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Recombination_Rates_for_N2_and_CB4856/31052008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/AN_INTRODUCTION_TO_THE_MATURIDI_SCHOOL_OF_ISLAMIC_THOUGHT/32975915
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13294003
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17587991
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11126655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753555
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753643
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.20140
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21323304
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MiniGrid
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Howuhh/xland-minigrid-datasets/resolve/main/trivial-taster-compressed.hdf5
+    source: huggingface
+    format: hdf5
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/zzmtsvv/xland-minigrid-datasets/resolve/main/medium-1m-20001.hdf5.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/farama-minari/minigrid/resolve/main/BabyAI-ActionObjDoor/namespace_metadata.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 114
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/JiaxinQin-cc/Offline-RL-MiniGrid/c89c14c6101912cb04d410afb9678e1324c2aaf1/test.json?%2Fdatasets%2FJiaxinQin-cc%2FOffline-RL-MiniGrid%2Fresolve%2Fmain%2Ftest.json=&etag=%22c77a618f19aaae16633de6bafcdb40ffafc85d43%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Howuhh/xland-minigrid-datasets/resolve/main/trivial-taster-compressed.hdf5
+    source: huggingface
+    status: verified
+    format: hdf5
+  - url: https://huggingface.co/datasets/zzmtsvv/xland-minigrid-datasets/resolve/main/medium-1m-20001.hdf5.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/farama-minari/minigrid/resolve/main/BabyAI-ActionObjDoor/namespace_metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/Integrative_phylogenomics_polyphasic_taxonomy_and_metagenomics_expand_the_taxonomic_framework_of_i_Thermoleophilia_i_/32956241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Provincial_Energy_Transition_Policy_Intensity_ETPI_Dataset_2000_2025_/32975879
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_The_Generative_Anthropocene_b_b_A_Policy_and_Technology_Roadmap_for_Mitigating_the_Escalating_Energy_and_CO2_Burden_of_Advanced_AI_b_/32975819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Recombination_Rates_for_N2_and_CB4856/31052008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/AN_INTRODUCTION_TO_THE_MATURIDI_SCHOOL_OF_ISLAMIC_THOUGHT/32975915
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11396947
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mi-dnu.dp.ua/index.php/MI/article/view/110
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/22367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5670058
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16984092
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.20858
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21286247
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21286247
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21286217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21286201
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Integrative_phylogenomics_polyphasic_taxonomy_and_metagenomics_expand_the_taxonomic_framework_of_i_Thermoleophilia_i_/32956241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Provincial_Energy_Transition_Policy_Intensity_ETPI_Dataset_2000_2025_/32975879
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_The_Generative_Anthropocene_b_b_A_Policy_and_Technology_Roadmap_for_Mitigating_the_Escalating_Energy_and_CO2_Burden_of_Advanced_AI_b_/32975819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Recombination_Rates_for_N2_and_CB4856/31052008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/AN_INTRODUCTION_TO_THE_MATURIDI_SCHOOL_OF_ISLAMIC_THOUGHT/32975915
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15115020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.01764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AUC-ROC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/DNA-Programmed_Core_Shell_Nanoparticle_Superlattice_Crystals_with_Nanogaps_for_SERS_Sensing/32975936
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Integrative_phylogenomics_polyphasic_taxonomy_and_metagenomics_expand_the_taxonomic_framework_of_i_Thermoleophilia_i_/32956241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Provincial_Energy_Transition_Policy_Intensity_ETPI_Dataset_2000_2025_/32975879
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_The_Generative_Anthropocene_b_b_A_Policy_and_Technology_Roadmap_for_Mitigating_the_Escalating_Energy_and_CO2_Burden_of_Advanced_AI_b_/32975819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Recombination_Rates_for_N2_and_CB4856/31052008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7471393
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6610410
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14411559
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10631919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://jlupub.ub.uni-giessen.de/handle/jlupub/21679
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/51344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/entities/publication/92919fbf-f176-4080-bffe-dc25f47ceb95
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21334980
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21334980
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSMK
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sarahpann/gsmk_sbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Ayushhhhh123456789/gsmk_sbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sarahpann/gsmk_sbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Ayushhhhh123456789/gsmk_sbs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/DNA-Programmed_Core_Shell_Nanoparticle_Superlattice_Crystals_with_Nanogaps_for_SERS_Sensing/32975936
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Integrative_phylogenomics_polyphasic_taxonomy_and_metagenomics_expand_the_taxonomic_framework_of_i_Thermoleophilia_i_/32956241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Provincial_Energy_Transition_Policy_Intensity_ETPI_Dataset_2000_2025_/32975879
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_The_Generative_Anthropocene_b_b_A_Policy_and_Technology_Roadmap_for_Mitigating_the_Escalating_Energy_and_CO2_Burden_of_Advanced_AI_b_/32975819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Recombination_Rates_for_N2_and_CB4856/31052008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:79111810X/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:791053679/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:1031820205/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.16487",
+  "judged_at": "2026-07-13T16:48:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"efficientrollout: system-aware self-speculative decoding for rl rollou\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it introduces the foundational \"Speculative Decoding\" mechanism (draft-then-verify) that is the core subject of the user's question regarding \"Self-Speculative Decoding,\" providing the canonical prior work and empirical baseline for the technique even though it predates the specific \"System-Aware\" or \"RL Rollout\" extensions.",
+  "relevant": true
+}
