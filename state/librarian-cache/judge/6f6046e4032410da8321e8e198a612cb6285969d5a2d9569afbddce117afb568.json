@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.06509",
+  "judged_at": "2026-07-13T11:45:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"enhancing train-free infinite-frame generation for consistent long vid\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the exact same mechanism (training-free extension of video diffusion models to long frames) and domain (long video generation with temporal consistency) as the user's question, offering a specific spectral-reconstruction approach to the \"infinite-frame\" problem referenced in the user's follow-up.",
+  "relevant": true
+}

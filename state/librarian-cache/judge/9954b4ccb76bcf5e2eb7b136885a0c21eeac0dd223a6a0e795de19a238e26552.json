@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.00367",
+  "judged_at": "2026-07-13T11:45:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"enhancing train-free infinite-frame generation for consistent long vid\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it proposes a \"training-free\" approach for video generation, directly addressing the core mechanism (\"Train-Free\") and domain (\"Infinite-Frame/Long Video Generation\") of the user's question, even though it specifically targets 3D stereoscopic output rather than the exact monocular follow-up mentioned. It provides the necessary canonical prior work on training-free video generation techniques that a literature review would require to contextualize the ",
+  "relevant": true
+}

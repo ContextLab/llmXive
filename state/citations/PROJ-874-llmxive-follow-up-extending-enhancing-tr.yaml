@@ -1,0 +1,11 @@
+- artifact_hash: f63a1e649ab0430e88739140f4e9e4f73481b47a9eba436588990e9a51efa7f4
+  artifact_path: projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/specs/001-llmxive-follow-up-extending-enhancing-tr/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "kmhh/vbench \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/kmhh/vbench`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/kmhh/vbench
+  verified_at: '2026-07-13T11:58:54.988789Z'

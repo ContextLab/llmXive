@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics and Statistics Schema"
+description: "Schema for validating the results CSV and statistical output JSON."
+type: "object"
+properties:
+  video_id:
+    type: "string"
+    description: "Unique identifier for the video sequence."
+  prompt_id:
+    type: "string"
+    description: "Reference to the original prompt."
+  condition:
+    type: "string"
+    enum:
+      - "baseline_full"
+      - "baseline_naive"
+      - "flow_corrected"
+    description: "Experimental condition."
+  vbench_temporal:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "VBench temporal consistency score."
+  object_permanence:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Object permanence score."
+  fvd:
+    type: "number"
+    minimum: 0
+    description: "Fréchet Video Distance."
+  generation_time_sec:
+    type: "number"
+    minimum: 0
+    description: "Wall-clock time for generation."
+  flow_failure_flag:
+    type: "boolean"
+    description: "True if flow correction fallback was used."
+  is_failure_case:
+    type: "boolean"
+    description: "True if the video is flagged as a failure case."
+  failure_reason:
+    type: "string"
+    nullable: true
+    description: "Reason for failure (e.g., 'permanence_drop')."
+  qualitative_note:
+    type: "string"
+    nullable: true
+    description: "Note on 3D geometric collapse observed."
+required:
+  - video_id
+  - prompt_id
+  - condition
+  - vbench_temporal
+  - object_permanence
+  - fvd
+  - generation_time_sec
+additionalProperties: false

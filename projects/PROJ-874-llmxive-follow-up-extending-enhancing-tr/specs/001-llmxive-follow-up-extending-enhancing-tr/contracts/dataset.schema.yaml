@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Metadata Schema"
+description: "Schema for validating raw and processed dataset metadata files."
+type: "object"
+properties:
+  dataset_name:
+    type: "string"
+    description: "Name of the dataset (e.g., 'VBench', 'MIGA')."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "Verified HuggingFace URL used for download."
+  checksum:
+    type: "string"
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: "SHA256 checksum of the raw file."
+  sample_count:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples in the dataset."
+  resolution:
+    type: "object"
+    properties:
+      width:
+        type: "integer"
+      height:
+        type: "integer"
+    required:
+      - width
+      - height
+  frame_rate:
+    type: "number"
+    description: "Frames per second."
+  condition:
+    type: "string"
+    enum:
+      - "baseline_full"
+      - "baseline_naive"
+      - "flow_corrected"
+      - "raw"
+    description: "Experimental condition or data state."
+required:
+  - dataset_name
+  - source_url
+  - checksum
+  - sample_count
+  - condition
+additionalProperties: false

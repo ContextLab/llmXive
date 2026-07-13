@@ -1163,6 +1163,10 @@
     "classified_at": "2026-07-04T05:09:51Z",
     "verdict": false
   },
+  "PROJ-874-llmxive-follow-up-extending-enhancing-tr::1.6.0": {
+    "classified_at": "2026-07-13T11:45:22Z",
+    "verdict": false
+  },
   "PROJ-876-llmxive-follow-up-extending-skillsvote-l::1.6.0": {
     "classified_at": "2026-07-04T05:12:37Z",
     "verdict": false
