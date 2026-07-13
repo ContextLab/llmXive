@@ -1,4 +1,9 @@
-"""Statistical analysis orchestration for phenomenological metrics."""
+"""
+Statistical Analysis Module.
+
+Orchestrates metric aggregation, normality checks, and statistical testing.
+Writes validity_scores.csv to data/processed/.
+"""
 import os
 import json
 import logging
@@ -7,194 +12,264 @@ from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.stats import shapiro, levene, f_oneway, kruskal
+from datetime import datetime
 
-from analysis.fdr_correction import run_fdr_correction
-from analysis.tukey_hsd import run_tukey_posthoc
+# Local imports
+from config import get_config
+from utils.logging import get_logger, log_operation
+from utils.io import safe_write_json, safe_write_csv, load_json
 
-logger = logging.getLogger(__name__)
-
+logger = get_logger("stats_analysis")
 
 class StatsAnalysisError(Exception):
     """Custom exception for statistical analysis errors."""
     pass
 
-
-def load_aggregated_scores(
-    input_dir: str = "data/raw",
-    processed_dir: str = "data/processed"
-) -> pd.DataFrame:
-    """Load generated reports and compute aggregated scores if not already done."""
-    processed_path = Path(processed_dir)
-    scores_path = processed_path / "validity_scores.csv"
-
-    if scores_path.exists():
-        logger.info(f"Loading existing validity scores from {scores_path}")
-        return pd.read_csv(scores_path)
-
-    # Fallback: Load raw data and compute basic aggregation if file is missing
-    # This ensures the script can run even if previous steps failed to write the file
-    logger.warning(f"validity_scores.csv not found. Attempting to load from raw data in {input_dir}")
-    raw_path = Path(input_dir)
-    all_reports = []
-
-    for file in raw_path.glob("*.json"):
-        try:
-            with open(file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                if isinstance(data, list):
-                    all_reports.extend(data)
-                elif isinstance(data, dict):
-                    all_reports.append(data)
-        except Exception as e:
-            logger.warning(f"Failed to load {file}: {e}")
-
-    if not all_reports:
-        raise StatsAnalysisError("No valid report data found to aggregate.")
-
-    df = pd.DataFrame(all_reports)
-    # Basic placeholder aggregation if specific metric columns are missing
-    if 'consistency_score' not in df.columns:
-        df['consistency_score'] = np.random.uniform(0.5, 1.0, len(df))
-    if 'stability_score' not in df.columns:
-        df['stability_score'] = np.random.uniform(0.5, 1.0, len(df))
-    if 'marker_score' not in df.columns:
-        df['marker_score'] = np.random.uniform(0.5, 1.0, len(df))
-
-    # Ensure output directory exists
-    processed_path.mkdir(parents=True, exist_ok=True)
-    df.to_csv(scores_path, index=False)
-    logger.info(f"Saved aggregated scores to {scores_path}")
+def load_aggregated_scores(input_dir: str) -> pd.DataFrame:
+    """
+    Load and aggregate scores from analysis outputs.
+    
+    Args:
+        input_dir: Directory containing analysis outputs
+    
+    Returns:
+        Aggregated DataFrame with all metrics
+    """
+    input_path = Path(input_dir)
+    scores = []
+    
+    # Load consistency scores
+    consistency_file = input_path / "consistency_scores.json"
+    if consistency_file.exists():
+        data = load_json(consistency_file)
+        for item in data:
+            scores.append({"condition": item.get("condition"), "consistency": item.get("score")})
+    
+    # Load stability scores
+    stability_file = input_path / "stability_scores.json"
+    if stability_file.exists():
+        data = load_json(stability_file)
+        for item in data:
+            # Merge or append
+            scores.append({"condition": item.get("condition"), "stability": item.get("score")})
+    
+    # Load marker scores
+    marker_file = input_path / "marker_scores.json"
+    if marker_file.exists():
+        data = load_json(marker_file)
+        for item in data:
+            scores.append({"condition": item.get("condition"), "markers": item.get("score")})
+    
+    if not scores:
+        raise StatsAnalysisError("No score data found in input directory")
+    
+    df = pd.DataFrame(scores)
     return df
 
-
-def check_normality(data: List[float], alpha: float = 0.05) -> Tuple[bool, float]:
-    """Perform Shapiro-Wilk test for normality."""
+def check_normality(data: np.ndarray) -> Tuple[bool, float]:
+    """
+    Check normality assumption using Shapiro-Wilk test.
+    
+    Args:
+        data: Array of values
+    
+    Returns:
+        Tuple of (is_normal, p_value)
+    """
     if len(data) < 3:
-        return True, 1.0  # Assume normal if too few points
-    stat, p_value = shapiro(data)
-    return p_value >= alpha, p_value
+        return True, 1.0  # Not enough data to test
+    
+    stat, p_value = stats.shapiro(data)
+    return p_value >= 0.05, p_value
 
-
-def check_homogeneity(groups: Dict[str, List[float]], alpha: float = 0.05) -> Tuple[bool, float]:
-    """Perform Levene's test for homogeneity of variance."""
+def check_homogeneity(groups: List[np.ndarray]) -> Tuple[bool, float]:
+    """
+    Check homogeneity of variance using Levene test.
+    
+    Args:
+        groups: List of arrays for each group
+    
+    Returns:
+        Tuple of (is_homogeneous, p_value)
+    """
     if len(groups) < 2:
-        return True, 1.0
-    data_lists = list(groups.values())
-    stat, p_value = levene(*data_lists)
-    return p_value >= alpha, p_value
+        return True, 1.0  # Not enough groups to test
+    
+    stat, p_value = stats.levene(*groups)
+    return p_value >= 0.05, p_value
 
-
-def run_anova(groups: Dict[str, List[float]]) -> Dict[str, Any]:
-    """Run One-Way ANOVA."""
-    data_lists = list(groups.values())
-    stat, p_value = f_oneway(*data_lists)
-    return {"statistic": stat, "p_value": p_value}
-
-
-def run_kruskal(groups: Dict[str, List[float]]) -> Dict[str, Any]:
-    """Run Kruskal-Wallis H test."""
-    data_lists = list(groups.values())
-    stat, p_value = kruskal(*data_lists)
-    return {"statistic": stat, "p_value": p_value}
-
-
-def orchestrate_analysis(
-    scores_df: pd.DataFrame,
-    metric_col: str = "consistency_score",
-    group_col: str = "strategy",
-    output_path: str = "data/processed/statistical_results.json"
-) -> Dict[str, Any]:
+def run_anova(data: Dict[str, np.ndarray]) -> Dict[str, Any]:
     """
-    Orchestrate the full statistical analysis pipeline:
-    1. Check Normality (Shapiro-Wilk)
-    2. Check Homogeneity (Levene)
-    3. Run Parametric (ANOVA) or Non-parametric (Kruskal-Wallis)
-    4. Apply FDR Correction and Tukey HSD if assumptions hold.
+    Run one-way ANOVA.
+    
+    Args:
+        data: Dictionary of group_name -> values
+    
+    Returns:
+        ANOVA results
     """
-    groups = scores_df.groupby(group_col)[metric_col].apply(list).to_dict()
-
-    if not groups:
-        raise StatsAnalysisError("No groups found for analysis.")
-
-    results = {
-        "metric": metric_col,
-        "groups": list(groups.keys()),
-        "normality": {},
-        "homogeneity": {},
-        "test_type": None,
-        "test_results": {},
-        "post_hoc": {}
+    groups = list(data.values())
+    stat, p_value = stats.f_oneway(*groups)
+    return {
+        "test": "ANOVA",
+        "statistic": float(stat),
+        "p_value": float(p_value),
+        "significant": p_value < 0.05
     }
 
-    # 1. Normality Check
-    normal = True
-    for group_name, data in groups.items():
-        is_norm, p = check_normality(data)
-        results["normality"][group_name] = {"normal": is_norm, "p_value": p}
-        if not is_norm:
-            normal = False
+def run_kruskal(data: Dict[str, np.ndarray]) -> Dict[str, Any]:
+    """
+    Run Kruskal-Wallis H test (non-parametric alternative to ANOVA).
+    
+    Args:
+        data: Dictionary of group_name -> values
+    
+    Returns:
+        Kruskal-Wallis results
+    """
+    groups = list(data.values())
+    stat, p_value = stats.kruskal(*groups)
+    return {
+        "test": "Kruskal-Wallis",
+        "statistic": float(stat),
+        "p_value": float(p_value),
+        "significant": p_value < 0.05
+    }
 
-    # 2. Homogeneity Check
-    homog, p_h = check_homogeneity(groups)
-    results["homogeneity"] = {"homogeneous": homog, "p_value": p_h}
-
-    # 3. Select Test
-    if normal and homog:
-        logger.info("Assumptions met. Running ANOVA.")
-        test_res = run_anova(groups)
-        results["test_type"] = "ANOVA"
-        results["test_results"] = test_res
-
-        # 4. Post-hoc & FDR
-        if test_res["p_value"] < 0.05:
-            logger.info("ANOVA significant. Running Tukey HSD and FDR.")
-            # Tukey HSD
-            tukey_res = run_tukey_posthoc(groups)
-            results["post_hoc"]["tukey"] = tukey_res
-
-            # FDR (on p-values from pairwise t-tests if available, or just log)
-            # For simplicity, we log that FDR would be applied to pairwise comparisons
-            p_values = [test_res["p_value"]] # Placeholder for actual pairwise p-values
-            fdr_res = run_fdr_correction(p_values)
-            results["post_hoc"]["fdr"] = fdr_res
+def orchestrate_analysis(
+    input_dir: str,
+    output_dir: str
+) -> Dict[str, Any]:
+    """
+    Orchestrate the full statistical analysis pipeline.
+    
+    This function:
+    1. Loads aggregated scores
+    2. Checks normality and homogeneity assumptions
+    3. Runs appropriate statistical tests (ANOVA or Kruskal-Wallis)
+    4. Writes validity_scores.csv to output_dir
+    
+    Args:
+        input_dir: Directory containing analysis outputs
+        output_dir: Directory to write results
+    
+    Returns:
+        Analysis summary
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    logger.log("orchestrate_start", input_dir=input_dir, output_dir=output_dir)
+    
+    # Load data
+    df = load_aggregated_scores(input_dir)
+    
+    # Prepare data for analysis
+    # Group by condition and extract metrics
+    results = {
+        "assumptions": {},
+        "tests": {},
+        "scores_summary": {},
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    
+    # Check assumptions for each metric
+    for metric in ["consistency", "stability", "markers"]:
+        if metric not in df.columns:
+            continue
+        
+        # Group by condition
+        groups = df.groupby("condition")[metric].apply(lambda x: x.dropna().values).to_dict()
+        
+        if len(groups) < 2:
+            continue
+        
+        # Check normality
+        normality_results = {}
+        group_arrays = []
+        for name, values in groups.items():
+          is_normal, p = check_normality(values)
+          normality_results[name] = {"is_normal": is_normal, "p_value": p}
+          group_arrays.append(values)
+        
+        # Check homogeneity
+        is_homogeneous, p_hom = check_homogeneity(group_arrays)
+        
+        results["assumptions"][metric] = {
+            "normality": normality_results,
+            "homogeneity": {"is_homogeneous": is_homogeneous, "p_value": p_hom}
+        }
+        
+        # Run appropriate test
+        if all(r["is_normal"] for r in normality_results.values()) and is_homogeneous:
+            test_result = run_anova(groups)
+        else:
+            test_result = run_kruskal(groups)
+        
+        results["tests"][metric] = test_result
+    
+    # Aggregate scores for CSV output
+    # Create a summary row per condition
+    summary_rows = []
+    for condition in df["condition"].unique():
+        row = {"condition": condition}
+        for metric in ["consistency", "stability", "markers"]:
+            if metric in df.columns:
+                values = df[df["condition"] == condition][metric].dropna()
+                if len(values) > 0:
+                    row[f"{metric}_mean"] = float(values.mean())
+                    row[f"{metric}_std"] = float(values.std())
+                    row[f"{metric}_n"] = int(len(values))
+        summary_rows.append(row)
+    
+    # Write validity_scores.csv
+    if summary_rows:
+        csv_path = output_path / "validity_scores.csv"
+        safe_write_csv(csv_path, summary_rows)
+        logger.log("validity_scores_written", path=str(csv_path))
     else:
-        logger.info("Assumptions violated. Running Kruskal-Wallis.")
-        test_res = run_kruskal(groups)
-        results["test_type"] = "Kruskal-Wallis"
-        results["test_results"] = test_res
-        # No Tukey/FDR for non-parametric in this simplified flow
-
-    # Save results
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-
-    logger.info(f"Statistical results saved to {output_path}")
+        logger.log("warning", message="No valid scores to write to CSV")
+    
+    # Save full results
+    json_path = output_path / "analysis_results.json"
+    safe_write_json(json_path, results)
+    
+    logger.log("orchestrate_complete", results=results)
     return results
 
-
 def main():
-    """Entry point for the stats analysis script."""
-    logging.basicConfig(level=logging.INFO)
+    """CLI entry point for statistical analysis."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Statistical Analysis Orchestrator")
+    parser.add_argument(
+        "--input-dir",
+        type=str,
+        default="data/processed",
+        help="Input directory with analysis outputs"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/processed",
+        help="Output directory for results"
+    )
+    
+    args = parser.parse_args()
+    
     try:
-        # Load data
-        scores_df = load_aggregated_scores()
-        logger.info(f"Loaded {len(scores_df)} samples for analysis.")
-
-        # Run analysis for each metric
-        for metric in ["consistency_score", "stability_score", "marker_score"]:
-            if metric in scores_df.columns:
-                orchestrate_analysis(scores_df, metric_col=metric)
-            else:
-                logger.warning(f"Column {metric} not found in scores. Skipping.")
-
-        logger.info("Analysis complete.")
+        results = orchestrate_analysis(
+            input_dir=args.input_dir,
+            output_dir=args.output_dir
+        )
+        
+        print(json.dumps(results, indent=2, default=str))
+        logger.log("main_success")
+        
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        raise
-
+        logger.log("main_error", error=str(e))
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

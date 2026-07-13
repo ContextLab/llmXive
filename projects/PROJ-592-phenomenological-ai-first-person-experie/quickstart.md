@@ -1,207 +1,187 @@
-# Quick Start Guide: Phenomenological AI First-Person Experience Modeling
+# Phenomenological AI: First-Person Experience Modeling - Quick Start Guide
 
-This guide provides instructions for setting up the environment and running the
-phenomenological AI research pipeline.
+This guide provides instructions for setting up the environment and running the automated science pipeline for phenomenological report generation and analysis.
 
 ## Prerequisites
 
 - Python 3.10 or higher
-- pip package manager
-- At least 8GB RAM (16GB recommended for local 7B models)
-- CPU-only execution (no GPU required for primary CI path)
+- pip (Python package manager)
+- At least 4GB of available RAM (8GB+ recommended for analysis phases)
+- CPU-only execution (no GPU required)
 
 ## Environment Setup
 
-### 1. Clone and Navigate to Project
+1. **Clone the repository** and navigate to the project directory:
+ ```bash
+ cd PROJ-592-phenomenological-ai-first-person-experie
+ ```
 
-```bash
-cd projects/PROJ-592-phenomenological-ai-first-person-experie
+2. **Create a virtual environment** (recommended):
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ ```
+
+3. **Install dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+
+ *Note: If you encounter permission errors, ensure you are using a virtual environment.*
+
+4. **Verify installation**:
+ ```bash
+ python -c "import llama_cpp; print('llama-cpp-python installed successfully')"
+ ```
+
+## Project Structure
+
+```
+code/ # Source code
+ config.py # Configuration and marker definitions
+ main.py # Pipeline orchestration
+ generation/ # Data generation scripts
+ analysis/ # Metric computation and statistical analysis
+ validation/ # Human rating and validation scripts
+ utils/ # Utility functions (logging, I/O, archiving)
+data/
+ raw/ # Generated phenomenological reports
+ processed/ # Computed metrics and statistical results
+ qualitative/ # Human rating data
+specs/ # Feature specifications and contracts
+tests/ # Unit and integration tests
 ```
 
-### 2. Create Virtual Environment
+## CLI Usage Examples
+
+The main pipeline is controlled via `code/main.py` with the `--mode` argument.
+
+### 1. Generation Mode
+
+Generate the corpus of phenomenological reports using the TinyLlama model and four prompting strategies.
 
 ```bash
-python -m venv.venv
-source.venv/bin/activate # On Windows:.venv\Scripts\activate
+python code/main.py --mode generation
 ```
 
-### 3. Install Dependencies
+**What it does:**
+- Loads 20 base prompts from `data/prompts/base_prompts.json`
+- Applies 4 prompting strategies (Direct, Hypothetical, Comparative, Role-play)
+- Generates ~80 samples per prompt per strategy using `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF`
+- Outputs to `data/raw/phenomenological_reports.json`
+
+**Expected duration:** 2-4 hours on CPU (depending on hardware)
+
+### 2. Control Corpus Generation
+
+Generate a control corpus from real-world text for discriminant validity testing.
 
 ```bash
-pip install -r code/requirements.txt
+python code/main.py --mode generate_control
 ```
 
-### 4. Download Required Models (Optional - for local execution)
+**What it does:**
+- Downloads samples from the `arxiv_nlp` dataset
+- Generates ≥80 control samples
+- Outputs to `data/raw/control_corpus.json`
 
-For the primary CI pipeline (TinyLlama), the model will be downloaded automatically.
-For local 7B models (optional):
+### 3. Analysis Mode
+
+Compute phenomenological metrics (Consistency, Stability, Markers) on generated reports.
 
 ```bash
-# Download TinyLlama GGUF (primary CI model)
-# This will be handled automatically by runner.py
-
-# For local 7B models (requires 16GB+ RAM)
-# Follow instructions in runner_local.py
+python code/main.py --mode analysis
 ```
 
-## Running the Pipeline
+**What it does:**
+- Runs consistency analysis using NLI model (`cross-encoder/stsb-distilroberta-base`)
+- Computes semantic stability via embedding cosine similarity
+- Counts phenomenological markers (sensory, temporal, intentional)
+- Outputs to `data/processed/metrics.json`
 
-The main entry point is `code/main.py`. Use the `--mode` flag to select the
-pipeline phase.
+**Expected duration:** 30-60 minutes
 
-### Generation Mode
+### 4. Statistics Mode
 
-Generate phenomenological reports using the configured model and prompting strategies.
+Perform statistical analysis and hypothesis testing on computed metrics.
 
 ```bash
-python code/main.py --mode generation --config code/config.py
+python code/main.py --mode stats
 ```
 
-This will:
-- Load base prompts from `data/prompts/base_prompts.json`
-- Apply four prompting strategies (Direct, Hypothetical, Comparative, Role-play)
-- Generate ~80 samples per prompt per strategy
-- Save outputs to `data/raw/`
+**What it does:**
+- Checks normality (Shapiro-Wilk) and homogeneity (Levene) assumptions
+- Runs ANOVA + FDR correction + Tukey HSD (if assumptions met)
+- Runs Kruskal-Wallis test (if assumptions violated)
+- Performs sensitivity analysis on metric weights
+- Outputs to `data/processed/validity_scores.csv` and `data/processed/statistical_results.json`
 
-### Analysis Mode
+**Expected duration:** 10-20 minutes
 
-Compute phenomenological metrics (Consistency, Stability, Marker Presence).
+### 5. Validation Mode
+
+Prepare samples for human evaluation and compute inter-rater reliability.
 
 ```bash
-python code/main.py --mode analysis --config code/config.py
+python code/main.py --mode validate
 ```
 
-This will:
-- Load generated reports from `data/raw/`
-- Compute internal consistency using NLI models
-- Calculate semantic stability via embeddings
-- Count phenomenological markers
-- Save metrics to `data/processed/validity_scores.csv`
+**What it does:**
+- Stratified sampling of reports for human rating
+- Loads validation rubric from `code/validation/rubric.md`
+- Calculates Cohen's κ for inter-rater agreement
+- Outputs to `data/qualitative/ratings.csv`
 
-### Validation Mode
+**Expected duration:** 5-10 minutes (excluding human rating time)
 
-Perform statistical analysis and prepare for human validation.
+### 6. Full Pipeline
+
+Execute the entire pipeline from generation to validation.
 
 ```bash
-python code/main.py --mode validate --config code/config.py
+python code/main.py --mode full_pipeline
 ```
 
-This will:
-- Run statistical tests (ANOVA/Kruskal-Wallis)
-- Apply FDR correction and Tukey HSD post-hoc tests
-- Perform sensitivity analysis
-- Prepare stratified samples for human rating
+**What it does:**
+- Runs all phases sequentially: Generation → Control → Analysis → Stats → Validation
+- Ensures data dependencies are met between phases
+- Outputs all artifacts to their respective directories
 
-### Full Pipeline
-
-Run the complete pipeline from generation to validation.
-
-```bash
-python code/main.py --mode full --config code/config.py
-```
-
-## Individual Task Execution
-
-You can also run individual components directly:
-
-### Generate Control Corpus
-
-```bash
-python code/generation/control_corpus.py
-```
-
-### Run Consistency Analysis
-
-```bash
-python code/analysis/consistency.py
-```
-
-### Run Stability Analysis
-
-```bash
-python code/analysis/stability.py
-```
-
-### Run Marker Analysis
-
-```bash
-python code/analysis/markers.py
-```
-
-### Run Statistical Analysis
-
-```bash
-python code/analysis/stats.py
-```
-
-### Run Sensitivity Analysis
-
-```bash
-python code/analysis/sensitivity_analysis.py
-```
-
-### Run Human Rater Preparation
-
-```bash
-python code/validation/human_rater.py
-```
-
-## Output Files
-
-After successful execution, you should find:
-
-- `data/raw/phenomenological_reports.json` - Generated reports
-- `data/raw/control_corpus.json` - Control samples
-- `data/processed/validity_scores.csv` - Computed metrics
-- `data/qualitative/` - Human ratings (when completed)
-- `figures/` - Analysis plots (when generated)
+**Expected duration:** 3-6 hours total
 
 ## Troubleshooting
 
-### CUDA Errors
+### CUDA/GPU Errors
+This project is designed for CPU-only execution. If you encounter CUDA errors:
+- Ensure you are using the TinyLlama-1.1B-GGUF model (not 7B models)
+- Verify `llama-cpp-python` was installed with CPU support: `pip install llama-cpp-python --force-reinstall --no-binary llama-cpp-python`
 
-The primary pipeline is designed for CPU-only execution. If you encounter CUDA errors:
-- Ensure you're using the TinyLlama model (not 7B models)
-- Check that `llama-cpp-python` is installed correctly
-- Verify no GPU drivers are being invoked
+### Import Errors
+If you see `ImportError: cannot import name 'X' from 'Y'`:
+- Ensure you are running from the project root directory
+- Verify `code/` is in your Python path: `PYTHONPATH=code:$PYTHONPATH python code/main.py`
 
 ### Memory Errors
+If the process is killed due to memory:
+- Reduce `MAX_SAMPLES_PER_PROMPT` in `code/config.py`
+- Close other memory-intensive applications
+- Use a machine with ≥8GB RAM for the analysis phase
 
-- For 7B models: Ensure you have at least 16GB RAM
-- For TinyLlama: 8GB RAM should be sufficient
-- Reduce batch sizes if necessary
+## Output Verification
 
-### Missing Data Files
+After running the pipeline, verify the following outputs exist:
 
-- Run `python scripts/init_project.py` to create directory structure
-- Ensure `data/prompts/base_prompts.json` exists
-- Check that all required datasets are accessible
-
-## Verification
-
-To verify the pipeline is working correctly:
-
-```bash
-# Run a small subset
-python code/main.py --mode generation --config code/config.py
-python code/main.py --mode analysis --config code/config.py
-python code/main.py --mode validate --config code/config.py
-
-# Check output files exist
-ls -la data/raw/
-ls -la data/processed/
-```
-
-## Expected Runtime
-
-- Generation: ~2-4 hours (depending on sample count)
-- Analysis: ~30 minutes
-- Validation: ~15 minutes
-- Full pipeline: ≤6 hours on free-tier resources
+- `data/raw/phenomenological_reports.json` (≥6400 samples: 20 prompts × 4 strategies × 80 samples)
+- `data/raw/control_corpus.json` (≥80 samples)
+- `data/processed/metrics.json` (Consistency, Stability, Marker scores)
+- `data/processed/validity_scores.csv` (Statistical test results)
+- `data/qualitative/ratings.csv` (Human rating data, if validated)
 
 ## Next Steps
 
-1. Review `research.md` for methodological details
-2. Check `specs/contracts/` for data schemas
-3. Read `code/validation/rubric.md` for human rating criteria
-4. Explore `data-model.md` for entity relationships
+1. Run the full pipeline to generate initial results
+2. Review `data/processed/statistical_results.json` for hypothesis test outcomes
+3. Conduct human validation using the rubric in `code/validation/rubric.md`
+4. Generate the reproducibility archive with `python code/utils/archiver.py`
+
+For detailed API documentation, refer to the docstrings in each module under `code/`.

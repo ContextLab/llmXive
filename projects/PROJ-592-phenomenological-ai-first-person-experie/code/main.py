@@ -1,144 +1,173 @@
-"""Main orchestration script for the Phenomenological AI pipeline."""
+"""
+Main orchestration script for the Phenomenological AI pipeline.
+Coordinates Generation, Analysis, Stats, and Validation phases.
+"""
 import os
 import sys
 import argparse
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from utils.logging import get_logger, setup_logging, retry_on_failure
-from generation.runner import run_generation_pipeline, main as generation_main
-from generation.control_corpus import generate_control_corpus, main as control_main
-from analysis.consistency import run_consistency_analysis, main as consistency_main
-from analysis.stability import run_stability_analysis, main as stability_main
-from analysis.markers import run_marker_analysis, main as markers_main
-from analysis.stats import orchestrate_analysis, main as stats_main
-from validation.stratified_sampler import run_stratified_sampling, main as sampler_main
-from validation.human_rater import run_rating_pipeline, main as rater_main
-from validation.turing_simulation import run_turing_simulation, main as turing_main
-from utils.io import safe_write_csv
+from config import get_config
+from utils.logging import get_logger, log_operation
+from utils.io import ensure_dir
 
-logger = setup_logging()
+# Import phase modules
+from generation.runner import main as generation_main
+from generation.control_corpus import main as control_main
+from analysis.consistency import main as consistency_main
+from analysis.stability import main as stability_main
+from analysis.markers import main as markers_main
+from analysis.stats import main as stats_main
+from analysis.sensitivity_analysis import main as sensitivity_main
+from analysis.validity_justification import main as justification_main
+from validation.human_rater import main as human_rater_main
+from validation.stratified_sampler import main as sampler_main
+from utils.archiver import main as archiver_main
 
-
-def setup_environment(config_path: str) -> dict:
-    """Load configuration and setup environment."""
-    import json
-    if not os.path.exists(config_path):
-        # Fallback for CI if config.json is missing, use defaults
-        logger.warning(f"Config file {config_path} not found. Using defaults.")
-        return {
-            "seeds": [42, 123, 456],
-            "paths": {
-                "raw": "data/raw",
-                "processed": "data/processed",
-                "qualitative": "data/qualitative"
-            },
-            "models": {
-                "primary": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF"
-            }
-        }
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = json.load(f)
-    logger.log("config_loaded", path=config_path)
+def setup_environment(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Setup environment and load configuration."""
+    logger = get_logger("main")
+    log_operation("setup_environment", config_path=config_path)
+    
+    config = get_config(config_path)
+    
+    # Ensure output directories exist
+    output_dir = Path(config.get("output_dir", "data"))
+    for dir_name in ["data/raw", "data/processed", "data/qualitative", "figures"]:
+        ensure_dir(output_dir / dir_name)
+    
     return config
 
-
-def run_generation_phase(config: dict) -> None:
-    """Execute the generation phase."""
-    logger.log("phase_start", phase="generation")
-    # Calls runner.py main which handles its own logging
+def run_generation_phase(config: Dict[str, Any]) -> None:
+    """Run the generation phase (US1)."""
+    logger = get_logger("main")
+    log_operation("run_generation_phase")
     generation_main()
-    logger.log("phase_complete", phase="generation")
 
+def run_control_phase(config: Dict[str, Any]) -> None:
+    """Run the control corpus generation (US1)."""
+    logger = get_logger("main")
+    log_operation("run_control_phase")
+    control_main()
 
-def run_analysis_phase(config: dict) -> None:
-    """Execute the analysis (metrics) phase."""
-    logger.log("phase_start", phase="analysis")
-
+def run_analysis_phase(config: Dict[str, Any]) -> None:
+    """Run the analysis phase (US2)."""
+    logger = get_logger("main")
+    log_operation("run_analysis_phase")
+    
     # Run consistency analysis
-    logger.log("subphase_start", subphase="consistency")
     consistency_main()
-
+    
     # Run stability analysis
-    logger.log("subphase_start", subphase="stability")
     stability_main()
-
+    
     # Run marker analysis
-    logger.log("subphase_start", subphase="markers")
     markers_main()
 
-    logger.log("phase_complete", phase="analysis")
-
-
-def run_stats_phase(config: dict) -> None:
-    """Execute the statistical analysis phase."""
-    logger.log("phase_start", phase="stats")
+def run_stats_phase(config: Dict[str, Any]) -> None:
+    """Run the statistics phase (US2)."""
+    logger = get_logger("main")
+    log_operation("run_stats_phase")
+    
+    # Run main stats orchestration (produces validity_scores.csv)
     stats_main()
-    logger.log("phase_complete", phase="stats")
+    
+    # Run sensitivity analysis
+    sensitivity_main()
+    
+    # Run validity justification
+    justification_main()
 
-
-def run_validation_phase(config: dict) -> None:
-    """Execute the validation phase."""
-    logger.log("phase_start", phase="validation")
-
-    # Select validation sample
-    logger.log("subphase_start", subphase="sampling")
+def run_validation_phase(config: Dict[str, Any]) -> None:
+    """Run the validation phase (US3)."""
+    logger = get_logger("main")
+    log_operation("run_validation_phase")
+    
+    # Run stratified sampling
     sampler_main()
+    
+    # Run human rating
+    human_rater_main()
 
-    # Run human rating (if data available)
-    logger.log("subphase_start", subphase="rating")
-    rater_main()
-
-    logger.log("phase_complete", phase="validation")
-
-
-def run_full_pipeline(config: dict) -> None:
-    """Run the complete pipeline: Generation → Metrics → Stats → Validation."""
-    logger.log("pipeline_start")
+def run_full_pipeline(config: Dict[str, Any]) -> None:
+    """Run the complete pipeline: Generation -> Metrics -> Stats -> Validation."""
+    logger = get_logger("main")
+    log_operation("run_full_pipeline")
+    
     run_generation_phase(config)
+    run_control_phase(config)
     run_analysis_phase(config)
     run_stats_phase(config)
     run_validation_phase(config)
-    logger.log("pipeline_complete")
-
+    
+    log_operation("full_pipeline_complete")
 
 def main():
-    """Entry point for CLI."""
-    parser = argparse.ArgumentParser(description="Phenomenological AI Pipeline")
-    parser.add_argument("--task", type=str, required=True,
-                      choices=["generate", "generate_control", "analyze", "stats",
-                              "select_validation_sample", "validate_human", "turing_sim", "full"],
-                      help="Task to execute")
-    parser.add_argument("--config", type=str, default="code/config.json",
-                      help="Path to configuration file")
-
+    """Main entry point with CLI argument parsing."""
+    parser = argparse.ArgumentParser(
+        description="Phenomenological AI Pipeline Orchestrator"
+    )
+    parser.add_argument(
+        "--task",
+        type=str,
+        choices=[
+            "generate",
+            "generate_control",
+            "analyze",
+            "stats",
+            "validate_human",
+            "sensitivity-kappa",
+            "archive",
+            "full"
+        ],
+        default="full",
+        help="Task to execute"
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="code/config.py",
+        help="Path to configuration file"
+    )
+    
     args = parser.parse_args()
-    config = setup_environment(args.config)
-
-    if args.task == "generate":
-        run_generation_phase(config)
-    elif args.task == "generate_control":
-        control_main()
-    elif args.task == "analyze":
-        run_analysis_phase(config)
-    elif args.task == "stats":
-        run_stats_phase(config)
-    elif args.task == "select_validation_sample":
-        sampler_main()
-    elif args.task == "validate_human":
-        rater_main()
-    elif args.task == "turing_sim":
-        turing_main()
-    elif args.task == "full":
-        run_full_pipeline(config)
-
-    logger.log("task_complete", task=args.task)
-
+    logger = get_logger("main")
+    
+    log_operation("main_start", task=args.task, config=args.config)
+    
+    try:
+        config = setup_environment(args.config)
+        
+        if args.task == "generate":
+            run_generation_phase(config)
+        elif args.task == "generate_control":
+            run_control_phase(config)
+        elif args.task == "analyze":
+            run_analysis_phase(config)
+        elif args.task == "stats":
+            run_stats_phase(config)
+        elif args.task == "validate_human":
+            run_validation_phase(config)
+        elif args.task == "sensitivity-kappa":
+            from analysis.sensitivity_kappa import main as kappa_main
+            kappa_main()
+        elif args.task == "archive":
+            archiver_main()
+        elif args.task == "full":
+            run_full_pipeline(config)
+        
+        log_operation("task_complete", task=args.task)
+        
+    except Exception as e:
+        log_operation("task_failed", task=args.task, error=str(e))
+        raise
 
 if __name__ == "__main__":
     main()
