@@ -707,7 +707,13 @@ def _reopen_failing_tasks(
         if m:
             rel = m.group(1)
             targets.add(rel)
-            targets.add(Path(rel).stem)
+            # The FILENAME (``download.py``) — not the bare stem. A stem like
+            # "analysis" / "download" / "main" is an ordinary English word that
+            # matches unrelated tasks' prose, so every round re-opened tasks that
+            # had nothing to do with the missing script (churn that could never fix
+            # it). The filename still catches the same script under a different
+            # directory, which IS the likely owner of a path mismatch.
+            targets.add(Path(rel).name)
             if r.script_missing:
                 missing_scripts.append(rel)
     for d in res.declared_missing:
@@ -756,12 +762,17 @@ def _reopen_failing_tasks(
     # either creates the script or fixes the run-book to call the one that exists.
     # The appended task itself then OWNS the name, so subsequent rounds route
     # through the normal re-open path (no duplicate appends, no infinite loop).
+    # Ownership is the FULL relative path — NOT the basename, and NOT the stem.
+    # The run-book calls `code/download.py` while the task built `data/download.py`:
+    # same name, different directory. A basename test called that "owned", so the
+    # reconciliation task — the ONLY thing that tells the implementer the PATH is
+    # what's wrong — was never appended. The loop just re-opened the data/ task, the
+    # implementer rebuilt data/download.py, the run-book still called
+    # code/download.py, and the project stalled at in_progress forever (PROJ-179).
+    # A task owns the run-book's script only if it names that exact path.
     unowned = [
         rel for rel in dict.fromkeys(missing_scripts)
-        if not any(
-            rel in ln or Path(rel).name in ln or Path(rel).stem in ln
-            for ln in out_lines
-        )
+        if not any(rel in ln for ln in out_lines)
     ]
     if unowned:
         ids = [

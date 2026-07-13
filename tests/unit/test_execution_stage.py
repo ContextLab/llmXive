@@ -385,3 +385,62 @@ def test_reopen_still_reopens_owned_missing_script_normally(tmp_path: Path) -> N
     assert n == 1
     assert "- [ ] T010" in updated  # the owning task was re-opened
     assert "Reconcile run-book" not in updated  # no spurious self-heal task
+
+
+def test_reopen_reconciles_same_name_different_directory(tmp_path: Path) -> None:
+    """The live PROJ-179 stall. The run-book calls ``code/download.py`` but the task
+    built ``data/download.py`` — the SAME basename in a DIFFERENT directory. Judging
+    ownership by basename declared the script "owned", so no reconciliation task was
+    appended; the loop just re-opened the data/ task, the implementer rebuilt
+    data/download.py, the run-book still called code/download.py, and the project
+    stalled at in_progress forever. Ownership is the FULL path: re-open the
+    same-named task (the likely culprit) AND append the reconciliation task that
+    actually names the mismatch."""
+    from llmxive.execution.stage import _reopen_failing_tasks
+
+    tasks_md = (
+        "# Tasks\n"
+        "- [X] T005 Implement `data/download.py` to fetch the behavioral dataset.\n"
+    )
+    proj = _bootstrap_project(tmp_path, "PROJ-179-x", tasks_md)
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[
+            RunCommandResult(
+                "python code/download.py",
+                False, -1, 0.0, False, "FileNotFoundError", script_missing=True,
+            ),
+        ],
+    )
+    n = _reopen_failing_tasks(proj, res)
+    updated = (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8")
+    assert n >= 1
+    assert "Reconcile run-book" in updated, "the path mismatch was never surfaced"
+    assert "code/download.py" in updated
+
+
+def test_reopen_does_not_match_a_bare_prose_word(tmp_path: Path) -> None:
+    """A missing ``code/analysis.py`` must NOT re-open every task whose prose merely
+    contains the word "analysis". The bare STEM was in the re-open targets, so an
+    unrelated task (`src/analysis/correlation.py`) was re-opened and redone every
+    round — churn that never fixed the actual missing script."""
+    from llmxive.execution.stage import _reopen_failing_tasks
+
+    tasks_md = (
+        "# Tasks\n"
+        "- [X] T014 Implement `src/analysis/correlation.py` for the association.\n"
+    )
+    proj = _bootstrap_project(tmp_path, "PROJ-179-b", tasks_md)
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[
+            RunCommandResult(
+                "python code/analysis.py",
+                False, -1, 0.0, False, "FileNotFoundError", script_missing=True,
+            ),
+        ],
+    )
+    _reopen_failing_tasks(proj, res)
+    updated = (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8")
+    assert "- [X] T014" in updated, "unrelated task re-opened on a bare prose word"
+    assert "Reconcile run-book" in updated  # the real mismatch IS surfaced
