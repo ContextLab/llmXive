@@ -1,0 +1,333 @@
+resolved_at: '2026-07-13T04:18:53.396001+00:00'
+datasets:
+- intent: 10.1000/jxyz
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Health_Science_and_Technology_Tsafe_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_/32970818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Obio-Akpa_Akwa_Ibom_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_0703/32970815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Obio-Akpa_Akwa_Ibom_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_0703/32970812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Science_and_Technology_Epe_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Eliza/32970803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Predicting_Instagram_Content_Engagement_Using_Machine_Learning_as_a_Decision_Support_System_for_Content_Creators/32970782
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PubLayNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jordanparker6/publaynet/resolve/main/data/train-00000-of-00208-3f1d0dff7cee414a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/creative-graphic-design/PubLayNet/resolve/main/data/test-00000-of-00007.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/miikatoi/publaynet-tiny/resolve/main/annotations/mini_publaynet_train.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 52535
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jordanparker6/publaynet/resolve/main/data/train-00000-of-00208-3f1d0dff7cee414a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/creative-graphic-design/PubLayNet/resolve/main/data/test-00000-of-00007.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/miikatoi/publaynet-tiny/resolve/main/annotations/mini_publaynet_train.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/echodpp/publaynet-layoutlmv3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Okeho_Oyo_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR/32970821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Health_Science_and_Technology_Tsafe_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_/32970818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Obio-Akpa_Akwa_Ibom_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_0703/32970815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Obio-Akpa_Akwa_Ibom_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_0703/32970812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Science_and_Technology_Epe_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Eliza/32970803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6983145
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6983488
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7085183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8419628
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20492087
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20396416
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20396416
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/123276-visa-retrieval-augmented-generation-with-visual-source-attribution
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20492087
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20492087
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CodeParrot
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/codeparrot/github-code/resolve/main/data/train-00000-of-01126.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggingface-course/codeparrot-ds-train/resolve/main/codeparrot-ds-train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggingface-course/codeparrot-ds-valid/resolve/main/codeparrot-ds-valid.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/codeparrot/github-code/resolve/main/data/train-00000-of-01126.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/huggingface-course/codeparrot-ds-train/resolve/main/codeparrot-ds-train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/huggingface-course/codeparrot-ds-valid/resolve/main/codeparrot-ds-valid.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/codeparrot/codeparrot-clean-train/resolve/main/file-000000000001.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/codeparrot/codeparrot-clean-valid/resolve/main/file-000000000054.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Okeho_Oyo_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR/32970821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Health_Science_and_Technology_Tsafe_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_/32970818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Obio-Akpa_Akwa_Ibom_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_0703/32970815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Obio-Akpa_Akwa_Ibom_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_0703/32970812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Science_and_Technology_Epe_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Eliza/32970803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6363556
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15599983
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20706524
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18993092
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/GEEToker_for_IJGIS/30408022/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/GEEToker_for_IJGIS/30408022
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.11585
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20706524
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20706524
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/maria9659/Solidity-AST-CFG-Opcode-Dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 94020
+      parsed: true
+  - url: https://huggingface.co/datasets/allenai/asta-bench-results/resolve/main/1.0.0-dev1/test/Ai2_Asta_Scholar_QA__Claude_4.6__2026-04-30T16-53-44.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 28196
+      parsed: true
+  - url: https://huggingface.co/datasets/HY-LiYihan/astribot_scene_replay_120eps/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/allenai/asta-bench-results/resolve/main/1.0.0-dev1/test/Ai2_Asta_Scholar_QA__Claude_4.6__2026-04-30T16-53-44.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/AST-FRI/EnterpriseBench/resolve/main/Human_Resource_Management/Resume/resume_information.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/maria9659/Solidity-AST-CFG-Opcode-Dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HY-LiYihan/astribot_scene_replay_120eps/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/AstroAutomata/ThousandWorlds/resolve/main/inputs.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Okeho_Oyo_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR/32970821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Health_Science_and_Technology_Tsafe_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_/32970818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Obio-Akpa_Akwa_Ibom_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_0703/32970815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Agriculture_and_Technology_Obio-Akpa_Akwa_Ibom_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_0703/32970812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Federal_University_of_Science_and_Technology_Epe_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Eliza/32970803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15433665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15396216
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1251104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://www.biodiversitylibrary.org/part/7797
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/5634957
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21329221
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21329221
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2503.06168
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09401
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Total_saponins_from_ginseng_stems_and_leaves_antagonise_acute_lead-cadmium_co-exposure-induced_oxidative_liver_damage_in_mice_via_the_Keap1_Nrf2_signalling_pathway/32797296
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

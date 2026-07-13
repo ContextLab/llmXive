@@ -1,0 +1,172 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Metrics Schema
+description: |
+  Defines the schema for evaluation metrics used in the llmXive pipeline.
+  This includes syntactic validity, AST edit distance, and statistical
+  significance test results as required by FR-006 and SC-005.
+type: object
+required:
+  - metrics_version
+  - evaluation_timestamp
+  - model_results
+  - statistical_analysis
+  - resource_usage
+additionalProperties: false
+
+properties:
+  metrics_version:
+    type: string
+    description: Version of the metrics schema (e.g., "1.0.0")
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+
+  evaluation_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the evaluation run
+
+  dataset_info:
+    type: object
+    description: Information about the dataset used for evaluation
+    required:
+      - name
+      - split
+      - sample_count
+    properties:
+      name:
+        type: string
+        description: Dataset name (e.g., "publaynet")
+      split:
+        type: string
+        description: Dataset split used (e.g., "validation", "test")
+      sample_count:
+        type: integer
+        minimum: 1
+        description: Number of samples evaluated
+
+  model_results:
+    type: array
+    description: Per-model evaluation results
+    minItems: 1
+    items:
+      type: object
+      required:
+        - model_name
+        - model_type
+        - syntactic_validity_rate
+        - ast_edit_distance
+        - seed
+      additionalProperties: false
+      properties:
+        model_name:
+          type: string
+          description: Unique identifier for the model (e.g., "rf_encoder_v1")
+        model_type:
+          type: string
+          enum:
+            - rf_token
+            - pixel_baseline
+          description: Type of model architecture
+        syntactic_validity_rate:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Fraction of outputs with valid JSON/Markdown syntax
+        ast_edit_distance:
+          type: number
+          minimum: 0.0
+          description: Average AST edit distance between predicted and ground truth
+        seed:
+          type: integer
+          description: Random seed used for this evaluation run
+        per_sample_metrics:
+          type: array
+          description: Optional detailed metrics per sample
+          items:
+            type: object
+            required:
+              - sample_id
+              - syntactic_valid
+              - ast_edit_distance
+            properties:
+              sample_id:
+                type: string
+              syntactic_valid:
+                type: boolean
+              ast_edit_distance:
+                type: number
+
+  statistical_analysis:
+    type: object
+    description: Results of statistical significance tests (FR-006)
+    required:
+      - test_type
+      - p_value
+      - is_significant
+    additionalProperties: false
+    properties:
+      test_type:
+        type: string
+        enum:
+          - wilcoxon_signed_rank
+          - mcnemar
+        description: Type of statistical test performed
+      p_value:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: P-value from the statistical test
+      is_significant:
+        type: boolean
+        description: Whether the result is statistically significant (p < 0.05)
+      alpha:
+        type: number
+        default: 0.05
+        description: Significance threshold used
+      statistic:
+        type: number
+        description: Test statistic value
+
+  resource_usage:
+    type: object
+    description: Resource consumption metrics (SC-005, FR-007)
+    required:
+      - total_runtime_seconds
+      - peak_memory_gb
+    additionalProperties: false
+    properties:
+      total_runtime_seconds:
+        type: number
+        minimum: 0.0
+        description: Total wall-clock time for the evaluation
+      peak_memory_gb:
+        type: number
+        minimum: 0.0
+        maximum: 4.0
+        description: Peak memory usage in GB (must stay under 4GB limit)
+      cpu_usage_percent:
+        type: number
+        minimum: 0.0
+        maximum: 100.0
+        description: Average CPU usage percentage
+
+  failure_cases:
+    type: array
+    description: Optional list of samples where evaluation failed
+    items:
+      type: object
+      required:
+        - sample_id
+        - error_type
+        - error_message
+      properties:
+        sample_id:
+          type: string
+        error_type:
+          type: string
+          enum:
+            - parsing_error
+            - timeout
+            - memory_error
+            - other
+        error_message:
+          type: string

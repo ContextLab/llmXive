@@ -1,0 +1,124 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RF Token Sequence Schema
+description: >
+  Defines the schema for the structured token sequence output extracted from the
+  frozen Representation Forcing (RF) encoder. This schema validates the intermediate
+  representation used for downstream structured text generation tasks.
+type: object
+required:
+  - metadata
+  - tokens
+  - sequence_length
+  - embedding_dim
+properties:
+  metadata:
+    type: object
+    description: Metadata regarding the source image and extraction process.
+    required:
+      - source_id
+      - extraction_timestamp
+      - model_version
+      - encoder_type
+    properties:
+      source_id:
+        type: string
+        description: Unique identifier for the source image (e.g., PubLayNet image ID).
+        minLength: 1
+      extraction_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the extraction occurred.
+      model_version:
+        type: string
+        description: Version string of the frozen encoder used (e.g., 'layoutlmv3-base').
+      encoder_type:
+        type: string
+        const: "layoutlmv3"
+        description: Type of encoder architecture used.
+      device:
+        type: string
+        enum: ["cpu", "cuda"]
+        description: Device used for inference.
+      checksum:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+        description: SHA-256 checksum of the input image bytes for reproducibility.
+  tokens:
+    type: array
+    description: >
+      List of token objects representing the structural sequence extracted from the image.
+      Each token corresponds to a detected layout element or structural unit.
+    items:
+      type: object
+      required:
+        - token_id
+        - token_type
+        - confidence
+        - position_encoding
+      properties:
+        token_id:
+          type: integer
+          minimum: 0
+          description: Integer ID of the token in the model vocabulary.
+        token_type:
+          type: string
+          enum:
+            - "[CLS]"
+            - "[SEP]"
+            - "[PAD]"
+            - "[UNK]"
+            - "text"
+            - "bbox"
+            - "layout"
+            - "structure"
+          description: Semantic type of the token.
+        confidence:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Confidence score associated with this token representation.
+        position_encoding:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+          description: [x, y] relative position encoding values.
+        embedding_vector:
+          type: array
+          items:
+            type: number
+          description: >
+            The raw embedding vector (float32) for this token. 
+            Length must match 'embedding_dim' at the root level.
+          minItems: 1
+        bounding_box:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
+          description: >
+            Normalized bounding box [x1, y1, x2, y2] if the token represents a layout element.
+            Null if the token is purely semantic (e.g., [CLS], [SEP]).
+          nullable: true
+  sequence_length:
+    type: integer
+    minimum: 1
+    description: Total number of tokens in the sequence (excluding padding).
+  embedding_dim:
+    type: integer
+    minimum: 1
+    description: Dimensionality of the token embedding vectors.
+  is_valid:
+    type: boolean
+    description: Flag indicating if the sequence passed internal consistency checks.
+  raw_logits:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: Optional raw logits before softmax, if requested during extraction.
+    nullable: true
+additionalProperties: false

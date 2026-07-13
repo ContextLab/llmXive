@@ -1,0 +1,12 @@
+? 'T001a [P] Create project directory structure per implementation plan: `projects/PROJ-867-llmxive-follow-up-extending-representati/`
+  including `code/`, `data/`, `tests/`, `docs/` subdirectories'
+: 1
+T003 [P] Create `tests/unit/`, `tests/contract/`, `tests/integration/` directory skeletons: 1
+? T004 [P] Implement `code/utils/resource_monitor.py` as a context manager/decorator
+  to enforce a configurable memory limit (default 4GB) derived from the 7GB runner
+  constraint (FR-007), with active monitoring, logging of resource trends, and process
+  kill on overflow; include mock test for verification
+: 1
+? T005 [P] Implement `code/data/loaders.py` to fetch PubLayNet dataset from HuggingFace
+  (`facebook/publaynet`) with SHA-256 checksum verification
+: 1

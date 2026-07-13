@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T11:37:28.502597Z'
-current_stage: brainstormed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-867-llmxive-follow-up-extending-representati
-last_run_id: null
+last_run_id: 2a44a485-c7d1-4cce-af91-212a13224140
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati
 title: 'llmXive follow-up: extending "Representation Forcing for Bottleneck-Free Unified
   Multimodal Models"'
-updated_at: '2026-07-02T11:37:28.502597Z'
+updated_at: '2026-07-13T04:53:30.806850Z'

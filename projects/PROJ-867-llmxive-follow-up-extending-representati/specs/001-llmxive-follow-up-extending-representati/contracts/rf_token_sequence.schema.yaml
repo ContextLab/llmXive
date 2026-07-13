@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: RF Token Sequence
+description: Schema for the sequence of continuous vectors representing structural priors extracted by the frozen RF encoder.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source_image:
+        type: string
+        description: Path to the source image.
+      encoder_version:
+        type: string
+        description: Version of the RF encoder used.
+      extraction_timestamp:
+        type: string
+        format: date-time
+        description: Timestamp of extraction.
+    required:
+      - source_image
+      - encoder_version
+      - extraction_timestamp
+  tokens:
+    type: array
+    description: Sequence of embedding vectors.
+    items:
+      type: array
+      items:
+        type: number
+        description: Float value of the embedding component.
+      minItems: 1
+      maxItems: 2048
+    minItems: 1
+  sequence_length:
+    type: integer
+    description: Number of tokens in the sequence.
+    minimum: 1
+  embedding_dim:
+    type: integer
+    description: Dimensionality of each token embedding.
+    minimum: 1
+  is_padded:
+    type: boolean
+    description: Whether the sequence was padded to the fixed context window.
+required:
+  - metadata
+  - tokens
+  - sequence_length
+  - embedding_dim
+  - is_padded
+additionalProperties: false

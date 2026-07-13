@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Structured Text Output
+description: Schema for the generated structured text (JSON, Markdown, or AST) and its validation status.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      model_version:
+        type: string
+        description: Version of the autoregressive model used.
+      generation_timestamp:
+        type: string
+        format: date-time
+        description: Timestamp of generation.
+      seed:
+        type: integer
+        description: Random seed used for generation.
+    required:
+      - model_version
+      - generation_timestamp
+      - seed
+  content:
+    type: string
+    description: The generated structured text (JSON, Markdown, or AST string).
+  validation:
+    type: object
+    properties:
+      is_valid:
+        type: boolean
+        description: Whether the content passes syntax parsing.
+      parser_type:
+        type: string
+        enum:
+          - json
+          - markdown
+          - ast
+        description: Type of parser used for validation.
+      error_message:
+        type: string
+        nullable: true
+        description: Error message if validation failed.
+      matches_ground_truth:
+        type: boolean
+        description: Whether the content matches the canonical ground truth content.
+    required:
+      - is_valid
+      - parser_type
+      - matches_ground_truth
+  ast_edit_distance:
+    type: number
+    nullable: true
+    description: AST edit distance to ground truth (null if ground truth unavailable).
+required:
+  - metadata
+  - content
+  - validation
+additionalProperties: false

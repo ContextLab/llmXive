@@ -1,0 +1,610 @@
+{
+  "fetched_at": "2026-07-13T04:12:07Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified Multimodal Models\"",
+      "target_n": 5
+    },
+    "duration_seconds": 47.589,
+    "ended_at": "2026-07-13T04:12:07Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "unified multimodal architectures without bottlenecks"
+        ],
+        [
+          2,
+          "representation forcing techniques in multimodal learning"
+        ],
+        [
+          3,
+          "bottleneck-free multimodal representation alignment"
+        ],
+        [
+          4,
+          "unified vision-language models without discrete bottlenecks"
+        ],
+        [
+          5,
+          "continuous multimodal representation forcing"
+        ],
+        [
+          6,
+          "avoiding information bottlenecks in multimodal transformers"
+        ],
+        [
+          7,
+          "end-to-end unified multimodal model training"
+        ],
+        [
+          8,
+          "latent space alignment for multimodal representation forcing"
+        ],
+        [
+          9,
+          "multimodal fusion without quantization bottlenecks"
+        ],
+        [
+          10,
+          "direct representation mapping in unified multimodal systems"
+        ],
+        [
+          11,
+          "seamless multimodal integration via representation forcing"
+        ],
+        [
+          12,
+          "unified encoder-decoder architectures for multimodal tasks"
+        ],
+        [
+          13,
+          "eliminating bottleneck constraints in multimodal pre-training"
+        ],
+        [
+          14,
+          "continuous token representations for multimodal models"
+        ],
+        [
+          15,
+          "joint embedding spaces for unified multimodal understanding"
+        ],
+        [
+          16,
+          "representation forcing for cross-modal alignment"
+        ],
+        [
+          17,
+          "unified multimodal foundation models without discrete bottlenecks"
+        ],
+        [
+          18,
+          "gradient-based representation forcing in multimodal networks"
+        ],
+        [
+          19,
+          "scalable unified multimodal architectures"
+        ],
+        [
+          20,
+          "multimodal representation learning without discrete bottlenecks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified Multimodal Models\" computer science": 0,
+        "unified multimodal architectures without bottlenecks": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "representation forcing unified multimodal architectures",
+      "LLaVA Qwen-VL multimodal alignment fine-tuning",
+      "modality collapse cross-attention interference",
+      "multimodal perplexity task performance benchmarking",
+      "latent space entanglement gradient conflict mitigation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.17044"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLaVA Qwen-VL multimodal alignment fine-tuning": 3,
+      "latent space entanglement gradient conflict mitigation": 3,
+      "llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified Multimodal Models\" computer science": 3,
+      "modality collapse cross-attention interference": 3,
+      "multimodal perplexity task performance benchmarking": 3,
+      "representation forcing unified multimodal architectures": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2505.10483",
+          "rationale": "The paper focuses on evaluation frameworks and benchmarks for unified multimodal models, whereas the user's question specifically targets \"Representation Forcing\" as a mechanism for achieving \"Bottleneck-Free\" architectures. While both concern unified multimodal models, the candidate paper does not measure the specific mechanism (representation forcing), the specific architectural property (bottleneck-free design), or the causal pathway described in the user's query, failing to meet criteria (a)",
+          "title": "UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T04:11:19Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"representation forcing for bottleneck-free unified multimodal models\" computer science",
+      "raw": "llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified Multimodal Models\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T04:11:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T04:11:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T04:11:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The emergence of unified multimodal understanding and generation models is rapidly attracting attention because of their ability to enhance instruction-following capabilities while minimizing model redundancy. However, there is a lack of a unified evaluation framework for these models, which would enable an elegant, simplified, and overall evaluation. Current models conduct evaluations on multiple task-specific benchmarks, but there are significant limitations, such as the lack of overall results, errors from extra evaluation models, reliance on extensive labeled images, benchmarks that lack diversity, and metrics with limited capacity for instruction-following evaluation. To tackle these challenges, we introduce UniEval, the first evaluation framework designed for unified multimodal models without extra models, images, or annotations. This facilitates a simplified and unified evaluation process. The UniEval framework contains a holistic benchmark, UniBench (supports both unified and visual generation models), along with the corresponding UniScore metric. UniBench includes 81 fine-grained tags contributing to high diversity. Experimental results indicate that UniBench is more challenging than existing benchmarks, and UniScore aligns closely with human evaluations, surpassing current metrics. Moreover, we extensively evaluated SoTA unified and visual generation models, uncovering new insights into Univeral's unique values.",
+          "claimed_authors": [
+            "Yi Li",
+            "Haonan Wang",
+            "Qixiang Zhang",
+            "Boyu Xiao",
+            "Chenchang Hu",
+            "Hualiang Wang",
+            "Xiaomeng Li"
+          ],
+          "claimed_title": "UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.10483"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we introduce the Qwen-VL series, a set of large-scale vision-language models (LVLMs) designed to perceive and understand both texts and images. Starting from the Qwen-LM as a foundation, we endow it with visual capacity by the meticulously designed (i) visual receptor, (ii) input-output interface, (iii) 3-stage training pipeline, and (iv) multilingual multimodal cleaned corpus. Beyond the conventional image description and question-answering, we implement the grounding and text-reading ability of Qwen-VLs by aligning image-caption-box tuples. The resulting models, including Qwen-VL and Qwen-VL-Chat, set new records for generalist models under similar model scales on a broad range of visual-centric benchmarks (e.g., image captioning, question answering, visual grounding) and different settings (e.g., zero-shot, few-shot). Moreover, on real-world dialog benchmarks, our instruction-tuned Qwen-VL-Chat also demonstrates superiority compared to existing vision-language chatbots. Code, demo and models are available at https://github.com/QwenLM/Qwen-VL.",
+          "claimed_authors": [
+            "Jinze Bai",
+            "Shuai Bai",
+            "Shusheng Yang",
+            "Shijie Wang",
+            "Sinan Tan",
+            "Peng Wang",
+            "Junyang Lin",
+            "Chang Zhou",
+            "Jingren Zhou"
+          ],
+          "claimed_title": "Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.12966"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLaVA-Plus is a general-purpose multimodal assistant that expands the capabilities of large multimodal models. It maintains a skill repository of pre-trained vision and vision-language models and can activate relevant tools based on users' inputs to fulfill real-world tasks. LLaVA-Plus is trained on multimodal instruction-following data to acquire the ability to use tools, covering visual understanding, generation, external knowledge retrieval, and compositions. Empirical results show that LLaVA-Plus outperforms LLaVA in existing capabilities and exhibits new ones. It is distinct in that the image query is directly grounded and actively engaged throughout the entire human-AI interaction sessions, significantly improving tool use performance and enabling new scenarios.",
+          "claimed_authors": [
+            "Shilong Liu",
+            "Hao Cheng",
+            "Haotian Liu",
+            "Hao Zhang",
+            "Feng Li",
+            "Tianhe Ren",
+            "Xueyan Zou",
+            "Jianwei Yang",
+            "Hang Su",
+            "Jun Zhu",
+            "Lei Zhang",
+            "Jianfeng Gao",
+            "Chunyuan Li"
+          ],
+          "claimed_title": "LLaVA-Plus: Learning to Use Tools for Creating Multimodal Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.05437"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='LLaVA-Plus: Learning to Use Tools for Creating Multimodal Agents')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present LLaVAC, a method for constructing a classifier for multimodal sentiment analysis. This method leverages fine-tuning of the Large Language and Vision Assistant (LLaVA) to predict sentiment labels across both image and text modalities. Our approach involves designing a structured prompt that incorporates both unimodal and multimodal labels to fine-tune LLaVA, enabling it to perform sentiment classification effectively. Experiments on the MVSA-Single dataset demonstrate that LLaVAC outperforms existing methods in multimodal sentiment analysis across three data processing procedures. The implementation of LLaVAC is publicly available at https://github.com/tchayintr/llavac.",
+          "claimed_authors": [
+            "T. Chay-intr",
+            "Y. Chen",
+            "K. Viriyayudhakorn",
+            "T. Theeramunkong"
+          ],
+          "claimed_title": "LLaVAC: Fine-tuning LLaVA as a Multimodal Sentiment Classifier",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.02938"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='LLaVAC: Fine-tuning LLaVA as a Multimodal Sentiment Classifier')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Dual Cross-Attention (DCA), a simple yet effective attention module that is able to enhance skip-connections in U-Net-based architectures for medical image segmentation. DCA addresses the semantic gap between encoder and decoder features by sequentially capturing channel and spatial dependencies across multi-scale encoder features. First, the Channel Cross-Attention (CCA) extracts global channel-wise dependencies by utilizing cross-attention across channel tokens of multi-scale encoder features. Then, the Spatial Cross-Attention (SCA) module performs cross-attention to capture spatial dependencies across spatial tokens. Finally, these fine-grained encoder features are up-sampled and connected to their corresponding decoder parts to form the skip-connection scheme. Our proposed DCA module can be integrated into any encoder-decoder architecture with skip-connections such as U-Net and its variants. We test our DCA module by integrating it into six U-Net-based architectures such as U-Net, V-Net, R2Unet, ResUnet++, DoubleUnet and MultiResUnet. Our DCA module shows Dice Score improvements up to 2.05% on GlaS, 2.74% on MoNuSeg, 1.37% on CVC-ClinicDB, 1.12% on Kvasir-Seg and 1.44% on Synapse datasets. Our codes are available at: https://github.com/gorkemcanates/Dual-Cross-Attention",
+          "claimed_authors": [
+            "Gorkem Can Ates",
+            "Prasoon Mohan",
+            "Emrah Celik"
+          ],
+          "claimed_title": "Dual Cross-Attention for Medical Image Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.17696"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Dual Cross-Attention for Medical Image Segmentation')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in text-to-image generative models have demonstrated a remarkable ability to capture a deep semantic understanding of images. In this work, we leverage this semantic knowledge to transfer the visual appearance between objects that share similar semantics but may differ significantly in shape. To achieve this, we build upon the self-attention layers of these generative models and introduce a cross-image attention mechanism that implicitly establishes semantic correspondences across images. Specifically, given a pair of images -- one depicting the target structure and the other specifying the desired appearance -- our cross-image attention combines the queries corresponding to the structure image with the keys and values of the appearance image. This operation, when applied during the denoising process, leverages the established semantic correspondences to generate an image combining the desired structure and appearance. In addition, to improve the output image quality, we harness three mechanisms that either manipulate the noisy latent codes or the model's internal representations throughout the denoising process. Importantly, our approach is zero-shot, requiring no optimization or training. Experiments show that our method is effective across a wide range of object categories and is robust to variations in shape, size, and viewpoint between the two input images.",
+          "claimed_authors": [
+            "Yuval Alaluf",
+            "Daniel Garibi",
+            "Or Patashnik",
+            "Hadar Averbuch-Elor",
+            "Daniel Cohen-Or"
+          ],
+          "claimed_title": "Cross-Image Attention for Zero-Shot Appearance Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.03335"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Cross-Image Attention for Zero-Shot Appearance Transfer')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-modal large language models (MLLMs) have achieved remarkable success on complex multi-modal tasks. However, it remains insufficiently explored whether they exhibit $\\textbf{modality preference}$, a tendency to favor one modality over another when processing multi-modal contexts. To study this question, we introduce $\\textbf{MC\\textsuperscript{2}}$ benchmark, which constructs controlled evidence-conflict scenarios to systematically evaluate modality preference in decision-making. Extensive experiments reveal that all 20 tested MLLMs generally demonstrate clear modality preferences, and such preferences can serve as a useful indicator of downstream task performance of MLLMs. Further analysis shows that modality preference can be controlled by instruction guidance and captured within the latent representations of MLLMs. Built on these insights, we propose a probing and steering method based on representation engineering to explicitly control modality preference without requiring additional fine-tuning. This method effectively amplifies modality preference toward a desired direction and demonstrates promising improvements across multiple multi-modal understanding and reasoning tasks.",
+          "claimed_authors": [
+            "Yu Zhang",
+            "Jinlong Ma",
+            "Yongshuai Hou",
+            "Xuefeng Bai",
+            "Kehai Chen",
+            "Yang Xiang",
+            "Jun Yu",
+            "Min Zhang"
+          ],
+          "claimed_title": "Evaluating and Steering Modality Preferences in Multimodal Large Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.20977"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Evaluating and Steering Modality Preferences in Multimodal Large Language Model')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+          "claimed_authors": [
+            "Dorsaf Sebai",
+            "Abderrazak Jemai",
+            "Imed Bennour"
+          ],
+          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1154"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
+          "claimed_authors": [
+            "Vittorio Cortellessa",
+            "Daniele Di Pompeo",
+            "Michele Tucci"
+          ],
+          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13875"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated deception detection systems can enhance health, justice, and security in society by helping humans detect deceivers in high-stakes situations across medical and legal domains, among others. This paper presents a novel analysis of the discriminative power of dimensional representations of facial affect for automated deception detection, along with interpretable features from visual, vocal, and verbal modalities. We used a video dataset of people communicating truthfully or deceptively in real-world, high-stakes courtroom situations. We leveraged recent advances in automated emotion recognition in-the-wild by implementing a state-of-the-art deep neural network trained on the Aff-Wild database to extract continuous representations of facial valence and facial arousal from speakers. We experimented with unimodal Support Vector Machines (SVM) and SVM-based multimodal fusion methods to identify effective features, modalities, and modeling approaches for detecting deception. Unimodal models trained on facial affect achieved an AUC of 80%, and facial affect contributed towards the highest-performing multimodal approach (adaptive boosting) that achieved an AUC of 91% when tested on speakers who were not part of training sets. This approach achieved a higher AUC than existing automated machine learning approaches that used interpretable visual, vocal, and verbal features to detect deception in this dataset, but did not use facial affect. Across all videos, deceptive and truthful speakers exhibited significant differences in facial valence and facial arousal, contributing computational support to existing psychological theories on affect and deception. The demonstrated importance of facial affect in our models informs and motivates the future development of automated, affect-aware machine learning approaches for modeling and detecting deception and other social behaviors in-the-wild.",
+          "claimed_authors": [
+            "Leena Mathur",
+            "Maja J Matarić"
+          ],
+          "claimed_title": "Introducing Representations of Facial Affect in Automated Multimodal Deception Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.13369"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Introducing Representations of Facial Affect in Automated Multimodal Deception Detection')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20263"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Representation Forcing for Bottleneck-Free Unified', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
+        "failed_at": "2026-07-13T04:11:51Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fabien Furfaro"
+          ],
+          "title": "PixelBytes: Catching Unified Embedding for Multimodal Generation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.15512",
+        "summary": "This report introduces PixelBytes Embedding, a novel approach for unified multimodal representation learning. Our method captures diverse inputs in a single, cohesive representation, enabling emergent properties for multimodal sequence generation, particularly for text and pixelated images. Inspired by state-of-the-art sequence models such as Image Transformers, PixelCNN, and Mamba-Bytes, PixelBytes aims to address the challenges of integrating different data types. We explore various model architectures, including Recurrent Neural Networks (RNNs), State Space Models (SSMs), and Attention-based models, focusing on bidirectional processing and our innovative PxBy embedding technique. Our experiments, conducted on a specialized PixelBytes Pok{é}mon dataset, demonstrate that bidirectional sequence models with PxBy embedding and convolutional layers can generate coherent multimodal sequences. This work contributes to the advancement of integrated AI models capable of understanding and generating multimodal data in a unified manner.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.15512",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T04:11:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abinav Rao",
+            "Sujan Rachuri"
+          ],
+          "title": "Do Understanding and Generation Fight? A Diagnostic Study of DPO for Unified Multimodal Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.17044",
+        "summary": "Unified multimodal models share a language model backbone for both understanding and generating images. Can DPO align both capabilities simultaneously? We present the first systematic study of this question, applying DPO to Janus-Pro at 1B and 7B parameters under seven training strategies and two post-hoc methods. The central finding is negative: generation quality resists DPO alignment across all tested conditions on this architecture. No method improves generation CLIPScore at 7B (|Delta| < 0.2, p > 0.5 at n=200 per seed, 3 seeds); at 1B, all methods degrade generation, and the result holds across preference data types (real-vs-generated and model-vs-model) and the data volumes tested (150-288 pairs). Gradient analysis reveals why: understanding and generation gradients are near-orthogonal (cos ~ 0) with ~11-14x magnitude imbalance driven by VQ token count asymmetry (576 generation tokens vs. ~30-100 text tokens). This imbalance is the dominant interference mechanism in multi-task DPO; magnitude-balancing yields directionally positive understanding deltas (+0.01-0.04 VQA, though individually not significant), but the generation gap persists regardless. We identify discrete VQ tokenization as a likely structural bottleneck -- supported by the generation DPO loss converging to ln(2) -- and provide practical guidance for practitioners working with VQ-based unified models.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.17044",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T04:11:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shanshan Zhao",
+            "Xinjie Zhang",
+            "Jintao Guo",
+            "Jiakui Hu",
+            "Lunhao Duan",
+            "Minghao Fu",
+            "Yong Xien Chng",
+            "Guo-Hua Wang",
+            "Qing-Guo Chen",
+            "Zhao Xu",
+            "Weihua Luo",
+            "Kaifu Zhang"
+          ],
+          "title": "Unified Multimodal Understanding and Generation Models: Advances, Challenges, and Opportunities",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.02567",
+        "summary": "Recent years have seen remarkable progress in both multimodal understanding models and image generation models. Despite their respective successes, these two domains have evolved independently, leading to distinct architectural paradigms: While autoregressive-based architectures have dominated multimodal understanding, diffusion-based models have become the cornerstone of image generation. Recently, there has been growing interest in developing unified frameworks that integrate these tasks. The emergence of GPT-4o's new capabilities exemplifies this trend, highlighting the potential for unification. However, the architectural differences between the two domains pose significant challenges. To provide a clear overview of current efforts toward unification, we present a comprehensive survey aimed at guiding future research. First, we introduce the foundational concepts and recent advancements in multimodal understanding and text-to-image generation models. Next, we review existing unified models, categorizing them into three main architectural paradigms: diffusion-based, autoregressive-based, and hybrid approaches that fuse autoregressive and diffusion mechanisms. For each category, we analyze the structural designs and innovations introduced by related works. Additionally, we compile datasets and benchmarks tailored for unified models, offering resources for future exploration. Finally, we discuss the key challenges facing this nascent field, including tokenization strategy, cross-modal attention, and data. As this area is still in its early stages, we anticipate rapid advancements and will regularly update this survey. Our goal is to inspire further research and provide a valuable reference for the community. The references associated with this survey are available on GitHub (https://github.com/AIDC-AI/Awesome-Unified-Multimodal-Models).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.02567",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T04:11:56Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"representation forcing for bottleneck-free unified multimodal models\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

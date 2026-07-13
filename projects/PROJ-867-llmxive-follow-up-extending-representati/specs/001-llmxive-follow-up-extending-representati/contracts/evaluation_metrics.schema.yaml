@@ -1,0 +1,105 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Evaluation Metrics
+description: Schema for aggregated evaluation metrics from the RF and Baseline models.
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier for the experiment run.
+  rf_model_metrics:
+    type: object
+    properties:
+      syntactic_validity_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Proportion of valid outputs.
+      ast_edit_distance:
+        type: number
+        description: Average AST edit distance.
+      complexity_overflow_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Proportion of samples exceeding token capacity.
+      truncation_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Proportion of samples requiring truncation.
+    required:
+      - syntactic_validity_rate
+      - ast_edit_distance
+      - complexity_overflow_rate
+      - truncation_rate
+  baseline_model_metrics:
+    type: object
+    properties:
+      syntactic_validity_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Proportion of valid outputs.
+      ast_edit_distance:
+        type: number
+        description: Average AST edit distance.
+      complexity_overflow_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Proportion of samples exceeding token capacity.
+      truncation_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Proportion of samples requiring truncation.
+    required:
+      - syntactic_validity_rate
+      - ast_edit_distance
+      - complexity_overflow_rate
+      - truncation_rate
+  statistical_test:
+    type: object
+    properties:
+      test_type_validity:
+        type: string
+        const: "McNemar's test"
+        description: Type of statistical test performed for validity.
+      p_value_validity:
+        type: number
+        description: P-value from McNemar's test.
+      test_type_ast:
+        type: string
+        const: "Wilcoxon signed-rank test"
+        description: Type of statistical test performed for AST distance.
+      p_value_ast:
+        type: number
+        description: P-value from Wilcoxon test.
+      significance_threshold:
+        type: number
+        const: 0.05
+        description: Threshold for significance.
+      is_significant_validity:
+        type: boolean
+        description: Whether the validity result is statistically significant.
+      is_significant_ast:
+        type: boolean
+        description: Whether the AST distance result is statistically significant.
+    required:
+      - test_type_validity
+      - p_value_validity
+      - test_type_ast
+      - p_value_ast
+      - significance_threshold
+      - is_significant_validity
+      - is_significant_ast
+  total_runtime_seconds:
+    type: number
+    description: Total time for training and evaluation in seconds.
+required:
+  - experiment_id
+  - rf_model_metrics
+  - baseline_model_metrics
+  - statistical_test
+  - total_runtime_seconds
+additionalProperties: false

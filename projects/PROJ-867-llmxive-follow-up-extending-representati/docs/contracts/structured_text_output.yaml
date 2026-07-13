@@ -1,0 +1,103 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Structured Text Output Schema
+description: |
+  Defines the valid structure for generated text outputs from the Representation Forcing pipeline.
+  Supports two formats: JSON (layout with bounding boxes) and Markdown (text with structural markers).
+  This schema is used for validating model outputs in T027 and T033.
+oneOf:
+  - $ref: "#/$defs/json_layout"
+  - $ref: "#/$defs/markdown_struct"
+
+$defs:
+  json_layout:
+    type: object
+    description: JSON output containing layout boxes and text content.
+    required:
+      - format
+      - boxes
+      - text
+    properties:
+      format:
+        type: string
+        const: "json-layout"
+      boxes:
+        type: array
+        description: List of bounding boxes for structural elements.
+        items:
+          type: object
+          required:
+            - id
+            - type
+            - bbox
+          properties:
+            id:
+              type: integer
+              description: Unique identifier for the box.
+            type:
+              type: string
+              enum: [paragraph, heading, list_item, table, image_caption]
+              description: Type of structural element.
+            bbox:
+              type: array
+              description: Bounding box coordinates [x_min, y_min, x_max, y_max].
+              items:
+                type: integer
+                minimum: 0
+              minItems: 4
+              maxItems: 4
+            confidence:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Model confidence score for this box.
+              optional: true
+      text:
+        type: string
+        description: The full text content extracted or generated.
+      metadata:
+        type: object
+        description: Optional metadata about the generation.
+        properties:
+          source_image:
+            type: string
+          model_version:
+            type: string
+          inference_time_ms:
+            type: number
+
+  markdown_struct:
+    type: object
+    description: Markdown output with structural annotations.
+    required:
+      - format
+      - content
+    properties:
+      format:
+        type: string
+        const: "markdown-struct"
+      content:
+        type: string
+        description: The generated markdown text.
+        pattern: "^#.*|^-.*|\\[.*\\]\\(.*\\)|^\\d+\\.\\s.*|^[^#\\d\\-].*$"
+      structure_map:
+        type: array
+        description: Mapping of markdown lines to structural types.
+        items:
+          type: object
+          required:
+            - line_index
+            - type
+          properties:
+            line_index:
+              type: integer
+              minimum: 0
+            type:
+              type: string
+              enum: [heading, list, paragraph, table, code_block]
+      metadata:
+        type: object
+        properties:
+          source_image:
+            type: string
+          model_version:
+            type: string
