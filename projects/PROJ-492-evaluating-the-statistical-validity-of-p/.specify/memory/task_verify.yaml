@@ -88,6 +88,9 @@
   \ \u2014 status=not_enough_info])."
 : 1
 ? "T009 Set up structured logging infrastructure in `src/utils/logger.py` with error\u2011\
+  code format `ERR-###` (verify logs contain correct codes)."
+: 2
+? "T009 Set up structured logging infrastructure in `src/utils/logger.py` with error\u2011\
   code format `ERR-###` [UNRESOLVED-CLAIM: c_a556a205 \u2014 status=not_enough_info]\
   \ (verify logs contain correct codes)."
 : 1
@@ -179,6 +182,11 @@
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration [UNRESOLVED-CLAIM:\
   \ c_6ea75dbe \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ {{claim:c_fe5ce674}}, timeout a predefined duration [UNRESOLVED-CLAIM: c_dd2b4e1c\
+  \ \u2014 status=not_enough_info], and runs audit pipeline (verify workflow runs\
+  \ and respects limits) [DEPENDS ON: T010]."
 : 1
 ? "T013 Create Dockerfile for optional local execution (uses only CPU\u2011compatible\
   \ base image [UNRESOLVED-CLAIM: c_0e949e9d \u2014 status=not_enough_info]) (build\

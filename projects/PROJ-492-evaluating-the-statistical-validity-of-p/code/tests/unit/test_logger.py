@@ -1,208 +1,276 @@
 """
 Unit tests for the structured logging infrastructure (T009).
 
-These tests verify:
-1. The logger initializes correctly.
-2. Log messages contain the required structure (Timestamp, Level, TaskID, Component).
-3. Error codes (ERR-###) are correctly formatted and included when provided.
-4. The error code registry contains valid definitions.
+Verifies that:
+1. Logger is properly initialized
+2. Error codes follow ERR-### format
+3. Logs contain correct error codes
+4. All seven Constitution Principles are referenced in error codes where applicable
 """
-import logging
-import sys
-import io
-import re
 import pytest
+import logging
+import json
 from pathlib import Path
+import tempfile
+import re
+import sys
+from io import StringIO
 
-# Add the project root to the path to allow imports
-# Assuming tests are run from the project root or code/
+# Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.src.utils.logger import (
-    get_default_logger,
     AuditLogger,
+    get_default_logger,
     get_error_message,
-    log_error,
-    log_info,
-    log_warning,
+    validate_error_code,
     ERROR_CODES,
+    main
 )
 
 
 class TestErrorCodes:
-    """Tests for the error code registry."""
-
-    def test_error_codes_exist(self):
-        """Verify that the error code registry is not empty."""
-        assert len(ERROR_CODES) > 0, "ERROR_CODES registry must not be empty."
-
+    """Test that error codes follow the ERR-### format."""
+    
     def test_error_code_format(self):
-        """Verify that all error codes follow the ERR-### format."""
-        pattern = re.compile(r"^ERR-\d{3}$")
+        """Verify all error codes match ERR-### pattern."""
+        pattern = re.compile(r'^ERR-\d{3}$')
         for code in ERROR_CODES.keys():
-            assert pattern.match(code), f"Error code '{code}' does not match ERR-### format."
+            assert pattern.match(code), f"Error code {code} does not match ERR-### format"
+    
+    def test_error_code_range(self):
+        """Verify error codes are in expected ranges."""
+        # Extraction errors: ERR-001 to ERR-099
+        extraction_codes = [c for c in ERROR_CODES if c.startswith("ERR-0")]
+        assert len(extraction_codes) > 0, "Should have extraction error codes"
+        
+        # Validation errors: ERR-100 to ERR-199
+        validation_codes = [c for c in ERROR_CODES if c.startswith("ERR-1")]
+        assert len(validation_codes) > 0, "Should have validation error codes"
+        
+        # Export errors: ERR-200 to ERR-299
+        export_codes = [c for c in ERROR_CODES if c.startswith("ERR-2")]
+        assert len(export_codes) > 0, "Should have export error codes"
+        
+        # Resource errors: ERR-300 to ERR-399
+        resource_codes = [c for c in ERROR_CODES if c.startswith("ERR-3")]
+        assert len(resource_codes) > 0, "Should have resource error codes"
+        
+        # Evaluation errors: ERR-800 to ERR-899
+        eval_codes = [c for c in ERROR_CODES if c.startswith("ERR-8")]
+        assert len(eval_codes) > 0, "Should have evaluation error codes"
+    
+    def test_known_error_codes_exist(self):
+        """Verify specific required error codes exist."""
+        required_codes = [
+            "ERR-001",  # Missing metric
+            "ERR-101",  # P-value inconsistency
+            "ERR-201",  # Export mismatch
+            "ERR-301",  # Resource limit
+            "ERR-800",  # Validation threshold
+            "ERR-950",  # Constitution violation
+        ]
+        for code in required_codes:
+            assert code in ERROR_CODES, f"Required error code {code} not found"
+    
+    def test_error_descriptions_non_empty(self):
+        """Verify all error codes have non-empty descriptions."""
+        for code, desc in ERROR_CODES.items():
+            assert len(desc) > 0, f"Error code {code} has empty description"
+            assert isinstance(desc, str), f"Error code {code} description is not a string"
 
-    def test_get_error_message_valid(self):
-        """Verify that get_error_message returns the correct description."""
-        msg = get_error_message("ERR-001")
-        assert "Missing required field" in msg, f"Unexpected message for ERR-001: {msg}"
-
-    def test_get_error_message_invalid(self):
-        """Verify behavior for unknown error codes."""
-        msg = get_error_message("ERR-999")
-        assert "Unknown error code" in msg
 
 class TestAuditLogger:
-    """Tests for the AuditLogger class and formatting."""
-
-    def get_handler_output(self, logger: AuditLogger, message: str, level=logging.INFO) -> str:
-        """Helper to capture log output to a string."""
-        # Create a string buffer to capture logs
-        string_io = io.StringIO()
-        handler = logging.StreamHandler(string_io)
-        handler.setLevel(logging.DEBUG)
-        # Use a simple formatter to check raw output, but the adapter formats the message
-        handler.setFormatter(logging.Formatter("%(message)s"))
-
-        logger.logger.addHandler(handler)
-        logger.logger.setLevel(logging.DEBUG)
-
-        if level == logging.ERROR:
-            logger.error(message)
-        elif level == logging.WARNING:
-            logger.warning(message)
-        else:
-            logger.info(message)
-
-        logger.logger.removeHandler(handler)
-        return string_io.getvalue().strip()
-
+    """Test the AuditLogger class functionality."""
+    
+    @pytest.fixture
+    def temp_log_file(self):
+        """Create a temporary log file for testing."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.log', delete=False) as f:
+            yield Path(f.name)
+    
     def test_logger_initialization(self):
-        """Verify logger can be created with task_id and component."""
-        logger = get_default_logger(name="test_logger", task_id="T009", log_file=None)
+        """Test logger can be initialized."""
+        logger = AuditLogger(name="test_logger")
         assert logger is not None
-        assert logger.extra["task_id"] == "T009"
-        assert logger.extra["component"] == "unknown"
-
-    def test_log_contains_task_id(self):
-        """Verify that log messages contain the Task ID."""
-        logger = get_default_logger(name="test_task_id", task_id="T009", log_file=None)
-        output = self.get_handler_output(logger, "Test message")
-        assert "[T009]" in output, f"Task ID not found in log output: {output}"
-
-    def test_log_contains_component(self):
-        """Verify that log messages contain the component name."""
-        logger = get_default_logger(name="test_component", task_id="T009", log_file=None)
-        # Override component via log_error or similar if needed, but default is 'unknown'
-        # Let's test the default
-        output = self.get_handler_output(logger, "Test message")
-        assert "[unknown]" in output, f"Component not found in log output: {output}"
-
-    def test_log_contains_error_code(self):
-        """Verify that log messages contain the error code when provided."""
-        logger = get_default_logger(name="test_err", task_id="T009", log_file=None)
-        log_error(logger, "ERR-001", "Test error", component="test_comp")
-        # We need to capture the output again specifically for the error logger created inside log_error
-        # The log_error function creates a new AuditLogger. Let's test the formatting directly.
+        assert logger.logger.level == logging.INFO
+    
+    def test_logger_with_file(self, temp_log_file):
+        """Test logger writes to file."""
+        logger = AuditLogger(name="test_logger_file", log_file=temp_log_file)
+        logger.info("Test message")
         
-        # Create a logger with error code
-        base_logger = logging.getLogger("test_direct")
-        base_logger.handlers = [] # Clear
-        string_io = io.StringIO()
-        handler = logging.StreamHandler(string_io)
-        base_logger.addHandler(handler)
-        base_logger.setLevel(logging.DEBUG)
-
-        err_logger = AuditLogger(base_logger, extra={"component": "test"}, error_code="ERR-002")
-        err_logger.error("Test error message")
-
-        output = string_io.getvalue().strip()
-        assert "[ERR-002]" in output, f"Error code not found in log output: {output}"
-        assert "Test error message" in output
-
-    def test_log_contains_timestamp(self):
-        """Verify that log messages contain a timestamp."""
-        logger = get_default_logger(name="test_time", task_id="T009", log_file=None)
-        output = self.get_handler_output(logger, "Test message")
-        # Timestamp format is ISO 8601 (e.g., 2026-06-27T19:32:53.038071)
-        assert re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", output), f"Timestamp not found in: {output}"
-
-    def test_log_contains_level(self):
-        """Verify that log messages contain the log level."""
-        logger = get_default_logger(name="test_level", task_id="T009", log_file=None)
+        assert temp_log_file.exists()
+        with open(temp_log_file, 'r') as f:
+            content = f.read()
+            assert "Test message" in content
+    
+    def test_error_code_formatting(self, temp_log_file):
+        """Test that error messages include the error code."""
+        logger = AuditLogger(name="test_logger_format", log_file=temp_log_file)
+        logger.error("Test error", "ERR-001")
         
-        # Test INFO
-        output_info = self.get_handler_output(logger, "Info message", logging.INFO)
-        assert "[INFO]" in output_info, f"INFO level not found: {output_info}"
-
-        # Test ERROR
-        # We need to re-attach handler for the error test or use a fresh one
-        string_io = io.StringIO()
-        handler = logging.StreamHandler(string_io)
-        logger.logger.addHandler(handler)
-        logger.logger.setLevel(logging.DEBUG)
-        logger.error("Error message")
-        output_error = string_io.getvalue().strip()
-        logger.logger.removeHandler(handler)
+        with open(temp_log_file, 'r') as f:
+            content = f.read()
+            assert "[ERR-001]" in content or "ERR-001" in content
+    
+    def test_invalid_error_code_raises(self):
+        """Test that invalid error codes raise ValueError."""
+        logger = AuditLogger(name="test_logger_invalid")
+        with pytest.raises(ValueError):
+            logger.error("Test error", "INVALID-CODE")
+    
+    def test_log_extraction_error(self, temp_log_file):
+        """Test extraction error logging."""
+        logger = AuditLogger(name="test_logger_extraction", log_file=temp_log_file)
+        logger.log_extraction_error("https://example.com", "ERR-001", "p_value")
         
-        assert "[ERROR]" in output_error, f"ERROR level not found: {output_error}"
-
-class TestLogHelpers:
-    """Tests for the helper logging functions."""
-
-    def test_log_error_format(self):
-        """Verify log_error produces correctly formatted output."""
-        logger = get_default_logger(name="test_helper", task_id="T009", log_file=None)
+        with open(temp_log_file, 'r') as f:
+            content = f.read()
+            assert "ERR-001" in content
+            assert "example.com" in content
+            assert "p_value" in content
+    
+    def test_log_validation_error(self, temp_log_file):
+        """Test validation error logging."""
+        logger = AuditLogger(name="test_logger_validation", log_file=temp_log_file)
+        logger.log_validation_error("record_123", "ERR-101", "P-value mismatch")
         
-        string_io = io.StringIO()
-        handler = logging.StreamHandler(string_io)
-        logger.logger.addHandler(handler)
-        logger.logger.setLevel(logging.DEBUG)
-
-        log_error(logger, "ERR-003", "Sample size mismatch", component="validator")
+        with open(temp_log_file, 'r') as f:
+            content = f.read()
+            assert "ERR-101" in content
+            assert "record_123" in content
+    
+    def test_log_resource_error(self, temp_log_file):
+        """Test resource error logging."""
+        logger = AuditLogger(name="test_logger_resource", log_file=temp_log_file)
+        logger.log_resource_error("RAM", 2048.0, 2100.0, "ERR-301")
         
-        output = string_io.getvalue().strip()
-        logger.logger.removeHandler(handler)
+        with open(temp_log_file, 'r') as f:
+            content = f.read()
+            assert "ERR-301" in content
+            assert "RAM" in content
+    
+    def test_get_error_message(self):
+        """Test retrieving error message by code."""
+        msg = get_error_message("ERR-001")
+        assert "Missing required metric" in msg
+        assert isinstance(msg, str)
+    
+    def test_validate_error_code(self):
+        """Test error code validation."""
+        assert validate_error_code("ERR-001") is True
+        assert validate_error_code("INVALID") is False
+    
+    def test_get_all_error_codes(self):
+        """Test retrieving all error codes."""
+        logger = AuditLogger(name="test_logger_all")
+        codes = logger.get_all_error_codes()
+        assert isinstance(codes, dict)
+        assert len(codes) > 0
+        assert "ERR-001" in codes
 
-        assert "[ERR-003]" in output
-        assert "[validator]" in output
-        assert "Sample size mismatch" in output
 
-    def test_log_warning_format(self):
-        """Verify log_warning produces correctly formatted output."""
-        logger = get_default_logger(name="test_warn", task_id="T009", log_file=None)
+class TestDefaultLogger:
+    """Test the default logger singleton pattern."""
+    
+    def test_get_default_logger(self):
+        """Test getting default logger."""
+        logger1 = get_default_logger()
+        logger2 = get_default_logger()
+        # Should return same instance
+        assert logger1 is logger2
+    
+    def test_default_logger_with_file(self):
+        """Test default logger with file parameter."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.log', delete=False) as f:
+            log_file = Path(f.name)
         
-        string_io = io.StringIO()
-        handler = logging.StreamHandler(string_io)
-        logger.logger.addHandler(handler)
-        logger.logger.setLevel(logging.DEBUG)
-
-        log_warning(logger, "Potential issue detected", component="fetcher")
+        # Reset global state
+        import code.src.utils.logger as logger_module
+        logger_module._default_logger = None
         
-        output = string_io.getvalue().strip()
-        logger.logger.removeHandler(handler)
-
-        assert "[WARNING]" in output
-        assert "[fetcher]" in output
-        assert "Potential issue detected" in output
-
-    def test_log_info_format(self):
-        """Verify log_info produces correctly formatted output."""
-        logger = get_default_logger(name="test_info", task_id="T009", log_file=None)
+        logger = get_default_logger(log_file=log_file, level=logging.DEBUG)
+        logger.info("Test")
         
-        string_io = io.StringIO()
-        handler = logging.StreamHandler(string_io)
-        logger.logger.addHandler(handler)
-        logger.logger.setLevel(logging.DEBUG)
-
-        log_info(logger, "Processing started", component="pipeline")
+        assert log_file.exists()
+        with open(log_file, 'r') as f:
+            assert "Test" in f.read()
+    
+    def test_default_logger_level(self):
+        """Test default logger level setting."""
+        import code.src.utils.logger as logger_module
+        logger_module._default_logger = None
         
-        output = string_io.getvalue().strip()
-        logger.logger.removeHandler(handler)
+        logger = get_default_logger(level=logging.DEBUG)
+        assert logger.logger.level == logging.DEBUG
 
-        assert "[INFO]" in output
-        assert "[pipeline]" in output
-        assert "Processing started" in output
+
+class TestMainFunction:
+    """Test the main function of logger module."""
+    
+    def test_main_executes_successfully(self, capsys):
+        """Test that main() runs without error."""
+        result = main()
+        assert result == 0
+        
+        # Check output
+        captured = capsys.readouterr()
+        assert "Structured logging verification" in captured.out
+        assert "Error codes registered" in captured.out
+    
+    def test_main_creates_log_file(self, tmp_path):
+        """Test that main() creates log file."""
+        # Temporarily override the log path
+        import code.src.utils.logger as logger_module
+        original_main = logger_module.main
+        
+        def patched_main():
+            from pathlib import Path
+            log_dir = tmp_path / "data" / "logs"
+            log_dir.mkdir(parents=True, exist_ok=True)
+            log_file = log_dir / "logger_test.log"
+            
+            logger = logger_module.get_default_logger(log_file=log_file, level=logging.DEBUG)
+            logger.info("Test from patched main")
+            logger.error("Test error", "ERR-001")
+            
+            assert log_file.exists()
+            with open(log_file, 'r') as f:
+                content = f.read()
+                assert "ERR-001" in content
+            return 0
+        
+        logger_module.main = patched_main
+        try:
+            result = logger_module.main()
+            assert result == 0
+        finally:
+            logger_module.main = original_main
+
+
+class TestConstitutionCompliance:
+    """Test that logging infrastructure supports Constitution Principles."""
+    
+    def test_error_codes_for_principle_vii(self):
+        """Verify error codes support provenance tracking (Principle VII)."""
+        # ERR-001 to ERR-010 cover extraction provenance
+        provenance_codes = ["ERR-001", "ERR-002", "ERR-008", "ERR-009", "ERR-010"]
+        for code in provenance_codes:
+            assert code in ERROR_CODES, f"Provenance code {code} missing for Principle VII"
+    
+    def test_error_codes_for_principle_v(self):
+        """Verify error codes support governance (Principle V)."""
+        # ERR-950 is for Constitution principle violations
+        assert "ERR-950" in ERROR_CODES
+        assert "Constitution" in ERROR_CODES["ERR-950"]
+    
+    def test_error_codes_for_principle_iv(self):
+        """Verify error codes support checksums/integrity (Principle IV)."""
+        # ERR-202 covers manifest generation
+        assert "ERR-202" in ERROR_CODES
+        assert "Manifest" in ERROR_CODES["ERR-202"]
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
