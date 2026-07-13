@@ -11,7 +11,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 usage: main.py [-h] [--dataset DATASET] [--model MODEL]
                [--batch-size BATCH_SIZE] [--output-dir OUTPUT_DIR]
-               [--catalog-path CATALOG_PATH]
+               [--mode {pipeline,analysis,sensitivity}]
 main.py: error: unrecognized arguments: --num-tasks 100
 
 ## Declared deliverables still missing
@@ -44,6 +44,6 @@ Write the loader to use this package/recipe, persist the records to the declared
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/sensitivity_report.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analyzer.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
     - `code/sensitivity_analyzer.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_report.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

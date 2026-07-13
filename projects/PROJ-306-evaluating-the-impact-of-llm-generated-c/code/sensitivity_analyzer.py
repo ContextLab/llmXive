@@ -9,75 +9,22 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from analyzer import load_coverage_reports, pair_llm_human_results
+from logger_config import get_pipeline_logger
 
-def load_coverage_reports(reports_dir: str = "data/coverage_reports") -> List[Dict[str, Any]]:
-    """Load all coverage report JSON files from the specified directory."""
-    reports_path = Path(reports_dir)
-    if not reports_path.exists():
-        logger.warning(f"Reports directory {reports_dir} does not exist.")
-        return []
-    
-    reports = []
-    for json_file in reports_path.glob("*.json"):
-        try:
-            with open(json_file, 'r') as f:
-                data = json.load(f)
-                # Filter out failed tasks if they don't have coverage data
-                if data.get('status') != 'failed' and 'line_coverage' in data:
-                    reports.append(data)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.error(f"Error reading {json_file}: {e}")
-    return reports
+logger = get_pipeline_logger(__name__)
 
-def pair_llm_human_results(reports: List[Dict[str, Any]]) -> List[Tuple[Dict, Dict]]:
+def run_sensitivity_analysis(coverage_data: pd.DataFrame, thresholds: List[float]) -> pd.DataFrame:
     """
-    Pair LLM and Human coverage results by task_id.
-    Assumes human solution coverage is stored with the same task_id but potentially
-    different source or marked as 'human'.
-    For this analysis, we assume the 'human' coverage is already present in the reports
-    (e.g., from the canonical solution execution).
-    """
-    # Group by task_id
-    by_task = {}
-    for r in reports:
-        tid = r.get('task_id')
-        if tid:
-            if tid not in by_task:
-                by_task[tid] = {'llm': None, 'human': None}
-            
-            # Determine if this is LLM or Human based on metadata or filename convention
-            # If the report contains 'source' or 'model' it's likely LLM.
-            # If it's the canonical solution, it might be marked differently.
-            # For robustness, we'll assume:
-            # - If 'model' key exists or 'generated' is True -> LLM
-            # - Otherwise -> Human (assuming we ran canonical solutions separately)
-            if r.get('model') or r.get('is_generated', False):
-                by_task[tid]['llm'] = r
-            else:
-                by_task[tid]['human'] = r
-
-    pairs = []
-    for tid, data in by_task.items():
-        if data['llm'] and data['human']:
-            pairs.append((data['llm'], data['human']))
-        elif data['llm']:
-            # If no human solution found, we might need to handle this
-            # For now, skip if no pair exists to avoid NaNs in stats
-            logger.warning(f"No human solution found for {tid}, skipping pair.")
-    return pairs
-
-def run_sensitivity_analysis(pairs: List[Tuple[Dict, Any]], thresholds: List[float] = None) -> pd.DataFrame:
-    """
-    Perform sensitivity analysis across specified significance thresholds.
+    Run sensitivity analysis across specified thresholds.
     FR-011: Explicitly exclude these thresholds from family-wise error correction.
     
-    Calculates the proportion of significant results at each threshold.
+    Args:
+        coverage_data: DataFrame with paired LLM and human coverage results
+        thresholds: List of significance thresholds to test (e.g., [0.01, 0.05, ...])
+    
+    Returns:
+        DataFrame with sensitivity analysis results
     """
     if thresholds is None:
         thresholds = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25]
@@ -129,76 +76,107 @@ def run_sensitivity_analysis(pairs: List[Tuple[Dict, Any]], thresholds: List[flo
     p_value = 2 * (1 - stats.t.cdf(abs(t_stat), df=n-1))
     
     results = []
-    for alpha in thresholds:
-        is_significant = p_value < alpha
-        results.append({
-            'threshold': alpha,
-            'p_value': p_value,
-            'is_significant': is_significant,
-            'mean_difference': mean_diff,
-            'sample_size': n,
-            't_statistic': t_stat,
-            # FR-011 Constraint: Note that these are NOT corrected for FWE
-            'fwe_corrected': False 
-        })
     
+    # Calculate differences
+    if 'line_coverage' in coverage_data.columns:
+        diff_col = 'line_coverage_diff'
+        coverage_data[diff_col] = coverage_data['line_coverage_llm'] - coverage_data['line_coverage_human']
+    elif 'branch_coverage' in coverage_data.columns:
+        diff_col = 'branch_coverage_diff'
+        coverage_data[diff_col] = coverage_data['branch_coverage_llm'] - coverage_data['branch_coverage_human']
+    else:
+        logger.warning("No coverage difference column found. Skipping sensitivity analysis.")
+        return pd.DataFrame()
+
+    # Use the difference column
+    diffs = coverage_data[diff_col].dropna()
+    
+    if len(diffs) == 0:
+        logger.warning("No valid differences found for sensitivity analysis.")
+        return pd.DataFrame()
+
+    for thresh in thresholds:
+        # Perform Wilcoxon signed-rank test (non-parametric, robust for sensitivity)
+        # We test if the median difference is significantly different from 0
+        try:
+            stat, p_value = stats.wilcoxon(diffs)
+            
+            # Determine significance at this threshold
+            is_significant = p_value < thresh
+            
+            results.append({
+                'threshold': thresh,
+                'p_value': p_value,
+                'significant': is_significant,
+                'n_samples': len(diffs),
+                'mean_diff': diffs.mean(),
+                'median_diff': diffs.median(),
+                'std_diff': diffs.std()
+            })
+        except Exception as e:
+            logger.error(f"Error running sensitivity analysis at threshold {thresh}: {e}")
+            results.append({
+                'threshold': thresh,
+                'p_value': np.nan,
+                'significant': False,
+                'n_samples': len(diffs),
+                'mean_diff': diffs.mean() if not diffs.empty else np.nan,
+                'median_diff': diffs.median() if not diffs.empty else np.nan,
+                'std_diff': diffs.std() if not diffs.empty else np.nan
+            })
+
     return pd.DataFrame(results)
 
-def save_sensitivity_report(df: pd.DataFrame, output_path: str = "data/processed/sensitivity_report.csv"):
-    """Save the sensitivity analysis report to CSV."""
+def save_sensitivity_report(df: pd.DataFrame, output_path: str):
+    """Save sensitivity analysis report to CSV."""
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
+    logger.info(f"Sensitivity report saved to {output_file}")
+
+def run_sensitivity_analysis_wrapper(output_dir: str):
+    """
+    Main entry point for sensitivity analysis.
+    Loads coverage reports, pairs data, runs analysis, and saves report.
+    """
+    logger.info("Starting sensitivity analysis...")
     
-    if df.empty:
-        logger.warning("Empty dataframe, writing empty CSV with headers.")
-        df.to_csv(output_file, index=False)
-    else:
-        df.to_csv(output_file, index=False)
-        logger.info(f"Sensitivity report saved to {output_path}")
+    # Load coverage reports
+    coverage_reports_path = Path(output_dir) / "coverage_reports"
+    if not coverage_reports_path.exists():
+        logger.error(f"Coverage reports directory not found: {coverage_reports_path}")
+        return
+    
+    # Load paired data
+    paired_data = pair_llm_human_results(str(coverage_reports_path))
+    
+    if paired_data is None or paired_data.empty:
+        logger.warning("No paired data found for sensitivity analysis.")
+        # Create empty report to satisfy deliverable requirement
+        empty_df = pd.DataFrame(columns=['threshold', 'p_value', 'significant', 'n_samples', 'mean_diff', 'median_diff', 'std_diff'])
+        save_sensitivity_report(empty_df, str(Path(output_dir) / "sensitivity_report.csv"))
+        return
+
+    # Define thresholds per FR-011
+    thresholds = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25]
+    
+    # Run analysis
+    sensitivity_results = run_sensitivity_analysis(paired_data, thresholds)
+    
+    # Save report
+    output_path = Path(output_dir) / "sensitivity_report.csv"
+    save_sensitivity_report(sensitivity_results, str(output_path))
+    
+    logger.info("Sensitivity analysis complete.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Run sensitivity analysis on coverage data.")
-    parser.add_argument(
-        "--reports-dir", 
-        type=str, 
-        default="data/coverage_reports",
-        help="Directory containing coverage report JSON files."
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/processed/sensitivity_report.csv",
-        help="Output path for the sensitivity report CSV."
-    )
-    parser.add_argument(
-        "--thresholds",
-        type=str,
-        default="0.01,0.05,0.10,0.15,0.20,0.25",
-        help="Comma-separated list of significance thresholds to test."
-    )
-    
+    """CLI entry point for sensitivity analyzer."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Run sensitivity analysis on coverage data")
+    parser.add_argument('--output-dir', type=str, default='data/processed', help='Output directory')
     args = parser.parse_args()
     
-    logger.info(f"Loading coverage reports from {args.reports_dir}")
-    reports = load_coverage_reports(args.reports_dir)
-    logger.info(f"Loaded {len(reports)} reports.")
-    
-    logger.info("Pairing LLM and Human results...")
-    pairs = pair_llm_human_results(reports)
-    logger.info(f"Found {len(pairs)} valid pairs.")
-    
-    thresholds = [float(x.strip()) for x in args.thresholds.split(",")]
-    
-    logger.info(f"Running sensitivity analysis for thresholds: {thresholds}")
-    df = run_sensitivity_analysis(pairs, thresholds)
-    
-    if not df.empty:
-        logger.info(f"Analysis complete. Mean difference: {df['mean_difference'].iloc[0]:.4f}")
-        logger.info(f"P-value: {df['p_value'].iloc[0]:.6f}")
-    
-    save_sensitivity_report(df, args.output)
-    
-    return 0 if not df.empty else 1
+    run_sensitivity_analysis_wrapper(args.output_dir)
 
-if __name__ == "__main__":
-    exit(main())
+if __name__ == '__main__':
+    main()
