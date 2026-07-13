@@ -1,0 +1,379 @@
+{
+  "fetched_at": "2026-07-13T03:12:02Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI C\"",
+      "target_n": 5
+    },
+    "duration_seconds": 780.44,
+    "ended_at": "2026-07-13T03:12:02Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "autonomous AI research agents"
+        ],
+        [
+          2,
+          "self-reinforcing research loops"
+        ],
+        [
+          3,
+          "human-AI collaborative research workflows"
+        ],
+        [
+          4,
+          "automated scientific discovery systems"
+        ],
+        [
+          5,
+          "recursive self-improving AI researchers"
+        ],
+        [
+          6,
+          "AI-driven literature review automation"
+        ],
+        [
+          7,
+          "autonomous hypothesis generation and testing"
+        ],
+        [
+          8,
+          "closed-loop scientific experimentation with AI"
+        ],
+        [
+          9,
+          "iterative AI research planning and execution"
+        ],
+        [
+          10,
+          "human-in-the-loop autonomous science"
+        ],
+        [
+          11,
+          "meta-research automation frameworks"
+        ],
+        [
+          12,
+          "self-correcting AI research agents"
+        ],
+        [
+          13,
+          "AI-assisted grant writing and proposal generation"
+        ],
+        [
+          14,
+          "autonomous experimental design and execution"
+        ],
+        [
+          15,
+          "reinforcement learning for scientific inquiry"
+        ],
+        [
+          16,
+          "generative AI for research gap identification"
+        ],
+        [
+          17,
+          "automated citation network analysis for research planning"
+        ],
+        [
+          18,
+          "self-directed AI knowledge acquisition"
+        ],
+        [
+          19,
+          "autonomous peer review and critique systems"
+        ],
+        [
+          20,
+          "multi-agent systems for collaborative research"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "autonomous AI research agents": 4,
+        "llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI C\" computer science": 0,
+        "self-reinforcing research loops": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "LLM autonomous agent literature review",
+      "AutoResearchClaw self-reinforcing loop",
+      "iterative retrieval-augmented generation",
+      "automated scientific discovery pipeline",
+      "recursive prompt engineering citation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2601.05693"
+      ]
+    },
+    "per_query_hit_count": {
+      "AutoResearchClaw self-reinforcing loop": 0,
+      "LLM autonomous agent literature review": 0,
+      "automated scientific discovery pipeline": 3,
+      "iterative retrieval-augmented generation": 0,
+      "llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI C\" computer science": 0,
+      "recursive prompt engineering citation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2603.17419",
+          "rationale": "The paper focuses on security architectures and threat mitigation for autonomous AI agents in healthcare, which is a distinct construct from the user's question about extending a specific self-reinforcing research methodology (\"AutoResearchClaw\"). While both involve autonomous agents, the candidate paper does not measure the same mechanism (self-reinforcement), variables, or empirical setting required for a literature review on the specific research workflow extension; it addresses a different d",
+          "title": "Caging the Agents: A Zero Trust Security Architecture for Autonomous AI in Healthcare"
+        },
+        {
+          "primary_pointer": "2602.04518",
+          "rationale": "The paper focuses on learning value systems and ethical alignment in autonomous agents using inverse reinforcement learning, which is a distinct construct from the user's question about \"AutoResearchClaw,\" a system for self-reinforcing autonomous research workflows. While both involve autonomous agents, the paper does not measure the same mechanism (research automation loops), variables (research output quality or self-reinforcement metrics), or domain (scientific literature generation vs. gener",
+          "title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2510.01751",
+          "rationale": "The paper focuses on a decision support framework for selecting AI agents in cybersecurity, which is a distinct application domain and construct from the user's question regarding \"AutoResearchClaw,\" a specific autonomous research system for self-reinforcing scientific discovery. While both involve AI agents, the candidate paper does not measure the same mechanism (autonomous literature review and hypothesis generation), address the same variables, or provide a foundational methodology for the s",
+          "title": "A cybersecurity AI agent selection and decision support framework"
+        },
+        {
+          "primary_pointer": "1110.6390",
+          "rationale": "The paper focuses on abstract algebra (Moufang loops and Coxeter groups) and has no measurable connection to the user's domain of Large Language Models (LLMs), autonomous research agents, or computer science methodologies. This is a case of distinct constructs sharing only the broad keyword \"research\" or \"system\" in a general sense, but the specific mechanisms, variables, and empirical populations are entirely unrelated.",
+          "title": "Coxeter-Chein Loops"
+        },
+        {
+          "primary_pointer": "1704.02624",
+          "rationale": "The paper studies self-reinforcing feedback loops in financial markets using agent-based modeling, which is an entirely different domain (economics/finance) from the user's question about autonomous research agents in computer science. While both involve \"self-reinforcing\" mechanisms, the paper does not measure the same biological, algorithmic, or social constructs relevant to LLM-driven research workflows, nor does it provide a foundational methodology or empirical baseline for the specific com",
+          "title": "Self-reinforcing feedback loop in financial markets with coupling of market impact and momentum traders"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T02:59:02Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"autoresearchclaw: self-reinforcing autonomous research with human-ai c\" computer science",
+      "raw": "llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI C\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The International Particle Physics Outreach Group (IPPOG) has been making concerted and systematic efforts to present and popularise particle physics across all audiences and age groups since 1997. Today the scientific community has in IPPOG a strategic pillar in fostering long-term, sustainable support for fundamental research around the world. One of the main tools IPPOG has been offering to the scientific community, teachers and educators for almost 10 years is the Resource Database (RDB), an online platform containing a collection of high quality engaging education and outreach materials in particle physics and related sciences.",
+          "claimed_authors": [
+            "Barbora Bruant Gulejova"
+          ],
+          "claimed_title": "IPPOG : Bridging the gap between science education at school and modern scientific research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.14743"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Rese', candidate_title='IPPOG : Bridging the gap between science education at school and modern scientific research')",
+        "failed_at": "2026-07-13T03:11:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The performance of machine learning (ML) models often deteriorates when the underlying data distribution changes over time, a phenomenon known as data distribution drift. When this happens, ML models need to be retrained and redeployed. ML Operations (MLOps) is often manual, i.e., humans trigger the process of model retraining and redeployment. In this work, we present an automated MLOps pipeline designed to address neural network classifier retraining in response to significant data distribution changes. Our MLOps pipeline employs multi-criteria statistical techniques to detect distribution shifts and triggers model updates only when necessary, ensuring computational efficiency and resource optimization. We demonstrate the effectiveness of our framework through experiments on several benchmark anomaly detection data sets, showing significant improvements in model accuracy and robustness compared to traditional retraining strategies. Our work provides a foundation for deploying more reliable and adaptive ML systems in dynamic real-world settings, where data distribution changes are common.",
+          "claimed_authors": [
+            "Emmanuel K. Katalay",
+            "David O. Dimandja",
+            "Jordan F. Masakuna"
+          ],
+          "claimed_title": "A Multi-Criteria Automated MLOps Pipeline for Cost-Effective Cloud-Based Classifier Retraining in Response to Data Distribution Shifts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.11541"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Rese', candidate_title='A Multi-Criteria Automated MLOps Pipeline for Cost-Effective Cloud-Based Classifier Retraining in Response to Data Distribution Shifts')",
+        "failed_at": "2026-07-13T03:11:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Discovery Engine is a general purpose automated system for scientific discovery, which combines machine learning with state-of-the-art ML interpretability to enable rapid and robust scientific insight across diverse datasets. In this paper, we benchmark the Discovery Engine against five recent peer-reviewed scientific publications applying machine learning across medicine, materials science, social science, and environmental science. In each case, the Discovery Engine matches or exceeds prior predictive performance while also generating deeper, more actionable insights through rich interpretability artefacts. These results demonstrate its potential as a new standard for automated, interpretable scientific modelling that enables complex knowledge discovery from data.",
+          "claimed_authors": [
+            "Jack Foxabbott",
+            "Arush Tagade",
+            "Andrew Cusick",
+            "Robbie McCorkell",
+            "Leo McKee-Reid",
+            "Jugal Patel",
+            "Jamie Rumbelow",
+            "Jessica Rumbelow",
+            "Zohreh Shams"
+          ],
+          "claimed_title": "Benchmarking the Discovery Engine",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.00964"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Rese', candidate_title='Benchmarking the Discovery Engine')",
+        "failed_at": "2026-07-13T03:11:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) accelerate software development but often exhibit instability, non-determinism, and weak adherence to development discipline in unconstrained workflows. While test-driven development (TDD) provides a structured Red-Green-Refactor process, existing LLM-based approaches typically use tests as auxiliary inputs rather than enforceable process constraints. We present an AI-native TDD framework that operationalizes classical TDD principles as structured prompt-level and workflow-level governance mechanisms. Extracted principles are formalized in a machine-readable manifesto and distributed across planning, generation, repair, and validation stages within a layered architecture that separates model proposal from deterministic engine authority. The system enforces phase ordering, bounded repair loops, validation gates, and atomic mutation control to improve stability and reproducibility. We describe architecture and discuss encoding software engineering discipline directly into prompt orchestration, which we think offers a promising direction for reliable LLM-assisted development.",
+          "claimed_authors": [
+            "Tarlan Hasanli",
+            "Shahbaz Siddeeq",
+            "Bishwash Khanal",
+            "Pyry Kotilainen",
+            "Tommi Mikkonen",
+            "Pekka Abrahamsson"
+          ],
+          "claimed_title": "TDD Governance for Multi-Agent Code Generation via Prompt Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.26615"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Rese', candidate_title='TDD Governance for Multi-Agent Code Generation via Prompt Engineering')",
+        "failed_at": "2026-07-13T03:11:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Qualitative analysis plays a pivotal role in understanding the human and social aspects of software engineering. However, it remains a demanding process shaped by the subjective interpretation of individual researchers and sensitive to methodological choices such as prompt design. Recent advancements in Large Language Models (LLMs) offer promising opportunities to support this type of analysis, although their reliability in reproducing human qualitative reasoning under varying prompting conditions remains largely untested. This study presents a controlled empirical evaluation of three LLMs -- Claude Haiku, DeepSeek-Chat, and Gemini 2.5 Flash -- across two prompt engineering strategies (zero-shot and multi-shot closed coding), using Cohen's kappa as the primary agreement metric over ten independent runs per configuration. Results suggest that multi-shot prompting significantly improves agreement for Claude Haiku (Delta kappa = +0.034, Wilcoxon p = 0.004) but not for DeepSeek-Chat or Gemini 2.5 Flash. Intra-model stability varies substantially -- DeepSeek-Chat and Claude Haiku exhibit the lowest variance (SD approx. 0.017), while Gemini 2.5 Flash is the least stable (SD = 0.038). A systematic over-prediction of \"Sharing Negative Feedback\" is identified across all models (bias ratios up to 5.25x), alongside consistent under-prediction of \"Expressing Concerns.\" Collectively, these findings provide empirical evidence for prompt engineering guidelines in LLM-assisted qualitative coding for software engineering research.",
+          "claimed_authors": [
+            "Moaath Alshaikh",
+            "Tasneem Alshaher",
+            "Ricardo Vieira",
+            "Beatriz Santana",
+            "Clelio Xavier",
+            "Jose Amancio",
+            "Glauco Carneiro",
+            "Julio Leite",
+            "Savio Freire",
+            "Manoel Mendonca"
+          ],
+          "claimed_title": "Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.07422"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Rese', candidate_title='Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study')",
+        "failed_at": "2026-07-13T03:11:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Context: Citations are a key measure of scientific performance in most fields, including software engineering. However, there is limited research that studies which characteristics of articles' metadata (title, abstract, keywords, and author list) are driving citations in this field. Objective: In this study, we propose a simple theoretical model for how citations come to be with respect to article metadata, we hypothesize theoretical linkages between metadata characteristics and citations of articles, and we empirically test these hypotheses. Method: We use multiple regression analyses to examine a data set comprising the titles, abstracts, keywords, and authors of 16,131 software engineering articles published between 1990 and 2020 in 20 highly influential software engineering venues. Results: We find that number of authors, number of keywords, number of question marks and dividers in the title, number of acronyms, abstract length, abstract propositional idea density, and corresponding authors in the core Anglosphere are significantly related to citations. Conclusion: Various characteristics of articles' metadata are linked to the frequency with which the corresponding articles are cited. These results partially confirm and partially go counter to prior findings in software engineering and other disciplines.",
+          "claimed_authors": [
+            "Lorenz Graf-Vlachy",
+            "Daniel Graziotin",
+            "Stefan Wagner"
+          ],
+          "claimed_title": "Text and Team: What Article Metadata Characteristics Drive Citations in Software Engineering?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.06033"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AutoResearchClaw: Self-Reinforcing Autonomous Rese', candidate_title='Text and Team: What Article Metadata Characteristics Drive Citations in Software Engineering?')",
+        "failed_at": "2026-07-13T03:11:02Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fan Wu",
+            "Cheng Chen",
+            "Zhenshan Tan",
+            "Taiyu Zhang",
+            "Xinzhen Xu",
+            "Yanyu Qian",
+            "Dingcheng Gao",
+            "Lanyun Zhu",
+            "Qi Zhu",
+            "Yi Tan",
+            "Deyi Ji",
+            "Guosheng Lin",
+            "Tianrun Chen",
+            "Deheng Ye",
+            "Fayao Liu"
+          ],
+          "title": "Claw AI Lab: An Autonomous Multi-Agent Research Team",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.22662",
+        "summary": "We present Claw AI Lab, a lab-native autonomous research platform that advances automated research from a hidden prompt-to-paper pipeline into an interactive AI laboratory. Rather than centering the system around a single agent or a fixed serial workflow, we allow users to instantiate a full research team from one prompt, with customizable roles, collaborative workflows, real-time monitoring, artifact inspection, and rollback/resume control through a unified dashboard. The platform also supports distinct research modes for exploration, multi-agent discussion, and reproduction, making autonomous research substantially more steerable and laboratory-like in practice. A key practical contribution of Claw AI Lab lies in its Claw-Code Harness, which connects local codebases, datasets, and checkpoints to runnable experiments and feeds execution artifacts back into the research loop. As a result, the harness improves not only execution integration, but also experimental completion and result integrity: experiments are easier to inspect, iterate on, and faithfully transfer into final papers, reducing common failure modes such as partial runs and malformed result reporting. In our internal evaluation on five AI research case studies, using AutoResearchClaw as the baseline, Claw AI Lab is consistently preferred by AI expert judges on idea novelty, experiment completeness, and paper presentation quality. We view Claw AI Lab as an early step toward a new paradigm: autonomous research as usable, interactive, and reliability-aware scientific infrastructure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.22662",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T03:11:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zenghao Duan",
+            "Liang Pang",
+            "Zihao Wei",
+            "Wenbin Duan",
+            "Yuxin Tian",
+            "Shicheng Xu",
+            "Jingcheng Deng",
+            "Zhiyi Yin",
+            "Xueqi Cheng"
+          ],
+          "title": "Circular Reasoning: Understanding Self-Reinforcing Loops in Large Reasoning Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.05693",
+        "summary": "Despite the success of test-time scaling, Large Reasoning Models (LRMs) frequently encounter repetitive loops that lead to computational waste and inference failure. In this paper, we identify a distinct failure mode termed Circular Reasoning. Unlike traditional model degeneration, this phenomenon manifests as a self-reinforcing trap where generated content acts as a logical premise for its own recurrence, compelling the reiteration of preceding text. To systematically analyze this phenomenon, we introduce LoopBench, a dataset designed to capture two distinct loop typologies: numerical loops and statement loops. Mechanistically, we characterize circular reasoning as a state collapse exhibiting distinct boundaries, where semantic repetition precedes textual repetition. We reveal that reasoning impasses trigger the loop onset, which subsequently persists as an inescapable cycle driven by a self-reinforcing V-shaped attention mechanism. Guided by these findings, we employ the Cumulative Sum (CUSUM) algorithm to capture these precursors for early loop prediction. Experiments across diverse LRMs validate its accuracy and elucidate the stability of long-chain reasoning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.05693",
+          "http_status": 200,
+          "pdf_sample_score": 0.2233,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T03:11:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"autoresearchclaw: self-reinforcing autonomous research with human-ai c\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

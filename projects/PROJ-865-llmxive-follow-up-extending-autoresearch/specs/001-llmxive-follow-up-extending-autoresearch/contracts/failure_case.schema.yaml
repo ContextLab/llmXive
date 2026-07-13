@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: FailureCase
+description: "Schema for a single failure case from ARC-Bench with structural annotation."
+type: object
+properties:
+  case_id:
+    type: string
+    description: "Unique identifier for the failure case (UUID)."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  topic:
+    type: string
+    description: "The research topic associated with the failure."
+    minLength: 1
+  raw_error_log:
+    type: string
+    description: "The raw error message or transcript."
+    minLength: 1
+  structural_feature:
+    type: string
+    description: "The annotated structural feature of the failure."
+    enum:
+      - "Syntactic Error"
+      - "Logical Loop"
+      - "Semantic Ambiguity"
+      - "Missing Context"
+      - "Unstructured"
+  ground_truth_action:
+    type: string
+    description: "The correct pivot action (ground truth)."
+    minLength: 1
+  source_dataset:
+    type: string
+    description: "URL or ID of the source dataset."
+    format: uri
+required:
+  - case_id
+  - topic
+  - raw_error_log
+  - structural_feature
+  - ground_truth_action
+  - source_dataset
+additionalProperties: false

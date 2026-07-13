@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DistilledRule
+description: "Schema for a heuristic rule derived from a failure case."
+type: object
+properties:
+  rule_id:
+    type: string
+    description: "Unique identifier for the rule."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  condition_pattern:
+    type: string
+    description: "Regex or string match condition to trigger the rule."
+    minLength: 1
+  pivot_action:
+    type: string
+    description: "The action to execute when the condition matches."
+    minLength: 1
+  derived_from_case_id:
+    type: string
+    description: "Reference to the source FailureCase."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  confidence_score:
+    type: number
+    description: "Model confidence score."
+    minimum: 0.0
+    maximum: 1.0
+  category:
+    type: string
+    description: "The structural feature category this rule addresses."
+    enum:
+      - "Syntactic Error"
+      - "Logical Loop"
+      - "Semantic Ambiguity"
+      - "Missing Context"
+      - "Unstructured"
+required:
+  - rule_id
+  - condition_pattern
+  - pivot_action
+  - derived_from_case_id
+  - category
+additionalProperties: false

@@ -1123,6 +1123,10 @@
     "classified_at": "2026-07-12T21:36:11Z",
     "verdict": false
   },
+  "PROJ-865-llmxive-follow-up-extending-autoresearch::1.6.0": {
+    "classified_at": "2026-07-13T02:58:13Z",
+    "verdict": false
+  },
   "PROJ-866-llmxive-follow-up-extending-foundation-p::1.6.0": {
     "classified_at": "2026-07-04T21:38:37Z",
     "verdict": false

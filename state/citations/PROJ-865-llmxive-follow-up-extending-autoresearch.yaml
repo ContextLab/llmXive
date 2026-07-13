@@ -1,0 +1,11 @@
+- artifact_hash: 3f854168845a940f1b65886568f1c6772f2b9aa72c668a0797ecf58462f7aaac
+  artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Indic-Benchmark/hindi-arc-c-2.5k/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/657995e5b2ad12b875aff997/25ca00d9f710940b461a6c3ce2e3a1c041f74b1e2ed310af42cc111ac31c9f99?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783916706&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU3OTk1ZTViMmFkMTJiODc1YWZmOTk3LzI1Y2EwMGQ5ZjcxMDk0MGI0NjFhNmMzY2UyZTNhMWMwNDFmNzRiMWUyZWQzMTBhZjQyY2MxMTFhYzMxYzlmOTlcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzkxNjcwNn19fV19&Signature=MEUCIQCl2iWZ93D%7E2YSc2tzoPSTwfMvZvFp07eWsP7x%7E1lN90gIgBfLC4D4yslums9mrkRE58DsNEOppupH3V%7EkeRzjEcpI_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-13T03:25:06.540282Z'
