@@ -1,0 +1,665 @@
+resolved_at: '2026-07-13T18:38:09.909450+00:00'
+datasets:
+- intent: CodeSearchNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-pep8-v1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k/resolve/main/data/train-00000-of-00003-a17d5a115f8766d8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/code-search-net/code_search_net/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/espejelomar/code_search_net_python_10000_examples/resolve/main/codesearchnet_10000_python_examples.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-pep8-v1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k/resolve/main/data/train-00000-of-00003-a17d5a115f8766d8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Specific_Stratigraphic_Division_and_Interpretation_Method_Using_DNA_Sequencing_of_Cuttings_for_Sustainable_Development_of_Shale_Resources/31445397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reading_anxiety_s_longitudinal_associations_with_reading_skills_and_reading_interest_from_second_to_third_grade/32978203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Commentary_Analyzes_Confronting_the_Structural_Crisis_in_Maternal_Healthcare_A_Global_Commentary_on_Obstetric_Violence_and_Path_to_Reform_Sections_b_/32978198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Research_Group_Meeting_071326/32978201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-2_related_to_the_manuscript_Enhanced_monocyte_influx_to_the_injured_heart_at_dark_phase_exacerbates_cardiac_hypertrophy_in_a_mouse_model_of_Takotsubo_cardiomyopathy_-_AJP_Cell/32976365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7857872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7908468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13755783
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7016108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mdpi.com/2306-5729/8/9/140
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://arxiv.org/abs/2605.16046
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/108137
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/71524-gap-gen-guided-automatic-python-code-generation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/30127-bag-of-words-baselines-for-semantic-code-search
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19248328
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CodeLlama
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mlabonne/CodeLlama-2-20k/resolve/main/data/train-00000-of-00001-aa7b6a5bb57fd1c0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Python-hf/resolve/main/2023-08-25T16:41:17.923081/details_harness|arc:challenge|25_2023-08-25T16:41:17.923081.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf/resolve/main/2023-08-25T17:04:00.078187/details_harness|arc:challenge|25_2023-08-25T17:04:00.078187.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mlabonne/CodeLlama-2-20k/resolve/main/data/train-00000-of-00001-aa7b6a5bb57fd1c0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/64e7b96e6f5b10625f92a6c1/17994cc8de23e01cd26b212174a04849cfeb64c5157b3e2e37c039c178d67c70?Expires=1783971261&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0ZTdiOTZlNmY1YjEwNjI1ZjkyYTZjMS8xNzk5NGNjOGRlMjNlMDFjZDI2YjIxMjE3NGEwNDg0OWNmZWI2NGM1MTU3YjNlMmUzN2MwMzljMTc4ZDY3YzcwKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3MTI2MX19fV19&Signature=MEYCIQDxzmEDnVSMoyY2sRZrS7gXNOtPsvQBJOAcMyMvCjI1lwIhANTPCyMTj2o8bNmH8uMRHpZfljsvQHVX~~PnrdYO1Iat&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data-00000-of-00001.arrow%3B+filename%3D%22data-00000-of-00001.arrow%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T183421Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a321594c671e85d1bf7ad32f529b1397881a04e79b1acd44df968c9ac2c44d64
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Python-hf/resolve/main/2023-08-25T16:41:17.923081/details_harness|arc:challenge|25_2023-08-25T16:41:17.923081.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf/resolve/main/2023-08-25T17:04:00.078187/details_harness|arc:challenge|25_2023-08-25T17:04:00.078187.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Instruct-hf/resolve/main/2023-08-25T17:15:30.693025/details_harness|arc:challenge|25_2023-08-25T17:15:30.693025.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Specific_Stratigraphic_Division_and_Interpretation_Method_Using_DNA_Sequencing_of_Cuttings_for_Sustainable_Development_of_Shale_Resources/31445397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reading_anxiety_s_longitudinal_associations_with_reading_skills_and_reading_interest_from_second_to_third_grade/32978203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Commentary_Analyzes_Confronting_the_Structural_Crisis_in_Maternal_Healthcare_A_Global_Commentary_on_Obstetric_Violence_and_Path_to_Reform_Sections_b_/32978198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Research_Group_Meeting_071326/32978201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-2_related_to_the_manuscript_Enhanced_monocyte_influx_to_the_injured_heart_at_dark_phase_exacerbates_cardiac_hypertrophy_in_a_mouse_model_of_Takotsubo_cardiomyopathy_-_AJP_Cell/32976365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12771266
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11062815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10390998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13921403
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17204500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283809
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283809
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.04582
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02825
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/248148
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Local_Heat_Accumulation_during_Methane_Hydrate_Crystallization_Effects_of_Heat-Dissipation_Pathways_on_Growth_Kinetics/32978206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Specific_Stratigraphic_Division_and_Interpretation_Method_Using_DNA_Sequencing_of_Cuttings_for_Sustainable_Development_of_Shale_Resources/31445397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reading_anxiety_s_longitudinal_associations_with_reading_skills_and_reading_interest_from_second_to_third_grade/32978203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Commentary_Analyzes_Confronting_the_Structural_Crisis_in_Maternal_Healthcare_A_Global_Commentary_on_Obstetric_Violence_and_Path_to_Reform_Sections_b_/32978198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Research_Group_Meeting_071326/32978201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21342454
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21342454
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204132
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204132
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341538
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LLM-generated
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hon9kon9ize/38k-zh-yue-translation-llm-generated/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/badrex/royal_society_corpus_LLM_generated_metadata/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/artnitolog/llm-generated-texts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/dshihk/llm-generated-essay/76ee958b32e22d4596e14e526b4208e4b1b8a523/test.csv?%2Fdatasets%2Fdshihk%2Fllm-generated-essay%2Fresolve%2Fmain%2Ftest.csv=&etag=%22a9b10b7b1b5def378359183c2058a1cb29563c9c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/hon9kon9ize/38k-zh-yue-translation-llm-generated/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/beimnet777/LLM_generated_Amharic_QA_for_Family_Code_of_Ethiopia/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/badrex/royal_society_corpus_LLM_generated_metadata/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/artnitolog/llm-generated-texts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Local_Heat_Accumulation_during_Methane_Hydrate_Crystallization_Effects_of_Heat-Dissipation_Pathways_on_Growth_Kinetics/32978206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Specific_Stratigraphic_Division_and_Interpretation_Method_Using_DNA_Sequencing_of_Cuttings_for_Sustainable_Development_of_Shale_Resources/31445397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reading_anxiety_s_longitudinal_associations_with_reading_skills_and_reading_interest_from_second_to_third_grade/32978203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Commentary_Analyzes_Confronting_the_Structural_Crisis_in_Maternal_Healthcare_A_Global_Commentary_on_Obstetric_Violence_and_Path_to_Reform_Sections_b_/32978198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Research_Group_Meeting_071326/32978201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18657875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18169626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17738426
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18022086
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20683800
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343186
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343186
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343394
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343394
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21342902
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LMM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lmms-lab/POPE/resolve/main/Full/adversarial-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lmms-lab/RefCOCO/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lmms-lab/MP-DocVQA/resolve/main/data/test-00000-of-00023.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lmms-lab/POPE/resolve/main/Full/adversarial-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/RefCOCO/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/MP-DocVQA/resolve/main/data/test-00000-of-00023.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/egoschema/resolve/main/GENERATION/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/Video-MME/resolve/main/videomme/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Local_Heat_Accumulation_during_Methane_Hydrate_Crystallization_Effects_of_Heat-Dissipation_Pathways_on_Growth_Kinetics/32978206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Specific_Stratigraphic_Division_and_Interpretation_Method_Using_DNA_Sequencing_of_Cuttings_for_Sustainable_Development_of_Shale_Resources/31445397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reading_anxiety_s_longitudinal_associations_with_reading_skills_and_reading_interest_from_second_to_third_grade/32978203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Commentary_Analyzes_Confronting_the_Structural_Crisis_in_Maternal_Healthcare_A_Global_Commentary_on_Obstetric_Violence_and_Path_to_Reform_Sections_b_/32978198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Research_Group_Meeting_071326/32978201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6657148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17361190
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4053698
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11166211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ojs.uc.cl/index.php/ijanr/article/view/36711
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://iris.uniupo.it//handle/11579/46198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.v41ns1s9q
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/101647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BLEU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dousey/culture_bleuet/resolve/main/data/train-00000-of-00001-bbebcaa107c49829.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bleugreen/typescript-chunks/resolve/main/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/dousey/culture_bleuet/resolve/main/data/train-00000-of-00001-bbebcaa107c49829.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bleugreen/typescript-chunks/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/bleugreen/typescript-instruct/resolve/main/ts-instruct.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Local_Heat_Accumulation_during_Methane_Hydrate_Crystallization_Effects_of_Heat-Dissipation_Pathways_on_Growth_Kinetics/32978206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Specific_Stratigraphic_Division_and_Interpretation_Method_Using_DNA_Sequencing_of_Cuttings_for_Sustainable_Development_of_Shale_Resources/31445397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reading_anxiety_s_longitudinal_associations_with_reading_skills_and_reading_interest_from_second_to_third_grade/32978203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Commentary_Analyzes_Confronting_the_Structural_Crisis_in_Maternal_Healthcare_A_Global_Commentary_on_Obstetric_Violence_and_Path_to_Reform_Sections_b_/32978198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Research_Group_Meeting_071326/32978201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10317906
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17096816
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5794093
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10305972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15268586
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/130275-a-case-against-implicit-standards-homophone-normalization-in-machine-translation-for-languages-that-use-the-ge-ez-script
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/66460-improving-neural-machine-translation-for-low-resource-languages-using-related-language-resources
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/66259-chia-choosing-instances-to-annotate-for-machine-translation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/78221-choosing-what-to-mask-more-informed-masking-for-multimodal-machine-translation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/123439-mind-flows-a-comparative-study-of-narrative-coherence-in-human-and-llm-generated-stream-of-consciousness-essays
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AnalysisResult
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cicero-im/analysis_results/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/cicero-im/analysis_results/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Local_Heat_Accumulation_during_Methane_Hydrate_Crystallization_Effects_of_Heat-Dissipation_Pathways_on_Growth_Kinetics/32978206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Specific_Stratigraphic_Division_and_Interpretation_Method_Using_DNA_Sequencing_of_Cuttings_for_Sustainable_Development_of_Shale_Resources/31445397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reading_anxiety_s_longitudinal_associations_with_reading_skills_and_reading_interest_from_second_to_third_grade/32978203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Commentary_Analyzes_Confronting_the_Structural_Crisis_in_Maternal_Healthcare_A_Global_Commentary_on_Obstetric_Violence_and_Path_to_Reform_Sections_b_/32978198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Research_Group_Meeting_071326/32978201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19422572
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11919062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ParticipantResponse
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Local_Heat_Accumulation_during_Methane_Hydrate_Crystallization_Effects_of_Heat-Dissipation_Pathways_on_Growth_Kinetics/32978206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Specific_Stratigraphic_Division_and_Interpretation_Method_Using_DNA_Sequencing_of_Cuttings_for_Sustainable_Development_of_Shale_Resources/31445397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reading_anxiety_s_longitudinal_associations_with_reading_skills_and_reading_interest_from_second_to_third_grade/32978203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Commentary_Analyzes_Confronting_the_Structural_Crisis_in_Maternal_Healthcare_A_Global_Commentary_on_Obstetric_Violence_and_Path_to_Reform_Sections_b_/32978198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Research_Group_Meeting_071326/32978201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

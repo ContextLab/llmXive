@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ParticipantResponse"
+description: "Schema for a single participant trial response."
+type: "object"
+properties:
+  response_id:
+    type: "string"
+    description: "Unique identifier for the response."
+  participant_id:
+    type: "string"
+    description: "Anonymized participant ID."
+  snippet_id:
+    type: "string"
+    description: "Foreign key to CodeSnippet."
+  condition:
+    type: "string"
+    enum:
+      - "code_only"
+      - "code_llm"
+      - "code_docstring"
+    description: "Experimental condition assigned."
+  answer:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "Binary correctness (1=correct, 0=incorrect)."
+  latency_ms:
+    type: "integer"
+    description: "Time to submit in milliseconds."
+  is_valid:
+    type: "boolean"
+    description: "Whether the record passed quality filters."
+required:
+  - "response_id"
+  - "participant_id"
+  - "snippet_id"
+  - "condition"
+  - "answer"
+  - "latency_ms"
+  - "is_valid"
+additionalProperties: false

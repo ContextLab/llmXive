@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Explanation"
+description: "Schema for an LLM-generated explanation linked to a snippet."
+type: "object"
+properties:
+  explanation_id:
+    type: "string"
+    description: "Unique identifier for the explanation."
+  snippet_id:
+    type: "string"
+    description: "Foreign key to CodeSnippet."
+  text:
+    type: "string"
+    description: "The generated explanation text."
+  token_count:
+    type: "integer"
+    description: "Number of tokens in the explanation."
+  generation_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of generation."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "skipped"
+    description: "Generation status."
+required:
+  - "explanation_id"
+  - "snippet_id"
+  - "text"
+  - "token_count"
+  - "status"
+additionalProperties: false

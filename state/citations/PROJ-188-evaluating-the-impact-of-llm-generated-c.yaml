@@ -1,0 +1,22 @@
+- artifact_hash: 14c82d642288ceeeb7a5db64b2e6c24af334bec3c5ea09fa2ab604c643cd0f83
+  artifact_path: projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/codeparrot/codesearchnet
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/codeparrot/codesearchnet
+  verified_at: '2026-07-13T18:54:28.577882Z'
+- artifact_hash: 14c82d642288ceeeb7a5db64b2e6c24af334bec3c5ea09fa2ab604c643cd0f83
+  artifact_path: projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "meta-llama/CodeLlama-7b-Instruct-hf \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/meta-llama/CodeLlama-7b-Instruct-hf
+  verification_status: verified
+  verified_against_url: https://huggingface.co/meta-llama/CodeLlama-7b-Instruct-hf
+  verified_at: '2026-07-13T18:54:28.577882Z'
