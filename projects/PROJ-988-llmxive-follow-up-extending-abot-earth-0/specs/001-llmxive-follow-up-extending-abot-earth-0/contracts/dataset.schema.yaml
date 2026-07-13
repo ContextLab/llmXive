@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DegradedScene Dataset Schema"
+description: "Schema for the synthetic degraded satellite imagery dataset used in the 3DGS restoration experiment."
+type: object
+properties:
+  scene_id:
+    type: string
+    description: "Unique identifier for the scene (e.g., S2_T32TQM_20230101_001)."
+  tile_id:
+    type: string
+    description: "Original Sentinel-2 tile ID."
+  patch_coords:
+    type: object
+    properties:
+      min_x:
+        type: number
+      min_y:
+        type: number
+      max_x:
+        type: number
+      max_y:
+        type: number
+    required: ["min_x", "min_y", "max_x", "max_y"]
+    description: "Bounding box of the 100m² patch in UTM coordinates."
+  degradation_type:
+    type: string
+    enum:
+      - "low_res"
+      - "cloud"
+      - "temporal"
+      - "mixed"
+    description: "Type of synthetic degradation applied."
+  nnf:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized Noise Fraction. Derived from degradation parameters (cloud_opacity, downscale_factor, blur_sigma), NOT ground truth."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility of the degradation."
+  urban_density_bin:
+    type: string
+    enum:
+      - "low"
+      - "medium"
+      - "high"
+    description: "Urban density classification used as random effect in LMM."
+  image_path:
+    type: string
+    description: "Relative path to the degraded image file (e.g., data/processed/degraded_scenes/img_001.png)."
+  mask_path:
+    type: string
+    description: "Relative path to the cloud mask file (e.g., data/processed/degraded_scenes/mask_001.png)."
+required:
+  - scene_id
+  - tile_id
+  - patch_coords
+  - degradation_type
+  - nnf
+  - seed
+  - urban_density_bin
+  - image_path
+  - mask_path
+additionalProperties: false

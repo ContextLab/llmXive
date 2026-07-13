@@ -9,7 +9,7 @@
 
 ### User Story 1 - Synthetic Degradation & Ground Truth Alignment (Priority: P1)
 
-**Journey**: A researcher prepares a controlled experiment by downloading 500 urban $1\text{~km}^2$ regions from Sentinel-2 and aligning them with independent ground-truth LiDAR data from OpenTopography. The system then applies programmable, reproducible degradation masks (low resolution, cloud cover, temporal shifts) to the imagery to simulate specific failure modes without altering the ground truth.
+**Journey**: A researcher prepares a controlled experiment by downloading a representative set of urban $1\text{~km}^2$ regions from Sentinel-2 and aligning them with independent ground-truth LiDAR data from OpenTopography. The system then applies programmable, reproducible degradation masks (low resolution, cloud cover, temporal shifts) to the imagery to simulate specific failure modes without altering the ground truth.
 
 **Why this priority**: This is the foundational step. Without a controlled, reproducible degradation pipeline and a verified alignment with independent ground truth, no subsequent fidelity measurement is valid. It directly addresses the "Dataset-variable fit" by ensuring the predictors (degraded images) and outcomes (LiDAR geometry) are correctly paired.
 
@@ -64,7 +64,7 @@
 ### Functional Requirements
 
 - **FR-001**: System MUST download and align 500 urban $1\text{~km}^2$ Sentinel-2 tiles with independent OpenTopography LiDAR ground truth, ensuring spatial alignment error is $< 2$ meters for all samples (See US-1).
-- **FR-002**: System MUST apply three distinct synthetic degradation modes (downscale to 30m/pixel, procedural cloud masks with variable opacity, temporal shifts) to the input imagery with reproducible random seeds (See US-1).
+- **FR-002**: System MUST apply three distinct synthetic degradation modes (downscale to coarse spatial resolution, procedural cloud masks with variable opacity, temporal shifts) to the input imagery with reproducible random seeds (See US-1).
 - **FR-003**: System MUST execute the 3D Gaussian Splatting generation and the CPU-optimized inpainting module using only CPU resources on $100\text{~m}^2$ patches, ensuring no CUDA or GPU-specific libraries are invoked (See US-2).
 - **FR-004**: System MUST compute geometric consistency (Chamfer Distance) and textural fidelity (Projected PSNR, Projected SSIM) metrics for both baseline and inpainted scenes against the independent LiDAR ground truth (See US-3).
 - **FR-005**: System MUST perform a paired t-test on the metric improvements across a sufficiently large sample of data. and execute a sensitivity analysis sweeping the Normalized Noise Fraction (NNF) threshold in configurable steps to identify the critical failure point (See US-3).

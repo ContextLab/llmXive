@@ -1,78 +1,98 @@
 # Data Model: llmXive follow-up: extending "ABot-Earth 0.5: Generative 3D Earth Model"
 
 ## Overview
-This document defines the data structures, schemas, and storage formats for the project. All data is stored in the `data/` directory, with raw data preserved and processed data versioned. The schemas in `contracts/` are the authoritative definitions for these entities.
+This document defines the data structures, schemas, and storage formats used throughout the `001-generative-3d-earth-fidelity` feature. All data is stored in `projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/data/`.
 
-## Key Entities
+## Entities & Relationships
 
 ### 1. DegradedScene
 Represents a satellite image region with applied synthetic degradation.
-- **Source**: `data/processed/degraded_scenes/`
-- **Format**: `.npy` (image data), `.json` (metadata)
-- **Attributes**:
-  - `scene_id`: Unique string identifier.
-  - `original_tile_id`: Sentinel-2 tile ID.
-  - `degradation_type`: Enum ["low_res", "cloud", "temporal", "mixed"].
-  - `nnf`: Normalized Noise Fraction (float, 0.0-1.0).
-  - `resolution_m`: Pixel resolution in meters (float).
-  - `cloud_opacity`: Opacity of applied cloud mask (float, 0.0-1.0).
-  - `seed`: Random seed used for reproducibility.
-  - `city`: Source city (e.g., "NYC", "LA") from `city_list.txt`.
+*   **Source**: Sentinel-2 tile + Synthetic Mask.
+*   **Usage**: Input for 3DGS generation.
+*   **Attributes**:
+    *   `scene_id`: Unique string (e.g., `S2_T32TQM_20230101_001`).
+    *   `tile_id`: Original Sentinel-2 tile ID.
+    *   `patch_coords`: Bounding box (min_x, min_y, max_x, max_y) in UTM.
+    *   `degradation_type`: Enum (`low_res`, `cloud`, `temporal`, `mixed`).
+    *   `nnf`: Normalized Noise Fraction (float, 0.0 to 1.0). **Defined as weighted sum of degradation parameters (cloud_opacity, downscale_factor, blur_sigma), NOT derived from ground truth.**
+    *   `seed`: Random seed used for reproducibility.
+    *   `urban_density_bin`: String (`low`, `medium`, `high`) used as random effect in LMM.
+    *   `image_path`: Relative path to the degraded image file.
+    *   `mask_path`: Relative path to the cloud mask file.
 
 ### 2. GroundTruthLiDAR
-Independent high-fidelity point cloud reference.
-- **Source**: `data/raw/lidar/`
-- **Format**: `.las` or `.laz` (compressed LAS), converted to `.ply` for processing.
-- **Attributes**:
-  - `scene_id`: Matches the DegradedScene.
-  - `projection`: CRS string (e.g., "EPSG:32610").
-  - `point_count`: Integer.
-  - `bounds`: Bounding box (min_x, min_y, min_z, max_x, max_y, max_z).
-  - `acquisition_date`: Date of LiDAR acquisition (YYYY-MM-DD).
-  - `source`: "USGS 3DEP" or "NYC Open Data".
+Represents the independent, high-fidelity point cloud.
+*   **Source**: OpenTopography.
+*   **Usage**: Reference for Chamfer Distance and geometric validation.
+*   **Attributes**:
+    *   `lidar_id`: Unique identifier.
+    *   `scene_id`: Foreign key to `DegradedScene`.
+    *   `point_cloud_path`: Relative path to `.las` or `.ply` file.
+    *   `alignment_error`: Float (meters), computed during alignment.
+    *   `status`: Enum (`valid`, `excluded`, `misaligned`).
 
 ### 3. ReconstructedScene
-Output of the 3DGS generation pipeline.
-- **Source**: `data/processed/reconstructions/`
-- **Format**: `.ply` (Gaussian Splatting format).
-- **Attributes**:
-  - `scene_id`: Matches input.
-  - `method`: Enum ["baseline_3dgs", "inpaint_3dgs"].
-  - `num_gaussians`: Integer.
-  - `generation_time_sec`: Float.
-  - `peak_ram_mb`: Float.
+Represents the 3D Gaussian Splatting output.
+*   **Source**: 3DGS Pipeline (Baseline or Inpainted).
+*   **Usage**: Input for fidelity metrics.
+*   **Attributes**:
+    *   `reconstruction_id`: Unique string.
+    *   `scene_id`: Foreign key to `DegradedScene`.
+    *   `method`: Enum (`baseline`, `inpainting`).
+    *   `ply_path`: Relative path to the generated `.ply` file.
+    *   `render_config`: Object defining the rendering contract for the inpainting interface.
+        *   `resolution`: "512x512"
+        *   `format`: "PNG"
+        *   `intrinsics`: {"f": 1024, "cx": 256, "cy": 256}
+        *   `poses`: List of 8 fixed camera poses.
+    *   `generation_time_sec`: Float.
+    *   `peak_ram_mb`: Float.
+    *   `status`: Enum (`success`, `oom`, `timeout`).
 
 ### 4. FidelityMetrics
-Quantitative comparison between ReconstructedScene and GroundTruthLiDAR.
-- **Source**: `data/results/metrics.csv`
-- **Format**: CSV (Comma Separated Values).
-- **Attributes**:
-  - `scene_id`: String.
-  - `method`: Enum ["baseline_3dgs", "inpaint_3dgs"].
-  - `chamfer_distance_m`: Float (normalized scale).
-  - `ppsnr`: Float (null for temporal mode).
-  - `pssim`: Float (null for temporal mode).
-  - `nnf`: Float.
-  - `degradation_type`: String.
-  - `temporal_gap_months`: Integer (months between LiDAR and Image).
-  - `is_confounded`: Boolean (true if `temporal_gap_months` > 12).
-  - `timestamp`: ISO8601 timestamp.
+Quantitative comparison between `ReconstructedScene` and `GroundTruthLiDAR`.
+*   **Source**: `compute_metrics.py`.
+*   **Usage**: Statistical analysis and threshold detection.
+*   **Attributes**:
+    *   `metric_id`: Unique string.
+    *   `reconstruction_id`: Foreign key to `ReconstructedScene`.
+    *   `p_psnr`: Float (Projected PSNR).
+    *   `p_ssim`: Float (Projected SSIM).
+    *   `chamfer_distance`: Float (meters, normalized).
+    *   `geometric_divergence_score`: Float (Chamfer Distance between Baseline and Inpainted geometry). **Used to distinguish recovery from hallucination.**
+    *   `improvement_delta`: Float (Inpainted - Baseline).
+    *   `statistical_significance`: Boolean (result of Wilcoxon/LMM for the aggregate set).
+    *   `power_analysis_notes`: String (e.g., "N=48, d=0.4, power=0.82").
 
-## Data Flow
+## Storage Formats
 
-1.  **Ingestion**: Raw Sentinel-2 and LiDAR downloaded to `data/raw/`.
-2.  **Alignment**: `01_data_curation.py` aligns coordinates, outputs `data/processed/aligned_pairs/`.
-3.  **Mask Validation**: `02b_validate_masks.py` validates synthetic masks (FR-006).
-4.  **Degradation**: `02_degradation_pipeline.py` creates `data/processed/degraded_scenes/`.
-5.  **Generation**: `03_3dgs_cpu_inference.py` creates `data/processed/reconstructions/`.
-6.  **Evaluation**: `04_metrics_evaluation.py` appends to `data/results/metrics.csv`.
-7.  **Analysis**: `05_threshold_analysis.py` reads `metrics.csv`, outputs plots and statistical reports.
+*   **Images/Masks**: `.png` (lossless) or `.tiff` (georeferenced).
+*   **Point Clouds**: `.ply` (standard 3DGS format) or `.las` (LiDAR).
+*   **Metadata/Results**: `.csv` (pandas DataFrame compatible) and `.json` (configuration).
+*   **Logs**: `.log` (text) and `.csv` (performance metrics).
 
-## Storage Constraints
+## Data Flow Diagram
 
-- **Raw Data**: Checksummed, immutable.
-- **Processed Data**: Overwritten only if the source or parameters change (versioned by hash).
-- **Size Limits**:
-  - Single `.ply` file < 500 MB.
-  - Total `data/` directory < 10 GB (compressed where possible).
-  - Memory usage during processing < 6.5 GB.
+```mermaid
+graph TD
+    A[Sentinel-2 Raw] -->|Download & Align| B(DegradedScene)
+    C[OpenTopography LiDAR] -->|Download & Align| D(GroundTruthLiDAR)
+    B -->|Apply Synthetic Degradation| E[Synthetic Degraded Image]
+    E -->|3DGS Baseline| F[ReconstructedScene: Baseline]
+    F -->|Render Interface (512x512)| G[Rendered Views]
+    G -->|Inpainting Module| H[ReconstructedScene: Inpainted]
+    F -->|Compute Metrics| I[FidelityMetrics: Baseline]
+    H -->|Compute Metrics| J[FidelityMetrics: Inpainted]
+    I & J -->|Statistical Analysis (Wilcoxon/LMM)| K[Threshold Analysis & Plots]
+    
+    subgraph Performance Instrumentation
+    L[Logger] -->|Log RAM/Time| M[performance_log.csv]
+    F -.->|Track| L
+    H -.->|Track| L
+    end
+```
+
+## Data Versioning
+*   All raw data files in `data/raw/` are checksummed (SHA-256).
+*   Derived data in `data/processed/` includes the source checksum in its metadata.
+*   No in-place modifications allowed.

@@ -29,9 +29,6 @@ properties:
   chamfer_distance:
     type: number
     description: "Chamfer Distance in meters (normalized)."
-  geometric_divergence_score:
-    type: number
-    description: "Chamfer Distance between Baseline and Inpainted geometry. High scores indicate hallucination."
   generation_time_sec:
     type: number
     description: "Wall-clock time taken for generation."
@@ -45,12 +42,6 @@ properties:
       - "oom"
       - "timeout"
     description: "Execution status of the generation process."
-  statistical_significance:
-    type: boolean
-    description: "Result of the aggregate Wilcoxon/LMM test for this sample group."
-  power_analysis_notes:
-    type: string
-    description: "Notes on power analysis (e.g., 'N=48, d=0.4, power=0.82')."
 required:
   - metric_id
   - reconstruction_id
@@ -59,10 +50,7 @@ required:
   - p_psnr
   - p_ssim
   - chamfer_distance
-  - geometric_divergence_score
   - generation_time_sec
   - peak_ram_mb
   - status
-  - statistical_significance
-  - power_analysis_notes
 additionalProperties: false

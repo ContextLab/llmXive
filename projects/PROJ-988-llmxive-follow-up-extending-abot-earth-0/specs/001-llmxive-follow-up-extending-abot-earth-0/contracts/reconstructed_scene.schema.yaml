@@ -30,6 +30,39 @@ properties:
   file_size_mb:
     type: number
     description: "File size in MB."
+  render_config:
+    type: object
+    description: "Configuration used to render the interface for the inpainting model."
+    properties:
+      resolution:
+        type: string
+        description: "Resolution of rendered maps (e.g., '512x512')."
+      format:
+        type: string
+        description: "File format (e.g., 'PNG')."
+      intrinsics:
+        type: object
+        description: "Camera intrinsics (focal length, center)."
+        properties:
+          f:
+            type: number
+          cx:
+            type: number
+          cy:
+            type: number
+        required: ["f", "cx", "cy"]
+      poses:
+        type: array
+        description: "List of 8 fixed camera poses."
+        items:
+          type: array
+          items:
+            type: number
+    required:
+      - resolution
+      - format
+      - intrinsics
+      - poses
 required:
   - scene_id
   - method
@@ -37,4 +70,5 @@ required:
   - generation_time_sec
   - peak_ram_mb
   - file_path
+  - render_config
 additionalProperties: false

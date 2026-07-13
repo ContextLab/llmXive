@@ -1,86 +1,75 @@
 # Quickstart: llmXive follow-up: extending "ABot-Earth 0.5: Generative 3D Earth Model"
 
 ## Prerequisites
-
-- Python 3.11+
-- Git
-- Access to Microsoft Planetary Computer (Sentinel-2) and USGS 3DEP/NYC Open Data (LiDAR).
-- Sufficient RAM (for local testing; CI uses comparable resources).
+*   **OS**: Linux (Ubuntu 22.04+ recommended for GitHub Actions compatibility).
+*   **Python**: 3.11 or higher.
+*   **Disk Space**: A substantial amount of storage (for raw data, processed patches, and model weights).
+*   **RAM**: Minimum 8 GB (system), but the pipeline targets < 6.5 GB peak usage.
 
 ## Installation
 
-1.  **Clone and Setup**:
+1.  **Clone and Setup Environment**
     ```bash
-    git clone <repo-url>
-    cd projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/code/
+    cd projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0
     python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
+    source venv/bin/activate
+    pip install -r code/requirements.txt
     ```
 
-2.  **Verify Dependencies**:
-    Ensure `onnxruntime` and `torch` are CPU-only:
+2.  **Verify CPU-Only Configuration**
+    Ensure no CUDA is available or forced:
     ```bash
-    python -c "import torch; import onnxruntime; print('CPU Ready:', torch.cuda.is_available() == False)"
+    python -c "import torch; print(f'CUDA Available: {torch.cuda.is_available()}'); print(f'Device: {torch.get_default_device()}')"
+    # Expected Output: CUDA Available: False
     ```
+
+3.  **Download Dependencies (Models)**
+    The ONNX model weights will be downloaded automatically on first run if not present in `data/models/`.
+    *Note: Ensure you have a stable internet connection for the initial download.*
 
 ## Running the Pipeline
 
-The pipeline is designed to run sequentially. For the full study, use the distributed runner script. For a quick test, run a single sample.
-
-### Step 1: Data Curation (Single Sample)
-Download and align one sample to verify the pipeline.
+### Step 1: Data Curation (Phase 1)
+Download and align a representative sample of available data.
 ```bash
-python 01_data_curation.py --sample-id "test_sample_01" --force-download
+python code/data/download_sentinel.py --count 50 --output data/raw/sentinel_aligned
+# Note: Use --count 50 for a quick test run. Use 500 for full experiment.
 ```
-*Expected Output*: `data/processed/aligned_pairs/test_sample_01.json`
+*This step will also fetch OpenTopography LiDAR and compute alignment errors.*
 
-### Step 2: Mask Validation
-Validate synthetic masks against real masks (FR-006).
+### Step 2: Synthetic Degradation (Phase 2)
+Apply degradation masks to the curated data.
 ```bash
-python b_validate_masks.py --sample-size 10
+python code/data/synthesize_degradation.py --input data/raw/sentinel_aligned --output data/processed/degraded_scenes --seeds 12345
 ```
-*Expected Output*: `data/results/mask_similarity_report.txt`
 
-### Step 3: Degradation
-Apply synthetic degradation.
+### Step 3: Full Experiment Execution (Phase 3 & 4)
+Run the complete pipeline: Baseline 3DGS → Inpainting → Metrics → Threshold Analysis.
 ```bash
-python 02_degradation_pipeline.py --scene-id "test_sample_01" --mode "mixed" --nnf 0.5
+python code/pipeline/run_full_experiment.py \
+  --input data/processed/degraded_scenes \
+  --lidar data/raw/sentinel_aligned/lidar \
+  --output data/results \
+  --max-samples 20 \
+  --log-performance
 ```
-*Expected Output*: `data/processed/degraded_scenes/test_sample_01_mixed.npy`
+*   `--max-samples`: Limit to a small sample size for a quick feasibility check (approx. -2 hours).
+*   `--log-performance`: Enables detailed RAM/Time logging to `performance_log.csv`.
 
-### Step 4: 3DGS Generation (CPU)
-Run the reconstruction.
+### Step 4: Analysis & Visualization
+Generate the threshold plots and statistical reports.
 ```bash
-python *_3dgs_cpu_inference.py --scene-id "test_sample_01" --method "inpaint"
+python code/analysis/statistical_tests.py --input data/results/metrics.csv --output data/results/report.pdf
+python code/analysis/plot_thresholds.py --input data/results/metrics.csv --output data/results/threshold_curve.png
 ```
-*Expected Output*: `data/processed/reconstructions/test_sample_01_inpaint.ply` (within 45 mins).
 
-### Step 5: Metrics Evaluation
-Calculate fidelity.
-```bash
-python 04_metrics_evaluation.py --scene-id "test_sample_01" --method "inpaint"
-```
-*Expected Output*: Appended row to `data/results/metrics.csv`.
-
-### Step 6: Threshold Analysis
-Run the statistical sweep (requires a dataset of at least 10 samples).
-```bash
-python 05_threshold_analysis.py --nnf-steps 0.05 --alpha 0.05
-```
-*Expected Output*: `data/results/threshold_plot.png`, `data/results/statistical_report.txt`.
-
-## Configuration
-
-Edit `config.yaml` (if present) or pass arguments to modify:
-- `--nnf-steps`: Step size for threshold sweep (default 0.05).
-- `--max-gaussians`: Limit for 3DGS to control memory (default a substantial volume).
-- `--timeout`: Max seconds per scene (default).
-- `--city-list`: Path to `city_list.txt` (default `data/city_list.txt`).
+## Expected Outputs
+*   `data/results/metrics.csv`: Full fidelity metrics for all samples.
+*   `data/results/performance_log.csv`: Runtime and RAM usage per sample.
+*   `data/results/threshold_curve.png`: Plot showing the critical NNF threshold.
+*   `data/results/report.pdf`: Statistical significance report (t-test results).
 
 ## Troubleshooting
-
-- **ERR_OOM_CPU**: Reduce `--max-gaussians` or `--patch-size`.
-- **CUDA Error**: Ensure `torch` is the CPU version. Check `torch.cuda.is_available()`.
-- **Alignment Error > 2m**: Check CRS alignment between Sentinel-2 and LiDAR.
-- **Temporal Confound**: Check `temporal_gap_months` in `metrics.csv`; exclude if > 12.
+*   **ERR_OOM_CPU**: If you encounter this error, reduce `--max-samples` or the patch size in `config.py`.
+*   **CUDA Error**: Ensure `torch` is installed from the CPU-only wheel and `CUDA_VISIBLE_DEVICES` is unset.
+*   **Alignment Error > 2m**: The sample will be automatically excluded and logged. Check `data/raw/exclusion_log.csv`.

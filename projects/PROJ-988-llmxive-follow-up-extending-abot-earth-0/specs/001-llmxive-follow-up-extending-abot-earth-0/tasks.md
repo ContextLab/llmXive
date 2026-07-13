@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create project directory structure (`code/`, `data/`, `tests/`, `docs/`) per `projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/`
 - [ ] T001b [P] Create `.gitignore` for large files and Python artifacts
-- [ ] T002a [P] Create `code/requirements.txt` with pinned versions (torch-cpu, onnxruntime, scikit-learn, opencv-python, pandas, numpy, pyyaml, tqdm, matplotlib, seaborn, bayesian_changepoint_detection)
+- [ ] T002a [P] Create `code/requirements.txt` with pinned versions (torch-cpu, onnxruntime, scikit-learn, opencv-python, pandas, numpy, pyyaml, tqdm, matplotlib, seaborn, bayesian_changepoint_detection, statsmodels, open3d)
 - [ ] T002b [P] Initialize Python 3.11 virtualenv and install dependencies
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
@@ -75,27 +75,29 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 3: User Story 1 - Synthetic Degradation & Ground Truth Alignment (Priority: P1) 🎯 MVP
 
-**Goal**: Download a representative set of urban Sentinel-2 tiles, align with OpenTopography LiDAR, and apply reproducible synthetic degradation (low-res, clouds, temporal shifts) with NNF variance.
+**Goal**: Download a representative set of urban Sentinel-2 tiles, align with OpenTopography LiDAR, extract patches of varying sizes, and apply reproducible synthetic degradation (low-res, clouds, temporal shifts) with NNF variance.
 
-**Independent Test**: A script generates 500 paired samples where alignment error is < 2 meters, and degradation parameters (resolution, cloud coverage, NNF) are verified against the ground truth.
+**Independent Test**: A script generates paired samples where alignment error is < 2 meters, and degradation parameters (resolution, cloud coverage, NNF) are verified against the ground truth.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for alignment error calculation in `tests/unit/test_alignment.py` (verify < 2m residual)
-- [ ] T011 [P] [US1] Unit test for degradation parameters in `tests/unit/test_degradation.py` (verify moderate spatial resolution and partial cloud coverage)
+- [ ] T011a [P] [US1] Unit test for alignment error calculation in `tests/unit/test_alignment.py` (verify < 2m residual)
+- [ ] T011b [P] [US1] Unit test for degradation parameters in `tests/unit/test_degradation.py` (verify coarse spatial resolution and partial cloud coverage; **verify implementation of Kolmogorov-Smirnov (KS) test for mask distribution comparison**)
+- [ ] T011c [P] [US1] Unit test for cloud mask validation logic in `tests/unit/test_mask_validation.py` (verify KS-test implementation)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/01_data_curation.py` to download Sentinel-2 (Microsoft Planetary Computer) and LiDAR (USGS 3DEP/NYC) for 500 urban regions; save raw assets to `data/raw/` and generate `data/processed/raw_manifest.csv` listing all downloaded IDs
-- [ ] T013 [US1] Implement `code/01_data_curation.py` to register LiDAR to image coordinates using `code/lib/alignment.py`, calculate spatial alignment error for each pair, and **automatically exclude** samples with > 2m error; output the final filtered dataset to `data/processed/aligned_pairs.csv` and `data/processed/alignment_report.csv` (pass/fail flags)
-- [ ] T013b [US1] Verify and log that the final filtered dataset in `data/processed/aligned_pairs.csv` contains a sufficient number of valid samples (or fail if count < 500)
-- [ ] T011b [US1] Acquire reference real cloud masks for the selected regions from Sentinel-2 Cloud Probability dataset and save to `data/raw/real_cloud_masks_subset/`; **IF** synthetic mask similarity check (to be run in T016) fails (< 0.8), configure the degradation pipeline (T014) to use these real masks instead of procedural generation
-- [ ] T016 [US1] Implement `code/02b_validate_masks.py` to compare synthetic mask stats against `data/raw/real_cloud_masks_subset/` and output `data/results/mask_similarity_score.json`; if similarity < 0.8, **explicitly configure** the degradation pipeline to switch to real masks and log the fallback decision
-- [ ] T014a [US1] Implement `code/02_degradation_pipeline.py` to apply **downscale** (to 30m/pixel) and **procedural/real cloud masks** (based on T016) to the aligned pairs; output intermediate degraded scenes to `data/processed/degraded_base/`
+- [ ] T012 [US1] Implement `code/01_data_curation.py` to download Sentinel-2 (Microsoft Planetary Computer) and LiDAR (USGS 3DEP/NYC) for urban regions; **implement a `while count < 500` retry loop** that repeatedly downloads and aligns new batches until a sufficient number of valid samples (alignment error < 2m) are secured; save raw assets to `data/raw/` and generate `data/processed/raw_manifest.csv` listing all downloaded IDs; output the final filtered dataset to `data/processed/aligned_pairs.csv` and `data/processed/alignment_report.csv`
+- [ ] T013 [US1] Implement `code/01_patch_extraction.py` to **extract 100m² patches** from the downloaded 1km² aligned tiles (output of T012); output to `data/processed/patches_100m2/`; ensure this step occurs BEFORE degradation to satisfy compute budget constraints (SC-003, FR-003); generate `data/processed/patch_manifest.csv`
+- [ ] T015 [US1] Acquire reference real cloud masks for a small subset of selected regions from Sentinel-2 Cloud Probability dataset (e.g., `S2MSK` products) and save to `data/raw/real_cloud_masks_subset/`; **define the statistical comparison method (Kolmogorov-Smirnov test)** to compare the distribution of synthetic masks against these real masks; **DO NOT** switch the data source to real masks, use only for tuning
+- [ ] T016 [US1] Implement `code/02b_validate_masks.py` to **perform the Kolmogorov-Smirnov test** between synthetic mask stats and `data/raw/real_cloud_masks_subset/`; output `data/results/mask_similarity_score.json`; if similarity < 0.8, **tune the degradation pipeline parameters** (T014a) to improve similarity, ensuring the experiment remains synthetic-only
+- [ ] T014a [US1] Implement `code/02_degradation_pipeline.py` to apply **downscale to coarse spatial resolution
+
+The research question and method remain unchanged as per the original planning document, with the specific empirical value generalized to a qualitative descriptor.** and **procedural cloud masks** (tuned per T016) to the 100m² patches from T013; output intermediate degraded scenes to `data/processed/degraded_base/`; ensure the resolution is explicitly set to 30m/pixel ± 1%
 - [ ] T014b [US1] Implement `code/02_degradation_pipeline.py` to apply **temporal shifts** (simulating stale imagery via temporal interpolation or selection from adjacent dates) and **systematically vary NNF** (Normalized Noise Fraction) by sweeping degradation intensity across the sample set; output the final NNF-varied dataset to `data/processed/nnf_varied_scenes/` and `data/processed/degraded_manifest.json`
-- [ ] T017 [US1] Save aligned pairs and degraded scenes to `data/processed/` with checksums in `data/manifest.json` (Note: T017 now depends on T014 completing the NNF-varied generation)
+- [ ] T017 [US1] Save aligned pairs, patches, and degraded scenes to `data/processed/` with checksums in `data/manifest.json`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,9 +117,12 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] Implement `code/lib/cpu_3dgs_wrapper.py` to load CPU-quantized diffusion prior (low-bit/LCM) via ONNX Runtime; explicitly assert `torch.cuda.is_available()` is False and force `execution_provider=['CPUExecutionProvider']`
-- [ ] T021 [US2] Implement `code/03_3dgs_cpu_inference.py` to **orchestrate the full end-to-end pipeline**: load degraded input from T014 -> generate baseline 3DGS scene -> apply inpainting module for recovery -> save paired baseline/inpainted `.ply` files to `data/processed/reconstructed/`; **explicitly instrument and log peak RAM usage and wall-clock time per scene to `data/results/performance_log.csv`**; ensure completion < 45 mins per scene; implement graceful OOM handling (`ERR_OOM_CPU`)
-- [ ] T024 [US2] Validate output `.ply` files for format compatibility and size < 500 MB in `code/03_3dgs_cpu_inference.py`
-- [ ] T025 [US2] Save reconstructed scenes to `data/processed/reconstructed/` with metadata
+- [ ] T021 [US2] Implement `code/03_3dgs_baseline.py` to generate baseline 3DGS `.ply` scenes from the **degraded inputs in `data/processed/nnf_varied_scenes/` (from T014b)**; output to `data/processed/reconstructed/baseline/`; ensure completion < 30 mins per scene; **wrap execution with `memory_profiler` to log per-sample `peak_ram_mb` and `wall_clock_time` to a temporary buffer**
+- [ ] T022 [US2] Implement `code/03_render_interface.py` to load the baseline `.ply` files from T021 and render 512x512 RGB and Depth maps using fixed camera intrinsics (f=1024, c=256) and fixed poses; output to `data/processed/reconstructed/rendered_interface/`; **this is the mandatory data interface for the inpainting module**
+- [ ] T023 [US2] Implement `code/03_inpainting_restoration.py` to consume the **rendered maps from T022**, apply the CPU-optimized inpainting module, and generate Inpainted `.ply` files; output to `data/processed/reconstructed/inpainted/`; **wrap execution with `memory_profiler` to log per-sample `peak_ram_mb` and `wall_clock_time` to the same temporary buffer**
+- [ ] T024 [US2] Implement `code/03_performance_logger.py` to **finalize the per-sample performance logs** from the temporary buffer (generated by T021/T023), ensuring `peak_ram_mb`, `wall_clock_time`, and `status` (success/ERR_OOM_CPU) are written for every sample to a staging file; handle `MemoryError` by logging `ERR_OOM_CPU`
+- [ ] T027 [US2] Implement `code/03_ply_validator.py` to validate output `.ply` files for format compatibility and size < 500 MB; **ensure the staging performance logs from T024 are persisted** before aggregation
+- [ ] T026 [US2] Implement `code/03_performance_aggregator.py` to **read the staging performance logs from T024/T027**, **verify that the total sample execution time fits within the GitHub Actions time window**, and **write per-sample rows** (including `sample_id`, `peak_ram_mb`, `wall_clock_time`, `status`) to `data/results/performance_log.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,23 +130,24 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 5: User Story 3 - Fidelity Quantification & Threshold Analysis (Priority: P3)
 
-**Goal**: Compute P-PSNR, P-SSIM, and Chamfer Distance against LiDAR, perform statistical significance testing, and identify the critical NNF threshold using the NNF-varied dataset from T014.
+**Goal**: Compute P-PSNR, P-SSIM, Chamfer Distance, and Geometric Divergence Score (GDS) against LiDAR, perform statistical significance testing using Wilcoxon and LMM, and identify the critical NNF threshold using the NNF-varied dataset from T014.
 
-**Independent Test**: A script processes the NNF-varied dataset, outputs a metrics CSV, and generates a plot showing the performance drop-off curve with a identified NNF threshold (p > 0.05).
+**Independent Test**: A script processes the NNF-varied dataset, outputs a metrics CSV including GDS, and generates a plot showing the performance drop-off curve with a identified NNF threshold (p > 0.05).
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for Chamfer Distance calculation in `tests/unit/test_metrics.py` (verify normalized scale)
-- [ ] T027 [P] [US3] Unit test for statistical significance (t-test) in `tests/unit/test_analysis.py` (verify p-value logic)
+- [ ] T026a [P] [US3] Unit test for Chamfer Distance calculation in `tests/unit/test_metrics.py` (verify normalized scale)
+- [ ] T026b [P] [US3] Unit test for statistical significance (Wilcoxon/LMM) in `tests/unit/test_analysis.py` (verify p-value logic)
 
 ### Implementation for User Story 3
 
 - [ ] T028 [US3] Implement `code/lib/metrics.py` to compute P-PSNR and P-SSIM between reconstructed and LiDAR scenes
 - [ ] T029 [US3] Implement `code/lib/metrics.py` to compute Chamfer Distance on a normalized scale (meters)
-- [ ] T030 [US3] Implement `code/04_metrics_evaluation.py` to run metrics on all samples from `data/processed/nnf_varied_scenes/` and save `data/results/metrics.csv`
-- [ ] T031 [US3] Implement `code/05_threshold_analysis.py` to perform paired t-test (baseline vs. inpainted) and log significance
-- [ ] T032 [US3] Implement `code/05_threshold_analysis.py` to sweep NNF thresholds using the dataset from T014, identify the critical failure point (p > 0.05), and extract the scalar value
-- [ ] T033 [US3] Generate plots (performance drop-off curve) in `data/results/` and save the critical NNF threshold scalar to `data/results/critical_threshold.json`
+- [ ] T029b [US3] Implement `code/lib/metrics.py` to compute **Geometric Divergence Score (GDS)** comparing Baseline vs Inpainted geometry to distinguish recovery from hallucination
+- [ ] T030 [US3] Implement `code/04_metrics_evaluation.py` to run metrics (P-PSNR, P-SSIM, Chamfer Distance, **GDS**) on all samples from `data/processed/nnf_varied_scenes/` and save `data/results/metrics.csv`
+- [ ] T031 [US3] Implement `code/05_threshold_analysis.py` to perform **Wilcoxon signed-rank test** on improvement (Inpainted - Baseline) and **Linear Mixed-Effects (LMM)** model with `scene_complexity` as random effect; log significance (p-value)
+- [ ] T032 [US3] Implement `code/05_threshold_analysis.py` to sweep NNF thresholds using the dataset from T014, **calculate the p-value at each step using the Wilcoxon signed-rank test AND the Linear Mixed-Effects (LMM) model**, identify the critical failure point where **p > 0.05**, and extract the scalar value
+- [ ] T033 [US3] Generate plots (performance drop-off curve, Recovery vs. Hallucination) in `data/results/` and save the critical NNF threshold scalar to `data/results/critical_threshold.json`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -174,7 +180,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Explicitly depends on T017 (US1 data completion)**
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Explicitly depends on T025 (US2 output)**
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Explicitly depends on T026 (US2 output)**
 
 ### Within Each User Story
 
@@ -201,6 +207,7 @@ Examples of foundational tasks (adjust based on your project):
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Unit test for alignment error calculation in tests/unit/test_alignment.py"
 Task: "Unit test for degradation parameters in tests/unit/test_degradation.py"
+Task: "Unit test for cloud mask validation logic in tests/unit/test_mask_validation.py"
 
 # Launch all models for User Story 1 together:
 Task: "Implement code/lib/alignment.py"

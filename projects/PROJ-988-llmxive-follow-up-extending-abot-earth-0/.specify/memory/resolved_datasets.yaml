@@ -1,26 +1,29 @@
-resolved_at: '2026-07-12T11:38:03.712679+00:00'
+resolved_at: '2026-07-13T00:05:04.550175+00:00'
 datasets:
 - intent: OpenTopography
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Digital_Transformation_Readiness_and_Policy_Capacity_in_Europe/32968319
+  - url: https://figshare.com/articles/media/Redeemer_s_University_2026_2027_ADMISSION_FORM_PORTAL_NOTICE_Call_0704_096_4654_Dr_Mrs_FAITH_For_More_Information_on_how_to_apply_Applications_call_07047903330_are_hereby_invited_from_suitably_qualified_candidates_for_admission_into_various/32969717
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_for_Burden_and_correlates_of_late_diagnosis_of_cervical_cancer_among_women_attending_care_at_a_public_health_facility_in_Coastal_Kenya/32968310
+  - url: https://dro.deakin.edu.au/articles/dataset/Research_Data_Collection_on_Religious_Populism_Emotions_and_Political_Mobilisation_in_Turkey_Indonesia_and_Pakistan/32945903
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Life_at_the_crossroads_of_Evolution_of_epidemiology_fiscal_pressure_and_governance_void_in_federal_Nepal_/32968313
+  - url: https://figshare.com/articles/media/Hallmark_University_2026_2027_ADMISSION_FORM_PORTAL_NOTICE_Call_0704_096_4654_Dr_Mrs_FAITH_For_More_Information_on_how_to_apply_Applications_call_07047903330_are_hereby_invited_from_suitably_qualified_candidates_for_admission_into_various_U/32969690
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/vW_KG_for_Artificial_Intelligence_Reasoning_Stability_A_Structural_Framework_for_Collapse_Vector_Control/32968298
+  - url: https://bridges.monash.edu/articles/dataset/Telomere_data_and_R-code/32969693
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/A_Unified_Framework_for_Post-Quantum_Computationally_Resilient_Direct-to-Device_Non-Terrestrial_Networks/32968286
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/dataset/Telomere_data_and_R-code/32969693
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/preprint/dialogische_Entscheidungsfindung_in_der_Sozialen_Arbeit_eine_pers_nliche_Einf_hrung/32969573
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -44,6 +47,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21327887
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21327887
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://openheritage3d.org/project.php?id=D6NS3R
     source: datacite
     status: wrong_format
@@ -53,14 +64,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20585160
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20818936
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20818936
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -94,23 +97,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Digital_Transformation_Readiness_and_Policy_Capacity_in_Europe/32968319
+  - url: https://figshare.com/articles/journal_contribution/Novena_University_2026_2027_ADMISSION_FORM_PORTAL_NOTICE_Call_0704_096_4654_Dr_Mrs_FAITH_For_More_Information_on_how_to_apply_Applications_call_07047903330_are_hereby_invited_from_suitably_qualified_candidates_for_admission_into_various_Und/32969723
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_for_Burden_and_correlates_of_late_diagnosis_of_cervical_cancer_among_women_attending_care_at_a_public_health_facility_in_Coastal_Kenya/32968310
+  - url: https://dro.deakin.edu.au/articles/chapter/Introduction/32969534
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Life_at_the_crossroads_of_Evolution_of_epidemiology_fiscal_pressure_and_governance_void_in_federal_Nepal_/32968313
+  - url: https://dro.deakin.edu.au/articles/book/Screen_Time_and_the_Impossibility_of_Modern_Parenting/32969492
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/vW_KG_for_Artificial_Intelligence_Reasoning_Stability_A_Structural_Framework_for_Collapse_Vector_Control/32968298
+  - url: https://figshare.com/articles/media/Redeemer_s_University_2026_2027_ADMISSION_FORM_PORTAL_NOTICE_Call_0704_096_4654_Dr_Mrs_FAITH_For_More_Information_on_how_to_apply_Applications_call_07047903330_are_hereby_invited_from_suitably_qualified_candidates_for_admission_into_various/32969717
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/A_Unified_Framework_for_Post-Quantum_Computationally_Resilient_Direct-to-Device_Non-Terrestrial_Networks/32968286
+  - url: https://dro.deakin.edu.au/articles/dataset/Research_Data_Collection_on_Religious_Populism_Emotions_and_Political_Mobilisation_in_Turkey_Indonesia_and_Pakistan/32945903
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -122,38 +125,38 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5907059
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7543883
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3899507
+  - url: https://zenodo.org/records/5907059
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20984278
+  - url: https://zenodo.org/records/15741207
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21326868
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20984278
+  - url: https://zenodo.org/records/21326868
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21319837
+  - url: https://zenodo.org/records/21325480
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21319837
+  - url: https://zenodo.org/records/21325480
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21317967
+  - url: https://doi.org/10.5281/zenodo.21322182
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
 - intent: NNF
   status: verified
   candidates:
@@ -169,23 +172,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/dataset/Digital_Transformation_Readiness_and_Policy_Capacity_in_Europe/32968319
+  - url: https://dro.deakin.edu.au/articles/chapter/Just_a_moral_panic_/32969483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_for_Burden_and_correlates_of_late_diagnosis_of_cervical_cancer_among_women_attending_care_at_a_public_health_facility_in_Coastal_Kenya/32968310
+  - url: https://figshare.com/articles/journal_contribution/Novena_University_2026_2027_ADMISSION_FORM_PORTAL_NOTICE_Call_0704_096_4654_Dr_Mrs_FAITH_For_More_Information_on_how_to_apply_Applications_call_07047903330_are_hereby_invited_from_suitably_qualified_candidates_for_admission_into_various_Und/32969723
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Life_at_the_crossroads_of_Evolution_of_epidemiology_fiscal_pressure_and_governance_void_in_federal_Nepal_/32968313
+  - url: https://dro.deakin.edu.au/articles/chapter/Introduction/32969534
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/vW_KG_for_Artificial_Intelligence_Reasoning_Stability_A_Structural_Framework_for_Collapse_Vector_Control/32968298
+  - url: https://dro.deakin.edu.au/articles/book/Screen_Time_and_the_Impossibility_of_Modern_Parenting/32969492
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/A_Unified_Framework_for_Post-Quantum_Computationally_Resilient_Direct-to-Device_Non-Terrestrial_Networks/32968286
+  - url: https://figshare.com/articles/media/Redeemer_s_University_2026_2027_ADMISSION_FORM_PORTAL_NOTICE_Call_0704_096_4654_Dr_Mrs_FAITH_For_More_Information_on_how_to_apply_Applications_call_07047903330_are_hereby_invited_from_suitably_qualified_candidates_for_admission_into_various/32969717
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
