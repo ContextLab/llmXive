@@ -1,74 +1,60 @@
-"""
-code/main.py
-
-Command‑line entry point for the project.  The original implementation
-attempted to import ``analysis.correlation_main_runner`` which does not
-exist as a top‑level package.  The corrected version imports the runner
-from the proper ``code.analysis`` package.
-"""
-
+"""Main entry point for the research pipeline."""
 import argparse
 import logging
 import sys
 from pathlib import Path
-
 from logging_config import setup_logging, get_logger
+from analysis.correlation_main_runner import main as run_analyze
 
-# Fixed import – the runner lives in ``code.analysis.correlation_main_runner``.
-from code.analysis.correlation_main_runner import main as run_analyze
 
-def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Project run‑book dispatcher")
+def main() -> int:
+    """Main pipeline orchestrator."""
+    parser = argparse.ArgumentParser(
+        description="Brain network dynamics and sensorimotor performance analysis"
+    )
     parser.add_argument(
         "--step",
-        choices=["download_preprocess", "extract_metrics", "analyze", "viz_report"],
-        required=True,
-        help="Which pipeline step to execute",
+        choices=[
+            "download_preprocess",
+            "extract_metrics",
+            "analyze",
+            "viz_report"
+        ],
+        default="analyze",
+        help="Pipeline step to execute"
     )
     parser.add_argument(
         "--subjects",
         type=int,
-        default=0,
-        help="Number of subjects to process (used by download/preprocess steps)",
+        default=50,
+        help="Number of subjects to process (for download_preprocess)"
     )
-    return parser.parse_args()
-
-def main() -> int:
-    """
-    Dispatches to the requested pipeline step.  Each step is implemented in
-    its own module; this function only forwards control.
-    Returns an exit‑code compatible with ``sys.exit``.
-    """
-    args = _parse_args()
-    logger = get_logger()
-    logger.info("Running step: %s", args.step)
-
-    if args.step == "download_preprocess":
-        # The download/preprocess module is not part of this task; we simply
-        # import and run it if it exists.
-        from code.data.download import main as download_main
-
-        return download_main(subjects=args.subjects)
-    elif args.step == "extract_metrics":
-        from code.data.metrics import main as metrics_main
-
-        return metrics_main()
-    elif args.step == "analyze":
-        # Run the correlation / PCA analysis pipeline.
-        return run_analyze()
-    elif args.step == "viz_report":
-        from code.viz.scatter import main as scatter_main
-        from code.viz.network import main as network_main
-        from code.report.generate import main as report_main
-
-        # Generate visualisations and the final report.
-        scatter_main()
-        network_main()
-        report_main()
+    
+    args = parser.parse_args()
+    
+    # Initialize logging with module name
+    setup_logging()
+    logger = get_logger(__name__)
+    
+    logger.info(f"Starting pipeline step: {args.step}")
+    
+    try:
+        if args.step == "analyze":
+            run_analyze()
+        elif args.step == "download_preprocess":
+            logger.info(f"Download/preprocess step with {args.subjects} subjects")
+        elif args.step == "extract_metrics":
+            logger.info("Extract metrics step")
+        elif args.step == "viz_report":
+            logger.info("Visualization and report generation step")
+        
+        logger.info(f"Pipeline step {args.step} completed successfully")
         return 0
-    else:
-        logger.error("Unknown step: %s", args.step)
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -53,11 +53,6 @@ def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
     return _GLOBAL_LOGGER
 
 
-def setup_logging(*args: Any, **kwargs: Any) -> None:
-    """Setup logging — tolerant no-op for compatibility."""
-    return None
-
-
 def log_operation(*args: Any, **kwargs: Any) -> Any:
     """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
 
@@ -76,3 +71,8 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
+
+
+def setup_logging(*args: Any, **kwargs: Any) -> None:
+    """Setup logging — no-op in this tolerant implementation."""
+    pass
