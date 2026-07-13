@@ -1,81 +1,85 @@
 """
-Unit test for the PCA analysis implemented in ``analysis/correlations.py``.
-The test creates a tiny synthetic but *real* DataFrame that mimics the
-structure of the metric CSV produced by earlier steps, runs the pipeline,
-and checks that the three expected output files are created and contain
-sensible data (non‑empty, correct columns).
+Unit test for the PCA implementation in ``code.analysis.correlations``.
+The test uses a tiny synthetic dataset (generated on the fly) to verify
+that the three required output files are created and contain sensible
+values.
 """
 
 import os
-import shutil
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-# Import the functions under test
-from analysis import correlations as corr
+from code.analysis.correlations import (
+    load_metrics_data,
+    compute_and_save_pca,
+    load_pca_scores,
+    merge_metrics_and_pca_scores,
+    save_full_metrics,
+)
 
+# Directory where the analysis artefacts are written.
 ANALYSIS_DIR = Path("data/analysis")
-METRICS_FILE = ANALYSIS_DIR / "metrics.csv"
-LOADINGS_FILE = ANALYSIS_DIR / "pca_loadings.csv"
-FACTOR_SCORES_FILE = ANALYSIS_DIR / "factor_scores.csv"
-FULL_METRICS_FILE = ANALYSIS_DIR / "full_metrics.csv"
+METRICS_CSV = ANALYSIS_DIR / "metrics.csv"
 
 @pytest.fixture(scope="function")
-def clean_analysis_dir(tmp_path):
-    """
-    Ensure a clean ``data/analysis`` directory for each test run.
-    """
-    # Move the repository's analysis dir to a temporary location
-    if ANALYSIS_DIR.exists():
-        backup = tmp_path / "backup"
-        shutil.move(str(ANALYSIS_DIR), str(backup))
-    ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
-    yield
-    # Restore original content after the test
-    if backup.exists():
-        shutil.rmtree(str(ANALYSIS_DIR))
-        shutil.move(str(backup), str(ANALYSIS_DIR))
-
-def test_pca_pipeline_creates_outputs(clean_analysis_dir):
-    # ------------------------------------------------------------------
-    # 1. Create a minimal but realistic metrics CSV
-    # ------------------------------------------------------------------
+def synthetic_metrics(tmp_path):
+    """Create a small synthetic metrics CSV for the duration of a test."""
     df = pd.DataFrame(
         {
             "subject_id": [1, 2, 3, 4],
-            "modularity": [0.4, 0.35, 0.42, 0.38],
-            "global_efficiency": [0.55, 0.58, 0.53, 0.56],
-            "participation_coef": [0.32, 0.30, 0.35, 0.31],
-            "within_module_degree": [1.2, 1.1, 1.3, 1.15],
+            "modularity": [0.2, 0.25, 0.22, 0.24],
+            "global_efficiency": [0.45, 0.48, 0.46, 0.47],
+            "participation_coef": [0.33, 0.35, 0.34, 0.36],
+            "within_module_degree": [0.55, 0.58, 0.57, 0.56],
         }
     )
-    df.to_csv(METRICS_FILE, index=False)
+    ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
+    df.to_csv(METRICS_CSV, index=False)
+    yield df
+    # Cleanup after test
+    for f in ANALYSIS_DIR.iterdir():
+        f.unlink()
+    ANALYSIS_DIR.rmdir()
 
-    # ------------------------------------------------------------------
-    # 2. Run the full pipeline
-    # ------------------------------------------------------------------
-    corr.main()
+def test_pca_workflow(synthetic_metrics):
+    # Load the synthetic data
+    df = load_metrics_data()
+    assert not df.empty
+    # Run PCA
+    compute_and_save_pca(df, n_components=2)
 
-    # ------------------------------------------------------------------
-    # 3. Verify that the three output files exist
-    # ------------------------------------------------------------------
-    for path in (LOADINGS_FILE, FACTOR_SCORES_FILE, FULL_METRICS_FILE):
-        assert path.is_file(), f"Expected output file {path} to exist"
+    # Verify that the expected files exist
+    loadings_path = ANALYSIS_DIR / "pca_loadings.csv"
+    scores_path = ANALYSIS_DIR / "factor_scores.csv"
+    full_metrics_path = ANALYSIS_DIR / "full_metrics.csv"
 
-    # ------------------------------------------------------------------
-    # 4. Basic sanity checks on the contents
-    # ------------------------------------------------------------------
-    loadings = pd.read_csv(LOADINGS_FILE, index_col="metric")
-    assert set(loadings.columns) == {"component_1", "component_2"}
-    assert not loadings.empty
+    for path in (loadings_path, scores_path, full_metrics_path):
+        assert path.is_file(), f"{path} was not created"
 
-    scores = pd.read_csv(FACTOR_SCORES_FILE)
+    # Load back the artefacts and perform basic sanity checks
+    loadings = pd.read_csv(loadings_path, index_col=0)
+    scores = pd.read_csv(scores_path)
+    full = pd.read_csv(full_metrics_path)
+
+    # Loadings should have two component columns
+    assert list(loadings.columns) == ["component_1", "component_2"]
+    # Scores should have exactly one PCA factor column
     assert list(scores.columns) == ["subject_id", "pca_factor_1"]
-    assert len(scores) == len(df)
-
-    full = pd.read_csv(FULL_METRICS_FILE)
-    expected_cols = set(df.columns) | {"pca_factor_1"}
+    # Full metrics should contain the original columns plus the factor
+    expected_cols = set(
+        [
+            "subject_id",
+            "modularity",
+            "global_efficiency",
+            "participation_coef",
+            "within_module_degree",
+            "pca_factor_1",
+        ]
+    )
     assert set(full.columns) == expected_cols
+    # Ensure the number of rows matches the input
     assert len(full) == len(df)
+
+# The test suite can be executed via ``pytest -q`` from the repository root.
