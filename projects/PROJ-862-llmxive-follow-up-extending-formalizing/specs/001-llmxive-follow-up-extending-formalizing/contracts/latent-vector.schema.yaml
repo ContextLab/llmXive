@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Latent Vector Schema"
+description: "Schema for extracted hidden state vectors."
+type: "object"
+properties:
+  pair_id:
+    type: "string"
+    description: "Reference to the question pair."
+  condition:
+    type: "string"
+    enum:
+      - "baseline"
+      - "perturbed"
+    description: "Whether the vector is from the baseline or noisy input."
+  sigma:
+    type: "number"
+    description: "Noise magnitude (0.0 for baseline)."
+  token_index:
+    type: "integer"
+    description: "Index of the 'thought' token in the sequence."
+  vector_json:
+    type: "string"
+    description: "JSON string representation of the normalized float vector."
+required:
+  - pair_id
+  - condition
+  - sigma
+  - token_index
+  - vector_json
+additionalProperties: false

@@ -8,48 +8,41 @@ from pathlib import Path
 
 from seed import init_reproducibility
 from ingestion.aggregator import LiteratureAggregator, main as run_aggregator
-from ingestion.cleaner import main as run_cleaner
-from ingestion.validator import main as run_validator
-from ingestion.citation_tracker import get_tracker
-from utils.logging_config import setup_logging, get_logger
+from ingestion.cleaner import DataCleaner, main as run_cleaner
+from ingestion.validator import DataValidator, main as run_validator
+from ingestion.saver import main as run_saver
+from utils.logging_config import get_logger
+from config import get_data_raw_dir, get_data_processed_dir
 
-logger = get_logger("ingestion.pipeline_runner")
+logger = get_logger(__name__)
+
 
 def run_pipeline():
     """
-    Execute the full ingestion pipeline: Aggregate -> Clean -> Validate.
+    Runs the full ingestion pipeline: Aggregate -> Clean -> Validate -> Save.
     """
-    # Initialize logging
-    setup_logging()
-    logger.info("Starting Ingestion Pipeline.")
-    
-    # Initialize reproducibility
     init_reproducibility()
-    logger.info("Reproducibility initialized.")
-    
-    tracker = get_tracker()
-    tracker.log_operation("pipeline_execution_start", {})
-    
-    try:
-        # Step 1: Aggregate
-        logger.info("Step 1: Aggregating data...")
-        run_aggregator()
-        
-        # Step 2: Clean
-        logger.info("Step 2: Cleaning data...")
-        run_cleaner()
-        
-        # Step 3: Validate
-        logger.info("Step 3: Validating data...")
-        run_validator()
-        
-        tracker.log_operation("pipeline_execution_complete", {"status": "success"})
-        logger.info("Ingestion Pipeline completed successfully.")
-        
-    except Exception as e:
-        tracker.log_operation("pipeline_execution_failed", {"error": str(e)})
-        logger.error(f"Ingestion Pipeline failed: {e}", exc_info=True)
-        raise
+    logger.info("Starting Ingestion Pipeline...")
+
+    # 1. Aggregate
+    logger.info("Step 1: Aggregating data...")
+    run_aggregator()
+
+    # 2. Clean
+    logger.info("Step 2: Cleaning data...")
+    run_cleaner()
+
+    # 3. Validate
+    logger.info("Step 3: Validating data...")
+    run_validator()
+
+    # 4. Save (Checksums)
+    logger.info("Step 4: Saving with checksums...")
+    # The saver logic is integrated into the other steps for simplicity,
+    # but this step ensures final checksums are calculated if needed.
+    run_saver()
+
+    logger.info("Ingestion Pipeline completed.")
 
 if __name__ == "__main__":
     run_pipeline()

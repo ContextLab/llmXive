@@ -110,10 +110,10 @@
 
 - [~] T020 [US2] Implement CLR transform in `code/features/transformer.py` using `compositional` library to handle closure problem; output both the transformed vector and the weight coefficients for downstream use
 - [~] T021 [US2] Implement descriptor computation in `code/features/descriptor_engine.py` to calculate weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration by: 1) Applying CLR to raw composition vector, 2) Using the resulting CLR coefficients to weight the original raw elemental property tables (NOT computing properties on log-ratios)
-- [ ] T022 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5
-- [ ] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
-- [ ] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`
-- [ ] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py`
+- [~] T022 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5
+- [~] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
+- [~] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`
+- [~] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py`
 - [ ] T026 [US2] Implement bootstrap resampling for confidence intervals on held-out test set in `code/evaluation/bootstrap.py`
 - [ ] T027 [US2] Implement paired t-test comparison on CV folds in `code/evaluation/model_comparison.py`
 - [ ] T028 [US2] Implement SHAP value calculation and top-3 feature ranking in `code/evaluation/shap_analysis.py`

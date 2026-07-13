@@ -1,6 +1,5 @@
 """
-Module to track data sources and citations for ingestion operations.
-Ensures reproducibility and traceability of the dataset.
+Citation Tracker: Tracks data sources and citations.
 """
 import logging
 from pathlib import Path
@@ -9,114 +8,76 @@ from datetime import datetime
 import json
 import csv
 
+from seed import init_reproducibility
 from utils.logging_config import get_logger
-from config import get_data_processed_dir, get_data_raw_dir
 
-logger = get_logger("ingestion.citation_tracker")
+logger = get_logger(__name__)
+
 
 class CitationTracker:
     """
-    Tracks the provenance of data sources used during ingestion.
+    Tracks citations for data sources used in the pipeline.
     """
-    
+
     def __init__(self):
-        self.sources: List[Dict[str, Any]] = []
-        self.operations: List[Dict[str, Any]] = []
-        self.logger = get_logger("ingestion.citation_tracker")
-    
-    def register_source(self, source_name: str, url: Optional[str] = None, 
-                      description: Optional[str] = None, 
-                      access_date: Optional[str] = None,
-                      metadata: Optional[Dict[str, Any]] = None):
+        init_reproducibility()
+        self.citations = []
+
+    def add_citation(self, source: str, url: str, description: str):
         """
-        Register a new data source.
-        
-        Args:
-            source_name: Human-readable name of the source.
-            url: Direct URL or identifier.
-            description: Brief description of the dataset.
-            access_date: Date the data was accessed (ISO format).
-            metadata: Additional metadata (e.g., version, license).
+        Adds a citation for a data source.
         """
-        if not access_date:
-            access_date = datetime.now().isoformat()
-        
-        entry = {
-            "name": source_name,
+        citation = {
+            "source": source,
             "url": url,
             "description": description,
-            "access_date": access_date,
-            "metadata": metadata or {}
+            "timestamp": datetime.now().isoformat()
         }
-        self.sources.append(entry)
-        self.logger.info(f"Registered data source: {source_name} ({url or 'local'})")
+        self.citations.append(citation)
+        logger.info(f"Added citation for {source}")
 
-    def log_operation(self, operation_type: str, details: Dict[str, Any]):
+    def get_citations(self) -> List[Dict[str, Any]]:
         """
-        Log a specific ingestion operation.
-        
-        Args:
-            operation_type: Type of operation (e.g., 'fetch', 'clean', 'filter').
-            details: Dictionary of operation details.
+        Returns the list of citations.
         """
-        entry = {
-            "timestamp": datetime.now().isoformat(),
-            "type": operation_type,
-            "details": details
-        }
-        self.operations.append(entry)
-        self.logger.debug(f"Operation logged: {operation_type} - {details}")
+        return self.citations
 
-    def save_citations(self, output_dir: Optional[Path] = None):
+    def save_citations(self, output_path: Path):
         """
-        Save the citation log and operation history to JSON and CSV files.
-        
-        Args:
-            output_dir: Directory to save files. Defaults to data/processed.
+        Saves citations to a JSON file.
         """
-        if output_dir is None:
-            output_dir = Path(get_data_processed_dir())
-        
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save JSON log
-        json_path = output_dir / "data_sources_citations.json"
-        with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump({
-                "sources": self.sources,
-                "operations": self.operations,
-                "generated_at": datetime.now().isoformat()
-            }, f, indent=2)
-        
-        self.logger.info(f"Citation log saved to {json_path}")
-        
-        # Save CSV summary for quick reference
-        csv_path = output_dir / "data_sources_summary.csv"
-        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=["name", "url", "description", "access_date"])
-            writer.writeheader()
-            for source in self.sources:
-                writer.writerow({
-                    "name": source["name"],
-                    "url": source["url"],
-                    "description": source["description"],
-                    "access_date": source["access_date"]
-                })
-        
-        self.logger.info(f"Source summary saved to {csv_path}")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(self.citations, f, indent=2)
+        logger.info(f"Saved citations to {output_path}")
 
-# Global instance for convenience
-_global_tracker: Optional[CitationTracker] = None
+
+# Singleton pattern for global tracking
+_tracker_instance = None
+
 
 def get_tracker() -> CitationTracker:
-    """Get or create the global citation tracker instance."""
-    global _global_tracker
-    if _global_tracker is None:
-        _global_tracker = CitationTracker()
-    return _global_tracker
+    """
+    Returns the singleton CitationTracker instance.
+    """
+    global _tracker_instance
+    if _tracker_instance is None:
+        _tracker_instance = CitationTracker()
+    return _tracker_instance
+
 
 def reset_tracker():
-    """Reset the global tracker (useful for testing)."""
-    global _global_tracker
-    _global_tracker = None
+    """
+    Resets the singleton CitationTracker instance.
+    """
+    global _tracker_instance
+    _tracker_instance = CitationTracker()
+
+def main():
+    """
+    Entry point for the citation tracker.
+    """
+    logger.info("Citation Tracker module loaded.")
+
+if __name__ == "__main__":
+    main()

@@ -93,7 +93,7 @@
 - [~] T013f [US1] Implement validation logic in `code/ingestion.py`: Generate `data/processed/validation_report.json` containing data loss metrics (`ingestion_rows_total`, `ingestion_rows_valid`, `ingestion_rows_dropped`) and validation status flags (SC-004)
 - [~] T014 [US1] Implement `code/ingestion.py` output: unified Pandas DataFrame with `trial_id`, `neuron_id`, `spike_count`, `reward_magnitude`, `timestamp_relative_to_reward`
 - [~] T015 [US1] Implement error handling for missing/malformed metadata files (US-1 Acceptance Scenario 2)
-- [ ] T016 [US1] Add logging for data loss metrics: `ingestion_rows_total`, `ingestion_rows_valid`, `ingestion_rows_dropped` (SC-004)
+- [~] T016 [US1] Add logging for data loss metrics: `ingestion_rows_total`, `ingestion_rows_valid`, `ingestion_rows_dropped` (SC-004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,7 +103,7 @@
 
 **Purpose**: Calculate metrics required for US2 that depend on the *validated* dataset from US1
 
-- [ ] T022a [US2] Implement `code/modeling.py` function to calculate observed variance of `spike_count` from the *validated* dataset (post-T013f) and store in `data/processed/observed_variance.json`
+- [~] T022a [US2] Implement `code/modeling.py` function to calculate observed variance of `spike_count` from the *validated* dataset (post-T013f) and store in `data/processed/observed_variance.json`
 
 ---
 
@@ -115,19 +115,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Implement unit test `tests/unit/test_modeling_selection.py::test_glm_selection`: Input data with dispersion=1.5; assert `statsmodels` NegativeBinomial model is returned; Input dispersion=0.9; assert `Poisson` model is returned
-- [ ] T018 [P] [US2] Implement unit test `tests/unit/test_modeling_permutation.py::test_permutation_null`: Input data with seed=42 and no correlation; assert `p_value > 0.05` after 1000 iterations; The null distribution mean is centered near zero.
+- [~] T017 [P] [US2] Implement unit test `tests/unit/test_modeling_selection.py::test_glm_selection`: Input data with dispersion=1.5; assert `statsmodels` NegativeBinomial model is returned; Input dispersion=0.9; assert `Poisson` model is returned
+- [~] T018 [P] [US2] Implement unit test `tests/unit/test_modeling_permutation.py::test_permutation_null`: Input data with seed=42 and no correlation; assert `p_value > 0.05` after 1000 iterations; The null distribution mean is centered near zero.
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement `code/modeling.py` dispersion check (FR-010) to calculate dispersion parameter
-- [ ] T020 [US2] Implement `code/modeling.py` model selection: Negative Binomial (dispersion > 1.1) or Poisson (dispersion <= 1.1) (FR-003)
-- [ ] T021 [US2] Implement `code/modeling.py` GLM fitting: `firing_rate` ~ `reward_magnitude`
-- [ ] T022 [US2] Implement `code/modeling.py` Power Analysis: Calculate MDES (SC-002) using **final validated sample size** and **observed variance from the filtered dataset** (from T022a); Parameters: power=0.80, alpha=0.05, effect size metric=Cohen's f2; report `mdes_80_power` (Depends on T013f, T022a)
-- [ ] T023 [US2] Implement `code/modeling.py` Permutation Test: + iterations to generate null distribution and p-value (FR-004, SC-001)
-- [ ] T024a [US2] Implement `code/modeling.py` Robustness Check: Fit categorical GLM treating `reward_magnitude` as a factor (Plan Complexity Tracking)
-- [ ] T024b [US2] Implement `code/modeling.py` Robustness Check: Perform Likelihood Ratio Test (LRT) comparing categorical vs linear model; if p < 0.05, flag non-linearity (Plan Complexity Tracking)
-- [ ] T025 [US2] Implement `code/modeling.py` Cross-Validation: k-fold CV to evaluate predictive performance (FR-008); Calculate and report R2 and MSE on held-out data; also report coefficient stability (cv_score_mean, cv_score_std)
+- [~] T019 [US2] Implement `code/modeling.py` dispersion check (FR-010) to calculate dispersion parameter
+- [~] T020 [US2] Implement `code/modeling.py` model selection: Negative Binomial (dispersion > 1.1) or Poisson (dispersion <= 1.1) (FR-003)
+- [~] T021 [US2] Implement `code/modeling.py` GLM fitting: `firing_rate` ~ `reward_magnitude`
+- [~] T022 [US2] Implement `code/modeling.py` Power Analysis: Calculate MDES (SC-002) using **final validated sample size** and **observed variance from the filtered dataset** (from T022a); Parameters: power=0.80, alpha=0.05, effect size metric=Cohen's f2; report `mdes_80_power` (Depends on T013f, T022a)
+- [~] T023 [US2] Implement `code/modeling.py` Permutation Test: + iterations to generate null distribution and p-value (FR-004, SC-001)
+- [~] T024a [US2] Implement `code/modeling.py` Robustness Check: Fit categorical GLM treating `reward_magnitude` as a factor (Plan Complexity Tracking)
+- [~] T024b [US2] Implement `code/modeling.py` Robustness Check: Perform Likelihood Ratio Test (LRT) comparing categorical vs linear model; if p < 0.05, flag non-linearity (Plan Complexity Tracking)
+- [~] T025 [US2] Implement `code/modeling.py` Cross-Validation: k-fold CV to evaluate predictive performance (FR-008); Calculate and report R2 and MSE on held-out data; also report coefficient stability (cv_score_mean, cv_score_std)
 - [ ] T026a [US2] Implement `code/modeling.py` Neuron Grouping: Detect, count, and group analyzed neurons from the input DataFrame; report `neuron_count`
 - [ ] T026b [US2] Implement `code/modeling.py` Multiple Comparisons: Apply Bonferroni correction if `neuron_count` > 1 (SC-005); Depends on T026a
 - [ ] T027 [US2] Implement `code/modeling.py` Reward Independence Check: Flag if reward is endogenous vs exogenous

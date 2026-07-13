@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validity Log Schema"
+description: "Schema for validity check results per pair and noise level."
+type: "object"
+properties:
+  pair_id:
+    type: "string"
+    description: "Reference to the question pair."
+  sigma:
+    type: "number"
+    description: "Noise magnitude."
+  input_drift_score:
+    type: "number"
+    description: "SBERT cosine similarity (input)."
+  output_bertscore:
+    type: "number"
+    description: "BERTScore F1 (output)."
+  output_perplexity_ratio:
+    type: "number"
+    description: "Ratio of output perplexity to baseline."
+  exact_match:
+    type: "boolean"
+    description: "Whether exact token match was found."
+  is_valid:
+    type: "boolean"
+    description: "True if all validity checks passed."
+required:
+  - pair_id
+  - sigma
+  - input_drift_score
+  - output_bertscore
+  - output_perplexity_ratio
+  - exact_match
+  - is_valid
+additionalProperties: false

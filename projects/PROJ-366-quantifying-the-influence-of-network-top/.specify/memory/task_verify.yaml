@@ -1,12 +1,6 @@
-? T007 Create base schema validators in `contracts/` (thermal_sample.schema.yaml,
-  atomic_graph.schema.yaml, gnn_output.schema.yaml)
-: 2
-T008 Implement contract test framework in `tests/contract/test_schemas.py` to validate against `contracts/` schemas: 2
-T010 [P] [US1] Contract test for `AtomicGraph` schema in `tests/contract/test_schemas.py`: 2
-"T011 [P] [US1] Unit test for bond cutoff logic (3.0 \xC5) in `tests/unit/test_graph_builder.py`": 2
-? "T012 [US1] Implement `code/ingest/graph_builder.py` to load XYZ files and construct\
-  \ `AtomicGraph` objects using `ase` with 3.0 \xC5 cutoff (FR-001)"
-: 1
-? T016b [P] [US1] Unit test for node-degree stats output in `tests/unit/test_graph_builder.py`
-  (verifies `node_degree_stats.json` schema exists)
-: 2
+T007: 1
+T008: 1
+T010: 1
+T011: 1
+T012: 1
+T016b: 1

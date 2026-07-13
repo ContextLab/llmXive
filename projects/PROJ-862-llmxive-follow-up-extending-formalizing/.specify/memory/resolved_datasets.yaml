@@ -1,0 +1,183 @@
+resolved_at: '2026-07-13T13:02:34.251692+00:00'
+datasets:
+- intent: BERTScore
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/datasets/asusevski/ar_bertscore_full/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/asusevski/fr_bertscore_full/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/asusevski/jp_bertscore_full/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/asusevski/zh_bertscore_full/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/asusevski/hi_bertscore_full/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/_b_Decomposition_and_separation_of_vibration_waves_from_blasting_b_b_b_b_demolition_b_b_b_b_of_tall_buildings_and_their_component_characteristics_b_/32968343
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/UK_Home_Improvement_Cost_Data_2026_Costwise_/32974871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/online_resource/Covid_crisis_could_be_the_catalyst_for_a_return_to_rural_revolt_in_South_Africa/32364036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/presentation/From_In-Store_Experiences_to_High_Street_Ecosystems_Place-Embedded_Experience_Design_in_Micro_and_Small_Businesses/32795391
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/presentation/Producing_updated_policy-relevant_health_research_during_a_time_of_national_crisis_insights_from_the_HSRC_s_Human_and_Social_Capabilities_Division_Research_Programme/32377539
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15480676
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17335850
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10044766
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15308868
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19539374
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/SKT5SciSumm_-_Revisiting_Extractive-Generative_Approach_for_Multi-Document_Scientific_Summarization/32971964/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://spraakbanken.gu.se/resurser/swedn
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/105543
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06845
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05623
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BigBench
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tasksource/bigbench/resolve/main/abstract_narrative_understanding/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lighteval/bigbench_helm/resolve/main/auto_debugging/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4031
+      parsed: true
+  - url: https://huggingface.co/datasets/EleutherAI/bigbench/resolve/main/causal_judgement.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 248520
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/tasksource/bigbench/resolve/main/abstract_narrative_understanding/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lighteval/bigbench_helm/resolve/main/auto_debugging/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/EleutherAI/bigbench/resolve/main/causal_judgement.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/_b_Decomposition_and_separation_of_vibration_waves_from_blasting_b_b_b_b_demolition_b_b_b_b_of_tall_buildings_and_their_component_characteristics_b_/32968343
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/UK_Home_Improvement_Cost_Data_2026_Costwise_/32974871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/online_resource/Covid_crisis_could_be_the_catalyst_for_a_return_to_rural_revolt_in_South_Africa/32364036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/presentation/From_In-Store_Experiences_to_High_Street_Ecosystems_Place-Embedded_Experience_Design_in_Micro_and_Small_Businesses/32795391
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/presentation/Producing_updated_policy-relevant_health_research_during_a_time_of_national_crisis_insights_from_the_HSRC_s_Human_and_Social_Capabilities_Division_Research_Programme/32377539
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19201896
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16880372
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14630714
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19207394
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11400780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21320240
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21320240
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/108498-auto-evolve-enhancing-large-language-model-s-performance-via-self-reasoning-framework
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20567026
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20567026
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

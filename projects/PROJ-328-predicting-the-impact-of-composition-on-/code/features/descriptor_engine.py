@@ -1,3 +1,10 @@
+"""
+Descriptor engineering for solder alloy compositions.
+
+Computes weighted physical property descriptors from compositional data
+using CLR-transformed coefficients as weights.
+"""
+
 import numpy as np
 import pandas as pd
 import logging
@@ -5,213 +12,342 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 import os
 
-# Relative import for local package structure
 from .transformer import CLRTransformer
-from ..config import get_data_processed_dir, get_data_outputs_dir
-from ..utils.error_handlers import DataValidationError
-from ..seed import get_seed_env_vars
+from config import get_data_processed_dir
 
-# Set up logging
 logger = logging.getLogger(__name__)
-
-# Define elemental property constants (atomic mass, electronegativity, atomic radius, melting point, valence electrons)
-# These are standard values for common solder elements (Sn, Ag, Cu, Bi, In, Sb, Zn, Ni, Au, Pd, Pb)
-ELEMENTAL_PROPERTIES = {
-    'Sn': {'atomic_mass': 118.71, 'electronegativity': 1.96, 'atomic_radius': 140, 'melting_point': 505.08, 'valence_electrons': 4},
-    'Ag': {'atomic_mass': 107.87, 'electronegativity': 1.93, 'atomic_radius': 144, 'melting_point': 1234.93, 'valence_electrons': 1},
-    'Cu': {'atomic_mass': 63.55, 'electronegativity': 1.90, 'atomic_radius': 128, 'melting_point': 1357.77, 'valence_electrons': 1},
-    'Bi': {'atomic_mass': 208.98, 'electronegativity': 2.02, 'atomic_radius': 156, 'melting_point': 544.75, 'valence_electrons': 5},
-    'In': {'atomic_mass': 114.82, 'electronegativity': 1.78, 'atomic_radius': 156, 'melting_point': 429.75, 'valence_electrons': 3},
-    'Sb': {'atomic_mass': 121.76, 'electronegativity': 2.05, 'atomic_radius': 140, 'melting_point': 903.78, 'valence_electrons': 5},
-    'Zn': {'atomic_mass': 65.38, 'electronegativity': 1.65, 'atomic_radius': 134, 'melting_point': 692.68, 'valence_electrons': 2},
-    'Ni': {'atomic_mass': 58.69, 'electronegativity': 1.91, 'atomic_radius': 124, 'melting_point': 1728.15, 'valence_electrons': 2},
-    'Au': {'atomic_mass': 196.97, 'electronegativity': 2.54, 'atomic_radius': 144, 'melting_point': 1337.33, 'valence_electrons': 1},
-    'Pd': {'atomic_mass': 106.42, 'electronegativity': 2.20, 'atomic_radius': 137, 'melting_point': 1828.05, 'valence_electrons': 2},
-    'Pb': {'atomic_mass': 207.2, 'electronegativity': 2.33, 'atomic_radius': 175, 'melting_point': 600.61, 'valence_electrons': 4},
-    'Ga': {'atomic_mass': 69.72, 'electronegativity': 1.81, 'atomic_radius': 135, 'melting_point': 302.91, 'valence_electrons': 3},
-    'Al': {'atomic_mass': 26.98, 'electronegativity': 1.61, 'atomic_radius': 143, 'melting_point': 933.47, 'valence_electrons': 3},
-}
 
 class DescriptorEngine:
     """
-    Computes compositional descriptors for solder alloys based on elemental properties.
+    Engine for computing compositional descriptors from solder alloy data.
     
-    The engine applies CLR transformation to raw composition vectors and then uses
-    the resulting CLR coefficients to weight the original raw elemental property tables.
+    This class calculates weighted mean atomic mass, electronegativity variance,
+    atomic radius variance, weighted average melting point, and valence electron
+    concentration using CLR-transformed composition coefficients as weights.
+    
+    Attributes:
+        property_tables (dict): Dictionary mapping property names to DataFrames
+                               containing elemental property values.
+        elements (list): Ordered list of elements used in transformations.
     """
     
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.property_names = ['atomic_mass', 'electronegativity', 'atomic_radius', 'melting_point', 'valence_electrons']
-        
-    def _validate_elemental_composition(self, composition: Dict[str, float]) -> None:
-        """Validate that all elements in composition are known."""
-        for element in composition.keys():
-            if element not in ELEMENTAL_PROPERTIES:
-                raise DataValidationError(f"Unknown element in composition: {element}")
-                
-    def _get_property_vector(self, property_name: str) -> np.ndarray:
-        """Get property values for all elements in the composition as a vector."""
-        # We'll compute this dynamically based on the elements present in the composition
-        return None  # Will be computed per sample
-        
-    def compute_descriptors(self, composition: Dict[str, float]) -> Dict[str, float]:
+    # Standard elemental properties (periodic table data)
+    # These are approximated values for common solder alloy elements
+    ELEMENT_PROPERTIES = {
+        'atomic_mass': {
+            'Sn': 118.71, 'Pb': 207.2, 'Ag': 107.87, 'Cu': 63.55,
+            'Bi': 208.98, 'In': 114.82, 'Sb': 121.76, 'Zn': 65.38,
+            'Al': 26.98, 'Au': 196.97, 'Ni': 58.69, 'Fe': 55.85,
+            'Mn': 54.94, 'Cr': 52.00, 'Co': 58.93, 'Ti': 47.87
+        },
+        'electronegativity': {
+            'Sn': 1.96, 'Pb': 2.33, 'Ag': 1.93, 'Cu': 1.90,
+            'Bi': 2.02, 'In': 1.78, 'Sb': 2.05, 'Zn': 1.65,
+            'Al': 1.61, 'Au': 2.54, 'Ni': 1.91, 'Fe': 1.83,
+            'Mn': 1.55, 'Cr': 1.66, 'Co': 1.88, 'Ti': 1.54
+        },
+        'atomic_radius': {
+            'Sn': 140, 'Pb': 175, 'Ag': 144, 'Cu': 128,
+            'Bi': 156, 'In': 166, 'Sb': 140, 'Zn': 134,
+            'Al': 143, 'Au': 144, 'Ni': 124, 'Fe': 126,
+            'Mn': 127, 'Cr': 128, 'Co': 125, 'Ti': 147
+        },
+        'melting_point': {
+            'Sn': 231.93, 'Pb': 327.46, 'Ag': 961.78, 'Cu': 1084.62,
+            'Bi': 271.3, 'In': 156.6, 'Sb': 630.63, 'Zn': 419.53,
+            'Al': 660.32, 'Au': 1064.18, 'Ni': 1455, 'Fe': 1538,
+            'Mn': 1246, 'Cr': 1907, 'Co': 1495, 'Ti': 1668
+        },
+        'valence_electrons': {
+            'Sn': 4, 'Pb': 4, 'Ag': 1, 'Cu': 1,
+            'Bi': 5, 'In': 3, 'Sb': 5, 'Zn': 2,
+            'Al': 3, 'Au': 1, 'Ni': 2, 'Fe': 2,
+            'Mn': 2, 'Cr': 1, 'Co': 2, 'Ti': 4
+        }
+    }
+    
+    def __init__(self, elements: Optional[List[str]] = None):
         """
-        Compute descriptors for a single solder composition.
+        Initialize the DescriptorEngine.
         
         Args:
-            composition: Dictionary mapping element symbols to their atomic fractions (0-1)
-                        
-        Returns:
-            Dictionary of computed descriptors
+            elements: Optional list of element names. If provided, only these
+                     elements will be used in descriptor computation.
         """
-        self._validate_elemental_composition(composition)
+        self.elements = elements if elements else list(self.ELEMENT_PROPERTIES['atomic_mass'].keys())
+        self.property_tables = {}
+        self._build_property_tables()
+        self.logger = logging.getLogger(__name__)
+    
+    def _build_property_tables(self) -> None:
+        """Build DataFrames for each elemental property."""
+        for prop_name, prop_dict in self.ELEMENT_PROPERTIES.items():
+            df = pd.DataFrame({
+                'element': list(prop_dict.keys()),
+                prop_name: list(prop_dict.values())
+            })
+            self.property_tables[prop_name] = df
+    
+    def _get_property_values(self, property_name: str, elements: List[str]) -> np.ndarray:
+        """
+        Get property values for a list of elements.
         
-        # Convert composition to numpy array
-        elements = list(composition.keys())
-        values = np.array([composition[e] for e in elements])
+        Args:
+            property_name: Name of the property to retrieve.
+            elements: List of element names.
         
-        # Apply CLR transformation
-        clr_transformer = CLRTransformer()
-        clr_coeffs, _ = clr_transformer.transform_composition(values)
+        Returns:
+            np.ndarray: Array of property values in the same order as elements.
+        """
+        if property_name not in self.property_tables:
+            raise ValueError(f"Unknown property: {property_name}")
         
-        # Get property vectors for each element
-        property_vectors = {}
-        for prop in self.property_names:
-            property_vectors[prop] = np.array([ELEMENTAL_PROPERTIES[e][prop] for e in elements])
+        df = self.property_tables[property_name]
+        values = []
+        for elem in elements:
+            if elem in df['element'].values:
+                values.append(df.loc[df['element'] == elem, property_name].values[0])
+            else:
+                # Default value or raise error
+                self.logger.warning(f"Property {property_name} not found for element {elem}. Using 0.")
+                values.append(0.0)
         
-        # Compute weighted mean for each property using CLR coefficients as weights
-        descriptors = {}
+        return np.array(values)
+    
+    def compute_weighted_mean_atomic_mass(self, composition_df: pd.DataFrame) -> pd.Series:
+        """
+        Compute weighted mean atomic mass for each alloy.
         
-        # Weighted mean atomic mass
-        descriptors['weighted_mean_atomic_mass'] = float(np.sum(clr_coeffs * property_vectors['atomic_mass']))
+        Uses CLR-transformed coefficients as weights.
         
-        # Weighted mean electronegativity
-        descriptors['weighted_mean_electronegativity'] = float(np.sum(clr_coeffs * property_vectors['electronegativity']))
+        Args:
+            composition_df: DataFrame with composition columns (element names).
         
-        # Weighted mean atomic radius
-        descriptors['weighted_mean_atomic_radius'] = float(np.sum(clr_coeffs * property_vectors['atomic_radius']))
+        Returns:
+            pd.Series: Weighted mean atomic mass for each sample.
+        """
+        elements = [col for col in composition_df.columns if col in self.elements]
+        if not elements:
+            raise ValueError("No valid element columns found in composition data")
         
-        # Weighted mean melting point
-        descriptors['weighted_mean_melting_point'] = float(np.sum(clr_coeffs * property_vectors['melting_point']))
+        atomic_masses = self._get_property_values('atomic_mass', elements)
         
-        # Weighted mean valence electron concentration
-        descriptors['weighted_mean_valence_electrons'] = float(np.sum(clr_coeffs * property_vectors['valence_electrons']))
+        # Apply CLR transformation to get weights
+        X = composition_df[elements].values.astype(float)
+        transformer = CLRTransformer(elements=elements)
+        X_clr = transformer.fit_transform(X)
         
-        # Compute variance for each property using CLR coefficients as weights
-        # Variance = sum(w_i * (x_i - mean)^2) where w_i are CLR coefficients
+        # Use absolute values of CLR coefficients as weights (normalized)
+        weights = np.abs(X_clr)
+        weights = weights / weights.sum(axis=1, keepdims=True)
         
-        # Electronegativity variance
-        mean_en = descriptors['weighted_mean_electronegativity']
-        descriptors['electronegativity_variance'] = float(np.sum(clr_coeffs * (property_vectors['electronegativity'] - mean_en)**2))
+        # Compute weighted mean
+        weighted_means = np.sum(weights * atomic_masses, axis=1)
         
-        # Atomic radius variance
-        mean_ar = descriptors['weighted_mean_atomic_radius']
-        descriptors['atomic_radius_variance'] = float(np.sum(clr_coeffs * (property_vectors['atomic_radius'] - mean_ar)**2))
+        return pd.Series(weighted_means, index=composition_df.index, name='weighted_mean_atomic_mass')
+    
+    def compute_electronegativity_variance(self, composition_df: pd.DataFrame) -> pd.Series:
+        """
+        Compute electronegativity variance for each alloy.
+        
+        Uses CLR-transformed coefficients as weights for variance calculation.
+        
+        Args:
+            composition_df: DataFrame with composition columns.
+        
+        Returns:
+            pd.Series: Electronegativity variance for each sample.
+        """
+        elements = [col for col in composition_df.columns if col in self.elements]
+        if not elements:
+            raise ValueError("No valid element columns found")
+        
+        electronegativities = self._get_property_values('electronegativity', elements)
+        
+        X = composition_df[elements].values.astype(float)
+        transformer = CLRTransformer(elements=elements)
+        X_clr = transformer.fit_transform(X)
+        
+        weights = np.abs(X_clr)
+        weights = weights / weights.sum(axis=1, keepdims=True)
+        
+        # Weighted variance
+        weighted_means = np.sum(weights * electronegativities, axis=1)
+        weighted_variances = np.sum(weights * (electronegativities - weighted_means[:, np.newaxis])**2, axis=1)
+        
+        return pd.Series(weighted_variances, index=composition_df.index, name='electronegativity_variance')
+    
+    def compute_atomic_radius_variance(self, composition_df: pd.DataFrame) -> pd.Series:
+        """
+        Compute atomic radius variance for each alloy.
+        
+        Args:
+            composition_df: DataFrame with composition columns.
+        
+        Returns:
+            pd.Series: Atomic radius variance for each sample.
+        """
+        elements = [col for col in composition_df.columns if col in self.elements]
+        if not elements:
+            raise ValueError("No valid element columns found")
+        
+        atomic_radii = self._get_property_values('atomic_radius', elements)
+        
+        X = composition_df[elements].values.astype(float)
+        transformer = CLRTransformer(elements=elements)
+        X_clr = transformer.fit_transform(X)
+        
+        weights = np.abs(X_clr)
+        weights = weights / weights.sum(axis=1, keepdims=True)
+        
+        weighted_means = np.sum(weights * atomic_radii, axis=1)
+        weighted_variances = np.sum(weights * (atomic_radii - weighted_means[:, np.newaxis])**2, axis=1)
+        
+        return pd.Series(weighted_variances, index=composition_df.index, name='atomic_radius_variance')
+    
+    def compute_weighted_melting_point(self, composition_df: pd.DataFrame) -> pd.Series:
+        """
+        Compute weighted average melting point for each alloy.
+        
+        Args:
+            composition_df: DataFrame with composition columns.
+        
+        Returns:
+            pd.Series: Weighted average melting point for each sample.
+        """
+        elements = [col for col in composition_df.columns if col in self.elements]
+        if not elements:
+            raise ValueError("No valid element columns found")
+        
+        melting_points = self._get_property_values('melting_point', elements)
+        
+        X = composition_df[elements].values.astype(float)
+        transformer = CLRTransformer(elements=elements)
+        X_clr = transformer.fit_transform(X)
+        
+        weights = np.abs(X_clr)
+        weights = weights / weights.sum(axis=1, keepdims=True)
+        
+        weighted_means = np.sum(weights * melting_points, axis=1)
+        
+        return pd.Series(weighted_means, index=composition_df.index, name='weighted_melting_point')
+    
+    def compute_valence_electron_concentration(self, composition_df: pd.DataFrame) -> pd.Series:
+        """
+        Compute valence electron concentration for each alloy.
+        
+        Args:
+            composition_df: DataFrame with composition columns.
+        
+        Returns:
+            pd.Series: Valence electron concentration for each sample.
+        """
+        elements = [col for col in composition_df.columns if col in self.elements]
+        if not elements:
+            raise ValueError("No valid element columns found")
+        
+        valence_electrons = self._get_property_values('valence_electrons', elements)
+        
+        # For VEC, we use the actual composition (not CLR) as weights
+        # since VEC is a linear combination
+        compositions = composition_df[elements].values.astype(float)
+        # Normalize compositions to sum to 1
+        compositions = compositions / compositions.sum(axis=1, keepdims=True)
+        
+        vec = np.sum(compositions * valence_electrons, axis=1)
+        
+        return pd.Series(vec, index=composition_df.index, name='valence_electron_concentration')
+    
+    def compute_all_descriptors(self, composition_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Compute all descriptors for the given composition data.
+        
+        Args:
+            composition_df: DataFrame with composition columns.
+        
+        Returns:
+            pd.DataFrame: DataFrame with all computed descriptors.
+        """
+        descriptors = pd.DataFrame(index=composition_df.index)
+        
+        try:
+            descriptors['weighted_mean_atomic_mass'] = self.compute_weighted_mean_atomic_mass(composition_df)
+        except Exception as e:
+            self.logger.error(f"Failed to compute weighted_mean_atomic_mass: {e}")
+        
+        try:
+            descriptors['electronegativity_variance'] = self.compute_electronegativity_variance(composition_df)
+        except Exception as e:
+            self.logger.error(f"Failed to compute electronegativity_variance: {e}")
+        
+        try:
+            descriptors['atomic_radius_variance'] = self.compute_atomic_radius_variance(composition_df)
+        except Exception as e:
+            self.logger.error(f"Failed to compute atomic_radius_variance: {e}")
+        
+        try:
+            descriptors['weighted_melting_point'] = self.compute_weighted_melting_point(composition_df)
+        except Exception as e:
+            self.logger.error(f"Failed to compute weighted_melting_point: {e}")
+        
+        try:
+            descriptors['valence_electron_concentration'] = self.compute_valence_electron_concentration(composition_df)
+        except Exception as e:
+            self.logger.error(f"Failed to compute valence_electron_concentration: {e}")
         
         return descriptors
-        
-    def compute_descriptors_batch(self, df: pd.DataFrame) -> pd.DataFrame:
+    
+    def save_descriptors(self, composition_df: pd.DataFrame, output_path: Optional[str] = None) -> str:
         """
-        Compute descriptors for a batch of compositions.
+        Compute and save descriptors to a file.
         
         Args:
-            df: DataFrame with composition columns (element symbols as column names)
-                        
+            composition_df: DataFrame with composition columns.
+            output_path: Optional path to save the descriptors. If None, uses default.
+        
         Returns:
-            DataFrame with original columns plus computed descriptors
-        """
-        descriptors_list = []
-        
-        for idx, row in df.iterrows():
-            # Extract composition from row
-            composition = {}
-            for col in df.columns:
-                if col in ELEMENTAL_PROPERTIES:
-                    val = row[col]
-                    if pd.notna(val) and val > 0:
-                        composition[col] = float(val)
-            
-            if not composition:
-                self.logger.warning(f"Row {idx} has no valid composition elements")
-                continue
-                
-            try:
-                descriptors = self.compute_descriptors(composition)
-                descriptors_list.append(descriptors)
-            except Exception as e:
-                self.logger.error(f"Error computing descriptors for row {idx}: {str(e)}")
-                descriptors_list.append({prop: np.nan for prop in self.property_names + ['electronegativity_variance', 'atomic_radius_variance']})
-        
-        # Create DataFrame with descriptors
-        descriptors_df = pd.DataFrame(descriptors_list)
-        
-        # Concatenate with original DataFrame
-        result_df = pd.concat([df, descriptors_df], axis=1)
-        
-        return result_df
-        
-    def save_descriptors(self, df: pd.DataFrame, output_path: Optional[str] = None) -> str:
-        """
-        Save computed descriptors to a CSV file.
-        
-        Args:
-            df: DataFrame with compositions and computed descriptors
-            output_path: Optional path to save the file. If None, uses default path.
-                        
-        Returns:
-            Path to the saved file
+            str: Path to the saved file.
         """
         if output_path is None:
-            data_outputs_dir = get_data_outputs_dir()
-            output_path = os.path.join(data_outputs_dir, 'solder_descriptors.csv')
-            
-        # Ensure directory exists
+            processed_dir = get_data_processed_dir()
+            output_path = str(Path(processed_dir) / 'descriptors.csv')
+        
+        descriptors = self.compute_all_descriptors(composition_df)
+        
+        # Ensure output directory exists
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         
-        # Save to CSV
-        df.to_csv(output_path, index=False)
-        self.logger.info(f"Saved descriptors to {output_path}")
+        descriptors.to_csv(output_path, index=False)
+        self.logger.info(f"Descriptors saved to {output_path}")
         
         return output_path
 
 def main():
-    """Main function to run descriptor computation on the validated dataset."""
-    from ..config import get_data_processed_dir
+    """
+    Main function to demonstrate descriptor engineering.
     
-    # Initialize logging
+    This function loads sample data, computes descriptors, and saves them.
+    """
     logging.basicConfig(level=logging.INFO)
     
-    # Load validated dataset
-    data_dir = get_data_processed_dir()
-    input_path = os.path.join(data_dir, 'solder_hardness_validated.csv')
+    # Create a sample composition DataFrame for demonstration
+    # In practice, this would be loaded from data/processed/solder_hardness_validated.csv
+    sample_data = pd.DataFrame({
+        'Sn': [0.63, 0.96, 0.50, 0.70],
+        'Pb': [0.37, 0.04, 0.00, 0.00],
+        'Ag': [0.00, 0.00, 0.50, 0.30],
+        'Cu': [0.00, 0.00, 0.00, 0.00]
+    })
     
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Validated dataset not found at {input_path}")
-        
-    logger.info(f"Loading validated dataset from {input_path}")
-    df = pd.read_csv(input_path)
+    engine = DescriptorEngine(elements=['Sn', 'Pb', 'Ag', 'Cu'])
+    descriptors = engine.compute_all_descriptors(sample_data)
     
-    logger.info(f"Loaded {len(df)} samples")
+    print("Computed Descriptors:")
+    print(descriptors)
     
-    # Initialize descriptor engine
-    engine = DescriptorEngine()
-    
-    # Compute descriptors
-    logger.info("Computing descriptors...")
-    df_with_descriptors = engine.compute_descriptors_batch(df)
-    
-    logger.info(f"Computed descriptors for {len(df_with_descriptors)} samples")
-    
-    # Save results
-    output_path = engine.save_descriptors(df_with_descriptors)
-    logger.info(f"Descriptors saved to {output_path}")
-    
-    # Print summary
-    descriptor_cols = [col for col in df_with_descriptors.columns if col not in df.columns]
-    logger.info(f"Added descriptor columns: {descriptor_cols}")
-    
-    return df_with_descriptors
+    # Save to file
+    output_path = engine.save_descriptors(sample_data)
+    print(f"\nDescriptors saved to: {output_path}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

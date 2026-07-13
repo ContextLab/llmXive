@@ -1,15 +1,18 @@
 """
 Descriptor engineering module for solder alloy composition analysis.
 
-This module provides tools for transforming compositional data and
-engineering predictive descriptors from elemental compositions.
+This module provides tools for transforming raw compositional data
+into predictive features for hardness modeling.
 """
+
 from .transformer import CLRTransformer
 from .descriptor_engine import DescriptorEngine
-from .collinearity import calculate_vif
+from .collinearity import calculate_vif, get_collinear_features, remove_collinear_features
 
 __all__ = [
     'CLRTransformer',
     'DescriptorEngine',
-    'calculate_vif'
+    'calculate_vif',
+    'get_collinear_features',
+    'remove_collinear_features'
 ]

@@ -1,23 +1,45 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "solder-hardness-pipeline"
+version = "0.1.0"
+description = "Predicting the Impact of Composition on the Vickers Hardness of Solder Alloys"
+requires-python = ">=3.9"
+dependencies = []
+
 [tool.black]
 line-length = 100
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 100
-known_first_party = ["seed", "config", "utils", "models", "features", "ingestion", "evaluation", "visualization"]
-skip = [".git", "__pycache__", "build", "dist"]
+known_first_party = ["config", "utils", "seed", "ingestion", "features", "models", "evaluation", "visualization"]
+known_third_party = ["numpy", "pandas", "sklearn", "xgboost", "shap", "matplotlib", "yaml", "requests", "compositional", "pdfplumber", "pytest", "statsmodels"]
+force_single_line = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]

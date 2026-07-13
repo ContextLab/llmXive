@@ -64,7 +64,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/ingest/graph_builder.py` to load XYZ files and construct `AtomicGraph` objects using `ase` with 3.0 Å cutoff (FR-001)
+- [ ] T012 [US1] Implement `code/ingest/graph_builder.py` to load XYZ files and construct `AtomicGraph` objects using `ase` with 3.0 Å cutoff (FR-001) <!-- FAILED: unspecified -->
 - [~] T013 [US1] Implement `code/ingest/sample_generator.py` to fetch or generate pre-equilibrated samples (handling missing data error as per Edge Case)
 - [~] T014 [US1] Add error handling for corrupted/missing input files in `code/ingest/graph_builder.py`: log specific error code 'ERR-001' and halt execution
 - [~] T015 [US1] Implement graph serialization to `data/processed/graphs/` (pickle/parquet) with checksums

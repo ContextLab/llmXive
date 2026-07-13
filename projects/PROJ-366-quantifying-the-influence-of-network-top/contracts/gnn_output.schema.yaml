@@ -1,19 +1,19 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: GNNOutput
-description: Schema for the output of the GNN model training and inference.
+description: Schema for GNN model training outputs, predictions, and feature importance.
 type: object
 required:
   - model_id
   - predictions
-  - metrics
   - feature_importance
+  - metrics
 properties:
   model_id:
     type: string
     description: Unique identifier for the trained model.
   predictions:
     type: array
-    description: List of predictions made by the model.
+    description: List of prediction results per sample.
     items:
       type: object
       required:
@@ -25,51 +25,54 @@ properties:
           type: string
         predicted_value:
           type: number
-          description: Predicted Static Scattering Potential.
         true_value:
           type: number
-          description: Ground truth value.
-        error:
+        residual:
           type: number
-          description: Absolute error.
+  feature_importance:
+    type: object
+    required:
+      - feature_names
+      - importance_scores
+      - method
+    properties:
+      feature_names:
+        type: array
+        items:
+          type: string
+      importance_scores:
+        type: array
+        items:
+          type: number
+      method:
+        type: string
+        description: Method used for importance extraction (e.g., "shap", "permutation").
   metrics:
     type: object
-    description: Model performance metrics.
     required:
-      - mae
       - mse
       - r2
     properties:
-      mae:
-        type: number
-        description: Mean Absolute Error.
       mse:
         type: number
         description: Mean Squared Error.
       r2:
         type: number
         description: R-squared score.
-  feature_importance:
-    type: array
-    description: List of feature importance scores.
-    items:
-      type: object
-      required:
-        - feature_name
-        - importance_score
-      properties:
-        feature_name:
-          type: string
-        importance_score:
-          type: number
-          description: Importance score (e.g., SHAP value).
-  metadata:
+      mae:
+        type: number
+        description: Mean Absolute Error.
+  training_config:
     type: object
-    description: Training metadata.
+    description: Optional training configuration snapshot.
     properties:
-      training_samples:
-        type: integer
       epochs:
         type: integer
-      final_loss:
+      learning_rate:
         type: number
+      batch_size:
+        type: integer
+      hidden_dims:
+        type: array
+        items:
+          type: integer

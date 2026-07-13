@@ -1,1 +1,1 @@
-# Tests package
+# Test package for PROJ-517-neural-correlates-of-anticipatory-reward

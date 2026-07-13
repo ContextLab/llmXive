@@ -1,65 +1,69 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ThermalSample
-description: Schema for a thermal conductivity sample containing graph and simulation results.
+description: Schema for a thermal sample containing graph, conductivity, and metadata.
 type: object
 required:
   - sample_id
-  - graph_id
-  - thermal_conductivity
+  - atomic_graph
+  - conductivity
   - metadata
 properties:
   sample_id:
     type: string
-    description: Unique identifier for the thermal sample.
-  graph_id:
-    type: string
-    description: Reference to the associated AtomicGraph graph_id.
-  thermal_conductivity:
+    description: Unique identifier for the sample.
+  atomic_graph:
     type: object
-    description: Thermal conductivity results.
+    description: Embedded AtomicGraph structure.
+    properties:
+      sample_id:
+        type: string
+      node_count:
+        type: integer
+      edge_count:
+        type: integer
+      cutoff_distance:
+        type: number
+      nodes:
+        type: array
+      edges:
+        type: array
+      metadata:
+        type: object
+  conductivity:
+    type: object
     required:
       - value
       - unit
+      - converged
     properties:
       value:
         type: number
         description: Thermal conductivity value.
       unit:
         type: string
-        enum: ["W/mK"]
-        description: Unit of measurement.
-      method:
-        type: string
-        enum: ["Green-Kubo"]
-        description: Method used to calculate conductivity.
+        description: Unit of measurement (e.g., "W/mK").
       converged:
         type: boolean
         description: Whether the simulation converged.
-      convergence_details:
-        type: object
-        description: Details about convergence if available.
-  topological_metrics:
-    type: object
-    description: Aggregated topological metrics for the sample.
-    properties:
-      avg_degree:
+      error_estimate:
         type: number
-      avg_clustering:
-        type: number
-      avg_path_length:
-        type: number
+        description: Optional error estimate.
   metadata:
     type: object
-    description: Metadata for the sample.
+    required:
+      - simulation_time_ps
+      - checksum
     properties:
-      simulation_time:
+      simulation_time_ps:
         type: number
-      temperature:
-        type: number
-      pressure:
-        type: number
+        description: Simulation duration in picoseconds.
+      checksum:
+        type: string
+        description: SHA256 checksum of the underlying graph data.
+      lmm_version:
+        type: string
       excluded:
         type: boolean
-        description: Whether the sample was excluded due to outliers.
+        description: Whether this sample was excluded due to outliers.
       exclusion_reason:
         type: string

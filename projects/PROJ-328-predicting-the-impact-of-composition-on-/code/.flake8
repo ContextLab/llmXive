@@ -1,13 +1,16 @@
 [flake8]
 max-line-length = 100
-extend-ignore = E203, W503
-exclude = 
-    .git,
-    __pycache__,
-    build,
-    dist,
-    .eggs,
-    *.egg-info
+extend-ignore = E203, E266, W503
+exclude = .git,__pycache__,venv,.venv,build,dist
 per-file-ignores =
-    # Allow unused imports in __init__.py for package exports
-    */__init__.py: F401
+    # Allow imports in __init__.py
+    */__init__.py:F401
+    # Allow unused variables in type stubs or specific config files if needed
+    code/config.py:F401
+inline-quotes = double
+multiline-quotes = double
+docstring-quotes = double
+count = True
+statistics = True
+show-source = True
+max-complexity = 15

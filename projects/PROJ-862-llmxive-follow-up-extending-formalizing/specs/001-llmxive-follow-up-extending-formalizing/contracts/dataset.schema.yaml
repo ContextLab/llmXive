@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Pair Schema"
+description: "Schema for the processed question pairs derived from BigBench."
+type: "object"
+properties:
+  pair_id:
+    type: "string"
+    description: "Unique identifier for the question pair."
+  task_type:
+    type: "string"
+    description: "The BigBench task category."
+  question_a:
+    type: "string"
+    description: "Text of the first question."
+  question_b:
+    type: "string"
+    description: "Text of the second question."
+  expected_answer_a:
+    type: "string"
+    description: "Ground truth answer for question A."
+  expected_answer_b:
+    type: "string"
+    description: "Ground truth answer for question B."
+required:
+  - pair_id
+  - task_type
+  - question_a
+  - question_b
+  - expected_answer_a
+  - expected_answer_b
+additionalProperties: false

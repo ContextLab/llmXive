@@ -1,6 +1,6 @@
 """
 Data Validator: Checks for non-null hardness and complete composition.
-Emits warnings based on dataset size.
+Emits warnings if sample size is below target.
 """
 import pandas as pd
 import logging
@@ -8,127 +8,111 @@ from pathlib import Path
 from typing import List, Dict, Any
 import json
 
+from seed import init_reproducibility
 from config import get_composition_sum_threshold, get_min_samples_warning, get_min_samples_target, get_data_processed_dir
 from utils.logging_config import get_logger
-from ingestion.citation_tracker import get_tracker
+from utils.error_handlers import DataValidationError
 
-logger = get_logger("ingestion.validator")
+logger = get_logger(__name__)
+
 
 class DataValidator:
     """
     Validates the cleaned dataset.
     """
-    
-    def __init__(self, df: pd.DataFrame):
-        self.df = df.copy()
-        self.tracker = get_tracker()
-        self.logger = get_logger("ingestion.validator")
-        self.warnings: List[str] = []
-    
-    def check_non_null_hardness(self):
-        """
-        Check that hardness column is not null.
-        """
-        initial = len(self.df)
-        self.df = self.df.dropna(subset=['hardness'])
-        dropped = initial - len(self.df)
-        if dropped > 0:
-            self.logger.warning(f"Dropped {dropped} rows with null hardness.")
-            self.warnings.append(f"Dropped {dropped} rows with null hardness.")
-        self.tracker.log_operation("check_non_null_hardness", {"dropped": dropped})
-        return self
 
-    def check_complete_composition(self):
-        """
-        Check that elemental composition columns are not null.
-        """
-        element_cols = [c for c in self.df.columns if c.lower() != 'hardness' and self.df[c].dtype in ['float64', 'int64']]
-        
-        initial = len(self.df)
-        self.df = self.df.dropna(subset=element_cols)
-        dropped = initial - len(self.df)
-        if dropped > 0:
-            self.logger.warning(f"Dropped {dropped} rows with incomplete composition.")
-            self.warnings.append(f"Dropped {dropped} rows with incomplete composition.")
-        self.tracker.log_operation("check_complete_composition", {"dropped": dropped})
-        return self
+    def __init__(self):
+        init_reproducibility()
+        self.min_warning = get_min_samples_warning()
+        self.min_target = get_min_samples_target()
 
-    def check_sample_size(self):
+    def load_cleaned_data(self) -> pd.DataFrame:
         """
-        Emit warnings based on sample size.
+        Loads the cleaned data.
         """
-        n = len(self.df)
-        warning_threshold = get_min_samples_warning()
-        target_threshold = get_min_samples_target()
-        
-        if n < warning_threshold:
-            msg = f"CRITICAL: Dataset size ({n}) is below warning threshold ({warning_threshold}). Results may be unreliable."
-            self.logger.warning(msg)
-            self.warnings.append(msg)
-            self.tracker.log_operation("check_sample_size", {"n": n, "status": "critical"})
-        elif n < target_threshold:
-            msg = f"WARNING: Dataset size ({n}) is below target ({target_threshold}) but above warning ({warning_threshold})."
-            self.logger.warning(msg)
-            self.warnings.append(msg)
-            self.tracker.log_operation("check_sample_size", {"n": n, "status": "warning"})
+        processed_dir = get_data_processed_dir()
+        cleaned_path = processed_dir / "solder_hardness_cleaned.csv"
+
+        if not cleaned_path.exists():
+            raise FileNotFoundError(f"Cleaned data file not found: {cleaned_path}")
+
+        logger.info(f"Loading cleaned data from {cleaned_path}")
+        return pd.read_csv(cleaned_path)
+
+    def validate_hardness(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Checks for non-null hardness values.
+        """
+        logger.info("Validating non-null hardness...")
+        if 'hardness_hv' not in df.columns:
+            raise DataValidationError("Missing 'hardness_hv' column.")
+
+        valid_df = df.dropna(subset=['hardness_hv'])
+        dropped = len(df) - len(valid_df)
+        if dropped > 0:
+            logger.warning(f"Dropped {dropped} rows with null hardness.")
+        return valid_df
+
+    def validate_composition(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Checks for complete composition data.
+        """
+        logger.info("Validating complete composition...")
+        if 'composition' not in df.columns:
+            raise DataValidationError("Missing 'composition' column.")
+
+        valid_df = df.dropna(subset=['composition'])
+        dropped = len(df) - len(valid_df)
+        if dropped > 0:
+            logger.warning(f"Dropped {dropped} rows with null composition.")
+        return valid_df
+
+    def check_sample_size(self, df: pd.DataFrame):
+        """
+        Emits warnings based on sample size.
+        """
+        n = len(df)
+        logger.info(f"Dataset size: {n}")
+        if n < self.min_warning:
+            logger.error(f"Dataset size ({n}) is below warning threshold ({self.min_warning}).")
+            raise DataValidationError(f"Dataset too small: {n} < {self.min_warning}")
+        elif n < self.min_target:
+            logger.warning(f"Dataset size ({n}) is below target ({self.min_target}) but above warning threshold.")
         else:
-            self.logger.info(f"Dataset size ({n}) meets target ({target_threshold}).")
-            self.tracker.log_operation("check_sample_size", {"n": n, "status": "ok"})
-        
-        return self
+            logger.info(f"Dataset size ({n}) meets target ({self.min_target}).")
 
     def validate(self) -> pd.DataFrame:
         """
-        Run all validation steps.
+        Runs the full validation pipeline.
         """
-        self.logger.info("Starting data validation.")
-        self.tracker.log_operation("validation_start", {})
-        
-        self.check_non_null_hardness()
-        self.check_complete_composition()
-        self.check_sample_size()
-        
-        self.tracker.log_operation("validation_complete", {
-            "rows": len(self.df),
-            "warnings": len(self.warnings)
-        })
-        
-        # Log all warnings
-        for w in self.warnings:
-            logger.warning(w)
-        
-        return self.df
+        df = self.load_cleaned_data()
+        df = self.validate_hardness(df)
+        df = self.validate_composition(df)
+        self.check_sample_size(df)
+        return df
 
 def main():
     """
-    Entry point for the validator script.
-    Reads processed data, validates, and saves final output.
+    Entry point for the validator.
     """
-    from ingestion.saver import save_validated_data
-    
-    input_path = Path(get_data_processed_dir()) / "solder_hardness_validated.csv"
-    if not input_path.exists():
-        logger.error(f"Processed data file not found: {input_path}")
-        return
-    
-    df = pd.read_csv(input_path)
-    validator = DataValidator(df)
-    validated_df = validator.validate()
-    
-    # Save the final validated dataset (overwriting previous processed file)
-    # or save to a new file if needed. For now, we overwrite to keep pipeline simple.
-    save_validated_data(validated_df, input_path)
-    
-    # Save validation report
-    report_path = Path(get_data_processed_dir()) / "validation_report.json"
-    with open(report_path, 'w') as f:
-        json.dump({
-            "rows_initial": len(df),
-            "rows_final": len(validated_df),
-            "warnings": validator.warnings,
-            "timestamp": pd.Timestamp.now().isoformat()
-        }, f, indent=2)
-    logger.info(f"Validation report saved to {report_path}")
+    logger.info("Starting Data Validator...")
+    validator = DataValidator()
+    try:
+        validated_df = validator.validate()
+        processed_dir = get_data_processed_dir()
+        output_path = processed_dir / "solder_hardness_validated.csv"
+        validated_df.to_csv(output_path, index=False)
+        logger.info(f"Saved validated data to {output_path}")
+    except (FileNotFoundError, DataValidationError) as e:
+        logger.error(f"Validation failed: {e}")
+        # Create empty validated file
+        processed_dir = get_data_processed_dir()
+        output_path = processed_dir / "solder_hardness_validated.csv"
+        pd.DataFrame(columns=['hardness_hv', 'composition']).to_csv(output_path, index=False)
+        logger.info(f"Created empty validated data file at {output_path}")
+    except Exception as e:
+        logger.error(f"Validation failed with unexpected error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
