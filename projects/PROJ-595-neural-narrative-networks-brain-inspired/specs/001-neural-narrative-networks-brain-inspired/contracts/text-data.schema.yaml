@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Narrative Text Data Contract"
+description: "Schema for processed story corpus."
+type: object
+properties:
+  file_path:
+    type: string
+    description: "Relative path to the .jsonl file."
+  total_stories:
+    type: integer
+    minimum: 1
+    description: "Total number of stories in the file."
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "Number of stories used in the experiment."
+  format:
+    type: string
+    const: "jsonl"
+    description: "File format."
+  checksum:
+    type: string
+    description: "SHA-256 hash of the file content."
+required:
+  - file_path
+  - total_stories
+  - sample_size
+  - format
+  - checksum
+additionalProperties: false

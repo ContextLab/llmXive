@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Neural Timecourse Data Contract"
+description: "Schema for preprocessed fMRI BOLD timecourse data."
+type: object
+properties:
+  file_path:
+    type: string
+    description: "Relative path to the .npy file."
+  subject_id:
+    type: string
+    description: "Unique subject identifier (e.g., sub-001)."
+  roi:
+    type: string
+    enum:
+      - "hippocampus_left"
+      - "hippocampus_right"
+      - "dlpfc_left"
+      - "dlpfc_right"
+    description: "Anatomical region of interest."
+  shape:
+    type: array
+    items:
+      type: integer
+    minItems: 2
+    maxItems: 2
+    description: "Dimensions of the array: [n_timepoints, n_voxels]."
+  checksum:
+    type: string
+    description: "SHA-256 hash of the file content."
+required:
+  - file_path
+  - subject_id
+  - roi
+  - shape
+  - checksum
+additionalProperties: false

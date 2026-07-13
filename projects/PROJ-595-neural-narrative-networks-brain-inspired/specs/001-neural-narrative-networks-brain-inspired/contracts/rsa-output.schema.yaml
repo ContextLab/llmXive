@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RSA Analysis Output Contract"
+description: "Schema for RSA matrices and permutation test results."
+type: object
+properties:
+  rsa_matrix:
+    type: object
+    properties:
+      file_path:
+        type: string
+      model_type:
+        type: string
+        enum: ["brain_inspired", "baseline_sae"]
+      roi:
+        type: string
+      similarity_metric:
+        type: string
+        const: "pearson_correlation"
+      shape:
+        type: array
+        items:
+          type: integer
+    required:
+      - file_path
+      - model_type
+      - roi
+      - similarity_metric
+      - shape
+  permutation_result:
+    type: object
+    properties:
+      observed_difference:
+        type: number
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+      permutations:
+        type: integer
+        const: 10000
+      convergence_variance:
+        type: number
+      is_significant:
+        type: boolean
+    required:
+      - observed_difference
+      - p_value
+      - permutations
+      - convergence_variance
+      - is_significant
+required:
+  - rsa_matrix
+  - permutation_result
+additionalProperties: false

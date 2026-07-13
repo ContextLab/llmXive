@@ -1,0 +1,566 @@
+resolved_at: '2026-07-13T16:04:18.846570+00:00'
+datasets:
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://curate.nd.edu/articles/journal_contribution/Bisulfite_sequencing_with_Daphnia_highlights_a_role_for_epigenetics_in_regulating_stress_response_to_Microcystis_through_preferential_differential_methylation_of_serine_and_threonine_amino_acids/32350974
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yorksj.figshare.com/articles/book/Ripon_Training_College_Association_Magazine_1904/32974073
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Molecular_surveillance_and_genetic_diversity_of_Klossiella_equi_in_European_equids_using_kidney_and_urine_samples_xlsx/32975747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Identification_and_characterization_of_non-canonical_azole_antifungal_resistance_pathways_in_b_b_i_Aspergillus_fumigatus_i_b_/32975738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/journal_contribution/Temporal_genetic_stability_in_natural_populations_of_the_waterflea_Daphnia_magna_in_response_to_strong_selection_pressure/32350971
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19435085
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21330856
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21330856
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008101/versions/1.0.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008101/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007629/versions/1.1.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROCStories
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/umerah/RocStories-Splits/resolve/main/data/train-00000-of-00001-c17b7a9172e87209.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/wza/roc_stories/resolve/main/ROCStories__spring2016.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/aummthaker/ROC-Stories-modified/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/wza/roc_stories/resolve/main/ROCStories__spring2016.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/umerah/RocStories-Splits/resolve/main/data/train-00000-of-00001-c17b7a9172e87209.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/mintujupally/ROCStories/db6629716bd11c0d45bcb2fddc1b4bd6c35d8faa/test.txt?%2Fdatasets%2Fmintujupally%2FROCStories%2Fresolve%2Fmain%2Ftest.txt=&etag=%2286321c883b16ff36e31047329a62a1135ddb926c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/aummthaker/ROC-Stories-modified/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/Case_Report_Extreme_Metabolic_and_Immunological_Resilience_Phenotype_Exhibiting_Absolute_Suppression_of_Inflammaging_Under_Sustained_Substrate_Stress/32975669
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Analisis_Lintas_Kasus_Kelemahan_Keamanan_pada_Aplikasi_Modern_Berpusat_Klien_Klasifikasi_OWASP_Top_10_dengan_Pemodelan_Ancaman_STRIDE_dan_Penilaian_Risiko_CVSS_v3_1/32969369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Perancangan_Kerangka_Kerja_Procedural_Map_Generation_Berbasis_Modular-Rule_untuk_Optimasi_Performa_Runtime_pada_Game_Tactical_Shooter_b_/32975741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/thesis/Neuromuscular_Adaptations_to_Training_in_Children_with_Cerebral_Palsy/32973095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/journal_contribution/Bisulfite_sequencing_with_Daphnia_highlights_a_role_for_epigenetics_in_regulating_stress_response_to_Microcystis_through_preferential_differential_methylation_of_serine_and_threonine_amino_acids/32350974
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/s00354-020-00111-1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15715904
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20787477
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20787477
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/138176-what-am-i-missing-herequestion-evaluating-large-language-models-for-masked-sentence-prediction
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.15557
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/147054-contrastive-learning-with-narrative-twins-for-modeling-story-salience
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Chaymaa/roi_donut/resolve/main/data/test-00000-of-00001-5bc4803f5339d8ed.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Chaymaa/roi_counters/resolve/main/data/test-00000-of-00001-2fbc0f95fa10338e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dragosnicolae555/RoITD/resolve/main/final_dataset_clean.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/dragosnicolae555/RoITD/resolve/main/final_dataset_clean.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Chaymaa/roi_donut/resolve/main/data/test-00000-of-00001-5bc4803f5339d8ed.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Chaymaa/roi_counters/resolve/main/data/test-00000-of-00001-2fbc0f95fa10338e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROIM/temporal-alignment-qa/resolve/main/data/dev.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/preprint/Case_Report_Extreme_Metabolic_and_Immunological_Resilience_Phenotype_Exhibiting_Absolute_Suppression_of_Inflammaging_Under_Sustained_Substrate_Stress/32975669
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Analisis_Lintas_Kasus_Kelemahan_Keamanan_pada_Aplikasi_Modern_Berpusat_Klien_Klasifikasi_OWASP_Top_10_dengan_Pemodelan_Ancaman_STRIDE_dan_Penilaian_Risiko_CVSS_v3_1/32969369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Perancangan_Kerangka_Kerja_Procedural_Map_Generation_Berbasis_Modular-Rule_untuk_Optimasi_Performa_Runtime_pada_Game_Tactical_Shooter_b_/32975741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/thesis/Neuromuscular_Adaptations_to_Training_in_Children_with_Cerebral_Palsy/32973095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/journal_contribution/Bisulfite_sequencing_with_Daphnia_highlights_a_role_for_epigenetics_in_regulating_stress_response_to_Microcystis_through_preferential_differential_methylation_of_serine_and_threonine_amino_acids/32350974
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/25981
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/23744
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.31866/2410-1176.49.2023.293297
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPConnectionPool(host=''arts-series-knukim.pp.ua'',
+      port=80): Max retries exceeded with url: /article/view/293297 (Caused by NameResolutionError("HTTPConnection(host=''arts-series-knukim.pp.ua'',
+      port=80): Failed to resolve ''arts-series-knukim.pp.ua'' ([Errno -2] Name or
+      service not known)"))'
+  - url: https://zenodo.org/records/14027304
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14287862
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unimore.it/handle/11380/1209407
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dlc.library.columbia.edu/catalog/10.7916/D8378S1C
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20681690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20681690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21339806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BOLD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AmazonScience/bold/resolve/main/gender_prompt_wiki.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lighteval/bold_helm/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 32169
+      parsed: true
+  - url: https://huggingface.co/datasets/LofiAmazon/BOLD-Embeddings/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AmazonScience/bold/resolve/main/gender_prompt_wiki.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/lighteval/bold_helm/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/jashmehta3300/social-injection-bold/21d113bdc6d2e6131b57bbaf8d50a99aaab04c61/bold_dataset.csv?%2Fdatasets%2Fjashmehta3300%2Fsocial-injection-bold%2Fresolve%2Fmain%2Fbold_dataset.csv=&etag=%22ee47c0c64e5cb3c4641608209f069b94cfacc3ca%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/boldvoice/l2_arctic/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/LofiAmazon/BOLD-Embeddings/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Case_Report_Extreme_Metabolic_and_Immunological_Resilience_Phenotype_Exhibiting_Absolute_Suppression_of_Inflammaging_Under_Sustained_Substrate_Stress/32975669
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Analisis_Lintas_Kasus_Kelemahan_Keamanan_pada_Aplikasi_Modern_Berpusat_Klien_Klasifikasi_OWASP_Top_10_dengan_Pemodelan_Ancaman_STRIDE_dan_Penilaian_Risiko_CVSS_v3_1/32969369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Perancangan_Kerangka_Kerja_Procedural_Map_Generation_Berbasis_Modular-Rule_untuk_Optimasi_Performa_Runtime_pada_Game_Tactical_Shooter_b_/32975741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/thesis/Neuromuscular_Adaptations_to_Training_in_Children_with_Cerebral_Palsy/32973095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/journal_contribution/Bisulfite_sequencing_with_Daphnia_highlights_a_role_for_epigenetics_in_regulating_stress_response_to_Microcystis_through_preferential_differential_methylation_of_serine_and_threonine_amino_acids/32350974
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/28843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7105076
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7095520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/28835
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/28844
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/12501-a-riemannian-framework-for-detecting-stimulus-relevant-fiber-pathways
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/119454-the-representational-space-of-symbolic-numbers-from-integers-to-fractions
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19940908
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19940908
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rucore.libraries.rutgers.edu/rutgers-lib/76207/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROIs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ROI-su7/eval_act_koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3724
+      parsed: true
+  - url: https://huggingface.co/datasets/ROI-su7/koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 33951
+      parsed: true
+  - url: https://huggingface.co/datasets/ROI-su7/koch_classification/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ROI-su7/eval_act_koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/koch_classification/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/smolvla_classfication/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/eval_smolvla_classification/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Case_Report_Extreme_Metabolic_and_Immunological_Resilience_Phenotype_Exhibiting_Absolute_Suppression_of_Inflammaging_Under_Sustained_Substrate_Stress/32975669
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Analisis_Lintas_Kasus_Kelemahan_Keamanan_pada_Aplikasi_Modern_Berpusat_Klien_Klasifikasi_OWASP_Top_10_dengan_Pemodelan_Ancaman_STRIDE_dan_Penilaian_Risiko_CVSS_v3_1/32969369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Perancangan_Kerangka_Kerja_Procedural_Map_Generation_Berbasis_Modular-Rule_untuk_Optimasi_Performa_Runtime_pada_Game_Tactical_Shooter_b_/32975741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/thesis/Neuromuscular_Adaptations_to_Training_in_Children_with_Cerebral_Palsy/32973095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/journal_contribution/Bisulfite_sequencing_with_Daphnia_highlights_a_role_for_epigenetics_in_regulating_stress_response_to_Microcystis_through_preferential_differential_methylation_of_serine_and_threonine_amino_acids/32350974
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7870529
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3971660
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6415420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/4462429/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20271100
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unitn.it/handle/11572/264971
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341169
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341055
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dlc.library.columbia.edu/catalog/10.7916/D82F94VD
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.sesame.org.jo/10.82254/sesame-sed-20240085
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RSA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/rsalshalan/MGB3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/rsalshalan/MGB3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/HTS-Oracle_v2_Prospective_Ai-Guided_Discovery_and_Experimental_Validation_of_Small_Molecule_Modulators_Across_Multiple_Targets/32975760
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data/32975723
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Case_Report_Extreme_Metabolic_and_Immunological_Resilience_Phenotype_Exhibiting_Absolute_Suppression_of_Inflammaging_Under_Sustained_Substrate_Stress/32975669
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Analisis_Lintas_Kasus_Kelemahan_Keamanan_pada_Aplikasi_Modern_Berpusat_Klien_Klasifikasi_OWASP_Top_10_dengan_Pemodelan_Ancaman_STRIDE_dan_Penilaian_Risiko_CVSS_v3_1/32969369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Perancangan_Kerangka_Kerja_Procedural_Map_Generation_Berbasis_Modular-Rule_untuk_Optimasi_Performa_Runtime_pada_Game_Tactical_Shooter_b_/32975741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1043376
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3738633
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3811201
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3738627
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3811203
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929536
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20642536
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20642536
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/27308-discovering-computational-principles-in-models-and-brains
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/119691-non-literal-understanding-of-number-words-by-language-models
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
