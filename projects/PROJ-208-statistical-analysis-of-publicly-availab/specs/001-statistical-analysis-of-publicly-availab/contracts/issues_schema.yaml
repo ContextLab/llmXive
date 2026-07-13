@@ -1,0 +1,75 @@
+# Schema for Raw Issue Data (API Response)
+# Used by utils.validators to validate JSON responses before processing
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: GitHubIssue
+type: object
+required:
+  - id
+  - number
+  - state
+  - created_at
+  - updated_at
+  - repository
+  - user
+properties:
+  id:
+    type: integer
+    description: GitHub Issue ID
+  number:
+    type: integer
+    description: Issue number
+  state:
+    type: string
+    enum:
+      - open
+      - closed
+  title:
+    type: string
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time
+  closed_at:
+    type: ["string", "null"]
+    format: date-time
+    description: Can be null if issue is open
+  user:
+    type: object
+    required:
+      - login
+    properties:
+      login:
+        type: string
+  assignee:
+    type: ["object", "null"]
+    properties:
+      login:
+        type: string
+  repository:
+    type: object
+    required:
+      - full_name
+      - language
+    properties:
+      full_name:
+        type: string
+        description: owner/name format
+      language:
+        type: ["string", "null"]
+        description: Primary programming language
+  labels:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+  comments:
+    type: integer
+    minimum: 0
+  pull_request:
+    type: ["object", "null"]
+    description: Present if the issue is a PR

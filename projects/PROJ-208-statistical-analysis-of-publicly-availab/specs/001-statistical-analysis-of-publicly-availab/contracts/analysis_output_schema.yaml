@@ -1,0 +1,306 @@
+# Analysis Output Schema Contract
+# Version: 1.0.0
+# This schema defines the structure for analysis output files
+
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "Analysis Output Schema"
+description: "Schema for statistical analysis output files"
+
+# Distribution Metrics Schema
+distribution_metrics:
+  type: object
+  required:
+    - fit_results
+    - outlier_analysis
+    - summary_statistics
+  properties:
+    fit_results:
+      type: array
+      description: "Results of distribution fitting"
+      items:
+        type: object
+        required:
+          - distribution
+          - parameters
+          - ks_statistic
+          - p_value
+          - aic
+        properties:
+          distribution:
+            type: string
+            enum:
+              - lognormal
+              - weibull
+              - gamma
+            description: "Name of the fitted distribution"
+          parameters:
+            type: object
+            description: "Fitted parameters"
+          ks_statistic:
+            type: number
+            minimum: 0
+            description: "Kolmogorov-Smirnov statistic"
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "KS test p-value"
+          aic:
+            type: number
+            description: "Akaike Information Criterion"
+          bic:
+            type: number
+            description: "Bayesian Information Criterion"
+
+    outlier_analysis:
+      type: object
+      required:
+        - threshold_days
+        - outlier_count
+        - outlier_percentage
+      properties:
+        threshold_days:
+          type: integer
+          minimum: 1
+          description: "Outlier threshold in days"
+        outlier_count:
+          type: integer
+          minimum: 0
+        outlier_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        outlier_issues:
+          type: array
+          items:
+            type: object
+            properties:
+              issue_id:
+                type: integer
+              resolution_time_hours:
+                type: number
+
+    summary_statistics:
+      type: object
+      required:
+        - count
+        - mean
+        - median
+        - std
+        - min
+        - max
+        - q1
+        - q3
+      properties:
+        count:
+          type: integer
+        mean:
+          type: number
+        median:
+          type: number
+        std:
+          type: number
+        min:
+          type: number
+        max:
+          type: number
+        q1:
+          type: number
+        q3:
+          type: number
+
+# Hypothesis Testing Schema
+hypothesis_results:
+  type: object
+  required:
+    - group_comparison
+    - post_hoc
+    - mixed_effects
+  properties:
+    group_comparison:
+      type: object
+      required:
+        - test_type
+        - statistic
+        - p_value
+      properties:
+        test_type:
+          type: string
+          enum:
+            - kruskal-wallis
+            - anova
+        statistic:
+          type: number
+        p_value:
+          type: number
+        degrees_of_freedom:
+          type: integer
+
+    post_hoc:
+      type: object
+      required:
+        - correction_method
+        - comparisons
+      properties:
+        correction_method:
+          type: string
+          enum:
+            - holm-bonferroni
+            - bonferroni
+            - fdr
+        comparisons:
+          type: array
+          items:
+            type: object
+            properties:
+              group1:
+                type: string
+              group2:
+                type: string
+              p_value:
+                type: number
+              adjusted_p_value:
+                type: number
+              significant:
+                type: boolean
+
+    mixed_effects:
+      type: object
+      required:
+        - formula
+        - fixed_effects
+        - random_effects
+        - model_fit
+      properties:
+        formula:
+          type: string
+        fixed_effects:
+          type: array
+          items:
+            type: object
+            properties:
+              term:
+                type: string
+              estimate:
+                type: number
+              std_error:
+                type: number
+              t_value:
+                type: number
+              p_value:
+                type: number
+        random_effects:
+          type: array
+          items:
+            type: object
+            properties:
+              group:
+                type: string
+              variance:
+                type: number
+              std_dev:
+                type: number
+        model_fit:
+          type: object
+          properties:
+            aic:
+              type: number
+            bic:
+              type: number
+            log_likelihood:
+              type: number
+            n_obs:
+              type: integer
+            n_groups:
+              type: integer
+
+# Cross-validation Schema
+cross_validation_results:
+  type: object
+  required:
+    - metrics
+    - folds
+  properties:
+    metrics:
+      type: object
+      required:
+        - mae
+        - rmse
+        - r2
+      properties:
+        mae:
+          type: number
+          description: "Mean Absolute Error"
+        rmse:
+          type: number
+          description: "Root Mean Squared Error"
+        r2:
+          type: number
+          description: "R-squared"
+        std_mae:
+          type: number
+        std_rmse:
+          type: number
+        std_r2:
+          type: number
+    folds:
+      type: integer
+      minimum: 2
+      description: "Number of CV folds"
+    method:
+      type: string
+      description: "Cross-validation method (e.g., leave-one-repository-out)"
+
+# Collinearity Diagnostics Schema
+collinearity_results:
+  type: object
+  required:
+    - vif_scores
+    - collinearity_flagged
+  properties:
+    vif_scores:
+      type: object
+      additionalProperties:
+        type: number
+        minimum: 1
+      description: "Variance Inflation Factor for each predictor"
+    collinearity_flagged:
+      type: boolean
+      description: "True if any VIF >= 5"
+    flagged_vars:
+      type: array
+      items:
+        type: string
+      description: "Variables with VIF >= 5"
+
+# Sensitivity Analysis Schema
+sensitivity_results:
+  type: object
+  required:
+    - cutoffs
+    - fp_rates
+    - fn_rates
+  properties:
+    cutoffs:
+      type: array
+      items:
+        type: number
+      description: "List of cutoff thresholds tested"
+    fp_rates:
+      type: array
+      items:
+        type: number
+        minimum: 0
+        maximum: 1
+      description: "False positive rates for each cutoff"
+    fn_rates:
+      type: array
+      items:
+        type: number
+        minimum: 0
+        maximum: 1
+      description: "False negative rates for each cutoff"
+    optimal_cutoff:
+      type: number
+      description: "Cutoff minimizing FP + FN"

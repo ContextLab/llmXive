@@ -1,0 +1,102 @@
+# Repository Metadata Schema Contract
+# Version: 1.0.0
+# This schema defines the structure for repository metadata
+
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "GitHub Repository Metadata Schema"
+description: "Schema for repository metadata collected from GitHub API"
+
+required:
+  - repositories
+  - count
+  - collected_at
+
+properties:
+  repositories:
+    type: array
+    description: "List of repository records"
+    items:
+      type: object
+      required:
+        - repo_id
+        - full_name
+        - owner
+        - name
+        - language
+        - created_at
+      properties:
+        repo_id:
+          type: integer
+          description: "Unique internal identifier"
+        full_name:
+          type: string
+          description: "Full name (owner/repo)"
+          pattern: "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"
+        owner:
+          type: string
+          description: "Repository owner"
+        name:
+          type: string
+          description: "Repository name"
+        language:
+          type: ["string", "null"]
+          description: "Primary programming language"
+        created_at:
+          type: string
+          format: date-time
+          description: "Repository creation timestamp"
+        stargazers_count:
+          type: integer
+          minimum: 0
+        forks_count:
+          type: integer
+          minimum: 0
+        open_issues_count:
+          type: integer
+          minimum: 0
+        archived:
+          type: boolean
+          description: "Whether repository is archived"
+        private:
+          type: boolean
+          description: "Whether repository is private (should be false for public data)"
+        url:
+          type: string
+          format: uri
+          description: "GitHub API URL for the repository"
+
+  count:
+    type: integer
+    minimum: 0
+    description: "Total number of repositories"
+
+  collected_at:
+    type: string
+    format: date-time
+    description: "Timestamp when data was collected"
+
+  source:
+    type: string
+    description: "Data source (e.g., 'GitHub API v3')"
+
+# Validation rules
+validation_rules:
+  - name: "unique_full_name"
+    description: "Each repository must have a unique full_name"
+    condition: "unique(repositories.full_name)"
+
+  - name: "valid_language"
+    description: "Language must be non-empty string or null"
+    condition: "language is null or (language != '')"
+
+  - name: "archived_filter"
+    description: "Archived repositories should be excluded from analysis"
+    condition: "archived == false"
+    action: "filter"
+
+# Minimum requirements
+minimum_requirements:
+  count:
+    min: 100
+    description: "Must collect at least 100 repositories"

@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T011** — The CSV file exists and contains no obvious missing fields, but there is no accompanying checksum file (e.g., `.sha256` or similar) and no evidence that a ≥95 % completeness check was performed or reported. Both are required to satisfy the task.
+- **T012** — The required artifact `data/logs/preprocessing.log` does not exist, so no JSON‑formatted log entries for excluded issues are present. The implementer must create the log file and ensure that issues with negative resolution times or missing timestamps are logged in JSON as specified.
+- **T013** — No evidence of a `tests/unit/test_transforms.py` file containing a unit test for log‑transform handling of zero values was provided; the claim lacks any artifact to inspect, so the requirement is not satisfied.
+- **T014** — No evidence of a `tests/integration/test_distributions.py` file containing an integration test for the distribution fitting output format was provided; the artifact is missing, so the requirement cannot be confirmed as satisfied.
+- **T015** — The provided `distribution_fitting.py` contains data loading and parametric fitting logic, but the excerpt shows no function that creates an ECDF plot, nor any use of a logarithmic x‑axis for such a plot. Consequently the required ECDF generation (with log‑scaled x‑axis) is missing. The next implementer must add code that computes the empirical cumulative distribution, plots it (e.g., via `matplotlib` or `seaborn`), and sets `ax.set_xscale('log')`.
+- **T016** — No code, data, or report files were provided that demonstrate fitting log‑normal and Weibull models with scipy.stats, nor any KS statistic, p‑value, or AIC outputs. Without these artifacts the requirement cannot be confirmed as satisfied.

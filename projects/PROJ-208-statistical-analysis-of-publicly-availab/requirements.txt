@@ -1,21 +1,13 @@
-# PROJ-208: Statistical Analysis of GitHub Issue Resolution Times
-# Task T006: Schema validators setup - adds no new dependencies
-# All required packages already in T002 requirements
-
-# Core data processing
+# Core dependencies
 requests>=2.31.0
 pandas>=2.0.0
 numpy>=1.24.0
 scipy>=1.11.0
 statsmodels>=0.14.0
 pymer4>=0.8.0
-
-# Visualization
 matplotlib>=3.7.0
 seaborn>=0.12.0
-
-# Configuration and serialization
-pyyaml>=6.0.0
+pyyaml>=6.0
 
 # Testing
 pytest>=7.4.0

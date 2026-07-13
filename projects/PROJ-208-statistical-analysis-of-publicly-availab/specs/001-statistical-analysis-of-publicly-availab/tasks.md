@@ -65,8 +65,8 @@ description: "Task list template for feature implementation"
 - [X] T004 Create configuration manager in code/utils/config.py (random seeds, paths, thresholds)
 - [X] T005 [P] Implement GitHub API client with rate limit handling and exponential backoff in code/utils/api_client.py (FR-001)
 - [X] T006 [P] Setup schema validators against contracts/ in code/utils/validators.py (SC-001)
-- [ ] T027 [P] Create documentation: data-model.md (entity definitions), contracts/ (schema YAML files) per plan.md Phase 1 outputs
-- [ ] T039 [P] Implement Reference-Validator Agent with checkpoint execution verification at artifact write, Advancement-Evaluator, and research_review→research_accepted transition (Constitution Principle II)
+- [X] T027 [P] Create documentation: data-model.md (entity definitions), contracts/ (schema YAML files) per plan.md Phase 1 outputs
+- [X] T039 [P] Implement Reference-Validator Agent with checkpoint execution verification at artifact write, Advancement-Evaluator, and research_review→research_accepted transition (Constitution Principle II)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,13 +82,13 @@ description: "Task list template for feature implementation"
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T007 [P] [US1] Contract test for dataset schema in tests/contract/test_dataset_schema.py
-- [ ] T008 [P] [US1] Integration test for API fetch with rate limit simulation in tests/integration/test_api_fetch.py
+- [X] T007 [P] [US1] Contract test for dataset schema in tests/contract/test_dataset_schema.py
+- [X] T008 [P] [US1] Integration test for API fetch with rate limit simulation in tests/integration/test_api_fetch.py
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement issue fetcher in code/collect/fetch_issues.py (FR-001, FR-003) with enforcement of ≥100 repository minimum
-- [ ] T010 [US1] Implement preprocessing script in code/collect/preprocess.py to compute resolution_time_hours and exclude invalid issues (FR-002, FR-003)
+- [X] T009 [US1] Implement issue fetcher in code/collect/fetch_issues.py (FR-001, FR-003) with enforcement of ≥100 repository minimum
+- [X] T010 [US1] Implement preprocessing script in code/collect/preprocess.py to compute resolution_time_hours and exclude invalid issues (FR-002, FR-003)
 - [ ] T011 [US1] Save cleaned dataset to data/processed/cleaned_issues.csv with checksum AND validate ≥95% completeness threshold per SC-001
 - [ ] T012 [US1] Add logging for excluded issues (negative resolution time, missing timestamps) to data/logs/preprocessing.log in JSON format (FR-003)
 
@@ -111,8 +111,8 @@ description: "Task list template for feature implementation"
 
 - [ ] T015 [P] [US2] Implement ECDF plot generation in code/analysis/distribution_fitting.py (x-axis log scale) (FR-002)
 - [ ] T016 [US2] Fit log-normal and Weibull models using scipy.stats and report KS statistic, p-value, AIC (FR-002)
-- [ ] T017 [US2] Detect and report extreme outliers (>30 days) with percentage of total dataset (FR-002)
-- [ ] T018 [US2] Save figures to data/figures/ and results to data/processed/distribution_metrics.json (SC-002)
+- [~] T017 [US2] Detect and report extreme outliers (>30 days) with percentage of total dataset (FR-002)
+- [~] T018 [US2] Save figures to data/figures/ and results to data/processed/distribution_metrics.json (SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,15 +126,15 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US3] Contract test for analysis output schema in tests/contract/test_analysis_schema.py
-- [ ] T020 [P] [US3] Integration test for mixed-effects model convergence in tests/integration/test_mixed_effects.py
+- [~] T019 [P] [US3] Contract test for analysis output schema in tests/contract/test_analysis_schema.py
+- [~] T020 [P] [US3] Integration test for mixed-effects model convergence in tests/integration/test_mixed_effects.py
 
 ### Implementation for User Story 3
 
-- [ ] T021 [P] [US3] Implement Kruskal-Wallis test for programming language groups with Holm-Bonferroni correction in code/analysis/hypothesis_testing.py (FR-004)
-- [ ] T022 [P] [US3] Fit linear mixed-effects model with random intercepts for repository in code/analysis/mixed_effects_model.py (FR-005)
-- [ ] T023 [US3] Implement leave-one-repository-out cross-validation for MAE and R² metrics (SC-004)
-- [ ] T024 [US3] Calculate VIF from full model design matrix, flag collinearity (VIF≥5), and enforce descriptive language for joint relationship (not independent effects) in code/diagnostics/collinearity.py (FR-006)
+- [~] T021 [P] [US3] Implement Kruskal-Wallis test for programming language groups with Holm-Bonferroni correction in code/analysis/hypothesis_testing.py (FR-004)
+- [~] T022 [P] [US3] Fit linear mixed-effects model with random intercepts for repository in code/analysis/mixed_effects_model.py (FR-005)
+- [~] T023 [US3] Implement leave-one-repository-out cross-validation for MAE and R² metrics (SC-004)
+- [~] T024 [US3] Calculate VIF from full model design matrix, flag collinearity (VIF≥5), and enforce descriptive language for joint relationship (not independent effects) in code/diagnostics/collinearity.py (FR-006)
 - [ ] T025 [US3] Perform sensitivity analysis sweeping a range of cutoffs, calculate false-positive/false-negative rates, and report threshold sensitivity (status changes) in code/diagnostics/sensitivity_analysis.py (FR-007)
 - [ ] T026 [US3] Enforce "associational" or "correlational" language in all result text generation in code/analysis/results.py (FR-008)
 
